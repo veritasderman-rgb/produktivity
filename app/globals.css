@@ -134,6 +134,130 @@ body {
 
 .tabular { font-variant-numeric: tabular-nums; }
 
+/* ---------- Infografiky (ig-*) ---------- */
+.ig { margin: 2em 0; }
+.ig-title {
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--faint); margin-bottom: 14px;
+}
+.ig-note { font-size: 13px; color: var(--faint); margin-top: 12px; max-width: 60ch; }
+
+/* Stats — velká čísla */
+.ig-stats { display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 640px) { .ig-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ig-stat {
+  display: flex; flex-direction: column; gap: 4px;
+  background: var(--card); border: 1px solid var(--hairline-strong); padding: 18px 16px 14px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.ig-stat:hover { transform: translateY(-3px); box-shadow: 0 4px 0 var(--key-shadow); }
+.ig-stat-value {
+  font-weight: 850; font-stretch: 115%; font-size: clamp(26px, 3.4vw, 36px); line-height: 1;
+  color: var(--ink); position: relative; padding-bottom: 8px;
+}
+.ig-stat-value::after {
+  content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: 22px;
+  background: var(--accent); transition: width 0.25s ease;
+}
+.ig-stat:hover .ig-stat-value::after { width: 100%; }
+.ig-stat-label { font-size: 13.5px; font-weight: 700; color: var(--ink); line-height: 1.3; }
+.ig-stat-sub { font-size: 12.5px; color: var(--faint); line-height: 1.4; }
+
+/* Timeline */
+.ig-timeline { list-style: none; margin: 0; padding: 0; }
+.ig-tl-row {
+  display: grid; grid-template-columns: 72px 20px minmax(0, 1fr); gap: 0 10px;
+  position: relative; padding: 10px 6px; margin: 0 !important;
+  transition: background 0.15s ease;
+}
+.ig-tl-row:hover { background: var(--card); }
+.ig-tl-row::before {
+  content: ""; position: absolute; left: calc(72px + 10px + 9px); top: 0; bottom: 0;
+  width: 2px; background: var(--hairline);
+}
+.ig-tl-row:first-child::before { top: 50%; }
+.ig-tl-row:last-child::before { bottom: 50%; }
+.ig-tl-time { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--faint); text-align: right; align-self: center; }
+.ig-tl-dot {
+  width: 12px; height: 12px; border-radius: 50%; background: var(--paper);
+  border: 3px solid var(--accent); align-self: center; justify-self: center; z-index: 1;
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+.ig-tl-row:hover .ig-tl-dot { transform: scale(1.35); background: var(--accent); }
+.ig-tl-body { display: flex; flex-direction: column; gap: 1px; }
+.ig-tl-title { font-size: 14.5px; font-weight: 700; color: var(--ink); transition: color 0.15s ease; }
+.ig-tl-row:hover .ig-tl-title { color: var(--accent); }
+.ig-tl-desc { font-size: 13px; color: var(--muted); line-height: 1.45; }
+
+/* Bars */
+.ig-bars { display: flex; flex-direction: column; gap: 10px; }
+.ig-bar-row {
+  display: grid; grid-template-columns: minmax(90px, 170px) minmax(0, 1fr) 64px;
+  gap: 12px; align-items: center; padding: 2px 4px;
+}
+.ig-bar-label { font-size: 13.5px; font-weight: 600; color: var(--ink); line-height: 1.25; }
+.ig-bar-track { display: block; height: 14px; background: var(--card); border: 1px solid var(--hairline); border-radius: 4px; overflow: hidden; }
+.ig-bar-fill {
+  display: block; height: 100%; background: var(--accent); border-radius: 0 4px 4px 0;
+  transform-origin: left center; transition: filter 0.15s ease, transform 0.2s ease;
+}
+.ig-bar-row:hover .ig-bar-fill { filter: brightness(1.18); transform: scaleY(1.12); }
+.ig-bar-value { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--muted); text-align: right; }
+.ig-bar-row:hover .ig-bar-value { color: var(--accent); }
+
+/* Matrix 2×2 */
+.ig-matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 560px) { .ig-matrix { grid-template-columns: 1fr; } }
+.ig-quad {
+  display: flex; flex-direction: column; gap: 6px;
+  background: var(--card); border: 1px solid var(--hairline-strong); padding: 16px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.ig-quad:hover { transform: translateY(-3px); box-shadow: 0 4px 0 var(--key-shadow); border-color: var(--accent); }
+.ig-quad-hot { border: 2px solid var(--accent); }
+.ig-quad-tag { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+.ig-quad-hot .ig-quad-tag { color: var(--accent); }
+.ig-quad-title { font-weight: 800; font-stretch: 110%; font-size: 17px; color: var(--ink); }
+.ig-quad-action { font-size: 13px; font-weight: 700; color: var(--accent); }
+.ig-quad-ex { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+
+/* Flow — procesní kroky */
+.ig-flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; counter-reset: none; }
+.ig-flow-step {
+  position: relative; display: flex; flex-direction: column; gap: 6px; margin: 0 !important;
+  background: var(--card); border: 1px solid var(--hairline-strong); padding: 14px 14px 12px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.ig-flow-step:hover { transform: translateY(-3px); box-shadow: 0 4px 0 var(--key-shadow); }
+.ig-flow-step:not(:last-child)::after {
+  content: "→"; position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+  color: var(--faint); font-weight: 700; z-index: 1;
+}
+@media (max-width: 560px) { .ig-flow-step:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -14px; transform: translateX(-50%); } }
+.ig-flow-no {
+  width: 26px; height: 26px; border-radius: 6px; display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 700;
+  border: 1.5px solid var(--hairline-strong); color: var(--ink); background: var(--paper);
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.ig-flow-step:hover .ig-flow-no { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.ig-flow-title { font-size: 14px; font-weight: 800; color: var(--ink); line-height: 1.25; }
+.ig-flow-desc { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+
+/* Donut */
+.ig-donut-wrap { display: flex; align-items: center; gap: 20px; }
+.ig-donut { width: 128px; height: 128px; flex: none; }
+.ig-donut-track { fill: none; stroke: var(--hairline); stroke-width: 12; }
+.ig-donut-fill {
+  fill: none; stroke: var(--accent); stroke-width: 12; stroke-linecap: round;
+  transition: stroke-width 0.2s ease;
+}
+.ig-donut-wrap:hover .ig-donut-fill { stroke-width: 16; }
+.ig-donut-num { font-family: var(--font-sans); font-weight: 850; font-size: 26px; fill: var(--ink); }
+.ig-donut-label { display: block; font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.3; }
+.ig-donut-sub { display: block; font-size: 13px; color: var(--muted); margin-top: 4px; max-width: 36ch; line-height: 1.5; }
+
 a:focus-visible, button:focus-visible, input:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
