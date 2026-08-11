@@ -1,0 +1,43 @@
+# Denní redakční rutina Produktivni.cz
+# Sbírá novinky, píše návrhy tipů/AI novinek a otevírá PR ke schválení.
+# Chování rutiny řídí docs/RUTINA.md — změny dělejte tam.
+#
+# Vyžaduje repo secret ANTHROPIC_API_KEY (Settings → Secrets → Actions).
+
+name: Redakcni rutina
+
+on:
+  schedule:
+    - cron: "23 5 * * *" # denně ~7:23 ráno českého času (5:23 UTC)
+  workflow_dispatch: {} # ruční spuštění z GitHub UI
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  rutina:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Redakcni rutina (Claude)
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            Jsi redakční rutina webu Produktivni.cz. Přečti si docs/RUTINA.md
+            a přesně podle něj proveď jeden denní běh: projdi existující obsah,
+            vyhledej na internetu novinky, přísně je profiltruj, napiš 0–3 nové
+            položky do content/tipy nebo content/ai ve formátu webu, ověř build
+            a otevři pull request ke schválení (větev rutina/obsah-RRRR-MM-DD).
+            Když nic kvalitního nenajdeš, PR neotvírej. Nikdy netlač přímo do
+            výchozí větve.
+          claude_args: |
+            --allowedTools "Bash,Read,Write,Edit,Glob,Grep,WebSearch,WebFetch"
