@@ -35,8 +35,8 @@ const mdxComponents = {
 };
 
 function heroImage(slug: string): string | null {
-  const file = path.join(process.cwd(), "public", "img", "prirucka", `${slug}.png`);
-  return fs.existsSync(file) ? `/img/prirucka/${slug}.png` : null;
+  const file = path.join(process.cwd(), "public", "img", "prirucka", `${slug}.webp`);
+  return fs.existsSync(file) ? `/img/prirucka/${slug}.webp` : null;
 }
 
 export default async function ChapterPage({
