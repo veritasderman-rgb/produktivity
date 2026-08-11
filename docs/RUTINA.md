@@ -50,7 +50,12 @@ Ukonči session poznámkou, co bylo zváženo a proč to neprošlo.
 
 ### 4. Tvorba obsahu
 
-**Tip** (`content/tipy/<slug>.mdx`) — krátký, okamžitě použitelný:
+**Tip** (`content/tipy/<slug>.mdx`) — důkladný, okamžitě použitelný. Cílová
+délka je zhruba **2 normostrany (500–750 slov)** a struktura: úvodní háček →
+`## Vzorová situace` (konkrétní uvěřitelný scénář) → `## Jak na to` (podrobné
+kroky) → `## Nejlepší nástroje` (3–5 skutečných, známých nástrojů s poznámkou)
+→ `## Co vám to přinese` (benefit: čas, nervy, kvalita — čísla střízlivě) →
+volitelně `## Pro tip`. Vzor: `content/tipy/win-v-schranka-s-historii.mdx`.
 
 ```
 ---
