@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getAllTips } from "@/lib/tips";
-import { TipCard } from "@/components/TipCard";
+import { TipBrowser } from "@/components/TipBrowser";
 
 export const metadata: Metadata = {
   title: "Tipy & triky",
   description:
-    "Krátké, okamžitě použitelné tipy: klávesové zkratky, aplikace, workflow a AI triky, které šetří čas každý den.",
+    "Krátké, okamžitě použitelné tipy: klávesové zkratky, aplikace, workflow a AI triky. Filtrujte podle platformy, kategorie i toho, kdo jste.",
 };
 
 export default function TipsPage() {
@@ -16,15 +17,13 @@ export default function TipsPage() {
         {tips.length} tipů · průběžně přibývají
       </p>
       <h1 className="display text-[clamp(30px,5vw,48px)]">Tipy &amp; triky</h1>
-      <p className="mt-4 max-w-[56ch] text-[16px] leading-relaxed text-muted">
-        Každý tip = jedna konkrétní věc, kterou uděláte líp nebo rychleji. Žádná
-        teorie — přečtete za minutu, používáte navždy.
+      <p className="mt-4 mb-8 max-w-[56ch] text-[16px] leading-relaxed text-muted">
+        Každý tip = jedna konkrétní věc, kterou uděláte líp nebo rychleji.
+        Filtrujte podle toho, co používáte a kdo jste — nebo prostě hledejte.
       </p>
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {tips.map((tip, i) => (
-          <TipCard key={tip.slug} tip={tip} index={tips.length - i} />
-        ))}
-      </div>
+      <Suspense>
+        <TipBrowser tips={tips} />
+      </Suspense>
     </div>
   );
 }

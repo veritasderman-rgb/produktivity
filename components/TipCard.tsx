@@ -6,6 +6,7 @@ const categoryLabels: Record<string, string> = {
   aplikace: "Aplikace",
   ai: "AI",
   workflow: "Workflow",
+  komunikace: "Komunikace",
   hardware: "Vybavení",
 };
 

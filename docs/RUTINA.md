@@ -6,9 +6,16 @@ změny chování dělejte úpravou tohoto souboru, ne úpravou triggeru.
 
 ## Cíl
 
-Najít 1–3 skutečně nové, hodnotné tipy nebo AI novinky, napsat je ve formátu
-webu a otevřít pull request ke schválení. **Nic se nepublikuje bez lidského
-schválení (merge).**
+Najít 2–5 skutečně nových, hodnotných tipů nebo AI novinek, napsat je ve
+formátu webu a otevřít pull request ke schválení. **Nic se nepublikuje bez
+lidského schválení (merge).**
+
+**Dlouhodobý cíl: 500 tipů.** Web míří na ~500 kvalitních tipů; dokud jich je
+méně, preferuj tipy před AI novinkami (novinky publikuj jen ty opravdu
+podstatné). Kvalita má vždy přednost — 2 dobré tipy jsou lepší než 5 slabých.
+Sleduj pokrytí filtrů: kategorie, platformy (hlavně macOS a mobil bývají
+podreprezentované) i cílovky (manažeři, studenti, vývojáři, freelanceři) mají
+růst rovnoměrně.
 
 ## Postup
 
@@ -49,8 +56,10 @@ Ukonči session poznámkou, co bylo zváženo a proč to neprošlo.
 ---
 title: "…"
 excerpt: "1–2 věty, co to dělá a proč to chtít."
-category: "zkratky" | "aplikace" | "ai" | "workflow" | "hardware"
+category: "zkratky" | "aplikace" | "ai" | "workflow" | "komunikace" | "hardware"
 platform: "windows" | "mac" | "vsude" | "prohlizec" | "mobil"
+audience: []        # pro koho hlavně: "manazer" | "student" | "vyvojar" | "freelancer"
+                    # prázdné [] = pro všechny; vyplňuj jen když tip cílí na roli
 keys: []            # nebo [["Win","V"]] pro zkratky
 saves: "~X min denně"
 date: "YYYY-MM-DD"  # dnešní datum
@@ -107,6 +116,6 @@ Používej je střídmě a jen když nesou data.
 
 ### 7. Limity
 
-- Max 3 položky na den, radši 1 kvalitní než 3 slabé.
+- Max 5 položek na den, radši 2 kvalitní než 5 slabých.
 - Žádné velké refaktory, žádné změny kódu webu — jen obsah v `content/`.
 - Nikdy neuváděj nepravdivé údaje; čísla jen se zdrojem.

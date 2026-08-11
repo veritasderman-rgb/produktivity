@@ -8,6 +8,7 @@ export type Tip = {
   excerpt: string;
   category: string;
   platform: string;
+  audience: string[];
   keys: string[][];
   saves: string;
   date: string;
@@ -28,6 +29,7 @@ export function getAllTips(): Tip[] {
       excerpt: data.excerpt as string,
       category: data.category as string,
       platform: data.platform as string,
+      audience: (data.audience ?? []) as string[],
       keys: (data.keys ?? []) as string[][],
       saves: data.saves as string,
       date: data.date as string,
