@@ -1,7 +1,18 @@
 # Zadání webu Produktivni.cz
 
-> **Verze:** 1.0 (návrh ke schválení) · **Datum:** 11. 8. 2026
-> **Stav:** čeká na odsouhlasení — po schválení začíná fáze tvorby (GitHub → Vercel → Brevo)
+> **Verze:** 1.1 · **Datum:** 11. 8. 2026
+> **Stav:** klíčová rozhodnutí odsouhlasena, čeká se na výběr směru vizuální identity
+
+## Odsouhlasená rozhodnutí (11. 8. 2026)
+
+| Otázka | Rozhodnutí |
+|---|---|
+| Identita webu | **Osobní brand — Josef Pavlovic** |
+| Lead magnet | **Úderný e-book** („Top 30 tipů"), celá příručka žije na webu |
+| Sociální kanály (Buffer) | **Instagram, Facebook, LinkedIn** |
+| Cena školení | Rozhodne se podle cenové rešerše (viz §9) |
+| Doména produktivni.cz | Zatím neregistrována — vyřeší se ve Fázi 3 (nasazení) |
+| Vizuální identita | **Vybrán směr A · Přesnost** (švýcarská mřížka, klávesa, elektrická modř) — viz §10 |
 
 ---
 
@@ -123,12 +134,50 @@ Repozitář: `veritasderman-rgb/produktivity` (GitHub) — kód i obsah na jedno
 
 ## 8. Otevřené otázky k rozhodnutí
 
-1. **Tón a identita webu** — vystupovat pod vaším jménem (osobní brand, důvěryhodnost pro školení), nebo jako „redakce Produktivni.cz"? *Doporučuji osobní brand.*
-2. **Publikační režim rutiny** — začít s režimem „vše přes schvalovací PR" (doporučuji), s výhledem přepnout ověřené typy obsahu (např. krátké tipy) na plnou automatiku?
-3. **Lead magnet** — nabídnout ke stažení celou stávající příručku (PDF), nebo z ní vytvořit kratší, údernější „Top 30 tipů" e-book? *Doporučuji kratší e-book, celá příručka žije na webu.*
-4. **Cena školení** — uvádět orientační ceník, nebo jen „cena na vyžádání"?
-5. **Sociální sítě** — které kanály přes Buffer? (LinkedIn bych bral jako povinný pro B2B školení.)
+~~Otázky 1, 2, 3, 5 rozhodnuty~~ — viz „Odsouhlasená rozhodnutí" nahoře. Zbývá:
+
+1. **Výběr směru vizuální identity** (A / B / C / kombinace) — viz §10.
+2. **Cenová politika školení** — rozhodnout na základě rešerše v §9.
+
+## 9. Cenová rešerše: firemní školení produktivity a AI v ČR (08/2026)
+
+Ceny na českém trhu firemních školení produktivity/AI (bez DPH, fixní cena za skupinu obvykle do 15 osob):
+
+| Formát | Rozpětí trhu | Příklady |
+|---|---|---|
+| Půldenní (4 h) prezenčně | 10 000 – 20 000 Kč | Kovařík: 4h briefing 9 800 Kč; Kubíček: online 4h blok 20 000 Kč |
+| Celodenní (8 h) prezenčně | 25 000 – 40 000 Kč | Kovařík: 24 900 Kč; Kubíček: od 40 000 Kč |
+| Dvoudenní intenzivní | 50 000 – 80 000 Kč | Kovařík: 49 800 Kč; Kubíček: od 80 000 Kč |
+| Online konzultace (2 h) | ~10 000 Kč | Kubíček: 10 000 Kč |
+| Otevřené kurzy (na osobu) | 800 – 6 000 Kč/os. | AbecedaPC, VOX, Gradua, GOPAS |
+
+Poznámky z rešerše:
+- Etablovaní jednotlivci s osobním brandem (Kovařík, Kubíček, Gamrot) účtují **fixně za skupinu**, ne za osobu — jednodušší prodej pro HR.
+- AI školení se prodává dráž než klasický time management — kombinace „produktivita + AI" (naše pozice) míří do vyššího pásma.
+- Transparentní ceník „od X Kč" na webu funguje jako filtr leadů; „cena na vyžádání" používají spíš velké vzdělávací domy.
+
+**Doporučená startovní pozice** (k odsouhlasení):
+- Půldenní workshop (4 h): **od 15 900 Kč**
+- Celodenní workshop (8 h): **od 29 900 Kč**
+- Online blok (2 h): **od 8 900 Kč**
+- Uvádět na webu transparentně jako „od", fixně za skupinu do 15 lidí; individuální program „na míru" bez ceny.
+
+## 10. Vizuální identita
+
+Vizuální identita je **zásadní priorita** — musí být unikátní pro tento web, žádná šablona.
+
+**Společný koncept: logo = klávesa.** Klávesová zkratka je nejmenší jednotka produktivity — jeden stisk, který šetří čas. Klávesa s písmenem „P" slouží jako logo, favicon, razítko na social vizuálech i vodoznak generovaných obrázků.
+
+Navrženy 3 směry (kompletní vizuální pitch s živými ukázkami: interní artifact „Produktivni.cz — vizuální identita"):
+
+| Směr | Charakter | Paleta | Písmo |
+|---|---|---|---|
+| **A · Přesnost** | Švýcarský stroj — přísná mřížka, elektrická modř, seriózní i ostré | inkoust `#111417`, papír `#F1F2EF`, modř `#1C3FF2` | Archivo (šířky 62–125 %) + JetBrains Mono |
+| **B · Energie** | Neo-brutal hravost — tlusté obrysy, tvrdé stíny, fialová + limetka | `#17121F`, lila `#F0EDFA`, fialová `#6C3DF4`, limetka `#C9F53C` | Bricolage Grotesque |
+| **C · Flow** | Terminál po setmění — tmavý mono svět, fosforová zelená | `#0B0E0C`, text `#C7D0C9`, fosfor `#46F08F`, jantar `#FFB454` | JetBrains Mono |
+
+**Rozhodnuto (11. 8. 2026): směr A · Přesnost.** Hravost směru B lze dávkovaně použít v social vizuálech, C případně jako „režim terminálu" v AI sekci (easter egg).
 
 ---
 
-*Po schválení zadání začíná Fáze 1 — základ webu. Připomínky pište přímo k tomuto dokumentu (PR/issue) nebo do konverzace.*
+*Po výběru směru identity začíná Fáze 1 — základ webu s design systémem zvoleného směru.*
