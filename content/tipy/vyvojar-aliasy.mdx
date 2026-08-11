@@ -9,10 +9,37 @@ saves: "~15 min denně"
 date: "2026-07-12"
 ---
 
-Terminálová historie plná stejných dlouhých příkazů je seznam kandidátů na alias.
+Terminálová historie plná stejných dlouhých příkazů je seznam kandidátů na alias. Pokud si všimnete, že pořád dokola píšete tu samou kombinaci flagů, cest a přepínačů, je to spolehlivý signál, že tuhle práci už dávno mohl dělat za vás jeden krátký příkaz.
+
+## Vzorová situace
+
+Vývojář Tomáš spouští před každým pushem stejnou sekvenci: nejdřív lint, pak testy, pak build, a teprve když všechno projde, `git push`. Každý příkaz zvlášť napsaný, s plným názvem skriptu a parametry — to je snadno padesát až osmdesát znaků na jeden krok, čtyřikrát za sebou, a při jediném překlepu začíná znovu.
+
+S aliasem nebo skriptem napíše `deploy-check` a hotovo — sekvence proběhne automaticky ve správném pořadí a zastaví se hned, jakmile něco selže. Místo pamatování si přesného pořadí čtyř příkazů má v prstech jedno slovo.
 
 ## Jak na to
 
-1. Projděte `history | sort | uniq -c | sort -rn | head` — co jedete pořád dokola?
-2. Krátké věci → aliasy v shell konfiguraci; delší sekvence → skripty v repozitáři.
-3. Sdílejte v týmu — dobrý skript šetří čas všem.
+1. Projděte si historii příkazů — v terminálu spustí `history | sort | uniq -c | sort -rn | head` seznam příkazů, které jste použili nejčastěji, seřazený podle počtu opakování.
+2. Podívejte se, co se v seznamu opakuje: co jedete pořád dokola a co má smysl zkrátit?
+3. Krátké a jednoduché příkazy patří do **aliasů** — definujete si je v konfiguraci shellu (např. `.bashrc` nebo `.zshrc`), takže se natáhnou při každém spuštění terminálu a fungují napořád.
+4. Delší sekvence, které v sobě mají víc kroků nebo podmínek (nejdřív tohle, pak podle výsledku tamto), patří spíš do **skriptu** uloženého přímo v repozitáři — je vidět v historii verzí, dá se upravovat společně s kódem a nezávisí na nastavení jednotlivého počítače.
+5. Skript nebo alias pojmenujte tak, aby název sám napovídal, co dělá — `deploy-check` je srozumitelnější než zkratka, kterou si za měsíc nikdo nevybaví.
+6. Sdílejte v týmu — dobrý skript uložený v repozitáři šetří čas všem, ne jen vám, a navíc sjednocuje postup napříč týmem, takže se nikdo neptá „jak že se to zase spouštělo“.
+
+## Nejlepší nástroje
+
+- **Aliasy v konfiguraci shellu** (`.bashrc`, `.zshrc`, PowerShell profil) — vestavěná funkce každého shellu, žádná instalace navíc.
+- **Skripty v repozitáři** (např. složka `scripts/` se shellovými nebo Node skripty) — sdílené s celým týmem přes verzování, vždy aktuální podle stavu projektu.
+- **Makefile nebo npm/yarn skripty** — standardizovaný způsob, jak pojmenovat a spouštět opakující se úkony napříč projektem, čitelný pro každého, kdo do repozitáře nakoukne.
+- **Nástroje pro správu shellových konfigurací** (např. dotfiles repozitář na GitHubu) — když chcete mít stejné aliasy na všech svých počítačích automaticky.
+
+## Co vám to přinese
+
+- **Čas:** minuty ušetřené při každém spuštění se u opakovaných sekvencí sečtou na desítky minut denně, zvlášť u vícestupňových buildů.
+- **Méně chyb:** ruční přepisování dlouhých příkazů je zdroj překlepů — automatizovaná sekvence běží pokaždé stejně.
+- **Konzistence v týmu:** sdílený skript zajistí, že všichni spouštějí stejné kroky ve stejném pořadí, ne každý podle vlastní paměti.
+- **Nižší bariéra pro nové kolegy:** nováček v týmu nemusí znát přesné příkazy, stačí mu vědět, že existuje `deploy-check`.
+
+## Pro tip
+
+Alias, který mažete soubory nebo přepisuje historii (`rm`, `git push --force`), pojmenujte výrazně jinak než jeho běžnou, bezpečnou variantu — ať vás automatické doplňování v terminálu nikdy nenechá omylem spustit tu nebezpečnou verzi jen proto, že název začíná stejně.

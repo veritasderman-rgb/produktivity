@@ -9,10 +9,36 @@ saves: "~1 h měsíčně"
 date: "2026-07-12"
 ---
 
-Diff říká, **co** se změnilo. Zpráva má říct **proč**.
+Diff říká, **co** se změnilo — to vidíte na první pohled, řádek po řádku. Zpráva u commitu má říct **proč**, a to je informace, kterou z kódu samotného nikdy nevyčtete. Za půl roku, když se stejný kus kódu bude znovu upravovat, bude proč to nejcennější, co tam po vás zůstane.
+
+## Vzorová situace
+
+Vývojář narazí na podivnou podmínku v kódu, která na první pohled nedává smysl — vypadá jako chyba, kterou by šlo bez obav smazat. Spustí `git blame`, najde commit s popiskem „fix bug“ a nikde žádné vysvětlení, o jaký bug vlastně šlo. Smaže podmínku, protože nic jiného mu nezbývá, a o týden později se stejná chyba vrátí do produkce — protože ta „nesmyslná“ podmínka řešila edge case, na který si nikdo nevzpomněl.
+
+Kdyby commit obsahoval jednu větu navíc — „bez téhle podmínky padal export u prázdného košíku, viz #482“ — vývojář by věděl přesně, co smí a nesmí měnit, bez zdlouhavého pátrání a bez rizika, že stejnou chybu vrátí zpátky.
 
 ## Jak na to
 
-1. První řádek: shrnutí změny do 50 znaků.
-2. Tělo: proč byla změna potřeba, co nefungovalo, jaké alternativy jste zavrhli.
-3. Odkaz na ticket/issue — kontext se neztratí.
+1. První řádek zprávy napište jako stručné shrnutí změny, ideálně do 50 znaků — má fungovat jako nadpis, který je vidět v přehledu historie na první pohled.
+2. Do těla zprávy (další odstavec, oddělený prázdným řádkem) popište proč byla změna potřeba — co konkrétně nefungovalo nebo co bylo potřeba vyřešit.
+3. Zmiňte i alternativy, které jste zvažovali a zavrhli, pokud nějaké byly — budoucí čtenář (často vy sami) tak nebude muset stejnou cestu procházet znovu a zjišťovat, proč zvolené řešení není to zjevnější.
+4. Přidejte odkaz na ticket nebo issue, pokud změna souvisí s konkrétním úkolem — kontext se tak neztratí ani ve chvíli, kdy si na detaily commit zprávy sama nevzpomenete.
+5. U menších, samovysvětlujících změn (překlep, formátování) stačí jen první řádek — tělo zprávy má smysl tam, kde rozhodnutí není na první pohled zjevné z diffu samotného.
+
+## Nejlepší nástroje
+
+- **Git commit šablony** (`git config commit.template`) — vestavěná funkce Gitu, která vám při každém commitu připomene strukturu (shrnutí, tělo, odkaz na issue).
+- **Conventional Commits** — rozšířená konvence pro formát prvního řádku (např. `fix:`, `feat:`), usnadňuje generování changelogu a orientaci v historii.
+- **Propojení s issue trackerem** (Jira, Linear, GitHub Issues) — automatické provázání commitu s ticketem přes jeho číslo v textu zprávy.
+- **Pre-commit hooky** (např. přes nástroj commitlint) — kontrolují, že zpráva dodržuje domluvený formát, dřív než se commit vůbec vytvoří.
+
+## Co vám to přinese
+
+- **Čas:** jedna promyšlená věta při commitu ušetří klidně hodinu pátrání v `git blame` a historii issues o pár měsíců později.
+- **Menší riziko regresí:** když je vidět proč byla podmínka nebo výjimka přidána, nikdo ji omylem nesmaže jako „zbytečnou“.
+- **Rychlejší code review:** recenzent chápe záměr změny, nemusí se ptát v komentářích na to, co mohla obsahovat rovnou zpráva.
+- **Lepší orientace pro nové kolegy:** kdokoli nový v týmu se z historie commitů dozví nejen co se dělo, ale i proč — rychlejší zapracování bez nutnosti se ptát.
+
+## Pro tip
+
+Než commit odešlete, přečtěte si zprávu tak, jako byste ji viděli poprvé za rok bez jakéhokoli kontextu — pokud by vám tehdy nedávala smysl, doplňte ji ještě teď, dokud máte důvod v hlavě čerstvý.
