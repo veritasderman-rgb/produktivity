@@ -10,7 +10,7 @@
 | Identita webu | **Osobní brand — Josef Pavlovic** |
 | Lead magnet | **Úderný e-book** („Top 30 tipů"), celá příručka žije na webu |
 | Sociální kanály (Buffer) | **Instagram, Facebook, LinkedIn** |
-| Cena školení | Rozhodne se podle cenové rešerše (viz §9) |
+| Cena školení | Rešerše hotová (§9), ale **ceny se na webu zatím nezobrazují** (rozhodnutí 11. 8.) — „cena na vyžádání", doplní se časem |
 | Doména produktivni.cz | Zatím neregistrována — vyřeší se ve Fázi 3 (nasazení) |
 | Vizuální identita | **Nová identita (11. 8. večer, nahrazuje směr A):** bílá + černá + signálová červená `#E03616` jen pro interakce, Schibsted Grotesk + Lora + JetBrains Mono, ručně kreslený line-art, výraznější scroll animace, bez dark mode („později") — definováno design systémem, viz §10 |
 

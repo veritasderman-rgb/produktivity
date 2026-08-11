@@ -5,6 +5,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllNews, getNewsItem } from "@/lib/news";
 import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
 import { NewsletterForm } from "@/components/NewsletterForm";
+import { DataDisclaimer } from "@/components/DataDisclaimer";
 
 export function generateStaticParams() {
   return getAllNews().map((n) => ({ slug: n.slug }));
@@ -62,6 +63,7 @@ export default async function NewsDetail({
         {/* blockJS: false — obsah je náš vlastní z repa */}
         <MDXRemote source={n.body} components={mdxComponents} options={{ blockJS: false }} />
       </div>
+      <DataDisclaimer />
       {n.source && (
         <p className="mt-8 border-t border-hairline pt-4 text-[13.5px] text-faint">
           Zdroj:{" "}

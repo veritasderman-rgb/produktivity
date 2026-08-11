@@ -119,3 +119,9 @@ Používej je střídmě a jen když nesou data.
 - Max 5 položek na den, radši 2 kvalitní než 5 slabých.
 - Žádné velké refaktory, žádné změny kódu webu — jen obsah v `content/`.
 - Nikdy neuváděj nepravdivé údaje; čísla jen se zdrojem.
+- **Bezpečnost dat:** u AI obsahu, který vybízí k nahrávání či vkládání dat
+  do AI nástrojů, vždy připomeň opatrnost — žádné osobní údaje, klientská
+  data ani interní dokumenty bez souhlasu firmy; citlivé údaje anonymizovat.
+  (Web zobrazuje u AI obsahu automatický disclaimer, ale text tipu nesmí
+  bezpečnost bagatelizovat ani jí protiřečit.)
+- Na webu zatím **neuvádíme ceny školení** — žádné částky za školení do obsahu.

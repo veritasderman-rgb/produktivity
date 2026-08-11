@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllTips, getTip } from "@/lib/tips";
 import { NewsletterForm } from "@/components/NewsletterForm";
+import { DataDisclaimer } from "@/components/DataDisclaimer";
 
 export function generateStaticParams() {
   return getAllTips().map((tip) => ({ slug: tip.slug }));
@@ -60,6 +61,7 @@ export default async function TipDetail({
       <div className="prose-a mt-6">
         <MDXRemote source={tip.body} components={mdxComponents} />
       </div>
+      {tip.category === "ai" && <DataDisclaimer />}
       <div className="mt-14 border-t-2 border-hairline-strong pt-8">
         <p className="eyebrow mb-2 text-faint">Líbil se vám tip?</p>
         <p className="mb-5 max-w-[48ch] text-[15px] text-muted">
