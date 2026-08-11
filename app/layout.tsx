@@ -42,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Keycap size={38} />
               <span className="leading-none">
                 <span className="display block text-[19px]">Produktivní</span>
-                <span className="eyebrow mt-1 block text-blue">.cz — rychleji každý den</span>
+                <span className="eyebrow mt-1 block text-accent">.cz — rychleji každý den</span>
               </span>
             </Link>
             <nav className="flex items-center gap-1 max-sm:hidden" aria-label="Hlavní navigace">
@@ -50,20 +50,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="px-3 py-2 text-[14px] font-semibold hover:text-blue"
+                  className="px-3 py-2 text-[14px] font-semibold hover:text-accent"
                 >
                   {item.label}
                 </Link>
               ))}
               <Link
                 href="/newsletter"
-                className="ml-2 bg-blue px-4 py-2.5 text-[13px] font-bold tracking-wide text-blue-ink uppercase hover:bg-ink hover:text-paper"
+                className="ml-2 bg-accent px-4 py-2.5 text-[13px] font-bold tracking-wide text-accent-ink uppercase hover:bg-ink hover:text-paper"
                 style={{ fontStretch: "110%" }}
               >
                 Odebírat
               </Link>
             </nav>
-            <Link href="/newsletter" className="sm:hidden bg-blue px-3 py-2 text-[12px] font-bold uppercase text-blue-ink">
+            <Link href="/newsletter" className="sm:hidden bg-accent px-3 py-2 text-[12px] font-bold uppercase text-accent-ink">
               Odebírat
             </Link>
           </div>
@@ -93,18 +93,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div>
               <div className="eyebrow mb-4 text-faint">Obsah</div>
               <ul className="space-y-2 text-[14px] font-semibold">
-                <li><Link href="/prirucka" className="hover:text-blue">Příručka produktivity</Link></li>
-                <li><Link href="/tipy" className="hover:text-blue">Tipy &amp; triky</Link></li>
-                <li><Link href="/ai" className="hover:text-blue">AI &amp; produktivita</Link></li>
-                <li><Link href="/rss.xml" className="hover:text-blue">RSS</Link></li>
+                <li><Link href="/prirucka" className="hover:text-accent">Příručka produktivity</Link></li>
+                <li><Link href="/tipy" className="hover:text-accent">Tipy &amp; triky</Link></li>
+                <li><Link href="/ai" className="hover:text-accent">AI &amp; produktivita</Link></li>
+                <li><Link href="/rss.xml" className="hover:text-accent">RSS</Link></li>
               </ul>
             </div>
             <div>
               <div className="eyebrow mb-4 text-faint">Spolupráce</div>
               <ul className="space-y-2 text-[14px] font-semibold">
-                <li><Link href="/skoleni" className="hover:text-blue">Školení pro firmy</Link></li>
-                <li><Link href="/newsletter" className="hover:text-blue">Newsletter</Link></li>
-                <li><Link href="/o-projektu" className="hover:text-blue">O projektu</Link></li>
+                <li><Link href="/skoleni" className="hover:text-accent">Školení pro firmy</Link></li>
+                <li><Link href="/newsletter" className="hover:text-accent">Newsletter</Link></li>
+                <li><Link href="/o-projektu" className="hover:text-accent">O projektu</Link></li>
               </ul>
             </div>
           </div>

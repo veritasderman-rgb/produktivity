@@ -41,7 +41,7 @@ const modules = [
 export default function TrainingPage() {
   return (
     <div className="mx-auto max-w-5xl px-6 py-14">
-      <p className="eyebrow mb-2 text-blue">Pro firmy a týmy</p>
+      <p className="eyebrow mb-2 text-accent">Pro firmy a týmy</p>
       <h1 className="display text-[clamp(30px,5vw,48px)]">
         Váš tým nemá čas číst o&nbsp;produktivitě.<br className="max-sm:hidden" /> Naučím ho to osobně.
       </h1>
@@ -56,9 +56,9 @@ export default function TrainingPage() {
         {formats.map((f) => (
           <div
             key={f.name}
-            className={`flex flex-col border bg-card p-6 ${f.featured ? "border-2 border-blue" : "border-hairline-strong"}`}
+            className={`flex flex-col border bg-card p-6 ${f.featured ? "border-2 border-accent" : "border-hairline-strong"}`}
           >
-            {f.featured && <p className="eyebrow mb-3 text-blue">Nejčastější volba</p>}
+            {f.featured && <p className="eyebrow mb-3 text-accent">Nejčastější volba</p>}
             <h3 className="text-[18px] font-bold">{f.name}</h3>
             <p className="eyebrow mt-1 text-faint">{f.time}</p>
             <p className="mt-4 grow text-[14px] leading-relaxed text-muted">{f.desc}</p>
@@ -77,7 +77,7 @@ export default function TrainingPage() {
       <ul className="grid gap-3 sm:grid-cols-2">
         {modules.map((m) => (
           <li key={m} className="flex gap-3 border border-hairline bg-card p-4 text-[14.5px] font-semibold">
-            <span className="text-blue" aria-hidden="true">→</span>
+            <span className="text-accent" aria-hidden="true">→</span>
             {m}
           </li>
         ))}

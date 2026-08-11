@@ -57,7 +57,7 @@ const sections = [
 export default function HandbookPage() {
   return (
     <div className="mx-auto max-w-5xl px-6 py-14">
-      <p className="eyebrow mb-2 text-blue">Evergreen know-how</p>
+      <p className="eyebrow mb-2 text-accent">Evergreen know-how</p>
       <h1 className="display text-[clamp(30px,5vw,48px)]">Příručka produktivity</h1>
       <p className="mt-4 max-w-[58ch] text-[16px] leading-relaxed text-muted">
         Léta praxe srovnaná do kapitol, které na sebe navazují — ale fungují i na
@@ -77,7 +77,7 @@ export default function HandbookPage() {
             <ul className="mt-4 space-y-2 border-t border-hairline pt-4 text-[14px] font-semibold">
               {s.chapters.map((ch) => (
                 <li key={ch} className="flex gap-2">
-                  <span className="text-blue" aria-hidden="true">→</span>
+                  <span className="text-accent" aria-hidden="true">→</span>
                   <span>
                     {ch} <span className="eyebrow ml-1 text-faint">připravujeme</span>
                   </span>
@@ -89,7 +89,7 @@ export default function HandbookPage() {
       </div>
       <p className="mt-10 max-w-[58ch] text-[15px] text-muted">
         Nechcete čekat? To podstatné z příručky učím osobně —{" "}
-        <Link href="/skoleni" className="border-b-2 border-blue pb-0.5 font-bold text-ink hover:text-blue">
+        <Link href="/skoleni" className="border-b-2 border-accent pb-0.5 font-bold text-ink hover:text-accent">
           školení pro firmy
         </Link>
         .

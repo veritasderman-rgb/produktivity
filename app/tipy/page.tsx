@@ -12,7 +12,7 @@ export default function TipsPage() {
   const tips = getAllTips();
   return (
     <div className="mx-auto max-w-5xl px-6 py-14">
-      <p className="eyebrow mb-2 text-blue">
+      <p className="eyebrow mb-2 text-accent">
         {tips.length} tipů · průběžně přibývají
       </p>
       <h1 className="display text-[clamp(30px,5vw,48px)]">Tipy &amp; triky</h1>

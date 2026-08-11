@@ -48,12 +48,12 @@ export function NewsletterForm({ source = "web" }: { source?: string }) {
         <button
           type="submit"
           disabled={status === "sending"}
-          className="bg-ink px-5 text-[12.5px] font-bold tracking-wide text-paper uppercase hover:bg-blue hover:text-blue-ink disabled:opacity-60"
+          className="bg-ink px-5 text-[12.5px] font-bold tracking-wide text-paper uppercase hover:bg-accent hover:text-accent-ink disabled:opacity-60"
         >
           {status === "sending" ? "Moment…" : "Odebírat"}
         </button>
       </form>
-      {status === "error" && <p className="mt-2 text-[13px] font-semibold text-blue">{message}</p>}
+      {status === "error" && <p className="mt-2 text-[13px] font-semibold text-accent">{message}</p>}
       <p className="eyebrow mt-3 text-faint">1 tip týdně · žádný spam · odhlášení jedním klikem</p>
     </div>
   );

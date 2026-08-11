@@ -2,7 +2,7 @@ export function Keycap({ size = 44, className = "" }: { size?: number; className
   return (
     <span
       aria-hidden="true"
-      className={`grid place-items-center rounded-[10px] border-2 border-hairline-strong bg-card text-blue select-none ${className}`}
+      className={`grid place-items-center rounded-[10px] border-2 border-hairline-strong bg-card text-accent select-none ${className}`}
       style={{
         width: size,
         height: size,

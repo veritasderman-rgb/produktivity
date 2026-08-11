@@ -12,7 +12,7 @@
 | Sociální kanály (Buffer) | **Instagram, Facebook, LinkedIn** |
 | Cena školení | Rozhodne se podle cenové rešerše (viz §9) |
 | Doména produktivni.cz | Zatím neregistrována — vyřeší se ve Fázi 3 (nasazení) |
-| Vizuální identita | **Vybrán směr A · Přesnost** (švýcarská mřížka, klávesa, elektrická modř) — viz §10 |
+| Vizuální identita | **Vybrán směr A · Přesnost** (švýcarská mřížka, klávesa); akcent změněn z modré na **zelenou** na přání (11. 8.) — viz §10 |
 
 ---
 
@@ -172,7 +172,7 @@ Navrženy 3 směry (kompletní vizuální pitch s živými ukázkami: interní a
 
 | Směr | Charakter | Paleta | Písmo |
 |---|---|---|---|
-| **A · Přesnost** | Švýcarský stroj — přísná mřížka, elektrická modř, seriózní i ostré | inkoust `#111417`, papír `#F1F2EF`, modř `#1C3FF2` | Archivo (šířky 62–125 %) + JetBrains Mono |
+| **A · Přesnost** (vybráno) | Švýcarský stroj — přísná mřížka, sytá zelená, seriózní i ostré | inkoust `#111417`, papír `#F1F2EF`, zelená `#0E7C3F` (dark mode `#3ECF8E`) | Archivo (šířky 62–125 %) + JetBrains Mono |
 | **B · Energie** | Neo-brutal hravost — tlusté obrysy, tvrdé stíny, fialová + limetka | `#17121F`, lila `#F0EDFA`, fialová `#6C3DF4`, limetka `#C9F53C` | Bricolage Grotesque |
 | **C · Flow** | Terminál po setmění — tmavý mono svět, fosforová zelená | `#0B0E0C`, text `#C7D0C9`, fosfor `#46F08F`, jantar `#FFB454` | JetBrains Mono |
 

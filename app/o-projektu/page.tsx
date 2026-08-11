@@ -14,7 +14,7 @@ export default function AboutPage() {
       <div className="mb-8 flex items-center gap-5">
         <Keycap size={64} />
         <div>
-          <p className="eyebrow mb-1 text-blue">O projektu</p>
+          <p className="eyebrow mb-1 text-accent">O projektu</p>
           <h1 className="display text-[clamp(26px,4vw,40px)]">Kdo za tím stojí</h1>
         </div>
       </div>

@@ -78,12 +78,12 @@ export function LeadForm() {
         <button
           type="submit"
           disabled={status === "sending"}
-          className="bg-blue px-6 py-3.5 text-[13.5px] font-bold tracking-wide text-blue-ink uppercase hover:bg-ink hover:text-paper disabled:opacity-60"
+          className="bg-accent px-6 py-3.5 text-[13.5px] font-bold tracking-wide text-accent-ink uppercase hover:bg-ink hover:text-paper disabled:opacity-60"
           style={{ fontStretch: "110%" }}
         >
           {status === "sending" ? "Odesílám…" : "Poptat školení"}
         </button>
-        {status === "error" && <p className="text-[13px] font-semibold text-blue">{message}</p>}
+        {status === "error" && <p className="text-[13px] font-semibold text-accent">{message}</p>}
       </div>
     </form>
   );
