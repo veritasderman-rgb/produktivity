@@ -71,27 +71,31 @@ export default function HomePage() {
       {/* Příručka + školení */}
       <section className="border-y border-hairline">
         <div className="mx-auto grid max-w-[var(--page-max)] px-[var(--page-pad)] md:grid-cols-2">
-          <Reveal className="py-18 md:border-r md:border-hairline md:pr-12">
-            <p className="eyebrow mb-2 text-faint">Základ</p>
-            <h2 className="display text-[clamp(22px,3vw,28px)]">Příručka produktivity</h2>
-            <p className="prose-a mt-4 text-[15.5px]">
-              Kompletní know-how na jednom místě: GTD, Inbox Zero, Pomodoro, práce
-              s energií i pozorností, výběr nástrojů. Léta praxe srovnaná do kapitol,
-              které dávají smysl po sobě i na přeskáčku.
-            </p>
-            <Link href="/prirucka" className="draw-link mt-6 inline-block text-[14px] font-bold">
-              Otevřít příručku
+          <Reveal className="md:border-r md:border-hairline">
+            <Link href="/prirucka" className="linkblock py-18 md:pr-12">
+              <p className="eyebrow mb-2 text-faint">Základ</p>
+              <h2 className="display text-[clamp(22px,3vw,28px)]">Příručka produktivity</h2>
+              <p className="prose-a mt-4 text-[15.5px]">
+                Kompletní know-how na jednom místě: GTD, Inbox Zero, Pomodoro, práce
+                s energií i pozorností, výběr nástrojů. Léta praxe srovnaná do kapitol,
+                které dávají smysl po sobě i na přeskáčku.
+              </p>
+              <span className="draw-link mt-6 inline-block text-[14px] font-bold">
+                Otevřít příručku
+              </span>
             </Link>
           </Reveal>
-          <Reveal delay={0.12} className="py-18 md:pl-12">
-            <p className="eyebrow mb-2 text-faint">Pro firmy</p>
-            <h2 className="display text-[clamp(22px,3vw,28px)]">Školení na míru</h2>
-            <p className="prose-a mt-4 text-[15.5px]">
-              Nemáte čas to celé číst? Přijedu a naučím váš tým to podstatné za půl
-              dne — od e-mailů a porad až po AI nástroje, které reálně šetří hodiny.
-            </p>
-            <Link href="/skoleni" className="draw-link mt-6 inline-block text-[14px] font-bold">
-              Nabídka školení
+          <Reveal delay={0.12}>
+            <Link href="/skoleni" className="linkblock py-18 md:pl-12">
+              <p className="eyebrow mb-2 text-faint">Pro firmy</p>
+              <h2 className="display text-[clamp(22px,3vw,28px)]">Školení na míru</h2>
+              <p className="prose-a mt-4 text-[15.5px]">
+                Nemáte čas to celé číst? Přijedu a naučím váš tým to podstatné za půl
+                dne — od e-mailů a porad až po AI nástroje, které reálně šetří hodiny.
+              </p>
+              <span className="draw-link mt-6 inline-block text-[14px] font-bold">
+                Nabídka školení
+              </span>
             </Link>
           </Reveal>
         </div>
