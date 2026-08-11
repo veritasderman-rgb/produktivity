@@ -27,6 +27,11 @@ export default function HandbookPage() {
         Léta praxe srovnaná do kapitol, které na sebe navazují — ale fungují i na
         přeskáčku. Začněte základy, nebo skočte rovnou na to, co vás pálí.
       </p>
+      <p className="mt-4 text-[15px]">
+        <Link href="/start" className="border-b-2 border-accent pb-0.5 font-bold hover:text-accent">
+          Jste tu poprvé? Začněte minimalistickým průvodcem →
+        </Link>
+      </p>
       <div className="mt-10 grid gap-5 md:grid-cols-2">
         {sectionOrder.map((sec, si) => {
           const items = chapters.filter((c) => c.section === sec);

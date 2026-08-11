@@ -37,6 +37,13 @@ export default function HomePage() {
               Číst příručku
             </Link>
           </div>
+          <p className="mt-6 text-[14px] text-muted">
+            Nevíte kudy?{" "}
+            <Link href="/start" className="border-b-2 border-accent pb-0.5 font-bold text-ink hover:text-accent">
+              Začněte tady
+            </Link>{" "}
+            — jeden notes, tři značky, čtyři minuty denně.
+          </p>
         </div>
       </section>
 
