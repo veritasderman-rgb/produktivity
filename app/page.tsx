@@ -94,7 +94,8 @@ export default function HomePage() {
           <h2 className="display text-[clamp(22px,3vw,30px)]">Jeden tip týdně do e-mailu</h2>
           <p className="mt-4 mb-6 text-[15px] leading-relaxed text-muted">
             To nejlepší z týdne v jednom krátkém e-mailu. Přečtete za dvě minuty,
-            ušetří vám hodiny.
+            ušetří vám hodiny. Jako bonus hned získáte e-book{" "}
+            <strong className="text-ink">Top 30 tipů</strong>.
           </p>
           <NewsletterForm source="homepage" />
         </div>

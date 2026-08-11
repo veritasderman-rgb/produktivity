@@ -21,7 +21,7 @@ export default function NewsletterPage() {
         <ul className="mt-6 mb-8 space-y-2 text-[15px] font-semibold">
           <li className="flex gap-3"><span className="text-accent" aria-hidden="true">→</span> Žádný spam, žádné „akční nabídky"</li>
           <li className="flex gap-3"><span className="text-accent" aria-hidden="true">→</span> Odhlášení jedním klikem, kdykoli</li>
-          <li className="flex gap-3"><span className="text-accent" aria-hidden="true">→</span> Bonus po přihlášení: připravujeme e-book <strong>Top 30 tipů</strong></li>
+          <li className="flex gap-3"><span className="text-accent" aria-hidden="true">→</span> Bonus hned po přihlášení: e-book <strong>Top 30 tipů, které vám vrátí hodinu denně</strong></li>
         </ul>
         <div className="max-w-md">
           <NewsletterForm source="newsletter-page" />

@@ -19,7 +19,6 @@ export function NewsletterForm({ source = "web" }: { source?: string }) {
       const data = await res.json();
       if (res.ok) {
         setStatus("ok");
-        setMessage("Hotovo! Zkontrolujte si e-mail a potvrďte odběr.");
       } else {
         setStatus("error");
         setMessage(data.error ?? "Přihlášení se nepovedlo. Zkuste to prosím znovu.");
@@ -31,7 +30,17 @@ export function NewsletterForm({ source = "web" }: { source?: string }) {
   }
 
   if (status === "ok") {
-    return <p className="border border-hairline-strong bg-card p-4 text-[14.5px] font-semibold">{message}</p>;
+    return (
+      <div className="border border-hairline-strong bg-card p-4">
+        <p className="text-[14.5px] font-semibold">Hotovo! E-book máte v e-mailu — nebo rovnou tady:</p>
+        <a
+          href="/ebook/produktivni-top-30-tipu.pdf"
+          className="mt-3 inline-block bg-accent px-4 py-2.5 text-[12.5px] font-bold tracking-wide text-accent-ink uppercase hover:bg-ink hover:text-paper"
+        >
+          Stáhnout Top 30 tipů (PDF)
+        </a>
+      </div>
+    );
   }
 
   return (
