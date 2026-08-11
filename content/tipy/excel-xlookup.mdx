@@ -9,10 +9,34 @@ saves: "~15 min týdně"
 date: "2026-06-22"
 ---
 
-Jestli ještě píšete VLOOKUP, tohle je upgrade, který se naučíte za pět minut.
+Jestli ještě píšete VLOOKUP, tohle je upgrade, který se naučíte za pět minut a pak se k VLOOKUP nikdy nevrátíte. XLOOKUP je novější funkce, která řeší tři největší otravnosti svého předchůdce najednou — a navíc se píše čitelněji.
+
+## Vzorová situace
+
+Manažer Tomáš má ceník se stovkami položek a pravidelně do něj přidává nové sloupce — třeba slevu nebo dodavatele. Pokaždé, když sloupec vloží někam doprostřed, se mu rozsypou všechny vzorce VLOOKUP, protože počítaly pořadí sloupce natvrdo a to pořadí se vložením posunulo. Musí je pak jeden po druhém opravovat.
+
+S XLOOKUP se tohle nestane — funkce se neptá „kolikátý sloupec", ale přímo na to, ve kterém sloupci hledat výsledek. Vložený sloupec vzorec vůbec nezajímá.
 
 ## Jak na to
 
-1. `=XLOOKUP(co; kde_hledat; co_vratit)` — třeba `=XLOOKUP(A2; Ceník[Kód]; Ceník[Cena])`.
-2. Čtvrtý argument řeší nenalezené: `=XLOOKUP(A2; ...; ...; "chybí")`.
-3. Na rozdíl od VLOOKUP může být výsledkový sloupec i **vlevo** od hledacího.
+1. Základní zápis: `=XLOOKUP(co; kde_hledat; co_vratit)` — třeba `=XLOOKUP(A2; Ceník[Kód]; Ceník[Cena])` vyhledá kód z buňky A2 ve sloupci Kód a vrátí odpovídající cenu.
+2. Čtvrtý, nepovinný argument řeší, co se stane, když se hledaná hodnota nenajde: `=XLOOKUP(A2; Ceník[Kód]; Ceník[Cena]; "chybí")` vrátí text „chybí" místo chybové hlášky.
+3. Na rozdíl od VLOOKUP může být sloupec s výsledkem klidně **vlevo** od sloupce, ve kterém hledáte — VLOOKUP uměl hledat jen doprava.
+4. Vložení nebo přesunutí sloupce mezitím vzorec nerozbije, protože se odkazuje na názvy sloupců nebo oblasti, ne na jejich pořadí.
+5. XLOOKUP je dostupný v Excelu 365 a Excelu 2021 a novějším; ve starších verzích ho nenajdete a je potřeba zůstat u INDEX/MATCH nebo VLOOKUP.
+
+## Nejlepší nástroje
+
+- **XLOOKUP přímo v Excelu** — vestavěná funkce, žádná instalace, funguje i na formátovaných tabulkách.
+- **Tabulky Google** — mají obdobnou funkci se stejnou logikou, hodí se pro sdílené sešity.
+- **INDEX/MATCH** — starší kombinace dvou funkcí se stejnou pružností jako XLOOKUP; užitečná záloha ve verzích Excelu, kde XLOOKUP chybí.
+
+## Co vám to přinese
+
+- **Čas:** u sešitu se stovkami vzorců ušetříte opakované opravování po každé změně struktury — klidně desítky minut týdně.
+- **Spolehlivost:** vzorce se nerozbijí, když někdo (třeba kolega) vloží nový sloupec.
+- **Čitelnost:** zápis `=XLOOKUP(co; kde; co_vratit)` je srozumitelnější než zápis VLOOKUP, kde se pořadí sloupce musí pokaždé dohledávat.
+
+## Pro tip
+
+Pátý argument XLOOKUP umí i přibližnou shodu, třeba pro vyhledávání v cenových pásmech — pokud ho zatím neznáte, klidně ho nechte prázdný a používejte jen přesnou shodu, která pokryje devadesát procent běžných případů.
