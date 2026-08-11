@@ -18,7 +18,7 @@ export default function AiPage() {
   const news = getAllNews();
   return (
     <div className="mx-auto max-w-5xl px-6 py-14">
-      <p className="eyebrow mb-2 text-accent">Novinky přeložené do praxe</p>
+      <p className="eyebrow mb-2 text-faint">Novinky přeložené do praxe</p>
       <h1 className="display text-[clamp(30px,5vw,48px)]">AI &amp; produktivita</h1>
       <p className="mt-4 max-w-[58ch] text-[16px] leading-relaxed text-muted">
         AI mění pravidla produktivity rychleji, než stíháme číst. Tady najdete
@@ -32,7 +32,7 @@ export default function AiPage() {
           {news.map((n) => (
             <article key={n.slug} className="border border-hairline-strong bg-card p-6">
               <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-                <span className="eyebrow text-accent">AI novinka · {formatDate(n.date)}</span>
+                <span className="eyebrow text-faint">AI novinka · {formatDate(n.date)}</span>
                 <span className="eyebrow text-faint">{n.minutes} min čtení</span>
               </div>
               <h2 className="text-[19px] leading-snug font-bold">
@@ -43,7 +43,7 @@ export default function AiPage() {
               <p className="mt-2 max-w-[70ch] text-[14.5px] leading-relaxed text-muted">{n.excerpt}</p>
               <Link
                 href={`/ai/${n.slug}`}
-                className="mt-4 inline-block border-b-2 border-accent pb-0.5 text-[13px] font-bold hover:text-accent"
+                className="mt-4 inline-block draw-link text-[13px] font-bold"
               >
                 Číst celou novinku
               </Link>
@@ -52,7 +52,7 @@ export default function AiPage() {
         </div>
       ) : (
         <div className="mt-10 max-w-xl border border-hairline-strong bg-card p-6">
-          <p className="eyebrow mb-2 text-accent">První novinky jsou na cestě</p>
+          <p className="eyebrow mb-2 text-faint">První novinky jsou na cestě</p>
           <p className="text-[14.5px] text-muted">
             Rutina právě začala sbírat. První AI přehledy se tu objeví během pár dní.
           </p>
@@ -60,7 +60,7 @@ export default function AiPage() {
       )}
 
       <div className="mt-12 max-w-xl">
-        <p className="eyebrow mb-2 text-accent">Nezmeškejte nic</p>
+        <p className="eyebrow mb-2 text-faint">Nezmeškejte nic</p>
         <p className="mb-5 text-[14.5px] text-muted">
           Nejdůležitější AI novinky posíláme i v týdenním newsletteru.
         </p>

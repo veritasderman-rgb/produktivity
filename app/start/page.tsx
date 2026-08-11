@@ -51,7 +51,7 @@ const checklists = [
 export default function StartPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-14">
-      <p className="eyebrow mb-2 text-accent">Začněte tady</p>
+      <p className="eyebrow mb-2 text-faint">Začněte tady</p>
       <h1 className="display text-[clamp(30px,5vw,48px)]">
         Jeden notes.<br />Tři značky. Čtyři minuty denně.
       </h1>
@@ -72,7 +72,7 @@ export default function StartPage() {
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
         {marks.map((m) => (
           <div key={m.mark} className="border border-hairline-strong bg-card p-3 text-center">
-            <span className="block font-mono text-[22px] font-bold text-accent">{m.mark}</span>
+            <span className="block font-mono text-[22px] font-bold text-ink">{m.mark}</span>
             <span className="eyebrow text-faint">{m.label}</span>
           </div>
         ))}
@@ -121,7 +121,7 @@ export default function StartPage() {
       </div>
 
       <div className="mt-12 border-t-2 border-hairline-strong pt-8">
-        <p className="eyebrow mb-2 text-accent">Jeden tip týdně</p>
+        <p className="eyebrow mb-2 text-faint">Jeden tip týdně</p>
         <p className="mb-5 max-w-[48ch] text-[15px] text-muted">
           Newsletter vás provede příručkou v rozumném tempu — a hned dostanete e-book Top 30 tipů.
         </p>

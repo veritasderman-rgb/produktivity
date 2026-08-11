@@ -47,7 +47,7 @@ export default async function NewsDetail({
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">
-      <p className="eyebrow mb-4 text-accent">
+      <p className="eyebrow mb-4 text-faint">
         <Link href="/ai" className="hover:underline">AI &amp; produktivita</Link>
         {" · "}
         {formatDate(n.date)} · {n.minutes} min čtení
@@ -71,7 +71,7 @@ export default async function NewsDetail({
         </p>
       )}
       <div className="mt-12">
-        <p className="eyebrow mb-2 text-accent">AI novinky každý týden</p>
+        <p className="eyebrow mb-2 text-faint">AI novinky každý týden</p>
         <p className="mb-5 max-w-[48ch] text-[15px] text-muted">
           To podstatné ze světa AI a produktivity v týdenním newsletteru.
         </p>

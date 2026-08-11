@@ -78,8 +78,7 @@ export function LeadForm() {
         <button
           type="submit"
           disabled={status === "sending"}
-          className="bg-accent px-6 py-3.5 text-[13.5px] font-bold tracking-wide text-accent-ink uppercase hover:bg-ink hover:text-paper disabled:opacity-60"
-          style={{ fontStretch: "110%" }}
+          className="bg-accent px-7 py-3.5 text-[14px] font-bold text-accent-ink transition-colors hover:bg-accent-hover disabled:opacity-60"
         >
           {status === "sending" ? "Odesílám…" : "Poptat školení"}
         </button>

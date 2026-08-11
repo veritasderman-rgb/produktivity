@@ -1,7 +1,7 @@
 # Zadání webu Produktivni.cz
 
-> **Verze:** 1.1 · **Datum:** 11. 8. 2026
-> **Stav:** klíčová rozhodnutí odsouhlasena, čeká se na výběr směru vizuální identity
+> **Verze:** 1.3 · **Datum:** 11. 8. 2026
+> **Stav:** web v produkci na produktivni.cz; nasazena nová vizuální identita (viz §10)
 
 ## Odsouhlasená rozhodnutí (11. 8. 2026)
 
@@ -12,7 +12,7 @@
 | Sociální kanály (Buffer) | **Instagram, Facebook, LinkedIn** |
 | Cena školení | Rozhodne se podle cenové rešerše (viz §9) |
 | Doména produktivni.cz | Zatím neregistrována — vyřeší se ve Fázi 3 (nasazení) |
-| Vizuální identita | **Vybrán směr A · Přesnost** (švýcarská mřížka, klávesa); akcent změněn z modré na **zelenou** na přání (11. 8.) — viz §10 |
+| Vizuální identita | **Nová identita (11. 8. večer, nahrazuje směr A):** bílá + černá + signálová červená `#E03616` jen pro interakce, Schibsted Grotesk + Lora + JetBrains Mono, ručně kreslený line-art, výraznější scroll animace, bez dark mode („později") — definováno design systémem, viz §10 |
 
 ---
 
@@ -178,6 +178,17 @@ Navrženy 3 směry (kompletní vizuální pitch s živými ukázkami: interní a
 
 **Rozhodnuto (11. 8. 2026): směr A · Přesnost.** Hravost směru B lze dávkovaně použít v social vizuálech, C případně jako „režim terminálu" v AI sekci (easter egg).
 
+### Nová identita (11. 8. 2026 večer — nahrazuje směr A)
+
+Uživatel dodal nový design systém („Produktivní.cz — Design System"), který je od této chvíle **jediný zdroj pravdy** pro vizuál webu:
+
+- **Barvy:** bílý papír `#FFFFFF`, černý inkoust `#141414`, šedé `--muted`/`--faint`, vlasové linky `#E7E7E4`. Jediná barva je **signálová červená `#E03616`** — výhradně interakce (odkazy, hovery, jedno hlavní CTA na stránce, jeden akcent v ilustraci). Nikdy pozadí, nikdy text odstavců.
+- **Typografie:** Schibsted Grotesk (UI + nadpisy, bez verzálek, prostrkání −0.03 em) · Lora (texty článků, knižní sazba 18.5 px/1.78, max 62 ch) · JetBrains Mono (eyebrow štítky, klávesy, čísla).
+- **Prázdný prostor** jako hlavní výrazový prostředek; stránka max 1040 px; ostré rohy (jediné zaoblení má klávesa); jediný stín je tvrdý „stín klávesy" `0 4px 0 #141414`.
+- **Ilustrace:** ručně kreslený line-art — ~2px černý tah na bílé, bez výplní, přesně jeden červený prvek. Do dodání skutečných kreseb slouží AI aproximace ve stejném stylu.
+- **Animace:** scroll-odhalování (`.reveal`), podtržení kreslené zleva (`.draw-link`), „stisk klávesy" na hoveru; vždy respektovat `prefers-reduced-motion`.
+- **Dark mode zatím ne** (rozhodnuto „později"). Motiv klávesy „P" jako logo zůstává — červené písmeno na bílé klávese.
+
 ---
 
-*Po výběru směru identity začíná Fáze 1 — základ webu s design systémem zvoleného směru.*
+*Web běží v produkci s novou identitou; e-book a social šablony se na ni překlopí následně.*

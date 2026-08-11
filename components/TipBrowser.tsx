@@ -52,10 +52,10 @@ function FilterRow({
       <button
         type="button"
         onClick={() => onPick(null)}
-        className={`px-3 py-1.5 text-[13px] font-semibold ${
+        className={`font-mono text-[12px] font-semibold tracking-[0.08em] uppercase px-3.5 py-2 border-[1.5px] transition-colors ${
           active === null
-            ? "bg-ink text-paper"
-            : "border border-hairline bg-card hover:border-accent"
+            ? "border-ink bg-ink text-paper"
+            : "border-hairline bg-paper hover:border-ink"
         }`}
       >
         Vše
@@ -66,10 +66,10 @@ function FilterRow({
             key={value}
             type="button"
             onClick={() => onPick(active === value ? null : value)}
-            className={`px-3 py-1.5 text-[13px] font-semibold ${
+            className={`font-mono text-[12px] font-semibold tracking-[0.08em] uppercase px-3.5 py-2 border-[1.5px] transition-colors ${
               active === value
-                ? "bg-accent text-accent-ink"
-                : "border border-hairline bg-card hover:border-accent"
+                ? "border-ink bg-ink text-paper"
+                : "border-hairline bg-paper hover:border-ink"
             }`}
           >
             {text} <span className="tabular opacity-60">{counts[value]}</span>
@@ -159,7 +159,7 @@ export function TipBrowser({ tips }: { tips: Tip[] }) {
             <button
               type="button"
               onClick={() => { setCategory(null); setPlatform(null); setAudience(null); setQuery(""); sync(null, null, null); }}
-              className="border-b-2 border-accent pb-0.5 text-[13px] font-bold hover:text-accent"
+              className="draw-link text-[13px] font-bold"
             >
               Zrušit filtry
             </button>

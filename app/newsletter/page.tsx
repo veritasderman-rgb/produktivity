@@ -11,7 +11,7 @@ export default function NewsletterPage() {
   return (
     <div className="mx-auto max-w-5xl px-6 py-14">
       <div className="max-w-2xl">
-        <p className="eyebrow mb-2 text-accent">Každý čtvrtek ráno</p>
+        <p className="eyebrow mb-2 text-faint">Každý čtvrtek ráno</p>
         <h1 className="display text-[clamp(30px,5vw,48px)]">Jeden tip týdně</h1>
         <p className="mt-4 text-[16.5px] leading-relaxed text-muted">
           Krátký e-mail s tím nejlepším z týdne: jeden tip do hloubky, pár odkazů
@@ -19,9 +19,9 @@ export default function NewsletterPage() {
           dvě minuty u kafe.
         </p>
         <ul className="mt-6 mb-8 space-y-2 text-[15px] font-semibold">
-          <li className="flex gap-3"><span className="text-accent" aria-hidden="true">→</span> Žádný spam, žádné „akční nabídky"</li>
-          <li className="flex gap-3"><span className="text-accent" aria-hidden="true">→</span> Odhlášení jedním klikem, kdykoli</li>
-          <li className="flex gap-3"><span className="text-accent" aria-hidden="true">→</span> Bonus hned po přihlášení: e-book <strong>Top 30 tipů, které vám vrátí hodinu denně</strong></li>
+          <li className="flex gap-3"><span className="text-faint" aria-hidden="true">→</span> Žádný spam, žádné „akční nabídky"</li>
+          <li className="flex gap-3"><span className="text-faint" aria-hidden="true">→</span> Odhlášení jedním klikem, kdykoli</li>
+          <li className="flex gap-3"><span className="text-faint" aria-hidden="true">→</span> Bonus hned po přihlášení: e-book <strong>Top 30 tipů, které vám vrátí hodinu denně</strong></li>
         </ul>
         <div className="max-w-md">
           <NewsletterForm source="newsletter-page" />

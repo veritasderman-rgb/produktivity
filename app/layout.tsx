@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Archivo, JetBrains_Mono } from "next/font/google";
+import { Schibsted_Grotesk, Lora, JetBrains_Mono } from "next/font/google";
 import { Keycap } from "@/components/Keycap";
 import "./globals.css";
 
-const archivo = Archivo({
+const schibsted = Schibsted_Grotesk({
   subsets: ["latin", "latin-ext"],
-  axes: ["wdth"],
-  variable: "--font-archivo",
+  variable: "--font-schibsted",
+});
+
+const lora = Lora({
+  subsets: ["latin", "latin-ext"],
+  style: ["normal", "italic"],
+  variable: "--font-lora",
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -34,10 +39,10 @@ const nav = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="cs" className={`${archivo.variable} ${jetbrainsMono.variable}`}>
+    <html lang="cs" className={`${schibsted.variable} ${lora.variable} ${jetbrainsMono.variable}`}>
       <body>
-        <header className="border-b border-hairline">
-          <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4">
+        <header className="sticky top-0 z-10 border-b border-hairline bg-paper">
+          <div className="mx-auto flex max-w-[var(--page-max)] items-center justify-between gap-4 px-[var(--page-pad)] py-3.5">
             <Link href="/" className="flex items-center gap-3 no-underline">
               <Keycap size={38} />
               <span className="leading-none">
@@ -50,26 +55,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="px-3 py-2 text-[14px] font-semibold hover:text-accent"
+                  className="draw-link px-2.5 py-2 text-[14px] font-semibold"
                 >
                   {item.label}
                 </Link>
               ))}
               <Link
                 href="/newsletter"
-                className="ml-2 bg-accent px-4 py-2.5 text-[13px] font-bold tracking-wide text-accent-ink uppercase hover:bg-ink hover:text-paper"
-                style={{ fontStretch: "110%" }}
+                className="ml-2 bg-ink px-4 py-2.5 text-[13px] font-bold text-paper transition-colors hover:bg-accent hover:text-accent-ink"
               >
                 Odebírat
               </Link>
             </nav>
-            <Link href="/newsletter" className="sm:hidden bg-accent px-3 py-2 text-[12px] font-bold uppercase text-accent-ink">
+            <Link href="/newsletter" className="sm:hidden bg-ink px-3 py-2 text-[12px] font-bold text-paper">
               Odebírat
             </Link>
           </div>
           <nav className="flex justify-center gap-4 border-t border-hairline px-4 py-2 sm:hidden" aria-label="Mobilní navigace">
             {nav.map((item) => (
-              <Link key={item.href} href={item.href} className="py-1 text-[13px] font-semibold">
+              <Link key={item.href} href={item.href} className="draw-link py-1 text-[13px] font-semibold">
                 {item.label}
               </Link>
             ))}
@@ -79,7 +83,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main>{children}</main>
 
         <footer className="mt-24 border-t-2 border-hairline-strong">
-          <div className="mx-auto grid max-w-5xl gap-10 px-6 py-14 sm:grid-cols-3">
+          <div className="mx-auto grid max-w-[var(--page-max)] gap-10 px-[var(--page-pad)] py-14 sm:grid-cols-3">
             <div>
               <div className="flex items-center gap-3">
                 <Keycap size={32} />
@@ -93,23 +97,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div>
               <div className="eyebrow mb-4 text-faint">Obsah</div>
               <ul className="space-y-2 text-[14px] font-semibold">
-                <li><Link href="/prirucka" className="hover:text-accent">Příručka produktivity</Link></li>
-                <li><Link href="/tipy" className="hover:text-accent">Tipy &amp; triky</Link></li>
-                <li><Link href="/ai" className="hover:text-accent">AI &amp; produktivita</Link></li>
-                <li><Link href="/rss.xml" className="hover:text-accent">RSS</Link></li>
+                <li><Link href="/prirucka" className="draw-link">Příručka produktivity</Link></li>
+                <li><Link href="/tipy" className="draw-link">Tipy &amp; triky</Link></li>
+                <li><Link href="/ai" className="draw-link">AI &amp; produktivita</Link></li>
+                <li><Link href="/rss.xml" className="draw-link">RSS</Link></li>
               </ul>
             </div>
             <div>
               <div className="eyebrow mb-4 text-faint">Spolupráce</div>
               <ul className="space-y-2 text-[14px] font-semibold">
-                <li><Link href="/skoleni" className="hover:text-accent">Školení pro firmy</Link></li>
-                <li><Link href="/newsletter" className="hover:text-accent">Newsletter</Link></li>
-                <li><Link href="/o-projektu" className="hover:text-accent">O projektu</Link></li>
+                <li><Link href="/skoleni" className="draw-link">Školení pro firmy</Link></li>
+                <li><Link href="/newsletter" className="draw-link">Newsletter</Link></li>
+                <li><Link href="/o-projektu" className="draw-link">O projektu</Link></li>
               </ul>
             </div>
           </div>
           <div className="border-t border-hairline">
-            <div className="eyebrow mx-auto max-w-5xl px-6 py-5 text-faint">
+            <div className="eyebrow mx-auto max-w-[var(--page-max)] px-[var(--page-pad)] py-5 text-faint">
               © {new Date().getFullYear()} Josef Pavlovic · Produktivní.cz
             </div>
           </div>

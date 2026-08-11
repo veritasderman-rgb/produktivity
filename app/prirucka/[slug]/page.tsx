@@ -56,7 +56,7 @@ export default async function ChapterPage({
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">
-      <p className="eyebrow mb-4 text-accent">
+      <p className="eyebrow mb-4 text-faint">
         <Link href="/prirucka" className="hover:underline">Příručka</Link>
         {" · "}
         {sectionLabels[ch.section]} · {ch.minutes} min čtení
@@ -98,7 +98,7 @@ export default async function ChapterPage({
       </nav>
 
       <div className="mt-12">
-        <p className="eyebrow mb-2 text-accent">Chcete pokračovat v tempu?</p>
+        <p className="eyebrow mb-2 text-faint">Chcete pokračovat v tempu?</p>
         <p className="mb-5 max-w-[48ch] text-[15px] text-muted">
           Každý týden jeden tip z příručky do e-mailu — v pořadí, které dává smysl.
         </p>

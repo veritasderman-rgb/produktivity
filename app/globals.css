@@ -1,36 +1,37 @@
 @import "tailwindcss";
 
-
-/* ---------- Design systém: směr A · Přesnost ---------- */
+/* ---------- Design systém: bílá + černá + signálová červená ----------
+   Zdroj pravdy: design system „Produktivní.cz" (08/2026).
+   Červená je POUZE pro interakce: odkazy, hovery, jedno hlavní CTA
+   na stránce, jeden akcent v ilustraci. Nikdy pozadí, nikdy text odstavců. */
 :root {
-  --paper: #f1f2ef;
-  --card: #fbfbf9;
-  --ink: #111417;
-  --muted: #3c4144;
-  --faint: #767c78;
-  --hairline: #d9dbd5;
-  --hairline-strong: #111417;
-  --accent: #0e7c3f;
-  --accent-ink: #ffffff; /* text na zelené */
-  --key-shadow: #111417;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #101214;
-    --card: #17191c;
-    --ink: #e8eae7;
-    --muted: #b0b6b1;
-    --faint: #868c88;
-    --hairline: #2a2e31;
-    --hairline-strong: #e8eae7;
-    --accent: #3ecf8e;
-    --accent-ink: #04150c;
-    --key-shadow: #000000;
-  }
+  --paper: #ffffff;
+  --surface: #f7f7f5;
+  --card: #ffffff;
+  --ink: #141414;
+  --muted: #494b4c;
+  --faint: #8b8d8e;
+  --hairline: #e7e7e4;
+  --hairline-strong: #141414;
+  --accent: #e03616;
+  --accent-hover: #b52a0f;
+  --accent-ink: #ffffff;
+  --key-shadow: #141414;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 0.18s;
+  --dur-med: 0.45s;
+  --dur-slow: 0.8s;
+
+  --measure: 62ch;
+  --page-max: 1040px;
+  --page-pad: 20px;
+  --radius-key: 6px;
 }
 
 @theme inline {
   --color-paper: var(--paper);
+  --color-surface: var(--surface);
   --color-card: var(--card);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
@@ -38,8 +39,10 @@
   --color-hairline: var(--hairline);
   --color-hairline-strong: var(--hairline-strong);
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
   --color-accent-ink: var(--accent-ink);
-  --font-sans: var(--font-archivo), system-ui, sans-serif;
+  --font-sans: var(--font-schibsted), system-ui, sans-serif;
+  --font-serif: var(--font-lora), Georgia, serif;
   --font-mono: var(--font-jbmono), ui-monospace, monospace;
 }
 
@@ -55,18 +58,17 @@ body {
   color: var(--accent-ink);
 }
 
-/* Nadpisové řezy: Archivo v rozšířené šířce */
+/* Nadpisy — Schibsted Grotesk, těsné, bez verzálek: klid a vzduch */
 .display {
-  font-weight: 850;
-  font-stretch: 115%;
-  letter-spacing: -0.015em;
-  line-height: 1.02;
-  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  color: var(--ink);
   text-wrap: balance;
 }
-.display-wide {
+.display-hero {
   font-weight: 850;
-  font-stretch: 125%;
+  letter-spacing: -0.035em;
 }
 
 .eyebrow {
@@ -86,7 +88,7 @@ body {
   font-weight: 600;
   line-height: 1;
   padding: 5px 8px 7px;
-  border-radius: 6px;
+  border-radius: var(--radius-key);
   background: var(--card);
   border: 1.5px solid var(--hairline-strong);
   box-shadow: 0 2.5px 0 var(--key-shadow);
@@ -94,48 +96,140 @@ body {
   vertical-align: middle;
 }
 
-/* Text článku */
+/* Text článku — Lora, knižní sazba */
 .prose-a {
-  max-width: 65ch;
-  font-size: 16.5px;
-  line-height: 1.7;
+  font-family: var(--font-serif);
+  max-width: var(--measure);
+  font-size: 18.5px;
+  line-height: 1.78;
   color: var(--muted);
 }
 .prose-a h2 {
+  font-family: var(--font-sans);
   font-weight: 800;
-  font-stretch: 110%;
-  font-size: 1.35em;
+  font-size: 1.3em;
+  letter-spacing: -0.02em;
   color: var(--ink);
-  margin: 1.6em 0 0.6em;
-  letter-spacing: -0.01em;
+  margin: 1.7em 0 0.6em;
 }
 .prose-a h3 {
-  font-weight: 750;
-  font-size: 1.1em;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 1.05em;
   color: var(--ink);
   margin: 1.4em 0 0.5em;
 }
-.prose-a p { margin: 0.8em 0; }
-.prose-a ul { list-style: disc; margin: 0.8em 0; padding-left: 1.4em; }
-.prose-a ol { list-style: decimal; margin: 0.8em 0; padding-left: 1.4em; }
-.prose-a ol li::marker, .prose-a ul li::marker { color: var(--accent); font-weight: 700; }
-.prose-a li { margin: 0.35em 0; }
+.prose-a p { margin: 0.85em 0; }
+.prose-a ul { list-style: disc; margin: 0.85em 0; padding-left: 1.3em; }
+.prose-a ol { list-style: decimal; margin: 0.85em 0; padding-left: 1.3em; }
+.prose-a ol li::marker, .prose-a ul li::marker { color: var(--accent); }
+.prose-a li { margin: 0.4em 0; }
 .prose-a strong { color: var(--ink); }
-.prose-a a { color: var(--ink); border-bottom: 2px solid var(--accent); text-decoration: none; }
+.prose-a em { font-style: italic; }
+.prose-a a { color: var(--ink); border-bottom: 1.5px solid var(--accent); text-decoration: none; }
 .prose-a a:hover { color: var(--accent); }
 .prose-a code {
   font-family: var(--font-mono);
-  font-size: 0.85em;
-  background: var(--card);
+  font-size: 0.8em;
+  background: var(--surface);
   border: 1px solid var(--hairline);
   border-radius: 4px;
   padding: 2px 6px;
 }
+.prose-a blockquote {
+  border-left: 2px solid var(--ink);
+  margin: 1.2em 0;
+  padding: 0.2em 0 0.2em 1.2em;
+  font-style: italic;
+  color: var(--ink);
+}
 
 .tabular { font-variant-numeric: tabular-nums; }
 
-/* ---------- Infografiky (ig-*) ---------- */
-.ig { margin: 2em 0; }
+/* ---------- Pohyb ---------- */
+/* Scroll-odhalování: .reveal + JS přidá .is-in (IntersectionObserver) */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
+}
+.reveal.is-in { opacity: 1; transform: none; }
+.reveal-d1 { transition-delay: 0.08s; }
+.reveal-d2 { transition-delay: 0.16s; }
+.reveal-d3 { transition-delay: 0.24s; }
+
+/* Podtržení, které se kreslí zleva */
+.draw-link {
+  position: relative;
+  text-decoration: none;
+  color: var(--ink);
+}
+.draw-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 1.5px;
+  width: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-med) var(--ease-out);
+}
+.draw-link:hover { color: var(--accent); }
+.draw-link:hover::after { transform: scaleX(1); }
+
+/* Stisk klávesy */
+@keyframes key-press {
+  0%, 100% { transform: translateY(0); box-shadow: 0 2.5px 0 var(--key-shadow); }
+  50% { transform: translateY(2px); box-shadow: 0 0.5px 0 var(--key-shadow); }
+}
+.key-pressable:hover { animation: key-press 0.35s var(--ease-out); }
+
+/* ---------- Karta tipu ---------- */
+.tipcard {
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  padding: 22px 20px;
+  transition: border-color var(--dur-fast) ease, transform var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
+}
+.tipcard:hover {
+  border-color: var(--hairline-strong);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 0 var(--key-shadow);
+}
+.tipcard-no {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--hairline);
+  transition: color var(--dur-fast) ease;
+}
+.tipcard:hover .tipcard-no { color: var(--accent); }
+
+/* ---------- Ilustrační slot (line-art se dodá) ---------- */
+.illust {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: var(--paper);
+  border: 1.5px dashed var(--hairline);
+  min-height: 120px;
+}
+.illust-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  text-align: center;
+  padding: 12px;
+}
+
+/* ---------- Infografiky (ig-*) — černobílé, červená jen zvýraznění ---------- */
+.ig { margin: 2em 0; font-family: var(--font-sans); }
 .ig-title {
   font-family: var(--font-mono);
   font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
@@ -149,11 +243,11 @@ body {
 .ig-stat {
   display: flex; flex-direction: column; gap: 4px;
   background: var(--card); border: 1px solid var(--hairline-strong); padding: 18px 16px 14px;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
 }
 .ig-stat:hover { transform: translateY(-3px); box-shadow: 0 4px 0 var(--key-shadow); }
 .ig-stat-value {
-  font-weight: 850; font-stretch: 115%; font-size: clamp(26px, 3.4vw, 36px); line-height: 1;
+  font-weight: 850; font-size: clamp(26px, 3.4vw, 36px); letter-spacing: -0.02em; line-height: 1;
   color: var(--ink); position: relative; padding-bottom: 8px;
 }
 .ig-stat-value::after {
@@ -169,9 +263,9 @@ body {
 .ig-tl-row {
   display: grid; grid-template-columns: 72px 20px minmax(0, 1fr); gap: 0 10px;
   position: relative; padding: 10px 6px; margin: 0 !important;
-  transition: background 0.15s ease;
+  transition: background var(--dur-fast) ease;
 }
-.ig-tl-row:hover { background: var(--card); }
+.ig-tl-row:hover { background: var(--surface); }
 .ig-tl-row::before {
   content: ""; position: absolute; left: calc(72px + 10px + 9px); top: 0; bottom: 0;
   width: 2px; background: var(--hairline);
@@ -181,12 +275,12 @@ body {
 .ig-tl-time { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--faint); text-align: right; align-self: center; }
 .ig-tl-dot {
   width: 12px; height: 12px; border-radius: 50%; background: var(--paper);
-  border: 3px solid var(--accent); align-self: center; justify-self: center; z-index: 1;
-  transition: transform 0.18s ease, background 0.18s ease;
+  border: 3px solid var(--ink); align-self: center; justify-self: center; z-index: 1;
+  transition: transform var(--dur-fast) ease, background var(--dur-fast) ease, border-color var(--dur-fast) ease;
 }
-.ig-tl-row:hover .ig-tl-dot { transform: scale(1.35); background: var(--accent); }
+.ig-tl-row:hover .ig-tl-dot { transform: scale(1.35); background: var(--accent); border-color: var(--accent); }
 .ig-tl-body { display: flex; flex-direction: column; gap: 1px; }
-.ig-tl-title { font-size: 14.5px; font-weight: 700; color: var(--ink); transition: color 0.15s ease; }
+.ig-tl-title { font-size: 14.5px; font-weight: 700; color: var(--ink); transition: color var(--dur-fast) ease; }
 .ig-tl-row:hover .ig-tl-title { color: var(--accent); }
 .ig-tl-desc { font-size: 13px; color: var(--muted); line-height: 1.45; }
 
@@ -197,12 +291,12 @@ body {
   gap: 12px; align-items: center; padding: 2px 4px;
 }
 .ig-bar-label { font-size: 13.5px; font-weight: 600; color: var(--ink); line-height: 1.25; }
-.ig-bar-track { display: block; height: 14px; background: var(--card); border: 1px solid var(--hairline); border-radius: 4px; overflow: hidden; }
+.ig-bar-track { display: block; height: 14px; background: var(--surface); border: 1px solid var(--hairline); border-radius: 4px; overflow: hidden; }
 .ig-bar-fill {
-  display: block; height: 100%; background: var(--accent); border-radius: 0 4px 4px 0;
-  transform-origin: left center; transition: filter 0.15s ease, transform 0.2s ease;
+  display: block; height: 100%; background: var(--ink); border-radius: 0 4px 4px 0;
+  transform-origin: left center; transition: background var(--dur-fast) ease, transform 0.2s ease;
 }
-.ig-bar-row:hover .ig-bar-fill { filter: brightness(1.18); transform: scaleY(1.12); }
+.ig-bar-row:hover .ig-bar-fill { background: var(--accent); transform: scaleY(1.12); }
 .ig-bar-value { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--muted); text-align: right; }
 .ig-bar-row:hover .ig-bar-value { color: var(--accent); }
 
@@ -212,22 +306,22 @@ body {
 .ig-quad {
   display: flex; flex-direction: column; gap: 6px;
   background: var(--card); border: 1px solid var(--hairline-strong); padding: 16px;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  transition: transform var(--dur-fast) ease, box-shadow var(--dur-fast) ease, border-color var(--dur-fast) ease;
 }
 .ig-quad:hover { transform: translateY(-3px); box-shadow: 0 4px 0 var(--key-shadow); border-color: var(--accent); }
 .ig-quad-hot { border: 2px solid var(--accent); }
 .ig-quad-tag { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
 .ig-quad-hot .ig-quad-tag { color: var(--accent); }
-.ig-quad-title { font-weight: 800; font-stretch: 110%; font-size: 17px; color: var(--ink); }
+.ig-quad-title { font-weight: 800; font-size: 17px; letter-spacing: -0.01em; color: var(--ink); }
 .ig-quad-action { font-size: 13px; font-weight: 700; color: var(--accent); }
 .ig-quad-ex { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
 
 /* Flow — procesní kroky */
-.ig-flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; counter-reset: none; }
+.ig-flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
 .ig-flow-step {
   position: relative; display: flex; flex-direction: column; gap: 6px; margin: 0 !important;
   background: var(--card); border: 1px solid var(--hairline-strong); padding: 14px 14px 12px;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
 }
 .ig-flow-step:hover { transform: translateY(-3px); box-shadow: 0 4px 0 var(--key-shadow); }
 .ig-flow-step:not(:last-child)::after {
@@ -236,10 +330,11 @@ body {
 }
 @media (max-width: 560px) { .ig-flow-step:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -14px; transform: translateX(-50%); } }
 .ig-flow-no {
-  width: 26px; height: 26px; border-radius: 6px; display: grid; place-items: center;
+  width: 26px; height: 26px; border-radius: var(--radius-key); display: grid; place-items: center;
   font-family: var(--font-mono); font-size: 12px; font-weight: 700;
   border: 1.5px solid var(--hairline-strong); color: var(--ink); background: var(--paper);
-  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  box-shadow: 0 2px 0 var(--key-shadow);
+  transition: background var(--dur-fast) ease, color var(--dur-fast) ease, border-color var(--dur-fast) ease;
 }
 .ig-flow-step:hover .ig-flow-no { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .ig-flow-title { font-size: 14px; font-weight: 800; color: var(--ink); line-height: 1.25; }
@@ -258,7 +353,7 @@ body {
 .ig-donut-label { display: block; font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.3; }
 .ig-donut-sub { display: block; font-size: 13px; color: var(--muted); margin-top: 4px; max-width: 36ch; line-height: 1.5; }
 
-a:focus-visible, button:focus-visible, input:focus-visible {
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
@@ -268,4 +363,5 @@ a:focus-visible, button:focus-visible, input:focus-visible {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+  .reveal { opacity: 1; transform: none; }
 }

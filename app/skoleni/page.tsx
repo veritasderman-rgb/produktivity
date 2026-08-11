@@ -41,7 +41,7 @@ const modules = [
 export default function TrainingPage() {
   return (
     <div className="mx-auto max-w-5xl px-6 py-14">
-      <p className="eyebrow mb-2 text-accent">Pro firmy a týmy</p>
+      <p className="eyebrow mb-2 text-faint">Pro firmy a týmy</p>
       <h1 className="display text-[clamp(30px,5vw,48px)]">
         Váš tým nemá čas číst o&nbsp;produktivitě.<br className="max-sm:hidden" /> Naučím ho to osobně.
       </h1>
@@ -62,7 +62,7 @@ export default function TrainingPage() {
             <h3 className="text-[18px] font-bold">{f.name}</h3>
             <p className="eyebrow mt-1 text-faint">{f.time}</p>
             <p className="mt-4 grow text-[14px] leading-relaxed text-muted">{f.desc}</p>
-            <p className="tabular mt-5 text-[26px] font-extrabold" style={{ fontStretch: "115%" }}>
+            <p className="tabular mt-5 text-[26px] font-extrabold">
               {f.price}
             </p>
             <p className="eyebrow mt-1 text-faint">fixně · skupina do 15 lidí · bez DPH</p>
@@ -77,7 +77,7 @@ export default function TrainingPage() {
       <ul className="grid gap-3 sm:grid-cols-2">
         {modules.map((m) => (
           <li key={m} className="flex gap-3 border border-hairline bg-card p-4 text-[14.5px] font-semibold">
-            <span className="text-accent" aria-hidden="true">→</span>
+            <span className="text-faint" aria-hidden="true">→</span>
             {m}
           </li>
         ))}

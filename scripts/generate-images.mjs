@@ -21,9 +21,10 @@ const MODEL = process.env.GEMINI_IMAGE_MODEL ?? "gemini-3.1-flash-image";
 const CONTENT_DIR = path.join(process.cwd(), "content", "prirucka");
 const OUT_DIR = path.join(process.cwd(), "public", "img", "prirucka");
 
-const STYLE = `Minimalist Swiss-style flat vector editorial illustration for a Czech productivity website.
-Strict grid composition, generous whitespace. Off-white paper background (#F1F2EF),
-ink black (#111417) line work, single accent color deep forest green (#0E7C3F).
+const STYLE = `Hand-drawn line-art editorial illustration for a minimalist Czech productivity website.
+Pure white background (#FFFFFF). Black ink pen strokes only (~2px weight, #141414),
+slightly imperfect human-drawn lines, NO fills, NO shading, NO gradients, lots of empty space.
+Exactly ONE small element accented in signal red (#E03616) — a single stroke or shape, nothing more.
 Occasional keyboard keycap motif. No text, no letters, no people's faces. 16:9.`;
 
 function frontmatter(raw) {

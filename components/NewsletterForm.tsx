@@ -35,7 +35,7 @@ export function NewsletterForm({ source = "web" }: { source?: string }) {
         <p className="text-[14.5px] font-semibold">Hotovo! E-book máte v e-mailu — nebo rovnou tady:</p>
         <a
           href="/ebook/produktivni-top-30-tipu.pdf"
-          className="mt-3 inline-block bg-accent px-4 py-2.5 text-[12.5px] font-bold tracking-wide text-accent-ink uppercase hover:bg-ink hover:text-paper"
+          className="mt-3 inline-block bg-ink px-4 py-2.5 text-[13px] font-bold text-paper transition-colors hover:bg-accent hover:text-accent-ink"
         >
           Stáhnout Top 30 tipů (PDF)
         </a>

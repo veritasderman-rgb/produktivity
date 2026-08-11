@@ -35,7 +35,7 @@ export default async function TipDetail({
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">
-      <p className="eyebrow mb-4 text-accent">
+      <p className="eyebrow mb-4 text-faint">
         <Link href="/tipy" className="hover:underline">Tipy &amp; triky</Link>
         {" · "}
         {tip.category} · {tip.platform} · {tip.saves}
@@ -61,7 +61,7 @@ export default async function TipDetail({
         <MDXRemote source={tip.body} components={mdxComponents} />
       </div>
       <div className="mt-14 border-t-2 border-hairline-strong pt-8">
-        <p className="eyebrow mb-2 text-accent">Líbil se vám tip?</p>
+        <p className="eyebrow mb-2 text-faint">Líbil se vám tip?</p>
         <p className="mb-5 max-w-[48ch] text-[15px] text-muted">
           Každý týden posílám jeden takový do e-mailu. Dvě minuty čtení, hodiny úspor.
         </p>
