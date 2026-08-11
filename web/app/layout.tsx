@@ -1,7 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Archivo, JetBrains_Mono } from "next/font/google";
 import { Keycap } from "@/components/Keycap";
 import "./globals.css";
+
+const archivo = Archivo({
+  subsets: ["latin", "latin-ext"],
+  axes: ["wdth"],
+  variable: "--font-archivo",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-jbmono",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://produktivni.cz"),
@@ -22,7 +34,7 @@ const nav = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="cs">
+    <html lang="cs" className={`${archivo.variable} ${jetbrainsMono.variable}`}>
       <body>
         <header className="border-b border-hairline">
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4">
