@@ -1,6 +1,6 @@
 ---
 title: "Večerní rutina: AI vytáhne z pošty všechno, co jste komu slíbili"
-excerpt: "V 17:30 projde automat dnešní poštu a sepíše, co jste komu slíbili, co kdo slíbil vám a na co jste neodpověděli — a rovnou založí úkoly ke schválení."
+excerpt: "Kompletní návod s prompty: jak naučit rutinu rozeznat slib od zdvořilosti, napojit poštu, schůzky a úkolovník konektorem, nastavit večerní běh v 17:30 a ranní schvalování za pět minut. Závazky vypisuje AI, potvrzuje je výhradně člověk."
 category: "ai"
 platform: "vsude"
 audience: ["manazer", "freelancer"]
@@ -9,38 +9,581 @@ saves: "~20 min denně"
 date: "2026-08-11"
 ---
 
-Nejzákeřnější díra v produktivitě nejsou nesplněné úkoly, ale sliby roztroušené v konverzacích. „Pošlu ti to do pátku.“ „Mrknu na to.“ „Ozvu se příští týden.“ Každá taková věta je závazek, který si nikdo nezapsal — a který si za tři dny připomene druhá strana, ne vy. Večerní rutina tuhle díru zalepí: jednou denně projde poštu a vytáhne závazky dřív, než se stanou problémem.
+Nejzákeřnější díra v produktivitě nejsou nesplněné úkoly, ale sliby roztroušené v konverzacích. „Pošlu ti to do pátku." „Mrknu na to." „Ozvu se příští týden." Každá taková věta je závazek, který si nikdo nezapsal — a který si za tři dny připomene druhá strana, ne vy. Úkolovník o něm neví, kalendář o něm neví, a vy si na něj vzpomenete přesně ve chvíli, kdy už je pozdě.
+
+**Večerní rutina tuhle díru zalepí jedním způsobem: jednou denně, půl hodiny před koncem vaší práce, projde dnešní poštu a zápisy ze schůzek, vytáhne z nich závazky a připraví návrhy úkolů, které vy ráno jen schválíte.** Nejde o shrnutí dne pro pocit přehledu. Jde o převod vět typu „to zařídím" na položky se jménem, obsahem a termínem — tedy na něco, co jde odškrtnout.
+
+Návod vede od nuly k funkční rutině v sedmi fázích: definice, co je vlastně slib, napojení zdrojů konektorem, kompletní zadání večerního běhu, zakládání návrhů do úkolovníku, ranní schvalovací rituál, dva týdny ladění falešných poplachů a hranice, které se neposouvají. Můžete ho číst na přeskáčku, ale fázi 1 nepřeskakujte — bez ní vám rutina vrátí seznam zdvořilostních frází. A nad vším platí pravidlo, které rozhoduje o tom, jestli si stavíte asistenta, nebo generátor šumu: **rutina smí navrhnout cokoli, potvrdit závazek smí výhradně člověk.**
 
 ## Vzorová situace
 
-Obchodník Marek má za sebou den se čtyřmi hovory a čtyřiceti maily. V šest hodin zavírá notebook s pocitem, že „něco měl ještě někomu poslat“, ale netuší co. V pátek mu volá klient, že čeká na podklady slíbené v úterý. Marek se omlouvá a shání je narychlo — a při tom si vzpomene, že sám čeká na cenovou nabídku od dodavatele, kterou měl dostat před týdnem.
+Obchodník Marek má za sebou den se čtyřmi hovory a čtyřiceti maily. V šest hodin zavírá notebook s pocitem, že „něco měl ještě někomu poslat", ale netuší co. Nejde o lenost ani o špatnou paměť: během hovoru s klientem řekl větu „podklady vám dohodím ještě tento týden", a protože zrovna psal do jiného okna poznámku k ceně, ta věta se nikam nezapsala. Za den takových vět vypustí sedm až deset.
 
-S večerní rutinou dostane Marek v 17:30 jeden přehled: tři věci, které dnes slíbil, s termíny; dvě věci, které slíbili jemu, včetně informace, jak dlouho už čeká; a čtyři maily starší dvou dnů bez odpovědi. Návrhy úkolů už jsou založené v úkolovníku se štítkem „ke schválení“. Marek je za tři minuty projde, dva smaže, tři potvrdí — a jde od práce s prázdnou hlavou.
+V pátek mu volá klient, že čeká na podklady slíbené v úterý. Marek se omlouvá a shání je narychlo — a při tom si vzpomene, že sám čeká na cenovou nabídku od dodavatele, kterou měl dostat před týdnem. Obojí je stejná chyba, jen z opačné strany: nikdo si nezapsal, co bylo řečeno.
 
-## Jak na to
+S večerní rutinou dostane Marek v 17:30 jeden přehled na jednu obrazovku. Tři věci, které dnes slíbil, s termíny a s odkazem na zprávu, kde slib padl. Dvě věci, které slíbili jemu, včetně informace, jak dlouho už čeká. Čtyři maily starší dvou dnů, na které nikdo nereagoval. A dvě věty, které rutina označila jako nejisté, protože z nich nejde poznat, jestli šlo o závazek, nebo o zdvořilost. Návrhy úkolů už jsou založené v úkolovníku ve zvláštním projektu „Ke schválení".
 
-1. **Rozhodněte, co má rutina číst.** Minimum je dnešní odeslaná pošta (tam jsou vaše sliby) a přijatá pošta (tam jsou sliby ostatních). Volitelně přidejte zápisy ze schůzek.
-2. **Nastavte plánované spuštění.** V automatizační platformě (Zapier, Make, n8n) vytvořte scénář, který se spouští každý pracovní den v pevný čas — typicky půl hodiny před koncem vaší práce.
-3. **Napište prompt jako formulář.** Ne „shrň mi den“, ale strukturovaně: „Z těchto mailů vytáhni (a) co jsem komu slíbil, včetně termínu, (b) co kdo slíbil mně a od kdy čekám, (c) maily bez odpovědi starší dvou dnů. Když termín nezazněl, napiš termín neuveden. Nic nedomýšlej.“
-4. **Nechte výstup dorazit tam, kde ho uvidíte.** Mail sám sobě, zpráva ve Slacku nebo stránka v Notionu. Přehled, který nikdo neotevře, je zbytečný.
-5. **Založte úkoly automaticky, ale jen jako návrhy.** Přes API úkolovníku (Todoist, Notion) nechte rutinu vytvořit položky se štítkem „ke schválení“ nebo v samostatném projektu Doručená pošta. Nikdy je nemíchejte rovnou mezi potvrzené úkoly.
-6. **Zaveďte třicetivteřinový rituál.** Přehled projdete, návrhy potvrdíte nebo smažete. To je celé — a je to jediné místo, kde do procesu vstupuje člověk.
+Ráno v 8:05 Marek návrhy projde. Dva smaže („mrknu na to" nebyl slib), tři potvrdí a jeden rovnou udělá, protože trvá minutu. Rituál trvá čtyři minuty.
+
+Čísla po měsíci provozu vypadají takhle: počet omluvných mailů ve stylu „omlouvám se, zapadlo mi to" klesl ze čtyř týdně na nulu, průměrná doba mezi slibem a jeho splněním se zkrátila ze šesti dnů na dva a Marek přestal večer přemítat, co zapomněl — protože ví, že to má někde zapsané. Rutina za něj nic neposlala a nic nesplnila. Jen mu přestala mizet ta část práce, která se odehrává mezi řádky.
+
+## Fáze 1: co je slib a co je zdvořilost
+
+Tohle je fáze, kterou většina lidí přeskočí, a proto jim rutina první týden vrátí patnáct položek denně, z nichž tři dávají smysl. Model umí z textu vytáhnout věty. Neumí ale sám poznat, že „ozvu se" znamená ve vaší branži závazek do dvou dnů, zatímco „určitě se někdy potkáme" neznamená nic. Tuhle hranici musíte nakreslit vy — jednou, na jednu stránku, běžnou češtinou.
+
+### Tři druhy položek, které rutina hledá
+
+Rutina nesbírá „důležité věci". Sbírá tři přesně vymezené typy, a všechno ostatní ignoruje:
+
+- **Můj závazek.** Já jsem někomu něco slíbil. Poznávací znak: v první osobě, se slovesem budoucího děje („pošlu", „připravím", „zavolám", „ověřím", „dám vědět").
+- **Cizí závazek.** Někdo slíbil něco mně. Poznávací znak: druhá strana v první osobě, plus datum nebo lhůta, byť vágní.
+- **Otevřená otázka bez odpovědi.** Někdo se mě na něco zeptal a já jsem neodpověděl, nebo jsem se zeptal já a odpověď nepřišla. Není to slib, ale chová se stejně: někdo čeká.
+
+Čtvrtou kategorií, kterou stojí za to hlídat, je **ticho** — zprávy, které nikdo nijak nekvitoval. O ně se stará samostatná mechanika, popsaná v tipu [hlídač follow-upů](/tipy/ai-follow-up-hlidac); tady je berte jako doplněk, ne jako jádro.
+
+### Tvrdý závazek, měkký závazek, zdvořilost
+
+Praktické členění, které se osvědčuje, má tři stupně a liší se tím, kolik informací věta nese:
+
+**Tvrdý závazek** obsahuje kdo, co a kdy: „Cenovou nabídku vám pošlu do pátku." Tohle je bez diskuse úkol s termínem.
+
+**Měkký závazek** obsahuje kdo a co, ale ne kdy: „Podívám se na to a dám vědět." Je to pořád závazek — druhá strana s ním počítá — jen bez data. Rutina ho má zapsat a doplnit poznámku „termín neuveden", ne si termín vymyslet. Doplněný termín, který nikdy nezazněl, je nejnebezpečnější výstup celé rutiny: vypadá jako fakt a přitom je to odhad.
+
+**Zdvořilostní fráze** neobsahuje ani co: „Ozvěte se, kdyby něco." „Určitě se domluvíme." „Rád jsem si popovídal." Tohle rutina ignoruje úplně.
+
+Hraniční pásmo mezi měkkým závazkem a zdvořilostí je místo, kde se rozhoduje o použitelnosti celé sestavy. Věta „mrknu na to" je v jednom týmu závazek na zítřek a v jiném vyplňovací fráze. Proto se hranice nedá opsat z návodu — musí se vytáhnout z vaší vlastní pošty.
+
+### Kalibrace na vlastní odeslané poště
+
+Nejlepší zdroj definic je to, co jste za poslední měsíc skutečně napsali. Ve vlastní odeslané poště je zapsané, jakými slovy slibujete a jaké obraty používáte jen ze slušnosti.
+
+```text
+Přikládám 30 mailů, které jsem za poslední měsíc odeslal, a 10,
+které jsem dostal. Jména a firmy jsou nahrazené značkami.
+
+Sestav mi „slovník závazků", který budu dávat jako podklad
+večerní rutině, co z pošty vytahuje sliby.
+
+1. Vypiš všechny formulace, kterými v těch mailech něco slibuju.
+   U každé uveď, kolikrát se objevila a jestli u ní bývá termín.
+2. Rozděl je do tří skupin: tvrdý závazek (je z ní jasné co a kdy),
+   měkký závazek (jasné co, chybí kdy), zdvořilostní fráze
+   (nezavazuje k ničemu konkrétnímu).
+3. U sporných formulací napiš, proč jsou sporné, a polož mi
+   otázku, podle které se rozhodnu, kam je zařadit.
+4. Totéž udělej pro přijaté maily: jakými slovy mně lidé slibují.
+5. Na konec napiš 10 vět z podkladu, které vypadají jako slib,
+   ale podle kontextu jím nejsou — a vysvětli u každé proč.
+
+Nepřidávej formulace, které v podkladu nejsou. Nezobecňuj
+z jednoho výskytu — když se obrat objevil jen jednou, označ ho
+jako ojedinělý.
+```
+
+Vrátí slovník, ve kterém většinou poznáte dvě věci: že slibujete častěji, než jste si mysleli, a že polovina vašich slibů je měkkých. Poslední bod promptu je ten, kvůli kterému se to dělá — deset věcí, které vypadají jako slib a nejsou, je přesně ten seznam, který rutině ušetří falešné poplachy. A hlídejte zákaz zobecňování: model z jednoho výskytu rád udělá pravidlo, po kterém vám pak rutina hlásí závazek pokaždé, když napíšete „díky za připomenutí".
+
+### Zkouška definic na hraničních případech
+
+Slovník máte, teď ho otestujte, než ho pustíte na ostrý provoz. Postup je jednoduchý: dejte modelu patnáct vět, u kterých sami víte, jak je chcete zařadit, a porovnejte to s tím, co vrátí.
+
+```text
+Tady je můj slovník závazků:
+[vložit slovník z předchozího kroku]
+
+Níže je 15 vět z mojí pošty a ze zápisů ze schůzek.
+Ke každé napiš:
+- zařazení: tvrdý závazek / měkký závazek / zdvořilost / nejistý
+- kdo je zavázaný (já / druhá strana / nikdo)
+- termín, pokud ve větě skutečně zazněl; pokud ne, napiš
+  „termín neuveden" — nedopočítávej ho ani neodhaduj
+- jednou větou, podle čeho jsi to poznal
+
+Věty:
+[vložit 15 vět, ideálně 5 jasných slibů, 5 zdvořilostí
+a 5 takových, u kterých si nejsi jistý ani ty sám]
+
+U kategorie „nejistý" nešetři — radši ji použij víc, než abys
+hádal. Na konec napiš, které z mých pravidel ti k rozhodnutí
+chybělo.
+```
+
+Shodu počítejte poctivě: pokud model zařadí správně dvanáct z patnácti a tři označí jako nejisté, je to dobrý výsledek a můžete pokračovat. Pokud tvrdě zařadí věty, které jsou sporné i pro vás, přitvrďte v pravidlech instrukci pro kategorii „nejistý" — přehnaně sebejistá rutina je horší než opatrná, protože její chyby nejsou vidět.
+
+## Fáze 2: zdroje a napojení konektorem
+
+Máte definice. Teď potřebujete, aby se AI dostala k materiálu, ve kterém má hledat — a to bez toho, abyste jí každý večer kopírovali maily do chatu.
+
+### Tři zdroje stačí
+
+Pokušení je připojit všechno. Odolejte mu: každý další zdroj prodlužuje přehled a zvyšuje počet falešných poplachů, ne přesnost.
+
+- **Odeslaná pošta** je nejdůležitější zdroj vůbec — jsou v ní vaše sliby, tedy ta polovina, kterou si nikdo jiný nepohlídá.
+- **Přijatá pošta** dodá sliby ostatních a otevřené otázky, na které jste neodpověděli.
+- **Kalendář a zápisy ze schůzek** dodají to, co v poště není. Na hovoru padne víc závazků než v mailu a nezůstane po nich stopa — pokud si zápisy neděláte automaticky, jak popisuje tip [zápisy schůzek automaticky](/tipy/ai-zapisy-schuzek-automaticky).
+
+Firemní chat přidávejte až ve druhém kole, a to jen vybrané kanály nebo přímé zprávy. Objem je v něm obrovský a poměr závazků k šumu nejhorší ze všech zdrojů.
+
+### Co konektor vidí a co smí zapsat
+
+Konektory (postavené na protokolu MCP) jsou standardizované napojení AI na běžné služby — poštu, kalendář, disk, poznámky, úkolovník. Připojíte je v nastavení a od té chvíle může model v těch službách hledat a číst v rozsahu, který mu povolíte. Princip rozebírá tip [konektory jako USB-C pro AI](/tipy/mcp-konektory-usb-c-pro-ai).
+
+Pro tuhle rutinu potřebujete číst poštu a kalendář a zapisovat do úkolovníku. Nepotřebujete právo odesílat maily, mazat zprávy ani upravovat kalendář — a nechtít je není opatrnost, ale konstrukční rozhodnutí. Když nabídka dává na výběr užší rozsah oprávnění, vezměte ten užší.
+
+Ještě před připojením vyřešte dvě věci. **Na jakém účtu to poběží:** pracovní pošta patří na pracovní účet se smluvní ochranou dat, ne do osobního chatu. **Co se z rozsahu vyjme:** složky s personální, právní a zdravotní agendou vylučte výslovně v zadání rutiny, ne mlčky spoléhejte na to, že si model domyslí, co je citlivé.
+
+Pravidla a slovník závazků uložte do **Projektu** (trvalý kontext) pojmenovaného třeba „Večerní shrnutí". Rutina je pak nemusí dostávat každý večer znovu a vy je měníte na jednom místě.
+
+### Zkušební běh naprázdno
+
+Než rutina začne cokoli zakládat, nechte ji dva dny běžet jen na čtení. Zjistíte, jestli vidí to, co má, a jestli vaše definice obstojí v provozu.
+
+```text
+Připoj se k mojí poště a projdi zprávy odeslané i přijaté
+za dnešek. Nic nezakládej, nic neoznačuj, nikam nic neukládej —
+tenhle běh je jen na čtení.
+
+Vrať tabulku se sloupci:
+zdroj (odeslaná / přijatá) | protistrana (jméno, ne adresa) |
+věta, ve které vidíš závazek, v přesném znění | typ (můj závazek /
+cizí závazek / otevřená otázka) | tvrdý / měkký / nejistý |
+termín, pokud zazněl | jak jistý si tím jsi (vysoká / střední / nízká)
+
+Pod tabulku napiš:
+1. kolik zpráv jsi celkem prošel a za jaké období
+2. kolik z nich neobsahovalo nic, co by se dalo zapsat
+3. tři věty, u kterých ses rozhodoval nejdéle, a proč
+4. co ti v mých pravidlech chybělo
+
+Doslovné znění věty uveď vždy, ať si můžu ověřit, že sis ji
+nedomyslel. Když si nejsi jistý, použij „nejistý" a napiš důvod.
+```
+
+Sloupec s doslovným zněním je tam ze dvou důvodů. Za prvé je to jediná kontrola, kterou zvládnete za deset vteřin — přečtete větu a hned víte, jestli tam ten slib je. Za druhé odhalí nejčastější tichou chybu modelů: parafrázi, která posune význam („podívám se na to" se změní na „zpracuji to"). Zkontrolujte i první číslo pod tabulkou. Když rutina prošla dvanáct zpráv a vy jste jich měli čtyřicet, je špatně nastavený rozsah a řešíte to teď, ne za měsíc.
+
+### Sliby ze schůzek
+
+Zápis z hovoru je zlatý důl, protože obsahuje závazky, které nikde jinde nejsou. Extrakce z něj má ale jiná pravidla než extrakce z pošty: v mluveném slově je víc vaty, míň termínů a často není jasné, kdo si co vzal.
+
+```text
+Tady je zápis (nebo přepis) ze schůzky:
+[vložit zápis]
+
+Účastníci a jejich role: [seznam].
+Já jsem [jméno].
+
+Vytáhni z toho jen závazky, nic jiného. Pro každý napiš:
+- kdo je zavázaný, jménem; když z textu nejde určit, napiš
+  „vlastník neurčen" a cituj větu, ze které to nejde poznat
+- co konkrétně má udělat, v jedné větě slovesem
+- termín, jen pokud v zápisu skutečně zazněl
+- doslovnou větu ze zápisu, ze které závazek vyplývá
+
+Pak přidej dvě krátké sekce:
+A) ROZHODNUTÍ, která na schůzce padla (ne úkoly — rozhodnutí)
+B) OTEVŘENÉ VĚCI: co se probíralo a neuzavřelo, u každé napiš,
+   kdo by měl rozhodnout
+
+Nepřidávej úkoly, které dávají logicky smysl, ale nikdo je
+nevyslovil. Když schůzka skončila bez jediného závazku,
+napiš to místo hledání za každou cenu.
+```
+
+Poslední odstavec je nutný. Bez něj model ze schůzky, na které se jen sdílely informace, vyrobí pět úkolů, protože „zápis ze schůzky" pro něj typicky znamená „seznam úkolů". Položka „vlastník neurčen" je pak nejcennější řádek celého výstupu: nezadaný úkol je ten, který nikdo neudělá, a odhalit ho ve chvíli, kdy si všichni pamatují, o čem byla řeč, stojí jednu zprávu.
+
+## Fáze 3: zadání večerní rutiny
+
+Definice máte, zdroje napojené. Teď z toho uděláte úlohu, která běží každý pracovní den sama.
+
+### Anatomie zadání
+
+Zadání večerní rutiny je delší než běžný prompt a má pevnou stavbu o pěti částech:
+
+1. **Rozsah** — jaké období a jaké zdroje. Bez časového okna vám rutina jednou za čas přepracuje týden zpátky a vy dostanete přehled, ve kterém je všechno.
+2. **Co hledat** — tři typy položek z fáze 1, s odkazem na slovník závazků.
+3. **Co ignorovat** — rozesílky, notifikace, automatické odpovědi, vyloučené složky.
+4. **Formát výstupu** — pevná struktura, ne volné vyprávění. Přehled, který má každý den jinou podobu, se nedá číst rutinně.
+5. **Co udělat s návrhy** — kam je zapsat a jak označit, že jsou jen návrhy.
+
+### Kompletní zadání
+
+Tohle je jádro celého návodu. Vložte do plánované úlohy, doplňte hranaté závorky a nechte spustit každý pracovní den v pevný čas.
+
+```text
+Každý pracovní den v [17:30] projdi moji poštu a dnešní schůzky
+a sestav mi shrnutí dne se závazky. Postupuj přesně takhle:
+
+1. ROZSAH
+Projdi zprávy odeslané i přijaté od [dnes 00:00] do teď
+a zápisy ze schůzek, které mám dnes v kalendáři.
+Vynech složky [Personální, Právní, Archiv] a rozesílky,
+notifikace ze systémů a automatické odpovědi.
+
+2. CO HLEDAT
+Podle mého slovníku závazků (viz pravidla projektu) vytáhni:
+a) MOJE SLIBY — co jsem dnes komu slíbil
+b) SLIBY MNĚ — co dnes někdo slíbil mně, včetně toho,
+   jak dlouho na to čekám, pokud slib padl dřív
+c) ČEKÁ NA MOU ODPOVĚĎ — zprávy starší [2 dnů], kde se ptají
+   mě a já jsem neodpověděl
+d) NEJISTÉ — věty, u kterých si nejsi jistý, jestli jde
+   o závazek, nebo o zdvořilost
+
+3. PRAVIDLA PŘESNOSTI
+- U každé položky uveď doslovnou větu, ze které závazek vyplývá,
+  a odkaz na zprávu nebo zápis.
+- Termín uveď jen tehdy, když v textu skutečně zazněl. Když
+  nezazněl, napiš „termín neuveden". NIKDY termín nedopočítávej
+  ani neodhaduj z kontextu.
+- Nepřepisuj celé pasáže zpráv. Jedna citovaná věta a shrnutí
+  vlastními slovy stačí.
+- Když si nejsi jistý, zařaď položku do NEJISTÉ místo toho,
+  abys hádal.
+
+4. FORMÁT
+Vrať přehled v tomto pořadí a nic k němu nepřidávej:
+- jedna věta o dnešku: kolik zpráv, kolik schůzek, kolik závazků
+- MOJE SLIBY (seřazeno podle termínu, nejbližší nahoře)
+- SLIBY MNĚ (seřazeno podle toho, jak dlouho čekám)
+- ČEKÁ NA MOU ODPOVĚĎ
+- NEJISTÉ
+- jedna věta: co z dneška hoří nejvíc
+Celé se to musí vejít na jednu obrazovku. Když je položek moc,
+zkrať popisy, ne počet položek.
+
+5. NÁVRHY ÚKOLŮ
+Pro každou položku ze sekce MOJE SLIBY a ČEKÁ NA MOU ODPOVĚĎ
+založ v úkolovníku návrh úkolu do projektu [Ke schválení]
+se štítkem [navrh]. Nic nezakládej z NEJISTÉ.
+Nikdy neodesílej žádnou zprávu, nic nemaž, nic neoznačuj
+jako přečtené a neupravuj kalendář.
+```
+
+Vrátí přehled na jednu obrazovku a sadu návrhů v úkolovníku. Tři místa, kde se zadání nejčastěji láme. **Časové okno:** „od dnes 00:00" v pondělí neobsahuje páteční odpoledne, takže si pro pondělí dopište výjimku, nebo okno posuňte na „od konce předchozího pracovního dne". **Zákaz dopočítávání termínů:** kontrolujte první týden každou položku, kde je datum, a ověřte, že v původní zprávě opravdu je. **Zákaz opisování:** bez něj vám rutina vrátí přehled dlouhý jako pošta sama.
+
+### Jak vypadá výstup
+
+Když rutina proběhne, dostanete něco takového:
+
+```text
+Dnes: 41 zpráv, 3 schůzky, 6 závazků.
+
+MOJE SLIBY
+1. [do pá 15. 8.] Poslat cenovou nabídku — Nováková, ABC
+   „Nabídku vám připravím a pošlu do pátku."
+2. [termín neuveden] Ověřit dostupnost termínu školení — Svoboda
+   „Podívám se na to a dám vědět."
+3. [do zítra] Doplnit čísla do reportu — porada týmu, zápis 14:00
+   „Ta čísla za červenec doplním do zítřejší porady."
+
+SLIBY MNĚ
+1. [čekám 8 dní] Cenová nabídka od dodavatele — Kříž, XYZ
+   „Nabídku vám pošlu začátkem příštího týdne." (4. 8.)
+2. [čekám 2 dny] Podklady k fakturaci — účtárna
+
+ČEKÁ NA MOU ODPOVĚĎ
+1. [2 dny] Dotaz na termín dodávky — Horák
+2. [3 dny] Žádost o schválení rozpočtu — Bartošová
+
+NEJISTÉ
+1. „Určitě to spolu ještě probereme." — Nováková
+   Nejasné, jestli jde o závazek k další schůzce.
+
+Nejvíc hoří: nabídka pro ABC (pátek) a osmidenní čekání na XYZ.
+
+Založeno 5 návrhů úkolů v projektu Ke schválení.
+```
+
+Tohle je výstup, se kterým se dá pracovat: každá položka má citaci, termín buď je, nebo je poctivě označený jako chybějící, a sekce „nejisté" drží pochybnosti mimo úkolovník.
+
+### Kam přehled doručit
+
+Přehled, který nikdo neotevře, je zbytečný. Doručte ho tam, kam se stejně díváte: mail sám sobě, zpráva ve firemním chatu, stránka v poznámkách. Rozhoduje jediná věc — musí přijít dřív, než zavřete notebook, ne po něm. Proto 17:30, když končíte v šest, a ne v osm večer.
+
+Kdo už provozuje ranní rutinu s koncepty odpovědí podle tipu [ranní rutina s drafty](/tipy/rutina-ai-drafty-mailu), má polovinu nastavení hotovou: pravidla, konektor i Projekt jsou stejné, mění se jen zadání a čas spuštění.
+
+## Fáze 4: z přehledu do úkolovníku
+
+Přehled sám o sobě řeší půl problému — víte, co jste slíbili. Druhá půlka je dostat to do systému, ve kterém věci opravdu děláte, a to bez toho, aby vám tam rutina nasypala patnáct položek denně.
+
+### Proč návrhy, a ne rovnou úkoly
+
+Míchat automaticky založené položky mezi potvrzené úkoly je nejrychlejší způsob, jak přijít o důvěru ve vlastní úkolovník. Stačí tři falešné položky a začnete seznam přeskakovat — a ve chvíli, kdy seznamu nevěříte, je celá stavba k ničemu. Proto pevné pravidlo: **návrhy bydlí v odděleném projektu nebo pod vlastním štítkem a do hlavního seznamu se dostanou až po schválení.**
+
+Prakticky to znamená jedno z dvojího: samostatný projekt „Ke schválení", nebo štítek „navrh" plus filtr, který takové položky z hlavního pohledu skrývá. Obojí funguje; rozhoduje, co váš úkolovník umí líp.
+
+### Formát úkolu, který se dá schválit za tři vteřiny
+
+Návrh úkolu má jediný účel: umožnit rozhodnutí bez otevírání zdroje. Když musíte kvůli každé položce dohledávat původní mail, ranní rituál se protáhne na dvacet minut a přestanete ho dělat.
+
+```text
+Uprav způsob, jakým zakládáš návrhy úkolů z večerního přehledu.
+Každý návrh musí mít tuhle podobu:
+
+NÁZEV: sloveso v infinitivu + co + pro koho, maximálně 60 znaků.
+Příklad: „Poslat cenovou nabídku — Nováková, ABC"
+
+POPIS (přesně tyhle čtyři řádky, nic navíc):
+Zdroj: [typ zdroje a datum, např. mail 12. 8. 14:22]
+Doslovně: [věta, ze které závazek vyplývá]
+Termín: [datum, nebo „neuveden"]
+Odkaz: [odkaz na zprávu nebo zápis]
+
+TERMÍN V ÚKOLOVNÍKU: nastav jen tehdy, když termín zazněl.
+Když nezazněl, nech úkol bez data — nedávej „dnes" ani „zítra".
+
+PRIORITA: nenastavuj žádnou. Prioritu určuju já při schvalování.
+
+ŠTÍTEK: [navrh]
+PROJEKT: [Ke schválení]
+
+Nikdy nezakládej úkol z položky, kterou jsi označil jako nejistou.
+Nikdy nezakládej úkol na věc, kterou jsem podle pošty už udělal.
+```
+
+Vrátí položky, u kterých vidíte rozhodnutí na první pohled. Nejdůležitější řádek je zákaz nastavovat termín „dnes", když žádný nezazněl: úkolovník plný falešných dnešků je stejně nepoužitelný jako úkolovník bez termínů. A prioritu nechte na sobě — priorita je rozhodnutí o tom, co je pro vás důležité, a to není informace, kterou by šlo z mailu vyčíst.
+
+### Deduplikace: nezakládat potřetí totéž
+
+Druhá nejčastější stížnost na tenhle typ rutiny zní „zakládá mi to pořád stejné věci". Vzniká to tím, že slib se ve vlákně opakuje: v úterý ho vyslovíte, ve středu ho zopakujete v odpovědi, ve čtvrtek na něj odkážete. Bez explicitního pravidla dostanete tři úkoly.
+
+```text
+Před založením návrhů zkontroluj duplicity. Postup:
+
+1. Načti si otevřené úkoly z projektů [Ke schválení] a [hlavní
+   projekty] a jejich názvy a popisy.
+2. Pro každý nový závazek z dnešního přehledu zjisti, jestli už
+   pro něj úkol existuje. Za shodu považuj stejnou protistranu
+   a stejnou věc, i když je název formulovaný jinak.
+3. Když shodu najdeš:
+   - úkol NEZAKLÁDEJ znovu
+   - když se v nové zprávě objevil termín a starý úkol ho nemá,
+     napiš to do přehledu jako doporučení „doplnit termín
+     u existujícího úkolu", ale sám ho neměň
+   - když se termín změnil, napiš to do přehledu jako
+     „posun termínu" i s oběma daty a s citací
+4. Do přehledu přidej na konec sekci ZMĚNY U EXISTUJÍCÍCH ÚKOLŮ
+   se seznamem toho, co jsi našel.
+
+Existující úkoly nikdy neupravuj ani nemaž. Jen navrhuj.
+```
+
+Zákaz úprav v posledním řádku je tam schválně: automat, který mění termíny u úkolů, které jste už schválili, umí nadělat víc škody než užitku. Sekce se změnami je přitom cennější než nové návrhy — posun termínu, na který jste kývli v mailu a nezanesli ho do systému, je klasický zdroj nedorozumění.
+
+### Napojení na úkolovník
+
+Technicky to jde třemi cestami. **Konektorem přímo z AI nástroje** — pokud má váš úkolovník konektor, rutina do něj zapisuje sama a nic dalšího nepotřebujete. **Přes automatizační platformu** (Zapier, Make, n8n), kde poslední krok scénáře vezme strukturovaný výstup a vytvoří z něj položky přes API. **Nebo vůbec** — přehled dorazí mailem a vy položky založíte ručně při ranním rituálu. Poslední varianta zní jako krok zpátky, ale pro začátek je nejlepší: dva týdny ručního zakládání vám ukážou, které položky byste stejně smazali, a to je nejlepší podklad pro ladění.
+
+## Fáze 5: ranní schvalovací rituál za pět minut
+
+Rutina odvedla svoje. Teď přichází ta část, kterou nedelegujete — a která má vlastní postup, aby netrvala půl hodiny.
+
+### Pořadí, které funguje
+
+Rituál má tři kroky a dělá se ráno, ne večer. Večer jste unavení a všechno vypadá jako práce; ráno rozhodujete rychleji a líp.
+
+**Krok jedna: přehled, ne úkolovník.** Přečtěte večerní shrnutí shora dolů. Trvá to čtyřicet vteřin a získáte tím obrázek, který u jednotlivých položek chybí — třeba že tři z pěti dnešních slibů jsou pro stejného klienta a dá se to vyřídit jednou zprávou.
+
+**Krok dva: návrhy, položku po položce, bez přeskakování.** U každého návrhu máte čtyři legitimní možnosti:
+
+- **Potvrdit** — přesunout do hlavního projektu, doplnit prioritu a případně termín. Většina položek.
+- **Udělat hned** — když je to na dvě minuty, udělejte to a úkol rovnou zavřete. Nezakládejte úkol na věc, kterou zvládnete rychleji než její evidenci.
+- **Upravit** — název nebo termín nesedí, ale závazek platí. Opravte a potvrďte; a hlavně si poznamenejte, co jste opravovali (viz fáze 6).
+- **Smazat** — nebyl to slib. Taky si poznamenejte proč.
+
+**Krok tři: sekce „nejisté".** Projděte ji naposledy a rychle. U každé věty rozhodněte ano/ne — a tím zároveň učíte rutinu, kde má hranici. Ze sekce „nejisté" se návrhy nezakládají, takže tady buď položku založíte ručně, nebo ji necháte být.
+
+### Ranní dávka jednou zprávou
+
+Kdo nechce klikat v úkolovníku, může si nechat připravit rozhodovací dávku, ve které odpovídá jedním řádkem.
+
+```text
+Připrav mi ranní schvalovací dávku z včerejších návrhů.
+
+Vypiš je jako číslovaný seznam, jeden řádek na položku, formát:
+[číslo] [termín nebo „bez termínu"] [název] — [protistrana]
+
+Pod seznam dej ke každé položce jednu doplňující větu: proč sis
+myslel, že jde o závazek (doslovná citace stačí).
+
+Pak počkej na moji odpověď ve tvaru: čísla k potvrzení,
+čísla ke smazání, čísla k úpravě i s tím, co změnit.
+Například: „potvrdit 1,3,5 / smazat 2 / upravit 4: termín na pátek".
+
+Podle mojí odpovědi:
+- potvrzené přesuň do projektu [hlavní] a odeber štítek [navrh]
+- smazané smaž z projektu [Ke schválení]
+- upravené uprav a přesuň
+
+Nic jiného neměň. Po provedení mi napiš jednou větou, co jsi udělal,
+a u smazaných se zeptej jednou otázkou, jestli z toho mám vyvodit
+pravidlo do slovníku závazků.
+```
+
+Vrátí seznam, na který odpovíte jednou větou, a provede to. Poslední odstavec je malý, ale zásadní: každé smazání je zpětná vazba, a když se na ni rutina zeptá hned, nemusíte vést deník oprav zvlášť. Pozor na jednu věc — dávkové potvrzování svádí k mechanickému „potvrdit všechno". Když se přistihnete, že jste tři dny po sobě potvrdili úplně všechno, buď je rutina výborně nastavená, nebo jste přestali číst. Ověřte si to namátkou u dvou položek.
+
+### Co s tím, co jste neschválili
+
+Smazané návrhy nezahazujte hned. Nechte si je do konce týdne v odděleném seznamu — v pátek z nich uděláte vstup pro ladění. Ten seznam je totiž jediný způsob, jak zjistit, jestli rutina chybuje pořád ve stejné věci, nebo náhodně. Napojení na širší týdenní rytmus popisuje kapitola o [GTD](/prirucka/getting-things-done); večerní rutina je v jejím pojetí obyčejný sběr, jen dělaný strojem místo hlavou.
+
+## Fáze 6: ladění falešných slibů
+
+Rutina nastavená první den má přesnost kolem sedmdesáti procent. Rozdíl mezi „docela dobré" a „skoro do toho nemusím sahat" leží ve dvou týdnech systematického ladění — a ladí se dvě věci, které si jdou proti sobě.
+
+### Dvě chyby, které se vzájemně vylučují
+
+**Falešný slib** je položka, která se zapsala, a neměla. Zdvořilost vyhodnocená jako závazek, věta vytržená z kontextu, slib, který jste v téže zprávě o dva odstavce níž odvolali. Projeví se hned: ráno mažete.
+
+**Přehlédnutý slib** je závazek, který rutina nenašla. Projeví se za týden, když se ozve druhá strana — a je desetkrát dražší než ten první.
+
+Mezi nimi je přímá úměra. Když přitvrdíte definice, aby vám rutina nesypala falešné poplachy, začne přehlížet. Cílový stav proto není nula falešných slibů, ale **spíš víc falešných než jeden přehlédnutý.** Smazat návrh trvá dvě vteřiny, omlouvat se klientovi trvá deset minut a stojí kredit.
+
+### Týdenní retrospektiva přesnosti
+
+Jednou týdně, nejlépe v pátek, se rutiny zeptejte na její vlastní práci. Má přístup k tomu, co navrhla, i k tomu, co z toho přežilo do hlavního seznamu — a rozdíl mezi tím dvojím je přesně ta zpětná vazba, kterou potřebujete.
+
+```text
+Udělej retrospektivu naší večerní rutiny za tenhle týden.
+Máš přístup k návrhům, které jsi založil, k mým úkolům
+a k mojí poště.
+
+Vrať pět bloků:
+
+1. ČÍSLA: kolik návrhů jsi za týden založil, kolik jsem jich
+   potvrdil, kolik upravil, kolik smazal. U upravených napiš,
+   co jsem nejčastěji měnil (název / termín / obojí).
+
+2. FALEŠNÉ POPLACHY: projdi smazané návrhy a seskup je podle
+   příčiny — zdvořilostní fráze, vytržení z kontextu, závazek
+   někoho jiného než mě, věc, kterou jsem už udělal, duplicita.
+   U každé skupiny dej dva konkrétní příklady s doslovnou větou.
+
+3. PŘEHLÉDNUTÉ: projdi moji odeslanou poštu za týden a najdi
+   závazky, které jsem tam vyslovil a ty jsi je nezachytil.
+   U každého napiš, proč podle tebe propadl.
+
+4. TERMÍNY: u kolika položek jsi uvedl termín a u kolika
+   „termín neuveden". Byl někde termín uvedený, aniž by
+   ve zdrojové zprávě zazněl? To je nejzávažnější chyba,
+   vypiš ji přednostně.
+
+5. NÁVRH: tři konkrétní změny ve slovníku závazků nebo v zadání
+   rutiny, seřazené podle dopadu. U každé napiš starou
+   a novou formulaci vedle sebe.
+
+Buď kritický ke své práci. Nechci slyšet, že to šlo dobře,
+chci vědět, kde to drhne.
+```
+
+Blok 3 je ten, kvůli kterému se retrospektiva dělá — přehlédnuté sliby jinak nezjistíte, protože o nich z definice nevíte. Čísla v bloku 1 berte jako orientační: rozlišit „potvrzeno beze změny" od „potvrzeno s drobnou úpravou" dělá model odhadem. Blok 4 čtěte vždycky a celý; vymyšlený termín je jediná chyba téhle rutiny, která má následky navenek.
+
+### Ze zamítnutých návrhů udělat pravidla
+
+Retrospektiva vám dá seskupené příčiny. Teď z nich udělejte úpravu definic — a to tak, aby slovník neotekl.
+
+```text
+Tady je můj slovník závazků:
+[vložit slovník]
+
+A tady seznam návrhů, které jsem tenhle týden smazal, i s větou,
+ze které jsi je odvodil:
+[vložit seznam]
+
+Udělej tři věci:
+1. Seskup smazané návrhy podle příčiny: chybějící pravidlo,
+   pravidlo formulované moc široce, správné pravidlo špatně
+   uplatněné, nebo jednorázová věc, ze které pravidlo dělat nemám.
+2. Navrhni konkrétní úpravy slovníku. U každé napiš starou
+   a novou formulaci vedle sebe a jednou větou proč. Úpravy piš
+   tak, aby si neodporovaly se zbytkem.
+3. Označ pravidla, která se za tenhle týden ani jednou
+   neuplatnila, a navrhni je vyhodit.
+
+Nezvyšuj počet pravidel za každou cenu — když jde stejnou věc
+vyřešit úpravou existujícího pravidla, udělej to. Cílový rozsah
+slovníku je nejvýš [jedna A4].
+
+U každé navržené úpravy napiš i riziko: jaký typ skutečného
+slibu by mi po téhle změně mohl propadnout.
+```
+
+Poslední odstavec je to, co odlišuje ladění od utahování šroubů. Každé zpřísnění definice má cenu a ta cena se platí přehlédnutými sliby — když ji vidíte předem, rozhodujete se vědomě. Bod 3 je tam proto, že pravidla mají tendenci jen přibývat, až ze stránky vznikne manuál, ze kterého si model začne vybírat.
+
+### Kdy je rutina hotová
+
+Poznáte to podle tří signálů: ranní rituál stabilně trvá pod pět minut, na jeden smazaný návrh připadá aspoň pět potvrzených, a v týdenní retrospektivě se v bloku „přehlédnuté" objevuje nula až jedna položka. Pak přestaňte ladit a vracejte se ke slovníku jednou za čtvrtletí — a vždycky, když se změní vaše role, klienti nebo tým, tedy realita, kterou slovník popisuje.
+
+## Fáze 7: hranice, které se neposouvají
+
+Poslední fáze není o tom, co rutina umí, ale o tom, co jí nedovolíte. Je krátká a v celém návodu nejdůležitější.
+
+### Zapisovat ano, jednat ne
+
+**AI navrhuje, člověk schvaluje.** U večerní rutiny to znamená tři konkrétní zákazy. Rutina nikdy **neodesílá** — ani upomínku, ani potvrzení, ani „jen krátkou zprávu, že to bude zítra". Rutina nikdy **nemaže** — ani zprávy, ani úkoly, ani vlastní staré návrhy bez vašeho pokynu. A rutina nikdy **neuzavírá závazky za vás** — nepotvrzuje termíny, nepřijímá schůzky, nenastavuje priority.
+
+Důvod není nedůvěra k modelu. Je v tom, že závazek je vztah mezi lidmi. Když ho potvrdí automat, je to pořád váš slib — jen jste u jeho vzniku nebyli.
+
+### Citlivá agenda ven
+
+Personální, právní a zdravotní složky z rutiny vylučte, a to výslovně v zadání, ne pravidlem „buď opatrná". Ze schůzek vynechte ty, kde se probírá hodnocení lidí nebo obchodní tajemství. Když takové zprávy chodí do hlavní schránky a nedají se oddělit složkou, zúžte rutinu na jednu bezpečnou kategorii — třeba jen na zprávy od zákazníků.
+
+```text
+Připrav mi seznam výluk pro večerní rutinu.
+Kontext: [role, obor, typ firmy]. Rutina čte poštu a zápisy
+ze schůzek a zakládá návrhy úkolů.
+
+Navrhni, které zdroje a typy obsahu má rutina úplně vynechat.
+Vyjdi z těchto okruhů a doplň další, které tě napadnou:
+- personální agenda: mzdy, hodnocení, nábor, ukončení spolupráce
+- právní věci, reklamace, stížnosti, soudní spory
+- zdravotní údaje a osobní záležitosti kolegů
+- obchodní jednání ve fázi, kdy se vyjednává cena
+- zprávy od adresátů, které mám na seznamu „vždy ručně"
+
+U každé položky napiš:
+1. jak takový obsah rozpoznat konkrétně (podle složky, štítku,
+   adresáta nebo účastníků schůzky), ne obecným popisem
+2. jestli jde vyloučit celou složku, nebo je potřeba pravidlo
+   uvnitř zadání — a proč
+3. jednu falešně pozitivní situaci: kdy to jako citlivá věc
+   vypadá, ale je to běžná provozní zpráva
+
+Výstup napiš jako seznam v rozkazovacím způsobu, ať ho můžu
+vložit rovnou do zadání rutiny.
+```
+
+Vrátí seznam, který si zkraťte na to, co ve vaší práci skutečně platí — dvacet výluk je stejně nepoužitelných jako žádná. Bod 3 čtěte pozorně: příliš široká výluka („cokoli se slovem smlouva") vede k tomu, že rutina nevidí polovinu obchodní agendy a vy máte pocit, že nefunguje.
+
+### Data a účet
+
+Celý provoz patří na **pracovní účet se smluvní ochranou dat**, ne do osobního chatu. Podklady, které rutině dáváte ručně — třicet mailů na kalibraci slovníku, zápis ze schůzky — anonymizujte: jména, firmy a čísla smluv nahraďte značkami. A v zadání držte výslovný zákaz opisovat celé pasáže zpráv; jedna citovaná věta plus odkaz je všechno, co potřebujete, a zároveň nejmenší možný objem citlivého obsahu, který rutina zpracuje.
+
+## Nejčastější chyby
+
+- **Pustit rutinu bez definice, co je slib.** Bez slovníku závazků dostanete patnáct položek denně, z nichž tři dávají smysl — a po třech dnech přehled přestanete otevírat. Nefunguje zadání, ne nástroj.
+- **Nechat rutinu dopočítávat termíny.** Věta „mrknu na to" nemá termín. Když ho model doplní na „do zítra", vypadá to jako fakt a vy podle toho plánujete. Značka „termín neuveden" musí být v zadání i v kontrole.
+- **Zakládat návrhy rovnou mezi potvrzené úkoly.** Tři falešné položky stačí k tomu, abyste přestali věřit vlastnímu seznamu. Oddělený projekt nebo štítek je nutnost, ne kosmetika.
+- **Dělat rituál večer.** Přehled má dorazit večer, rozhodovat se má ráno. Unavený člověk buď schválí všechno, nebo nic — obojí je stejně k ničemu.
+- **Ladit jen falešné poplachy.** Přehlédnutý slib je desetkrát dražší než falešný a nedozvíte se o něm sám od sebe. Bez bloku „přehlédnuté" v týdenní retrospektivě ladíte poslepu.
+- **Dát rutině právo psát nebo mazat.** Automat, který sám odešle „pošlu to zítra", vytvořil závazek, o kterém nevíte. Rutina smí číst a zakládat návrhy, nic víc.
 
 ## Nejlepší nástroje
 
-- **Vestavěná AI v poště (Gemini ve Workspace, Copilot v Microsoft 365)** — nejjednodušší začátek, když chcete jen denní souhrn bez zakládání úkolů.
-- **Zapier a Make** — cloudové platformy bez programování; zvládnou plánované spuštění, krok s AI i zápis do úkolovníku.
-- **n8n** — self-hosted varianta pro firmy, které nechtějí posílat obsah pošty do cloudové služby třetí strany.
-- **Claude s konektory a plánovanou úlohou** — přečte dnešní poštu přímo a návrhy úkolů založí sama podle rozvrhu, bez stavby scénáře v jiné platformě.
-- **Todoist a Notion** — úkolovníky s otevřeným API, do kterých se návrhy zakládají spolehlivě a kde se dobře odlišují štítkem.
+- **Claude s konektory a plánovanou úlohou** — přečte odeslanou i přijatou poštu, kalendář a zápisy, sestaví přehled a založí návrhy do úkolovníku podle rozvrhu; slovník závazků žije v Projektu, takže se upravuje na jednom místě.
+- **Projekty (trvalý kontext)** — místo pro slovník závazků, seznam výluk a formát návrhu úkolu; rutina je nemusí dostávat každý večer znovu.
+- **Todoist a Notion** — úkolovníky s otevřeným API a konektory, ve kterých se návrhy dobře oddělují projektem nebo štítkem a hromadně se schvalují.
+- **Zapier, Make a n8n** — když chcete řetěz pošta a kalendář, model a úkolovník poskládat z kroků; n8n běží na vlastním serveru, když obsah pošty nemá opustit firmu.
+- **Nástroje na automatické zápisy ze schůzek** — bez zápisů vám uteče polovina závazků, protože ty nejdražší padnou na hovoru, ne v mailu.
+- **Vestavěná AI v poště (Gemini ve Workspace, Copilot v Microsoft 365)** — nejjednodušší začátek, když chcete jen denní souhrn bez zakládání úkolů a bez stavění rutiny.
 
 ## Co vám to přinese
 
-- **Čas:** 15–25 minut denně, které jinak padnou na dohledávání „co jsem to měl udělat“ a na omluvné maily.
-- **Klid:** konec večerního přemítání. Sliby jsou zapsané, hlava je volná — přesně to, o co jde v každé slušné metodice organizace práce.
-- **Spolehlivost navenek:** nesplněný slib poškodí důvěru víc než pomalá odpověď. Rutina hlídá i to, na co čekáte vy.
-- **Podklad pro follow-upy:** seznam „kdo mi co dluží“ je připravený materiál pro zdvořilé upomínky.
+- **Čas:** střízlivě 15–25 minut denně, které jinak padnou na dohledávání „co jsem to měl udělat", na listování odeslanou poštou a na omluvné maily. Samotný rituál stojí pět minut, takže čistá úspora je kolem čtvrt hodiny denně.
+- **Peníze:** nesplněný slib se u klientské práce neplatí v hodinách, ale v zakázkách. Jedna nabídka, která nezapadla, obvykle zaplatí celý rok provozu téhle rutiny — a u fakturovaného času jde uspořená hodina týdně přímo do práce, za kterou vám někdo platí.
+- **Klid:** konec večerního přemítání, jestli jste na něco zapomněli. Hlava nemusí držet seznam, který se stejně nedá udržet — a to je přesně to, o co jde v každé slušné metodice organizace práce.
+- **Kvalita a spolehlivost navenek:** nesplněný slib poškodí důvěru víc než pomalá odpověď. Rutina hlídá obě strany — vaše sliby i to, co dluží ostatní vám — takže seznam „kdo mi co dluží" máte připravený jako podklad pro zdvořilé upomínky, ne jako výčitku po měsíci.
 
 ## Pro tip
 
-Nechte rutinu pracovat i s tichem: nejcennější položkou přehledu bývá seznam mailů, na které nikdo nezareagoval. A držte hranici — automat smí zakládat, ale nikdy mazat a nikdy odesílat. Bezpečnostní minimum: rutina běží nad firemním účtem se smluvní ochranou dat, ne v osobním chatu; složky s citlivou agendou z ní vyjměte a v promptu výslovně zakažte přepisovat celé pasáže mailů — stačí jedna věta shrnutí a odkaz na zprávu.
+Pokročilý trik, který stojí jednu větu v zadání: nechte rutinu jednou týdně vypsat **sliby, které se za poslední měsíc opakovaly.** Když jste stejnou věc slíbili třikrát a pokaždé ji odsunuli, není to problém času — ten úkol je buď špatně zadaný, patří někomu jinému, nebo ho vůbec nechcete udělat. Stačí do pátečního běhu přidat: „vypiš závazky, které jsem za poslední měsíc vyslovil víc než jednou vůči stejné protistraně, a u každého uveď, kolikrát a s jakým termínem". Takový seznam je nepříjemný a je nejcennější položkou celé sestavy.
+
+A závěrečné pravidlo nad vším ostatním: **rutina hlídá sliby, neplní je.** Smí je najít, zapsat, připomenout a ukázat vám, že se vracejí. Ve chvíli, kdy jí dovolíte odepsat, potvrdit termín nebo cokoli poslat ven, přestáváte mít pomocníka a začínáte mít druhého člověka, který slibuje vaším jménem. Konec dne pak zavřete tak, jak popisuje [ukončovací rituál](/tipy/shutdown-ritual) — jen s tím rozdílem, že seznam nedodělaných věcí už nemusíte sepisovat z hlavy.
