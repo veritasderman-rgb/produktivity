@@ -56,6 +56,7 @@ const cs = {
     } as Record<string, string>,
     audiences: {
       manazer: "Manažeři", student: "Studenti", vyvojar: "Vývojáři", freelancer: "Freelanceři",
+      ucitel: "Učitelé", marketer: "Marketing", rodic: "Rodiče",
     } as Record<string, string>,
   },
   langSwitch: { label: "EN", title: "Switch to English", target: "en" as Locale },
@@ -110,6 +111,7 @@ const en: typeof cs = {
     },
     audiences: {
       manazer: "Managers", student: "Students", vyvojar: "Developers", freelancer: "Freelancers",
+      ucitel: "Teachers", marketer: "Marketers", rodic: "Parents",
     },
   },
   langSwitch: { label: "CS", title: "Přepnout do češtiny", target: "cs" as Locale },
