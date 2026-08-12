@@ -17,7 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const enNews = new Set(getAllNews("en").map((n) => n.slug));
 
   const staticPaths = [
-    "", "/prirucka", "/tipy", "/ai", "/skoleni", "/newsletter", "/start",
+    "", "/prirucka", "/tipy", "/ai", "/gadgety", "/skoleni", "/newsletter", "/start",
     "/o-projektu", "/hledat", "/ochrana-osobnich-udaju",
   ];
 

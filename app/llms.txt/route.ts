@@ -20,6 +20,7 @@ export async function GET() {
       `${tips.length} praktických tipů s návody a AI novinky přeložené do praxe. Obsah je psaný česky, průběžně aktualizovaný člověkem i AI. Anglická verze: https://produktivni.cz/en`,
     "",
     "Autor školí firemní týmy v produktivitě a AI nástrojích: https://produktivni.cz/skoleni",
+    "Kurátorovaný výběr vybavení pro produktivitu: https://produktivni.cz/gadgety",
     "",
     "## Příručka (kapitoly)",
     "",
