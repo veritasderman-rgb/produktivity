@@ -31,9 +31,9 @@ Osmdesát procent špatných analýz se pokazí tady, ještě než padne první 
 
 Pravidla jsou nudná a rozhodují o všem ostatním. **Jeden řádek = jedno pozorování** (jedna objednávka, jeden den, jeden respondent), nikdy ne kombinace úrovní. **Jedna hlavička na prvním řádku**, žádné sloučené buňky a hlavně žádné mezisoučty uvnitř dat — souhrnný řádek „celkem za březen" mezi objednávkami je klasická cesta k tomu, že se tržby napočítají dvakrát.
 
-U českých exportů pohlídejte tři technikálie, na kterých padá načtení: **oddělovač** (typicky středník), **kódování** (UTF-8, ale starší systémy dávají Windows-1250 a rozsypou se háčky) a **desetinnou čárku** místo tečky — bez ošetření se z čísel stane text a průměr se nespočítá vůbec, nebo hůř, spočítá se z části řádků. Pro analýzu preferujte CSV před XLSX: v sešitu se schovávají skryté listy a barevné příznaky, které nese jen člověk, ne data.
+U českých exportů pohlídejte tři technikálie, na kterých padá načtení: **oddělovač** (typicky středník), **kódování** (UTF-8, ale starší systémy dávají Windows-1250 a rozsypou se háčky) a **desetinnou čárku** místo tečky — bez ošetření se z čísel stane text. Pro analýzu preferujte CSV před XLSX: v sešitu se schovávají skryté listy a barevné příznaky, které nese jen člověk, ne data.
 
-První prompt nepouštějte na výpočty, ale na kontrolu. Modelu ukazujete jen hlavičku a pár řádků, ne celý soubor:
+První prompt nepouštějte na výpočty, ale na kontrolu — modelu ukazujete jen hlavičku a pár řádků, ne celý soubor:
 
 ```text
 Tady je hlavička mého exportu a prvních 20 řádků (oddělovač středník,
@@ -295,24 +295,20 @@ Agregované číslo neřekne proč. Odpověď je skoro vždy v rozpadu podle dim
 V datech mám tenhle nález: [např. tržby v červnu -22 % proti
 květnu]. Chci zjistit, čím je způsobený.
 
-Napiš skript, který propad rozloží na příspěvky jednotlivých
-segmentů. Konkrétně:
+Napiš skript, který propad rozloží na příspěvky segmentů:
 1. rozpad podle [kategorie], [region], [zdroj], [nový vs.
-   vracející se zákazník] — u každé dimenze tabulka: hodnota
-   v období A, v období B, absolutní i procentní změna a
-   PŘÍSPĚVEK k celkové změně v procentních bodech,
-2. seřazení segmentů podle příspěvku, aby bylo vidět, které
-   za změnu opravdu můžou,
-3. rozklad na počet objednávek versus průměrnou hodnotu
-   objednávky — chci vědět, jestli ubylo nákupů, nebo se
-   zmenšily,
-4. denní časová řada pro tři nejvíc zasažené segmenty, ať vidím,
+   vracející se zákazník] — u každé dimenze tabulka: období A,
+   období B, absolutní i procentní změna a PŘÍSPĚVEK k celkové
+   změně v procentních bodech, seřazeno podle příspěvku,
+2. rozklad na počet objednávek versus průměrnou hodnotu
+   objednávky — chci vědět, jestli ubylo nákupů, nebo se zmenšily,
+3. denní časová řada pro tři nejvíc zasažené segmenty, ať vidím,
    jestli propad začal skokem, nebo postupně.
 
 Nevymýšlej vysvětlení, vrať jen čísla a graf.
 ```
 
-Poslední věta je tam schválně: chcete rozpad, ne příběh — ten k němu doplníte vy, protože jenom vy víte, že v tom týdnu vypadl dodavatel. Bod 3 je nejrychlejší diagnostika, jakou v obchodních datech máte: „přišlo míň lidí" a „lidé utráceli míň" jsou dva jiné problémy s jiným řešením.
+Poslední věta je tam schválně: chcete rozpad, ne příběh — ten k němu doplníte vy, protože jenom vy víte, že v tom týdnu vypadl dodavatel. Bod 2 je nejrychlejší diagnostika, jakou v obchodních datech máte: „přišlo míň lidí" a „lidé utráceli míň" jsou dva jiné problémy s jiným řešením.
 
 ## Fáze 6: vizualizace — jaký graf na co
 
@@ -330,21 +326,19 @@ Graf není dekorace, je to nástroj na jednu konkrétní otázku. Podle otázky 
 Čemu se vyhnout: **3D efektům** (zkreslují velikosti), **dvěma osám y** (dají se jimi „prokázat" libovolné dvě věci), **useknuté ose u sloupcového grafu** (rozdíl vypadá desetkrát větší, než je) a **koláčům s deseti dílky**.
 
 ```text
-Uprav grafickou část mého skriptu tak, aby grafy měly jednotný
+Uprav grafickou část mého skriptu, aby grafy měly jednotný
 střízlivý styl vhodný do firemní prezentace:
 - bezpatkové písmo, popisky nejméně 11 bodů,
 - popisky os česky včetně jednotek („Tržby (tis. Kč)“),
 - nadpis grafu je věta se závěrem, ne název proměnné
   („Propad je jen v kategorii Zahrada“, ne „Tržby dle kategorie“),
-- tisícové oddělovače v číslech, žádné dlouhé desetinné části,
-- osa y u sloupcových grafů začíná na nule,
-- maximálně 4 barvy, zbytek odstíny šedé; čitelné i černobíle,
+- tisícové oddělovače, osa y u sloupcových grafů od nuly,
+- maximálně 4 barvy, zbytek odstíny šedé, čitelné i černobíle,
 - bez mřížky, bez rámečku, bez 3D,
-- do popisku každého grafu doplň n (počet záznamů) a období,
+- do popisku doplň n (počet záznamů) a období,
 - export do grafy/ jako PNG, 300 dpi, bílé pozadí.
 
-Nastavení dej na jedno místo na začátku skriptu, ať ho
-můžu měnit jednou pro všechny grafy.
+Nastavení dej na jedno místo na začátku skriptu.
 ```
 
 Vrátí upravený skript se stylem na jednom místě. Požadavek na nadpis jako větu se závěrem je drobnost s velkým dopadem — nutí vás pojmenovat, co graf ukazuje, a čtenář to pochopí bez vysvětlování.
@@ -367,16 +361,15 @@ Přehled má obsahovat:
 - nahoře čtyři souhrnná čísla: tržby, počet objednávek,
   průměrná objednávka, meziroční změna,
 - čárový graf vývoje v čase, který reaguje na filtry,
-- vodorovný sloupcový graf top 10 [kategorie/produktů],
-  seřazený, s hodnotami u sloupců,
-- tabulku pod grafy, kterou jde seřadit kliknutím na hlavičku.
+- vodorovný sloupcový graf top 10 [produktů] s hodnotami,
+- tabulku, kterou jde seřadit kliknutím na hlavičku.
 
 Styl: střízlivý, čitelný na projektoru, česky včetně formátu
-čísel (mezera jako oddělovač tisíců, čárka desetinná).
-Když je po filtrování méně než 5 záznamů, napiš to místo grafu.
+čísel. Když je po filtrování méně než 5 záznamů, napiš to
+místo grafu.
 ```
 
-Vrátí funkční přehled, se kterým jde jít rovnou na poradu. Dvě upozornění: do artefaktu vkládejte **agregovaná data**, ne surový export s tisíci řádky (velký objem zpomalí načítání a osobní údaje tam nemají co dělat), a čísla v něm si porovnejte s výstupem skriptu — přepis dat do JSON je další místo, kde se dá udělat chyba.
+Vrátí funkční přehled, se kterým jde jít rovnou na poradu. Dvě upozornění: vkládejte **agregovaná data**, ne surový export s tisíci řádky (osobní údaje tam nemají co dělat), a čísla v přehledu porovnejte s výstupem skriptu — přepis do JSON je další místo, kde se dá udělat chyba.
 
 ## Fáze 7: interpretace — co data říkají a co neříkají
 
@@ -402,15 +395,14 @@ Předběžný závěr, ke kterému se kloním: [závěr].
 Nepiš text prezentace. Odpověz ve třech blocích:
 1) Co data doslova říkají — jen tvrzení, která z čísel plynou,
    u každého uveď, ze kterého čísla vychází.
-2) Jaká jsou alternativní vysvětlení mého závěru? Projdi
-   zejména: zmatečnou třetí proměnnou, obrácenou příčinu,
-   výběrové zkreslení, sezonnost, změnu metodiky, malý vzorek.
+2) Alternativní vysvětlení mého závěru: zmatečná třetí proměnná,
+   obrácená příčina, výběrové zkreslení, sezonnost, změna
+   metodiky, malý vzorek.
 3) Co z těchhle dat NEMŮŽU tvrdit, i když by to znělo dobře —
-   hlavně kde by šlo o záměnu souvislosti za příčinu nebo
-   o zobecnění mimo to, co je v datech.
+   hlavně záměna souvislosti za příčinu a zobecnění mimo vzorek.
 
-Na konec napiš, jaké jedno další měření nebo data by můj
-závěr nejvíc potvrdila nebo vyvrátila.
+Na konec napiš, jaké jedno další měření by můj závěr nejvíc
+potvrdilo nebo vyvrátilo.
 ```
 
 Blok 3 je důvod, proč tenhle prompt používat pokaždé. Chrání vás před větou, kterou byste na poradě neobhájili — a poslední odstavec často ukáže, že místo dalšího hloubání stačí zeptat se na jednu věc na jiném oddělení.
@@ -424,20 +416,17 @@ Mám hotovou analýzu s těmito výsledky:
 
 [vlož závěry a klíčová čísla]
 
-Připrav mi podklad na 15minutové vystoupení pro [vedení /
-klienta / tým]. Struktura:
+Připrav podklad na 15minutové vystoupení pro [vedení / klienta
+/ tým]. Struktura:
 1. Jedna věta, která shrnuje zjištění (bez čísel).
-2. Tři čísla, která ji podpírají — každé s obdobím a základnou,
-   ze které se počítá.
-3. Co z toho plyne pro rozhodnutí: 2-3 varianty postupu,
-   u každé odhad dopadu a co je na ní riskantní.
+2. Tři čísla, která ji podpírají — každé s obdobím a základnou.
+3. Co z toho plyne: 2-3 varianty postupu, u každé odhad dopadu
+   a co je na ní riskantní.
 4. Tři nejpravděpodobnější námitky publika a odpověď na ně.
 5. Co zatím nevíme a co bychom museli změřit.
 
-Pravidla: používej výhradně čísla z mého vstupu, nic
-nedopočítávej ani nezaokrouhluj jinak, než jak to mám.
-Žádná superlativa, žádné „zásadní“ a „revoluční“.
-Kde ti podklad chybí, napiš TODO místo tvrzení.
+Používej výhradně čísla z mého vstupu, nic nedopočítávej.
+Žádná superlativa. Kde ti podklad chybí, napiš TODO.
 ```
 
 Vrátí kostru, kterou stačí doplnit kontextem, který má v hlavě jen člověk. Bod 5 nevynechávejte — analytik, který sám řekne, co neví, má u publika větší kredit než ten, kdo tvrdí všechno.
@@ -459,16 +448,15 @@ Vyplatí se tři návyky. **Skript uložit vedle dat** ve složce projektu, ne v
 - **Počítat dřív, než víte, co data znamenají.** Ceny s DPH i bez, storna mezi objednávkami, mezisoučty v datech — všechno tiše posune výsledek o desítky procent.
 - **Zaměnit souvislost za příčinu.** „Zákazníci s newsletterem utrácejí víc" nikdy neznamená „newsletter zvyšuje útratu", dokud to neověříte jinak.
 - **Srovnávat meziměsíčně a bez normalizace.** Různý počet pracovních dní, svátky a sezonnost vyrobí „propad", který neexistuje.
-- **Věřit grafu víc než číslu.** Useknutá osa, dvě osy y a 3D efekty dokážou z šumu udělat dramatickou křivku — i nechtěně.
 - **Nechat analýzu jen v chatu.** Konverzace se ztratí, skript zůstane. Bez uloženého skriptu děláte příště všechno znovu a jinak.
 
 ## Nejlepší nástroje
 
 - **Analytický nástroj v chatu (ChatGPT, Claude, Gemini)** — nahrajete CSV, model napíše a spustí kód a ukáže výstup; nejrychlejší cesta k jednorázové odpovědi.
 - **Claude Code** — práce nad složkou s daty: napíše skript, spustí ho, uvidí chybu a opraví ji; nejlepší volba pro opakovanou analýzu a nepořádek v datech.
-- **Python (pandas, matplotlib)** — samotný výpočetní stroj; skripty nemusíte umět napsat, musíte jim rozumět natolik, abyste je obhájili.
+- **Python (pandas, matplotlib)** — výpočetní stroj; skripty nemusíte umět napsat, musíte jim rozumět natolik, abyste je obhájili.
 - **Artefakty** — interaktivní přehled s filtry, který sdílíte odkazem místo posílání obrázků v příloze.
-- **Excel a Google Sheets** — pořád nejlepší místo pro ruční kontrolu jednoho řádku a pro rychlý souhrn přes [kontingenční tabulku](/tipy/excel-kontingencni-tabulka); ověřovat výsledek skriptu na pěti známých řádcích se vyplatí vždycky.
+- **Excel a Google Sheets** — nejlepší místo pro ruční kontrolu jednoho řádku a pro rychlý souhrn přes [kontingenční tabulku](/tipy/excel-kontingencni-tabulka); ověřit výsledek skriptu na pěti známých řádcích se vyplatí vždycky.
 - **Power BI nebo Looker Studio** — když analýzu potřebujete pravidelně a chcete živý dashboard místo jednorázové odpovědi.
 
 ## Co vám to přinese
@@ -480,6 +468,6 @@ Vyplatí se tři návyky. **Skript uložit vedle dat** ve složce projektu, ne v
 
 ## Pro tip
 
-Zaveďte si **datový deník** — obyčejný textový soubor u dat, do kterého si po každé analýze zapíšete tři věci: co jste počítali, co jste z dat vyřadili a proč, a jaké číslo vám vyšlo. Vypadá to jako byrokracie, dokud se za tři měsíce nedostanete do situace, kdy vám stejný skript nad stejnými daty vrátí jiné tržby a vy nevíte, jestli se změnila data, nebo definice. S deníkem je odpověď na jeden pohled.
+Zaveďte si **datový deník** — obyčejný textový soubor u dat, kam si po každé analýze zapíšete tři věci: co jste počítali, co jste vyřadili a proč, a jaké číslo vyšlo. Vypadá to jako byrokracie, dokud se za tři měsíce nedostanete do situace, kdy vám stejný skript nad stejnými daty vrátí jiné tržby a vy nevíte, jestli se změnila data, nebo definice.
 
 A závěrečné pravidlo, které stojí nad vším ostatním: **do rozhodnutí smí jen číslo, jehož cestu od zdrojového řádku k výsledku dokážete popsat.** Když ji popsat neumíte, nemáte analýzu — máte dojem, který má náhodou desetinnou čárku. Na hlubší práci s daty, kde jde o metodu a obhajobu, navazuje [bakalářka s AI](/tipy/bakalarka-s-ai-poctivy-workflow).

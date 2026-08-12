@@ -1,6 +1,6 @@
 ---
 title: "AI přímo v editoru: Copilot a spol. pro vývojáře"
-excerpt: "AI našeptávač v editoru doplňuje kód, píše testy a vysvětluje cizí kód. Největší skok produktivity vývojáře za dekádu."
+excerpt: "Kompletní návod s prompty: tři úrovně asistence (našeptávač, chat, agent) a kdy kterou, jak nastavit kontext projektu, testy a refaktoring, orientace v cizí codebase, review vygenerovaného kódu a mantinely pro agentní režim. Odpovědnost za kód zůstává vaše."
 category: "ai"
 platform: "vsude"
 audience: ["vyvojar"]
@@ -9,39 +9,444 @@ saves: "~1 h denně"
 date: "2026-07-05"
 ---
 
-Boilerplate, testy a dokumentaci už nemusíte psát ručně od první řádky — AI asistent přímo v editoru dnes zvládne velkou část rutinní práce, která dřív zabírala hodiny, a nechá vám čas na rozhodnutí, která má smysl dělat vy. Za posledních pár let se z doplňování jednotlivých řádků stal nástroj, který umí navrhnout celou funkci, vysvětlit cizí kód nebo najít chybu v logice.
+Za pár let se z doplňování konce řádku stal nástroj, který napíše celou funkci, vysvětlí cizí modul, navrhne refaktoring nebo sám projde repozitář a otevře pull request. Skok je reálný a je největší za dekádu. Zároveň se nezměnila jediná věc, která na téhle profesi vždycky rozhodovala: **do repozitáře jde jen kód, za který se podepíšete.** Nezáleží na tom, kdo ho napsal — vaše jméno je v commitu a vaše pohotovost v tři ráno.
+
+Tenhle návod je o tom, jak z asistenta vytáhnout maximum a nezaplatit za to kvalitou. Projdeme tři úrovně asistence a kdy která dává smysl, jak nastavit kontext, aby generovaný kód vypadal jako zbytek projektu a ne jako ukázka z dokumentace, jak dělat review kódu, který jste nenapsali, a jak nasadit agentní režim tak, aby vám nepřepsal půl repozitáře. Každá fáze má hotové prompty.
+
+Napříč celým textem se vrací jedno pravidlo: **kód, kterému nerozumíte, není hotový.** Ne „chybí mu testy“, ne „ještě to doladím“ — není hotový. Vysvětlení generovaného návrhu je součást práce, ne bonus, a je to jediná obrana proti tichému technickému dluhu, který se v repozitářích s AI asistenty hromadí rychleji než dřív.
 
 ## Vzorová situace
 
-Vývojářka Simona dostala za úkol napsat sadu testů k funkci, kterou po sobě zdědila od bývalého kolegy — bez dokumentace, s neintuitivními názvy proměnných. Ručně by jí pochopení kódu a napsání pokrývajících testů zabralo klidně hodinu a půl soustředěné práce.
+Vývojářka Simona nastupuje do týmu, který spravuje osm let starou objednávkovou službu. Sto padesát tisíc řádků, dokumentace tři roky neaktualizovaná, autoři dávno jinde. První úkol: opravit chybu ve výpočtu slev, kterou nikdo neumí spolehlivě zreprodukovat.
 
-S AI asistentem v editoru označila funkci, požádala o vysvětlení a návrh testů — dostala během pár vteřin první verzi, kterou už jen kontrolovala a upravovala podle skutečné logiky byznysu. Práce, která by ji jinak stála devadesát minut, jí zabrala dvacet.
+Klasicky by první týden strávila čtením kódu naslepo. Místo toho si nechá vysvětlit modul, kterého se to týká — a hlavně **cestu, kudy dat teče**, od požadavku po zápis do databáze. Za dvě hodiny má mapu, na kterou by jinak potřebovala tři dny. Pak si nechá napsat testy k existující funkci: ne aby ověřila, že je správná, ale aby zachytila, jak se **teď skutečně chová**. Dva z devíti testů rovnou spadnou a jeden z nich je přesně ta hlášená chyba.
 
-## Jak na to
+Opravu píše sama, protože je to tříradkové rozhodnutí o zaokrouhlování. AI napíše regresní test, který chybu zachytí, doplní docstring a navrhne commit zprávu. Simona v návrhu zamítne dvě věci: test, který zamykal implementační detail místo chování, a komentář, který popisoval kód místo důvodu. Pull request otevře po dvou dnech místo po týdnu — a rozdíl není v nástroji, ale v tom, na co ho použila. Rok předtím by vzala první vygenerovaný návrh, který „procházel“, a přidala do modulu další vrstvu, které nikdo nerozumí.
 
-1. Nainstalujte AI asistenta přímo do editoru — GitHub Copilot je nejrozšířenější volba, případně agentní nástroje jako Claude Code, které umí pracovat s celým projektem, ne jen s jedním souborem.
-2. Nejsilnější využití najdete u opakovatelných úkolů: napsání testů k existující funkci, vysvětlení cizího nebo staršího kódu, refaktoring s jasně popsaným záměrem.
-3. Zadání formulujte konkrétně — čím přesněji popíšete kontext a očekávaný výsledek, tím méně budete muset generovaný kód opravovat.
-4. Generovaný kód vždy čtěte jako kód napsaný juniorním kolegou — vypadá sebejistě a často funguje, ale code review zůstává pořád vaše odpovědnost. AI se umí mýlit přesvědčivě.
-5. U bezpečnostně citlivých částí (autentizace, práce s platbami, šifrování) berte generovaný návrh jen jako první nástřel, ne jako hotové řešení — tyhle oblasti si zaslouží stejně pečlivou kontrolu, jako kdybyste je psali sami od nuly.
-6. Do promptů a kontextu, který AI nástroji poskytujete, nikdy nevkládejte citlivá data bez rozmyslu — přístupové klíče, hesla, osobní údaje zákazníků nebo interní firemní tajemství. Pokud potřebujete AI ukázat reálná data, například konfigurační soubor s citlivými hodnotami, předem je anonymizujte nebo nahraďte fiktivními hodnotami. U firemního kódu se navíc předem ujistěte, jaká má vaše firma pravidla pro sdílení zdrojového kódu s externími AI nástroji.
+## Fáze 1: tři úrovně asistence a kdy kterou
+
+Většina zklamání z AI v editoru pochází z použití špatné úrovně na daný úkol. Úrovně jsou tři a liší se tím, **kolik kontextu vidí a kolik samostatnosti mají**.
+
+### Úroveň 1: našeptávač v editoru
+
+Doplňuje kód za jízdy, obvykle podle aktuálního souboru a pár otevřených záložek. Návrh přijmete tabulátorem. Latence v desetinách vteřiny, kontext malý, samostatnost nulová.
+
+**Kdy je nejlepší:** opakující se vzory (mapování DTO, převody typů, konstruktory), boilerplate, který znáte nazpaměť a nechcete psát, doplňování podle vzoru, který jste právě založili — napíšete první tři případy `switch` a zbytek doplní správně. Skvěle funguje i jako lepší dokumentace: začnete psát volání knihovny a našeptávač ukáže, jak se používá.
+
+**Kdy škodí:** v místech, kde záleží na rozhodnutí. Našeptávač je z principu konformní — pokračuje ve vzoru, který vidí, i když je ten vzor špatně. Když máte v souboru pět míst se stejnou chybou, doplní vám šesté. A dva návrhy přijaté „protože vypadaly rozumně“ se skládají do funkce, kterou nikdo nezamýšlel.
+
+**Praktické:** vypněte ho tam, kde přemýšlíte nad návrhem. Průběžná nabídka řešení vás z přemýšlení vytrhne dřív, než ho dokončíte, a přijmete první přijatelnou variantu místo té správné.
+
+### Úroveň 2: chat s kontextem projektu
+
+Konverzace vedle editoru, které ukážete konkrétní soubory, výběr kódu nebo celý adresář. Vy formulujete zadání, ona vrací návrh, vy ho zapracujete. Kontext střední, samostatnost žádná — nic se nespustí a nic se nezapíše bez vás.
+
+**Kdy je nejlepší:** všechno, kde je hodnota ve **vysvětlení**, ne v napsaných řádcích — pochopení cizího modulu, návrh, jak něco rozdělit, rozbor chybové hlášky, srovnání dvou přístupů. Dál testy, dokumentace, převody mezi formáty a jednorázové skripty stranou od hlavního kódu.
+
+**Kdy škodí:** u úkolů, které vyžadují projít patnáct souborů a udržet mezi nimi konzistenci. Ručně kopírovat kontext do chatu je nejen zdlouhavé, ale hlavně nespolehlivé — zapomenete ukázat právě ten soubor, kde je odpověď.
+
+### Úroveň 3: agentní režim
+
+Nástroj vidí repozitář, čte a zapisuje soubory, spouští příkazy, čte výstup testů, opravuje se podle něj a pracuje v cyklech. Tady patří **Claude Code**, který pracuje se soubory, skripty i gitem přímo v projektu, a v desktopové podobě **Claude Cowork** nad složkou. Kontext velký, samostatnost velká — a proto i riziko největší.
+
+**Kdy je nejlepší:** změny protínající víc souborů (přejmenování konceptu napříč modulem, přechod na jiné API knihovny, doplnění chybějícího ošetření chyb všude, kde chybí), úlohy s rychlou zpětnou vazbou (běží testy, agent iteruje sám), migrace a rutinní údržba. A průzkum velké codebase, kde si nástroj sám najde, co potřebuje.
+
+**Kdy škodí:** u návrhových rozhodnutí. Agent úkol dokončí — vždycky. Když je zadání špatné, dostanete rychle a spolehlivě hotové špatné řešení, navíc rozeseté do dvanácti souborů. A u velké změny naráz vzniká diff, který nikdo pořádně nezreviduje, takže se prostě schválí.
+
+### Volba podle úlohy
+
+Jednoduché vodítko, které funguje: **čím dražší je špatná odpověď, tím nižší úroveň.** Boilerplate v testovacím souboru snese našeptávač. Změna v autentizaci chce chat, ve kterém si necháte vysvětlit dopady, a pak ruční zápis. Migrace tří set volání na nové API je práce pro agenta — ale rozdělená na etapy, ke každé samostatný commit a review.
+
+Když si nejste jistí, jak úkol rozsekat, nechte si to navrhnout dřív, než začnete psát:
+
+```text
+Chystám se na tenhle úkol v našem projektu:
+[popis úkolu, např. přidat podporu částečných refundací do
+objednávkového modulu]
+
+Stack: [jazyk, framework, verze]. Velikost projektu: [řádově].
+Testy: [jednotkové ano, integrační částečně, pokrytí asi 40 %].
+Termín: [2 dny].
+
+Nepiš zatím žádný kód. Rozsekej úkol na kroky a u každého napiš:
+1. co je potřeba udělat, jedna věta,
+2. jestli je to rozhodnutí (musím ho udělat já), nebo mechanika
+   (může to napsat AI a já to zreviduju),
+3. co se musí ověřit, než se půjde dál,
+4. co může tenhle krok rozbít jinde v systému.
+
+Na konci vypiš tři otázky, které bych si měl zodpovědět, než začnu,
+a jednu věc, kterou na tomhle zadání považuješ za nedomyšlenou.
+```
+
+Vrátí plán, ve kterém je vidět, co má cenu delegovat a co ne — sloupec 2 je celé jádro. Poslední řádek berte vážně: modely mají tendenci zadání přijmout, takže když explicitně chcete slyšet, co je na něm blbě, dostanete odpověď, kterou byste jinak nedostali.
+
+## Fáze 2: kontext, aby generovaný kód vypadal jako váš
+
+Nejčastější stížnost na AI asistenty zní „generuje kód, který musím celý přepsat“. Ve většině případů je příčinou to, že nástroj neví, jak se v tomhle projektu píše. Bez kontextu sáhne po nejběžnějším vzoru z celého internetu — což je skoro nikdy váš vzor.
+
+### Soubor s pravidly projektu
+
+Nejvyšší návratnost ze všeho v tomhle návodu má hodina strávená sepsáním konvencí projektu do souboru, který si asistent načte. Agentní nástroje takový soubor v kořeni repozitáře čtou samy, u chatu ho jednou vložíte do konverzace.
+
+```text
+Projdi tenhle projekt a napiš mi návrh souboru s pravidly pro AI
+asistenta, který v něm bude pracovat. Vycházej z toho, co v kódu
+skutečně vidíš, ne z obecných doporučení.
+
+Zahrň:
+- jazyk, verze, správce balíčků, jak se projekt spouští a testuje
+- členění adresářů a co kam patří
+- konvence pojmenování, které v kódu skutečně platí (i když se liší
+  od obvyklých doporučení pro tenhle jazyk)
+- jak se v projektu pracuje s chybami, logováním a konfigurací
+- jak vypadá typický test a jaké knihovny se používají
+- co se v tomhle projektu NEDĚLÁ (zakázané knihovny, vzory, kterých
+  jsme se zbavili a nechceme je zpátky)
+- oblasti, kde se nesmí nic měnit bez konzultace (autentizace,
+  platby, migrace databáze)
+
+U každého bodu uveď soubor, ze kterého jsi to odvodil.
+Kde v projektu vidíš dva různé styly, napiš oba a označ, že je to
+k rozhodnutí — nevybírej za mě.
+```
+
+Vrátí návrh, který projdete a doupravíte; poslední odstavec je důležitý, protože v každém starším projektu jsou dva styly a model by si tiše vybral jeden. Hotový soubor pak zkraťte — pravidla, která nikdo nedodržuje, ho jen ředí. Obecně o práci s kontextem je [samostatný tip](/tipy/ai-role-a-kontext), pro trvalý kontext napříč konverzacemi se hodí Projekty.
+
+### Ukázka místo popisu
+
+Druhá věc, která zlepší výsledky okamžitě: **místo popisu stylu přiložte příklad.** Model je stroj na vzory, tak mu vzor dejte — u nové třídy najděte v projektu nejbližší existující obdobu, přiložte ji celou a řekněte „stejná struktura, stejné rozvrstvení, stejná práce s chybami, jen pro doménu X“. Funguje to řádově lépe než tři odstavce o preferencích a ušetří to celé kolo stylistických připomínek v review.
+
+## Fáze 3: cizí codebase a rychlá orientace
+
+Tohle je oblast, kde je přínos největší a riziko nejmenší — nic se nemění, jen se vysvětluje. A pro nováčka v projektu (nebo pro vás v modulu, kterého jste se dva roky nedotkli) to zkracuje týden na odpoledne.
+
+### Vysvětli mi tenhle modul
+
+```text
+Vysvětli mi tenhle modul. Jsem zkušený vývojář, ale tenhle projekt
+vidím poprvé.
+
+Nechci převyprávěný kód řádek po řádku. Chci:
+1. K čemu modul slouží a jaký problém řeší — 3 věty.
+2. Veřejné rozhraní: co odsud volají ostatní části systému a co
+   od toho čekají.
+3. Datový tok: co přijde na vstupu, jak se to postupně mění,
+   co odchází ven a kam.
+4. Stav a vedlejší efekty: co si to pamatuje, co zapisuje do
+   databáze, co posílá do dalších služeb.
+5. Tři místa, kde je logika nejzamotanější, a proč — u každého
+   soubor a řádky.
+6. Předpoklady, které kód mlčky dělá (co musí platit o vstupech,
+   aby to fungovalo) — hlavně ty, které nikde nejsou zkontrolované.
+7. Co bych rozbil, kdybych tady něco změnil.
+
+Kde si nejsi jistý, napiš to místo dohadu. Netvrď nic o kódu,
+který nevidíš.
+
+[přilož modul nebo adresář]
+```
+
+Vrátí orientační mapu, se kterou se dá pracovat. Body 6 a 7 jsou ty cenné — nezapsané předpoklady jsou přesně to, co člověk při čtení nevidí a co ho pak stojí produkční incident. Ověřte namátkou dvě tvrzení proti kódu: modely s klidem popisují chování, které si domyslely z názvu funkce.
+
+### Kudy teče konkrétní požadavek
+
+Ještě užitečnější než popis modulu je průchod celou cestou. Tohle je úloha pro agentní režim — nástroj si sám najde soubory, přes které to jde.
+
+```text
+Projdi tenhle repozitář a popiš mi celou cestu, kterou v systému
+projde [konkrétní požadavek, např. objednávka od odeslání formuláře
+po e-mailové potvrzení].
+
+Pro každý krok uveď:
+- soubor a funkci, kde se to děje,
+- co se s daty v tom kroku stane,
+- kde se rozhoduje o větvení (validace, oprávnění, feature flag),
+- kde se to může nezdařit a co se pak stane s rozpracovaným stavem.
+
+Na konci mi napiš:
+- které kroky nejsou pokryté testy,
+- kde se ta cesta liší od toho, co bych čekal podle názvů souborů,
+- tři místa, kde bych při zásahu nejspíš něco rozbil.
+
+Chci konkrétní odkazy na soubory a řádky, ne obecný popis architektury.
+```
+
+Vrátí trasu, kterou byste ručně skládali půl dne. Pozor na jednu věc: agent popisuje, co našel, a když je cesta rozbitá do konfigurace, událostí nebo dynamických voláních, kus jí uteče. Ptejte se doplňujícím dotazem „kde jsi ztratil stopu a proč“.
+
+### Archeologie: proč je to takhle
+
+Kód odpovídá na „co“, historie na „proč“. Když má agentní nástroj přístup ke gitu, umí se ptát obojího — a je to nejrychlejší způsob, jak zjistit, že ta divná podmínka, kterou chcete smazat, řeší reálný incident. Zadání zní: „najdi commit, který tuhle podmínku zavedl, ukaž mi jeho zprávu a co se v něm měnilo ještě, najdi testy a komentáře, které se na tenhle případ odvolávají, a napiš mi, jestli to vypadá na řešení konkrétního problému, nebo na pozůstatek po refaktoringu; nic neměň, tohle je jen zjišťování“. Poslední věta je tam schválně — agentní nástroje mají silnou tendenci od zjišťování rovnou přejít k opravě.
+
+## Fáze 4: testy a refaktoring
+
+### Testy k existujícímu kódu
+
+Nejčastější a nejvděčnější použití. Ale je v něm past, kterou stojí za to pojmenovat: **testy vygenerované z existující funkce ověřují, jak se ta funkce chová, ne jak se chovat má.** Když je ve funkci chyba, dostanete test, který ji zafixuje.
+
+Proto se testy generují v konkrétním pořadí: nejdřív popište očekávané chování vy, pak teprve nechte psát.
+
+```text
+Tady je funkce [název], ke které potřebuju testy:
+[vlož funkci a související typy]
+
+Její zamýšlené chování podle byznysu:
+[3–6 vět vlastními slovy, včetně toho, co má dělat v okrajových
+případech — prázdný vstup, záporná částka, chybějící údaj]
+
+Napiš testy v [framework], stylem, jaký používáme tady:
+[přilož jeden existující testovací soubor jako vzor]
+
+Pravidla:
+- testuj chování popsané výše, ne to, co vidíš v implementaci,
+- ke každému testu jednou větou, co ověřuje a proč na tom záleží,
+- pokrytí okrajových případů: hranice, prázdné a chybějící hodnoty,
+  chybové stavy — u každého napiš, proč je zrovna tenhle případ
+  zajímavý,
+- nemockuj vnitřnosti testované funkce, jen vnější závislosti,
+- na konec vypiš zvlášť: případy, kde se zamýšlené chování podle
+  popisu ROZCHÁZÍ s tím, co implementace dělá.
+
+Ten poslední seznam je pro mě nejdůležitější, nevynechávej ho.
+```
+
+Vrátí sadu testů plus seznam rozporů — a právě ten seznam je důvod, proč prompt vypadá takhle. Každý rozpor je buď chyba v kódu, nebo chyba ve vašem chápání zadání, a obojí chcete vědět teď a ne v produkci. Testy pak projděte: nejčastější vada generovaných testů je zamykání implementačních detailů (kontrola, že se zavolala konkrétní privátní metoda), které vám zablokuje každý budoucí refaktoring.
+
+### Regresní test před opravou
+
+Když najdete chybu, pořadí je: nejdřív test, který ji zachytí, pak oprava. AI to zvládne rychle a udělá to poctivěji než unavený člověk v pátek.
+
+```text
+Našel jsem chybu: [popis, co se stane a co se stát mělo].
+Reprodukce: [kroky nebo vstup, u kterého to nastane].
+Podezřelé místo: [soubor, funkce].
+
+Napiš mi jeden test, který tuhle chybu zachytí — tedy test,
+který teď MUSÍ spadnout a po opravě projde.
+
+- pojmenuj ho tak, aby z názvu bylo poznat, jaký případ hlídá,
+- do komentáře napiš odkaz na hlášení a stručně, o co šlo,
+- používej jen ta data, která jsou pro chybu podstatná,
+  žádná náhodná výplň,
+- neopravuj zatím kód, chci vidět, jak test spadne.
+
+Až test spadne, teprve pak mi navrhni opravu — a k ní napiš,
+proč chyba vznikala a co jiného mohlo být stejnou příčinou zasažené.
+```
+
+Vrátí test, který skutečně padá, a to je celý smysl. Poslední otázka — co jiného mohla stejná příčina zasáhnout — bývá odpověď, kvůli které opravíte tři místa místo jednoho.
+
+### Refaktoring, ke kterému dostanete vysvětlení
+
+U refaktoringu je hodnota z poloviny v novém kódu a z poloviny v tom, že rozumíte, proč je lepší. Bez druhé části jste jen vyměnili jeden kód, kterému nerozumíte, za jiný.
+
+```text
+Tahle funkce mi přerostla přes hlavu:
+[vlož kód]
+
+Kontext: [k čemu slouží, jak často se volá, co ji volá].
+Testy: [existují / neexistují]. Výkon je [/není] kritický.
+
+Nepiš zatím výsledek. Nejdřív mi napiš:
+1. Co konkrétně je na téhle funkci špatně — očíslovaný seznam
+   problémů, u každého proč to vadí v praxi (čitelnost, testovatelnost,
+   riziko chyby), ne odkaz na obecný princip.
+2. Tři různé varianty refaktoringu, od nejmenší po nejradikálnější.
+   U každé: co se zlepší, co se zhorší, kolik souborů se dotkne
+   a jestli mění veřejné rozhraní.
+3. Kterou bys zvolil ty a proč — s ohledem na to, že [kontext výše].
+
+Vyberu si a teprve pak mi napiš kód. Chování se nesmí změnit;
+kde by se změnit muselo, upozorni na to předem.
+```
+
+Vrátí rozbor s možnostmi místo hotové přepsané funkce. Rozhodnutí zůstává vám — **AI navrhuje, člověk schvaluje** platí i tady, protože jen vy víte, jestli se ten modul za měsíc zahazuje, nebo v něm strávíte další dva roky. A základní podmínka refaktoringu se nemění: bez testů se nerefaktoruje, ať kód píše kdokoli.
+
+## Fáze 5: review kódu, který jste nenapsali
+
+Tohle je nejdůležitější fáze celého návodu. Generovat se dá rychle; kvalitu repozitáře určuje, co z toho pustíte dál.
+
+### Proč je review AI kódu těžší než review kolegy
+
+Kód od juniora nese stopy nejistoty — nekonzistentní pojmenování, chybějící případy, komentáře typu „asi“. Generovaný kód je **sebejistý, konzistentní a plynulý**, i když je celý špatně, takže ho čtete méně pozorně. Přesně obráceně, než by bylo správně. A navíc jste ho neviděli vznikat: u vlastního kódu si pamatujete, proč je tam ta podmínka, u cizího návrhu nemáte nic, dokud se nezeptáte.
+
+Typické vady, které v generovaném kódu hledejte přednostně: **vymyšlené API** (metoda knihovny, která zní věrohodně a neexistuje, nebo existovala ve starší verzi), **neošetřené okrajové případy** (prázdný seznam, `null`, časové pásmo, souběh), **tichá změna chování** při refaktoringu, **nadbytečná abstrakce** postavená pro obecnost, kterou nikdo nepotřebuje, a **bezpečnostní nedbalost** — skládání dotazů řetězcem, chybějící kontrola oprávnění, tajemství vepsané do kódu.
+
+### Prompt na sebe-review před commitem
+
+```text
+Tady je diff, který se chystám commitnout. Část kódu vznikla
+s pomocí AI a chci ho projít, jako by ho psal někdo cizí.
+
+Kontext: [co změna dělá a proč]. Projekt: [stack].
+
+Projdi diff a vrať nálezy roztříděné do skupin:
+1. CHYBY: co je špatně a projeví se to (chybné chování, neošetřený
+   okrajový případ, změna chování oproti původnímu kódu).
+2. BEZPEČNOST: vstupy bez validace, chybějící kontrola oprávnění,
+   práce s tajemstvími, riziko injektáže, logování citlivých údajů.
+3. NEEXISTUJÍCÍ API: volání funkcí, metod nebo parametrů, které
+   v uvedených verzích knihoven nemusí existovat — vypiš je,
+   ať si je ověřím v dokumentaci.
+4. NAVÍC: kód, který řeší problém, co nemám — abstrakce, parametry
+   a větve, které nikdo nevolá.
+5. NESOULAD S PROJEKTEM: kde se to liší od konvencí v přiloženém
+   souboru s pravidly.
+
+U každého nálezu: soubor, řádek, co s tím. Neopravuj nic sám.
+Na konec napiš tři otázky, na které bych měl umět odpovědět
+při obhajobě téhle změny.
+```
+
+Vrátí strukturovaný seznam k projití. Bod 3 řešte vždycky ručně v dokumentaci — model si neexistující metodu vymyslel a stejně sebejistě vám potvrdí, že existuje. Poslední tři otázky jsou lakmusový papírek: když na některou neumíte odpovědět, tu část změny ještě nevlastníte.
+
+### Druhý model jako oponent
+
+Na větší změny se vyplatí pustit review **jiným nástrojem, než kterým kód vznikl.** Autor je ke svému návrhu shovívavý — a to platí i pro modely. Postup je popsaný v tipu [AI jako oponent](/tipy/ai-oponent); pro kód stačí zadat: „tenhle kód napsal jiný AI asistent, najdi v něm tři nejvážnější problémy a u každého napiš, jak se projeví v produkci“. Formulace „napsal jiný asistent“ je záměrná; bez ní dostanete zdvořilejší posudek.
+
+### Kde review nestačí a musíte psát ručně
+
+Existují místa, kde je čtení cizího návrhu dražší než napsání vlastního: autentizace a autorizace, práce s platbami, kryptografie, migrace databází, cokoli, co maže data. Tady berte generovaný kód jen jako první nástřel a rozhodnutí dělejte sami, řádek po řádku.
+
+A pravidlo, které se nedá obejít: **do promptů a kontextu nepatří přístupové klíče, hesla, produkční data zákazníků ani interní tajemství.** Když potřebujete ukázat konfigurační soubor, nahraďte hodnoty smyšlenými. Cokoli citlivějšího řešte jen v placeném účtu se smluvní ochranou dat — a předem si ověřte, jaká má vaše firma pravidla pro sdílení zdrojového kódu s externími nástroji. To je věc, kterou se neptáte až po incidentu.
+
+## Fáze 6: dokumentace, commit zprávy a pull requesty
+
+Psaní o kódu je práce, kterou většina vývojářů odkládá a AI ji dělá dobře — pod jednou podmínkou: **musí popisovat proč, ne co.** Komentář, který převypráví řádek pod sebou, je horší než žádný.
+
+### Commit zprávy
+
+```text
+Tady je diff mého commitu:
+[vlož diff]
+
+Kontext, který z diffu není vidět:
+[proč to dělám, číslo ticketu, co tomu předcházelo]
+
+Napiš commit zprávu podle konvence [například Conventional Commits],
+v [češtině / angličtině] podle zvyklostí repozitáře:
+- první řádek do 72 znaků, v rozkazovacím způsobu, bez tečky,
+- prázdný řádek,
+- tělo: PROČ ta změna vzniká a jaké mělo alternativy, ne převyprávěný
+  seznam změněných souborů,
+- pokud se mění chování nebo rozhraní, uveď to výslovně,
+- odkaz na ticket na konec.
+
+Pokud v diffu vidíš dvě nesouvisející změny, neschovávej to do
+jedné zprávy — napiš mi, kde je rozdělit na samostatné commity.
+```
+
+Vrátí zprávu, kterou obvykle stačí drobně upravit. Poslední odstavec je nečekaně užitečný: model spolehlivě pozná, že jste do commitu s opravou přibalili i formátování celého souboru. Podrobněji v tipu o [commit zprávách](/tipy/vyvojar-commit-zpravy).
+
+### Popis pull requestu pro člověka, který ho bude číst
+
+```text
+Připrav popis pull requestu z tohohle diffu a z těchhle commitů:
+[vlož diff a seznam commitů]
+
+Kontext: [ticket, zadání, na čem jsme se dohodli].
+
+Struktura:
+- Co se mění a proč — 3 věty, srozumitelné i pro kolegu z jiného týmu.
+- Jak jsem to řešil a jaké alternativy jsem zvažoval a zamítl.
+- Co si má reviewer projít pozorně a proč zrovna to.
+- Jak to otestovat ručně — konkrétní kroky, ne „spusťte aplikaci“.
+- Rizika a co dělat, kdyby se to muselo vrátit zpět.
+- Co záměrně NENÍ součástí téhle změny.
+
+Piš stručně, bez marketingu. Kde ti chybí informace, napiš
+DOPLNIT: [co] místo domýšlení.
+```
+
+Vrátí popis, který reviewerovi ušetří půl hodiny. Značky DOPLNIT jsou tam proto, aby model nevymýšlel motivaci změny — bez nich si důvod domyslí a bude znít přesvědčivě.
+
+### Dokumentace, která nezestárne za měsíc
+
+U dokumentace platí opačné pravidlo než u kódu: čím míň, tím lépe. Nechte si napsat dokumentaci k **veřejnému rozhraní** (co to dělá, co čeká na vstupu, co vrací, co vyhodí za chybu) a k **rozhodnutím**, která nejsou z kódu zřejmá. Vnitřní implementaci nedokumentujte — ta se změní příští týden a dokumentace bude lhát.
+
+Praktický prompt: „napiš dokumentační komentáře k veřejným metodám téhle třídy; popiš kontrakt a chybové stavy, nikoli implementaci; kde jsou v kódu nezřejmá rozhodnutí, přidej jednu větu proč, a kde důvod z kódu nepoznáš, napiš místo toho otázku pro mě“. Ty otázky pak zodpovězte sami — jsou to přesně místa, kde je znalost jen ve vaší hlavě.
+
+## Fáze 7: agentní režim s mantinely
+
+Agent je nejsilnější a nejnebezpečnější úroveň. Rozdíl mezi „ušetřil mi den“ a „musel jsem to celé zahodit“ je v zadání.
+
+### Jak vypadá dobré agentní zadání
+
+Čtyři věci, které v něm musí být: **rozsah** (které soubory a adresáře, a co je mimo hru), **kritérium hotovo** (co musí projít, aby byla práce dokončená), **postup po etapách** s body, kde se čeká na vás, a **zákazy** — co se nesmí za žádnou cenu.
+
+```text
+Pracuj v tomhle repozitáři.
+
+ÚKOL: [např. nahradit zastaralé volání knihovny X novým API napříč
+projektem — je jich asi 40].
+
+ROZSAH: pouze adresáře [src/, tests/]. Nesahej na [migrace/, infra/,
+konfiguraci nasazení] ani na závislosti v manifestu.
+
+POSTUP, po každém kroku se zastav a počkej na mé schválení:
+1. Najdi všechna dotčená místa a vypiš je do tabulky: soubor, řádek,
+   typ použití. Roztřiď je na přímočará a na ta, která vyžadují
+   rozhodnutí.
+2. U třech nejsložitějších případů mi ukaž návrh změny a vysvětli ho.
+3. Proveď změnu v jednom souboru, spusť testy, ukaž mi diff.
+4. Teprve po schválení zpracuj zbytek přímočarých případů,
+   ve dvou dávkách, ke každé samostatný commit.
+5. Případy vyžadující rozhodnutí nech beze změny a vypiš mi je
+   na konec se svým doporučením.
+
+HOTOVO ZNAMENÁ: projdou všechny existující testy, chování se nemění,
+diff neobsahuje nesouvisející úpravy formátování.
+
+ZÁKAZY: nemazat testy, neupravovat je jinak než kvůli změněnému
+rozhraní, neaktualizovat verze závislostí, nepřepisovat kód,
+který s úkolem nesouvisí, nedělat commit bez mého schválení.
+```
+
+Vrátí práci rozdělenou na kontrolovatelné kusy. Bez části „zastav se a počkej“ dostanete jeden diff přes čtyřicet souborů, který nikdo pořádně nezreviduje — a to je nejrychlejší cesta, jak se do repozitáře dostane změna, které nikdo nerozumí. Zákaz úprav testů je tam z konkrétního důvodu: když testy padají, je pro agenta test nejsnazší překážka k odstranění.
+
+### Bezpečnostní návyky kolem agenta
+
+- **Vždycky ve větvi**, nikdy ne přímo v hlavní. Práce agenta se tak dá zahodit jedním příkazem.
+- **Čistý pracovní strom** před spuštěním. Jinak nerozeznáte, co změnil on a co jste rozpracovali vy.
+- **Malé commity po etapách**, ne jeden na konci — dá se vracet po částech.
+- **Testy jako mantinel:** když je má agent po ruce a spouští je, opravuje se sám a vy dostanete méně nesmyslů. Projekt bez testů je pro agentní režim ten nejhorší kandidát, ne nejlepší.
+- **Diff čtěte celý.** Když je moc velký na přečtení, bylo špatně zadání, ne review.
+
+### Subagenti a delegování větších celků
+
+U větších úloh se vyplatí rozdělit práci mezi víc paralelních běhů — jeden mapuje codebase, druhý píše testy, třetí provádí změnu. V Claude Code na to jsou subagenti, popsané v [samostatném tipu](/tipy/claude-subagenti-nechte-ai-ridit-ai). Praktické pravidlo: **delegujte úlohy, jejichž výsledek umíte zkontrolovat rychleji, než byste ho vyrobili.** Když kontrola trvá déle než práce, delegování nemá smysl.
+
+Přes konektory a MCP servery je možné napojit i další zdroje — issue tracker, dokumentaci, interní služby — takže agent pracuje s kontextem, který má tým reálně po ruce; k tomu je [tip o MCP](/tipy/mcp-konektory-usb-c-pro-ai). Rutinní běhy typu „každé ráno projdi nové chyby v logu a připrav shrnutí“ se dají spouštět podle rozvrhu plánovanými úlohami. Pořád ale platí, že nevratné kroky — merge, nasazení, mazání dat, odeslání komunikace — schvaluje člověk.
+
+## Nejčastější chyby
+
+- **Přijmout kód, kterému nerozumíte.** Nejdražší chyba ze všech, protože se neprojeví hned. Za půl roku máte modul, který nikdo neumí změnit, a v incidentu čtete vlastní repozitář jako cizí. Pravidlo je jednoduché: co neumíte vysvětlit kolegovi, nekomitujete.
+- **Nechat AI generovat testy z implementace.** Test napsaný podle existujícího kódu ověřuje chybu stejně poctivě jako správné chování. Nejdřív popište zamýšlené chování vlastními slovy, teprve pak nechte psát.
+- **Nasadit agenta na velkou změnu naráz.** Diff přes čtyřicet souborů se nezreviduje, jen odsouhlasí. Etapy, samostatné commity, kontrolní body.
+- **Věřit, že volaná metoda existuje.** Modely si vymýšlejí API, které zní přesně tak, jak by se jmenovat mělo — hlavně u knihoven, které se mezi verzemi měnily. Kompilace vás chytí jen v části případů, dokumentaci si otevřete.
+- **Používat našeptávač při návrhu.** Průběžné nabízení hotového řešení ukončí přemýšlení dřív, než dojdete k rozhodnutí. V místech, kde se rozhoduje o struktuře, ho vypněte.
+- **Poslat do promptu klíče, produkční data nebo interní kód bez rozmyslu.** Tajemství nahraďte smyšlenými hodnotami, citlivé věci řešte jen v placeném účtu se smluvní ochranou dat a nejdřív si zjistěte firemní pravidla pro sdílení kódu.
+- **Nechat asistenta psát bez znalosti projektu.** Bez souboru s konvencemi a bez přiloženého vzoru dostáváte kód z internetového průměru, který pak přepisujete k obrazu zbytku repozitáře — a tvrdíte, že AI nefunguje.
 
 ## Nejlepší nástroje
 
-- **GitHub Copilot** — nejrozšířenější AI asistent přímo v editoru (VS Code, JetBrains i další), silný v doplňování kódu za jízdy.
-- **Claude Code** — agentní nástroj, který umí pracovat s celým projektem najednou, spouštět příkazy a navrhovat víckrokové změny, ne jen doplňovat řádky.
-- **Cursor** — editor postavený kolem AI od základu, hodí se, když chcete AI hluboko integrované do celého workflow psaní kódu.
-- **AI asistenti přímo v JetBrains IDE** — vestavěná alternativa pro ty, kdo už používají IntelliJ, PyCharm nebo podobné nástroje a nechtějí přidávat další rozšíření.
-- **Nástroje na review kódu s podporou AI** — doplněk k psaní kódu, který pomůže odhalit rizika nebo nekonzistence ještě před tím, než se dostanou do produkce.
+- **GitHub Copilot** — nejrozšířenější našeptávač přímo v editoru (VS Code, JetBrains i další); nejsilnější v doplňování opakujících se vzorů za jízdy a v boilerplate.
+- **Claude Code** — agentní práce nad celým repozitářem: čte a mění soubory, spouští testy a příkazy, pracuje s gitem a umí delegovat části úlohy subagentům; sem patří migrace, průzkum codebase a změny přes víc souborů.
+- **Claude Cowork** — desktopový režim nad složkou projektu, praktický, když kromě kódu řešíte i podklady, dokumentaci a další soubory kolem.
+- **Cursor** — editor postavený kolem AI od základu, pro ty, kdo chtějí asistenci hluboko v celém workflow psaní kódu.
+- **AI asistenti vestavění v JetBrains IDE** — alternativa pro tým, který už žije v IntelliJ nebo PyCharm a nechce přidávat další rozšíření.
+- **Druhý nástroj jako reviewer** — model, kterým kód nevznikl, najde v návrhu víc než jeho autor; nasazujte ho na větší změny a na bezpečnostně citlivé části.
+- **MCP a konektory** — napojení asistenta na issue tracker, dokumentaci nebo interní služby, aby pracoval s kontextem, který má tým reálně k dispozici.
 
 ## Co vám to přinese
 
-- **Čas:** odhadem hodinu denně u rutinních částí práce — testy, boilerplate, dokumentace, vysvětlování cizího kódu.
-- **Rychlejší onboarding v cizím kódu:** vysvětlení neznámé funkce od AI je rychlejší než procházení kódu řádek po řádku bez kontextu.
-- **Méně otravné psaní opakujícího se kódu:** repetitivní vzory generuje AI za vteřiny.
-- **Prostor pro rozhodování:** čas ušetřený na rutině můžete věnovat architektuře a rozhodnutím, která skutečně vyžadují vaši zkušenost.
-- **Nižší bariéru u neznámých technologií:** práce s knihovnou nebo jazykem, který znáte jen povrchně, jde s AI asistentem výrazně rychleji, protože nemusíte hledat každý detail syntaxe zvlášť.
+- **Čas:** střízlivě zhruba hodinu denně u rutinní části práce — testy, boilerplate, dokumentace, commit zprávy, orientace v cizím kódu. U migrací a hromadných změn je úspora skokově větší, u návrhových rozhodnutí prakticky nulová.
+- **Peníze:** kratší onboarding do neznámé codebase (dny místo týdnů) je nejlépe měřitelný přínos v týmu; k tomu méně chyb odchycených až v produkci, protože testy vznikají i tam, kde by se na ně dřív nedostalo.
+- **Klid:** cizí modul přestane být hrozba. Než do něj sáhnete, máte mapu datového toku, seznam nezapsaných předpokladů a testy, které zachytí, když něco rozbijete.
+- **Kvalita:** vyšší pokrytí testy, poctivější commit zprávy a dokumentace, která existuje — plus návyk nechat si každou změnu vysvětlit, který zlepší i kód, co píšete sami.
 
 ## Pro tip
 
-Naučte se AI asistentovi dávat kontext, ne jen zadání — když mu ukážete existující styl kódu v projektu (konvence pojmenování, používané knihovny), generuje výsledky, které do projektu sednou napoprvé, místo aby vytvářel kód, který musíte přepisovat k obrazu zbytku kódu.
+Pokročilý trik, který se vyplatí zavést v týmu: **nechte si od asistenta psát ne kód, ale kontrolní seznam k vlastní změně.** Před otevřením pull requestu zadejte diff a řekněte si o pět otázek, na které musíte umět odpovědět při obhajobě. Trvá to minutu a spolehlivě odhalí místa, kde jste návrh přijali, aniž byste ho promysleli — mnohem dřív, než na ně přijde reviewer nebo produkce.
+
+A závěrečné pravidlo, které přežije jakoukoli generaci nástrojů: **AI navrhuje, člověk schvaluje.** Nástroj může napsat devadesát procent řádků, ale odpovědnost za to, co je v hlavní větvi, se nedeleguje. Kód, kterému nerozumíte, do repozitáře nepatří — bez ohledu na to, jak sebejistě vypadá.
