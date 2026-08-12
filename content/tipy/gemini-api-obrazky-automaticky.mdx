@@ -1,6 +1,6 @@
 ---
 title: "Obrázky pro projekt automaticky: jeden styl, jeden skript"
-excerpt: "Místo abyste u každé ilustrace znovu klikali v generátoru a doufali, že bude ladit s ostatními, popíšete styl jednou — a skript pak vygeneruje všechny obrázky sám."
+excerpt: "Kompletní návod s prompty: jak z klikání v generátoru udělat jednu vizuální identitu a jeden příkaz. Stylový prompt, skript od AI, dávkové generování, komprese do WebP, bezpečná práce s API klíčem — včetně případové studie ilustrací tohoto webu."
 category: "ai"
 platform: "vsude"
 audience: ["freelancer", "vyvojar"]
@@ -9,39 +9,462 @@ saves: "~30 min na ilustraci"
 date: "2026-08-12"
 ---
 
-Generátory obrázků umí většina lidí používat jedním způsobem: otevřít web, napsat prompt, počkat, stáhnout, zmenšit, nahrát. U jednoho obrázku je to zábava. U dvacátého už je to práce — a hlavně je vidět, že každý vznikl v jiné náladě a v jiném stylu. Jenže tatáž služba má skoro vždy i API. A tam se otevírá jiný svět: **stylový prompt napíšete jednou a od té chvíle je obrázek jen jeden příkaz.** Ne půl hodiny v editoru.
+Generátory obrázků umí většina lidí používat jedním způsobem: otevřít web, napsat prompt, počkat, stáhnout, zmenšit, nahrát. U jednoho obrázku je to zábava. U dvacátého už je to práce — a hlavně je vidět, že každý vznikl v jiné náladě a v jiném stylu. Jenže tatáž služba má skoro vždy i API. A tam se otevírá jiný svět: **stylový prompt napíšete jednou a od té chvíle je obrázek jen jeden příkaz.**
+
+Tenhle návod je o tom, jak se z ručního generování stane výrobní linka, která drží jednu vizuální řeč. Není to návod pro programátory — kód si necháte napsat, vy rozhodujete o stylu a schvalujete výstup. Postupuje se od nejlevnějšího kroku (napsat a odladit stylové zadání v běžném chatu) přes skript a dávkové generování až k provozním věcem, které se snadno podcení: kde má bydlet API klíč, jak si pohlídat spotřebu a co dělat, až se model pod vámi změní.
+
+Jedno pravidlo platí nad celým textem a vrátí se ještě několikrát: **generuje stroj, publikuje člověk.** Skript ať ukládá obrázky do složky, ne rovnou na web. Každý obrázek si před nasazením prohlédnete — generátory umí vyrobit deformovaný text, šestý prst nebo motiv, který se k tématu vůbec nehodí.
 
 ## Vzorová situace
 
-Grafička na volné noze Klára dělá blog pro klienta z oblasti financí. Každý článek chce úvodní ilustraci. Dosud to znamenalo: vymyslet motiv, napsat prompt, vygenerovat čtyři varianty, vybrat, dogenerovat, otevřít editor, ořezat na správný poměr, exportovat, zkomprimovat, přejmenovat, nahrát. Třicet až čtyřicet minut na obrázek. A po půl roce byl blog vizuálně roztříštěný — starší ilustrace měly jiné barvy než nové, protože se mezitím posunul model i její vkus.
+Grafička na volné noze Klára dělá blog pro klienta z oblasti financí. Každý článek chce úvodní ilustraci. Dosud to znamenalo: vymyslet motiv, napsat prompt, vygenerovat čtyři varianty, vybrat, dogenerovat, otevřít editor, ořezat na správný poměr, exportovat, zkomprimovat, přejmenovat, nahrát. Třicet až čtyřicet minut na obrázek — u tří článků týdně skoro dva pracovní dny měsíčně, které nikdo nezaplatí jako kreativní práci.
 
-Teď má Klára soubor se stylovým zadáním a krátký skript. Napíše jednu větu o motivu, spustí příkaz a za minutu má hotový obrázek ve správném rozměru, ve formátu WebP a se stejnou vizuální řečí jako všech předchozích osmdesát. Práce na ilustraci se scvrkla na rozmyšlení motivu.
+Horší než čas byl ale výsledek. Po půl roce byl blog vizuálně roztříštěný: lednové ilustrace měly jinou paletu než červnové, protože se mezitím posunul model, posunula se Klára a nikde nebylo zapsané, jak vlastně ty první vypadaly. Klient to shrnul větou „vypadá to, jako by nám to dělalo pět různých lidí". Měl pravdu — dělalo to pět různých nálad jednoho člověka.
 
-Stejně vznikají ilustrace na tomto webu. Existuje jeden stylový prompt — černobílá kresba linkou s jediným červeným akcentem — skript, který napsal [Claude Code](/tipy/ai-skripty-pro-nevyvojare), a napojení na obrázkové API Googlu. Výstup se automaticky zkomprimuje do WebP a uloží pod správným jménem. Nový článek znamená jeden příkaz, ne půlhodinu v grafickém editoru.
+Teď má Klára dvě věci: textový soubor se stylovým zadáním a krátký skript. Napíše jednu větu o motivu, spustí příkaz a za minutu má tři varianty ve správném poměru, ve formátu WebP, pojmenované podle článku. Vybere jednu, zbytek smaže. Práce na ilustraci se scvrkla na rozmyšlení motivu a na kontrolu výsledku — z třiceti minut na tři. A když si klient za rok řekne o změnu palety, Klára přepíše dvě věty ve stylovém souboru a přegeneruje celý archiv za jeden večer.
 
-## Jak na to
+## Fáze 1: proč API místo klikání v generátoru
 
-1. **Nejdřív definujte styl, ne obrázek.** Sepište odstavec, který popisuje techniku (kresba linkou, akvarel, plochá vektorová ilustrace), barevnou paletu (klidně jen dvě barvy), náladu, pozadí a čeho se vyvarovat. Tenhle odstavec je jádro celé věci — obrázky se mění, styl zůstává.
-2. **Vyzkoušejte styl ručně.** Než napíšete jakýkoli skript, projděte pět různých motivů v běžném webovém generátoru se stejným stylovým odstavcem. Když spolu výsledky vizuálně drží, máte vyhráno. Když ne, laďte popis dál — v tomhle kroku je to nejlevnější.
-3. **Nechte si napsat skript.** Nemusíte umět programovat. Řekněte AI asistentovi: „napiš mi skript, který vezme můj stylový prompt, přidá k němu popis motivu z argumentu, zavolá obrázkové API, uloží výsledek a převede ho do WebP v šířce 1200 px.“ Dostanete hotový kód i s návodem, co doinstalovat.
-4. **Vytvořte si účet a klíč k API.** U služeb jako Google AI Studio nebo OpenAI se klíč generuje v nastavení účtu na pár kliknutí. Klíč vložíte do proměnné prostředí, ne do skriptu.
-5. **Přidejte poslední krok: kompresi a pojmenování.** Nekomprimovaný výstup z generátoru má běžně několik megabajtů. Automatický převod do WebP a rozumné pojmenování podle článku ušetří víc práce, než by člověk čekal.
-6. **Nechte si vygenerovat víc variant naráz.** Skript může udělat tři obrázky místo jednoho a vy si vyberete. Pořád je to rychlejší než jedno kolo ručního klikání.
+Rozdíl mezi webovým rozhraním a API není v kvalitě obrázků — model je tentýž. Rozdíl je v tom, co se dá zopakovat.
+
+### Konzistence: styl žije v souboru, ne ve vaší hlavě
+
+Když píšete prompt pokaždé znovu, pokaždé ho napíšete trochu jinak. Jednou zmíníte „jemné linky", podruhé to zapomenete, potřetí přidáte „moderní" a model vám z ničeho nic vrátí jiné barvy. Za půl roku už si nepamatujete, čím jste začínali, a starší obrázky se s novými nepotkají.
+
+U API je stylové zadání **text v souboru**. Skript ho ke každému motivu připojí doslova, znak po znaku. Ilustrace číslo osmdesát vznikla ze stejného zadání jako ilustrace číslo jedna. To je celé kouzlo konzistence — není v modelu, je v tom, že se zadání nemění náhodou.
+
+### Opakovatelnost: obrázek jde vyrobit znovu
+
+V generátoru na webu obrázek vznikne a zmizí. Když ho potřebujete v jiném rozměru, generujete znovu a dostanete jiný obrázek. Se skriptem si k výsledku ukládáte i vstup — motiv, stylové zadání, nastavení, název modelu. Potřebujete-li variantu na sociální sítě, spustíte totéž s jiným poměrem stran. Potřebujete-li po roce zjistit, proč jeden obrázek vybočuje, koukněte se do logu, co k němu bylo zadané.
+
+### Dávky: dvacet obrázků za dobu jedné kávy
+
+Nejsilnější důvod je tenhle. Máte-li seznam dvaceti článků, ruční cesta znamená dvacet kol otevírání, čekání, stahování a přejmenovávání. Skript projde seznam sám a vy se mezitím věnujete něčemu jinému. U migrace webu, u knihy s ilustracemi ke kapitolám nebo u katalogu produktů je to rozdíl mezi „to bychom museli někomu zadat" a „to je večerní úkol".
+
+### Kdy API naopak nemá smysl
+
+Buďme upřímní: pro tři obrázky za rok je stavět linku hloupost. API se vyplatí, když platí aspoň jedno z toho — obrázků bude řádově desítky a víc, mají držet jednotný styl, mají vznikat pravidelně, nebo je potřebujete ve víc rozměrech. U jednorázové grafiky na plakát otevřete generátor na webu a je to.
+
+Než se pustíte dál, ověřte si jednu věc, ať nestavíte na písku: **jestli výstup smíte použít komerčně.** Podmínky se u jednotlivých služeb liší a mění se — otevřete si aktuální licenční podmínky té konkrétní služby a přečtěte si, co říkají o komerčním užití, o právech k vygenerovanému obrázku a o tom, jestli musíte původ obrázku uvádět. Tohle je pět minut, které vás můžou ušetřit velké nepříjemnosti.
+
+## Fáze 2: stylový prompt jako základ vizuální identity
+
+Tohle je nejdůležitější fáze celého návodu a jediná, kterou nejde delegovat. Stylové zadání je vaše vizuální identita zapsaná slovy. Skript ho jen mechanicky opakuje.
+
+### Anatomie stylového zadání
+
+Dobré stylové zadání má pět částí a žádnou z nich nemá smysl vynechávat.
+
+**Technika.** Čím je obrázek udělaný: kresba perem, akvarel, plochá vektorová ilustrace, koláž, izometrická grafika, fotografie s určitým objektivem. Tohle rozhoduje nejvíc — dvě jinak stejná zadání s jinou technikou vypadají jako od dvou různých studií.
+
+**Barvy.** Buďte tvrdší, než se vám chce. „Barevná paleta laděná do modré" nic neznamená. „Pouze bílé pozadí, černá linka a jediný akcent v odstínu cihlové" znamená hodně. Omezení počtu barev je nejúčinnější nástroj na sjednocení série — čím míň barev, tím míň prostoru pro to, aby se dva obrázky rozešly.
+
+**Nálada a kompozice.** Klidná nebo dynamická, plná nebo vzdušná, symetrická nebo ne. Kam se dívá pozornost. Jestli je motiv na střed, jestli je kolem něj prázdné místo (a to potřebujete, pokud přes obrázek půjde text).
+
+**Kontext výstupu.** Poměr stran, kde se bude obrázek zobrazovat, jestli přes něj poběží nadpis, jestli musí vypadat dobře i jako čtvercová miniatura.
+
+**Zákazy.** Nejpodceňovanější část. Vypište, co v obrázku nikdy nemá být: žádný text a písmena, žádná loga, žádné realistické lidské obličeje, žádné stíny, žádné gradienty, žádné rámečky, žádné vodoznaky. Zákazy zabírají líp než pochvaly — model má tendenci přidávat „hezké" prvky, které vám sérii rozbíjejí, a text v obrázcích je navíc typicky zdroj deformovaných paskvilů.
+
+### Nechte si stylové zadání sepsat
+
+Popsat vlastní vkus slovy je překvapivě těžké. Rychlejší je popsat, co chcete, a nechat si z toho udělat strukturované zadání — a hlavně si nechat vypsat zákazy, na které byste sami nepřišli.
+
+```text
+Pomoz mi napsat stylový prompt pro generování ilustrací, který budu
+opakovaně používat pro [projekt: blog o osobních financích].
+
+Co o vizuálu vím:
+- chci [ručně působící kresbu linkou], ne fotorealismus
+- paleta: [bílé pozadí, tmavě šedá linka, jediný akcent v cihlové]
+- nálada: [střízlivá, věcná, mírně hravá, rozhodně ne korporátní]
+- obrázky poběží jako [úvodní obrázek článku v poměru 16:9],
+  přes horní třetinu půjde [nadpis], takže tam musí být klid
+- cílová skupina: [lidé 30-50 let, čtenáři v Česku]
+
+Napiš mi stylový prompt v angličtině, strukturovaný do bloků:
+technika, kompozice, barevná paleta, světlo, nálada, a samostatný
+blok zákazů (co v obrázku nikdy nemá být).
+
+Do bloku zákazů dej i věci, které mě nenapadly, ale u tohoto typu
+ilustrace obvykle vadí. U každého zákazu napiš jednou větou proč.
+
+Nakonec mi ke stylu napiš tři otázky, které si musím zodpovědět,
+než ho začnu používat na sérii.
+```
+
+Vrátí hotové zadání rozdělené na bloky a seznam zákazů, který bývá cennější než zbytek. Dvě věci zkontrolujte: jestli popis barev opravdu omezuje (když tam zůstane „harmonická paleta", zpřísněte to na konkrétní odstíny) a jestli zákazy nejsou tak přísné, že vylučují i to, co chcete. Prompt si nechte vygenerovat v angličtině — obrázkové modely jsou na anglických popisech trénované nejvíc a u češtiny se stylové nuance ztrácejí. Vy zůstáváte u češtiny všude jinde.
+
+### Odlaďte styl ručně, než napíšete řádek kódu
+
+Tohle je krok, který se přeskakuje a pak se to vymstí. Vezměte hotové stylové zadání a projděte s ním **pět úplně různých motivů** v běžném webovém generátoru. Ne pět variant jednoho motivu — pět různých témat, protože zkouška stylu je právě v tom, jestli drží i na tématu, které jste při psaní nečekali.
+
+```text
+Mám tohle stylové zadání pro ilustrace:
+
+[vlož stylový prompt]
+
+Vygeneruj mi seznam pěti co nejrůznějších motivů, na kterých tenhle
+styl otestuju — schválně takových, kde se styl může zlomit:
+něco abstraktního, něco s postavou, něco technického, něco
+s krajinou nebo prostorem a něco, kde by se model rád uchýlil
+k textu nebo číslům.
+
+U každého motivu napiš jednu větu popisu, kterou připojím
+za stylové zadání, a napiš, na co se mám u výsledku dívat.
+```
+
+Vrátí testovací sadu. Vygenerujte všech pět, dejte je vedle sebe na jednu obrazovku a dívejte se jen na jednu věc: **vypadá to jako jedna série?** Když ano, můžete stavět skript. Když jeden obrázek vybočuje, oprava je zatím zadarmo — v téhle fázi měníte větu v textu, ne kód a osmdesát hotových souborů.
+
+### Uložte styl jako soubor, ne jako poznámku v hlavě
+
+Stylové zadání patří do souboru, který je součástí projektu — vedle skriptu, v repozitáři nebo ve složce projektu. Nejlepší je prostý textový soubor `styl.txt` nebo `styl.md`, do kterého se dá připsat i datum poslední změny a poznámka, proč se změnila. Tenhle soubor je vlastně vaše značka. Stejná logika platí i pro ostatní opakované prompty — víc v tipu [knihovna promptů](/tipy/ai-knihovna-promptu).
+
+## Fáze 3: skript, který obrázky vyrobí
+
+Teď to zajímavé: skript si nechte napsat. Nemusíte umět programovat, musíte umět popsat, co má skript dělat, a poznat, když nedělá, co má.
+
+### Zadání skriptu: buďte konkrétní jako u řemeslníka
+
+Rozdíl mezi použitelným a nepoužitelným skriptem je v přesnosti zadání. „Napiš mi skript na generování obrázků" vrátí obecnou ukázku. Zadání níž vrátí nástroj.
+
+```text
+Napiš mi skript, který generuje ilustrace přes obrázkové API
+[název služby, kterou používám]. Programovat neumím, takže mi
+kromě kódu napiš i návod krok za krokem, co mám nainstalovat
+a jak ho spustit — na [macOS / Windows].
+
+Skript má:
+1. načíst stylové zadání ze souboru styl.txt (neměnit ho, jen připojit)
+2. vzít popis motivu z argumentu příkazové řádky
+3. složit výsledný prompt jako: stylové zadání + prázdný řádek + motiv
+4. zavolat API a vygenerovat [3] varianty
+5. uložit je do složky vystup/ pod názvem [slug]-1.png, -2.png, -3.png
+6. z každé udělat WebP v šířce 1200 px, kvalita kolem 80
+7. původní PNG nechat ve složce vystup/raw/ pro případ přegenerování
+8. do souboru log.csv zapsat: datum, slug, motiv, model, počet obrázků
+
+Požadavky:
+- API klíč načítej z proměnné prostředí, nikdy ho nedávej do kódu
+- když volání selže, zkus to ještě dvakrát s odstupem a pak
+  vypiš srozumitelnou chybu česky, ne stacktrace
+- když už soubor s tímhle názvem existuje, nepřepisuj ho a zeptej se
+- ke každému kroku napiš komentář v češtině, PROČ se dělá
+
+Na konci mi napiš, co všechno se může pokazit a jak to poznám.
+```
+
+Vrátí hotový skript, instalační návod a seznam typických problémů. Body 7 a 8 vypadají jako detail, ale právě ony dělají z jednorázového skriptu nástroj, se kterým se dá žít půl roku. Pozor na jednu věc: názvy modelů se mění. Když skript odkazuje na model, který už neexistuje, dostanete chybu — a je to normální provozní údržba, ne katastrofa (řešení je ve fázi 6).
+
+### Spuštění: kde skript bydlí
+
+Máte tři cesty. **Claude Code** nad složkou projektu je nejpohodlnější — model skript napíše, spustí, uvidí chybu a opraví ji, aniž byste kód museli číst; jak s ním začít, je v tipu [skripty pro nevývojáře](/tipy/ai-skripty-pro-nevyvojare). **Lokálně u sebe** po nainstalování běhového prostředí, což je varianta, kde máte plnou kontrolu a nic nikam neodchází kromě samotného volání API. **Na serveru nebo v naplánované úloze**, pokud má generování běžet samo — o tom víc v tipu [osobní automatizace v Claude Code](/tipy/claude-code-osobni-automatizace).
+
+Neumět kód napsat je v pořádku. Nerozumět tomu, co skript dělá, v pořádku není — je to skript, který sahá na váš placený účet.
+
+```text
+Vysvětli mi tenhle skript blok po bloku, jako bych nikdy neviděl kód.
+U každého bloku napiš:
+- co se v něm děje běžnou češtinou
+- co se stane, když v něm bude chyba (přijdu o soubory? o peníze?
+  jen o čas?)
+- kterou hodnotu v něm můžu bezpečně změnit sám a kterou ne
+
+Zvlášť mi vypiš každé místo, kde skript maže nebo přepisuje soubory,
+a každé místo, kde volá placené API.
+
+[vlož skript]
+```
+
+Vrátí výklad a — což je hlavní — mapu nebezpečných míst. Než skript pustíte na ostrá data, projděte si právě ta.
+
+### Motivy: co vlastně nakreslit
+
+Když je styl vyřešený, zbývá jediné rozhodnutí na obrázek: co je na něm. Tady se hodí nechat si nabídnout víc možností, než vás napadne.
+
+```text
+Tady je text mého článku:
+
+[vlož text nebo první tři odstavce]
+
+Navrhni 5 motivů pro úvodní ilustraci. Podmínky:
+- motiv musí být vizuálně jednoduchý, popsatelný jednou větou
+- žádný text, čísla ani nápisy v obrázku
+- žádné klišé typu žárovka jako nápad, ozubená kola jako proces,
+  šipka nahoru jako růst nebo puzzle jako spolupráce
+- motiv se má vztahovat ke konkrétnímu obsahu článku, ne k tématu obecně
+
+U každého napiš:
+1. jednu větu anglicky, kterou připojím ke stylovému zadání
+2. proč se hodí zrovna k tomuhle článku
+3. riziko — v čem by se to modelu mohlo nepovést
+
+Seřaď je od nejméně otřepaného.
+```
+
+Vrátí motivy, ze kterých obvykle jeden až dva stojí za vygenerování. Zákaz klišé v promptu je tam schválně — bez něj dostanete žárovku, ozubená kola a šipku nahoru s železnou pravidelností.
+
+## Fáze 4: případová studie — ilustrace na tomto webu
+
+Aby to nebylo jen teoreticky: takhle vznikají obrázky, které vidíte u článků tady.
+
+### Zadání
+
+Web má stovky tipů a každý potřebuje úvodní ilustraci. Kdyby každá vznikala ručně, byla by to práce na měsíce a výsledek by se rozpadl už po padesátém obrázku. Požadavky byly tři: obrázky musí být okamžitě rozpoznatelné jako z jednoho webu, musí být lehké (weby s pomalými obrázky nikdo nečte) a musí vznikat rychle, protože článků přibývá.
+
+### Styl
+
+Existuje jeden stylový prompt: **černobílá kresba linkou s jediným červeným akcentem**, bílé pozadí, žádné stíny, žádný text v obrázku, hodně prázdného místa. Ten popis je vědomě chudý — a právě proto funguje. Když má model k dispozici jen linku, bílou plochu a jednu barvu, nemá jak se rozejít. Sto obrázků s bohatou paletou by drželo pohromadě mnohem hůř.
+
+Červený akcent má ještě druhou funkci: navazuje na barvu webu, takže ilustrace nevypadá jako nalepená ze stocku, ale jako součást stránky. Tohle je obecně nejlevnější trik na sjednocení — vzít jednu barvu ze své identity a udělat z ní jediný barevný prvek ilustrací.
+
+### Skript
+
+Skript napsal [Claude Code](/tipy/ai-skripty-pro-nevyvojare) a dělá přesně to, co je popsané ve fázi 3: vezme stylový soubor, připojí motiv, zavolá obrázkové API Googlu, uloží výsledek. Klíč je v proměnné prostředí, ne v kódu. Skript umí jak jeden obrázek, tak celý seznam.
+
+### Komprese: krok, který se nejvíc vyplatí
+
+Výstup z generátoru je velké PNG. Kdyby šlo takhle na web, každý článek by táhl několik megabajtů a načítání by se rozsypalo hlavně na mobilu. Poslední krok skriptu je proto automatický převod do **WebP** v cílové šířce. Rozdíl je řádový — z několika megabajtů na desítky až nižší stovky kilobajtů, a to bez viditelné ztráty u kresby linkou (kreslené ilustrace s plochými plochami komprimují mnohem líp než fotky).
+
+Původní PNG se ale nemaže. Leží v podsložce, protože až se za rok objeví potřeba jiného rozměru, je hloupé generovat znovu, když stačí znovu zkomprimovat.
+
+### Co se osvědčilo a co ne
+
+Osvědčilo se generovat tři varianty najednou a vybírat — první výsledek je použitelný zhruba v polovině případů, mezi třemi je použitelný skoro vždy. Osvědčilo se držet slug článku v názvu souboru, takže je vždy jasné, co kam patří. Neosvědčilo se pouštět generování bez kontroly: i u tak sevřeného stylu se občas objeví útvar, který dává smysl jen modelu. A neosvědčilo se měnit stylové zadání „jen trošku" v průběhu — buď se změní vědomě a přegeneruje se celá série, nebo se nemění vůbec.
+
+## Fáze 5: dávky, varianty a iterace stylu
+
+### Dávkové generování ze seznamu
+
+Jakmile skript umí jeden obrázek, rozšířit ho na seznam je maličkost — a je to ta funkce, kvůli které se celá věc dělá.
+
+```text
+Rozšiř můj skript o dávkový režim.
+
+Vstup bude soubor motivy.csv se sloupci:
+slug ; motiv ; poznamka
+
+Skript má:
+- projít řádky po jednom a pro každý vygenerovat [2] varianty
+- ukládat je jako [slug]-1.webp a [slug]-2.webp
+- přeskočit řádek, pro který už soubor existuje, a napsat o tom
+  jednu řádku do výpisu (chci umět dávku pustit znovu, aniž bych
+  platil za to, co už mám)
+- mezi voláními dělat krátkou pauzu, aby mě služba neomezila
+- když jedno volání selže, pokračovat dál a selhané řádky vypsat
+  na konci do souboru chyby.csv
+
+Na konci vypiš přehled: kolik obrázků vzniklo, kolik se přeskočilo,
+kolik selhalo a odhad, kolik volání API to celkem stálo.
+
+Přidej přepínač, který dávku jen nasucho vypíše, co by udělala,
+ale nic negeneruje.
+```
+
+Vrátí dávkový režim se dvěma zásadními vlastnostmi: přeskakováním hotového a nasucho během. Ten druhý používejte vždy před velkou dávkou — je to jediná pojistka proti tomu, že vám překlep v CSV vyrobí sto obrázků k ničemu.
+
+### Varianty rozměrů pro různá místa
+
+Jeden motiv obvykle potřebujete ve víc podobách: široký nahoru do článku, čtvercový do náhledu, na výšku na sociální sítě.
+
+```text
+Přidej do skriptu generování variant rozměrů z jednoho výstupu.
+
+Pro každý vygenerovaný obrázek vyrob:
+- [1200x675] jako hlavní obrázek článku
+- [1200x1200] čtverec pro náhled, ořezaný na střed
+- [1080x1350] na výšku pro sociální sítě
+
+Pravidla:
+- ořezávej, neroztahuj; poměr stran se nesmí zdeformovat
+- u čtverce a výšky zkontroluj, že ořez neusekne hlavní motiv —
+  když si nejsi jistý, ulož navíc verzi s okrajem
+- všechny varianty do WebP, názvy [slug]-clanek.webp, -ctverec.webp,
+  -vertical.webp
+- vypiš u každého souboru výslednou velikost v kilobajtech
+
+Řekni mi taky, kdy je lepší nechat model vygenerovat druhý obrázek
+přímo v jiném poměru místo ořezávání.
+```
+
+Vrátí variantový krok a odpověď na poslední otázku, která je věcná: ořez je zdarma a okamžitý, ale u kompozice postavené na šířku uřízne půlku motivu. U klíčových obrázků se vyplatí vygenerovat znovu s upraveným zadáním kompozice.
+
+### Iterace stylu: jak styl měnit, aniž se rozpadne série
+
+Za pár měsíců zjistíte, že by styl chtěl doladit. Tady je jediné správné pravidlo: **měňte jednu věc naráz a přegenerujte celou sérii.** Postupné drobné úpravy jsou nejrychlejší cesta zpátky do rozháraného archivu.
+
+```text
+Tady je můj současný stylový prompt:
+
+[vlož stylový prompt]
+
+Nelíbí se mi na výsledcích tohle: [např. obrázky jsou moc prázdné,
+motiv se ztrácí, akcentní barva je použitá nahodile].
+Naopak si chci zachovat: [např. čistotu, jedinou barvu, bílé pozadí].
+
+Navrhni 3 varianty úpravy stylu. U každé:
+1. celé nové znění promptu
+2. co přesně se změnilo oproti původnímu (vypiš jen ty věty)
+3. jaké riziko změna nese — co se může zhoršit
+4. jak poznám na testovací sadě, že varianta je lepší
+
+Neměň víc věcí najednou. Každá varianta ať řeší jednu příčinu.
+```
+
+Vrátí tři cesty, ze kterých vyberete jednu, otestujete ji na té samé pětici motivů z fáze 2 a teprve pak ji pustíte na archiv. Systematickému ladění promptů se věnuje i tip [iterace promptu](/tipy/ai-iterace).
+
+### Vizuální audit série
+
+Po padesáti obrázcích už člověk nevidí, které vybočují. Pomůže druhý pár očí — a modely, které umí číst obrázky, tuhle práci zvládnou.
+
+```text
+Přikládám [10] ilustrací z jedné série. Mají vypadat, jako by je
+dělal jeden ilustrátor podle tohohle zadání:
+
+[vlož stylový prompt]
+
+Udělej vizuální audit:
+1. Které obrázky ze série vybočují a čím konkrétně (barva, tloušťka
+   linky, míra detailu, kompozice, nálada)?
+2. Seřaď je od nejvíc odlišného.
+3. U každého vybočujícího napiš, jestli je lepší ho přegenerovat,
+   nebo upravit stylové zadání, protože chyba je systémová.
+4. Objevuje se v sérii nějaký prvek, který jsem nezadal, a přesto
+   ho model přidává pořád dokola?
+
+Neomlouvej to. Chci seznam k opravě.
+```
+
+Vrátí seznam vybočujících kusů a — to je ten cenný bod 4 — prvky, které si model přidává sám. Když se stejný nechtěný prvek objevuje pořád, patří do zákazů ve stylovém zadání.
+
+### Alternativní texty jako součást linky
+
+Když už obrázky vznikají skriptem, ať rovnou vzniká i popisek pro čtečky a vyhledávače. Stačí modelu, který umí číst obrázky, poslat hotovou sérii a nechat si ke každému napsat jednu větu o tom, **co je na obrázku vidět** — ne o čem je článek — do zhruba 125 znaků, bez úvodů typu „obrázek zobrazuje". U čistě dekorativních ilustrací je správná odpověď prázdný alt. Namátkou pak tři popisky zkontrolujte proti skutečným obrázkům: model popisuje, co si myslí, že vzniklo, ne co doopravdy vzniklo.
+
+## Fáze 6: klíč, náklady a limity
+
+Provozní část, kterou lidé přeskakují a pak se diví. Je krátká a stojí za přečtení celá.
+
+### API klíč je heslo, i když tak nevypadá
+
+Klíč se generuje v nastavení účtu u dané služby, obvykle na pár kliknutí. Od té chvíle platí několik pravidel bez výjimky.
+
+**Klíč nikdy nepatří do kódu.** Ani „dočasně, než to rozjedu". Patří do proměnné prostředí nebo do souboru, který je vyloučený z verzování. Zveřejněný klíč na veřejném repozitáři najdou automatizované roboty během hodin a protočí ho za vaše peníze.
+
+**Klíč nepatří do chatu s AI, do issue, do screenshotu ani do zprávy kolegovi.** Když ho potřebuje sdílet tým, patří do správce hesel nebo do trezoru proměnných u poskytovatele, ne do Slacku.
+
+**Pro každý projekt zvlášť.** Když jeden unikne, zneplatníte jeden, ne všechny.
+
+**Když máte podezření, zneplatněte ho okamžitě.** Vygenerovat nový je otázka minuty; řešit cizí spotřebu je otázka dnů.
+
+```text
+Pomoz mi bezpečně nastavit API klíč pro můj skript na [macOS /
+Windows / Linux]. Nikdy jsem s proměnnými prostředí nepracoval.
+
+Chci:
+1. návod krok za krokem, kam klíč uložit, aby ho skript viděl,
+   ale nebyl v žádném souboru, který můžu omylem zveřejnit
+2. jak si ověřím, že to funguje, aniž bych si klíč vypsal na obrazovku
+3. co přesně mám přidat do .gitignore, když projekt verzuju
+4. jak poznám, že jsem klíč někam omylem zapsal — čím si
+   projekt prohledám
+5. co udělat, když se klíč prozradí: postup v pořadí kroků
+
+Piš to pro člověka, který zná jen základní práci s terminálem.
+```
+
+Vrátí konkrétní postup pro váš systém včetně kontrolního hledání v projektu. Bod 4 udělejte i tehdy, když jste si jistí, že jste nic nezapsali — je to třicet vteřin.
+
+### Náklady: řádově a jak si je pohlídat
+
+Účtuje se obvykle za vygenerovaný obrázek, případně podle rozlišení nebo modelu. Konkrétní částky se mění a nemá smysl je opisovat — otevřete si ceník té služby, kterou chcete použít, a spočítejte si to pro svůj objem. Užitečnější je vědět, jak se náklady chovají.
+
+Řádově platí: **generování je výrazně levnější než hodina grafika, ale při dávkách se sčítá.** Rozdíl mezi jedním a třemi obrázky na motiv je trojnásobek nákladů, a když jich generujete stovky, není to zanedbatelné. Vyšší rozlišení a novější modely stojí víc. Chyba ve skriptu, která pustí generování v cyklu, umí prosoutěžit rozpočet za noc.
+
+Praktická obrana je jednoduchá: **nastavte si u poskytovatele rozpočtový strop a upozornění**, když se spotřeba blíží limitu. Většina služeb to umí a je to pětiminutová záležitost při zakládání účtu. Druhá obrana je log — když si skript zapisuje každé volání, víte, kam peníze šly.
+
+```text
+Uprav můj skript tak, abych měl náklady pod kontrolou.
+
+Přidej:
+1. počítadlo volání API v rámci jednoho běhu, které se vypíše na konci
+2. tvrdý limit: když by běh měl udělat víc než [50] volání, skript
+   se zeptá na potvrzení a bez něj nepokračuje
+3. zápis do log.csv: datum a čas, slug, model, počet obrázků,
+   rozlišení, úspěch/chyba
+4. malý pomocný příkaz, který z log.csv spočítá součty za měsíc:
+   kolik obrázků, kolik volání, kolik z toho selhalo
+
+Napiš mi taky, která místa ve skriptu můžou způsobit nechtěné
+opakované volání (cykly, pokusy o zopakování po chybě) a jak jsou
+proti tomu pojištěná.
+```
+
+Vrátí kontrolní vrstvu a — hlavně — odpověď na poslední otázku, protože nechtěné volání v cyklu je typický způsob, jak si člověk poprvé vyrobí ošklivé překvapení na faktuře.
+
+### Limity a chyby, které se stanou každému
+
+Kromě peněz vás omezí rychlost a pravidla. **Limit počtu volání za minutu** znamená, že velká dávka musí mít pauzy — bez nich vám služba začne odmítat požadavky. **Obsahové filtry** občas odmítnou motiv, který vám přijde neškodný; nejčastěji kvůli lidem, značkám nebo citlivým tématům. **Modely se mění a starší končí**, takže skript, který půl roku běžel, jednoho dne vrátí chybu.
+
+Když chyba přijde, nezačínejte opravovat kód. Vložte přesné znění chyby do chatu a nechte si nejdřív vysvětlit, co znamená, čí je to problém a jak si příčinu ověříte. Odpověď bývá jedna ze tří: vypršel nebo chybí klíč, změnil se název modelu, nebo jste narazili na limit volání.
+
+## Fáze 7: alternativy a co dělat, až se model změní
+
+Nevázat se na jednu službu je praktická opatrnost, ne nedůvěra. Modely se mění rychle a stylové zadání odladěné na jednom se na jiném chová jinak.
+
+Obrázkových API je dnes víc: kromě **Gemini API od Googlu** (klíč získáte v Google AI Studiu) jsou tu obrázková API **OpenAI**, služby zaměřené čistě na generování obrázků jako **Stability AI**, **Ideogram** (silné právě na obrázky s textem, což jinde bývá slabina), **Recraft** (vektorové a značkové výstupy) nebo **Black Forest Labs**. Liší se kvalitou u jednotlivých stylů, cenou, rychlostí, licenčními podmínkami a tím, jestli umí věci navíc — variace hotového obrázku, dogenerování okrajů, průhledné pozadí, vektorový výstup.
+
+Praktická rada: **skript pište tak, aby volání API bylo na jednom místě.** Pak výměna služby znamená přepsat jednu funkci, ne celý nástroj.
+
+```text
+Chci si vybrat obrázkové API pro tenhle projekt: [popis, např.
+ilustrace kresbou linkou na blog, cca 30 obrázků měsíčně,
+komerční použití, čeština v zadání nepotřebná].
+
+Porovnej dostupné možnosti a u každé napiš:
+- v čem je silná a v čem slabá pro MŮJ typ výstupu
+- jak se účtuje (za obrázek, za rozlišení, předplatné)
+- co říkají licenční podmínky o komerčním použití výstupu
+- jestli má funkce navíc, které bych využil (varianty, průhledné
+  pozadí, vektor, ovládání kompozice)
+- jak náročné je na ni přejít, když už mám hotový skript
+
+Na konci mi napiš doporučení a jednu větu, proč zrovna to.
+U licenčních podmínek napiš, kde si mám znění ověřit — vím,
+že se mění a nechci se spolehnout na tvůj popis.
+```
+
+Vrátí srovnání jako podklad k rozhodnutí. Poslední odstavec je tam schválně: licenční podmínky **si vždy ověřte v originále na webu služby**, protože se mění a v odpovědi modelu můžou být zastaralé. Totéž platí o cenách a o názvech aktuálních modelů.
+
+A ještě jedna varianta, na kterou se zapomíná: **vlastní fotky, ikony a jednoduchá vlastní grafika**. U některých témat je fotka z vlastního archivu lepší než sebehezčí generovaná ilustrace — a je nezpochybnitelně vaše.
+
+## Nejčastější chyby
+
+- **Začít skriptem místo stylem.** Nejdřív odladěné stylové zadání na pěti různých motivech, teprve pak kód. Kdo to obrátí, generuje dávkově nekonzistentní obrázky.
+- **Nechat klíč v kódu.** I „dočasně" a i v soukromém repozitáři. Zveřejněný klíč umí někdo cizí protočit za peníze během hodin — patří do proměnné prostředí, nikam jinam.
+- **Publikovat bez pohledu.** Generátory vyrábějí deformovaný text, zvláštní anatomii a motivy, které se k tématu nehodí. Skript ať ukládá do složky, o nasazení rozhoduje člověk.
+- **Měnit styl po kouskách.** Drobná úprava tu a tam vede přesně k té roztříštěnosti, kvůli které jste s API začínali. Buď změna a přegenerování série, nebo klid.
+- **Zapomenout na kompresi.** Nekomprimovaný výstup má běžně megabajty. WebP v cílové šířce je jeden krok navíc ve skriptu a řádový rozdíl v rychlosti webu.
+- **Neověřit licenční podmínky.** Než postavíte vizuál značky na generovaných obrázcích, přečtěte si aktuální podmínky komerčního užití u té konkrétní služby.
+- **Pustit velkou dávku bez nasucho běhu a bez stropu.** Překlep ve vstupním souboru plus cyklus rovná se sto zbytečných obrázků a zbytečná spotřeba.
 
 ## Nejlepší nástroje
 
-- **Obrázkové API Googlu (Gemini)** — dobrá kvalita, jednoduché rozhraní, klíč získáte v [Google AI Studiu](https://aistudio.google.com) během minuty.
-- **Claude Code** — napíše skript, otestuje ho a rovnou ho spustí; hodí se i pro člověka, který kód číst neumí.
-- **Sharp nebo ImageMagick** — knihovny na automatický ořez a převod do WebP; do skriptu se přidají jedním řádkem.
-- **Vlastní soubor se stylovým promptem** — nejdůležitější „nástroj“ z celého seznamu, i když je to jen textový soubor.
+- **Gemini API od Googlu** — obrázkové API s dobrou kvalitou a jednoduchým rozhraním; klíč získáte v [Google AI Studiu](https://aistudio.google.com) během minuty.
+- **Claude Code** — napíše skript, spustí ho, přečte chybu a opraví ji; nejrychlejší cesta pro člověka, který kód neumí psát ani číst.
+- **Sharp nebo ImageMagick** — knihovny na ořez, změnu rozměru a převod do WebP; do skriptu se přidají pár řádky a ušetří nejotravnější ruční práci.
+- **Vlastní soubor se stylovým promptem** — nejdůležitější „nástroj" ze seznamu, i když je to jen textový soubor. Je to vaše vizuální identita zapsaná slovy.
+- **Správce hesel nebo trezor proměnných** — místo, kde bydlí API klíč, když ho potřebuje víc lidí nebo víc strojů.
+- **Alternativní obrázková API** — Stability AI, Ideogram, Recraft a další; hodí se znát, protože každé je silné na něco jiného a jednou budete potřebovat přejít.
 
 ## Co vám to přinese
 
-- **Čas:** z třiceti minut na obrázek na jednu až dvě. U webu s desítkami článků je to řádově desítky hodin ročně.
-- **Konzistence:** všechny ilustrace vycházejí ze stejného zadání, takže spolu ladí i po roce.
-- **Klid:** odpadá nejotravnější část — ruční ořez, komprese a přejmenovávání souborů.
-- **Kvalita:** protože je generování levné, můžete si dovolit vyhodit nepovedený obrázek a udělat nový.
+- **Čas:** z třiceti minut na obrázek na dvě až tři, u dávek ještě míň. Při třech ilustracích týdně jsou to řádově desítky hodin ročně, které nejdou do klikání v editoru.
+- **Peníze:** generování stojí zlomek toho, co hodina grafika nebo licence ke stockové fotce — a hlavně je to náklad, který znáte předem a umíte ho zastropovat.
+- **Klid:** odpadá nejotravnější část práce, tedy ruční ořez, komprese a přejmenovávání. A odpadá i strach z toho, že se web „rozjede" do pěti různých stylů.
+- **Kvalita:** protože je generování levné, můžete si dovolit vyhodit nepovedený obrázek a udělat nový. Konzistentní série navíc působí profesionálněji než jednotlivě hezčí, ale nesourodé obrázky.
 
 ## Pro tip
 
-Klíč k API je heslo, i když tak nevypadá. Držte ho v proměnné prostředí nebo v souboru, který nikdy nejde do veřejného repozitáře — nikdy ne přímo v textu skriptu, který někam pošlete nebo zveřejníte. Zveřejněný klíč umí někdo cizí protočit za peníze během hodin. A druhé pravidlo: **generování spouštíte vy, publikaci schvalujete vy.** Skript ať obrázky vytváří do složky, ne rovnou na web — každý obrázek si před nasazením prohlédněte. Generátory umí čas od času vyrobit nesmysl, deformovaný text nebo motiv, který se do článku o financích prostě nehodí.
+Pokročilý trik, který stojí za vyzkoušení: **udělejte si dvě stylová zadání místo jednoho.** Hlavní pro úvodní ilustrace a druhé, chudší, pro drobné obrázky uvnitř textu — stejná paleta, stejná technika, ale ještě míň detailů. Série pak drží pohromadě a zároveň je na první pohled poznat, co je hlavní obrázek a co doprovodná grafika. Stejnou logikou jde přidat třetí variantu na sociální sítě, kde snese víc barvy.
+
+A závěrečné pravidlo, které přebíjí všechno ostatní: **linku staví stroj, značku schvaluje člověk.** Skript ať generuje, komprimuje a pojmenovává. Jestli obrázek půjde ven, rozhodujete vy — po tom, co jste se na něj podívali.
