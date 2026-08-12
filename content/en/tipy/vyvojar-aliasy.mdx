@@ -1,0 +1,45 @@
+---
+title: "Aliases and scripts: automate what you type three times"
+excerpt: "Long commands, build sequences, switching environments — all of it belongs in aliases and scripts. Ten characters instead of eighty."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~15 min a day"
+date: "2026-07-12"
+---
+
+A terminal history full of the same long commands is a shortlist of alias candidates. If you notice you keep typing the same combination of flags, paths, and switches over and over, that's a reliable sign this work could have been handled by one short command a long time ago.
+
+## A typical scenario
+
+Tomáš, a developer, runs the same sequence before every push: lint first, then tests, then a build, and only once everything passes, `git push`. Each command typed out separately, with the full script name and parameters — that's easily fifty to eighty characters per step, four times in a row, and a single typo means starting over.
+
+With an alias or script, he types `deploy-check` and he's done — the sequence runs automatically in the right order and stops the moment something fails. Instead of remembering the exact order of four commands, he has one word in his fingers.
+
+## How to do it
+
+1. Look through your command history — running `history | sort | uniq -c | sort -rn | head` in the terminal produces a list of your most-used commands, sorted by how often you repeated them.
+2. Look for what keeps recurring: what do you run over and over, and what's worth shortening?
+3. Short, simple commands belong in **aliases** — you define them in your shell config (e.g. `.bashrc` or `.zshrc`), so they load every time you open a terminal and just keep working.
+4. Longer sequences with multiple steps or conditions (do this first, then that depending on the result) belong more in a **script** stored directly in the repo — it shows up in version history, can be edited alongside the code, and doesn't depend on any one machine's setup.
+5. Name the script or alias so the name itself hints at what it does — `deploy-check` is clearer than an abbreviation nobody will remember in a month.
+6. Share it with the team — a good script committed to the repo saves everyone time, not just you, and it standardizes the process across the team so nobody has to ask “how did we run that again.”
+
+## The best tools
+
+- **Aliases in your shell config** (`.bashrc`, `.zshrc`, a PowerShell profile) — a built-in feature of every shell, no extra installation.
+- **Scripts in the repo** (e.g. a `scripts/` folder with shell or Node scripts) — shared with the whole team via version control, always up to date with the state of the project.
+- **Makefile or npm/yarn scripts** — a standardized way to name and run repeating tasks across a project, readable by anyone who opens the repo.
+- **Shell configuration management tools** (e.g. a dotfiles repo on GitHub) — when you want the same aliases on all your machines automatically.
+
+## What you get out of it
+
+- **Time:** minutes saved on every run of a repeated sequence add up to tens of minutes a day, especially for multi-step builds.
+- **Fewer mistakes:** manually retyping long commands is a source of typos — an automated sequence runs the same way every time.
+- **Team consistency:** a shared script ensures everyone runs the same steps in the same order, instead of everyone relying on their own memory.
+- **A lower bar for new teammates:** a newcomer doesn't need to know the exact commands, just that `deploy-check` exists.
+
+## Pro tip
+
+Give an alias that deletes files or rewrites history (`rm`, `git push --force`) a name distinctly different from its normal, safe counterpart — so terminal autocomplete never lets you accidentally trigger the dangerous version just because the name starts the same way.

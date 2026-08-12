@@ -8,7 +8,7 @@ export function LangSwitch({ locale }: { locale: Locale }) {
   const pathname = usePathname() ?? "/";
   const t = getDict(locale);
   const target = t.langSwitch.target;
-  const bare = pathname.replace(/^\/en(?=\/|$)/, "") || "/";
+  const bare = pathname.replace(/^\/(en|cs)(?=\/|$)/, "") || "/";
   const href = target === "en" ? `/en${bare === "/" ? "" : bare}` || "/en" : bare;
 
   return (

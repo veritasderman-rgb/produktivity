@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { localePath } from "@/lib/i18n";
 
 export type SearchDoc = {
   type: "tip" | "kapitola" | "ai";
@@ -10,10 +11,29 @@ export type SearchDoc = {
   excerpt: string;
 };
 
-const typeLabel: Record<SearchDoc["type"], string> = {
-  tip: "Tip",
-  kapitola: "Příručka",
-  ai: "AI novinka",
+const T = {
+  cs: {
+    typeLabel: { tip: "Tip", kapitola: "Příručka", ai: "AI novinka" } as Record<
+      SearchDoc["type"],
+      string
+    >,
+    placeholder: "Hledat napříč webem… (např. „pomodoro“, „Excel“, „delegování“)",
+    aria: "Hledat napříč webem",
+    results: "výsledků",
+    empty:
+      "Nic nenalezeno. Zkuste jiné slovo — nebo napište, co vám chybí, a rutina to doplní.",
+  },
+  en: {
+    typeLabel: { tip: "Tip", kapitola: "Handbook", ai: "AI update" } as Record<
+      SearchDoc["type"],
+      string
+    >,
+    placeholder: "Search the whole site… (e.g. “pomodoro”, “Excel”, “delegation”)",
+    aria: "Search the whole site",
+    results: "results",
+    empty:
+      "Nothing found. Try another word — or tell us what you are missing and the daily routine will add it.",
+  },
 };
 
 const typeHref: Record<SearchDoc["type"], string> = {
@@ -26,7 +46,14 @@ function normalize(s: string) {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
-export function SearchAll({ docs }: { docs: SearchDoc[] }) {
+export function SearchAll({
+  docs,
+  locale = "cs",
+}: {
+  docs: SearchDoc[];
+  locale?: "cs" | "en";
+}) {
+  const t = T[locale] ?? T.cs;
   const [query, setQuery] = useState("");
 
   const results = useMemo(() => {
@@ -54,20 +81,23 @@ export function SearchAll({ docs }: { docs: SearchDoc[] }) {
         autoFocus
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Hledat napříč webem… (např. „pomodoro“, „Excel“, „delegování“)"
-        aria-label="Hledat napříč webem"
+        placeholder={t.placeholder}
+        aria-label={t.aria}
         className="w-full border-[1.5px] border-hairline-strong bg-card px-5 py-4 text-[16px] outline-offset-[-2px]"
       />
       {query.trim().length >= 2 && (
         <p className="eyebrow mt-4 text-faint">
-          {results.length === 30 ? "30+" : results.length} výsledků
+          {results.length === 30 ? "30+" : results.length} {t.results}
         </p>
       )}
       <ul className="mt-4 grid gap-3">
         {results.map((d) => (
           <li key={d.type + d.slug} className="border border-hairline bg-card p-4 transition-colors hover:border-hairline-strong">
-            <p className="eyebrow mb-1 text-faint">{typeLabel[d.type]}</p>
-            <Link href={`${typeHref[d.type]}/${d.slug}`} className="draw-link text-[16px] font-bold">
+            <p className="eyebrow mb-1 text-faint">{t.typeLabel[d.type]}</p>
+            <Link
+              href={localePath(locale, `${typeHref[d.type]}/${d.slug}`)}
+              className="draw-link text-[16px] font-bold"
+            >
               {d.title}
             </Link>
             <p className="mt-1 font-serif text-[13.5px] leading-relaxed text-muted">{d.excerpt}</p>
@@ -76,7 +106,7 @@ export function SearchAll({ docs }: { docs: SearchDoc[] }) {
       </ul>
       {query.trim().length >= 2 && results.length === 0 && (
         <p className="mt-6 border border-hairline bg-card p-6 text-[14.5px] text-muted">
-          Nic nenalezeno. Zkuste jiné slovo — nebo napište, co vám chybí, a rutina to doplní.
+          {t.empty}
         </p>
       )}
     </div>

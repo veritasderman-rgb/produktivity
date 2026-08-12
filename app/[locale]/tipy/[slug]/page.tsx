@@ -7,26 +7,54 @@ import { NewsletterForm } from "@/components/NewsletterForm";
 import { DataDisclaimer } from "@/components/DataDisclaimer";
 import { TipCard } from "@/components/TipCard";
 import { chapterForTip, relatedTips } from "@/lib/related";
+import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 
-export function generateStaticParams() {
-  return getAllTips().map((tip) => ({ slug: tip.slug }));
+const T = {
+  cs: {
+    breadcrumb: "Tipy & triky",
+    ogLabel: "produktivni.cz · tip",
+    chapterPre: "Chcete jít do hloubky? V příručce najdete kapitolu",
+    relatedTitle: "Podobné tipy",
+    ctaEyebrow: "Líbil se vám tip?",
+    ctaDesc: "Každý týden posílám jeden takový do e-mailu. Dvě minuty čtení, hodiny úspor.",
+  },
+  en: {
+    breadcrumb: "Tips & tricks",
+    ogLabel: "produktivni.cz · tip",
+    chapterPre: "Want to go deeper? The handbook has a whole chapter on it —",
+    relatedTitle: "Similar tips",
+    ctaEyebrow: "Liked this tip?",
+    ctaDesc: "I send one like it every week by email. Two minutes to read, hours saved.",
+  },
+};
+
+export function generateStaticParams({ params }: { params: { locale: string } }) {
+  return getAllTips(params.locale).map((tip) => ({ slug: tip.slug }));
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const tip = getTip(slug);
+  const { locale: raw, slug } = await params;
+  const locale: Locale = isLocale(raw) ? raw : "cs";
+  const t = T[locale] ?? T.cs;
+  const tip = getTip(slug, locale);
   if (!tip) return {};
+  const csUrl = `https://produktivni.cz/tipy/${slug}`;
+  const enUrl = `https://produktivni.cz/en/tipy/${slug}`;
   return {
     title: tip.title,
     description: tip.excerpt,
+    alternates: {
+      canonical: locale === "en" ? enUrl : csUrl,
+      languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
+    },
     openGraph: {
       title: tip.title,
       description: tip.excerpt,
-      images: [`/api/og?title=${encodeURIComponent(tip.title)}&label=${encodeURIComponent("produktivni.cz · tip")}`],
+      images: [`/api/og?title=${encodeURIComponent(tip.title)}&label=${encodeURIComponent(t.ogLabel)}`],
     },
   };
 }
@@ -38,18 +66,28 @@ const mdxComponents = {
 export default async function TipDetail({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
-  const tip = getTip(slug);
+  const { locale: raw, slug } = await params;
+  const locale: Locale = isLocale(raw) ? raw : "cs";
+  const t = T[locale] ?? T.cs;
+  const p = (path: string) => localePath(locale, path);
+  const dict = getDict(locale).tipCard;
+
+  const tip = getTip(slug, locale);
   if (!tip) notFound();
+
+  const allTips = getAllTips(locale);
+  const chapter = chapterForTip(tip, locale);
+  const related = relatedTips(tip, allTips);
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">
       <p className="eyebrow mb-4 text-faint">
-        <Link href="/tipy" className="hover:underline">Tipy &amp; triky</Link>
+        <Link href={p("/tipy")} className="hover:underline">{t.breadcrumb}</Link>
         {" · "}
-        {tip.category} · {tip.platform} · {tip.saves}
+        {dict.categories[tip.category] ?? tip.category} ·{" "}
+        {dict.platforms[tip.platform] ?? tip.platform} · {tip.saves}
       </p>
       <h1 className="display text-[clamp(26px,4.5vw,42px)] normal-case" style={{ textTransform: "none" }}>
         {tip.title}
@@ -71,39 +109,31 @@ export default async function TipDetail({
       <div className="prose-a mt-6">
         <MDXRemote source={tip.body} components={mdxComponents} />
       </div>
-      {tip.category === "ai" && <DataDisclaimer />}
-      {(() => {
-        const ch = chapterForTip(tip);
-        return ch ? (
-          <p className="mt-10 border border-hairline bg-surface p-4 text-[14px] text-muted">
-            Chcete jít do hloubky? V příručce najdete kapitolu{" "}
-            <Link href={`/prirucka/${ch.slug}`} className="draw-link font-bold text-ink">
-              {ch.title}
-            </Link>
-            .
-          </p>
-        ) : null;
-      })()}
-      {(() => {
-        const rel = relatedTips(tip, getAllTips());
-        return rel.length > 0 ? (
-          <div className="mt-12">
-            <p className="eyebrow mb-4 text-faint">Podobné tipy</p>
-            <div className="grid gap-5 sm:grid-cols-3">
-              {rel.map((t, i) => (
-                <TipCard key={t.slug} tip={t} index={i + 1} />
-              ))}
-            </div>
-          </div>
-        ) : null;
-      })()}
-      <div className="mt-14 border-t-2 border-hairline-strong pt-8">
-        <p className="eyebrow mb-2 text-faint">Líbil se vám tip?</p>
-        <p className="mb-5 max-w-[48ch] text-[15px] text-muted">
-          Každý týden posílám jeden takový do e-mailu. Dvě minuty čtení, hodiny úspor.
+      {tip.category === "ai" && <DataDisclaimer locale={locale} />}
+      {chapter && (
+        <p className="mt-10 border border-hairline bg-surface p-4 text-[14px] text-muted">
+          {t.chapterPre}{" "}
+          <Link href={p(`/prirucka/${chapter.slug}`)} className="draw-link font-bold text-ink">
+            {chapter.title}
+          </Link>
+          .
         </p>
+      )}
+      {related.length > 0 && (
+        <div className="mt-12">
+          <p className="eyebrow mb-4 text-faint">{t.relatedTitle}</p>
+          <div className="grid gap-5 sm:grid-cols-3">
+            {related.map((r, i) => (
+              <TipCard key={r.slug} tip={r} index={i + 1} locale={locale} />
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="mt-14 border-t-2 border-hairline-strong pt-8">
+        <p className="eyebrow mb-2 text-faint">{t.ctaEyebrow}</p>
+        <p className="mb-5 max-w-[48ch] text-[15px] text-muted">{t.ctaDesc}</p>
         <div className="max-w-md">
-          <NewsletterForm source={`tip-${tip.slug}`} />
+          <NewsletterForm source={`tip-${tip.slug}`} locale={locale} />
         </div>
       </div>
     </article>
