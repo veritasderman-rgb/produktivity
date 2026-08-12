@@ -1,6 +1,6 @@
 ---
 title: "Ranní rutina: koncepty odpovědí čekají, než přijdete"
-excerpt: "Nekrmte AI mailem po mailu. Nastavte rutinu, která přes noc připraví koncepty odpovědí — ráno jen čtete, upravíte dvě věty a odesíláte."
+excerpt: "Kompletní návod s prompty: jak napojit poštu konektorem, sepsat pravidla přirozeným jazykem, nastavit plánovanou úlohu na každé ráno a doladit ji za dva týdny tak, aby ranní pošta trvala patnáct minut místo hodiny. Drafty připravuje AI, odesílá výhradně člověk."
 category: "ai"
 platform: "vsude"
 audience: ["manazer", "freelancer"]
@@ -9,37 +9,445 @@ saves: "~40 min denně"
 date: "2026-08-11"
 ---
 
-Většina lidí používá AI u pošty ručně: otevřou mail, zkopírují ho do chatu, poprosí o odpověď, výsledek vloží zpátky. Funguje to, ale úspora je minutová. Skutečná páka je v rutině, která běží sama: **ráno otevřete poštu a u každého mailu, který čeká na odpověď, je už připravený koncept** — ve vašem tónu a s termíny z vašeho kalendáře. Vaše práce se změní z psaní na schvalování.
+Většina lidí používá AI u pošty ručně: otevřou mail, zkopírují ho do chatu, poprosí o odpověď, výsledek vloží zpátky. Funguje to, ale úspora je minutová — a hlavně se nasčítá jen tehdy, když tuhle smyčku uděláte dvacetkrát denně. Skutečná páka je jinde: v rutině, která běží sama, dřív než se posadíte k počítači.
+
+**Cílová podoba je jednoduchá: ráno otevřete poštu a u každé zprávy, která čeká na odpověď, je už ve složce Koncepty připravený návrh** — ve vašem tónu, s termíny z vašeho kalendáře a s odkazem na to, co jste témuž člověku psali minule. Vaše práce se změní z psaní na schvalování. Hodina bušení do klávesnice se smrskne na patnáct minut čtení, škrtání a odesílání.
+
+Návod vede od nuly k funkční rutině v šesti fázích: pravidla, napojení pošty konektorem, zadání rutiny včetně kompletního promptu k okopírování, ranní kontrola, dva týdny ladění a hranice, které se neposouvají. Nad vším platí jedno pravidlo, které rozhoduje o tom, jestli si stavíte asistenta, nebo riziko: **rutina smí připravit cokoli, odeslat smí výhradně člověk.**
 
 ## Vzorová situace
 
-Provozní manažerka Petra otevírá v 8:00 poštu s 34 novými zprávami. Devět z nich vyžaduje odpověď, čtyři z toho jsou varianty na stejné téma („kdy stihnete dodávku?“). Do půl desáté píše maily, pak jde na první schůzku s pocitem, že ještě nic neudělala. Do konce dne se k poště vrátí třikrát, protože se bojí, že něco přehlédla.
+Provozní manažerka Petra otevírá v 8:00 poštu s 34 novými zprávami. Devět z nich vyžaduje odpověď, čtyři z toho jsou varianty na stejné téma („kdy stihnete dodávku?"). Do půl desáté píše maily, pak jde na první schůzku s pocitem, že ještě nic neudělala. Nejdražší na tom není psaní, ale rozjezd: u každého mailu si musí znovu vybavit, o co jde, co se domluvilo minule a jaký termín může slíbit.
 
-Se zapnutou rutinou vypadá ráno jinak: ve složce Koncepty čeká devět rozepsaných odpovědí. Šest je použitelných rovnou, dvě upraví o větu, jednu smaže a napíše sama, protože jde o citlivé jednání. V 8:20 je hotová. Nic neodeslala AI — odeslala všechno ona, jen nemusela začínat od prázdné stránky.
+Po nastavení rutiny vypadá její ráno jinak. V 6:30, kdy ještě spí, proběhne plánovaná úloha: projde poštu z posledních osmnácti hodin, u zpráv, které podle pravidel vyžadují odpověď, připraví koncept a uloží ho do složky Koncepty. Zprávy, u kterých si není jistá, nechá na pokoji a jen je vypíše do krátkého souhrnu.
 
-## Jak na to
+V 8:00 Petra otevře Koncepty a najde devět rozepsaných odpovědí. Šest odešle skoro beze změny — potvrzení termínů, odpovědi na opakované dotazy, posunutí schůzky. Dvě upraví o větu. Jednu smaže a napíše sama, protože jde o jednání o reklamaci a tam chce vážit každé slovo. V 8:20 je hotová.
 
-1. **Začněte nejjednodušší verzí.** AI asistenti přímo v poště — Gemini v Gmailu, Copilot v Outlooku — umí navrhnout odpověď na jedno kliknutí. Nula nastavování. Nevýhoda: koncept vznikne až ve chvíli, kdy mail otevřete, takže pořád začínáte u nuly.
-2. **Sepište si pravidla dřív, než něco automatizujete.** Jednu stránku: jak se podepisujete, jaký tón používáte na klienty a jaký na kolegy, které typy mailů se neodpovídají (newslettery, notifikace), jaké termíny smíte nabízet. Tahle stránka je motor celé rutiny — bez ní dostanete obecné, neosobní drafty.
-3. **Postavte automatizaci.** V Zapieru, Make nebo n8n vytvořte scénář: nový mail ve vybrané složce → text mailu a vaše pravidla jdou do AI modelu → výstup se uloží **jako koncept** v poště. Nikdy jako odeslaná zpráva.
-4. **Omezte rozsah.** Nespouštějte rutinu na celý inbox. Začněte jednou kategorií — třeba jen maily označené štítkem „vyžaduje odpověď“ nebo pošta od zákazníků z jedné adresy.
-5. **Nejsilnější varianta: agentní nástroj.** Nástroji s přístupem k e-mailu (například Claude s napojením na poštu) popíšete pravidla jednou přirozeným jazykem a on rutinu vykonává opakovaně, včetně nahlédnutí do kalendáře.
-6. **První týden laďte pravidla.** Každou opravu, kterou v draftu uděláte, přidejte jako větu do pravidel. Po týdnu bude trefnost výrazně vyšší.
+Čísla po měsíci provozu: ranní pošta z 55 minut na 15, počet zpráv, které zůstaly viset přes noc, z pěti na nulu, a konec trojího vracení se k inboxu během dne — rutina totiž vedle draftů vypisuje i to, co nechala nedotčené, takže Petra ví, že nic nepropadlo. Nic z toho neodeslala AI. Odeslala všechno ona, jen nemusela začínat od prázdné stránky.
+
+## Fáze 1: pravidla dřív, než něco automatizujete
+
+Tohle je fáze, kterou většina lidí přeskočí, a proto jim rutina vrací obecné maily, které stejně přepisují. Rutina není magie — je to vaše rozhodovací pravidla, zapsaná tak, aby je uměl číst stroj. Nejde přitom o technický dokument: je to jedna stránka běžnou češtinou, kterou napíšete za hodinu a pak dva týdny doplňujete. Tu hodinu si ale opravdu musíte vzít.
+
+### Co na tu stránku patří
+
+Sedm okruhů, které pokryjí devadesát procent situací:
+
+- **Kdo jste a co děláte.** Dvě věty: role, firma, za co odpovídáte. Bez toho model neví, jestli píše jménem dodavatele, nebo zákazníka.
+- **Podpis a oslovení.** Jak se podepisujete, komu tykáte a komu vykáte, jak mail začínáte.
+- **Tón podle adresáta.** Klienti, kolegové, nadřízení, dodavatelé, úřady — každá skupina má jiný registr. Nejcennější část celé stránky.
+- **Co smíte slíbit.** Termíny, ceny, slevy, kapacitu. Tady se rozhoduje, jestli vám draft může udělat škodu.
+- **Opakované situace a jak se řeší.** Pět až deset nejčastějších typů zpráv a vaše standardní odpověď na ně.
+- **Co se nedraftuje nikdy.** Výjimky, kterým je věnovaná samostatná podsekce níž.
+- **Délka.** Většina lidí píše delší maily, než chce. Řekněte to natvrdo: „odpovědi maximálně na pět vět, pokud si výslovně neřeknu jinak".
+
+Nemusíte začínat od prázdné stránky. Nejlepší zdroj pravidel je vaše vlastní odeslaná pošta — je v ní všechno, co byste jinak pracně vymýšleli.
+
+```text
+Přikládám 20 mailů, které jsem za poslední měsíc odeslal.
+Jsou to skutečné odpovědi, jen s anonymizovanými jmény a firmami.
+
+Zanalyzuj je a sestav mi „kartu tónu", kterou budu dávat jako
+podklad AI rutině, co mi bude psát koncepty odpovědí:
+
+1. Jak oslovuju a jak se loučím — vypiš skutečné varianty
+   a u každé napiš, ke komu ji používám.
+2. Průměrná délka odpovědi ve větách, zvlášť pro klienty
+   a zvlášť pro kolegy.
+3. Obraty a slova, které používám opakovaně — moje typické
+   formulace, podle kterých by mě člověk poznal.
+4. Čemu se naopak vyhýbám (fráze, které se v mých mailech
+   vůbec neobjevují).
+5. Jak řeším odmítnutí, odklad termínu a špatnou zprávu —
+   vypiš vzorec, ne jednotlivé maily.
+6. Pět typů zpráv, které se v podkladu opakují nejčastěji,
+   a moje standardní odpověď na každý z nich.
+
+Výstup napiš jako hotový text pravidel v druhé osobě
+(„Píšeš stručně, maximálně…"), ať ho můžu rovnou použít
+jako instrukci. Nepřikrášluj mě — popiš, jak píšu doopravdy.
+```
+
+Vrátí kartu, ve které poznáte sami sebe — a občas i něco, co jste o svém psaní nevěděli („v 80 procentech mailů začínáte omluvou za pozdní odpověď"). Zkontrolujte bod 3: modely mají tendenci vyrábět z jednoho výskytu pravidlo, takže formulace, kterou jste použili jednou, může skončit jako váš „typický obrat". Co v kartě nesedí, škrtněte hned — do rutiny se to jinak propíše stokrát.
+
+### Tón podle adresáta
+
+Nejčastější důvod, proč se draft nedá použít, není faktická chyba, ale špatný registr: mail pro dlouholetého klienta zní jako první kontakt z callcentra. Osvědčené členění: **klienti** (zdvořile, vykání, konkrétní termíny, žádné vnitřní zkratky), **kolegové** (tykání, krátce, bez omáček), **nadřízení** (závěr na začátku, jasně, co potřebujete rozhodnout), **dodavatelé** (věcně, s odkazem na objednávku), **úřady** (formálně, s čísly jednacími, žádný humor). U každé skupiny napište jednu vzorovou větu — vzor funguje líp než popis.
+
+```text
+Tady je moje karta tónu a seznam skupin adresátů:
+[vložit kartu]
+
+Skupiny: klienti, kolegové, nadřízený, dodavatelé, úřady.
+
+Pro každou skupinu napiš:
+- oslovení a rozloučení přesně tak, jak je mám používat
+- tři pravidla stylu (délka, míra formálnosti, co nesmí chybět)
+- jednu ukázkovou odpověď na modelovou situaci
+  „posun termínu o týden" — stejný obsah, pět různých podání
+- jednu větu, kterou by rutina v téhle skupině napsat neměla,
+  a vysvětlení proč
+
+Ukázky piš mým hlasem podle karty, ne obecnou obchodní češtinou.
+Nepoužívej fráze typu „v dnešní době" nebo „neváhejte
+mě kontaktovat".
+```
+
+Pět verzí téže zprávy vedle sebe je nejrychlejší způsob, jak si ujasnit, co vlastně chcete — a zároveň hotový kus pravidel. Ukázky si přečtěte nahlas; co byste sami nikdy neřekli, přepište, protože právě podle těch vět bude rutina psát dál. Pokud s tónem bojujete i mimo rutinu, hodí se [vlastní instrukce](/tipy/ai-vlastni-instrukce), kde si styl nastavíte natrvalo.
+
+### Co se nedraftuje: pravidla výjimek
+
+Nejdůležitější část pravidel není, co má rutina psát, ale co se nemá ani pokoušet. Draft na citlivou věc je horší než žádný draft: buď ho v spěchu odešlete, nebo ho stejně smažete a jen jste ztratili čas jeho čtením.
+
+```text
+Doplň mi do pravidel ranní e-mailové rutiny sekci „výjimky".
+Kontext: [role, obor, typ firmy]. Rutina bude číst poštu
+a připravovat koncepty odpovědí, které pak schvaluju ručně.
+
+Navrhni seznam situací, u kterých rutina NESMÍ psát koncept
+a má zprávu jen vypsat do souhrnu s poznámkou proč.
+Vycházej z těchto kategorií a doplň další, které tě napadnou:
+- právní věci, reklamace, stížnosti, výpovědi
+- personální agenda: mzdy, hodnocení, ukončení spolupráce
+- zdravotní údaje a osobní záležitosti kolegů
+- cokoli, kde se nabízí cena, sleva nebo smluvní podmínka
+- konflikty a emočně vypjaté zprávy
+- zprávy od adresátů, které mám na seznamu „vždy ručně"
+- vlákna delší než [10] zpráv, kde hrozí, že AI mine kontext
+
+U každé položky napiš:
+1. jak takovou zprávu rozpoznat (podle čeho, ne obecně)
+2. co má rutina místo draftu udělat
+3. jednu falešně pozitivní situaci — kdy to jako výjimka
+   vypadá, ale ve skutečnosti je to běžná zpráva
+
+Výstup jako seznam pravidel v rozkazovacím způsobu.
+```
+
+Vrátí seznam, který si zkraťte na to, co skutečně platí ve vaší práci — dvacet výjimek je stejně nepoužitelných jako žádná. Bod 3 čtěte pozorně: nejčastější chyba nastavení je příliš široká výjimka („cokoli se slovem smlouva"), po které rutina nepíše skoro nic a vy máte pocit, že nefunguje. A pořád si u každé výjimky připomeňte, co je jejím smyslem: rozhodnutí, které má váhu, dělá člověk.
+
+## Fáze 2: napojení pošty konektorem
+
+Teď technická část — a je kratší, než čekáte. Cílem je, aby AI viděla vaši schránku přímo, ne abyste do ní kopírovali text mailu po mailu.
+
+### Co je konektor a co uvidí
+
+Konektory (postavené na protokolu MCP) jsou standardizované napojení AI na běžné služby: poštu, kalendář, disk, poznámky. Připojíte je v nastavení a od té chvíle může model ve schránce hledat, číst zprávy a ukládat koncepty — v rozsahu, který mu povolíte. Celý princip rozebírá tip [konektory jako USB-C pro AI](/tipy/mcp-konektory-usb-c-pro-ai).
+
+Pro tuhle rutinu potřebujete dva: **poštu** a **kalendář**. Kalendář není zbytečnost — bez něj vám rutina napíše „termín potvrzuji" k času, kdy máte tři jiné schůzky. S ním umí navrhnout „ve středu ráno mi to nevychází, hodilo by se čtvrtek po desáté".
+
+Než cokoli zapnete, projděte si tři věci. **Na jakém účtu to poběží:** pracovní pošta patří na pracovní účet se smluvní ochranou dat, ne do osobního chatu. **Co konektor vidí:** obvykle celou schránku, ne jednu složku — omezení řešíte instrukcí v rutině, ne oprávněním. **Co smí zapisovat:** stačí právo ukládat koncepty a případně přidávat štítky. Odesílání nepotřebujete a nechcete.
+
+### Nastavení krok za krokem
+
+1. V nastavení AI nástroje otevřete adresář konektorů a připojte poštu; přihlásíte se přes svůj účet a odsouhlasíte rozsah oprávnění. Stejným způsobem kalendář.
+2. Podívejte se, co jste odsouhlasili — u pošty typicky čtení zpráv a vytváření konceptů. Když nabídka dává na výběr menší rozsah, vezměte ten menší.
+3. Založte si **Projekt** (trvalý kontext) pojmenovaný třeba „Ranní pošta" a do jeho instrukcí vložte kartu pravidel z fáze 1. Rutina pak nemusí pravidla dostávat pokaždé znovu a máte je na jednom místě, kde se snadno upravují.
+4. Pošlete si sami sobě testovací zprávu, ať máte na čem zkoušet.
+
+### Zkušební běh naprázdno
+
+Než rutinu pustíte na ostro, nechte ji jednou proběhnout **jen na čtení**. Zjistíte dvě věci: jestli konektor vidí to, co má, a jestli vaše pravidla vůbec dávají v praxi smysl.
+
+```text
+Připoj se k mojí poště a projdi zprávy z posledních 24 hodin.
+Nic neukládej, nic neoznačuj, žádný koncept nevytvářej —
+tenhle běh je jen na čtení.
+
+Vrať tabulku se sloupci:
+odesílatel (jméno, ne adresa) | předmět | do jaké skupiny
+adresátů patří podle mých pravidel | vyžaduje odpověď
+ano/ne/nejistý | pokud ano, o čem by odpověď byla (jedna věta)
+| pokud jsem si nejistý, co mi chybí k rozhodnutí
+
+Pod tabulku napiš tři věci:
+1. kolik zpráv jsi celkem viděl a za jaké období
+2. u kterých zpráv se moje pravidla nedala použít
+   a proč — buď chybí pravidlo, nebo si odporují
+3. co bys do pravidel doplnil, abys příště nemusel hádat
+
+Nic si nedomýšlej. Když k rozhodnutí nemáš dost informací,
+napiš „nejistý" a důvod.
+```
+
+Tenhle běh dělejte dva dny po sobě, než pustíte psaní konceptů. Sloupec „nejistý" je zlatý důl: každý řádek v něm je chybějící věta v pravidlech. A zkontrolujte první číslo pod tabulkou — když rutina viděla dvanáct zpráv a vy jste jich měli čtyřicet, je špatně nastavený rozsah a řešíte to teď, ne až u ostrého provozu.
+
+## Fáze 3: zadání rutiny a plánovaná úloha
+
+Máte pravidla, máte napojenou poštu. Teď z toho uděláte úlohu, která běží každé ráno sama.
+
+### Anatomie dobrého zadání
+
+Zadání rutiny je delší než běžný prompt a má pevnou stavbu o pěti částech: **kdy a co projít** (časové okno, složky, výjimky — bez okna vám rutina jednou za čas přepracuje týden zpátky), **jak roztřídit** (co draftovat, co přeskočit, kam s nejistotou), **jak psát** (odkaz na pravidla, délka, tón, podpis), **kam uložit** (koncepty, nikdy odeslání — explicitně, pokaždé) a **co vrátit mně** (souhrn včetně toho, co rutina neudělala).
+
+Poslední bod se přehlíží a je nejdůležitější. Rutina bez souhrnu je černá skříňka: nevíte, jestli tři maily nedostaly draft proto, že nebyly potřeba, nebo proto, že je neviděla.
+
+### Kompletní zadání ranní rutiny
+
+Tohle je jádro celého návodu. Vložte do plánované úlohy, doplňte hranaté závorky.
+
+```text
+Každý pracovní den ráno projdi moji pracovní poštu a připrav
+koncepty odpovědí. Postupuj přesně takhle:
+
+1. ROZSAH
+Projdi zprávy doručené od [18:00 předchozího pracovního dne]
+do teď. Ber jen složku Doručená pošta, ignoruj Spam,
+Odeslané a složky [Personální, Právní, Archiv].
+Vlákna, kde jsem už odpověděl jako poslední, přeskoč.
+
+2. TŘÍDĚNÍ
+Každou zprávu zařaď do jedné ze tří skupin:
+a) DRAFT — někdo se mě na něco ptá, něco po mně chce,
+   čeká se na mou reakci
+b) PŘESKOČIT — newslettery, notifikace ze systémů,
+   automatické potvrzení, kopie na vědomí bez dotazu na mě
+c) JEN NAHLÁSIT — spadá do mých výjimek (viz pravidla),
+   nebo si nejsi jistý zařazením
+
+3. PSANÍ KONCEPTŮ
+U skupiny DRAFT napiš odpověď podle mé karty pravidel:
+- drž tón podle skupiny adresáta (klient / kolega /
+  nadřízený / dodavatel / úřad)
+- maximálně [5] vět, pokud si věc nežádá víc; delší draft
+  jen tam, kde odpovídáš na víc otázek najednou
+- odpovídej na VŠECHNY otázky ze zprávy, žádnou nevynechej
+- projdi předchozí korespondenci s tímto člověkem a naváž
+  na to, co jsme se domluvili naposledy
+- když se řeší termín, podívej se do mého kalendáře
+  a navrhni čas, který mám skutečně volný
+- nikdy neslibuj cenu, slevu ani smluvní podmínku;
+  místo toho napiš „[DOPLNIT: cenová nabídka]"
+- kde ti chybí informace, kterou znám jen já, nevymýšlej ji
+  a nech na jejím místě hranatou závorku [DOPLNIT: co]
+- podepiš se [podpis]
+
+4. ULOŽENÍ
+Každý koncept ulož do složky Koncepty jako odpověď
+do správného vlákna. NIKDY nic neodesílej. Žádnou zprávu
+nemaž, nearchivuj a needituj.
+
+5. SOUHRN
+Na konci mi napiš krátký přehled:
+- kolik zpráv jsi prošel a za jaké období
+- seznam připravených konceptů: odesílatel, téma,
+  jednou větou co koncept říká, a jestli obsahuje [DOPLNIT]
+- seznam JEN NAHLÁSIT s důvodem, proč jsi koncept nepsal
+- co ti k rozhodování chybělo v pravidlech
+Souhrn seřaď podle naléhavosti, nejdřív to, co hoří.
+```
+
+Vrátí sadu konceptů a souhrn, který si přečtete za minutu. Tři místa, kde se zadání nejčastěji láme: časové okno („od 18:00 předchozího dne" u pondělí znamená pátek, tak si to explicitně dopište, pokud vám na tom záleží), značka `[DOPLNIT]` — kontrolujte, že ji rutina skutečně používá a nevymýšlí místo ní věrohodná čísla, a zákaz odeslání, který má být v zadání i tehdy, když konektor odesílat neumí. Redundantní pojistka je tady levná.
+
+### Šablony pro opakované dotazy
+
+Když se čtyři z devíti ranních mailů ptají na totéž, nemá smysl nechávat rutinu vymýšlet čtyři různé odpovědi. Připravte jí kostry.
+
+```text
+Tady je 30 mých odeslaných odpovědí z posledního čtvrtletí:
+[vložit, jména a firmy anonymizované]
+
+Najdi opakující se typy dotazů a pro pět nejčastějších
+připrav kostru odpovědi, kterou bude používat moje ranní
+rutina. U každé kostry:
+- název situace (jak ji rutina pozná ve zprávě)
+- text odpovědi s hranatými závorkami tam, kde se doplňuje
+  konkrétní údaj
+- co musí rutina ověřit, než kostru použije
+- kdy kostru NEPOUŽÍT a napsat odpověď na míru
+
+Kostry piš mým hlasem podle přiložených mailů.
+Nedělej z nich formuláře — mají znít jako mail od člověka,
+ne jako automatická odpověď.
+```
+
+Kostry pak vložte do Projektu vedle pravidel. Pozor na jedinou věc: šablona se snadno přežene a klient po třetí identické odpovědi pozná, že s ním mluví formulář. Proto poslední bod promptu — u každé kostry mít napsáno, kdy se nepoužije.
+
+### Plánovaná úloha: kdy ji spouštět
+
+Zadání uložte jako plánovanou úlohu (rutinu), která se spouští podle rozvrhu. **Hodinu až dvě před svým začátkem** (v 6:30, když chodíte v 8:00), aby měla čas doběhnout. **Jen v pracovní dny** — víkendová rutina vyrobí koncepty, které v pondělí neplatí. **Jeden běh denně stačí**; při velmi živém provozu přidejte druhý po obědě, ale s kratším oknem, aby nedělal dvakrát totéž.
+
+Kdo chce jít dál a přidat k poště i kalendář a přípravu dne, najde širší sestavu v tipu [rutiny nad poštou a kalendářem](/tipy/claude-rutiny-posta-kalendar).
+
+## Fáze 4: ranní kontrola za patnáct minut
+
+Rutina odvedla svoje. Teď přichází část, kterou nedelegujete — a která má vlastní postup, aby netrvala hodinu.
+
+### Pořadí, které funguje
+
+Nejdřív **souhrn**, teprve pak Koncepty. Souhrn vám za třicet vteřin řekne, kolik toho je, co hoří a co rutina odmítla — a někdy zjistíte, že dneska stačí pět minut, protože se nestalo nic.
+
+Pak **složka Koncepty, shora dolů, bez přeskakování.** Přeskakování je past: vrátíte se k „těžkým" mailům na konci, kdy už jste unavení a odbydete je. U každého konceptu máte tři legitimní možnosti: **odeslat** (přečíst, zkontrolovat čísla a termíny, odeslat), **upravit** (dvě věty, ne přepsání) a **smazat a napsat sám** (u citlivých věcí a všude, kde má draft špatný základ — přepisování špatného draftu trvá déle než psaní od nuly).
+
+Jediná tvrdá kontrola, kterou dělejte vždycky: **projděte hranaté závorky.** Odeslaný mail s textem „[DOPLNIT: cenová nabídka]" je trapas, který se pamatuje. Před odesláním v konceptu hledejte znak „[" — je to půl vteřiny a chytí i závorky, které jste přehlédli.
+
+### Co s tím, co rutina nezvládla
+
+Seznam „jen nahlásit" projděte hned po konceptech, dokud jste v tématu. Většinou v něm jsou tři typy věcí: skutečné výjimky (citlivá agenda — napíšete sami, správně), zprávy, u kterých rutina neměla informaci (odpovíte a poznamenáte si, že pravidlo chybí) a falešné poplachy (draft se psát měl — výjimka je moc široká). Poznámka stačí jednořádková; za dva týdny z těch řádek vznikne druhá verze pravidel.
+
+### Souhrn na míru: co mě dnes čeká
+
+Jednu rutinu navíc, která se vyplatí, je ranní přehled nad tím, co v poště leží — ne kvůli draftům, ale kvůli rozhodnutí, čemu se dnes vůbec věnovat.
+
+```text
+Projdi moji poštu za posledních [24 hodin] a napiš mi ranní
+brífink, ne seznam mailů. Chci vědět, na co si mám dát pozor.
+
+Struktura:
+1. HOŘÍ — věci, kde hrozí, že něco propásnu (termín dnes
+   nebo zítra, někdo čeká už druhý den, eskalace).
+   U každé napiš, co se stane, když to dnes neudělám.
+2. ČEKÁ NA MĚ — kde jsem já ta překážka, kvůli které
+   se něco nehne dál.
+3. ČEKÁM JÁ — komu jsem psal a neodpověděl mi;
+   u každého kolik dní to je.
+4. MŮŽE POČKAT — jednou větou, ať vím, že to existuje.
+
+Nepiš shrnutí každého mailu, piš, co z toho pro mě plyne.
+Když si nejsi jistý naléhavostí, radši ji nadhodnoť
+a napiš proč. Maximálně jedna obrazovka textu.
+```
+
+Bod 3 je nečekaně cenný — nedopsané vlákno se ztratí snadněji než nezodpovězený mail; na hlídání odpovědí navazuje tip [follow-up hlídač](/tipy/ai-follow-up-hlidac). Rozdělení podle naléhavosti je ale odhad modelu, ne fakt: první týden si u položek „může počkat" namátkou ověřte, že tam patří.
+
+## Fáze 5: dva týdny ladění
+
+Rutina nastavená první den je zhruba ze tří čtvrtin správně. Rozdíl mezi „docela dobré" a „téměř nemusím zasahovat" leží ve dvou týdnech systematického ladění.
+
+### Deník oprav
+
+Princip je triviální: **každou opravu, kterou v draftu uděláte, zapíšete jako větu do pravidel.** Ne „tenhle draft byl moc formální", ale „na Jana Nováka z firmy X píšeme tykáním, známe se pět let". Konkrétní pravidlo, ne pocit. Během ranní kontroly házejte řádky do jedné poznámky — pět vteřin na opravu — a na konci týdne z nich uděláte úpravu pravidel.
+
+```text
+Tady je můj deník oprav za tenhle týden — poznámky k tomu,
+co jsem v konceptech od ranní rutiny opravoval:
+
+[vložit seznam poznámek]
+
+A tady jsou moje současná pravidla:
+[vložit kartu pravidel]
+
+Udělej tři věci:
+1. Seskup opravy podle příčiny: chybějící pravidlo,
+   špatně formulované pravidlo, správné pravidlo špatně
+   pochopené, nebo jednorázová věc, ze které pravidlo
+   dělat nemám.
+2. Navrhni konkrétní úpravy pravidel — u každé napiš
+   starou a novou formulaci vedle sebe a jednou větou
+   proč. Úpravy piš tak, aby si neodporovaly se zbytkem.
+3. Označ pravidla, která jsou podle deníku zbytečná
+   nebo se nikdy neuplatnila — navrhni je vyhodit.
+
+Nezvyšuj počet pravidel za každou cenu. Když jde stejnou
+věc vyřešit úpravou existujícího pravidla, udělej to.
+Cílový rozsah karty je nejvýš [jedna A4].
+```
+
+Bod 3 je tam schválně. Pravidla mají tendenci jen přibývat, až z jedné stránky vznikne pětistránkový manuál, kterému model přestane rozumět a začne si vybírat, čeho poslechne. Kratší a ostřejší karta poráží dlouhou a úplnou.
+
+### Týdenní retrospektiva rutiny
+
+Jednou týdně, nejlépe v pátek, se rutiny zeptejte na její vlastní práci. Zní to zvláštně, ale funguje to: model má přístup k tomu, co napsal, i k tomu, co jste nakonec odeslali, a rozdíl mezi tím dvojím je přesně ta zpětná vazba, kterou potřebujete.
+
+```text
+Udělej retrospektivu naší ranní e-mailové rutiny za tenhle
+týden. Máš přístup k mým konceptům i k odeslané poště,
+tak porovnej, co jsi připravil, s tím, co jsem doopravdy
+odeslal.
+
+Vrať:
+1. ČÍSLA: kolik konceptů jsi za týden připravil, kolik jsem
+   jich odeslal beze změny, kolik s úpravou, kolik jsem
+   smazal a napsal znovu sám.
+2. VZORCE V ÚPRAVÁCH: co nejčastěji měním? Rozliš, jestli
+   jde o tón, délku, obsah, nebo strukturu. U každého
+   vzorce dej dva konkrétní příklady „tvoje verze /
+   moje verze".
+3. SMAZANÉ KONCEPTY: u každého odhadni, proč jsem ho
+   nepoužil, a napiš, jestli jsi ho vůbec měl psát.
+4. PŘEHLÉDNUTÉ: zprávy, na které jsem odpovídal ručně
+   a ty jsi k nim koncept nepřipravil — proč?
+5. NÁVRH: tři konkrétní změny v pravidlech nebo v zadání
+   rutiny, které by mi příští týden ušetřily nejvíc práce.
+   Seřaď je podle dopadu.
+
+Buď kritický ke své práci. Nechci slyšet, že to šlo dobře,
+chci vědět, kde to drhne.
+```
+
+Vrátí obrázek, který se dost liší od pocitu — typicky zjistíte, že šedesát procent úprav je jediná věc (třeba že píše moc dlouhé úvodní věty), a jedno pravidlo ji vyřeší. Čísla v bodu 1 berte jako orientační: rozlišit „odesláno beze změny" od „odesláno s drobnou úpravou" model dělá odhadem. Body 2 a 4 jsou ta hodnota.
+
+### Kdy je rutina hotová
+
+Poznáte to podle tří signálů: ranní kontrola stabilně trvá pod dvacet minut, většinu konceptů odesíláte beze změny nebo s jednou větou, a seznam „jen nahlásit" obsahuje jen věci, které tam patří. Pak přestaňte ladit. Vracejte se k pravidlům jednou za čtvrtletí a vždycky, když se změní vaše role, klienti nebo tým — tedy realita, kterou pravidla popisují.
+
+## Fáze 6: hranice, které se neposouvají
+
+Poslední fáze není o tom, co rutina umí, ale o tom, co jí zásadně nedovolíte. Je krátká a je nejdůležitější v celém návodu.
+
+### Nikdy odesílání
+
+**AI navrhuje, člověk schvaluje.** U pošty to znamená jedinou věc: automatizace nikdy nedostane právo odeslat zprávu. Ne proto, že by drafty byly špatné — jsou často lepší, než co byste napsali v šest ráno. Ale protože odeslaný mail se nedá vzít zpět, a rozdíl mezi konceptem a odeslanou zprávou je rozdíl mezi asistentem a rizikem.
+
+Konkrétní podoba: zákaz mít v zadání rutiny, nedávat konektoru právo odesílat (pokud to jde nastavit), a nikdy nespojovat rutinu s odloženým odesíláním, které by ji obešlo. Když někdo ve firmě přijde s tím, že „ty rutinní odpovědi by mohly chodit samy", odpověď zní: mohly, a jednou za sto mailů z toho bude škoda, kterou nesrovná úspora na těch devadesáti devíti. Totéž platí pro mazání a archivaci — rutina smí číst, psát koncepty a případně štítkovat, nic víc.
+
+### Citlivá agenda ven
+
+Složky s personální, právní a zdravotní agendou z rutiny vyjměte úplně — ne pravidlem „buď opatrná", ale výslovným vyloučením složky v zadání. Pokud takové zprávy chodí do hlavní schránky a nedají se oddělit, zúžte rutinu na jednu bezpečnou kategorii, třeba jen na zprávy od zákazníků z jedné adresy.
+
+Celý provoz patří na **pracovní účet se smluvní ochranou dat**, ne do osobního chatu. Osobní údaje v podkladech, které rutině dáváte ručně (jako těch dvacet mailů na analýzu tónu), anonymizujte — jména, firmy a čísla smluv nahraďte značkami.
+
+### Čtvrtletní audit
+
+Oprávnění se tiše hromadí: připojíte konektor kvůli jedné věci, pak druhý, pak vyzkoušíte třetí a zapomenete ho odpojit. Jednou za čtvrtletí to projděte.
+
+```text
+Připrav mi podklad na čtvrtletní kontrolu mojí e-mailové
+rutiny. Vypiš:
+
+1. Ke kterým službám a datům máš aktuálně přístup a co
+   s nimi v rámci téhle rutiny reálně děláš.
+2. Které z těch přístupů rutina za poslední čtvrtletí
+   ani jednou nevyužila.
+3. Co všechno rutina do mé pošty zapisuje (koncepty,
+   štítky, cokoli dalšího) a kam přesně.
+4. Které složky má vyloučené a jestli seznam odpovídá
+   mým pravidlům — vypiš rozdíly.
+5. Tři otázky, které bych si měl v rámci kontroly položit
+   a na které mi ty odpovědět neumíš.
+
+Nic neměň, jen vypiš stav. Kde si nejsi jistý,
+napiš „nevím" místo odhadu.
+```
+
+Bod 5 je záměrný: model nevidí do vaší firemní politiky ani do smluv, a je lepší, když to napíše, než aby to domyslel. Podle výstupu pak odpojte, co nepoužíváte — méně přístupů znamená méně věcí, které se můžou pokazit.
+
+## Nejčastější chyby
+
+- **Automatizovat dřív než sepsat pravidla.** Nejčastější chyba vůbec. Rutina bez pravidel vrací obecné, neosobní drafty, které stejně přepíšete — a vy z toho vyvodíte, že to nefunguje. Nefunguje zadání, ne nástroj.
+- **Pustit rutinu rovnou na celý inbox.** Začněte jednou kategorií nebo jedním štítkem. Devadesát konceptů první den je horší než žádný, protože je neprojdete a ztratíte důvěru ve složku Koncepty.
+- **Dát rutině právo odesílat.** Časová úspora je minimální, riziko obrovské. Koncept, který si přečtete, je celý smysl téhle sestavy.
+- **Neladit po prvním týdnu.** Rutina, do které se nevrátíte, zamrzne na sedmdesáti procentech přesnosti. Deset minut týdně nad deníkem oprav ji posune tam, kde skoro nemusíte zasahovat.
+- **Nekontrolovat čísla a termíny v draftu.** Model si termín, cenu nebo číslo objednávky doplní věrohodně i tehdy, když ho nemá odkud vzít. Proto značka `[DOPLNIT]` v zadání a proto kontrola hranatých závorek před odesláním.
+- **Nechat pravidla bobtnat a zapomenout na citlivé složky.** Pětistránkový manuál je horší než jedna dobrá stránka — model si z něj začne vybírat. A složky s citlivou agendou musíte vyloučit výslovně; spoléhat na to, že si rutina domyslí, co je citlivé, není nastavení, ale naděje.
 
 ## Nejlepší nástroje
 
-- **Vestavěná AI v poště (Gemini v Gmailu, Copilot v Outlooku)** — nejrychlejší start, běží na firemním účtu, data zůstávají ve vašem pracovním prostředí.
-- **Zapier a Make** — cloudové automatizační platformy bez programování; ideální na sestavení řetězce pošta → AI → koncept.
-- **n8n** — obdoba, kterou si můžete provozovat na vlastním serveru; volba pro firmy, které chtějí mít data u sebe.
-- **Agentní nástroje (Claude s přístupem k e-mailu, Claude Code)** — pro ty, kdo chtějí rutinu popsat větami místo skládání kroků.
+- **Claude s konektorem na poštu a kalendář** — rutinu popíšete větami, běží podle rozvrhu jako plánovaná úloha a ukládá koncepty přímo do schránky; pravidla žijí v Projektu, takže je měníte na jednom místě.
+- **Projekty (trvalý kontext)** — místo pro kartu pravidel, kostry odpovědí a seznam výjimek; nemusíte je posílat s každým během znovu.
+- **Vestavěná AI v poště (Gemini v Gmailu, Copilot v Outlooku)** — nejrychlejší start bez nastavování; koncept ale vzniká až ve chvíli, kdy mail otevřete, takže ranní úsporu nepřinese.
+- **Zapier, Make a n8n** — když chcete řetěz pošta → model → koncept poskládat z kroků a napojit na další systémy; n8n navíc běží na vlastním serveru, když obsah pošty nemá opustit firmu. Víc v tipu [automatizace v n8n a Zapieru](/tipy/n8n-zapier-ai-automatizace).
+- **Filtry a štítky v poště** — nezastupitelné jako první síto: než rutina začne psát, měla by dostat čistý vstup, ne notifikace a rozesílky.
 
 ## Co vám to přinese
 
-- **Čas:** střízlivě 30–45 minut denně. Čtení a úprava draftu trvá zlomek toho, co psaní od nuly.
-- **Klid:** ráno nezačínáte prázdnou stránkou. Rozjezd, který stojí nejvíc vůle, odpadá.
-- **Kvalita:** rutina nezapomíná. Nezůstane viset mail, na který jste chtěli odpovědět „až bude čas“.
-- **Konzistence:** všechny odpovědi drží stejný tón a stejné podmínky, protože vycházejí ze stejných pravidel.
+- **Čas:** střízlivě 30–45 minut denně u běžného manažerského provozu. Čtení a úprava draftu trvá zlomek toho, co psaní od nuly — a odpadá rozjezd, který stojí nejvíc vůle.
+- **Peníze:** při 40 minutách denně jsou to zhruba tři hodiny týdně, které u fakturovaného času jdou do práce, za kterou vám někdo platí.
+- **Klid:** ráno nezačínáte prázdnou stránkou a víte, že nic nepropadlo — souhrn vypisuje i to, co rutina nechala být. Konec trojího vracení se k inboxu „pro jistotu".
+- **Kvalita a konzistence:** odpovědi drží stejný tón i stejné podmínky, protože vycházejí ze stejných pravidel. Rutina navíc nezapomene odpovědět na třetí otázku ze čtyř, což lidé v spěchu dělají běžně.
 
 ## Pro tip
 
-Držte se jednoho pravidla bez výjimky: **AI smí připravit cokoli, odesílá výhradně člověk.** Automatizaci nikdy nedávejte právo odeslat mail — rozdíl mezi konceptem a odeslanou zprávou je rozdíl mezi asistentem a rizikem. A hlídejte data: rutinu provozujte na firemním účtu se smluvní ochranou dat, ne v osobním chatu. Složky s citlivou agendou (personalistika, právo, zdravotní údaje) z rutiny rovnou vyjměte a jednou za čtvrtletí zkontrolujte, k čemu všemu má automatizace přístup — oprávnění mají tendenci se tiše hromadit.
+Pokročilý trik: nechte rutinu psát **dvě verze** konceptu u zpráv, které označí jako nejednoznačné — jednu krátkou a věcnou, druhou obšírnější a vstřícnější. Stačí do zadání přidat větu „u zpráv, kde si nejsi jistý požadovaným tónem, ulož dva koncepty a označ je v předmětu jako A a B". Volba mezi dvěma hotovými verzemi trvá deset vteřin a je přesnější než přepisování jedné; po týdnu navíc uvidíte, kterou variantu volíte, a to je pravidlo rovnou do karty.
+
+A závěrečné pravidlo nad vším ostatním: **rutina je asistent, ne zástupce.** Smí za vás začít větu, sehnat kontext a připomenout, co jste zapomněli. Nesmí za vás poslat nic ven. Ve chvíli, kdy tuhle hranici posunete, přestáváte šetřit čas a začínáte kupovat riziko.
