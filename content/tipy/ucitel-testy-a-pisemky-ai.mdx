@@ -1,0 +1,406 @@
+---
+title: "Testy a písemky s AI: tvorba, varianty, opravování"
+excerpt: "Kompletní návod s prompty: test vygenerovaný jen z vaší probrané látky, čtyři typy úloh a co která měří, skupiny A/B/C se stejnou obtížností, bodovací klíč s kritérii, opravování naskenovaných písemek včetně rukopisu a rozbor chyb třídy. Body navrhuje AI, známku dává učitel."
+category: "ai"
+platform: "vsude"
+audience: []
+keys: []
+saves: "~4 h na písemku"
+date: "2026-08-12"
+---
+
+Písemka stojí učitele čtyři až šest hodin, ze kterých je pedagogika snad hodina. Zbytek je opisování úloh z učebnice do jiného pořadí, výroba druhé skupiny, aby se neopisovalo, počítání bodů, sčítání sloupečků a psaní stejné poznámky pod dvacátou práci. Nejhorší na tom je, že ta nejcennější informace — co přesně třída nepochopila — se v té hromadě obvykle ztratí, protože po třetí hodině oprav už člověk jen sčítá.
+
+**AI umí celou mechaniku: navrhnout úlohy z vašich podkladů, vyrobit rovnocenné varianty, sestavit bodovací klíč, přečíst naskenované písemky včetně rukopisu a navrhnout body se zdůvodněním.** Co neumí a nesmí, je jediná věc, a je to ta podstatná: **známku dává učitel.** Návrh bodů je podklad k rozhodnutí, ne rozhodnutí — stejně jako lékařská zpráva není diagnóza a účetní sestava není daňové přiznání.
+
+Návod jde po fázích jedné písemky: příprava podkladů, generování testu z probrané látky, typy úloh, rovnocenné skupiny, bodovací klíč, opravování skenů a nakonec rozbor chyb celé třídy, což je ta část, kvůli které se písemky vlastně píší. Každá fáze má prompty k okopírování — stačí doplnit hranaté závorky.
+
+## Vzorová situace
+
+Petr učí matematiku na střední škole, čtyři třídy, každá píše zhruba jednou za tři týdny. Doteď to vypadalo takhle: v neděli hodinu vymýšlel úlohy, druhou hodinu vyráběl skupinu B (obvykle jen prohozením čísel, což studenti prohlédli), a pak tři večery opravoval — u každé práce znovu přemýšlel, kolik bodů dát za správný postup se špatným výsledkem. Výsledné známky byly spravedlivé zhruba tak, jak byl na konci týdne odpočatý.
+
+Teď to vypadá jinak. Do chatu nahraje zápisky z hodin a stránky učebnice, ze kterých se učilo, a nechá si navrhnout dvacet úloh — všechny výhradně z toho, co ve třídě skutečně probral. Vybere osm, dvě přeformuluje. Nechá vyrobit tři rovnocenné skupiny a bodovací klíč, ve kterém je rozepsané, kolik bodů je za postup a kolik za výsledek. Opravené práce naskenuje telefonem a nechá si k nim navrhnout body proti klíči; u každé úlohy dostane zdůvodnění, ze kterého vidí, proč návrh vypadá takhle. Osm prací namátkou zkontroluje ručně od začátku do konce. Známky zadá sám.
+
+Zbývá poslední krok, který dřív nedělal vůbec: nechá si udělat rozbor chyb celé třídy. Zjistí, že sedmnáct z osmadvaceti studentů dělá tutéž chybu při úpravě rovnice se zlomkem — a příští hodinu tomu věnuje dvacet minut místo toho, aby jel dál podle plánu. To je celý smysl té písemky a dřív se k tomu nikdy nedostal.
+
+## Fáze 1: než napíšete první úlohu
+
+### Test se vyrábí z podkladů, ne z paměti modelu
+
+Nejčastější chyba je zadat „vytvoř test z kvadratických rovnic pro třetí ročník“ a dostat test, který vypadá skvěle a obsahuje tři úlohy na látku, kterou třída nebrala. Model nezná váš postup, vaši učebnici ani to, že diskriminant jste zavedli až po Vietových vzorcích. Vygeneruje průměr toho, jak se to učí kdekoli.
+
+**Pravidlo, které platí nad celým návodem: test smí obsahovat jen to, co je ve vašich podkladech.** Podklady jsou tři: zápisky z hodin (klidně vyfocené z tabule nebo z vlastního sešitu), stránky učebnice, ze kterých se učilo, a zadání domácích úkolů, které jste dali. Nahrajte je a v každém promptu explicitně zakažte cokoli navíc.
+
+Podklady se sbírají průběžně, ne den před písemkou. Nejjednodušší návyk: po každé hodině vyfotit tabuli, sken uložit do složky předmětu. Za tři týdny máte kompletní materiál k písemce, aniž byste na tom strávili minutu navíc — a k focení použijte skenovací aplikaci, viz [papíry skenujte hned telefonem](/tipy/skenujte-telefonem). Když už máte přípravy hotové postupem z tipu [učitel s AI: příprava hodin](/tipy/ucitel-priprava-hodin-ai), jsou podklady rovnou po ruce.
+
+### Anonymizace a školní účet
+
+Sem patří věta, kterou nelze obejít: **práce žáků jsou osobní údaje.** Sken písemky obsahuje jméno, rukopis a informaci o studijních výsledcích konkrétního dítěte. Než cokoli nahrajete, platí dvě podmínky.
+
+První: **anonymizujte.** Zakryjte nebo odstřihněte jméno z hlavičky a nahraďte ho číslem. Nejjednodušší technika, která nestojí čas: před rozdáním písemek na ně nahoře předepište čísla 1 až 28 a veďte si seznam „číslo–jméno“ u sebe. Skenujete pak práce, na kterých žádné jméno není. Rukopis sám o sobě identifikaci neusnadňuje nikomu kromě vás.
+
+Druhá: **školní placený účet se smluvní ochranou dat**, ne soukromý profil a ne volný chat. O tom, který nástroj a jaký účet škola používá, rozhoduje vedení a školní pověřenec pro ochranu osobních údajů, ne jednotlivý učitel. Než začnete skenovat práce, mějte tuhle otázku zodpovězenou — je to pětiminutový dotaz, který vás ochrání před nepříjemností, jakou nikdo řešit nechce.
+
+A poslední drobnost, na kterou se zapomíná: co do chatu nahrajete, tam nemusí zůstat. Po dokončení oprav konverzaci i nahrané soubory smažte a skeny nechte jen tam, kde je má škola mít.
+
+### Co má test měřit
+
+Než napíšete první úlohu, rozmyslete si, na co se ptáte. Test, který se celý ptá na zapamatování, dá vysoké známky těm, kdo se to naučili nazpaměť večer předtím. Test, který je celý aplikační, potrestá i ty, kdo látku umí. Rozumný poměr pro běžnou písemku je zhruba třetina na znalost a porozumění, polovina na použití naučeného postupu a zbytek na přenos do nové situace.
+
+```text
+Připravuju písemku z tématu [téma] pro [3. ročník SŠ], délka [45] minut.
+V přílohách máš moje zápisky z hodin a stránky učebnice, ze kterých
+jsme se učili.
+
+Nejdřív mi z podkladů vypiš, co všechno jsme skutečně probrali —
+seznam konkrétních dovedností formulovaných jako „žák umí…“.
+Rozděl je na:
+1. musí umět každý, kdo má projít
+2. běžný standard
+3. nadstavba pro nejlepší
+
+U každé dovednosti uveď, ve kterém podkladu ji vidíš (soubor, strana).
+Co v podkladech není, nepiš — i kdyby to k tématu patřilo.
+Na konec dej seznam věcí, které bys k tématu čekal, ale v mých
+podkladech nejsou, ať vím, co jsem případně vynechal.
+```
+
+Vrátí mapu látky, která je zároveň kontrolou vaší přípravy. Poslední odstavec je užitečný trik: seznam „čekal bych, ale nemáte“ vám ukáže, jestli jste něco nechtěně přeskočili — ale do písemky to nepatří, dokud to neproberete.
+
+## Fáze 2: generování testu z probrané látky
+
+### Čtyři typy úloh a co která měří
+
+Dobrá písemka míchá typy úloh, protože každý měří něco jiného a každý má jinou slabinu.
+
+- **Výběr z možností.** Rychle se opravuje a pokryje hodně látky za málo času. Slabina: dá se uhodnout a nikdy neuvidíte, jak žák uvažoval. Použitelný na fakta, pojmy a rozlišování. Vždy čtyři možnosti, distraktory musí být věrohodné — možnost, kterou nikdo nezvolí, je jen výplň.
+- **Doplňování a krátká odpověď.** Kompromis mezi rychlostí oprav a průkazností. Hodí se na definice, vzorce, letopočty, tvary slov. Slabina: musíte předem vědět, které formulace uznáte, jinak opravujete podle nálady.
+- **Otevřená úloha.** Jediný typ, kde vidíte myšlení. Slabina: opravuje se dlouho a hodnotí se nekonzistentně, pokud nemá kritéria. Právě tady se nejvíc vyplatí bodovací klíč z fáze 4.
+- **Aplikační úloha.** Nová situace, známý postup — to, co odděluje pochopení od naučení. Slabina: je nejnáročnější na formulaci, protože „nová situace“ nesmí přinést novou obtížnost mimo téma. U slovních úloh hlídejte délku textu; žák, který neumí přečíst zadání, nedostane šanci ukázat, že látku umí.
+
+### Prompt na sadu úloh
+
+Negenerujte rovnou test. Nechte si udělat širokou nabídku a vyberte — z dvaceti úloh použijete osm a to je správný poměr.
+
+```text
+Z podkladů v příloze navrhni 20 úloh na písemku z tématu [téma],
+[45] minut, [3. ročník SŠ].
+
+Zastoupení typů:
+- 6 úloh s výběrem ze 4 možností (fakta, pojmy, rozlišení)
+- 5 úloh na doplnění nebo krátkou odpověď
+- 5 otevřených úloh, kde se hodnotí postup
+- 4 aplikační úlohy — známý postup v nové situaci
+
+U KAŽDÉ úlohy uveď:
+1. přesné znění zadání pro žáky
+2. co konkrétně měří (kterou dovednost ze seznamu)
+3. odhad obtížnosti: lehká / střední / těžká
+4. odhad času v minutách
+5. správnou odpověď nebo řešení
+6. u úloh s výběrem: proč je každý distraktor věrohodný, tedy
+   jaká konkrétní chyba v uvažování k němu vede
+
+Pravidla:
+- výhradně z nahraných podkladů, nic navíc
+- zadání v krátkých větách, jedna otázka = jedna věc
+- žádné chytáky a žádná dvojznačná zadání
+- u slovních úloh maximálně [3] věty zadání
+```
+
+Vrátí nabídku, ze které vybíráte. Bod 6 čtěte pozorně — je to nejrychlejší způsob, jak poznat špatnou úlohu s výběrem: když model nedokáže vysvětlit, jakou úvahou se dojde ke špatné možnosti, je ta možnost jen vata a úloha měří míň, než se zdá. Bod 4 sečtěte; modely čas systematicky podceňují, takže když součet vyjde na 45 minut, reálně je to na hodinu.
+
+### Kontrola zadání, než jde do tisku
+
+Než test vytisknete, pusťte ho ještě jednou přes model — tentokrát jako korektora, který hledá díry.
+
+```text
+Tady je hotové zadání mojí písemky. Nehodnoť obtížnost, hledej vady:
+
+1. Dvojznačná zadání — kde jde otázka pochopit dvěma způsoby
+2. Úlohy, kde je odpověď obsažená v jiné úloze nebo z ní vyplývá
+3. Úlohy, kde se dá dojít ke správné odpovědi bez znalosti látky
+   (vyloučením, z formulace, ze zdravého rozumu)
+4. Chybějící údaje — co v zadání musí být, aby šlo vyřešit
+5. Jazyk, který je náročnější než látka sama (dlouhá souvětí,
+   odborný termín navíc, cizí slovo bez potřeby)
+6. Faktické chyby v zadání i v řešení
+
+U každého nálezu napiš, kde je, proč vadí a jak to opravit jednou
+úpravou. Nepřepisuj celý test.
+
+[vlož zadání]
+```
+
+Tenhle prompt najde v každém testu dvě až tři věci a je to nejlevnější kontrola, jakou máte k dispozici. Bod 3 bývá překvapivý: úlohy, kde stačí selský rozum, jsou v písemkách běžné a vy je ve vlastním textu nevidíte, protože znáte správnou odpověď.
+
+## Fáze 3: skupiny A, B a C se stejnou obtížností
+
+### Proč nestačí prohodit čísla
+
+Klasická skupina B — stejné zadání s jinými čísly — má dva problémy. Studenti ji prohlédnou za minutu a začnou si napovídat postupem. A hlavně: jiná čísla často znamenají jinou obtížnost. Rovnice, která vyjde na celé číslo, je jednodušší než tatáž rovnice se zlomkem, a to je rozdíl, který v hodnocení nikdo nezohlední.
+
+Rovnocenné varianty musí mít **stejnou strukturu obtížnosti úloha po úloze**: úloha 3 ve skupině A a úloha 3 ve skupině B měří tutéž dovednost, jsou stejně těžké a stojí stejný počet bodů — ale nejde je vyřešit opsáním.
+
+```text
+Tady je hotová skupina A mojí písemky včetně řešení a bodů.
+Vyrob k ní skupiny B a C, které jsou skutečně rovnocenné.
+
+Pravidla pro každou úlohu N:
+- ve všech třech skupinách měří tutéž dovednost
+- má stejnou obtížnost — ne jen jiná čísla, ale i srovnatelnou
+  náročnost výpočtu (pozor na to, aby v jedné variantě nevycházel
+  hezký výsledek a v druhé zlomek)
+- stojí stejný počet bodů
+- nedá se vyřešit opsáním od souseda s jinou skupinou
+
+Nepoužívej stejná jména, čísla ani kontexty. U slovních úloh změň
+i situaci, nejen hodnoty.
+
+Ke každé skupině dej řešení. Na konec udělej srovnávací tabulku:
+řádky = úlohy, sloupce = skupiny, v buňkách typ úlohy, dovednost,
+body a tvůj odhad obtížnosti — ať vidím, jestli jsou varianty
+opravdu srovnatelné.
+
+[vlož skupinu A i s řešením a body]
+```
+
+Srovnávací tabulka na konci je ten důvod, proč prompt takhle formulovat: vidíte na jedné obrazovce, jestli se někde obtížnost rozjela. A jednu věc udělejte vždy ručně — **spočítejte si všechny varianty sami.** Ne kvůli nedůvěře, ale proto, že chyba v řešení skupiny C se projeví až ve chvíli, kdy před vámi stojí sedm studentů s tím, že jim to nevychází.
+
+### Kolik skupin a jak je rozdat
+
+Tři skupiny jsou strop, který má smysl: víc už znamená víc práce s opravováním, než kolik ušetří na opisování. Rozdávejte je po řadách napříč, ne po lavicích — sousedé v lavici mají mít různé skupiny stejně jako sousedé přes uličku.
+
+Když chcete klid, řekněte nahlas, že skupiny jsou rovnocenné a že jste je porovnávali. Ušetří to deset minut dohadování po písemce, jestli „áčko bylo těžší“.
+
+## Fáze 4: bodovací klíč s kritérii
+
+### Klíč se píše před opravováním, ne během něj
+
+Nekonzistence v hodnocení nevzniká z nespravedlnosti, ale z únavy. První práce se opravují velkoryse, dvacátá přísně, poslední rychle. Jediná obrana je bodovací klíč napsaný předem — dokument, ve kterém stojí, kolik bodů je za co, ještě než uvidíte první odpověď.
+
+U úloh s výběrem je klíč triviální. U otevřených úloh je to ta práce, která rozhoduje o kvalitě celé písemky:
+
+```text
+Ke každé otevřené a aplikační úloze v téhle písemce napiš bodovací
+klíč. Celkem je za test [40] bodů, rozdělení bodů mezi úlohy je
+[vlož nebo navrhni].
+
+Pro každou úlohu uveď:
+1. Vzorové řešení krok za krokem
+2. Rozpis bodů: kolik za správný postup, kolik za správný výsledek,
+   kolik za zápis a jednotky
+3. Co uznat jako alternativní správné řešení — jiný postup, který
+   vede ke stejnému výsledku
+4. Typické částečně správné odpovědi a kolik za ně dát
+   (např. správný postup, chyba v počítání = kolik bodů)
+5. Co NEUZNAT a proč — hranice, za kterou už je odpověď špatně
+6. Chyba, která se táhne dál: když žák udělá chybu v prvním kroku
+   a dál počítá správně, kolik bodů dostane
+
+Piš to tak, aby podle toho opravil kdokoli a došel ke stejným bodům.
+```
+
+Bod 6 je ten, který v praxi chybí nejčastěji a rozhoduje o polovině sporných případů. Bod 3 si projděte vlastní hlavou — model nezná všechny postupy, které jste ve třídě učili, a alternativní řešení, které neuvedete, se vám vrátí u dvanácté práce.
+
+### Stupnice a hranice
+
+Převod bodů na známku je vaše rozhodnutí a rozhodnutí školy, ne věc, kterou zadáte modelu. Co si nechat spočítat, je dopad: jak by stupnice dopadla na reálném rozložení bodů.
+
+```text
+Tady je rozložení bodů v mojí třídě z písemky za [40] bodů:
+[vlož body, jeden řádek na práci, bez jmen — jen čísla].
+
+Spočítej:
+- základní statistiku: počet, průměr, medián, minimum, maximum
+- histogram po pětibodových intervalech
+- jak by dopadlo rozdělení známek při stupnici [vlož hranice]
+- jak by dopadlo při alternativní stupnici [vlož druhé hranice]
+- kolik prací je těsně pod hranicí (do 1 bodu) u každé známky
+
+Nedoporučuj mi stupnici. Jen ukaž čísla — rozhodnutí je moje.
+```
+
+Poslední řádek tam patří schválně. Zajímavý je hlavně poslední bod: práce, které jsou bod pod hranicí, si projděte ještě jednou ručně. To je přesně místo, kde se vyplatí lidský pohled a kde návrh od stroje nemá co rozhodovat. Když počítáte s větším množstvím dat pravidelně, přesnější cestou je [analýza dat skriptem](/tipy/ai-analyza-dat) — model v chatu čísla nesčítá spolehlivě.
+
+## Fáze 5: opravování naskenovaných písemek
+
+Tady je největší úspora celého návodu a zároveň místo, kde je potřeba největší disciplína.
+
+### Železné pravidlo
+
+**AI navrhuje body, učitel dává známku.** Není to formalita a není to opatrnost — je to popis toho, jak ten nástroj funguje. Model při čtení rukopisu občas přečte 6 jako 8, přehlédne minus, netrefí přeškrtnutý řádek nebo nepozná, že žák pokračoval na druhé straně. Návrh bodů je proto podklad, ke kterému si vy dopisujete výsledek.
+
+Prakticky to znamená tři věci, které se nedají vynechat:
+
+- **U každé úlohy chtějte zdůvodnění.** Ne „3 body“, ale „3 body, protože postup je správný, ale ve druhém kroku je chyba ve znaménku“. Bez zdůvodnění nemáte co kontrolovat.
+- **Namátková ruční kontrola.** Ze třídy vezměte alespoň pět prací a opravte je celé sami, bez pohledu na návrh. Pak porovnejte. Když sedí, projděte zbytek rychleji; když se rozcházejí, opravujete ručně a návrh berete jen jako upozornění.
+- **Vždy ručně tam, kde to rozhoduje.** Práce na hranici známky, práce, kde model napsal „nejisté“ nebo „nečitelné“, a práce žáků, u kterých čekáte odvolání nebo řešíte podpůrná opatření.
+
+Stejný princip funguje na vysoké škole u cvičení a zápočtových testů, kde jsou počty prací ještě vyšší — podrobněji v tipu [doktorand s AI](/tipy/doktorand-s-ai-workflow).
+
+### Sken, který se dá přečíst
+
+Kvalita vstupu rozhoduje o všem, co následuje. Skenujte v aplikaci, ne obyčejným fotoaparátem: rovné okraje, kontrast a odstranění stínu udělají z fotky dokument. Jedna práce = jeden soubor, strany ve správném pořadí, název souboru s číslem místo jména.
+
+Než pustíte opravování, ověřte, že model text skutečně vidí:
+
+```text
+Přikládám sken jedné písemky (práce číslo [12]). Zatím nic neopravuj.
+
+Přepiš doslova, co je na skenu napsáno, úlohu po úloze, včetně
+výpočtů a přeškrtnutých míst. Kde nedokážeš přečíst, napiš
+[NEČITELNÉ] a nedomýšlej. Kde si nejsi jistý číslicí nebo
+znaménkem, napiš [NEJISTÉ: 6 nebo 8].
+
+Na konci napiš, jak dobře se ti sken čte celkově a co bych měl
+u dalších skenů udělat jinak.
+```
+
+Tenhle krok zabere minutu a rozhodne o tom, jestli má smysl pokračovat. Rukopisy jsou různé; u některých žáků vám model vrátí přesný přepis, u jiných samé nejisté značky — a to je informace, ze které vyplývá, že tuhle práci opravíte ručně.
+
+### Návrh bodů proti klíči
+
+```text
+Přikládám bodovací klíč a sken práce číslo [12].
+Navrhni bodování. Známku nepiš žádnou.
+
+Pro každou úlohu vrať:
+1. co žák napsal (stručně, vlastními slovy)
+2. návrh bodů podle klíče
+3. zdůvodnění — o který bod klíče se opíráš
+4. jistota: jistá / nejistá — a u nejisté napiš proč
+   (nečitelné, neobvyklý postup, klíč to neřeší)
+
+Na konci:
+- součet bodů
+- seznam úloh, které musím posoudit sám (všechny nejisté)
+- jednu větu, jestli je v práci něco, co klíč nepokrývá
+
+Pravidla:
+- drž se výhradně klíče, nehodnoť podle vlastního uvážení
+- když žák použil jiný správný postup, než je v klíči, NEHODNOŤ ho
+  a označ jako nejisté — rozhodnu já
+- nepřičítej ani neubírej body za úpravu, písmo nebo pravopis,
+  pokud to klíč nezmiňuje
+```
+
+Vrátí strukturovaný návrh, ve kterém vidíte, odkud se každý bod vzal. Seznam nejistých úloh je nejcennější část výstupu — v praxi to bývají dvě tři úlohy na práci a právě ty jsou to, co skutečně vyžaduje učitele. Zbytek je sčítání.
+
+Součet si zkontrolujte. Sčítání malého počtu čísel modely zvládají, ale spoléhat se na ně u čísla, které jde do žákovské knížky, nemá smysl — přepočítat deset položek trvá pět vteřin.
+
+### Konzistence napříč celou sadou
+
+Když máte navržené body u všech prací, přijde kontrola, kterou ručně nikdo nedělá, protože by musel držet v hlavě všech osmadvacet prací naráz.
+
+```text
+Tady jsou návrhy bodování všech [28] prací z písemky, u každé úlohy
+i se zdůvodněním.
+
+Zkontroluj konzistenci:
+1. Kde jsou dvě podobné odpovědi ohodnocené různým počtem bodů —
+   vypiš dvojice prací a v čem se hodnocení liší
+2. Kde se u téže úlohy zdůvodnění opírá o různá pravidla klíče
+3. Úlohy, u kterých je zdůvodnění nejčastěji nejisté — to znamená,
+   že klíč je v tom místě nedostatečný
+4. Práce, které jsou do 1 bodu od hranice známky [vlož hranice]
+
+Nic neopravuj, jen vypiš, co mám posoudit.
+
+[vlož návrhy]
+```
+
+Body 1 a 3 jsou to, kvůli čemu tenhle krok existuje. Nekonzistence, kterou najde, budete opravovat vy — a nález typu „u úlohy 5 je polovina zdůvodnění nejistá“ znamená, že klíč byl v tom místě děravý a příště ho napíšete líp.
+
+### Zpětná vazba, kterou si žák přečte
+
+Poznámka „chyba ve výpočtu“ pod prací nikoho nikam neposune. Konkrétní věta ano — a napsat dvacet osm konkrétních vět je práce, kterou nikdo nestíhá.
+
+```text
+Ke každé práci napiš krátkou zpětnou vazbu pro žáka, max 4 věty:
+1. co konkrétně zvládl dobře (jmenovitě, ne „snaha“)
+2. největší slabina — jedna, ne seznam
+3. jedna konkrétní věc, kterou má do příště udělat (ne „více
+   procvičovat“, ale „projít si příklady 12-18 na straně 44“)
+
+Piš věcně, bez hodnocení osobnosti, bez ironie a bez povzbuzování,
+které nic neříká. Oslovuj přímo. Nezmiňuj známku ani body.
+
+[vlož návrhy bodování s zdůvodněními]
+```
+
+Texty projděte, než je předáte — hlavně u prací, které dopadly špatně. Formulace, která zní věcně na obrazovce, může na papíře pod pětkou vyznít jinak, a to je posouzení, které za vás nikdo neudělá. A pokud jsou tři čtyři práce, kde je potřeba říct něco osobnějšího, napište to sami.
+
+## Fáze 6: rozbor chyb třídy
+
+Tohle je část, kvůli které se písemky píší, a zároveň část, která z časových důvodů obvykle nevznikne. Přitom je to nejlevnější krok celého návodu: podklady už máte hotové z fáze 5.
+
+```text
+Tady jsou opravené výsledky celé třídy — u každé práce body
+za jednotlivé úlohy a zdůvodnění, co bylo špatně.
+
+Udělej rozbor pro mě jako učitele:
+1. Úspěšnost po úlohách: kolik procent třídy úlohu zvládlo,
+   seřazeno od nejhorší
+2. Typy chyb, které se opakují u více než [5] žáků — u každého
+   napiš, o jaké nepochopení jde, ne jen jak se projevilo
+3. Chyby, které dělá jen pár žáků — a jestli jde o nepochopení
+   látky, nebo o nepozornost
+4. Které dovednosti ze seznamu k tématu třída zvládla a které ne
+5. Návrh: co konkrétně mám znovu vyložit a jak, aby to zabralo —
+   u každé věci odhad, kolik minut na to potřebuju
+
+Nepracuj se jmény, jen s čísly prací.
+```
+
+Bod 2 je to, o co jde: rozdíl mezi „dělají chyby ve zlomcích“ a „polovina třídy krátí čitatele se jmenovatelem přes součet, protože nerozumí, co krácení znamená“ je rozdíl mezi zbytečným a užitečným opakováním. Bod 5 berte jako návrh — jak se to má vysvětlit znovu a jinak, víte vy, protože jste u toho prvního vysvětlení byli.
+
+Výsledek má ještě jedno použití: je to podklad pro rozbor písemky se třídou. Místo procházení úloh popořadě si vezměte tři chyby, které dělalo nejvíc lidí, a věnujte jim celou hodinu. Zbytek rozdejte na papíře.
+
+```text
+Z rozboru chyb připrav patnáctiminutový blok na opravu nejčastější
+chyby — [popiš chybu].
+
+Chci:
+- jednu větu, kterou chybu pojmenuju, aniž bych někoho zesměšnil
+- protipříklad, na kterém je vidět, proč ten postup nefunguje
+- vysvětlení správného postupu ve 3 krocích
+- 4 krátké příklady na procvičení, od nejlehčího, s řešením
+- jednu kontrolní otázku na konec, ze které poznám, jestli
+  se to tentokrát chytlo
+
+Žáci mají [45] minut hodinu a tohle je její první třetina.
+```
+
+Blok si připravte na papír a mějte ho i pro příští rok — chyby, které dělá tahle třída, bude dělat i ta příští, a nashromážděná sbírka takových bloků je nejcennější materiál, jaký si učitel může vyrobit.
+
+## Nejčastější chyby
+
+- **Nechat vygenerovat test bez podkladů.** Model vyrobí učebnicově správnou písemku z látky, kterou jste možná neprobrali. Test se dělá z vašich zápisků a vaší učebnice, nic jiného do promptu nepatří.
+- **Vyrobit skupinu B prohozením čísel.** Studenti to prohlédnou a obtížnost se rozjede. Rovnocenné varianty mají stejnou strukturu úloha po úloze, jiné kontexty a ověřenou srovnatelnou náročnost.
+- **Opravovat bez klíče napsaného předem.** Bez rozpisu bodů za postup, výsledek a částečná řešení opravujete první práci jinak než dvacátou — a nemáte co porovnat s návrhem od AI.
+- **Vzít navržené body jako známku.** Model plete číslice v rukopisu, přehlédne přeškrtnutí a nepozná neobvyklý postup. **Známku dává učitel** a namátková ruční kontrola aspoň pěti prací není volitelná.
+- **Nahrát neanonymizované práce.** Jméno na skenu je osobní údaj. Předepsaná čísla na hlavičce a seznam u sebe stojí dvě minuty a řeší celý problém — a pracuje se ve školním účtu se smluvní ochranou dat.
+- **Skončit u známek.** Rozbor chyb třídy je jediná část písemky, která zlepší výuku. Když se k němu nedostanete, napsali jste písemku kvůli číslu v systému.
+
+## Nejlepší nástroje
+
+- **Čtení skenů a rukopisu** — přepis a hodnocení ručně psaných prací proti klíči; funguje tím líp, čím rovnější a kontrastnější je sken.
+- **Claude Projekty** — jeden projekt na předmět s nahranými zápisky, učebnicí a bodovacími klíči z minulých písemek; kontext se nemusí opakovat.
+- **Claude Cowork** — práce nad složkou se skeny celé třídy: model prochází soubory postupně a výsledky ukládá do jednoho přehledu.
+- **Skenovací aplikace v telefonu** — rovný, kontrastní sken s číslem místo jména; kvalita vstupu rozhoduje o kvalitě všeho dalšího.
+- **Artefakty** — z rozboru chyb se dá přímo v chatu vygenerovat jednoduchý procvičovací kvíz, který promítnete nebo pošlete odkazem.
+- **Tabulka s body** — evidence bodů a stupnice patří do tabulky u vás, ne do chatu; čísla se sčítají spolehlivě jen tam, kde je počítá stroj na počítání.
+
+## Co vám to přinese
+
+- **Čas:** písemka od zadání po odevzdané známky klesá řádově z pěti hodin na jednu. U učitele se čtyřmi třídami a písemkou jednou za tři týdny je to několik večerů za pololetí.
+- **Spravedlnost:** klíč napsaný předem a kontrola konzistence napříč celou sadou odstraní rozdíl mezi tím, jak opravujete první a dvacátou práci.
+- **Kvalita zadání:** kontrola dvojznačností a distraktorů před tiskem najde v každém testu dvě tři vady, které byste jinak objevili až při opravování.
+- **Užitek z písemky:** rozbor chyb třídy vám řekne, co znovu vyložit — a to je jediný důvod, proč se písemky píší.
+
+## Pro tip
+
+Založte si **archiv písemek jako projekt**: zadání, bodovací klíče, rozbory chyb a bloky na opravu nejčastějších chyb, všechno na jednom místě a rok po roce. Po dvou letech se stane něco, co stojí za tu práci — když příště připravujete tutéž látku, můžete se zeptat „které chyby dělaly moje třídy v tomhle tématu opakovaně a co z toho plyne pro výklad“. Odpověď postavená na vašich vlastních datech je něco, co v žádné metodické příručce nenajdete.
+
+A závěrečné pravidlo, které platí nad vším ostatním: **body navrhuje stroj, známku podepisuje člověk.** Ne proto, že by to bylo předepsané, ale proto, že známka je rozhodnutí o dítěti — a rozhodnutí o dítěti se nedelegují. Před rozdáním práce se u každé zastavte aspoň na tři vteřiny a zeptejte se, jestli to číslo odpovídá tomu, co o tom žákovi víte. Když neodpovídá, má pravdu učitel.
