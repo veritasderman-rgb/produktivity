@@ -1,43 +1,450 @@
 ---
-title: "Nepamatujete si vzorec? Popište ho AI česky"
-excerpt: "„Potřebuji sečíst sloupec B, ale jen řádky, kde je ve sloupci A ‚Praha‘“ — AI vrátí přesný vzorec i s vysvětlením."
+title: "Excel a Tabulky s AI: vzorce, chyby, struktura i makra"
+excerpt: "Kompletní návod s prompty: jak popsat vzorec česky a dostat funkční řešení napoprvé, jak si nechat vysvětlit zděděný vzorec, jak ladit #REF! a #N/A, jak navrhnout tabulku, která se nerozpadne, a kdy sáhnout po makru místo vzorce."
 category: "ai"
 platform: "vsude"
-audience: ["manazer"]
+audience: ["manazer", "freelancer"]
 keys: []
-saves: "~15 min týdně"
+saves: "~2 h týdně"
 date: "2026-07-03"
 ---
 
-Hodina googlení syntaxe SUMIFS versus jedna věta česky — tohle už dnes není rovný souboj. Excel i Google Sheets mají desítky funkcí a jejich přesná syntaxe, počet argumentů a pořadí podmínek se špatně pamatují i lidem, kteří s tabulkami pracují denně. Stačí ale popsat, co chcete spočítat, běžnými slovy, a AI vzorec sestaví za vás — i s vysvětlením, proč funguje a co by se stalo, kdybyste jeho část změnili.
+Tabulky mají zvláštní vlastnost: hodinu se v nich dá bojovat s jedním vzorcem a nikomu to nepřijde divné. Přitom syntaxe funkcí je přesně ten druh znalosti, který si nikdo nemá pamatovat — pořadí argumentů v SUMIFS, jestli se rozsah píše první nebo druhý, kde jsou uvozovky a kde středník.
+
+**AI tuhle vrstvu odstraňuje: popíšete výsledek běžnými slovy a dostanete vzorec i vysvětlení, proč funguje.** Zůstává vám ta část, kterou stroj neudělá — rozhodnout, co se vlastně má počítat, a ověřit, že vrácené číslo je správné. Tomu druhému se věnuje půlka tohohle návodu, protože vzorec, který vrací číslo, ještě není vzorec, který vrací **správné** číslo.
+
+Projdeme celý okruh práce s tabulkou: jak formulovat zadání, aby vzorec sedl napoprvé, jak si nechat rozebrat cizí vzorec, který jste zdědili, jak ladit chybové hlášky, jak navrhnout strukturu sešitu, který se za půl roku nerozsype, jak si nechat provést kontingenční tabulkou a kdy místo vzorce sáhnout po makru. Každá část má prompty k okopírování; stačí doplnit hranaté závorky.
 
 ## Vzorová situace
 
-Vedoucí týmu potřebuje ve výkazu sečíst tržby jen za pobočku Praha, ale u stovek řádků a rozjetých filtrů ztrácí přehled, jak spojit SUMIFS se dvěma podmínkami. Bez tipu: patnáct minut hledání na fóru a kopírování cizího vzorce, který napůl nesedí na jeho sloupce, protože má jiné názvy a pořadí. S tipem napíše AI jednu větu s názvy sloupců a dostane hotový, funkční vzorec přesně pro svou tabulku — a rovnou i vysvětlení, proč zrovna tahle kombinace funkcí dělá to, co potřebuje.
+Petr vede provoz pěti poboček a jednou měsíčně skládá výkaz: tržby, náklady, počty zákazníků, srovnání s plánem. Data mu chodí v pěti exportech s trochu jinými hlavičkami. Skládání zabere půl dne, přičemž samotné myšlení je z toho patnáct minut — zbytek je hledání „jak se to zase píše“, opravy vzorců, které po přidání sloupce ukazují #REF!, a vyhledávání, které u tří poboček vrací #N/A, protože v jednom souboru mají názvy mezeru na konci.
 
-## Jak na to
+S AI to vypadá jinak. Zadání popíše česky včetně názvů sloupců a dostane vzorec i vysvětlení. Vyhledávání si nechá napsat rovnou s ošetřením nenalezené hodnoty a s ořezáním mezer. Když něco nesedí, vloží chybovou hlášku i ukázku dat a dostane příčinu, ne obecnou radu. Pak si nechá navrhnout strukturu sešitu tak, aby se příští měsíc jen vložila nová data a všechno se přepočítalo.
 
-1. Popište AI, co chcete spočítat, lidsky a konkrétně — včetně přesných názvů nebo písmen sloupců, například „sloupec B jsou tržby, sloupec A je pobočka“.
-2. Uveďte, v jakém programu pracujete — Excel, nebo Google Sheets; syntaxe se místy liší.
-3. Vyžádejte si i vysvětlení: „Vysvětli, co vzorec dělá, ať ho příště napíšu sám.“ Pomůže vám to vzorce postupně se učit, ne jen kopírovat.
-4. Vzorec vložte do buňky a výsledek zkontrolujte na řádku, který si umíte spočítat ručně — je to nejrychlejší způsob, jak odhalit, že vzorec počítá něco jiného, než jste chtěli.
-5. Když vzorec nefunguje, vložte AI přesnou chybovou hlášku (#N/A, #VALUE!) i s buňkou, kde se objevuje — podle toho ji rozebere a opraví.
-6. U složitějších sešitů si nechte vzorec i okomentovat přímo do buňky nebo vedlejšího sloupce, ať za měsíc víte, proč tam je a co počítá.
+Výsledek není v tom, že by se Petr stal expertem na Excel. Je v tom, že z půldne zbyla hodina — a hlavně že rozumí každému vzorci ve svém výkazu natolik, aby ho uměl obhájit i opravit.
+
+## Fáze 1: jak popsat zadání, aby vzorec sedl napoprvé
+
+### Pět věcí, které musí být v zadání
+
+Rozdíl mezi „vrátí mi to nesmysl“ a „funguje to napoprvé“ není v chytrosti modelu, ale v tom, co jste mu řekli. Do zadání patří pět věcí:
+
+- **Program a verze.** Excel a Google Tabulky se v detailech liší; starší Excel navíc neumí XLOOKUP ani dynamická pole.
+- **Kde data jsou.** Přesné názvy sloupců nebo písmena a řádek, kde začínají data. „Sloupec B jsou tržby, sloupec A pobočka, data od řádku 2.“
+- **Ukázka dat.** Tři až pět řádků. Z nich model pozná, že datum je textem nebo že částky mají mezeru jako oddělovač tisíců.
+- **Co má vyjít.** Konkrétně, ideálně na příkladu: „Pro Prahu a rok 2026 má vyjít 412 000.“
+- **Jazyk vzorce.** Česká verze Excelu má lokalizované názvy funkcí (KDYŽ, SVYHLEDAT, SUMIFS) a jako oddělovač argumentů středník. Napište, kterou verzi chcete — jinak dostanete anglickou a budete ji ručně překládat.
+
+```text
+Pracuju v [Excelu 365 / Excelu 2016 / Google Tabulkách], rozhraní
+je [české / anglické].
+
+Data mám v listu [Prodeje], hlavička je na řádku 1, data od řádku 2:
+A = pobočka (text), B = datum (formát datum), C = tržba (číslo),
+D = kategorie (text)
+
+Ukázka řádků:
+[vlož 4 řádky]
+
+Potřebuju vzorec, který spočítá: [sečti tržby pro pobočku uvedenou
+v buňce F2, ale jen za letošní rok].
+
+Chci:
+1. hotový vzorec k vložení do buňky [G2] přesně v mé jazykové verzi,
+2. vysvětlení po částech, co která funkce dělá,
+3. co se stane, když do dat přibude sloupec nebo řádek,
+4. na jakém řádku si mám výsledek ručně ověřit.
+
+Nepoužívej funkce, které moje verze nemá — když si nejsi jistý
+dostupností, nabídni i variantu pro starší Excel.
+```
+
+Vrátí vzorec připravený k vložení plus vysvětlení. Bod 3 stojí za pozornost: odpověď vám prozradí, jestli je vzorec napsaný odolně (odkazy na celé sloupce nebo na tabulku), nebo jestli se rozbije při první úpravě dat.
+
+### Nechte si nabídnout víc řešení
+
+Stejnou věc jde v tabulce spočítat několika způsoby a liší se odolností. Než se upnete na první nabídku, vyžádejte si srovnání:
+
+```text
+Potřebuju v [Excelu 365] vyřešit tohle: [popiš úlohu a sloupce].
+
+Nabídni tři různá řešení:
+1. co nejjednodušší vzorec, i za cenu menší odolnosti,
+2. odolné řešení, které vydrží přidání sloupce a překlepy
+   v datech (mezery navíc, velká písmena),
+3. řešení s modernějšími funkcemi (XLOOKUP, FILTER, LET),
+   pokud dávají smysl.
+
+U každého napiš: kdy ho použít, co ho rozbije, jak se chová při
+prázdné buňce a nenalezené hodnotě. Na konci doporuč jedno
+a zdůvodni proč — s ohledem na to, že tabulku budu měsíčně
+aktualizovat a předám ji kolegovi.
+```
+
+Vrátí tři varianty vedle sebe. Nejčastější zjištění: nejjednodušší vzorec je ten, který za měsíc spadne. A pokud vaše data žijí v běžné oblasti buněk, zvažte převod na tabulku (Ctrl+T) — vzorce pak odkazují na názvy sloupců a nové řádky se do výpočtu přidávají samy.
+
+## Fáze 2: cizí vzorec, kterému nerozumíte
+
+### Rozbor zevnitř ven
+
+Zděděný sešit s dvousetznakovým vzorcem je klasika. Nedotknout se ho je pohodlné, dokud nezačne vracet nesmysly. Nechte si ho rozebrat dřív, než ho budete potřebovat opravit.
+
+```text
+Zdědil jsem tenhle vzorec v [Excelu, česká verze] a nerozumím mu:
+
+[vlož vzorec]
+
+Kontext: je v buňce [G2] na listu [Výkaz], data jsou v [Prodeje!A:D],
+hlavička v řádku 1. Ukázka dat:
+[vlož 4 řádky]
+
+Vysvětli ho postupně zevnitř ven:
+1. rozlož ho na vnořené části a u každé napiš, co vrací
+   (na mých ukázkových datech konkrétní hodnotu),
+2. co dělá vzorec jako celek, jednou větou běžnou češtinou,
+3. jaké předpoklady o datech má — co v nich musí platit,
+   aby fungoval,
+4. za jakých okolností vrátí špatnou hodnotu, aniž by
+   zobrazil chybu,
+5. jak bych ho zapsal jednodušeji se stejným výsledkem.
+
+Nic zatím neměň v mém sešitu, jen vysvětluj.
+```
+
+Bod 4 je ten, kvůli kterému se prompt vyplatí. Tiché chyby jsou v tabulkách nebezpečnější než chybové hlášky: vyhledávání s přibližnou shodou vrátí nejbližší nižší hodnotu, sečtení oblasti o řádek kratší vrátí číslo, které vypadá normálně.
+
+### Zjednodušení, ale vždy s porovnáním
+
+Když se rozhodnete vzorec přepsat, platí jediné pravidlo: **starý a nový musí chvíli běžet vedle sebe.** Vložte nový do vedlejšího sloupce, porovnejte všechny řádky a teprve pak starý smažte.
+
+```text
+Přepiš tenhle vzorec do čitelnější podoby pro [Excel 365]:
+
+[vlož vzorec]
+
+Požadavky:
+- výsledek musí být identický pro všechny případy, včetně
+  prázdných buněk, nul a nenalezených hodnot,
+- pokud použiješ LET nebo pomocné sloupce, vysvětli, co která
+  část dělá,
+- napiš postup, jak si ověřím, že nový vzorec dává stejné
+  výsledky jako starý (kontrolní sloupec, počet neshod),
+- upozorni na případy, kdy se nový a starý vzorec můžou lišit.
+
+Nakonec navrhni komentář do buňky, který kolegovi vysvětlí,
+co vzorec počítá.
+```
+
+Vrátí přepis i kontrolní postup. Poslední bod nepodceňujte: komentář v buňce nebo krátký popis na samostatném listu je rozdíl mezi sešitem, který přežije vaši dovolenou, a sešitem, kterého se nikdo nedotkne.
+
+## Fáze 3: ladění chyb
+
+### Co která hláška znamená
+
+Chybové hlášky jsou vlastně dobrá zpráva — tabulka říká, že něco nesedí. Nejčastější příčiny v českém prostředí:
+
+- **#N/A** — hledaná hodnota nenalezena. Devětkrát z deseti mezera navíc, jiná velikost písmen, číslo uložené jako text nebo hledání ve špatném sloupci.
+- **#REF!** — odkaz na buňku, která už neexistuje: někdo smazal sloupec nebo list. Nespraví se sám, vzorec je potřeba přepsat.
+- **#VALUE!** — nesourodé typy, typicky text tam, kde má být číslo. Časté u částek zkopírovaných z webu nebo z PDF.
+- **#DIV/0!** — dělení nulou nebo prázdnou buňkou; obvyklé u výpočtu podílů, když jmenovatel ještě není vyplněný.
+- **#NAME?** — překlep v názvu funkce, nebo funkce, kterou vaše verze nezná (anglický název v české verzi).
+- **#NUM!** — nesmyslný číselný argument, například odmocnina ze záporného čísla.
+- **Mřížky místo čísla** — jen úzký sloupec, ne chyba.
+- **Kruhový odkaz** — vzorec odkazuje sám na sebe, přímo nebo přes řetěz buněk.
+
+```text
+Můj vzorec vrací chybu. Tady je všechno, co o tom vím:
+
+Vzorec: [vlož vzorec]
+Je v buňce: [G2], list [Výkaz]
+Chybová hláška: [#N/A]
+Objevuje se: [jen na některých řádcích / na všech]
+Program: [Excel 365, česká verze]
+
+Ukázka dat, na kterých to selhává (včetně řádku, který funguje):
+[vlož 5 řádků]
+
+Udělej tři věci:
+1. urči nejpravděpodobnější příčinu a vysvětli, proč zrovna tuhle,
+2. dej mi 2 další možné příčiny, které mám vyloučit, a jak je
+   rychle otestuju,
+3. napiš opravený vzorec.
+
+Neschovávej chybu funkcí IFERROR, dokud nevíme, proč vzniká.
+```
+
+Poslední věta je klíčová. Obalit vzorec ošetřením chyby je nejrychlejší způsob, jak si problém uklidit z očí a zároveň ho zakonzervovat — v součtu pak chybí tři pobočky a nikdo to nepozná.
+
+### Kdy ošetření chyby ano
+
+Ošetřit chybu má smysl, když víte, proč vzniká, a je legitimní: prázdné buňky ve formuláři, který se teprve vyplňuje, nebo položka, která v číselníku opravdu být nemusí.
+
+```text
+Vím, proč můj vzorec vrací [#N/A]: [důvod, např. položka ještě
+není v číselníku]. Chci to ošetřit tak, aby výkaz vypadal
+slušně, ale abych o problému věděl.
+
+Vzorec: [vlož vzorec]
+
+Navrhni řešení, které:
+- místo chyby zobrazí [prázdno / text „nenalezeno“ / nulu]
+  podle toho, co dává smysl pro následné součty,
+- nezakryje jiné typy chyb než ten, který čekám,
+- umožní mi vedle toho spočítat, kolik řádků do ošetření spadlo
+  (kontrolní buňka s počtem).
+
+Vysvětli, jak se ošetřená hodnota chová v součtech a průměrech.
+```
+
+Kontrolní buňka s počtem ošetřených řádků je celý trik: chyba je schovaná v tabulce, ale její množství vidíte. Když číslo přes noc vyskočí, víte, že se něco stalo se zdrojovými daty.
+
+### Vzorec počítá, ale špatně
+
+Nejzrádnější případ. Nikde chyba, jen výsledek neodpovídá realitě. Postup je vždy stejný: vezměte jeden řádek, který umíte spočítat ručně, a porovnejte.
+
+```text
+Můj vzorec nevrací chybu, ale výsledek je špatně.
+
+Vzorec: [vlož vzorec]
+Co vrací: [412 000]
+Co má vyjít: [389 500]
+Jak jsem správnou hodnotu zjistil: [ručně sečteno za březen
+z těchto řádků]
+
+Ukázka dat: [vlož 8 řádků včetně těch sporných]
+
+Najdi rozdíl: které řádky vzorec započítal navíc nebo vynechal
+a proč. Projdi zejména:
+- rozsahy, které nesedí velikostí nebo začínají o řádek jinde,
+- čísla uložená jako text a mezery v textových hodnotách,
+- data porovnávaná jako text místo jako datum,
+- absolutní a relativní odkazy při kopírování vzorce dolů,
+- skryté nebo filtrované řádky.
+
+Napiš, jak si opravu ověřím na dalších dvou řádcích.
+```
+
+Bod o absolutních odkazech řeší nejčastější tichou chybu vůbec: vzorec funguje v prvním řádku a po zkopírování dolů se posune rozsah, takže každý další řádek počítá z jiné oblasti.
+
+## Fáze 4: struktura tabulky, která vydrží
+
+### Tři principy
+
+Většina „nefunkčních vzorců“ je ve skutečnosti důsledek špatně postavené tabulky. Tři principy, které to řeší:
+
+**Oddělte vstupy, výpočty a výstup.** Ideálně na samostatné listy: list s daty, která se vkládají, list s výpočty a list, který se tiskne nebo posílá. Když je všechno v jednom, každý zásah do dat rozhodí formátování výstupu.
+
+**Jeden řádek = jeden záznam.** Žádné mezisoučty uvnitř dat, žádné sloučené buňky, žádné hodnoty schované v barvě buňky — barvu žádný vzorec nepřečte. Když potřebujete příznak, udělejte z něj sloupec.
+
+**Ať data mají typ.** Datum jako datum, číslo jako číslo. Částka zapsaná jako „12 500 Kč“ je text a nesečte se. Rozevírací seznam u kategorií zabraňuje tomu, aby vznikly „Praha“, „praha “ a „PRAHA“ jako tři různé hodnoty.
+
+```text
+Popíšu ti, co potřebuju v tabulce sledovat, a ty mi navrhni
+strukturu sešitu.
+
+Co sleduju: [např. měsíční tržby a náklady pěti poboček,
+srovnání s plánem, meziroční srovnání]
+Kdo do toho bude psát: [já a vedoucí poboček]
+Jak často: [měsíčně, data se vkládají z exportu]
+Co z toho musí vypadnout: [jednostránkový přehled pro vedení
+a graf vývoje]
+
+Navrhni:
+1. jaké listy sešit má mít a co je na kterém,
+2. u datového listu přesné sloupce: název, typ, příklad hodnoty,
+   jestli se vyplňuje ručně nebo vzorcem,
+3. kde použít ověření dat (rozevírací seznamy) a proč,
+4. které výpočty řešit vzorci a které kontingenční tabulkou,
+5. tři chyby, kterých se s touhle strukturou vyvaruju.
+
+Uveď i to, co v mém zadání chybí a na co se mě musíš zeptat.
+```
+
+Vrátí návrh, který má cenu probrat dřív, než začnete plnit data. Poslední řádek promptu je důležitý — modely rády navrhnou strukturu na míru tomu, co si domyslely, místo toho, co potřebujete.
+
+### Úklid tabulky, kterou jste zdědili
+
+```text
+Mám tabulku, která vznikala roky a je v ní nepořádek. Struktura
+a ukázka:
+
+[vlož hlavičku a 10 řádků]
+
+Problémy, kterých jsem si všiml: [sloučené buňky, mezisoučty
+mezi daty, datum jako text, tři varianty názvu téže pobočky]
+
+Napiš mi plán úklidu:
+1. co opravit a v jakém pořadí, aby se cestou nic nerozbilo,
+2. u každého kroku konkrétní postup v [Excelu] — funkce nebo
+   nástroj, který na to použiju,
+3. jak před každým krokem ověřím, že se nezmění součty
+   (kontrolní součet před a po),
+4. co udělat, aby stejný nepořádek nevznikl znovu.
+
+Předpokládej, že pracuju na kopii souboru.
+```
+
+Vrátí postup krok za krokem. Ta poslední věta by měla platit vždycky: **úklid dělejte na kopii** a originál si nechte, dokud kontrolní součty nesedí. Na sjednocení variant názvů se hodí i nástroje samotného Excelu, například odebrání duplicit nebo text do sloupců.
+
+## Fáze 5: souhrny a kontingenční tabulky s návodem
+
+Když se ptáte „kolik dohromady za pobočku a měsíc“, je otázka, jestli psát vzorce, nebo udělat [kontingenční tabulku](/tipy/excel-kontingencni-tabulka). Hrubé pravidlo: jednorázový souhrn a průzkum dat patří do kontingenčky, opakovaný výpočet, který má být v sestavě na pevném místě, patří do vzorců.
+
+```text
+Mám tato data v [Excelu 365, česká verze]:
+sloupce [A pobočka, B datum, C kategorie, D tržba, E náklad],
+[3 200] řádků, data od řádku 2.
+
+Chci souhrn: [tržby a marže po pobočkách a měsících,
+plus podíl každé kategorie].
+
+Napiš mi:
+1. návod na kontingenční tabulku krok za krokem — kam kliknout,
+   co přetáhnout do řádků, sloupců, hodnot a filtrů,
+2. jak nastavit, aby se datum seskupilo po měsících,
+3. jak přidat počítané pole pro marži,
+4. jak tabulku naformátovat, aby byla čitelná (čísla, procenta,
+   pryč se součty, které nedávají smysl),
+5. co udělám, když přibudou nová data — jak se to aktualizuje.
+
+Pak napiš, jak bych stejný výsledek udělal vzorci, a řekni,
+která cesta je pro měsíčně opakovaný výkaz lepší a proč.
+```
+
+Vrátí návod, který jde následovat s otevřeným Excelem. Bod 5 je ten, na kterém většina kontingenček umírá: když data nejsou v tabulce (Ctrl+T) nebo v pojmenované oblasti, nová data se do souhrnu nedostanou a nikdo si toho nevšimne.
+
+Pro vyhledávání napříč listy se vyplatí naučit jednu funkci pořádně — [XLOOKUP](/tipy/excel-xlookup) nahradí většinu situací, kde se dřív skládal VLOOKUP s dopočítáváním pořadí sloupce.
+
+```text
+Potřebuju do listu [Výkaz] doplnit ke každému řádku [název
+produktu a marži] z listu [Ceník], kde je klíčem [kód produktu].
+
+Data:
+Výkaz: A = kód produktu, B = množství, data od řádku 2
+Ceník: A = kód, B = název, C = nákupní cena, D = prodejní cena
+
+Napiš vzorec pro [Excel 365, česká verze], který:
+- najde hodnotu podle kódu bez ohledu na mezery navíc
+  a velikost písmen,
+- vrátí čitelnou hlášku, když kód v ceníku není,
+- půjde zkopírovat dolů bez posunu odkazů na ceník,
+- bude fungovat i po přidání sloupce do ceníku.
+
+Vysvětli, proč jsi zvolil zrovna tuhle funkci, a napiš, jak
+si ověřím, že se spárovaly všechny řádky.
+```
+
+Poslední věta je kontrola, kterou byste jinak vynechali: stačí spočítat, kolik řádků vrátilo hlášku o nenalezení, a porovnat s počtem řádků celkem.
+
+## Fáze 6: kdy vzorec, kdy makro a kdy skript
+
+### Rozhodovací pravidlo
+
+- **Vzorec** — počítá nad daty, která jsou v sešitu, a přepočítá se sám. Většina úloh.
+- **Makro (VBA) nebo Apps Script** — opakovaná manipulace se sešitem: formátování dvaceti listů, spojení pěti souborů, měsíční archivace, rozeslání. Tam, kde byste dělali totéž klikání každý měsíc.
+- **Externí skript (Python)** — velký objem dat, opakované zpracování mimo sešit, propojení víc zdrojů. Podrobněji v tipech [malé skripty bez programování](/tipy/ai-skripty-pro-nevyvojare) a [analýza dat s AI](/tipy/ai-analyza-dat).
+
+Makra jsou mocná a nebezpečná zároveň: na rozdíl od vzorce mění soubory a některé kroky nejdou vrátit zpět. Proto platí tvrdé pravidlo — **makro se testuje na kopii dat, nikdy na originálu**, a před ostrým během se dělá záloha.
+
+```text
+Napiš mi makro (VBA) pro Excel, které udělá tohle:
+[spojí data ze všech listů v sešitu do jednoho listu „Souhrn“,
+přidá sloupec s názvem zdrojového listu a seřadí podle data]
+
+Struktura listů: [hlavička na řádku 1, stejné sloupce A-E,
+počet řádků se liší, listy se jmenují podle poboček]
+
+Bezpečnostní požadavky:
+- makro nic nemaže a nepřepisuje původní listy,
+- výsledek zapisuje do nového listu; když už existuje, ať se
+  zeptá, ne přepíše,
+- na začátku ať zkontroluje, že listy mají očekávanou hlavičku,
+  a když ne, ať skončí s hláškou,
+- na konci vypíše, kolik řádků z kolika listů zpracovalo.
+
+Ke každému bloku napiš český komentář. Pak napiš návod, jak
+makro vložím a spustím, a jak ho otestuju na kopii souboru.
+```
+
+Vrátí makro i s návodem na vložení. Než ho pustíte na ostrý soubor, projděte kontrolu z posledního bodu: kolik řádků se zpracovalo. Když číslo nesedí s tím, co čekáte, makro nespouštějte znovu — nejdřív zjistěte proč.
+
+V Google Tabulkách je obdobou Apps Script. Užitečný je hlavně na opakované rutiny, ale platí u něj stejná opatrnost — a navíc zásada **AI navrhuje, člověk schvaluje**: cokoli, co odesílá e-maily nebo maže data, musí odsouhlasit člověk.
+
+```text
+Napiš Apps Script pro Google Tabulky, který jednou měsíčně
+[zkopíruje list „Aktuální“ do archivního listu pojmenovaného
+podle měsíce a vyčistí vstupní pole pro nový měsíc].
+
+Požadavky:
+- archivní list nikdy nepřepisuj; když už existuje, přidej
+  k názvu pořadové číslo,
+- vyčisti jen buňky [B2:B20], vzorce a nadpisy nech být,
+- před smazáním čehokoli si vyžádej potvrzení v dialogu,
+- zapiš do listu „Log“ řádek s datem, kdo skript spustil
+  a kolik buněk se vyčistilo,
+- nic neodesílej e-mailem, jen připrav text do buňky.
+
+Napiš návod, jak skript vložím, jak ho poprvé spustím ručně
+a jak si ho případně naplánuju. Zdůrazni, co si mám před
+prvním ostrým během zálohovat.
+```
+
+Poslední bod v požadavcích je záměrný. Odesílání pošty nechte na sobě: skript ať připraví text, odeslání odklikne člověk. Automat, který sám rozesílá tabulky vedení, je pohodlný přesně do dne, kdy pošle špatná čísla.
+
+## Fáze 7: kontrola a předání
+
+### Návyky, které chytí chybu dřív než šéf
+
+Tři kontroly, které zaberou minutu a odhalí většinu problémů. **Ruční přepočet jednoho řádku** — vzít případ, který umíte spočítat z hlavy, a porovnat. **Kontrolní součet** — součet dílčích částí se musí rovnat celku; když ne, něco se počítá dvakrát nebo vůbec. **Krokování vzorce** — nástroj Vyhodnotit vzorec v Excelu ukáže mezivýsledky po částech, takže vidíte, kde se to láme.
+
+```text
+Chystám se předat tenhle sešit kolegovi a chci, aby v něm
+neudělal škodu. Popis sešitu:
+
+Listy: [výčet a co je na kterém]
+Klíčové vzorce: [vlož 3-5 vzorců a kde jsou]
+Co se každý měsíc mění: [vkládají se nová data do listu Data]
+
+Připrav mi:
+1. text na list „Jak to funguje“ — stručně: odkud jsou data,
+   co se počítá kde, co se každý měsíc dělá, čeho se nedotýkat,
+2. seznam míst, kde se sešit nejspíš rozbije, když do něj
+   někdo zasáhne (přidání sloupce, seřazení, vložení řádku),
+3. návrh, které buňky zamknout a proč,
+4. tři kontroly, které má nový uživatel udělat po každé
+   aktualizaci dat, aby poznal, že je něco špatně.
+
+Piš pro člověka, který Excel používá běžně, ale vzorce nepíše.
+```
+
+Vrátí dokumentaci, kterou vložíte jako list do sešitu. Je to deset minut práce, které ušetří telefonáty v době, kdy budete na dovolené.
+
+## Nejčastější chyby
+
+- **Kopírovat vzorec bez kontroly na známém řádku.** Vzorec, který vrací číslo, ještě nevrací správné číslo — ověřte ho na případu, který umíte spočítat ručně.
+- **Neuvést verzi a jazyk.** Anglické názvy funkcí v české verzi vrátí #NAME?, moderní funkce ve starším Excelu nefungují vůbec.
+- **Zakrýt chybu ošetřením dřív, než víte, proč vzniká.** Z chybějících hodnot se stane tichý výpadek v součtech.
+- **Spustit makro na originálu.** Manipulaci se soubory nejde vždycky vzít zpět; testuje se na kopii a se zálohou.
+- **Nahrát do chatu sešit s osobními nebo citlivými firemními údaji.** Na odvození vzorce stačí struktura a vzorová data; skutečné hodnoty nahraďte a používejte placený účet se smluvní ochranou dat.
+- **Nechat si „vylepšit“ vzorec, kterému nerozumíte.** Když neumíte vysvětlit, co dělá, nepoznáte ani chvíli, kdy začne dělat něco jiného.
 
 ## Nejlepší nástroje
 
-- **ChatGPT / Claude / Gemini** — popíšete zadání česky, dostanete vzorec i vysvětlení, funguje pro Excel i Sheets bez rozdílu.
-- **Microsoft Copilot v Excelu** — pokud máte Microsoft 365, ptáte se přímo v tabulce a Copilot vzorec i sám doplní na správné místo.
-- **Nápověda funkcí v samotném programu** — pro rychlé ověření, jaké argumenty funkce očekává, když si nejste jistí, co vám AI vrátila.
-- **Fórum nebo komunita okolo Excelu/Sheets** — jako druhá pojistka u opravdu neobvyklých zadání, kde by se hodil pohled zkušeného člověka.
+- **ChatGPT, Claude nebo Gemini** — popis zadání česky, vzorec i vysvětlení; zvládne Excel i Tabulky, vysvětlí cizí vzorec a navrhne strukturu sešitu.
+- **Microsoft Copilot v Excelu** — pokud máte Microsoft 365: ptáte se přímo nad daty bez kopírování a vzorec se rovnou vloží.
+- **Gemini v Google Tabulkách** — totéž pro Workspace, včetně generování Apps Scriptu.
+- **Vyhodnotit vzorec a okno kukátka v Excelu** — vestavěné ladicí nástroje; ukážou mezivýsledky, když vzorec vrací nesmysl.
+- **Nápověda funkcí v samotném programu** — nejrychlejší ověření, jaké argumenty funkce ve vaší verzi čeká.
 
 ## Co vám to přinese
 
-- **Čas:** patnáct minut hledání a ladění vzorce se zkrátí na minutu popisu a kontroly.
-- **Nervy:** konec frustrace ze zapomenuté syntaxe, chybějících středníků a špatně spočítaných rozsahů.
-- **Nižší chybovost:** hotový vzorec s vysvětlením snáz zkontrolujete, než když ho opisujete odjinud bez porozumění, proč vlastně funguje.
-- **Znalosti navíc:** postupně se učíte, protože AI zadání vysvětluje, ne jen řeší — příště si podobný vzorec sestavíte sami.
+- **Čas:** vzorec, který jste hledali čtvrt hodiny na fóru, vznikne za minutu — a měsíční výkaz z půldne na hodinu, když má tabulka pořádnou strukturu.
+- **Peníze:** chyby ve výkazech mají cenu; tichá chyba ve vyhledávání dokáže rozhodit celý měsíční souhrn.
+- **Klid:** chybová hláška přestane být záhadou — víte, co znamená a co se s ní dělá.
+- **Znalosti:** protože si necháváte vysvětlovat, po pár měsících podobný vzorec napíšete sami a AI použijete jen na to složité.
 
 ## Pro tip
 
-Stejně dobře funguje ladění existujících vzorců — vložte rozbitý vzorec s otázkou „proč vrací #N/A?“ a přidejte ukázku dat, na kterých selhává. Pokud jde o tabulku s citlivými firemními čísly, nahraďte konkrétní hodnoty vzorovými se stejnou strukturou — pro odvození vzorce obvykle stačí vědět, jak jsou data uspořádaná, ne znát jejich skutečný obsah.
+Založte si v sešitu list **Vzorce** a do něj si u každého netriviálního vzorce ukládejte tři věci: samotný vzorec, jednu větu česky, co počítá, a řádek, na kterém jste ho ověřili. Vypadá to jako zbytečná práce ve chvíli, kdy vzorec píšete — a je k nezaplacení za půl roku, když se výkaz rozejde s účetnictvím a vy hledáte, které číslo lže.
+
+A závěrečné pravidlo: **do sešitu, který někomu pošlete, nesmí vzorec, který neumíte vysvětlit jednou větou.** Když to nejde, nechte si ho rozebrat promptem z druhé fáze — nebo ho nahraďte třemi jednoduššími kroky v pomocných sloupcích. Tabulka, které rozumíte, je vždycky lepší než tabulka, která je elegantní.
