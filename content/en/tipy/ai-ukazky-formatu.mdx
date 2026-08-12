@@ -1,44 +1,427 @@
 ---
-title: "Show AI an example and you'll get exactly that"
-excerpt: "The most reliable way to get the right format out of AI: paste one finished example and say “like this.”"
+title: "Show AI a sample: the complete guide to working with examples"
+excerpt: "A complete guide with prompts: why one example is worth a thousand words of instructions, when one is enough and when to give three, ready-made templates for tables, meeting notes, emails, and posts, and how to build your own style bank for consistent output."
 category: "ai"
 platform: "vsude"
 audience: []
 keys: []
-saves: "~10 min a day"
+saves: "~20 min a day"
 date: "2026-07-02"
 ---
 
-Describing a format in words is hard. Showing it is easy. When you write "make it concise and professional," AI pictures concise and professional differently than you do. When you paste one finished example instead and say "like this," there's no room for misunderstanding — AI can see exactly the length, tone, and structure you want.
+Describing a format in words is hard. Showing it is easy. Write “concise and professional” and you get whatever the model pictured under those words — a different length, different headings, a different tone. Send the exact same request but attach one finished piece of text and say “like this,” and the misunderstanding disappears. **One pasted example carries more information than a paragraph of instructions, because it also carries what you could never describe: sentence rhythm, the level of politeness, where a bullet point belongs and where a full sentence does.**
+
+The technical name for this is few-shot — learning from a handful of examples. In plain terms: you show what you want instead of describing it. It's the cheapest prompting technique there is, and also the most underrated, because it looks like cheating. It isn't. It's a way of handing the model your own standard instead of the average one it learned from the internet.
+
+This guide walks the whole path: from the first pasted example, through deciding when one is enough and when you need three, through ready-made templates for the four most common formats, to a style bank you can just copy from. Every phase comes with prompts you can copy — fill in the brackets. And one rule holds over the whole text: **the sample you paste in must be stripped of sensitive data** — replace client names, contract numbers, and internal figures with made-up values in the same shape.
 
 ## A typical scenario
 
-Tereza, a marketer, writes a weekly summary for leadership. When she just tells AI "write me a summary of the week," she gets a generic text she has to rewrite from scratch — different headings, different paragraph lengths, missing the numbers table leadership expects. Fixing the format takes almost as long as writing the summary herself.
+Tereza does marketing at a thirty-person company and sends leadership a weekly summary. The format has been fixed for years by habit: a short header with three numbers, four sections by channel, one paragraph per section plus a “what's next” bullet, a table at the end. When she asked AI to “write a weekly summary from this material,” she got a text she had to completely rebuild: different headings, paragraphs twice as long, no table, and an opening sentence about how “the past week was a very busy one for our company.” Rewriting it took almost as long as writing the summary from scratch. After three tries she gave up.
 
-When she instead pastes an older, approved summary and writes "write this week's summary in the same structure," she gets a text with the right headings, the right paragraph length, and the table in the right place from the start. All that's left is filling in this week's numbers.
+The change came with one step: instead of describing the format, she pasted an older, leadership-approved summary into the request. She wrote “here's my summary from last month, here's this week's material, do it in the same structure and the same tone.” The output had the right headings, the right paragraph length, the table in the right place — all that was left was filling in two numbers the model had no way to know.
 
-## How to do it
+A month later she went one step further. She picked three summaries from different periods, saved them in a folder of samples, and had a style manual pulled out of them — a list of rules describing the examples. She uploaded that into a project as persistent context. Today she writes requests like “this week's summary, material below” and the format holds on its own. Forty minutes became twelve — and, more importantly, her reports look the same even when she's writing them rushed on a train.
 
-1. Find one finished output that has exactly the format you want — an old meeting note, an email, a report, a product description, a review.
-2. Paste it into the conversation with AI and write: "Here's the notes from last week's meeting. Write today's meeting notes from this transcript in the same structure and tone."
-3. Add the new input (transcript, numbers, notes) — AI will fit it into the pattern instead of inventing its own.
-4. If the result still feels slightly off, name the specific deviation: "shorter headings," "no bullet points in the intro."
-5. Two or three examples work even better than one — AI can tell what's constant across the document (structure, tone) from what varies (the actual content), and it stops accidentally copying details that should change.
-6. If the example contains sensitive information (client names, contract numbers, internal data), anonymize it before pasting it in — replace it with made-up values that keep the same format.
+## Phase 1: why an example beats an instruction
+
+### What the model reads out of an example
+
+When you paste finished text into a request, the model doesn't just read the words. It reads **structure** (how many sections, in what order, where the headings sit), **length ratios** (how long the intro is relative to the body, how many sentences per paragraph), **register** (formal you, level of politeness, whether it's written in first person), **vocabulary** (whether you say “client” or “customer,” “meeting” or “call”), and **formatting conventions** (how you write dates, amounts, names, what bullet points look like).
+
+You'd need half a page to describe all of that — and you'd still forget half of it, because people aren't aware of their own style. An example delivers it all at once, and precisely.
+
+What the model can't read out of an example, on the other hand, is **intent**. It can't tell which elements are mandatory and which are incidental. If your sample mentions the third quarter, it'll happily talk about the third quarter in the new text too. If the sample has three bullet points, it'll produce three even where five would be right. That's exactly why an example needs a short instruction alongside it — not about the format, but about **what should change and what shouldn't**.
+
+### When one example is enough and when to give three
+
+The decision is simple, and it's worth taking seriously, because pasting three samples where one would do is wasted effort.
+
+**One example is enough** when the format is fixed and repeats without change (a weekly report, meeting notes on a company template, a product description for a store), when the sample is short and clear, or when it's a one-off task where what you care about is mainly the shape.
+
+**Three examples pay off** when the content varies a lot between cases but the form should stay the same — across three different sets of meeting notes, the model learns that “sales meeting” in the heading is a variable, not a constant. It also pays off when the style has subtle traits that can't be told apart from coincidence in a single example, and above all **when you've noticed the model copying a specific detail from a single example**. That's the classic symptom: a name or number from the template shows up in the new text. Three samples fix that, because the differences between them show what's variation.
+
+More than three or four examples usually doesn't help. It lengthens the request, eats attention, and the gain over three is small. The exception is short tasks like “convert it like this,” where an example is one line — there, ten is fine.
+
+### The first prompt: one example plus new material
+
+```text
+Here's an older [set of meeting notes] of mine that has
+exactly the shape I want:
+
+--- EXAMPLE ---
+[paste the whole finished document]
+--- END OF EXAMPLE ---
+
+And here's the new material for today:
+
+--- MATERIAL ---
+[paste transcript / notes / bullet points]
+--- END OF MATERIAL ---
+
+Produce a new [document] from the material, in the same
+structure, length, and tone as the example. Rules:
+- structure, section order, and phrasing style are taken
+  from the example,
+- all content comes exclusively from the material,
+- no specific detail from the example (names, dates, numbers,
+  projects) may appear in the new document,
+- where the material has nothing for a section, keep the
+  heading and write “no record” under it — don't invent
+  anything,
+- keep each section's length roughly matching the example.
+```
+
+You'll get back a document that looks like it's from you. Check two things: whether a detail from the example slipped into the text (most often a name or a date), and whether sections with no material really did stay empty instead of getting a plausible-sounding fill-in. Marking the example and the material off with separators isn't cosmetic — without it, the model occasionally treats the material as the example and vice versa.
+
+## Phase 2: what makes a good example
+
+### Pick a typical piece, not your best one
+
+The most common mistake when choosing a sample: people reach for the best piece of writing they've ever produced. But that one's usually the longest, the most polished, and the least typical — and the model will build an inflated version of everything else on top of it.
+
+Take the **median, not the maximum**. The sample should be what you want to receive routinely: typical length, typical level of detail, typical tone. If your template has a “short” and a “long” variant, keep both in your bank and specify which one you want in the request.
+
+The second criterion is completeness. The sample should contain every element that's supposed to show up — if it's missing a table because that particular week didn't need one, the model will skip the table in the new document too. When you don't have an ideal piece on hand, assemble one: take the best header from one document, the table from another, and stitch them together. A sample doesn't have to be a text you actually sent.
+
+### Anonymizing a sample
+
+Samples are often the most sensitive thing you have — a real email to a client, meeting notes with names in them, a report with revenue figures. **Anonymize them once, thoroughly, and from then on use only the anonymized version.** Replace with values in the same shape, not with the word “company”: a short name with a short name, a seven-digit number with a seven-digit number, a date with a date. The format has to stay readable, or you lose half the benefit.
+
+```text
+Here's my [document type], which I want to use as a format
+sample when working with AI. I need a safe version of it.
+
+[paste document]
+
+Replace all sensitive and identifying details with made-up
+values:
+- names of people, companies, projects, and products,
+- email addresses, phone numbers, contract and order numbers,
+- specific amounts and revenue figures (keep the same order
+  of magnitude),
+- internal abbreviations and system names.
+
+Replacement rules:
+- the replacement must match the original's shape and length,
+- replace the same detail the same way everywhere in the
+  document,
+- structure, phrasing, tone, and length stay unchanged — don't
+  edit the text in any other way,
+- at the end, list a table: what was replaced with what, and
+  how many times.
+
+If you're not sure whether a detail is sensitive, replace it
+anyway and note it in the table.
+```
+
+You'll get back a usable sample plus a list of replacements. Go through the list — it's the only check that nothing was missed. What typically survives is a detail buried mid-sentence, or one hiding in an image caption. And the general rule applies: if the document contains personal data or trade secrets, do this work in a paid account with contractual data protection, not in a free chat.
+
+### Annotating a sample: what's constant and what's variation
+
+Three examples show the difference between constant and variation on their own. With a single example, you have to say it — and the fastest way is to have those rules extracted from the examples and then just correct them.
+
+```text
+Here are three of my [document type] from different periods:
+
+--- EXAMPLE 1 ---
+[paste]
+--- EXAMPLE 2 ---
+[paste]
+--- EXAMPLE 3 ---
+[paste]
+
+Don't write anything yet, just analyze them. Give me:
+1. What all three have in common — structure, section order,
+   typical lengths, heading format, how dates and numbers are
+   written.
+2. What differs between them — i.e. what's the variable that
+   changes from case to case.
+3. Vocabulary: which words and phrasings I use repeatedly, and
+   which I never use (typical substitutions).
+4. Register: formal or informal you, person, level of
+   politeness, sentence length.
+5. Things that look like a rule but might be coincidence — mark
+   them separately so I can confirm or reject them.
+
+Output as a list of rules, each one sentence, in the
+imperative, so it can be used as an instruction.
+```
+
+This is the most useful prompt in the whole guide. You'll get back a style manual for your own writing — usually ten to twenty rules, half of which you'd never have named yourself. Go through point 5 carefully: the model likes to promote coincidence into a rule (“every document opens with a three-sentence summary” held true twice out of three). Edit and save the resulting list — it's the core of your style bank.
+
+## Phase 3: four format templates
+
+### Tables and structured output
+
+For tables and structured data, an example is irreplaceable: describing in words how a column should look, how numbers get rounded, and what goes in an empty cell takes more space than the example itself.
+
+```text
+I want to turn my material into a table. Here's the format,
+shown as one finished row including the header:
+
+Project | Status | Due | Owner | Risk (1-3) | Note
+Website migration | in progress | 3/14 | J. Smith | 2 | waiting on copy from client
+
+Rules that aren't visible from the example alone:
+- Status can only be: in progress / waiting / done / stopped.
+- Due: month/day format, no year, “—” for anything undated.
+- Owner: first initial and last name.
+- Risk: 1 is low, 3 is high; if the material gives no basis
+  for it, write “?” and don't guess.
+- Note: 8 words maximum, factual, no judgment calls.
+- Sort descending by risk, then by date within ties.
+
+Material:
+[paste notes, meeting minutes, emails]
+
+Return just the table, no commentary before or after. Don't
+fill in what isn't in the material — leave “?” and add a list
+of what's missing at the end.
+```
+
+You'll get back a table you can drop straight into a document. Watch the risk column especially: if you don't ban guessing, the model will fill in every risk score, even where it has no basis for one — and a guess looks exactly like a figure drawn from the material.
+
+### Meeting notes
+
+For meeting notes, an example is unusually effective, because the format of meeting notes is pure convention — every company does it differently, and no variant is objectively better. For the full task, see [meeting notes with AI](/tipy/ai-zapis-z-porady); here the focus is on making sure they look like yours.
+
+```text
+Here are two of my older sets of meeting notes. I want a new
+set of notes in the same shape.
+
+--- NOTES A ---
+[paste]
+--- NOTES B ---
+[paste]
+
+--- MATERIAL FOR THE NEW NOTES ---
+[paste transcript or notes]
+
+Requirements:
+- Structure, headings, and how action items are written,
+  exactly as in A and B.
+- Write action items in the same shape as the examples (who,
+  what, by when) and only include ones that were actually
+  stated as a commitment in the material, not as an idea.
+- Summarize the discussion, don't transcribe it — keep the
+  same length ratio as the examples.
+- Where the material is missing a deadline or an owner, write
+  “not agreed” instead of guessing.
+- Don't mention anything that isn't in the material, and no
+  general conclusions.
+- At the end, add a “to verify” section with points where you
+  weren't sure what was said in the transcript.
+```
+
+You'll get back notes in your own shape. The “to verify” section is the most valuable part — transcripts of meetings are exactly where who-promised-what gets lost. And **AI proposes, the human approves** still applies: notes sent out without being read is how an inaccuracy gets locked into a company's institutional memory.
+
+### Email
+
+With emails, register decides everything, not structure — and register is exactly what's hardest to describe. Pick your samples by relationship to the recipient, not by topic: one sample for a client, another for a vendor, another for a colleague.
+
+```text
+Write an email. Take the tone and length from this sample of
+mine — it's an email to a similar recipient in a similar
+situation:
+
+--- SAMPLE ---
+[paste your own email, ideally 10-20 lines]
+--- END OF SAMPLE ---
+
+New email:
+- To: [role and relationship, e.g. a long-standing client,
+  formal you]
+- Situation: [what happened]
+- What I want the recipient to do: [specific step and
+  deadline]
+- Facts that must appear: [list]
+- What must not be mentioned: [list]
+
+Rules:
+- Length at most that of the sample, shorter is fine.
+- Subject line in the same style as the sample.
+- No apologetic filler and no promises not backed by the
+  facts.
+- Take the signature and greeting from the sample.
+
+Write the email directly, no commentary. Then, separately,
+write what the recipient might understand differently than I
+intend.
+```
+
+You'll get back an email in your tone plus a short clarity check. The most common flaw: the model adds a courtesy commitment (“I'll let you know by the end of the week”) you never promised. Before you send, read the whole thing yourself — a person always sends, doubly so for email.
+
+### A social media post
+
+Here, three examples are close to mandatory. A post's style rests on rhythm — the length of the opening sentence, where the line breaks fall, whether emoji show up, how many hashtags — and a single example doesn't tell the model what's system and what's coincidence in that one post.
+
+```text
+Here are three of my posts on [platform] that performed well:
+
+--- POST 1 ---
+[paste]
+--- POST 2 ---
+[paste]
+--- POST 3 ---
+[paste]
+
+Write a new post derived from them on this topic:
+[topic and the key piece of information it must contain]
+
+Stick to what my posts have in common:
+- the same opening-sentence structure,
+- the same length (stay within the range of my three posts,
+  by character count),
+- the same treatment of line breaks,
+- the same number and style of hashtags, or none at all,
+- the same level of emoji use as my posts, not more.
+
+Don't use phrasing that isn't in my posts (no “and that's not
+all,” “game changer,” or similar). Don't copy specific numbers
+or examples from my posts.
+
+Write three variants that differ only in the opening sentence,
+keep the rest the same.
+```
+
+You'll get back three variants to choose from. The most common failure: the model slides into a generic marketing rhythm — short sentence, colon, three bullets, a question at the end. When that happens, add an explicit ban to the request and note that sentence rhythm has to match the samples. If the chosen variant only partly fits, fine-tune it through iteration, see [the guide to iterating](/tipy/ai-iterace).
+
+## Phase 4: a style bank
+
+### What belongs in the bank
+
+A style bank is a folder or document holding your anonymized samples. It's not an archive of everything you've ever written — it's a small, maintained collection you copy from. Ten to fifteen entries covers ordinary work.
+
+Organize it **by situation, not by topic**. Not “Project Alpha samples,” but “email to a client: bad news,” “email to a client: proposal,” “meeting notes,” “weekly report,” “social post,” “internal documentation note.” An entry's name should match how you'll search for it when you need it.
+
+For each entry, jot down three lines: when it's used, what changes in it, and what matters about it. That saves you half a year of wondering why you saved that particular text.
+
+When you don't have a sample for a given situation, and nothing to anonymize either, you can build one — not by having it write the whole thing, but by correcting a draft:
+
+```text
+I need to set up a sample for [document type], but I don't
+have a finished one. Produce a draft I'll correct.
+
+Context:
+- Who reads it: [role, how much time they have, what they'll
+  do with it]
+- What it's for: [purpose]
+- How often it's produced: [frequency]
+- What must always be in it: [list]
+- What must never be in it: [list]
+- How long it should be: [range]
+
+Produce two versions on made-up but realistic data: one
+shorter, one more detailed. For each one, explain in three
+points why the structure is what it is and what would happen
+if I dropped a given section.
+
+Use [informal/formal you] and [first person/neutral phrasing].
+```
+
+You'll get back two drafts to build your first sample from. Don't take either as-is — rewrite it in your own words and use it for a month. Only a sample that's been through real use is worth saving; an unused sample tends to run two sections longer than it needs to be in practice.
+
+### A style manual, and where to keep it
+
+Samples are raw data; a style manual is their distillate. Build it with the prompt from Phase 2, and it's useful everywhere you don't want to paste in whole examples — mainly in persistent settings.
+
+Three places it belongs. A **project with persistent context** is the best choice for recurring tasks: upload the samples and the manual once, and every conversation in the project knows them, see [projects and persistent context](/tipy/ai-projekty-kontext). **Custom instructions** suit rules that should apply always and everywhere — date format, formal you, banned phrasing; in depth in [custom instructions](/tipy/ai-vlastni-instrukce). A **plain folder or note** remains the base layer for cases where you paste a sample in by hand into a one-off request.
+
+Don't try to cram everything into instructions. Instructions work for general rules, but a specific format is better held by a pasted sample — for a task you actually care about, paste the sample even if you have a manual.
+
+### Maintenance: when to swap out a sample
+
+A bank without upkeep gets stale and starts to hurt, because it holds onto a style you've outgrown. Swap a sample in three situations: when you've made the same manual fix across the last three outputs (that fix belongs in the sample), when a convention has changed — a new internal name, a different report structure — and when the recipient has changed.
+
+A natural rhythm is to go through the bank once a quarter and ask, for each entry: have I used this since last time? If this text landed in my inbox, would I be glad to see it? What did I last correct by hand in it? Delete an entry you haven't used in six months — the bank gets faster to search.
+
+## Phase 5: consistency for recurring tasks
+
+### Checking a match against the sample
+
+For documents someone reads on a regular basis, consistency is half the value. The check is mechanical work, and it can be handed off.
+
+```text
+Here's my reference sample and here's an output produced from
+it. Compare them and return an overview of deviations.
+
+--- SAMPLE ---
+[paste]
+--- OUTPUT ---
+[paste]
+
+List in four groups:
+1. Structural deviations: missing or extra sections, different
+   order, different heading levels.
+2. Formatting deviations: different way of writing dates,
+   numbers, names, units, different bullet style, different
+   paragraph length (say by how much).
+3. Vocabulary and tone deviations: words and phrases the
+   sample doesn't use, a shift in person or level of
+   politeness.
+4. Content in the output that has no basis in the material —
+   especially numbers, deadlines, and commitments.
+
+For each deviation, cite the passage and add one sentence on
+whether it's a problem or just an allowed variation. Don't fix
+anything.
+```
+
+You'll get back a list of findings, usually shorter than you'd expect — and group 4 is the reason it's worth running this prompt even when the format looks fine. The ban on fixing things is intentional: you want to decide for yourself which deviations are a flaw and which are an improvement worth folding back into the sample.
+
+### When the sample and the instruction fight each other
+
+Sometimes an output matches neither the sample nor your instruction. The cause is almost always simple: the instruction says something the sample contradicts. You wrote “keep it short, under ten lines,” but the pasted sample runs thirty. The model has to sacrifice something, and you don't know what.
+
+```text
+I gave you this sample:
+[paste sample]
+
+And this instruction:
+[paste instruction]
+
+Before you write anything: list every place where the sample
+and the instruction contradict each other. For each conflict,
+say what the sample implies, what the instruction says, and
+which one you'd lean toward if I didn't decide.
+
+Then ask me to decide on the conflicts that change the result
+the most. Only write the text after I answer.
+```
+
+You'll get back a list of conflicts — and very often you'll realize the conflict was in your own head, not in the request. General rule: **in a conflict, the instruction wins, because it's the current one** — but if you keep hitting the same conflict, the fix belongs in the sample instead.
+
+### One bank for the whole team
+
+The last step worth taking at a company level: samples aren't just yours personally. When the team keeps them in a shared place, people stop each inventing their own version of meeting notes, and a new hire learns the format in an afternoon — paste in the sample and they're done. A shared bank is also the cheapest documentation of “how we write things here” you can have; nobody has to write it, finished pieces just get filed into it.
+
+## Common mistakes
+
+- **Describing the format instead of showing it.** Half a page of instructions like “professional, concise, structured” gives a worse result than one pasted text. Whenever you catch yourself writing a third sentence about format, stop and paste a sample instead.
+- **Picking your best piece of writing as the sample.** The most polished piece is typically the longest and the least typical. A sample should be the median of what you want to receive, not a personal record.
+- **Pasting a sample with no rule about what should change.** The model can't tell what's constant — and will happily carry a name, date, or number over from the template into the new text. Say it explicitly: structure from the sample, content from the material.
+- **Uploading a sample with sensitive data in it.** Real emails and reports contain names, amounts, and internal information. Anonymize samples once and use only the safe version afterward — and sensitive material belongs only in a paid account with contractual data protection.
+- **Letting the bank go stale.** A sample whose outputs need the same manual fix every time is a broken sample. The fix belongs in the sample, not in every single output.
+- **Mixing a sample and an instruction that contradict each other.** When the sample runs thirty lines and the instruction asks for ten, the result will be neither. Resolve the conflict up front, not by arguing with the output afterward.
 
 ## The best tools
 
-- **Whatever AI chat you already use** — ChatGPT, Claude, or Gemini, the principle works the same in all of them, no special tool needed.
-- **Your own library of examples** — a folder or note (Notion, Google Docs) with two or three proven examples for each type of document, ready to copy and paste anytime.
-- **Saved conversations / projects** — in ChatGPT (Projects) or Claude (Projects) you can upload an example once and AI will know it in every new conversation within that project.
-- **Custom instructions / system prompt** — if you always use the same example (say, a company report template), save it directly in the settings so you never have to paste it again.
+- **Whatever AI chat you already use** — ChatGPT, Claude, Gemini; the principle works the same in all of them, no special feature needed.
+- **Projects with persistent context** — the place where you upload samples and a style manual once, and every later conversation knows them; the best choice for recurring tasks.
+- **Custom instructions** — for rules that should always apply (date format, formal you, banned phrasing); a complement to samples, not a replacement.
+- **A shared folder or note-taking tool** — Drive, Notion, Obsidian, or a plain folder on disk; the format of the carrier doesn't matter, being able to find things does.
+- **Text expanders or clipboard history** — a way to drop a sample into a request in two keystrokes instead of digging through an archive.
 
 ## What you get out of it
 
-- **Time:** you skip the "write it — reformat it — write it again" loop, which for recurring documents easily eats up 10 minutes or more a day.
-- **Consistency:** every output (meeting notes, reports, descriptions) reads like it came from one author, even though the request was worded slightly differently each time.
-- **Less frustration:** instead of repeated "no, I meant it differently," you get something usable on the first try.
+- **Time:** for recurring documents, the “write it — reformat it — write it again” loop disappears; that's typically tens of minutes a week per recurring format.
+- **Consistency:** notes, reports, and emails look like they came from one author even when written in a hurry — something recipients notice before they notice the content.
+- **Peace of mind:** the feeling of “no, that's not what I meant” fades, because an example resolves the misunderstanding up front instead of after the fact.
+- **Handoff quality:** a style bank is the cheapest documentation of a company standard you can have — a new hire doesn't have to read it, just paste in the sample and write it right from day one.
 
 ## Pro tip
 
-Mark the example right in the text with a note like "this is the reference format" and keep it in one fixed place. Next time you need something similar, you're not hunting for an old conversation — you have the example on hand and just paste it in. It's worth keeping several such examples for different situations — one for a formal email, another for an informal message to a colleague, another for a product description — because format and tone shift with the situation, even when it's technically the same type of text.
+An advanced version of this technique is the **negative example**. Alongside a sample of what you want, paste a short example of what you don't want, and label it: “not like this, because it's bloated and promises deadlines I don't have.” The contrast between a good and a bad example carries more information than two good samples — the model learns the boundary from it, not just the target. Use it sparingly, one unwanted sample for every two wanted ones, or attention shifts toward what's supposed to be forbidden.
+
+And a closing rule: **whenever you catch yourself about to write a third sentence describing what the output should look like, stop typing and paste a sample instead.** Describing format is work that one copied document does for you instead.
