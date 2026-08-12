@@ -1,36 +1,783 @@
 ---
-title: "Bakalářka s AI: poctivý workflow od zdrojů po obhajobu"
-excerpt: "AI nástroje při psaní závěrečné práce nikdo nezakáže ignorovat — otázka je, jestli je použijete jako berličku, nebo jako lešení. Workflow, ve kterém myšlení zůstává vaše: zdroje, data, text i citace pod kontrolou."
+title: "Bakalářka s AI: kompletní poctivý workflow od zadání po obhajobu"
+excerpt: "Velký návod se 30+ konkrétními prompty: od výzkumné otázky přes rešerši v NotebookLM a analýzu dat Python skripty až po sazbu, simulovaného oponenta a checklist před odevzdáním. Myšlení zůstává vaše — mechaniku dělá AI."
 category: "ai"
 platform: "vsude"
 audience: ["student"]
 keys: []
-saves: "~týdny mechanické práce"
+saves: "~měsíce mechanické práce"
 date: "2026-08-12"
 ---
 
-Realita je jednoduchá: nástroje existují a studenti je používají. Rozdíl mezi podvodem a řemeslem není v tom, jestli AI zapnete, ale v tom, **kdo vlastní myšlení**. Podvod je nechat AI napsat práci, kterou neumíte obhájit. Řemeslo je nechat ji dělat mechaniku — třídění zdrojů, kostru skriptů, sazbu — zatímco argumenty, analýza a závěry jsou vaše. Tenhle workflow je ta druhá cesta.
+Realita je jednoduchá: nástroje existují a studenti je používají. Rozdíl mezi podvodem a řemeslem není v tom, jestli AI zapnete, ale v tom, **kdo vlastní myšlení**. Podvod je nechat AI napsat práci, kterou neumíte obhájit. Řemeslo je nechat ji dělat mechaniku — třídění zdrojů, kostru skriptů, sazbu — zatímco výzkumná otázka, argumenty a závěry jsou vaše. Tenhle návod je ta druhá cesta, rozepsaná do posledního promptu.
+
+Je to nejdelší text na tomhle webu a je to záměr: provede vás celou prací fáze po fázi, od prvního zúžení tématu po otázky u obhajoby. Každá fáze má konkrétní prompty k okopírování — stačí doplnit hranaté závorky. Nemusíte ho číst najednou; vracejte se k fázi, ve které zrovna jste.
+
+Dvě pravidla platí nad celým návodem. Za prvé: **nejdřív směrnice vaší fakulty.** Každá škola má (nebo právě píše) pravidla pro použití AI — co je dovolené, co se přiznává, co je diskvalifikace. Přečtěte si je, než otevřete první chat, a použití AI přiznejte tak, jak vyžadují. Za druhé: **do práce nesmí nic, co neumíte obhájit bez AI po ruce.** Komise se nebude ptát nástroje, bude se ptát vás.
 
 ## Vzorová situace
 
 Tomáš píše bakalářku o spotřebitelském chování. Má čtyřicet zdrojů: naskenovaná PDF, weby, tři vlastní datové sady z dotazníku. Klasický postup by znamenal měsíc čtení a výpisků, týden boje s Excelem a týden se šablonou ve Wordu.
 
-Místo toho zdroje nahraje do nástroje, který odpovídá jen z nich. Za večer má mapu literatury: kdo tvrdí co, kde se autoři rozcházejí, co jeho téma pokrývá a kde je díra, kterou může vyplnit. Analýzu dotazníku nepočítá v chatu — nechá si napsat skript, který čísla spočítá z jeho CSV. Text píše sám, po kapitolách, v jednom souboru s citacemi. Před odevzdáním si nechá práci rozcupovat simulovaným oponentem — a na obhajobě je klidný, protože každou větu umí vysvětlit.
+Místo toho zdroje nahraje do nástroje, který odpovídá jen z nich, a za večer má mapu literatury: kdo tvrdí co, kde se autoři rozcházejí a kde je díra, kterou může vyplnit. Analýzu dotazníku nepočítá v chatu — nechá si napsat skript, který čísla spočítá z jeho CSV. Text píše sám, po kapitolách, v jednom souboru s citacemi. Před odevzdáním si nechá práci rozcupovat simulovaným oponentem — a na obhajobě je klidný, protože každou větu umí vysvětlit. Jak přesně vypadá každý z těch kroků, je zbytek tohoto návodu.
 
-## Jak na to
+## Fáze 0: téma, výzkumná otázka a plán
 
-1. **Nejdřív pravidla, pak nástroje.** Každá fakulta má (nebo právě píše) směrnici k AI: co je dovolené, co se přiznává, co je diskvalifikace. Přečtěte si ji a použití AI uveďte tak, jak vyžaduje. Tenhle krok nejde přeskočit — všechno ostatní stojí na něm.
-2. **Zdroje do NotebookLM.** Nahrajte všechno: skeny, PDF, weby, poznámky, zadání. Síla nástroje je v tom, že odpovídá **jen z vašich zdrojů** a u každé odpovědi ukáže, odkud ji vzal. Nechte si udělat shrnutí jednotlivých zdrojů, srovnání autorů a mapu témat — to je rešerše, kterou byste dělali týdny.
-3. **Osnovu a přípravu řešte v jednom .md souboru.** V Claude Cowork si z podkladů nechte připravit strukturu práce a držte celý text v jediném markdown souboru včetně citací u každého tvrzení. Jeden soubor = jedna pravda: nikdy se vám nerozjede verze textu a verze citací.
-4. **Data nikdy nepočítá AI v chatu — počítá je skript.** Jazykový model není kalkulačka: z dlouhé tabulky vidí jen výřez kontextového okna a čísla dopočítává „od oka". Správně je nechat si **napsat Python skript**, který analýzu spočítá z vašeho CSV — výsledky jsou přesné, reprodukovatelné a každý krok můžete doložit. Grafy nechte skriptem rovnou exportovat do PNG.
-5. **Sazba až nakonec.** Hotový markdown přeneste do nástroje, ve kterém sázíte (Affinity, Word, LaTeX) — části převodu jdou zautomatizovat, u Affinity i přes napojení na Claude Cowork. Pak přichází ruční práce, která z draftu dělá vaši práci: přepsat vlastním hlasem, vyházet AI formulace, **ověřit každou citaci proti originálu** — jazykové modely si zdroje vymýšlejí a jedna neexistující citace u obhajoby bolí víc než slabá kapitola.
-6. **Simulovaný oponent před odevzdáním.** Dejte hotový text jiné AI, než se kterou jste psali, a zadejte roli: „jsi přísný vedoucí práce, najdi slabá místa v metodologii, argumentaci a struktuře". Opravte, zopakujte. Na skutečnou obhajobu pak jdete s prací, která už jednou oponenturou prošla.
+Většina slabých bakalářek není slabá kvůli textu — je slabá kvůli tomu, že nikdy neměla otázku. „Něco o marketingu na sociálních sítích" není téma, je to oblast. Fáze 0 trvá jeden až dva večery a rozhoduje o zbytku semestru: z mlhavého zadání uděláte otázku, na kterou jde odpovědět daty, která reálně seženete.
+
+AI je tu dobrá na jedno: vyrobit rychle víc variant, než by vás napadlo, a nemilosrdně se ptát „a kde na to vezmeš data?". Rozhodnutí, kterou si vyberete, je vaše — a schvaluje ho školitel.
+
+### Zúžení tématu: z oblasti udělat otázku
+
+Zadání typu „vliv umělé inteligence na trh práce" je nezpracovatelné v padesáti stranách. Zúžení funguje po třech osách: **kdo** (populace, obor, region), **co přesně** (jedna proměnná, ne pět) a **kdy** (období, které máte pokryté daty). Nechte si vygenerovat víc variant naráz a porovnejte je vedle sebe — teprve v porovnání je vidět, která je proveditelná.
+
+```text
+Jsem student [obor] a píšu bakalářskou práci na téma [téma]. Rozsah je
+[40–50] normostran, mám na to [5] měsíců a jsem v [ČR].
+
+Navrhni 5 různých zúžení tohoto tématu. U každého uveď:
+1. Konkrétní výzkumnou otázku (jedna věta, ne obecné souvětí)
+2. Jaká data by bylo potřeba získat a odkud (veřejná databáze,
+   vlastní dotazník, rozhovory, obsahová analýza, existující dataset)
+3. Odhad, kolik času zabere sběr dat
+4. Hlavní riziko — proč by tahle varianta mohla ztroskotat
+5. Jak by vypadal závěr, kdyby výsledek vyšel „nic zajímavého"
+
+Varianty se musí lišit přístupem, ne jen formulací. Aspoň jedna ať je
+kvalitativní a aspoň jedna kvantitativní. Nepiš úvod ani shrnutí,
+rovnou pět bloků.
+```
+
+Vrátí pět srovnatelných karet, ve kterých jde poznat, co je romantická představa a co práce na pět měsíců. Pozor na bod 2 — pokud u datového zdroje AI napíše obecně „veřejně dostupné statistiky", zeptejte se doplňujícím dotazem na konkrétní název databáze a ověřte si, že opravdu existuje a že v ní jsou data za období, které potřebujete. Modely tady s klidem vymýšlejí neexistující registry.
+
+### Výzkumná otázka a hypotézy
+
+Dobrá výzkumná otázka jde zodpovědět „ano / ne / takto" a je z ní vidět, co byste museli naměřit. Z otázky pak vznikají hypotézy — tvrzení, která se dají vyvrátit. Pokud vaši hypotézu nejde vyvrátit žádným myslitelným výsledkem, není to hypotéza, je to názor.
+
+```text
+Moje výzkumná otázka zní: [otázka].
+Obor: [obor]. Metoda, kterou zvažuju: [dotazník / rozhovory /
+analýza dat / obsahová analýza]. Vzorek, ke kterému se reálně
+dostanu: [popis, např. 120 studentů jedné fakulty].
+
+Udělej tři věci:
+1. Přeformuluj otázku do podoby, která je jednoznačně zodpověditelná,
+   a vysvětli, co jsi změnil a proč.
+2. Odvoď z ní 2–4 testovatelné hypotézy. U každé napiš, jaká
+   proměnná se měří, jak se operacionalizuje a jaký výsledek by ji
+   vyvrátil.
+3. Buď kritický: napiš, kde je tahle otázka zodpověditelná jen zdánlivě
+   — co bych musel mít za data, abych na ni odpověděl poctivě, a co
+   z toho pravděpodobně neseženu.
+
+V bodě 3 nešetři, chci slyšet i to nepříjemné.
+```
+
+Bod 3 je důvod, proč se prompt vyplatí. Typicky odhalí, že otázka mířila na kauzalitu („vede X k Y?"), zatímco vaše data unesou jen souvislost („souvisí X s Y?") — a to je rozdíl, na kterém u obhajoby stojí půlka diskuse. Otázku i hypotézy si pak přepište vlastními slovy; formulaci, které nerozumíte do posledního slova, do práce nedávejte.
+
+### Harmonogram: plán po týdnech s rezervou
+
+Semestr se nezhroutí na tom, že něco trvalo dlouho, ale na tom, že sběr dat začal pozdě. Nechte si udělat plán pozpátku od termínu odevzdání a trvejte na rezervě — bez ní je harmonogram beletrie.
+
+```text
+Píšu bakalářskou práci na téma [téma], metoda [metoda].
+Zadání mám od [datum], odevzdání je [datum], obhajoba [datum].
+Reálně na práci mám [10] hodin týdně, kromě [zkouškové období
+od—do], kdy mám nula.
+
+Sestav harmonogram po týdnech od dneška k odevzdání. U každého týdne:
+- co konkrétně mám udělat (činnost, ne fáze)
+- co má být na konci týdne hotové (kontrolovatelný výstup)
+
+Zvlášť vypiš 5 milníků, které nesmím zmeškat, a u každého napiš,
+co se stane, když se posune o dva týdny.
+Poslední 3 týdny před odevzdáním nech volné jako rezervu na
+korektury, sazbu a nečekané problémy — do těch neplánuj psaní.
+Výstup jako tabulka: týden, datum, činnost, výstup.
+```
+
+Vrátí rozvrh, který si můžete rovnou přenést do kalendáře. Dvě věci zkontrolujte ručně: jestli sběr dat začíná dost brzy (dotazník sbíraný v prosinci se vyplňuje hůř než v říjnu) a jestli plán počítá s termíny konzultací u školitele — ty se objednávají dopředu a nejsou vaše.
+
+### Konzultace se školitelem
+
+AI vám nikdy neschválí téma. Školitel ano — a je to jediný člověk, jehož názor na směr práce má váhu. Co pro vás AI udělat může, je připravit konzultaci tak, aby za dvacet minut padla rozhodnutí místo obecného povídání.
+
+```text
+Zítra mám první konzultaci se školitelem k bakalářské práci.
+Téma: [téma]. Moje aktuální výzkumná otázka: [otázka].
+Metoda, kterou zvažuju: [metoda]. Co mám hotové: [stav].
+
+Připrav mi podklad na konzultaci:
+1. Shrnutí mého záměru na 5 vět, které můžu přečíst nahlas na začátku
+2. 8 otázek na školitele seřazených podle důležitosti — takových,
+   kde jeho odpověď změní, co budu dělat dál (ne otázky, které si
+   zodpovím sám hledáním)
+3. 3 rozhodnutí, která od něj potřebuju odsouhlasit
+4. Co si mám z konzultace odnést zapsané, abych to za měsíc
+   nemusel řešit znovu
+
+Buď stručný, vejde se to na jednu stránku.
+```
+
+Podklad si po konzultaci doplňte o odpovědi a uložte — je to zárodek metodologické kapitoly. A platí základní pravidlo: **AI navrhuje, člověk schvaluje.** Když se návrh od AI rozchází s tím, co říká školitel, vyhrává školitel. On práci obhajuje s vámi, model u obhajoby nebude.
+
+## Fáze 1: rešerše — knihovna, která odpovídá
+
+Rešerše je fáze, kde se ušetří nejvíc času a kde se dá nejrychleji podvádět sám na sobě. Klasický postup — čtyřicet PDF, výpisky do sešitu, po měsíci si nepamatujete, kdo co tvrdil — se dá nahradit něčím lepším: knihovnou, které jde klást otázky a která u každé odpovědi ukáže, ze kterého zdroje a ze které stránky ji vzala. Podmínka je jediná: **do knihovny jde jen to, co jste sami našli a stáhli.** Nikdy nenechte model „doplnit relevantní literaturu" — vymyslí názvy, které vypadají přesvědčivě a neexistují.
+
+### Sběr zdrojů: kde hledat a jak si vést evidenci
+
+Začněte tam, kde jsou plné texty, ne odkazy na ně. **Google Scholar** pro rychlý přehled a citační stopu (funkce „citováno" ukáže, kdo na článek navázal — tak se dostanete k novějším pracím). **Univerzitní přístup do oborových databází** je věc, kterou většina studentů nevyužije: přes knihovnu své školy se obvykle dostanete do EBSCO, ProQuest, ScienceDirect, JSTOR nebo Web of Science, tedy k článkům, které jsou zvenku placené. Přihlaste se přes vzdálený přístup, ne z domácí sítě. **Katalogy knihoven** (NK ČR, katalog vaší fakulty) pro monografie a **Theses.cz** pro jiné závěrečné práce — ty se necitují jako autorita, ale jejich seznamy literatury jsou zlatý důl.
+
+Evidenci si veďte od prvního dne v jedné tabulce: autor, rok, název, typ zdroje, kde je soubor uložený, k čemu se vztahuje, a hlavně sloupec „přečteno / prolétnuto / neotevřeno". Bez ní budete v dubnu hledat, ve kterém PDF byla ta jedna definice.
+
+Na úvodní zmapování pole se hodí [deep research](/tipy/deep-research-reserse-trhu) — režim, který sám prohledá web a vrátí zprávu s odkazy:
+
+```text
+Zmapuj mi odbornou literaturu k tématu [téma], zaměření [zúžení].
+Zajímá mě období [posledních 10 let] a kontext [ČR / EU / globální].
+
+Chci:
+- hlavní myšlenkové proudy a klíčové autory, kdo je v tématu citovaný
+- 15 konkrétních zdrojů (odborné články, monografie, výzkumné zprávy)
+  s plnou citací a odkazem, kde se dá text najít
+- u každého jednu větu, čím je pro moje téma relevantní
+- které z nich jsou volně dostupné a které jen přes placené databáze
+- 5 termínů v angličtině, kterými mám dál vyhledávat
+
+U každého tvrzení uveď odkaz na zdroj. Když si nejsi jistý, že zdroj
+existuje, napiš to místo toho, ať ho nedoplňuješ odhadem.
+```
+
+Vrátí rozcestník, ne rešerši. Berte ho jako seznam stop k prověření: každý zdroj si najděte a otevřete, než ho zapíšete do evidence. Co nenajdete, neexistuje — a v seznamu literatury nemá co dělat. Víc o ověřování v [ověřování faktů s AI](/tipy/ai-overovani-faktu).
+
+### NotebookLM krok za krokem
+
+NotebookLM je nástroj, který odpovídá **jen z toho, co do něj nahrajete**, a u každé odpovědi ukáže citaci do konkrétního zdroje. Pro rešerši je to zásadní rozdíl: neplete si vaši literaturu s tím, co má v paměti.
+
+Postup: založte notebook pro práci (jeden notebook = jedna práce, ne jedna kapitola). Nahrajte úplně všechno — PDF článků, naskenované kapitoly knih, odkazy na weby, přepisy rozhovorů, zadání práce i metodické pokyny fakulty. Zadání nahrajte taky: díky němu můžete rovnou kontrolovat, jestli zdroje pokrývají, co po vás škola chce. Počet zdrojů na notebook je omezený (řádově desítky, u placené verze víc), takže pokud máte materiálu moc, rozdělte ho na tematické notebooky a nahrajte jen to, co k tématu skutečně patří — sto zdrojů „pro jistotu" kvalitu odpovědí zhoršuje.
+
+Pak se ptejte. Čtyři prompty, které pokryjí většinu rešerše:
+
+```text
+Vezmi zdroj [název souboru] a udělej strukturované shrnutí:
+- hlavní teze autora v 5 větách
+- použitá metoda a vzorek (pokud jde o výzkum)
+- 5 nejdůležitějších zjištění, u každého odkaz na stránku
+- 3 citovatelné pasáže v přesném znění, s číslem stránky
+- co v textu chybí nebo je slabé
+
+Vycházej výhradně z tohoto zdroje. Kde není číslo stránky
+k dohledání, napiš to místo odhadu.
+```
+
+```text
+Projdi všechny nahrané zdroje a udělej mapu literatury k otázce
+[výzkumná otázka]:
+1. Jaké hlavní pozice se ve zdrojích objevují — kdo zastává kterou
+2. V čem se autoři shodují (napříč zdroji)
+3. V čem se přímo rozcházejí — u každého sporu uveď obě strany
+   a zdroj, ze kterého to máš
+4. Které zdroje jsou původní výzkum a které jen přebírají cizí
+5. Chronologie: jak se pohled na téma vyvíjel
+
+Nepřidávej nic, co v nahraných zdrojích není.
+```
+
+```text
+Moje výzkumná otázka je [otázka] a chci ji zkoumat metodou [metoda]
+na vzorku [vzorek].
+
+Na základě nahraných zdrojů udělej gap analysis:
+- co už je k mému tématu zjištěno a dobře pokryto
+- kde jsou výsledky rozporné nebo nedostatečné
+- co konkrétně žádný z nahraných zdrojů neřeší
+- které z těch mezer moje práce může reálně zaplnit a která je
+  na bakalářku moc velká
+
+U každé mezery uveď zdroje, ze kterých usuzuješ, že tam mezera je.
+```
+
+```text
+Vypiš, jak je napříč nahranými zdroji definován pojem [pojem].
+Pro každý zdroj: přesná formulace definice, autor, rok, stránka.
+Pak porovnej: v čem se definice liší, které jsou navzájem
+neslučitelné a která je v oboru nejpoužívanější.
+Nakonec navrhni, kterou definici mám ve své práci přijmout
+a jak to zdůvodnit.
+
+Totéž udělej pro pojmy: [pojem 2], [pojem 3].
+```
+
+Poslední prompt vyřeší kapitolu s vymezením pojmů, která bývá nejnudnější a nejčastěji odbytá. Výsledek ale vždy proklikněte na citace v postranním panelu — NotebookLM ukazuje, odkud tvrzení vzal, a je to jediná kontrola, která dává smysl.
+
+### Skenovaná PDF: pozor, co stroj přečetl
+
+Starší literatura je často jen sken — obrázek stránky bez textové vrstvy. NotebookLM i Claude naskenované PDF přečíst umějí, ale u starých, křivých nebo slabě vytištěných skenů se OCR plete: zaměňuje číslice (3/8, 1/7), rozbíjí diakritiku a u dvousloupcové sazby míchá odstavce mezi sloupci. Nebezpečné je to hlavně u čísel a letopočtů.
+
+Obrana: u každé pasáže, kterou budete citovat doslova nebo z níž berete číslo, otevřete originální stránku a porovnejte znění. U nového skenu si nejdřív nechte vypsat, co model vidí („přepiš doslova stranu 47 zdroje [název]") — během pěti minut zjistíte, jestli je čitelný, nebo jestli je rychlejší sehnat lepší kopii v knihovně.
+
+### Správa citací: formátování stroji, existenci člověku
+
+Plnou citaci si ukládejte **ve chvíli, kdy zdroj poprvé otevřete**, ne až při psaní. Dohledávání ročníku a čísla časopisu tři měsíce zpětně je nejhloupěji strávený večer semestru. Nástroje: **Zotero** (zdarma, doplněk do prohlížeče uloží citaci jedním kliknutím a umí export do ČSN ISO 690), nebo **citace.com** pro rychlé jednorázové převody. Ať zvolíte cokoli, veďte to na jednom místě.
+
+Sjednocení formátu je práce, kterou AI dělá dobře:
+
+```text
+Tady je surový seznam zdrojů, které mám poznamenané v různých
+formátech — něco zkopírované z webu, něco opsané z knihy:
+
+[vlož seznam]
+
+Převeď je do jednotného formátu podle ČSN ISO 690, seřaď abecedně
+podle příjmení autora a rozděl na: monografie, články v časopisech,
+kvalifikační práce, internetové zdroje.
+
+Kde v podkladu chybí údaj potřebný pro citaci (rok, vydavatel,
+stránky, DOI), NEDOPLŇUJ ho — napiš místo něj [CHYBÍ: rok]
+a na konec dej seznam všeho, co musím dohledat.
+```
+
+Poslední odstavec promptu je to podstatné. **Formátovat citace smí AI, ověřit existenci a obsah zdroje musí člověk.** Modely doplňují chybějící údaje odhadem, který vypadá naprosto věrohodně — vymyslí ročník, čísla stránek i DOI. Před odevzdáním projděte seznam literatury položku po položce a každou najděte v katalogu nebo databázi. Jedna neexistující citace u obhajoby zpochybní celou práci víc než slabá kapitola.
+
+### Čtecí strategie: co číst celé a co jen prolétnout
+
+Čtyřicet zdrojů nikdo celé nepřečte a ani nemá. Rozdělte je: pár klíčových textů podrobně, zbytek na úrovni abstraktu a závěru, část vůbec. Rozhoduje relevance k **vaší** otázce, ne to, jak je článek slavný.
+
+```text
+Tady jsou shrnutí 15 zdrojů, které mám k bakalářské práci:
+
+[vlož shrnutí — u každého autor, rok, název, 3–5 vět o obsahu]
+
+Moje výzkumná otázka: [otázka]. Metoda: [metoda].
+
+Seřaď zdroje podle relevance k mé otázce a rozděl je do tří skupin:
+A) must-read celé — zdroje, bez kterých práci nenapíšu
+B) stačí abstrakt a závěr — kontext, jedno tvrzení, doplnění
+C) vynechat — proč konkrétně
+
+U skupiny A napiš, na co se mám při čtení soustředit a jakou část
+práce z toho pokryju. U skupiny C zdůvodni vyřazení jednou větou.
+Nakonec: chybí mi podle tebe nějaký typ zdroje?
+```
+
+Vrátí čtecí plán na několik týdnů. Skupinu C nemažte — nechte si ji v evidenci i s důvodem vyřazení. Když se u obhajoby někdo zeptá „a proč jste nepracoval s tímhle?", je rozdíl mezi „to jsem neznal" a „znal, vyřadil jsem to, protože zkoumá jiný vzorek".
+
+## Fáze 2: osnova a jeden soubor pravdy
+
+Rešerše vám dala mapu literatury. Teď z ní potřebujete udělat plán a místo, kde práce vzniká. Obojí je na jeden večer a obojí rozhoduje o tom, jestli budete měsíc před odevzdáním slepovat čtrnáct dokumentů, nebo dopisovat jeden.
+
+### Osnova: nechte si navrhnout kostru, ale vyberte ji sami
+
+Model, který má k dispozici shrnutí zdrojů a vaši výzkumnou otázku, navrhne členění, které by vám samotným trvalo dva večery — a hlavně ukáže, které zdroje se hodí kam. To je ta nejotravnější část plánování: pamatovat si, že ten článek o metodologii patří do třetí kapitoly a ne do teoretické části.
+
+```text
+Jsi zkušený vedoucí bakalářských prací v oboru [obor].
+Níže máš shrnutí zdrojů, které jsem prostudoval, a moji výzkumnou otázku.
+
+Výzkumná otázka: [otázka]
+Rozsah práce podle zadání: [např. 40-50 normostran]
+Typ práce: [teoretická / empirická s vlastním sběrem dat / rešeršní]
+
+Shrnutí zdrojů:
+[sem vlož shrnutí z rešeršní fáze]
+
+Navrhni osnovu práce:
+- kapitoly a podkapitoly v logickém sledu,
+- u každé kapitoly 3-5 odrážek, co konkrétně má pokrýt,
+- odhad rozsahu v stranách u každé kapitoly,
+- u každé kapitoly vypiš, které z mých zdrojů se tam hodí a proč.
+Na konci napiš, co v mých zdrojích chybí, abych osnovu utáhl.
+```
+
+Vrátí kompletní návrh členění včetně rozpočtu stran a přiřazení zdrojů — a poslední odstavec o chybějících podkladech bývá cennější než osnova sama. Nepřebírejte návrh mechanicky: modely píší osnovu „učebnicově“ (historie pojmu, definice, vymezení), zatímco vaše katedra může chtít jiné členění.
+
+Se školitelem ji proberte co nejdřív a přijďte s osnovou, kterou umíte odůvodnit: proč je metodologie samostatná kapitola, proč je teoretická část dvacet stran a ne třicet, proč jste vynechali téma, které se nabízelo. Když na některou z těch otázek neumíte odpovědět, tu část osnovy jste ještě nepřijali za svou.
+
+### Jeden .md soubor: proč markdown
+
+Nejčastější organizační katastrofa u závěrečných prací nejsou zdroje, ale verze. Text v Google Dokumentu, citace v Zoteru, poznámky v Notionu, kus třetí kapitoly ve Wordu na ploše. Tři dny před odevzdáním nikdo neví, která je ta pravá.
+
+Řešení je nudné a funguje: celá práce žije v **jednom markdownovém souboru**. Markdown je čistý text, takže se otevře kdekoli a nikdy se nepoškodí. Je verzovatelný — dva soubory jdou porovnat řádek po řádku, což u .docx nejde. Je přenositelný do všeho, v čem budete nakonec sázet, ať už to je Word, LaTeX nebo Affinity. A AI nástroje s ním pracují bez ztráty formátování, protože je to formát, ve kterém samy píší.
+
+Struktura souboru může vypadat takhle:
+
+```markdown
+# Vliv sociálních sítí na spotřebitelské chování
+
+## 2. Teoretická východiska
+
+### 2.1 Vymezení pojmu spotřebitelské chování
+
+Spotřebitelské chování bývá vymezováno jako soubor rozhodovacích
+procesů předcházejících nákupu [Novák 2023, s. 45]. Novější pojetí
+k tomu přidávají i fázi po nákupu [Dvořák a Král 2024, s. 112-118].
+
+<!-- TODO: doplnit kritiku klasického modelu, hledat u Svobody -->
+<!-- TODO: ověřit stránkování u Nováka proti tištěnému vydání -->
+
+### 2.2 Role sociálních sítí
+
+![Podíl ovlivněných respondentů podle věku](grafy/obr1.png)
+
+<!-- zdroj grafu: skript analyza.py, data z dotaznik.csv -->
+```
+
+Tři návyky, které se vyplatí od začátku. **Citace píšete rovnou k tvrzení**, v hranatých závorkách a včetně strany; do bibliografického stylu se převedou až na konci, jedním průchodem. **Poznámky pro sebe dávejte do komentářů** `<!-- ... -->` — v exportu zmizí, ale dokud píšete, vidíte, kde máte díru. A **grafy odkazujte, nevkládejte**: obrázek žije v podsložce, v textu je jen odkaz, takže když skript graf přepočítá, text se nemění.
+
+### Práce nad složkou v Claude Cowork
+
+Nad textem se vyplatí pracovat po složce, ne kopírováním do chatu. Claude Cowork je režim desktopové aplikace, ve kterém model vidí složku se soubory a pracuje s nimi přímo. Struktura, která se osvědčila:
+
+```text
+bakalarka/
+  zdroje/      PDF a naskenované články
+  poznamky/    vaše výpisky a shrnutí z rešerše
+  data/        CSV z dotazníku, exporty
+  grafy/       PNG generované skriptem
+  text.md      samotná práce
+  analyza.py   skript, který počítá čísla
+```
+
+A pak už jde psát po odstavcích, s podklady po ruce:
+
+```text
+Pracuj ve složce tohoto projektu.
+Projdi složku zdroje/ a moje poznámky ve složce poznamky/.
+Do kapitoly 2 v souboru text.md doplň za odstavec o [pojem]
+jeden odstavec (max 200 slov), který shrne, jak k tomuto pojmu
+přistupují autoři z mých podkladů.
+
+Pravidla:
+- vycházej výhradně z toho, co je ve zdrojích a poznámkách,
+- nic nevymýšlej a nedoplňuj z obecných znalostí,
+- u každého tvrzení uveď citaci ve tvaru [Příjmení rok, s. X],
+- kde ti podklad chybí, napiš místo tvrzení komentář TODO,
+- zachovej můj styl z okolního textu, žádné nové nadpisy.
+```
+
+Vrátí odstavec vsazený na správné místo, s citacemi z vašich souborů a s poznámkami TODO tam, kde na tvrzení nemá podklad. Právě ty TODO jsou důvod, proč prompt takhle formulovat: bez nich model mezeru vyplní věrohodnou větou bez opory. A pořád platí **AI navrhuje, člověk schvaluje** — každý doplněný odstavec přepište vlastními slovy a citace ověřte proti originálu, viz [ověřování faktů](/tipy/ai-overovani-faktu).
+
+### Verzování: aspoň kopie, ideálně Git
+
+Jeden soubor má jednu nevýhodu — když ho pokazíte, pokazili jste všechno. Minimální ochrana zabere deset vteřin denně: na konci práce zkopírujte `text.md` do složky `zalohy/` s datem v názvu (`text-2026-08-12.md`).
+
+Odvážnější si zaslouží Git. Zní to jako nástroj pro programátory, ale na text sedí: pamatuje si každou verzi, ukáže, co přesně se mezi dvěma verzemi změnilo, a nikdy nic nepřepíše. Stačí pár příkazů — prompt „vysvětli mi, jak založit Git repozitář pro složku s bakalářkou, nikdy jsem to nedělal“ vrátí návod na pět minut. Bonus u obhajoby: historie commitů je důkaz, že práce vznikala postupně a vaší rukou.
+
+## Fáze 3: data a analýza — AI nepočítá, AI píše skript
+
+Tohle je nejdůležitější část návodu. Většina prací se nevrací k přepracování kvůli stylistice, ale kvůli číslům — konkrétně kvůli tomu, že si je student nechal spočítat v chatu.
+
+### Proč jazykový model nesmí počítat vaše data
+
+Jsou k tomu dva důvody a oběma je potřeba rozumět, ne je jen přijmout.
+
+**Kontextové okno.** Model vidí jen omezený výřez textu — u dlouhé konverzace mnohem menší, než se zdá. Tabulka s osmi sty respondenty a čtyřiceti sloupci se do něj nevejde celá a model si z ní bere jen část. Nedostanete chybovou hlášku, dostanete výsledek — spočítaný z toho, co zrovna viděl.
+
+**A hlavně: model negeneruje výpočet, generuje text.** Je to stroj na pravděpodobné pokračování textu — když se ho zeptáte na průměr, nespustí sčítačku, ale napíše číslo, které v daném kontextu vypadá jako správná odpověď. Občas je i správné. A v tom je to nejnebezpečnější: čísla „od oka“ vypadají úplně normálně, průměr sedí do rozsahu, směrodatná odchylka je věrohodná, procenta dávají sto. Odhalíte to až u obhajoby, kdy někdo přepočítá jednu tabulku.
+
+Pravidlo je proto tvrdé: **do práce nesmí žádné číslo, které vzniklo jako text v chatu.** Každá hodnota v tabulce a v grafu musí pocházet ze skriptu, který jde spustit znovu.
+
+### Správný postup: CSV plus skript
+
+Postup má tři kroky: data máte v CSV, modelu ukážete jen hlavičku a pár řádků (ne celý soubor), model napíše skript a skript spočítá čísla.
+
+```text
+Tady je hlavička mého CSV (prvních 5 řádků, oddělovač středník,
+kódování UTF-8, desetinná čárka):
+
+[sem vlož 5 řádků včetně názvů sloupců]
+
+Napiš mi Python skript (pandas, matplotlib), který:
+1. načte tento soubor jako data/dotaznik.csv,
+2. vyčistí data: [odstranit nedokončené odpovědi, sjednotit
+   psaní krajů, věk mimo rozsah 15-99 označit jako chybějící],
+3. spočítá deskriptivní statistiku (n, průměr, medián, SD)
+   pro proměnnou [proměnná] po skupinách [skupina],
+4. otestuje hypotézu [hypotéza] vhodným statistickým testem
+   a napíše do komentáře, proč je zrovna tenhle test vhodný
+   a jaké předpoklady musí data splňovat,
+5. uloží číselné výsledky do results.csv,
+6. uloží grafy do složky grafy/ jako PNG v rozlišení 300 dpi.
+
+Ke každému kroku napiš komentář v češtině, PROČ se dělá.
+Skript musí projít i tehdy, když jsou v datech prázdné buňky.
+```
+
+Vrátí hotový skript i s komentáři, které jsou pro vás stejně cenné jako kód — odůvodnění volby testu je přesně to, na co se ptají u obhajoby. Pozor na dvě věci: hlavičku vkládejte skutečnou (kódování a oddělovač se u českých exportů liší a špatný odhad shodí načtení) a volbu testu si nechte potvrdit u školitele, ne u modelu.
+
+### Jak vypadá výstup
+
+Když skript proběhne, uvidíte něco takového:
+
+```text
+Načteno 812 řádků, 41 sloupců.
+Odstraněno 47 nedokončených odpovědí, zbývá 765.
+
+Deskriptivní statistika: doba_na_siti podle vekova_skupina
+                    n   prumer  median      sd
+vekova_skupina
+18-24             213     4.82    4.50    1.91
+25-34             241     3.47    3.20    1.64
+35-44             186     2.91    2.75    1.38
+45+               125     2.14    2.00    1.22
+
+Kruskal-Wallis: H = 118.42, p < 0.001
+Výsledky uloženy: results.csv
+Graf uložen: grafy/obr1.png (300 dpi)
+```
+
+Tohle je číslo, které smí do práce: víte, odkud se vzalo, kolik případů do něj vstoupilo a jak vznikne znovu.
+
+### Spuštění: nemusíte umět programovat, musíte skriptu rozumět
+
+Skript spustíte třemi způsoby. V **Claude Code** rovnou nad složkou projektu — model skript napíše, spustí, uvidí chybu a opraví ji, což je nejrychlejší cesta, když v datech čekáte nepořádek. V **analytickém nástroji přímo v chatu**, kam nahrajete CSV a model kód spustí v izolovaném prostředí. Nebo **lokálně u sebe**: nainstalovat Python, `pip install pandas matplotlib`, `python analyza.py` — a data nikam neodcházejí, což u citlivých dotazníků přebije pohodlí.
+
+Neumět Python není problém. Nerozumět tomu, co skript dělá, problém je — u obhajoby se ptají na metodu, ne na syntaxi.
+
+```text
+Vysvětli mi tenhle skript řádek po řádku, jako bych byl student
+prvního ročníku, který Python nikdy neviděl.
+
+U každého bloku napiš:
+- co se v něm děje běžnou češtinou,
+- proč je ten krok potřeba,
+- co by se stalo, kdybych ho vynechal.
+U každého statistického testu navíc vysvětli, proč byl zvolen
+právě tenhle, jaké má předpoklady a čím bych ho musel nahradit,
+kdyby data předpoklady nesplňovala.
+Na konci mi napiš 5 otázek, které mi k téhle analýze
+může položit oponent, a jak na ně odpovědět.
+
+[sem vlož skript]
+```
+
+Vrátí srozumitelný výklad a připravené oponentské otázky. Berte to jako povinnou část: dokud neumíte vysvětlit, proč je v práci Kruskal-Wallis a ne ANOVA, ta analýza není vaše. Na tvrdší nácvik navazuje [simulovaný oponent](/tipy/ai-oponent).
+
+### Grafy: jednotný styl a české popisky
+
+Grafy z výchozího nastavení matplotlibu poznáte na první pohled a v tištěné práci vypadají lacině. Sjednoťte je jedním promptem a pak už jen generujte.
+
+```text
+Uprav grafickou část skriptu tak, aby všechny grafy měly
+jednotný styl vhodný do tištěné bakalářské práce:
+- bezpatkové písmo, popisky nejméně 11 bodů,
+- popisky os česky včetně jednotek, např. „Doba na síti (hodiny/den)“,
+- názvy grafů česky, číslované jako „Obrázek 1: ...“,
+- bez zbytečných barev: odstíny šedé, barvu jen tam, kde odlišuje
+  skupiny, a i pak čitelně po vytištění černobíle,
+- bez mřížky na pozadí a bez 3D efektů,
+- u každého grafu do popisku doplň n (počet případů),
+- export do grafy/ jako PNG, 300 dpi, bílé pozadí.
+Nastavení dej na jedno místo na začátku skriptu.
+```
+
+Vrátí upravený skript s nastavením stylu na jednom místě. Pozor na češtinu v popiscích — diakritika občas vypadne kvůli fontu, takže si první obrázek skutečně otevřete a zkontrolujte háčky a čárky.
+
+### Anonymizace: než cokoli nahrajete
+
+Dotazníková data jsou osobní údaje. Než soubor kamkoli nahrajete, **smažte sloupce se jmény, kontakty, názvem konkrétní školy nebo firmy a otevřené odpovědi, ve kterých se lidé identifikují**. Respondenty nahraďte pořadovým číslem; potřebujete-li vazbu na původní záznam, klíč si nechte u sebe v souboru, který nikam neposíláte.
+
+A platí zásada webu: citlivá data patří **jen do placeného účtu se smluvní ochranou dat**, ne do volného chatu. Pokud jste respondentům v informovaném souhlasu slíbili, že data zpracujete sami, je nejčistší cesta lokální skript — model napíše kód, čísla si spočítáte u sebe.
+
+### Reprodukovatelnost jako bonus u obhajoby
+
+Když analýza běží skriptem, máte v příloze něco, co většina prací nemá: **kompletní, znovu spustitelný výpočet**. Do příloh dejte skript a popis, jak ho spustit, do textu poznámku ve stylu „veškeré výpočty byly provedeny skriptem uvedeným v příloze C; analýzu lze nad přiloženými daty zopakovat“.
+
+Dopad je dvojí. Když školitel týden před odevzdáním řekne, že se má vyřadit jedna věková skupina, změníte filtr a všechna čísla i grafy se přepočítají za deset vteřin — místo dvou dní klikání v Excelu. A u obhajoby má věta „výpočet je v příloze a lze ho spustit znovu“ váhu, kterou tabulka nalepená z chatu mít nebude.
+
+## Fáze 4: psaní — AI jako sparring, ne ghostwriter
+
+Tady se rozhoduje, jestli odevzdáte svoji práci, nebo cizí text s vaším jménem na deskách. Hranice není nijak tenká: **je to rozdíl mezi „napiš mi kapitolu 2“ a „pomoz mi napsat kapitolu 2 z těchhle mých výpisků“.**
+
+### Proč „napiš mi kapitolu“ nefunguje
+
+Kapitola vygenerovaná z ničeho vypadá hotově a je k nepoužití. Je **cizí** — neprošla vaší hlavou, takže ji neumíte rozvinout ani obhájit. Je **prázdná** — model bez zdrojů generuje obecné pravdy typu „problematika je komplexní a vyžaduje interdisciplinární přístup“. A je **nepodložená** — tvrzení, která nevznikla z vašich zdrojů, nemají citaci, a když ji model doplní, často si ji vymyslí (viz fáze 5).
+
+Užitečných rolí je přitom dost: **strukturovat** (z chaosu poznámek osnovu), **oponovat** (najít slabinu v argumentu, který právě píšete), **zhušťovat** (ze čtyř rozvláčných odstavců jeden) a **převádět vaše poznámky do souvislého textu, který pak přepíšete vlastními slovy**. Poslední bod je klíč: draft z vlastních výpisků je legitimní meziprodukt, ne finální text.
+
+### Teoretická kapitola z vlastních výpisků
+
+Nejužitečnější prompt celé fáze. Předpokládá, že máte výpisky ze zdrojů — tedy že jste četli.
+
+```text
+Tady jsou moje výpisky ke kapitole 2 [název kapitoly] včetně citací u každé
+poznámky. Poskládej z nich souvislý draft v tomhle pořadí témat:
+[téma A], [téma B], [téma C].
+
+Pravidla:
+- použij POUZE tvrzení z výpisků; nic nedoplňuj z vlastních znalostí,
+  ani když je to obecně známé
+- u každého tvrzení nech citaci ve tvaru, v jakém je ve výpiscích
+- kde výpisky nestačí na plynulý přechod nebo chybí podklad, napiš na
+  samostatný řádek TODO: [co dohledat] — nevymýšlej výplň
+- protichůdné výpisky nesjednocuj, upozorni na rozpor
+- akademická čeština, žádné superlativy
+
+Na konci vypiš seznam všech TODO.
+```
+
+Vrátí draft postavený jen na tom, co jste přečetli, plus seznam děr. Ověřte namátkou pár odstavců proti výpiskům: modely rády „vylepší“ tvrzení do silnější podoby, než měl originál („naznačuje“ se změní na „prokazuje“).
+
+### Metodologie
+
+Metodologická kapitola musí být přesná, nudná a úplná — proto se hodí psát ji z osnovy toho, co jste skutečně dělali.
+
+```text
+Napiš metodologickou kapitolu podle téhle osnovy mého postupu:
+
+Design: [např. dotazníkové šetření, kvantitativní, průřezové]
+Vzorek: [kdo, kolik, jak vybraný, kde a kdy sbíráno]
+Nástroj: [dotazník o X otázkách, škály, odkud převzaté položky]
+Sběr dat: [jak distribuováno, návratnost, vyřazené odpovědi a proč]
+Zpracování: [software, testy, hladina významnosti]
+Etika: [informovaný souhlas, anonymizace]
+Omezení: [co vím, že je slabina]
+
+Požadavky: akademický styl, minulý čas, popisně, bez superlativů a bez
+hodnocení kvality vlastního postupu. Každé rozhodnutí popiš tak, aby ho
+někdo mohl zopakovat. Kde v osnově chybí údaj, napiš TODO: [co doplnit].
+```
+
+Vrátí kapitolu, do které stačí doplnit čísla. Hlídejte dvě věci: aby model nedopsal kroky, které jste nedělali (typicky „byla provedena kontrola normality dat“), a aby se popis shodoval s tím, co dělá váš analytický skript.
+
+### Interpretace výsledků
+
+Interpretace je myšlenková práce, kterou nedelegujete. Model tu je sparring partner: nabídne výklady, vy vybíráte a zdůvodňujete.
+
+```text
+Tady jsou výsledky mojí analýzy ze souboru [results.csv] a popisy grafů
+[názvy souborů]. Hypotéza H1 zněla: [znění H1].
+
+Nepiš text kapitoly. Odpověz ve třech blocích:
+1) Co data říkají k H1 — doslovně, bez interpretačního nadhodnocení.
+2) Jaká jsou alternativní vysvětlení (zmatečné proměnné, výběrové
+   zkreslení, velikost vzorku, náhoda)?
+3) Co z těchhle dat NEMOHU tvrdit, i kdyby to znělo lákavě — hlavně kde
+   by šlo o záměnu korelace za kauzalitu nebo o zobecnění mimo vzorek.
+
+U každého bodu uveď, ze kterého čísla nebo grafu vycházíš.
+```
+
+Vrátí materiál k přemýšlení, ne hotový text — blok 3 bývá nejcennější, protože vás předem chrání před větou, kterou u obhajoby neobhájíte. Když model sáhne po čísle, které ve výstupu nevidíte, nechte si ukázat, odkud ho vzal.
+
+### Přepsání vlastním hlasem
+
+Technika, která zabere hodinu na kapitolu a zachrání práci: **draft si přečtěte, zavřete ho a napište kapitolu znovu po svém.** Needitujte věty — pište z hlavy, s draftem jako osnovou vedle. Co si nepamatujete natolik, abyste to napsali sami, buď nechápete, nebo to tam nepatří.
+
+Pak přijde kontrola „AI parfému“:
+
+```text
+Projdi tenhle text a označ pasáže, které znějí jako generická AI čeština:
+- floskule a vatu („v dnešní době“, „hraje klíčovou roli“)
+- superlativy bez podkladu („zásadní“, „revoluční“)
+- prázdné shrnující věty, které nic nepřidávají
+- trojice synonym místo jednoho přesného slova
+- větné vycpávky na začátku odstavců
+
+Jen OZNAČ a u každé stručně odůvodni, proč je podezřelá. Nic nepřepisuj
+a nenavrhuj náhrady — přepíšu si to sám.
+```
+
+Zákaz přepisování je tam schválně: kdybyste nechali model text „opravit“, vyměníte jedny generické fráze za jiné.
+
+### Akademický styl a konzistence terminologie
+
+Poslední stylová kontrola, než kapitola odejde vedoucímu.
+
+```text
+Zkontroluj tenhle text jako korektor akademického textu v oboru [obor].
+Nepřepisuj, jen vypiš nálezy s citací dotčeného místa:
+
+1. Osoba a hlas: držím [první osobu / autorský plurál / trpný rod]?
+   Označ místa, kde se to láme.
+2. Terminologie: pojmy, které označuji různými slovy (jednou „respondent“,
+   jindy „účastník“) — navrhni, který termín sjednotit.
+3. Čas: teorie v přítomném, vlastní postup v minulém — označ odchylky.
+4. Zkratky: je každá zavedena při prvním výskytu?
+5. Hovorové a publicistické obraty.
+```
+
+Konzistenci terminologie lidské oko po dvacáté stránce přestane vidět — tady stroj vyhrává. Bod 1 přizpůsobte zvyklostem oboru: technické fakulty většinou chtějí trpný rod, humanitní obory čím dál častěji připouštějí první osobu.
+
+## Fáze 5: citace a kontrola faktů
+
+### Proč AI citacím nevěřit
+
+Modely generují text, který **vypadá** správně — a citace jsou přesně ten formát, kde je to snadné. Vznikne článek s věrohodným názvem, existujícím autorem, plausibilním rokem a DOI, které vede jinam nebo nikam. Neexistující citace je z pohledu komise horší než slabá kapitola: je to doložitelný důkaz, že jste zdroj nečetli.
+
+Pravidlo bez výjimek: **každou citaci ověřte proti originálu.** DOI otevřít, knihu najít v katalogu, článek v databázi — a to i u citací, které jste psali sami.
+
+### Křížová kontrola textu a seznamu literatury
+
+Tohle je naopak úloha, kde je AI spolehlivá: porovnává dva seznamy, nepracuje se znalostmi.
+
+```text
+Přikládám text mojí práce [nazev.md] a seznam literatury [literatura.md].
+Udělej křížovou kontrolu a vrať čtyři seznamy:
+
+1. Citace, které jsou v textu, ale chybí v seznamu literatury.
+2. Položky seznamu, na které se text nikde neodkazuje.
+3. Neshody v údajích u téhož zdroje (jiný rok, jiné příjmení, jiné
+   pořadí autorů mezi textem a seznamem).
+4. Přímé citace v uvozovkách, u kterých chybí číslo strany.
+
+U každého nálezu uveď kapitolu a pasáž. Nic neopravuj.
+```
+
+Vrátí seznam nesrovnalostí, kterých bývá deset až dvacet a ručně by je člověk hledal půl dne. Pouštějte to na finální verzi, jinak kontrolujete něco, co už neplatí.
+
+### Formátování podle ČSN ISO 690
+
+Normu lze aplikovat promptem, výsledek se ale **musí** projít ručně.
+
+```text
+Naformátuj tenhle seznam zdrojů podle ČSN ISO 690, styl [číselný odkaz /
+jméno-datum] podle zvyklostí [fakulta].
+
+Zdroje jsou různého typu: monografie, kapitola ve sborníku, článek
+v časopise, kvalifikační práce, webová stránka, právní předpis.
+
+- nedoplňuj údaje, které v podkladu nejsou; chybějící pole označ
+  jako [CHYBÍ: rok] apod.
+- neměň názvy, jména ani roky
+- seřaď abecedně podle příjmení prvního autora
+- na konec připoj seznam položek s chybějícími údaji
+```
+
+Zákaz doplňování je nejdůležitější řádek promptu — bez něj model chybějící vydavatele a roky dopíše „aby to sedělo“. Zkontrolujte interpunkci u dvou tří položek od každého typu; norma je v detailech přísná a modely v nich chybují.
+
+### Kontrola tvrzení a čísel
+
+Druhá půlka práce jsou fakta v textu. Postup je stejný jako v tipu [ověřování faktů s AI](/tipy/ai-overovani-faktu): nechte si vypsat ověřitelná tvrzení a dohledejte primární zdroj.
+
+```text
+Projdi tuhle kapitolu a vypiš do tabulky všechna faktická tvrzení, která
+jde ověřit: čísla, podíly, letopočty, jména, odkazy na cizí výzkumy.
+
+Sloupce: tvrzení | kde v textu | uvedený zdroj | typ (číslo/datum/jméno)
+| jak náročné na ověření.
+
+Netvrz, jestli je to pravda — jen vypiš, co je potřeba ověřit u zdroje.
+```
+
+U klíčových čísel — těch, na kterých stojí argument nebo která skončí v abstraktu — jděte vždycky ke zdroji, ne k převyprávění. Statistika opsaná z článku, který ji opsal ze zprávy, bývá po třetím přeposlání jiná.
+
+## Fáze 6: sazba a finální dokument
+
+### Z markdownu do finálního formátu
+
+Text máte v jednom .md souboru s citacemi. Cesta ven závisí na tom, co fakulta chce:
+
+- **Word.** Nejrychleji Pandoc: převede markdown do .docx a s referenční šablonou namapuje nadpisy na styly fakulty. Bez Pandocu funguje copy-paste do prázdné šablony a ruční aplikace stylů. Klíč je formátovat styly, ne „ručně tučně“ — jinak se rozpadne obsah i číslování.
+- **LaTeX.** Většina technických fakult má vlastní třídu; převod kapitoly zvládne prompt níž.
+- **Affinity Publisher.** Pro ty, kdo chtějí typografickou kontrolu: přes MCP se dá ovládat z Claude Cowork, takže rutinu sazby zadáváte textem a výsledek kontrolujete okem.
+
+```text
+Převeď tuhle kapitolu z markdownu do LaTeXu pro šablonu naší fakulty.
+Přikládám preambuli a ukázkovou kapitolu ze šablony — drž se jejích
+konvencí, nové balíčky nepřidávej.
+
+- nadpisy na section/subsection podle úrovně
+- obrázky do figure s \label a \caption, popisky nech beze změny
+- tabulky do prostředí, které používá šablona
+- citace převeď na \cite s klíči podle přiloženého .bib
+- speciální znaky (%, &, _, uvozovky) správně vyescapuj
+- kde si nejsi jistý mapováním, nech komentář % TODO a původní text
+```
+
+Vrátí .tex kapitolu, kterou zkusíte přeložit. Escapování a citační klíče jsou dvě místa, kde překlad nejčastěji spadne — projděte je jako první.
+
+### Předletová kontrola formálních náležitostí
+
+Formální náležitosti jsou nejhloupější důvod k vrácení práce a zároveň nejsnáz kontrolovatelný.
+
+```text
+Tady je struktura mojí práce (obsah + první odstavce každé části) a tady
+požadavky naší fakulty:
+
+[vlepit doslovné znění směrnice: povinné části, rozsah, pořadí, přílohy,
+způsob přiznání použití AI, formát abstraktu, počet klíčových slov]
+
+Projdi požadavek po požadavku a u každého napiš: SPLNĚNO / NESPLNĚNO /
+NELZE OVĚŘIT ZE STRUKTURY. U nesplněných uveď, co chybí a kam to patří.
+Na konec dej seznam věcí, které mám dokontrolovat ručně v sazbě.
+```
+
+Vlepte směrnici doslova — parafráze z paměti je přesně to místo, kde se ztratí věta o přiznání použití AI.
+
+### Generované seznamy
+
+Seznam zkratek, obrázků a tabulek AI sestaví z textu za minutu. Nechte si je vygenerovat, ale **projděte je**: jestli je zkratka zavedena při prvním výskytu a jestli popisky odpovídají tomu, co je na obrázku vidět. V LaTeXu je generuje šablona a AI se hodí spíš na kontrolu, že nic nechybí.
+
+## Fáze 7: simulovaný oponent a obhajoba
+
+### Oponentní kolo
+
+Hotový text pusťte přes **jiný model, než se kterým jste psali** — spoluautor hodnotí shovívavě, čerstvé oči najdou to, co přehlíží. Postup je v tipu [AI jako oponent](/tipy/ai-oponent), pro bakalářku vypadá takhle:
+
+```text
+Jsi přísný oponent bakalářských prací na [obor]. Přečti přiloženou práci
+a napiš posudek, jaký bys reálně odevzdal — bez zdvořilostních úvodů
+a bez chvály, která nic nesděluje.
+
+1. Tři nejslabší místa metodologie (co konkrétně, proč to vadí).
+2. Tři díry v argumentaci — tvrzení, která nevyplývají z toho, co jim
+   předchází, nebo nejsou podložená daty či citací.
+3. Pět otázek, které bych položil u obhajoby, od nejnepříjemnější.
+4. U každé otázky napiš, jak by měla vypadat dobrá odpověď — a jakou
+   odpověď bych považoval za vyhýbavou.
+
+Vycházej jen z textu práce, nedomýšlej si, co jsem asi dělal.
+```
+
+Vrátí posudek, který bolí, a to je smysl. Model ale občas kritizuje věc, která v práci je a jen ji přehlédl — nálezy ověřujte proti textu.
+
+### Iterace
+
+Jedno kolo nestačí. Opravte, co jde, a nechte posoudit znovu — **dvě až tři kola**, dokud posudek nevrací drobnosti místo strukturálních výtek. Mezi koly si zapisujte, co jste neopravili a proč: tenhle seznam je výbava na obhajobu, protože komisi zajímá, jestli o omezeních práce víte.
+
+### Příprava na obhajobu
+
+```text
+Připrav mě na obhajobu. Z přiložené práce vygeneruj:
+- 15 otázek, které může položit komise, rozdělených na: metodologie,
+  interpretace výsledků, zasazení do literatury, praktický přesah,
+  „proč jste to nedělal jinak“
+- u každé kostru dobré odpovědi ve třech bodech
+- tři otázky, na které moje práce nemá dobrou odpověď, a návrh,
+  jak to poctivě přiznat
+
+Ptej se na moje čísla a moje rozhodnutí, ne obecně na obor.
+```
+
+Odpovědi si pak **říkejte nahlas.** Rozdíl mezi „to bych uměl vysvětlit“ a skutečným vysvětlením se pozná až ve chvíli, kdy to musíte složit do vět. Prezentaci vytáhněte z textu práce postupem z tipu [z dokumentu prezentace](/tipy/z-dokumentu-prezentace-ai) — deset slidů: problém, metoda, výsledky, závěr.
+
+### Checklist před odevzdáním
+
+- Směrnice fakulty splněna a použití AI přiznáno přesně tak, jak vyžaduje.
+- Každá citace ověřena proti originálu (DOI otevřeno, kniha nalezena v katalogu).
+- Každé tvrzení obhajitelné bez AI po ruce — a bez čtení vlastního textu.
+- Analýza reprodukovatelná skriptem: skript uložen a po spuštění dá stejná čísla, jaká jsou v práci.
+- Text prošel vlastním přepisem, ne jen editací AI draftu.
+- Oponentní kolo proběhlo, jiným modelem, a nálezy jsou vypořádané nebo vědomě ponechané.
+- Formální náležitosti zkontrolované proti doslovnému znění směrnice, včetně příloh a abstraktu.
+
+## Nejčastější chyby
+
+- **Nechat AI napsat celou kapitolu a odevzdat ji.** Nejrychlejší cesta k textu, který u obhajoby neustojíte.
+- **Věřit citacím bez ověření.** Modely generují přesvědčivě vypadající neexistující zdroje; jedna taková citace zpochybní celý seznam literatury.
+- **Počítat statistiku v chatu.** Jazykový model není kalkulačka — z dlouhé tabulky vidí výřez a čísla dopočítává od oka. Analýzu dělá skript.
+- **Nahrát neanonymizovaná data respondentů do free chatu.** Osobní údaje patří jen do placeného účtu se smluvní ochranou dat, a i tam bez jmen a identifikujících kombinací.
+- **Ignorovat směrnici fakulty.** Pravidla se liší školu od školy a mění se každý rok; nepřiznané použití AI je problém i u poctivě napsané práce.
+- **Nechat si text „vylepšit“ do formulací, kterým nerozumíte.** Věta, kterou neumíte přeložit do vlastních slov, je ve vaší práci cizí těleso — vyhoďte ji, i kdyby zněla chytře.
 
 ## Nejlepší nástroje
 
 - **[NotebookLM](https://notebooklm.google.com)** — rešerše ukotvená ve vašich zdrojích: odpovídá jen z nahraných dokumentů a cituje, odkud bere.
-- **Claude Cowork** — příprava obsahu nad složkou s podklady, psaní skriptů pro analýzu a přes MCP i ovládání dalších aplikací při sazbě.
+- **Claude Cowork** — příprava obsahu nad složkou s podklady, psaní a vysvětlování skriptů pro analýzu a přes MCP i ovládání dalších aplikací při sazbě.
 - **Python (pandas, matplotlib)** — skripty na analýzu CSV a export grafů; nemusíte je umět napsat, musíte jim rozumět natolik, abyste je obhájili.
+- **Zotero** — správa citací od prvního přečteného zdroje; formátování smí pomoct AI, existenci zdroje ověřujete vy.
 - **Druhý model jako oponent** — ChatGPT nebo jiná AI, se kterou jste nepsali: čerstvé oči najdou to, co „spoluautor" přehlíží.
 
 ## Co vám to přinese
@@ -41,4 +788,4 @@ Místo toho zdroje nahraje do nástroje, který odpovídá jen z nich. Za večer
 
 ## Pro tip
 
-Jedno pravidlo nad všemi nástroji: **do práce nesmí nic, co neumíte obhájit bez AI po ruce.** Učení psaním má smysl — části, kde se máte něco naučit, si projděte ručně, i když by to nástroj zvládl. A pozor na data: dotazníková data s osobními údaji anonymizujte a do AI je dávejte jen přes placený účet se smluvní ochranou dat, ne přes free chat.
+Učení psaním má smysl: části, kde se máte něco naučit, si projděte ručně, i když by to nástroj zvládl — právě proto akademický proces existuje. A pozor na data: dotazníková data s osobními údaji anonymizujte a do AI je dávejte jen přes placený účet se smluvní ochranou dat, ne přes free chat. Píšete-li disertaci místo bakalářky, tenhle workflow škáluje — doplňte ho o [rutiny doktoranda](/tipy/doktorand-s-ai-workflow).
