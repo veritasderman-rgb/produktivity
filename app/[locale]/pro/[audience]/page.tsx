@@ -6,6 +6,7 @@ import { isLocale, localePath, type Locale } from "@/lib/i18n";
 
 /** Landing pages profesí v češtině: /pro/<slug>. Angličtina má vlastní segment /for/<slug>. */
 export function generateStaticParams({ params }: { params: { locale: string } }) {
+  console.log("[dbg-pro-params]", JSON.stringify(params));
   if (params.locale !== "cs") return [];
   return audiences.map((a) => ({ audience: a.slug.cs }));
 }
