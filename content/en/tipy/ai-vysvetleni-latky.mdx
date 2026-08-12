@@ -1,46 +1,517 @@
 ---
 title: "“Explain it to me like…” — AI as a private tutor"
-excerpt: "Have tricky material explained three ways: simply, through an analogy, and with an example. Then ask for a few check-up questions."
+excerpt: "A complete guide with prompts: explanations tailored to your level, the Feynman technique with AI, generating test questions from your own notes, step-by-step worked examples, and an exam study plan. Including the biggest trap of all — the illusion of understanding."
 category: "ai"
 platform: "vsude"
 audience: ["student"]
 keys: []
-saves: "~1 h per topic"
+saves: "~1 h per topic, weeks before the exam"
 date: "2026-07-05"
 ---
 
-Not understanding something after the first lecture is normal. Staying stuck there is unnecessary. Unlike a teacher at the front of a room, AI is never in a hurry, has no problem explaining the same thing five different ways, and never gets annoyed that you're asking again. It works like a private tutor you can reach any time.
+Not understanding something after the first lecture is normal. Staying stuck there is not. AI is never in a hurry, has no problem explaining the same thing a sixth time in a different way, and never gets annoyed that you're asking again. It's the most patient teacher you'll ever have — and also one that can quietly let you down if you use it the wrong way.
+
+**The difference between learning and the pleasant feeling of learning is activity.** When you have material explained to you and nod along, your brain remembers that the text was clear — not the material itself. When you try to explain the material yourself and AI hunts for holes, you're learning. This whole guide is built on that distinction: an explanation is a starting point, not the goal.
+
+The guide moves from setup (so the chat answers at your level instead of generically) through deepening your understanding and worked examples, all the way to test questions from your own notes and an exam study plan. Every phase has copy-paste prompts — just fill in the brackets. You don't have to read it in one sitting; jump to whichever phase you're at. And one rule stands above all the rest: **you don't outsource your grade, or your judgment of how ready you are, to a machine.** AI proposes, the human decides — you're the one sitting the exam.
 
 ## A typical scenario
 
-Honza, a student, is stuck on derivatives, and the lecture only gave him a definition and a handful of formulas — he understands each individual step but can't see why he's doing it. Without AI he has two options: reread the course notes (same text, same confusion) or wait a week for office hours.
+Honza is a first-year student staring at derivatives. The lecture gave him the definition of a limit, a table of formulas, and five worked examples that the instructor solved faster than he could copy them down. He can mechanically differentiate a polynomial, but has no idea what the resulting number actually tells him. The usual approach: reread the course notes (same text, same confusion), or wait a week for office hours.
 
-Instead, he asks AI: "explain derivatives like I'm a high schooler who's never heard of them, then explain them again with an everyday analogy." He gets an explanation through a car's speedometer — suddenly a derivative makes sense as "rate of change," not just a formula. Then he asks for five check-up questions and finds out exactly where it still doesn't click — without waiting for office hours.
+Instead, he does four things in a single evening. First, he has the derivative explained to him like a high schooler, and then through an analogy — he gets a car's speedometer, and suddenly “rate of change” makes sense. Then he flips it around: he writes out how he understands derivatives in his own words and lets AI hunt for holes. It turns out he's mixing up the derivative at a point with the derivative as a function — exactly the thing he wouldn't be able to explain at the exam. Next, he has twelve questions generated from his own lecture notes, and misses six of them. Finally, he turns those into flashcards and spreads them out over ten days.
 
-## How to do it
+Three weeks later he takes the term test. He doesn't know more formulas than his classmates — but he's one of the few who can say what he's calculating and why. The difference wasn't that he had AI. The difference was that he used it to hunt for gaps instead of confirmation that “it's clear.”
 
-1. Ask for a tailored explanation: "explain derivatives like I'm a high schooler, then with an everyday analogy, then with a concrete numerical example."
-2. If the first explanation still doesn't land, say so directly — "I don't understand this step, expand on it" — AI adjusts to exactly where the understanding breaks down.
-3. Ask for check-up questions: "give me 5 questions from easy to hard and grade my answers."
-4. Answer in your own words, not by copying back what you just read — active recall is learning, passive reading isn't.
-5. When you get something wrong, ask not just for the right answer but why yours was wrong — that's where real understanding hides.
-6. If you're studying something sensitive (your own diagnosis, real company data), consider whether anything in the prompt should be anonymized or rephrased more generally.
+## Phase 1: setup — turn the chat into a tutor who knows your level
+
+Most bad explanations from AI aren't model failures — they're prompt failures. “Explain the Fourier transform to me” gets an answer calibrated to the average of the internet — which is to say, to no one in particular. The model has no idea whether you're a first-year student or writing a thesis, whether you know integrals, or what exactly isn't clicking.
+
+The setup takes ten minutes and holds for the whole semester.
+
+### Context you set up once
+
+If your tool supports persistent context — Projects in Claude, custom instructions, saved system prompts — put your study profile there. It saves you from re-explaining yourself every time and, more importantly, improves the quality of the answers, because the model stops guessing your level. More on this in the tip [projects as persistent context](/tipy/ai-projekty-kontext).
+
+```text
+Settings for this whole project — stick to them in every reply.
+
+I'm a [major] student, [year]. Course: [course name].
+What I already know: [e.g., high school math, basic limits,
+Python programming at the level of loops].
+What I don't know yet — don't assume it: [e.g., linear algebra,
+complex numbers, statistical tests].
+The exam is [date] and its format is [written test / oral /
+problem set].
+
+How to work with me:
+- explain at my level, don't use a term you haven't explained to
+  me before or that isn't on my "already know" list
+- if a term is necessary, explain it in one sentence first, then
+  continue
+- after every longer explanation, give me one check-up question
+- don't praise me for understanding until I've actually answered
+  something
+- if you don't know or aren't sure, say so instead of guessing
+```
+
+It comes back with confirmation, and from then on half the back-and-forth disappears. The “what I don't know yet” list is the more valuable half: without it, models love explaining one unfamiliar term using three others. Update it as the semester goes on — it doubles as a pretty accurate map of your progress.
+
+### A tailored explanation: “explain it like…”
+
+The heart of the tip. It's not one phrasing but three layers delivered at once, so you have something to choose from — different people click with different layers, and for abstract topics, it's only the comparison that reveals where the real point is.
+
+```text
+Explain the concept [concept] from [course] to me in three
+versions, one after another, each clearly labeled:
+
+1. LIKE A HIGH SCHOOLER: plain English, no technical terms,
+   max 150 words. The goal is for me to grasp what it's actually
+   about.
+2. AN EVERYDAY ANALOGY: one concrete analogy, and at the end
+   note WHERE THE ANALOGY BREAKS DOWN and how it's misleading.
+3. PRECISELY, the way it would appear in an exam answer:
+   technical, with a proper definition and correct terminology.
+
+Then add:
+- one sentence on "why anyone bothered inventing this" (what
+  problem it solves)
+- three concepts it's most often confused with, and how they
+  differ
+```
+
+It comes back with material you can pick and choose from, whichever layer clicks for you. The point about the analogy breaking down isn't there as a joke — analogies are the fastest route both to understanding and to a permanently baked-in mistake (electricity as water in a pipe works fine until you get to alternating current). And compare version 3 against your own course notes: if the terminology differs, what your course teaches is what counts.
+
+### When the explanation doesn't land: debugging instead of repeating
+
+The most common mistake is typing “one more time” and getting the same thing in different words. It's far more useful to point at the exact spot where your understanding breaks.
+
+```text
+I read your explanation and lost the thread right here:
+
+“[paste the sentence or step where it stopped making sense]”
+
+Don't explain the whole thing again. Instead:
+1. Break down just this one step into sub-steps.
+2. For each sub-step, say what's changing and why.
+3. Tell me what I'd need to already know to understand this
+   step — and whether, based on our conversation, I'm missing
+   it.
+4. Ask me one question to check whether it clicks now.
+
+Don't start over from the beginning, don't go easy on me, and
+don't add a summary.
+```
+
+Point 3 often uncovers the real problem: you don't understand derivatives because you're missing limits. This is where AI is at its strongest — a human teacher at the board can't spend the whole class backing up to whatever you personally are missing, but a model can.
+
+## Phase 2: layered deepening — from intuition to definition
+
+One explanation is never enough for anything that's actually on the exam. What works is a spiral: a rough outline, then the mechanism, then a precise definition and its limits. Each layer serves a different purpose, and you can get through all of them in one sitting.
+
+### Layer by layer, guided
+
+```text
+I want to understand [topic] gradually, not all at once. Walk
+me through five steps, and after each step stop and wait for my
+answer.
+
+Step 1: The picture — what's this whole thing for, what problem
+does it solve (5 sentences).
+Step 2: The mechanism — how it works on the inside, piece by
+piece.
+Step 3: The precise definition and notation, as written in the
+course materials.
+Step 4: The limits — when it holds, when it doesn't, the
+typical conditions.
+Step 5: Connections — what it relates to within [course], and
+what builds on it later.
+
+After each step, give me one check-up question and DO NOT
+CONTINUE until I answer. If I answer wrong or vaguely, say so
+plainly and repeat the step a different way.
+```
+
+It comes back with a guided lesson instead of an essay. The “do not continue” line is the key one — without it, the model dumps all five steps at once and you read ten paragraphs with the feeling that you studied. Answer in your own words, not by scrolling back up and copying.
+
+### Why it works this way: derivation instead of memorizing
+
+A formula you can derive, you don't need to memorize — and more importantly, you'll recognize it when someone writes it down wrong.
+
+```text
+Explain to me WHERE [formula / rule / procedure] comes from.
+
+I want:
+1. What it's built on — which prior statement or definition
+   is used as the starting point.
+2. The derivation step by step, with one sentence per step on
+   WHY that step is allowed.
+3. Where in the derivation there's a “trick” I wouldn't have
+   come up with myself, and how to remember it.
+4. What would happen if one of the conditions didn't hold.
+
+If the full derivation is beyond my year, say so and show at
+least a simplified version — but note what you simplified.
+```
+
+It comes back with a derivation, and point 3 is usually the most valuable part. One warning: on more complex proofs and historical context (“who first derived this and when”) models get things wrong and make things up. Anything that ends up in your exam answer as a fact — a date, a name, an exact wording — check it against your course notes or textbook; see [fact-checking with AI](/tipy/ai-overovani-faktu).
+
+### The boundaries of a concept: what it isn't
+
+Understanding shows up as the ability to tell neighboring concepts apart. This also happens to be the most common type of exam question.
+
+```text
+I keep mixing up [concept A] with [concept B] and [concept C].
+
+Make a comparison table with columns: concept | one-sentence
+definition | when it's used | a typical example | how it differs
+from the others.
+
+Then add:
+- three concrete situations, and for each say which concept
+  applies and why
+- two common traps students fall into
+- one sentence that will make the difference stick for good
+
+Finally, give me three examples where I have to identify which
+concept applies. Don't give the answers — wait for mine.
+```
+
+The table is nice to have, but it's the last part that actually teaches you something. Have the examples given to you and answer without scrolling back up.
+
+## Phase 3: the Feynman technique — you explain it, AI hunts for holes
+
+This is the strongest technique in the whole guide, and also the one almost nobody uses, because it's uncomfortable. The principle is old: **if you can't explain something simply, you don't understand it.** AI turns it into something that used to require a study partner — you get a listener with infinite patience who isn't afraid to say “you dodged this part.”
+
+### How it works
+
+Close your notes. Open an empty chat and write, in your own words, how you understand the material — messy is fine, mistakes are fine, just get down what's actually in your head. Don't aim for polished prose; aim for completeness. Then send it with this prompt.
+
+```text
+Below is my own explanation of [concept] from [course]. I wrote
+it from memory, without looking at my notes.
+
+Don't rate the writing style and don't praise me. Do this
+instead:
+1. List factual errors — what's stated wrong, and what the
+   correct version is.
+2. List the holes — what's missing from my explanation for it
+   to be complete.
+3. List spots where I used a technical term as a magic word
+   without actually showing I understand it.
+4. List spots where my phrasing is so vague it would pass with a
+   layperson but not with an examiner.
+5. Rank the findings by severity, and for the three worst ones,
+   tell me exactly what to go back and reread in my notes.
+
+My explanation:
+[paste your text here]
+```
+
+It comes back with what you need to hear, and it usually isn't pleasant. Point 3 is the most valuable: “well, because it's convergent” is the kind of sentence people write without having any idea why — and at an oral exam, that's exactly where the examiner will poke. Do check the findings against your notes, though; sometimes the model flags something as an error when your course just uses different notation for it.
+
+### Round two: explain it to a child
+
+After fixing things up, try again, and make it harder on yourself. Simplification is a test you can't game with terminology.
+
+```text
+I'm going to explain [concept] to you again, this time the way
+I'd say it to a twelve-year-old sibling. I'm not allowed to use
+a single technical term.
+
+Once I've written it, do two things:
+1. Tell me whether it's still CORRECT — simplifying is not
+   allowed to mean I distorted it. Where I distorted something,
+   say how.
+2. Play the twelve-year-old and ask me three questions they'd
+   come up with after hearing my explanation. Make the questions
+   naive but sharp — the kind that reveal whether I actually
+   understand it.
+
+My explanation:
+[paste your text here]
+```
+
+Those naive questions (“okay, so why doesn't it always work then?”) tend to be tougher than exam questions. When you can't answer one, you have an exact address for where to go back to.
+
+### A cycle worth repeating
+
+The Feynman technique isn't a one-off: write — get torn apart — study the holes — write again. **Three rounds are enough for most topics**; you're done once the feedback comes back with refinements instead of errors. Save your explanations in a single file organized by topic; before the exam it's better study material than anyone else's notes, because it's written in your own language.
+
+## Phase 4: worked examples, step by step
+
+In problem-solving courses, understanding breaks down at a different point than in theory: you understand the lecture and still have no idea where to start. The cure is seeing the process, not the answer — and then repeating it unaided.
+
+### Process, not the answer
+
+```text
+Here's a problem from a [course] problem set:
+
+[paste the problem]
+
+Solve it step by step following these rules:
+- for each step, write WHAT you're doing, WHY that specifically,
+  and how I was supposed to come up with that idea myself
+- where you're choosing between several approaches, list the
+  alternatives and explain why you picked this one
+- flag the step that's the key one for this type of problem
+- at the end, write a general recipe for this type of problem in
+  5 points
+- add two typical mistakes students make on this type of problem
+
+Finally, give me two similar practice problems, but WITHOUT
+solutions — wait until I solve them myself.
+```
+
+It comes back with an annotated process plus a recipe you can apply to the whole class of problems. Two warnings. First: **the model is not a calculator.** Intermediate results it computes “as text” tend to be wrong — recheck every number, and for more complex calculations, have it write you a script or redo the result on an actual calculator. Second: check the process against how your instructor teaches it. More than one correct path exists, and at the exam, yours is the one that gets graded.
+
+### Socratic mode: let it walk you there yourself
+
+If you have the problem solved for you, you learn about as much as watching someone else cook. A stronger version is to be guided instead.
+
+```text
+I don't want the finished solution. Guide me to it.
+
+Problem: [paste the problem]
+
+Rules:
+- always ask me ONE question that moves me one step forward,
+  then wait
+- if I answer wrong, don't correct me right away — ask a leading
+  question so I find the mistake myself
+- if I answer wrong twice in a row on the same step, only then
+  explain that step to me
+- don't reveal the next steps or the final answer ahead of time
+- at the end, tell me which step I struggled with the most
+```
+
+It'll hold your attention for ten to twenty minutes, and it's about as close to real one-on-one tutoring as you can get today. The model tends to lose patience toward the end and start hinting — when that happens, remind it of the rules in one sentence.
+
+### Your mistake as study material
+
+A problem you solved wrong is more valuable than one you got right, if you extract the reason from it.
+
+```text
+I solved this problem wrong. Here's the problem, my solution,
+and the correct answer from the problem set.
+
+Problem: [paste]
+My solution: [paste the full process, including the mistake]
+Correct answer: [paste]
+
+Do this:
+1. Find the FIRST point where my solution went off track, and
+   flag it.
+2. Write out what I was probably thinking at that moment and why
+   it was tempting — I want to understand my own mistake.
+3. Distinguish: was this a carelessness error, or a
+   misunderstanding?
+4. If it was a misunderstanding, explain that specific piece of
+   material again.
+5. Give me three examples where exactly this mistake is likely,
+   so I lock in the correction.
+```
+
+Point 3 determines what to do next: carelessness is fixed with pacing and double-checking, a misunderstanding is fixed by going back to your notes. Collect your own mistakes into a single list — a week before the exam you'll find that three of them keep recurring, and all three trace back to one misunderstood spot.
+
+## Phase 5: test questions from your own notes
+
+This is where understanding turns into knowledge you can actually pull out at the exam. The principle is [active recall](/tipy/student-aktivni-vybavovani): pulling information out of your head is a hundred times more effective than reading it. AI speeds up one specific part of that — it generates questions you wouldn't have thought up yourself, and crucially, from **your own** notes, not the general internet.
+
+### A question bank from your own notes
+
+The source has to be what you're actually studying: your lecture notes, course materials, the instructor's slides. Questions drawn from the model's general knowledge miss the syllabus.
+
+```text
+Here are my lecture notes from [course], topic [topic]. The
+exam is [multiple choice written test / open-ended questions /
+oral] and the examiner mainly focuses on [what they pay
+attention to].
+
+Generate 15 questions using ONLY what's in the notes — don't
+add anything from your own knowledge. Split them like this:
+- 5 on recall (definitions, terms, notation)
+- 5 on understanding (explain in your own words, compare,
+  justify)
+- 5 on application (apply to a new situation, calculate, decide)
+
+For each question, note which part of the notes it comes from.
+Put the answers AT THE VERY END, below a line, so I don't see
+them ahead of time. Where a note is too brief to turn into a
+question, say so instead of making one up.
+
+Notes:
+[paste your notes here]
+```
+
+It comes back with a question bank that matches what you're actually studying. The last rule matters: without it, the model fills gaps in your notes with its own knowledge, and you end up studying something that was never covered in the lecture. Even more reliable is working in a tool that only answers from uploaded sources — NotebookLM shows which document it pulled each answer from; see [your own sources in NotebookLM](/tipy/notebooklm-vlastni-zdroje).
+
+### The real thing: getting quizzed
+
+Having the questions isn't enough — you have to answer them. The best setup is one where the model asks one question at a time and grades you.
+
+```text
+Quiz me on [topic] using the questions you generated.
+
+Format:
+- ask ONE question at a time and wait for my answer
+- I'll answer from memory, without looking at my notes
+- after each answer, write: what was correct, what was missing,
+  what was wrong, and what a full-marks answer would look like
+- be as strict as a real examiner, not as lenient as a friend
+- if I answer "I don't know," don't explain right away — ask an
+  easier question so I at least get somewhere
+
+After ten questions, give me an overview: which topics I've got
+down, which are shaky, which I don't know at all, and what I
+should study first.
+```
+
+It comes back with a quiz and, at the end, a map of your gaps. Treat the final assessment as a rough guide, not a grade — the model doesn't know what will actually be on the test, and tends to be either kinder or harsher than reality. **Your instructor decides, not the chat.**
+
+### Converting to flashcards
+
+Questions you missed belong in spaced repetition — otherwise you'll relearn the same thing again a week before the exam. More detail in the tip [Anki and spaced repetition](/tipy/anki-opakovani).
+
+```text
+Turn these questions and answers into Anki flashcards.
+
+Rules:
+- one card = one fact or one relationship, nothing compound
+- the front must be a question, not a keyword (not "Derivative,"
+  but "What does the derivative at a point mean geometrically?")
+- the back is max 2 sentences, no paragraphs
+- skip questions that are just listing a long enumeration, or
+  split them across multiple cards
+- for formulas, put the situation on the front and the formula
+  on the back
+
+Output as CSV: front;back;tag
+Use tags based on topics: [topics].
+```
+
+It comes back with a file you can import into Anki. Before importing, look over the first ten cards — if they're long or bundle two questions, add to the prompt asking it to split them, or you'll end up with a deck that's unusable for review.
+
+## Phase 6: exam prep on a schedule
+
+The last piece is organizational, and it decides whether all of this actually fits into the time you have left.
+
+### A plan working backward from the date
+
+```text
+I have a [course] exam on [date], today is [date]. I can
+realistically study [number] hours a week, except [when I
+can't].
+
+Syllabus / exam topics:
+[paste the list of topics]
+
+My current status on each topic:
+[for each, write: know it / shaky / not at all]
+
+Build a day-by-day study plan up to the exam date:
+- what gets studied each day and with which technique (new
+  reading / solving problems / flashcard review / explaining
+  the topic in your own words)
+- put "not at all" topics as early as possible, not at the end
+- every topic has to show up at least three times spaced apart,
+  not just once
+- leave the last three days for review and quizzing, not new
+  material
+- for each day, write a check-up question I'll use that evening
+  to verify it stuck
+
+Output as a table: date, topic, technique, minutes, check-up.
+```
+
+It comes back with a schedule you can copy into your calendar. Check two things: whether the plan builds in review of earlier topics (without it, you'll forget the first half by the time you reach the end), and whether the daily hours are realistic. Models plan optimistically, and a plan you fall behind on by day two is a plan you'll stop using.
+
+### A dry-run exam simulation
+
+Two or three days before the exam, run through it under conditions close to the real thing.
+
+```text
+Put together an exam test for [course] based on these topics:
+[topics]. Match the real exam's format and length: [e.g., 8
+questions, 90 minutes, 3 of them calculation problems].
+
+Give me the entire test at once, without solutions. I'll work
+through it and send you all my answers together.
+
+Then grade it:
+- for each question, note the points and what specifically was
+  missing
+- separate mistakes from misunderstanding from mistakes from
+  carelessness
+- tell me what to study in the remaining time and what's no
+  longer worth it
+- and one sentence on whether I'd pass in my current state or
+  not
+
+Where you're not sure how a real examiner would grade something,
+say so instead of guessing at points.
+```
+
+It comes back with a test and grading, plus priorities for the last few days. Splitting the mistakes apart is the most valuable part: before an exam, carelessness gets fixed differently than not knowing the material. And remember, the scoring is still just the machine's estimate — at an oral exam, how you answer matters too, and the chat can't judge that.
+
+## The trap: the illusion of understanding
+
+This is the most important section in the whole guide, and it's worth reading twice.
+
+When you read a good explanation, your brain reports back a pleasant feeling: “ah, got it.” That feeling is **the fluency of the text**, not your knowledge. It's the same thing you feel watching someone else cook, or watching a sport on TV — after an hour of broadcast you feel like you get it, even though you couldn't actually do any of it yourself. AI amplifies the effect, because its explanations are smooth, clear, and follow your question precisely. That's why students, after an hour of reading AI explanations, walk away more confident and knowing exactly as much as they did before.
+
+You'll recognize it by four signs. You're reading and nodding along, but writing nothing down. You couldn't explain the material with the screen closed. When someone asks “but why?”, you reach for the phrasing you just read instead of your own. And in your summary you use words you'd never have chosen yourself.
+
+The defense is simple and uncomfortable: **one recall attempt for every explanation you read.** Close it, write it in your own words, only then compare. The ratio should be roughly one quarter reading and three quarters recall and problem-solving — not the other way around. In practice, that means phases 3 and 5 of this guide are mandatory, and phases 1 and 2 are just preparation for them.
+
+One question to close out every session that reliably breaks the illusion:
+
+```text
+We just went over [topic]. Now quiz me on it in a way that
+actually tests whether I understand it, or whether I just
+remember your phrasing.
+
+- ask about new situations that didn't come up in our
+  discussion
+- ask at least one question where I have to decide and justify,
+  not just list
+- ask one "what would happen if…" question
+- don't use the same words as in the earlier explanation
+- at the end, tell me straight whether my answers sounded like
+  understanding or like a playback of my notes
+
+Ask one question at a time and wait for my answer.
+```
+
+If your own answers surprise you, it did its job. Real understanding survives a reworded question; a memorized phrase doesn't.
+
+## Common mistakes
+
+- **Reading an explanation and feeling like you're studying.** Passive reading of AI explanations builds confidence without knowledge. Every explanation has to be followed by an attempt to recall it in your own words.
+- **Having AI solve your homework instead of explaining the process.** It saves you an evening and costs you the one form of practice that actually counts at the exam — and at most schools it also breaks the rules. A solution is study material, not a deliverable to submit.
+- **Trusting numbers from the chat.** The model isn't a calculator: it computes intermediate results as text, not through actual computation. Check the numbers, and for bigger calculations have it write you a script.
+- **Letting the model fill in what's missing from your notes.** You end up studying the internet's general knowledge instead of your course's syllabus. At the exam, what your instructor teaches is what counts — even when the chat says otherwise.
+- **Treating AI's assessment as a grade.** The model doesn't know how grading works at your school, and it's either more lenient or harsher than reality. It's feedback, not a result — AI proposes, a human grades.
+- **Forgetting about sensitive data.** Your own health information, materials from an internship, or internal company documents belong only on a paid account with contractual data protection — and even there, without names or identifying details. For studying the material itself, you usually don't need the exact data anyway.
 
 ## The best tools
 
-- **Whatever AI chat you already have** — ChatGPT, Claude, or Gemini, works with no extra setup.
-- **Khanmigo** — an AI assistant built specifically for teaching, and it actively guides you toward the solution rather than just handing over the answer.
-- **Socratic (Google)** — a mobile app focused on explaining schoolwork from a photo of the assignment.
-- **Notion AI or a similar AI-enabled notes tool** — useful when you want to save explanations and check-up questions directly into your own notes for later review.
-- **Anki or another spaced-repetition app** — the check-up questions you get from AI can go straight onto flashcards and come back to you over the following days, not just once.
+- **Whatever AI chat you already have** — ChatGPT, Claude, or Gemini: explanations, the Feynman technique, and quizzing all work with no extra setup.
+- **Projects (Claude) or custom instructions** — persistent context about your field and level; set it up once, it holds for the whole semester, and you stop re-explaining what you already know.
+- **NotebookLM** — questions and summaries drawn purely from your own notes and lectures: it only answers from uploaded sources and shows where each claim came from.
+- **Anki** — spaced repetition for the questions you missed; have the chat generate a CSV and import it.
+- **Voice mode** — explaining something out loud on your way home from class is active recall without the writing; especially good for a Feynman round.
+- **Course materials and your instructor** — the only authority on what will actually be tested. AI is a tool for understanding, not a source of syllabus.
 
 ## What you get out of it
 
-- **Time:** an hour of confusion over course notes often shrinks to 15–20 minutes of targeted explanation.
-- **Deeper understanding:** analogies and examples stick better than bare definitions, especially for abstract topics.
-- **Self-check:** check-up questions show you exactly where the gaps are, before you find out at the exam.
-- **Less stress:** you don't have to wait for office hours or feel embarrassed asking a "dumb" question — AI never gets annoyed.
+- **Time:** an hour of confusion over your notes shrinks to 15–20 minutes of targeted explanation; putting together a question bank for a topic takes minutes instead of an evening.
+- **Peace of mind:** you don't have to wait a week for office hours or feel embarrassed asking the same question a fifth time; before the exam you know what you actually know, because you tested yourself, not because you read it.
+- **Quality:** understanding instead of memorizing — material you can derive and explain to a twelve-year-old sticks around into the next semester, where something else builds on it.
+- **Self-awareness:** a map of your gaps weeks before the exam, not after you see the results. Most failures aren't about ability — they're about a gap that surfaced too late.
 
 ## Pro tip
 
-Flip it around: **you** explain the material to AI in your own words and ask it to correct your mistakes and fill in what you left out. Teaching to learn is the strongest technique there is — if you can explain something clearly, you actually understand it. And wherever your explanation doesn't hold up, that's exactly where your attention should go for your next study session.
+Start a single “in my own words” file and, after each topic, write your explanation into it — the corrected version, after your Feynman round. By the end of the semester you'll have your own set of notes, written in your own language, that you study from several times faster than anyone else's, because you understand them on the first read. Before the exam, all you have to do is go through them and get quizzed.
+
+And the final rule that governs everything else: **an explanation isn't learning until you've repeated it without the screen.** If you take exactly one thing from this whole guide, make it this — close it, write it in your own words, only then compare.

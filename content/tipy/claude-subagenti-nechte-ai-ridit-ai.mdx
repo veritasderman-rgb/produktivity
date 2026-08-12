@@ -1,6 +1,6 @@
 ---
 title: "Subagenti: nechte AI řídit AI"
-excerpt: "Velkou práci nejde udělat jedním promptem. Rozdělte ji mezi paralelní agenty: jeden šéf rozdá zadání, ostatní pracují souběžně, vy schvalujete výsledek."
+excerpt: "Kompletní návod s prompty na orchestraci subagentů: kdy jeden agent nestačí, jak napsat instrukční soubor, jak rozdělit práci do dávek, jak výsledky kontrolovat skriptem místo ručního čtení. Případová studie: 250+ tipů a překlad celého webu."
 category: "ai"
 platform: "vsude"
 audience: ["vyvojar", "manazer"]
@@ -9,39 +9,416 @@ saves: "~týdny práce"
 date: "2026-08-12"
 ---
 
-Existuje strop, přes který se s AI v jednom okně nedostanete. Šedesát rešerší, tři sta dokumentů, kompletní překlad celého webu — to se do jedné konverzace nevejde a po dvacáté iteraci už vám model zapomíná, co jste chtěli na začátku. Řešení není lepší prompt, ale jiná organizace práce: **jeden hlavní agent rozdá zadání, dílčí agenti pracují souběžně a šéf pak sbírá a kontroluje výsledky.** Claude Code tohle umí sám od sebe. Vy přestanete být operátorem a stanete se zadavatelem.
+Existuje strop, přes který se s AI v jednom okně nedostanete. Šedesát rešerší, tři sta dokumentů, kompletní překlad celého webu — to se do jedné konverzace nevejde a po dvacáté iteraci už vám model zapomíná, co jste chtěli na začátku. Řešení není lepší prompt, ale jiná organizace práce: **jeden hlavní agent rozdá zadání, dílčí agenti pracují souběžně a šéf pak sbírá a kontroluje výsledky.** Claude Code tohle umí sám od sebe.
+
+Změna je v tom, čím u té práce jste. Přestáváte být operátorem, který kopíruje data do okna a zpátky, a stáváte se zadavatelem: píšete instrukce, rozdělujete práci a schvalujete výsledky. Devadesát procent kvality se rozhoduje v jediném dokumentu, který napíšete jednou — v instrukčním souboru. Zbytek je logistika.
+
+Tenhle návod vede od rozhodnutí „vyplatí se to vůbec?" přes psaní instrukcí a rozdělení do dávek až po kontrolu, která nezabere víc času než samotná práce. Každá fáze má prompty k okopírování. A nad vším platí pravidlo, které se paralelizací neruší, ale zesiluje: **AI navrhuje, člověk schvaluje.**
 
 ## Vzorová situace
 
-Vedoucí marketingu Tomáš má do konce týdne srovnat šedesát konkurenčních produktů: co nabízejí, komu, čím se odlišují, jak komunikují. Ručně je to dvacet minut na jednu položku, tedy dvacet hodin — a to jen sběr, ne psaní závěru. V chatu po jednom to není o moc lepší, jen ho u toho bolí zápěstí.
+Vedoucí marketingu Tomáš má do konce týdne srovnat šedesát konkurenčních produktů: co nabízejí, komu, čím se odlišují, jak komunikují, jaké mají hodnocení. Ručně je to dvacet minut na jednu položku, tedy dvacet hodin — a to jen sběr, ne psaní závěru. V chatu po jednom to není o moc lepší, jen ho u toho bolí zápěstí. Do pátku to nestihne a ví to.
 
-Místo toho stráví devadesát minut psaním jediného instrukčního souboru: co přesně hledat, do jaké struktury to zapsat, co dělat, když se informace nenajde, čemu nevěřit. Pak zadá jednu větu: rozděl šedesát položek mezi osm agentů, každý ať postupuje podle těchhle instrukcí a vrátí vyplněnou tabulku. Za necelou hodinu má hlavní agent osm dílčích výstupů sesbíraných do jednoho souboru. Tomáš dvě hodiny kontroluje, u pěti položek dohledává detail sám. Z dvaceti hodin zbyly čtyři a půl — a instrukční soubor mu příště poslouží znovu.
+Místo toho stráví **devadesát minut psaním jediného instrukčního souboru**: co přesně hledat, do jaké struktury to zapsat, co dělat, když se informace nenajde, čemu nevěřit, jak vypadá dobrý a jak špatný výsledek. Pak pustí jednoho agenta na jednu firmu, výsledek si přečte řádek po řádku a instrukce na třech místech upřesní — vyšlo najevo, že „cena" znamená u půlky firem něco jiného.
 
-Případová studie z tohoto webu: rozšíření na dvě stě padesát tipů a kompletní anglický překlad vznikly přesně takhle. Desítky agentů běžely podle jednoho instrukčního souboru, který popisoval formát, tón a tvrdá pravidla; člověk psal zadání a schvaloval hotové výstupy. Ta přenositelná lekce nemá s weby nic společného: **dobré zadání napsané jednou se dá využít stokrát.** Stejný princip funguje na hromadné rešerši, zpracování stohu dokumentů i na kontrole stovek smluv proti jednomu seznamu kritérií.
+Teprve pak zadá jednu větu: rozděl šedesát položek mezi osm agentů, každý ať postupuje podle těchhle instrukcí a vrátí vyplněnou tabulku. Za necelou hodinu má hlavní agent osm dílčích výstupů sesbíraných do jednoho souboru. Kontrolní skript označí devět položek s chybějícím polem a čtyři, kde si agent nebyl jistý. Tomáš dvě hodiny kontroluje, u pěti položek dohledává detail sám.
 
-## Jak na to
+Z dvaceti hodin zbyly čtyři a půl. A hlavně: instrukční soubor mu příště poslouží znovu — příští kvartální srovnání začne na osmdesáti procentech hotovo.
 
-1. **Rozdělte úlohu na stejnorodé kusy.** Paralelizace funguje jen tam, kde jsou položky nezávislé — šedesát firem, tři sta faktur, sto textů. Kde krok B potřebuje výsledek kroku A, se nic paralelizovat nedá.
-2. **Napište jeden instrukční soubor.** Tohle je nejdůležitější krok celého postupu a jediný, který musíte odvést sami. Patří do něj formát výstupu, hranice („nedomýšlej, co nenajdeš“), příklad správného výsledku a příklad špatného.
-3. **Ověřte instrukce na jedné položce.** Pusťte jednoho agenta na jeden kus a výsledek si přečtěte řádek po řádku. Každá nejasnost, kterou teď najdete, by se jinak zopakovala padesátkrát.
-4. **Zadejte rozdělení práce.** Řekněte, kolik agentů má běžet souběžně a který dostane které položky. Hlavní agent si drží přehled, dílčí agenti se navzájem nevidí — proto musí být zadání soběstačné.
-5. **Nechte šéfa výsledky sesbírat a sjednotit.** Ne jen slepit: zkontrolovat formát, najít chybějící pole, upozornit na položky, kde si agent nebyl jistý. Tenhle úklid ušetří nejvíc vašeho času.
-6. **Schvalujte vy.** Namátkově projděte deset procent výstupů a všechny, kde agent hlásil pochybnost. Nic se neodesílá, nepublikuje ani nefakturuje bez lidského podpisu.
+## Fáze 1: kdy jeden agent nestačí
+
+### Tři znaky úlohy, která se vyplatí paralelizovat
+
+Orchestrace není zdarma — stojí vás čas na instrukce a na kontrolu. Vyplatí se, když má úloha všechny tři tyhle znaky:
+
+1. **Hodně stejnorodých položek.** Šedesát firem, tři sta faktur, sto textů, dvě stě smluv. U deseti položek je režie větší než úspora.
+2. **Nezávislost.** Položka číslo osm nepotřebuje znát výsledek položky číslo tři. Kde krok B stojí na výsledku kroku A, se nedá paralelizovat nic — tam potřebujete posloupnost, ne dávku.
+3. **Popsatelné pravidlo.** Umíte na dvě stránky vysvětlit, co se má s každou položkou stát a jak pozná dobrý výsledek. Když to nesvedete, agenti to nesvedou taky.
+
+Když jeden ze znaků chybí, zůstaňte u jednoho agenta. Padesát dokumentů zpracovaných postupně jedním agentem je pořád obrovská úspora oproti ruční práci — o tom je tip [Claude Code jako osobní automatizační motor](/tipy/claude-code-osobni-automatizace).
+
+### Kde je strop jednoho okna
+
+Dvě věci vás v jedné konverzaci zastaví. **Kontext**: model vidí jen omezený výřez textu, a čím je konverzace delší, tím dřív z ní vypadává začátek. Po dvacáté položce už si nepamatuje pravidla, která jste zadali na začátku, a výstupy se začnou rozjíždět. **Čas**: šedesát položek po sobě trvá šedesátkrát déle než jedna, i když každá jde rychle.
+
+Subagenti řeší obojí najednou. Každý dílčí agent dostane **čistý kontext** — jen instrukce a svou dávku, nic z toho, co dělali ostatní. Proto je výstup u položky číslo padesát devět stejně kvalitní jako u první. A protože běží souběžně, celkový čas se řídí velikostí nejpomalejší dávky, ne součtem.
+
+Má to cenu, kterou je nutné znát dopředu: **agenti o sobě nevědí.** Nemůžou se domluvit, nemůžou si předat rozhodnutí, nevidí, co napsal soused. Cokoli musí být konzistentní napříč celkem — názvosloví, číslování, formát, tón — musí být v instrukcích předem. Tohle je jediné pravidlo orchestrace, které lidé porušují znovu a znovu.
+
+### Rychlý test před spuštěním
+
+Než začnete psát instrukce, ověřte si, že se to vyplatí. Tenhle prompt zabere dvě minuty a párkrát vás zachrání od zbytečné práce.
+
+```text
+Chci zpracovat [60] položek typu [popis položky] a u každé
+udělat [popis práce]. Odhaduju, že ručně to je [20] minut
+na položku.
+
+Posuď, jestli se vyplatí rozdělit to mezi paralelní agenty:
+1. Jsou položky opravdu nezávislé, nebo některé potřebují
+   výsledek jiných? Vypiš, kde vidíš závislost.
+2. Co musí být konzistentní napříč všemi položkami a hrozí,
+   že se to bez domluvy rozjede?
+3. Odhadni, kolik času zabere napsat instrukce tak, aby to
+   agent zvládl bez doptávání.
+4. Odhadni, kolik času zabere kontrola výstupů.
+5. Vyplatí se to, nebo mám zůstat u jednoho agenta? Odpověz
+   jednoznačně a zdůvodni.
+
+Buď skeptický. Když se to nevyplatí, řekni to rovnou.
+```
+
+Vrátí střízlivé posouzení včetně skrytých závislostí, které jste přehlédli. Bod 2 je ten důležitý — typicky odhalí, že potřebujete předem sjednotit názvosloví nebo číslování, jinak dostanete šedesát mírně odlišných tabulek.
+
+## Fáze 2: instrukční soubor je celá práce
+
+### Proč na něm všechno stojí
+
+Tohle je jediná fáze, kterou musíte odvést sami, a jediná, kde se rozhoduje o kvalitě. Dílčí agent nevidí vás, nevidí ostatní agenty a nemůže se doptat. Má jen ten dokument. Cokoli v něm chybí, si domyslí — a padesát agentů si to domyslí padesáti různými způsoby.
+
+Dobrý instrukční soubor má šest částí:
+
+- **Cíl** — co má na konci vzniknout a k čemu to slouží.
+- **Vstup** — co agent dostane a kde to najde.
+- **Postup** — kroky v pořadí, ve kterém se mají dělat.
+- **Formát výstupu** — přesně, včetně názvů polí, pořadí a kódování.
+- **Hranice** — co se nesmí, co dělat při nejistotě, co nedomýšlet.
+- **Příklady** — jeden správný výsledek a jeden špatný, s vysvětlením proč.
+
+Poslední bod dělá největší rozdíl a nejčastěji chybí. Příklad špatného výsledku je cennější než tři odstavce pravidel, protože ukazuje přesně tu chybu, které se agenti dopouštějí.
+
+### Napsat návrh a pak ho utáhnout
+
+Nejrychlejší cesta je nechat si návrh vygenerovat a pak ho přepsat. Píšete přitom pro stroj, ne pro člověka — instrukce mají být jednoznačné, ne elegantní.
+
+```text
+Píšu instrukční soubor pro dílčí agenty, kteří budou paralelně
+zpracovávat [60] položek typu [popis]. Každý agent uvidí jen
+tenhle soubor a svoji dávku položek — nic víc, a nemůže se
+mě doptat.
+
+Cíl: [co má vzniknout]
+Vstup: [co agent dostane]
+Výstup: [formát, např. řádek v CSV / soubor .md / vyplněná tabulka]
+
+Napiš návrh instrukčního souboru se sekcemi:
+1. Cíl a kontext ve třech větách
+2. Přesný postup krok za krokem
+3. Formát výstupu do posledního detailu (názvy polí, pořadí,
+   kódování, formát datumů a čísel, co dělat s prázdnými poli)
+4. Hranice: co nedomýšlet, co nikdy nedělat, jak zapsat
+   nejistotu
+5. Jeden příklad správně vyplněné položky
+6. Jeden příklad špatného výstupu a vysvětlení, co je na něm
+   špatně
+
+Piš jako pokyny pro vykonavatele, ne jako popis pro člověka.
+Na konci vypiš 10 otázek, na které v mém zadání není odpověď
+a agent by si je musel domyslet.
+```
+
+Těch deset otázek na konci je nejcennější část odpovědi. Jsou to přesně místa, kde by se výstupy rozjely — odpovězte na ně a odpovědi doplňte do souboru. Zbytek návrhu projděte kritickým okem: formulace typu „zpracuj vhodným způsobem" znamenají padesát různých vhodných způsobů.
+
+### Pravidlo nejistoty
+
+Nejdůležitější řádek každého instrukčního souboru se týká toho, co má agent dělat, když si není jistý. Bez něj vyplní mezeru věrohodně vypadající větou a vy to poznáte až u zákazníka.
+
+Zapište to takhle a nepřehlédnutelně:
+
+```text
+PRAVIDLO NEJISTOTY (platí nad vším ostatním)
+
+Když údaj nenajdeš, nedomýšlej ho. Nikdy nedoplňuj hodnotu
+odhadem, ani když je „zjevná".
+
+- pole, které nejde vyplnit, nech prázdné
+- do sloupce poznamka napiš důvod: NENALEZENO / NEJEDNOZNAČNÉ
+  / ZDROJ NEDŮVĚRYHODNÝ
+- do sloupce jistota napiš vysoká / střední / nízká
+- když si nejsi jistý celou položkou, označ ji K RUČNÍ
+  KONTROLE a stručně napiš proč
+
+Raději deset prázdných polí než jedno vymyšlené.
+Prázdné pole člověk doplní za minutu, vymyšlené najde za měsíc.
+```
+
+Tenhle blok si zkopírujte do každého instrukčního souboru, který kdy napíšete. Sloupec „jistota" pak rozhoduje, co budete číst — a to je rozdíl mezi dvěma hodinami kontroly a dvěma dny.
+
+### Ověření na jedné položce
+
+Nikdy nepouštějte dávku podle neověřených instrukcí. Jeden agent, jedna položka, výsledek přečtený řádek po řádku. Každá nejasnost, kterou najdete teď, by se jinak zopakovala padesátkrát.
+
+```text
+Vezmi tenhle instrukční soubor a zpracuj podle něj jednu
+jedinou položku: [konkrétní položka].
+
+Postupuj přesně podle instrukcí, nic si nepřidávej.
+
+Po dokončení mi kromě výsledku napiš:
+1. která místa instrukcí byla nejednoznačná a jak sis je
+   vyložil
+2. co ti v instrukcích chybělo úplně
+3. kde jsi musel něco odhadnout
+4. které kroky byly zbytečné nebo se překrývaly
+5. jak dlouho by tenhle postup trval u 60 položek
+
+Buď konkrétní a cituj místa v instrukcích, o kterých mluvíš.
+```
+
+Vrátí jeden hotový výstup a soupis děr v zadání. Body 1 a 3 opravte v instrukcích okamžitě. Body 2 a 4 posuďte — občas agent chce doplnit pravidlo, které tam být nemá. A pak celé kolo zopakujte s druhou, co nejodlišnější položkou: nejvíc problémů se ukáže na netypickém případu, ne na tom vzorovém.
+
+## Fáze 3: rozdělení práce a spuštění dávky
+
+### Jak velké mají být dávky
+
+Osvědčené je zhruba pět až deset položek na agenta a šest až deset agentů souběžně. Menší dávky znamenají víc režie na sbírání výstupů, větší dávky znamenají, že se agentovi ke konci rozjede kvalita — je to týž problém s kontextem, jen v malém.
+
+Rozdělení dělejte podle něčeho neutrálního (pořadí, abeceda), ne podle obtížnosti. A dejte každému agentovi jasně vymezené pole, do kterého zapisuje, aby si dva nesahali na stejný soubor.
+
+```text
+Máme instrukční soubor [cesta] ověřený na dvou položkách
+a seznam [60] položek v [cesta k seznamu].
+
+Rozděl práci mezi 8 paralelních agentů:
+- každý dostane [7-8] položek podle pořadí v seznamu
+- každý agent postupuje výhradně podle instrukčního souboru
+- každý zapisuje výsledek do vlastního souboru
+  vystupy/davka-01.csv až vystupy/davka-08.csv
+- žádný agent nesmí sahat na soubory jiného agenta ani na
+  zdrojová data měnit
+
+Než spustíš, napiš mi:
+1. které položky dostane který agent
+2. jaké pokyny každému agentovi předáš (doslovně)
+3. co uděláš, když některý agent skončí chybou
+
+Pak počkej na moje schválení.
+```
+
+Bod 2 si opravdu přečtěte. Je to jediný okamžik, kdy vidíte, co se dílčím agentům skutečně řekne — a občas zjistíte, že se do zadání ztratila polovina instrukcí. Bod 3 je pojistka: dávka, která spadne v půlce, nesmí zablokovat zbytek.
+
+### Sesbírání výstupů
+
+Hlavní agent má po dokončení víc práce než jen slepit soubory. Sjednocení a první síto je jeho úkol.
+
+```text
+Všech 8 dávek doběhlo. Sesbírej výstupy ze složky vystupy/
+do jednoho souboru vysledek.csv.
+
+Nejen slep — udělej tohle:
+1. zkontroluj, že mají všechny dávky stejné sloupce ve
+   stejném pořadí; nesrovnalosti vypiš
+2. ověř, že je celkem [60] položek a žádná nechybí ani se
+   neopakuje
+3. vypiš položky s prázdnými povinnými poli
+4. vypiš položky označené K RUČNÍ KONTROLE a položky
+   s nízkou jistotou
+5. najdi nekonzistence napříč dávkami: různé psaní téhož
+   názvu, různé formáty datumů a čísel, různé jednotky
+6. na konci napiš souhrn: kolik položek je hotových bez
+   výhrad, kolik potřebuje moji pozornost a proč
+
+Nic neopravuj sám, jen vypiš. Formátovací nesrovnalosti
+zvlášť od obsahových.
+```
+
+Bod 5 je ten, kvůli kterému se to vyplatí zadat takhle podrobně. Nekonzistence napříč dávkami jsou typický produkt paralelizace — jeden agent napsal „1 200 Kč", druhý „1200", třetí „1,2 tis." — a ručně by se hledaly hodiny.
+
+## Fáze 4: kontrola skriptem, ne čtením
+
+### Proč nečíst všechno
+
+Šedesát výstupů přečíst zvládnete. Tři sta ne. A hlavně: většina chyb, které hledáte, je formální — chybějící pole, špatný formát, prázdný povinný sloupec, výstup mimo rozsah. Na tohle je člověk pomalý a nespolehlivý, zatímco skript to udělá za vteřinu a stejně dobře po sté jako po první.
+
+Rozdělte kontrolu na dvě vrstvy. **Skript hlídá formu** — struktura, úplnost, formát, meze, duplicity. **Člověk hlídá obsah** — jestli výsledek dává smysl, jestli agent nepochopil zadání jinak, jestli tam něco nechybí koncepčně. A čte přitom jen vzorek plus všechno, co skript nebo agent označil.
+
+```text
+Napiš mi kontrolní skript qa.py, který projde soubor
+vysledek.csv a ohlásí problémy.
+
+Kontroly:
+1. povinná pole [seznam polí] nejsou prázdná
+2. formát: datumy jako RRRR-MM-DD, čísla bez mezer
+   a s desetinnou čárkou, texty bez zalomení řádku
+3. hodnoty mimo rozumný rozsah: [např. cena pod 0 nebo
+   nad 1 000 000, datum v budoucnosti]
+4. duplicity v poli [klíčové pole]
+5. celkový počet řádků je [60]
+6. položky se jistotou nízká nebo s poznámkou
+   K RUČNÍ KONTROLE
+7. hodnoty, které se v jednom poli píší různě (varianty
+   téhož názvu)
+
+Výstup: přehledný seznam nálezů, u každého číslo řádku
+a co je špatně, seřazeno podle závažnosti. Na konci souhrn
+v číslech. Skript nic neopravuje.
+
+Pak ho spusť a ukaž mi výsledek.
+```
+
+Vrátí skript i první běh. Nechte si ho ve složce projektu — u příští dávky ho jen spustíte znovu a máte kontrolu formy hotovou dřív, než si uvaříte kávu. Když najde příliš mnoho nálezů jednoho typu, není chyba ve výstupech, ale v instrukcích: opravte instrukční soubor a dávku pusťte znovu.
+
+### Namátková kontrola obsahu
+
+Zbytek je na vás a nejde ho delegovat. Osvědčený poměr: **projděte deset procent výstupů namátkou, plus sto procent těch, které skript nebo agent označil.** U šedesáti položek je to šest náhodných a k tomu třináct označených, tedy dvě hodiny práce.
+
+Při čtení se ptejte na tři věci: pochopil agent zadání tak, jak jste ho mysleli? Nechybí v odpovědi něco, co by tam mělo být, ale instrukce si to nevyžádaly? A není tam něco, co vypadá příliš hladce — hotová věta bez opory ve zdroji je typický produkt domýšlení. Kontrolu faktů proti zdrojům řeší podrobněji tip [ověřování faktů s AI](/tipy/ai-overovani-faktu).
+
+### Checkpointy: nepouštějte všechno najednou
+
+U velkých dávek se vyplatí rozdělit práci na etapy a mezi nimi si dát kontrolní bod. Sto padesát položek nedělejte jako jednu dávku, ale jako tři po padesáti — po první etapě zkontrolujete a případně upravíte instrukce, po druhé už jen namátkově.
+
+```text
+Máme celkem [300] položek. Nechci to pustit najednou.
+
+Rozvrhni práci do tří etap po [100] položkách:
+- po každé etapě se zastav a nespouštěj další
+- po každé etapě spusť kontrolní skript qa.py a vrať mi
+  souhrn nálezů
+- napiš mi po každé etapě 3 návrhy, co upřesnit
+  v instrukčním souboru na základě toho, co jsi viděl
+- do dalšího kola použij instrukce až po mém schválení
+
+Před první etapou mi ukaž rozvrh: která položka je v které
+etapě a v které dávce.
+```
+
+Návrhy na úpravu instrukcí po každé etapě jsou samostatná hodnota. Instrukční soubor tímhle způsobem po každé stovce položek dozraje — a příští projekt začíná s dokumentem, který je prověřený třemi sty případy.
+
+## Fáze 5: případová studie — 250 tipů a překlad celého webu
+
+Tenhle web je postavený přesně takhle. Rozšíření na dvě stě padesát tipů i kompletní anglická jazyková verze vznikly orchestrací: desítky agentů běžely podle jednoho instrukčního souboru, který popisoval formát, tón a tvrdá pravidla. Člověk psal zadání, nastavoval hranice a schvaloval výsledky.
+
+Průběh měl čtyři vrstvy, které jdou přenést kamkoli.
+
+**Jeden instrukční soubor pro všechny.** Popisoval strukturu tipu (co je nadpis, co je vzorová situace, kolik prompt bloků), tón, tvrdá pravidla — jak se píší uvozovky, co se v textech nesmí objevit, jaké zásady platí u citlivých dat a u schvalování člověkem. Bez tohohle dokumentu by dvě stě padesát textů vypadalo jako dvě stě padesát různých webů.
+
+**Dávky po několika položkách.** Agenti nedostávali „napiš tipy", ale konkrétní seznam témat a cest k souborům. Každý zapisoval do svých souborů, takže si nikdo nesahal do cizího.
+
+**Kontrolní skript místo čtení všeho.** Formální stránku — délku textu, strukturu, sudý počet ohrazení kódových bloků, poškozené vnitřní odkazy, cizí znaky, konzistenci hlaviček — hlídá skript, který projde všechny soubory za pár vteřin a vrátí seznam nálezů. Člověk pak čte obsah, ne formu.
+
+**Git jako pojistka.** Každá dávka je zaznamenaná změna. Když dopadne špatně, vrátí se jedním příkazem. Bez verzování by odvážné hromadné úpravy nešly dělat vůbec.
+
+Tři přenositelné lekce z toho stojí za zapamatování a s weby nemají nic společného.
+
+**Dobré zadání napsané jednou se dá využít stokrát.** Devadesát minut nad instrukčním souborem je nejlépe investovaný čas celého projektu. Ušetří se v každé jednotlivé položce a zůstane vám pro příště.
+
+**Kontrolní skript je levnější než ruční čtení a spolehlivější.** Formální chyby najde stoprocentně a okamžitě. Vy pak čtete jen to, co skript označil, a vzorek zbytku.
+
+**Checkpointy dělají projekt zvládnutelným.** Etapa, kontrola, úprava instrukcí, další etapa. Nikdy nepouštět všechno najednou — ne kvůli technice, ale proto, že po sto položkách vždycky zjistíte něco, co jste na začátku vědět nemohli.
+
+## Fáze 6: mimo web — kde se to hodí taky
+
+### Hromadná rešerše
+
+Nejčastější použití mimo texty. Šedesát konkurentů, čtyřicet dodavatelů, sto obcí, dvě stě grantových výzev — u každé položky stejná sada otázek a jednotná tabulka na konci. Zásadní je pravidlo nejistoty a povinnost uvádět zdroj u každého údaje, protože právě tady si model nejvíc vymýšlí.
+
+```text
+Do instrukčního souboru pro rešeršní agenty doplň sekci
+o zdrojích. Napiš ji tak, aby ji agent nemohl obejít:
+
+- u každého vyplněného pole musí být odkaz na konkrétní
+  stránku, ze které údaj pochází, ne na hlavní stranu webu
+- údaj bez dohledatelného zdroje se nevyplňuje
+- když se dva zdroje rozcházejí, vyplň oba a označ rozpor
+- marketingová tvrzení firmy o sobě označ jako
+  ZDROJ: VLASTNÍ PREZENTACE, ne jako fakt
+- údaje starší než [2 roky] označ příznakem ZASTARALÉ
+- nikdy neuváděj údaj, který sis odvodil výpočtem, jako
+  by byl přímo ze zdroje
+
+Přidej k tomu jeden příklad správně ozdrojovaného řádku
+a jeden příklad řádku, který by neprošel, s vysvětlením.
+```
+
+Vrátí sekci, kterou vložíte do instrukcí. Ozdrojování je u rešerší jediná obrana, která funguje — na hloubkovou rešerši jednoho tématu s citacemi se pak hodí postup z tipu [deep research](/tipy/deep-research-reserse-trhu).
+
+### Zpracování stohu dokumentů
+
+Dvě stě smluv proti seznamu kritérií, tři sta životopisů proti profilu pozice, sto dodavatelských nabídek do srovnávací tabulky. Postup je stejný, jen vstupem jsou soubory místo webu.
+
+```text
+Ve složce [cesta] je [200] smluv v PDF. Chci každou
+projít proti stejnému seznamu kritérií.
+
+Napiš instrukční soubor pro agenty, který obsahuje:
+1. seznam [12] kritérií, na která se u každé smlouvy ptát:
+   [výpovědní lhůta, sankce, automatické prodloužení,
+   jurisdikce, mlčenlivost, …]
+2. u každého kritéria: co přesně hledat, jak zapsat výsledek
+   (ano / ne / neuvedeno) a povinnost uvést číslo článku,
+   kde to ve smlouvě je
+3. pravidlo nejistoty — nic nedomýšlet, nejasné případy
+   označit K RUČNÍ KONTROLE
+4. výslovný zákaz právního hodnocení: agent popisuje, co ve
+   smlouvě je, nehodnotí, jestli je to výhodné
+5. formát výstupu: jeden řádek CSV na smlouvu
+
+Přidej varování, že výstup je podklad pro člověka, ne
+právní stanovisko.
+```
+
+Bod 4 je tam schválně. Popis toho, co ve smlouvě stojí, je práce, kterou stroj zvládne; posouzení, jestli je to pro vás dobré, není. Navazuje na to tip [smlouva před podpisem](/tipy/smlouva-pred-podpisem-ai).
+
+### Migrace a přerovnání dat
+
+Třetí typ úlohy: převést stovky záznamů z jednoho formátu do druhého, sjednotit staré tabulky, přerovnat strukturu. Tady je klíčové mít **kontrolu, která porovná vstup s výstupem** — bez ní se nedozvíte, že se cestou ztratilo sedmnáct záznamů.
+
+```text
+Migrujeme [800] záznamů z [starý formát] do [nový formát]
+podle mapování v [soubor s mapováním].
+
+Než pustíme dávky, napiš kontrolní skript porovnani.py,
+který po migraci ověří:
+1. počet záznamů na vstupu a na výstupu sedí
+2. každý záznam ze vstupu má protějšek na výstupu (podle
+   [klíčové pole]) a naopak
+3. u [5] náhodně vybraných záznamů vypíše vstup a výstup
+   vedle sebe, ať to můžu porovnat okem
+4. pole, která na výstupu zůstala prázdná, ačkoli na vstupu
+   hodnotu měla — to je nejnebezpečnější případ
+5. hodnoty, u kterých se změnil typ nebo formát
+
+Výstup jako přehledná zpráva s čísly. Skript nic neopravuje.
+Migrační dávky pustíme až poté, co tenhle skript projde
+na zkušebním vzorku 20 záznamů.
+```
+
+Bod 4 je ten, kvůli kterému skript vzniká. Tichá ztráta hodnoty při převodu je nejčastější a nejhůř odhalitelná migrační chyba — a jediné, co ji chytí, je porovnání vstupu s výstupem po poli.
+
+### Když má orchestrace běžet pravidelně
+
+Pokud se stejná dávka opakuje každý měsíc, uložte si instrukce, kontrolní skript i rozvrh dávek do složky projektu a příště začněte větou „udělej to jako minule". Když má úloha běžet mezi cloudovými službami a podle kalendáře, patří to spíš do [n8n, Make nebo Zapieru](/tipy/n8n-zapier-ai-automatizace).
+
+## Nejčastější chyby
+
+- **Pustit dávku podle neověřených instrukcí.** Jedna položka napřed odhalí většinu nejasností. Bez ověření se každá díra v zadání zopakuje padesátkrát a opravovat se to bude ručně.
+- **Nechat na agentovi rozhodnutí, která musí platit napříč celkem.** Názvosloví, formát datumů, jednotky, číslování, tón. Agenti se nevidí, takže každý rozhodne jinak — a vy pak sjednocujete tři sta výstupů.
+- **Chybějící pravidlo nejistoty.** Bez výslovného pokynu agent mezeru vyplní věrohodně vypadající větou. Prázdné pole doplní člověk za minutu, vymyšlené najde za měsíc.
+- **Kontrolovat všechno ručně.** U tří set položek to nezvládnete a po padesáté položce už čtete jen očima, ne hlavou. Formu má hlídat skript, vy čtěte obsah — vzorek a všechno označené.
+- **Pustit všech tři sta položek najednou.** Bez checkpointů zjistíte systematickou chybu až na konci a děláte to celé znovu. Etapy stojí pár minut navíc a šetří dny.
+- **Nechat agenty sahat na stejné soubory.** Dva agenti píšící do jednoho souboru si výsledky přepíšou. Každý má mít svůj výstup, hlavní agent je sesbírá.
+- **Zapomenout, že víc agentů znamená víc kopií dat.** Čím širší dávka, tím víc míst, kam se citlivý podklad dostane. Anonymizujte před spuštěním, ne po něm.
 
 ## Nejlepší nástroje
 
-- **Claude Code** — umí rozdělit práci mezi víc paralelních agentů a řídit je; nejpřímější cesta k orchestraci bez stavění vlastní infrastruktury.
+- **Claude Code** — umí rozdělit práci mezi víc paralelních subagentů a řídit je; nejpřímější cesta k orchestraci bez stavění vlastní infrastruktury.
 - **Projekty na claude.ai** — trvalý kontext pro instrukce a podklady, které mají platit v každé konverzaci; dobrý domov pro zadání, které teprve ladíte.
+- **Soubor CLAUDE.md v projektu** — trvalá pravidla vázaná na složku, ne na vaši paměť; agenti je čtou automaticky.
+- **Kontrolní skript v Pythonu** — hlídač formy, který projde tři sta výstupů za vteřinu a hlásí jen to, co je špatně; napíše ho sám nástroj.
+- **Git** — záchranná síť pro hromadné dávky; bez něj se odvážné úpravy dělat nedají.
 - **Vlastní knihovna promptů** — instrukční soubory se vyplácí uchovávat a vylepšovat, viz tip [knihovna promptů](/tipy/ai-knihovna-promptu).
 - **n8n, Make nebo Zapier** — když má orchestrace běžet na rozvrhu a mezi cloudovými službami, ne u vás na disku.
 
 ## Co vám to přinese
 
-- **Čas:** u hromadných úloh se nemluví o minutách, ale o týdnech. Práce se nezrychlí dvakrát, ale řádově.
-- **Klid:** velké zadání přestane být děsivé. Neřešíte tři sta položek, řešíte jedny pořádné instrukce.
-- **Kvalita:** všechny výstupy vznikly podle stejného pravidla, takže jsou porovnatelné. Ruční zpracování se u položky číslo dvě stě vždycky někam ujede.
-- **Znovupoužitelnost:** instrukční soubor je majetek. Příští podobná dávka začíná na osmdesáti procentech hotovo.
+- **Čas:** u hromadných úloh se nemluví o minutách, ale o týdnech. Dvacetihodinová rešerše se vejde do čtyř a půl hodiny, z toho většina je kontrola. Práce se nezrychlí dvakrát, ale řádově.
+- **Peníze:** práce, kterou byste zadali externě nebo brigádníkovi, zvládnete sami za jedno odpoledne. A instrukční soubor je majetek — příští podobná dávka začíná na osmdesáti procentech hotovo.
+- **Klid:** velké zadání přestane být děsivé. Neřešíte tři sta položek, řešíte jedny pořádné instrukce a jeden kontrolní skript.
+- **Kvalita:** všechny výstupy vznikly podle stejného pravidla, takže jsou porovnatelné. Ruční zpracování se u položky číslo dvě stě vždycky někam ujede — u agenta s čistým kontextem ne.
 
 ## Pro tip
 
-Paralelismus má svou cenu: agenti o sobě nevědí, takže dva nesmí sahat na stejný soubor a nesmí se rozhodovat o věcech, které musí být napříč celkem konzistentní (názvosloví, číslování, styl). Tahle rozhodnutí patří do instrukcí předem, ne do hlavy dílčího agenta. A pozor na data — čím víc agentů, tím víc kopií toho, co jim pošlete. Citlivé podklady (osobní údaje, finance, zdravotní záznamy) dávejte jen do placeného či firemního účtu se smluvní ochranou dat, ne do free chatu, a co jde anonymizovat, anonymizujte před spuštěním dávky.
+Pokročilý trik: **nechte si napsat kontrolní skript dřív než instrukce.** Když nejdřív popíšete, jak poznáte, že je výsledek správný — jaká pole musí být vyplněná, jaké hodnoty jsou nemožné, co musí sedět v součtu — zjistíte přitom, co vlastně chcete. Instrukční soubor se pak píše skoro sám, protože je to jen návod, jak projít kontrolou. Je to stejný obrat jako u testů v programování a funguje ze stejného důvodu.
+
+Závěrečné pravidlo, které paralelismus nezruší: **schvalujete vy, a to i po padesáté dávce.** Agenti o sobě nevědí, takže rozhodnutí, která musí být konzistentní napříč celkem, patří do instrukcí předem, ne do hlavy dílčího agenta — a nic se neodesílá, nepublikuje ani nefakturuje bez lidského podpisu. A pozor na data: čím víc agentů, tím víc kopií toho, co jim pošlete. Citlivé podklady (osobní údaje, finance, zdravotní záznamy) dávejte jen do placeného či firemního účtu se smluvní ochranou dat, ne do free chatu, a co jde anonymizovat, anonymizujte před spuštěním dávky.

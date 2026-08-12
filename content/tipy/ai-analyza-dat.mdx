@@ -29,9 +29,9 @@ Osmdesát procent špatných analýz se pokazí tady, ještě než padne první 
 
 ### Jak vypadá použitelný export
 
-Pravidla jsou nudná a rozhodují o všem ostatním. **Jeden řádek = jedno pozorování** (jedna objednávka, jeden den, jeden respondent), nikdy ne kombinace úrovní. **Jedna hlavička na prvním řádku**, žádné sloučené buňky, žádné logo nad tabulkou a hlavně žádné mezisoučty uvnitř dat — souhrnný řádek „celkem za březen" mezi objednávkami je klasická cesta k tomu, že se tržby napočítají dvakrát.
+Pravidla jsou nudná a rozhodují o všem ostatním. **Jeden řádek = jedno pozorování** (jedna objednávka, jeden den, jeden respondent), nikdy ne kombinace úrovní. **Jedna hlavička na prvním řádku**, žádné sloučené buňky a hlavně žádné mezisoučty uvnitř dat — souhrnný řádek „celkem za březen" mezi objednávkami je klasická cesta k tomu, že se tržby napočítají dvakrát.
 
-U českých exportů si pohlídejte tři technikálie, na kterých padá načtení souboru: **oddělovač** (u nás typicky středník, ne čárka), **kódování** (UTF-8, ale starší systémy dávají Windows-1250 a pak se rozsypou háčky) a **desetinný oddělovač** (čárka místo tečky — bez ošetření se z čísel stane text a průměr se nespočítá vůbec, nebo hůř, spočítá se z poloviny řádků). Pro analýzu preferujte CSV před XLSX: v excelovém sešitu se schovávají skryté listy, barevné příznaky a poznámky, které nese jen člověk, ne data.
+U českých exportů pohlídejte tři technikálie, na kterých padá načtení: **oddělovač** (typicky středník), **kódování** (UTF-8, ale starší systémy dávají Windows-1250 a rozsypou se háčky) a **desetinnou čárku** místo tečky — bez ošetření se z čísel stane text a průměr se nespočítá vůbec, nebo hůř, spočítá se z části řádků. Pro analýzu preferujte CSV před XLSX: v sešitu se schovávají skryté listy a barevné příznaky, které nese jen člověk, ne data.
 
 První prompt nepouštějte na výpočty, ale na kontrolu. Modelu ukazujete jen hlavičku a pár řádků, ne celý soubor:
 
@@ -57,13 +57,13 @@ Odpověz strukturovaně po bodech, nic nedomýšlej — kde nemáš
 z ukázky jistotu, napiš to jako otázku pro mě.
 ```
 
-Vrátí seznam nejasností, které byste jinak objevili až v grafu. Bod 3 je ten důležitý: většina chyb v analýzách nejsou chyby ve výpočtu, ale v tom, že se sečetlo něco jiného, než si člověk myslel. A pozor na jednu věc — model občas s klidem prohlásí, že sloupec „cena_celkem" je s DPH. Neví to. Ověřte si to v systému, ze kterého export pochází.
+Vrátí seznam nejasností, které byste jinak objevili až v grafu. Bod 3 je ten důležitý: většina chyb v analýzách nejsou chyby ve výpočtu, ale v tom, že se sečetlo něco jiného, než si člověk myslel. A pozor — model občas s klidem prohlásí, že sloupec „cena_celkem" je s DPH. Neví to. Ověřte si to v systému, ze kterého export pochází.
 
 ### Anonymizace: co se nikdy nenahrává
 
-Objednávky, mzdy, dotazníky i výpisy z banky obsahují osobní údaje. Než soubor kamkoli nahrajete, **smažte jména, e-maily, telefony, adresy, rodná a účtová čísla a otevřené textové odpovědi, ve kterých se lidé identifikují**. Zákazníka nahraďte pořadovým číslem; když potřebujete vazbu na původní záznam, klíč si nechte v souboru, který nikam neposíláte.
+Objednávky, mzdy, dotazníky i výpisy z banky obsahují osobní údaje. Než soubor kamkoli nahrajete, **smažte jména, e-maily, telefony, adresy, rodná a účtová čísla a otevřené odpovědi, ve kterých se lidé identifikují**. Zákazníka nahraďte pořadovým číslem; potřebujete-li vazbu na původní záznam, klíč si nechte v souboru, který nikam neposíláte.
 
-Platí zásada, která na tomhle webu platí všude: **citlivá data patří jen do placeného účtu se smluvní ochranou dat**, ne do volného chatu, a i tam bez identifikátorů. U opravdu citlivých firemních čísel se navíc ptejte, jestli musíte nahrávat celou tabulku — na většinu otázek stačí agregovaný výřez. Nejčistší varianta je nechat si napsat skript a spustit ho u sebe; data pak nikam neodcházejí.
+Platí zásada webu: **citlivá data patří jen do placeného účtu se smluvní ochranou dat**, ne do volného chatu, a i tam bez identifikátorů. U citlivých firemních čísel se navíc ptejte, jestli musíte nahrávat celou tabulku — na většinu otázek stačí agregovaný výřez. Nejčistší varianta je nechat si napsat skript a spustit ho u sebe; data pak nikam neodcházejí.
 
 ```text
 Napiš mi Python skript, který připraví anonymizovanou kopii
@@ -96,13 +96,13 @@ Tohle je jádro celého návodu. Když si z něj odnesete jednu věc, ať je to 
 
 **Kontextové okno.** Model vidí jen omezený výřez textu, a u delší konverzace mnohem menší, než se zdá. Tabulka se čtrnácti tisíci řádky se do něj nevejde celá — model si z ní vezme kus. Nedostanete chybovou hlášku „nevidím zbytek dat". Dostanete odpověď.
 
-**A hlavně: model generuje text, ne výpočet.** Je to stroj na pravděpodobné pokračování — na otázku „jaký je průměr" napíše číslo, které v daném kontextu vypadá jako správná odpověď. Nebezpečné je to proto, že takové číslo vypadá naprosto normálně: průměr sedí do rozsahu, procenta dávají sto, meziroční změna zní věrohodně. Nemáte podle čeho poznat, že je vymyšlené — dokud ho někdo nepřepočítá.
+**A hlavně: model generuje text, ne výpočet.** Na otázku „jaký je průměr" napíše číslo, které v daném kontextu vypadá jako správná odpověď. Nebezpečné je to proto, že takové číslo vypadá naprosto normálně: sedí do rozsahu, procenta dávají sto, meziroční změna zní věrohodně. Nemáte podle čeho poznat, že je vymyšlené — dokud ho někdo nepřepočítá.
 
 Pravidlo je proto tvrdé: **do rozhodnutí, prezentace ani reportu nesmí číslo, které vzniklo jako text v chatu.** Každá hodnota musí pocházet z kódu, který jde spustit znovu.
 
 ### Kdy chat počítat smí: nástroje, které kód opravdu spouštějí
 
-Rozdíl není mezi „AI" a „ne AI", ale mezi „napsalo to" a „spočítalo to". Moderní chaty umí obojí a vy musíte poznat, co se zrovna děje. **Poznávací znamení je jednoduché: vidíte kód a jeho výstup.** Když v odpovědi proběhne blok kódu a pod ním výpis (načteno 14 200 řádků, odstraněno 612 storen, průměr 1 284 Kč), počítal stroj. Když přijde rovnou hezky formulovaný odstavec s čísly, psal model.
+Rozdíl není mezi „AI" a „ne AI", ale mezi „napsalo to" a „spočítalo to". Moderní chaty umí obojí a vy musíte poznat, co se zrovna děje. **Poznávací znamení: vidíte kód a jeho výstup.** Když v odpovědi proběhne blok kódu a pod ním výpis (načteno 14 200 řádků, odstraněno 612 storen, průměr 1 284 Kč), počítal stroj. Když přijde rovnou hezky formulovaný odstavec s čísly, psal model.
 
 Tři místa, kde kód reálně běží:
 
@@ -130,16 +130,16 @@ celou konverzaci:
 Potvrď, že rozumíš, a čekej na první otázku.
 ```
 
-Vypadá to formálně a je to účelné: bez bodu 1 a 2 model tiše přejde do režimu „napíšu, co se hodí". Bod 3 je vaše pojistka proti tichému zahození řádků — kdykoli se počet záznamů mezi kroky změní, chcete vědět proč.
+Vypadá to formálně a je to účelné: bez bodu 1 a 2 model tiše přejde do režimu „napíšu, co se hodí". Bod 3 je pojistka proti tichému zahození řádků — kdykoli se počet záznamů mezi kroky změní, chcete vědět proč.
 
 ## Fáze 3: od otázky ke skriptu
 
 ### Jak se ptát, aby šlo odpovědět
 
-Analýza není o datech, ale o otázce. „Podívej se na to a řekni mi, co je zajímavé" vrátí odstavec obecností. Použitelné otázky mají tři podoby a hodí se je vypsat předem:
+Analýza není o datech, ale o otázce. „Podívej se na to a řekni mi, co je zajímavé" vrátí odstavec obecností. Použitelné otázky mají tři podoby:
 
-- **Popisné** — kolik, jaký podíl, jaký průměr, jak rozložené. („Jaký podíl tržeb dělá top 10 produktů?")
-- **Srovnávací** — liší se A od B, a o kolik. („Mají zákazníci z vyhledávání jinou průměrnou objednávku než ze sociálních sítí?")
+- **Popisné** — kolik, jaký podíl, jak rozložené. („Jaký podíl tržeb dělá top 10 produktů?")
+- **Srovnávací** — liší se A od B a o kolik. („Mají zákazníci z vyhledávání jinou průměrnou objednávku než ze sociálních sítí?")
 - **Vývojové** — mění se to v čase, kdy nastal zlom. („Od kterého týdne klesá počet opakovaných nákupů?")
 
 Špatná otázka se pozná podle toho, že na ni neexistuje číslo, které by ji zodpovědělo. Než začnete počítat, nechte si otázky převést do měřitelné podoby:
@@ -160,7 +160,7 @@ pořadí. Na konec připoj 3 otázky, které z těchto dat zodpovědět
 NEJDE, a napiš proč — co by mi k tomu chybělo.
 ```
 
-Ten poslední odstavec vám ušetří nejvíc času. Typicky se ukáže, že otázka „proč nakupují míň" potřebuje data, která nemáte (důvody, chování před nákupem), zatímco otázka „kdo přesně nakupuje míň" jde zodpovědět hned.
+Poslední odstavec ušetří nejvíc času. Typicky se ukáže, že otázka „proč nakupují míň" potřebuje data, která nemáte, zatímco „kdo přesně nakupuje míň" jde zodpovědět hned.
 
 ### Prompt, který vyrobí analytický skript
 
@@ -192,11 +192,9 @@ Požadavky:
 - na konci vypiš kontrolní součet: celkové tržby za celé období.
 ```
 
-Vrátí hotový skript i s komentáři, které jsou stejně cenné jako kód. Dvě věci hlídejte. Hlavičku vkládejte **skutečnou**, ne přepsanou z hlavy — na špatně odhadnutém oddělovači padne načtení. A kontrolní součet z bodu 7 si porovnejte s číslem, které znáte odjinud (z účetnictví, z administrace e-shopu). Když se rozchází, něco se vyřadilo navíc — a je lepší to zjistit teď než na poradě.
+Vrátí hotový skript i s komentáři, které jsou stejně cenné jako kód. Hlavičku vkládejte **skutečnou**, ne přepsanou z hlavy — na špatně odhadnutém oddělovači padne načtení. A kontrolní součet z bodu 7 porovnejte s číslem, které znáte odjinud (z účetnictví, z administrace e-shopu). Když se rozchází, něco se vyřadilo navíc — lepší to zjistit teď než na poradě.
 
 ### Jak vypadá výstup, kterému se dá věřit
-
-Po spuštění uvidíte něco takového:
 
 ```text
 Načteno 14 203 řádků, 18 sloupců.
@@ -205,7 +203,6 @@ Chybějící hodnoty: kategorie 41 řádků (ponechány jako „neuvedeno“).
 
 Tržby po měsících (2026):
 mesic    objednavky   trzby_kc   prum_objednavka
-2026-03        1 208  1 642 300             1 360
 2026-04        1 341  1 795 100             1 339
 2026-05        1 402  1 861 400             1 328
 2026-06        1 097  1 452 900             1 324
@@ -221,7 +218,7 @@ Kontrolní součet za období: 21 480 300 Kč
 Výsledky uloženy: results.csv, grafy/trzby-mesice.png
 ```
 
-Tohle je číslo, které smí do prezentace: víte, kolik řádků do něj vstoupilo, co se vyřadilo a jak vznikne znovu. A hlavně je z něj hned vidět, že „červnový propad" je ve skutečnosti propad jedné kategorie.
+Tohle je číslo, které smí do prezentace: víte, kolik řádků do něj vstoupilo, co se vyřadilo a jak vznikne znovu. A hlavně je z něj hned vidět, že „červnový propad" je propad jedné kategorie.
 
 ### Rozumět skriptu, i když ho neumíte napsat
 
@@ -247,7 +244,7 @@ Pak zvlášť vypiš:
 [vlož skript]
 ```
 
-Vrátí srozumitelný výklad plus seznam tichých rizik. Ta část o „tiše špatném čísle" je nejužitečnější — typicky odhalí, že duplicitní objednávky se počítají dvakrát nebo že řádky bez data vypadly z časové řady, aniž by o tom kdokoli věděl.
+Vrátí srozumitelný výklad plus seznam tichých rizik. Část o „tiše špatném čísle" je nejužitečnější — typicky odhalí, že duplicitní objednávky se počítají dvakrát nebo že řádky bez data vypadly z časové řady, aniž by o tom kdokoli věděl.
 
 ## Fáze 4: explorace neznámého datasetu
 
@@ -276,9 +273,7 @@ vědět, s čím pracuju, než začnu počítat. Skript ať vypíše:
 Výstup ať je čitelný v terminálu, nic neopravuj — jen ohlas.
 ```
 
-Poslední věta je podstatná: profilování nikdy nesmí data měnit. Chcete diagnózu, ne tichou léčbu. Nálezy pak řešíte po jednom a rozhodnutí („storna ven, chybějící kategorie jako neuvedeno") si zapište — je to metodická poznámka, kterou budete za měsíc potřebovat.
-
-Chybějící období z bodu 5 bývají největší úlovek. Když v datech chybí celý týden, každé srovnání „letos versus loni" je od té chvíle vedle a nikdo si toho nevšimne.
+Poslední věta je podstatná: profilování nikdy nesmí data měnit. Chcete diagnózu, ne tichou léčbu. Nálezy pak řešíte po jednom a rozhodnutí („storna ven, chybějící kategorie jako neuvedeno") si zapište. Chybějící období z bodu 5 bývají největší úlovek — když v datech chybí celý týden, každé srovnání „letos versus loni" je od té chvíle vedle a nikdo si toho nevšimne.
 
 ### Co se z těch dat vlastně dá zjistit
 
@@ -302,15 +297,15 @@ nestačí, a u každé napiš, co konkrétně by mi k odpovědi chybělo.
 Nakonec označ tři otázky, kterými bych měl začít, a zdůvodni to.
 ```
 
-Vrátí rozcestník, který je hodnotnější než jakékoli automatické „insighty". Pozor na jednu past: model rád navrhne otázky, které znějí analyticky, ale k ničemu nevedou („jaká je distribuce sloupce X"). Držte se posledního odstavce — začínejte tím, co změní nějaké rozhodnutí.
+Vrátí rozcestník, který je hodnotnější než jakékoli automatické „insighty". Pozor na past: model rád navrhne otázky, které znějí analyticky, ale k ničemu nevedou („jaká je distribuce sloupce X"). Držte se posledního odstavce — začínejte tím, co změní nějaké rozhodnutí.
 
 ## Fáze 5: trendy a anomálie
 
 ### Trend, sezonnost a šum
 
-Tři čísla vedle sebe nejsou trend. Většina „propadů" a „růstů", kolem kterých se na poradách dělá dusno, je běžné kolísání — nebo artefakt kalendáře. Než začnete hledat příčiny, oddělte tři věci: **dlouhodobý směr** (kam to jde přes několik období), **sezonnost** (pravidelně se opakující vzorec — týden, měsíc, rok) a **šum** (náhodné výkyvy, které nic neznamenají).
+Tři čísla vedle sebe nejsou trend. Většina „propadů" a „růstů", kolem kterých se na poradách dělá dusno, je běžné kolísání — nebo artefakt kalendáře. Než začnete hledat příčiny, oddělte **dlouhodobý směr**, **sezonnost** (pravidelně se opakující vzorec) a **šum** (náhodné výkyvy, které nic neznamenají).
 
-Praktická pravidla, která tomu pomůžou. Srovnávejte **meziročně**, ne meziměsíčně — červen s červnem, ne červen s květnem. Normalizujte na **počet pracovních dní**; únor je krátký, květen bývá plný svátků a rozdíl deseti procent může být celý jen o tom. A na vyhlazení šumu použijte **klouzavý průměr** přes sedm nebo třicet dní, podle toho, jestli vás zajímá týdenní, nebo měsíční obraz.
+Pomůžou tři pravidla. Srovnávejte **meziročně**, ne meziměsíčně — červen s červnem. Normalizujte na **počet pracovních dní**; únor je krátký, květen bývá plný svátků a rozdíl deseti procent může být celý jen o tom. A na vyhlazení šumu použijte **klouzavý průměr** přes sedm nebo třicet dní podle toho, jestli vás zajímá týdenní, nebo měsíční obraz.
 
 ```text
 Napiš Python skript pro analýzu časové řady z mých dat.
@@ -333,11 +328,11 @@ by mě mohla splést (krátká řada, chybějící dny, změna
 metodiky sběru).
 ```
 
-Vrátí skript a hlavně tabulku odchylek — konkrétní dny, kterým stojí za to se podívat na zoubek. Bod 4 často překvapí: „propad" se po přepočtu na pracovní dny scvrkne na dvě procenta a řešit se nemá co. Skript nikdy nepovažujte za detektor příčin, je to detektor **míst, kam se podívat**.
+Vrátí skript a hlavně tabulku odchylek — konkrétní dny, kterým stojí za to se podívat na zoubek. Bod 4 často překvapí: „propad" se po přepočtu na pracovní dny scvrkne na dvě procenta a řešit se nemá co. Skript není detektor příčin, je to detektor **míst, kam se podívat**.
 
 ### Když najdete anomálii, rozpadněte ji
 
-Agregované číslo nikdy neřekne proč. Odpověď je skoro vždy v rozpadu podle dimenzí — jedna kategorie, jeden region, jeden kanál, jeden týden.
+Agregované číslo neřekne proč. Odpověď je skoro vždy v rozpadu podle dimenzí — jedna kategorie, jeden region, jeden kanál, jeden týden.
 
 ```text
 V datech mám tenhle nález: [např. tržby v červnu -22 % proti
