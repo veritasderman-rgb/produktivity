@@ -1,6 +1,6 @@
 ---
 title: "Pátek: AI sestaví týdenní přehled, vy ho projdete za pět minut"
-excerpt: "Automat načte kalendář, úkolovník a poštu a vygeneruje přehled: co se dokončilo, co visí, co navrhuje jako priority na příští týden. Revize týdne za pět minut místo třiceti."
+excerpt: "Kompletní návod s prompty: jak napojit kalendář, úkolovník a poštu konektorem, sestavit páteční přehled o tom, co se dokončilo, co uvázlo a co spadlo ze stolu, a nechat si připravit tři priority na příští týden. Sběr dělá AI, rozhodnutí zůstává vaše."
 category: "ai"
 platform: "vsude"
 audience: ["manazer", "freelancer"]
@@ -9,38 +9,427 @@ saves: "~25 min týdně"
 date: "2026-08-11"
 ---
 
-Týdenní revize je nejlépe hodnocený a nejhůř dodržovaný návyk v produktivitě. Důvod je prostý: největší část těch třiceti minut nepadne na přemýšlení, ale na sběr — proklikat kalendář, projít úkolovník, dohledat, co zůstalo v poště. Sběr přitom umí obstarat automat. Vám pak zbyde jen ta část, kterou za vás nikdo neudělá: rozhodnutí, co je příští týden důležité.
+Týdenní revize je nejlépe hodnocený a nejhůř dodržovaný návyk v produktivitě. Důvod je prostý: největší část těch třiceti minut nepadne na přemýšlení, ale na sběr — proklikat kalendář, projít úkolovník, dohledat, co zůstalo viset v poště. A sběr je přesně ta část, která se dá delegovat.
+
+**Rozdělení, na kterém stojí celý tenhle návod, zní: přehled sestavuje AI, rozhodnutí dělá člověk.** Stroj umí za pár vteřin porovnat, co jste si na týden naplánovali, s tím, co se skutečně stalo, a vypsat čtyři seznamy: co se dokončilo, co uvázlo, co spadlo ze stolu a na co se čeká. Co z toho je příští týden důležité, ale neví — a vědět nemůže, protože priorita není údaj v datech, je to volba.
+
+Návod vede od nuly k funkční páteční rutině v šesti fázích: kde vede dělicí čára mezi sběrem a rozhodováním, napojení tří zdrojů konektorem, struktura přehledu i s kompletním zadáním, čtyři sekce, které nesou hodnotu, příprava příštího týdne a pětiminutový rituál s archivem. Je to strojová verze týdenní revize, jak ji popisuje [kapitola o GTD](/prirucka/getting-things-done) — jen s tím rozdílem, že sběrnou část za vás udělá rutina, zatímco vy si necháte tu, kvůli které se revize dělá.
 
 ## Vzorová situace
 
 Vedoucí týmu Radek si týdenní revizi zavedl třikrát. Pokaždé mu vydržela dva týdny. V pátek v pět odpoledne se mu do půlhodiny listování kalendářem nechce, tak si řekne, že to udělá v neděli — a v neděli se mu do toho nechce ještě víc. Pondělí pak začíná tím, co na něj vypadne z pošty.
 
-S automatickým přehledem mu v pátek ve 14:00 dorazí jedna stránka: co měl v kalendáři a kolik času kam šlo, které úkoly se dokončily, co je po termínu, na které maily nikdo neodpověděl a návrh tří priorit na příští týden i s odůvodněním. Radek přehled přečte, jednu navrženou prioritu vyhodí a nahradí jinou, dvě potvrdí. Za pět minut je hotov — a v pondělí ráno ví, co dělá.
+Nejde o lenost. Ze třiceti minut revize je dvacet mechanika: projít osmnáct událostí v kalendáři, čtyřicet úkolů v úkolovníku a dohledat, ve kterých vláknech se čeká na někoho jiného. Na vlastní přemýšlení — co z toho plyne a čemu dát příští týden prostor — zbývá deset minut, a to už je Radek unavený.
 
-## Jak na to
+S automatickým přehledem mu v pátek ve 14:00 dorazí jedna stránka. Kolik času kam šlo a jak se to liší od minulého týdne. Devět úkolů dokončených, čtyři po termínu. Tři věci, které se za týden nepohnuly ani o krok, i s poznámkou, na čem stojí. Dvě, které z plánu vypadly úplně a nikdo si toho nevšiml. Pět vláken, kde se čeká na druhou stranu, s počtem dní. A návrh tří priorit na příští týden, u každé jedna věta proč.
 
-1. **Rozhodněte, z čeho se přehled sestaví.** Minimum jsou tři zdroje: kalendář (co se skutečně dělo), úkolovník (co je hotové a co visí) a pošta (na co se čeká). Víc zdrojů znamená delší přehled, ne lepší.
-2. **Naplánujte spuštění na pátek dopoledne.** Ne na páteční večer. Přehled má dorazit ve chvíli, kdy s ním ještě můžete něco udělat — a kdy případný zapomenutý slib stihnete doplnit.
-3. **Zadejte pevnou strukturu.** Osvědčuje se pět bloků: dokončeno, po termínu, čeká na druhé, kam šel čas, návrh tří priorit na příští týden. Prompt formulujte jako šablonu a přidejte pokyn „u priorit vždy uveď důvod, proč ji navrhuješ“.
-4. **Nechte návrhy návrhy.** Priority na příští týden má AI navrhnout, ne založit jako závazek. Rozhodnutí, čemu dáte týden, je manažerská práce, ne strojová.
-5. **Doručte přehled tam, kde ho otevřete.** Mail sám sobě, zpráva ve Slacku, stránka v Notionu. A rovnou k tomu do kalendáře pětiminutový blok, ve kterém ho projdete.
-6. **Archivujte.** Přehledy si ukládejte na jedno místo. Po čtvrt roce z nich vyčtete víc než z jakéhokoli plánu — hlavně to, kam vám opakovaně mizí čas.
+Radek přehled přečte, jednu navrženou prioritu vyhodí a nahradí jinou, dvě potvrdí a rovnou si na ně zablokuje čas v kalendáři. Za pět minut je hotov. Po čtvrt roce má navíc třináct archivovaných přehledů, ze kterých je na první pohled vidět jedna nepříjemná věc: úkol „přepsat onboarding“ se v sekci „nepohnulo se“ objevil jedenáctkrát. To není problém času, to je špatně zadaný úkol — a bez archivu by na to Radek nepřišel.
+
+## Fáze 1: kde vede čára mezi sběrem a rozhodnutím
+
+Pokud tuhle fázi přeskočíte, skončíte u rutiny, která vám do pátku pošle hezky formátovaný text a vy z něj nic neuděláte. Týdenní revize má totiž dvě poloviny s úplně jinou povahou a jen jedna se deleguje.
+
+### Sběr je práce pro stroj
+
+Sběr znamená: co se stalo. Kolik schůzek proběhlo a jak dlouhé byly, které úkoly se zavřely, které jsou po termínu, kde se čeká na odpověď, co bylo v pondělí naplánováno a v pátek se toho netýká ani jeden zápis. Tohle všechno jsou dohledatelné údaje v kalendáři, úkolovníku a poště — nudná, mechanická, přesná práce, ve které je stroj lepší než vy, protože se mu po dvacáté položce nerozostří pozornost.
+
+### Rozhodnutí je práce pro člověka
+
+Rozhodnutí znamená: co s tím. Které tři věci mají příští týden přednost. Co se zruší úplně. Co se předá někomu jinému. Kde se řekne „ne“. Tahle část vypadá jako pokračování té první, ale není: vyžaduje informace, které v žádném systému nejsou — jak se cítíte, co víte o plánech firmy, co jste slíbili někomu při obědě, na co máte v pondělí náladu.
+
+Model tyhle informace nemá, takže když ho necháte rozhodovat, vyrobí věrohodně znějící priority odvozené z toho, co je vidět v datech: nejnaléhavější termín, nejstarší úkol, nejhlasitější vlákno. To je přesně ten způsob řízení, kterému se chcete revizí vyhnout. **Proto rutina priority navrhuje s odůvodněním a vy je potvrzujete, měníte nebo škrtáte.**
+
+### Rozdělení vlastní revize
+
+Než začnete cokoli automatizovat, rozdělte si to, co při revizi děláte, do dvou sloupců.
+
+```text
+Dělám týdenní revizi a chci ji rozdělit na část, kterou může
+připravit automat, a část, kterou musím udělat já.
+
+Moje role: [role, obor, velikost týmu].
+Nástroje, které používám: [kalendář, úkolovník, pošta, poznámky].
+Takhle moje revize vypadá dnes:
+[vypsat kroky, které při revizi děláte, klidně neuspořádaně]
+
+Rozděl kroky do tří skupin:
+A) SBĚR — dohledatelné údaje ze systémů, kde je odpověď fakt
+   (co se stalo, co je hotové, co je po termínu)
+B) VYHODNOCENÍ — kroky, kde se z faktů dělá závěr a kde AI může
+   nabídnout návrh, ale poslední slovo mám já
+C) ROZHODNUTÍ — kroky, které jsou čistě moje volba a automat
+   je nemá čím podložit
+
+U každého kroku ze skupiny A napiš, ze kterého systému se dá
+získat a jaká otázka se na něj klade.
+U skupiny C napiš, jakou informaci k rozhodnutí potřebuju a proč
+ji nástroj nemůže mít.
+Na konec napiš, co v mojí revizi chybí úplně a mělo by tam být.
+```
+
+Vrátí rozpis, ze kterého uvidíte poměr, který bývá překvapivý: u většiny lidí je dvě třetiny revize skupina A. Skupinu C si přečtěte pozorně — je to seznam toho, co po vás bude rutina chtít v pátek za pět minut, a zároveň kontrola, jestli nedelegujete něco, co delegovat nemáte. Pozor na jednu tendenci: modely rády zařadí do skupiny B i věci, které patří do C („navrhnu ti, koho propustit z projektu“). Co se týká lidí, peněz nebo závazků navenek, patří k vám.
+
+## Fáze 2: tři zdroje a napojení konektorem
+
+Přehled je tak dobrý, jak dobrá jsou data pod ním. Zdroje jsou tři a víc jich nepotřebujete — každý další prodlouží přehled, ne jeho přesnost.
+
+### Co který zdroj dodá
+
+**Kalendář** říká, co se skutečně dělo. Je to jediný zdroj, který nelže o čase: úkolovník ukazuje záměry, kalendář ukazuje realitu. Z něj vzniká sekce „kam šel čas“ a taky kapacitní kontrola pro příští týden.
+
+**Úkolovník** dodá dokončené a nedokončené položky, termíny a stáří úkolů. Klíčový je údaj, který málokdo sleduje: kdy byl úkol naposledy změněn. Úkol, se kterým se šest týdnů nic nedělo, je jiný případ než úkol založený v úterý.
+
+**Pošta** dodá to, co v žádném systému není — na co se čeká, kde jste překážkou vy a co přišlo mimo plán. Pokud provozujete i [večerní rutinu se sliby](/tipy/rutina-vecerni-shrnuti-slibu), máte tuhle část z velké části pokrytou a páteční běh z ní může jen sbírat.
+
+Poznámky, dokumenty a firemní chat nechte stranou. Zvyšují objem a snižují srozumitelnost — a co v nich je důležité, se stejně projeví v jednom ze tří hlavních zdrojů.
+
+### Napojení a oprávnění
+
+Konektory (postavené na protokolu MCP) jsou standardizované napojení AI na běžné služby; princip rozebírá tip [konektory jako USB-C pro AI](/tipy/mcp-konektory-usb-c-pro-ai). Pro páteční přehled potřebujete **číst** kalendář, úkolovník a poštu. Zapisovat nepotřebujete skoro nic: jedinou výjimkou je zápis přehledu do poznámek nebo založení bloků v kalendáři, a i to až po vašem schválení.
+
+Provoz patří na **pracovní účet se smluvní ochranou dat**, ne do osobního chatu. Kalendáře a složky s citlivou agendou — personální, právní, zdravotní — z rozsahu vylučte výslovně v zadání. A do přehledu žádejte jen shrnutí a odkazy, nikdy opisování celých zpráv: přehled má být čitelný na jednu stránku, ne archiv týdne.
+
+Zadání, pravidla a formát přehledu uložte do **Projektu** (trvalý kontext) pojmenovaného třeba „Týdenní revize“, ať je měníte na jednom místě.
+
+### Zkušební běh: uvidí to, co si myslíte?
+
+Nejčastější zklamání z prvního přehledu nemá původ v promptu, ale v datech — rutina viděla jeden ze tří kalendářů a polovinu úkolů. Ověřte to dřív, než začnete ladit formulace.
+
+```text
+Připoj se k mému kalendáři, úkolovníku a poště a udělej inventuru
+za posledních 7 dní. Nic nevyhodnocuj, jen vypiš, co vidíš.
+
+KALENDÁŘ: které kalendáře vidíš (názvy), kolik událostí v každém,
+kolik z nich jsem přijal a kolik jen navrhl někdo jiný, kolik hodin
+celkem zabraly a kolik z nich byly celodenní záznamy.
+
+ÚKOLOVNÍK: které projekty a seznamy vidíš, kolik otevřených
+a kolik uzavřených úkolů v každém, u kolika je termín a u kolika
+vidíš datum poslední změny.
+
+POŠTA: které složky vidíš, kolik zpráv jsi prošel za období
+a kolik z nich je od lidí (ne rozesílky a notifikace).
+
+Na konec napiš:
+1. co z těchhle zdrojů podle tebe NEVIDÍŠ, i když by to nejspíš
+   existovat mělo
+2. tři údaje, které by ses potřeboval dozvědět ode mě, abys
+   z těchto dat uměl sestavit smysluplný týdenní přehled
+
+Nic nedomýšlej. Když si nejsi jistý, napiš „nevím“ místo odhadu.
+```
+
+Vrátí inventuru, kterou porovnáte s realitou — a v devíti z deseti případů něco chybí: sdílený týmový kalendář, projekt v úkolovníku, který máte pod jiným účtem, nebo složka, do které se třídí zákaznická pošta. Bod 1 čtěte pozorně; model občas pozná, že mu chybí kontext, a řekne to. Bod 2 vám ušetří půlku ladění, protože z něj vypadnou věci jako „nevím, které projekty jsou pro tebe důležité“.
+
+### Kam šel čas
+
+Sekce o čase je jediná část přehledu, kde AI vypočítá něco, co byste ručně nezjistili. Chce to ale vlastní kategorie, ne obecné škatulky.
+
+```text
+Z mého kalendáře za posledních 7 dní udělej rozbor času.
+
+Kategorie používej tyhle: [porady interní], [klientské schůzky],
+[jedna na jednu], [soustředěná práce — bloky, které mám označené
+jako [štítek]], [administrativa], [ostatní].
+
+Vrať:
+1. tabulku: kategorie, počet událostí, celkem hodin, podíl v procentech
+2. srovnání s předchozím týdnem: co vyrostlo, co ubylo, o kolik
+3. nejdelší souvislý blok bez schůzky, který jsem měl
+4. kolik hodin zabraly schůzky, které jsem nesvolal já
+5. tři události, které se opakují každý týden a dohromady zabírají
+   nejvíc času
+
+Nepočítej celodenní záznamy jako 24 hodin — ty vynech a napiš,
+kolik jich bylo. U událostí, kde nejde určit kategorii, je zařaď
+do „ostatní“ a vypiš jejich názvy zvlášť, ať kategorie doplním.
+```
+
+Bod 3 je ten, kvůli kterému se to počítá: když je nejdelší souvislý blok bez schůzky padesát minut, žádná technika soustředění vám nepomůže a řešení je v kalendáři, ne v hlavě. Pozor na celodenní záznamy — bez explicitního pokynu je model počítá jako plnohodnotné hodiny a rozbor času je pak nesmysl. A kategorizaci první dva týdny kontrolujte: schůzka pojmenovaná „Novák“ může být klientská i interní a model si tipne.
+
+## Fáze 3: struktura přehledu a kompletní zadání
+
+Přehled potřebuje pevnou strukturu. Volně psané shrnutí týdne se čte hezky a nedá se používat — mozek se v něm nemá čeho chytit a po třech týdnech ho přestanete otevírat, protože nevíte, kde v něm co hledat.
+
+### Pět bloků, které se osvědčují
+
+1. **Dokončeno** — co se za týden zavřelo. Krátce, ale nevynechávat: bez téhle sekce má revize příchuť výčitky a lidi ji přestanou dělat.
+2. **Uvázlo** — položky, které jsou otevřené a za týden se nepohnuly. Jádro celého přehledu.
+3. **Spadlo ze stolu** — co bylo v plánu a nestalo se nic, ani odklad. Tahle sekce v ručních revizích chybí, protože si na to nikdo nevzpomene.
+4. **Čeká se na druhé** — kde jste vy hotoví a míč je u někoho jiného, s počtem dní.
+5. **Návrh priorit na příští týden** — tři položky s odůvodněním, výslovně označené jako návrh.
+
+K tomu rozbor času z fáze 2, buď nahoře jako kontext, nebo dole jako příloha.
+
+### Kompletní zadání pátečního běhu
+
+Jádro návodu. Vložte do plánované úlohy a nechte spouštět v pátek dopoledne — ne v pátek večer.
+
+```text
+Každý pátek v [13:30] sestav můj týdenní přehled za posledních
+7 dní. Zdroje: kalendář, úkolovník [název], pošta.
+Vynech kalendář [osobní] a složky [Personální, Právní].
+
+Struktura přehledu, přesně v tomto pořadí:
+
+1. TÝDEN V ČÍSLECH (3 řádky)
+Hodiny na schůzkách, počet dokončených úkolů, počet úkolů
+po termínu. U každého čísla rozdíl proti minulému týdnu.
+
+2. DOKONČENO
+Úkoly uzavřené za období, seskupené po projektech. Jedna řádka
+na úkol. Na konci jedna věta: co z toho byl největší posun.
+
+3. UVÁZLO
+Otevřené úkoly, u kterých se za posledních 7 dní nic nezměnilo.
+U každého: název, projekt, kolik dní je otevřený, kdy naposledy
+došlo ke změně, a jestli v poště nebo v kalendáři vidíš důvod,
+proč stojí (čeká se na někoho, chybí podklad, nebyl na to čas).
+Když důvod nevidíš, napiš „důvod neznámý“ — nedomýšlej ho.
+
+4. SPADLO ZE STOLU
+Věci, které byly na začátku období v plánu (v úkolovníku
+s termínem v tomto týdnu nebo v mém přehledu z minulého pátku)
+a do dneška se s nimi nestalo nic — nebyly dokončené, odložené
+ani komentované. U každé napiš, odkud jsi ji vzal.
+
+5. ČEKÁ SE NA DRUHÉ
+Vlákna v poště, kde jsem odpověděl jako poslední a čekám reakci
+déle než [4 dny]. U každého: protistrana, téma, počet dní.
+
+6. NÁVRH PRIORIT NA PŘÍŠTÍ TÝDEN
+Tři položky. U každé: co konkrétně, proč zrovna ona (jedna věta
+podložená daty z přehledu) a odhad, kolik hodin zabere.
+Tuhle sekci vždy uveď větou „návrh ke schválení“.
+
+PRAVIDLA
+- Celý přehled se musí vejít na jednu obrazovku. Když je položek
+  moc, zkrať popisy, ne počet položek.
+- Nikde neopisuj celé zprávy. Odkaz a jedna věta stačí.
+- Nic nezakládej, nic neupravuj, nic neodesílej — jen sestav
+  přehled a pošli mi ho [kam].
+- Kde ti chybí data, napiš to. Nepočítej odhadem a nedoplňuj,
+  co v systémech není.
+```
+
+Vrátí jednostránkový přehled, který se čte odshora dolů. Tři místa, která první týdny hlídejte. **Definice „uvázlo“:** některé úkolovníky nezaznamenávají poslední změnu, takže se sekce buď nenaplní, nebo naopak nabobtná — pak nahraďte kritérium stářím úkolu. **Sekce „spadlo ze stolu“** je závislá na tom, že minulý přehled je někde dostupný; první týden bude prázdná, to je v pořádku. **Odůvodnění priorit:** čtěte je, ne jen názvy. Odůvodnění je jediné místo, kde poznáte, jestli model pochopil, o co ve vaší práci jde.
+
+### Kdy spouštět
+
+Pátek dopoledne, ideálně tak, aby přehled dorazil hodinu až dvě před koncem vašeho týdne. Důvody jsou dva: ještě máte čas dodělat drobnost, která vypadla, a ještě nejste v pátečním večerním rozpoložení, kdy se vám nechce rozhodovat. K přehledu si do kalendáře zablokujte pět minut — bez bloku se rituál rozpustí stejně jako ruční revize před ním.
+
+## Fáze 4: sekce, ve kterých je hodnota
+
+Dvě sekce nesou skoro celý užitek přehledu a stojí za to je vyladit zvlášť: „uvázlo“ a „spadlo ze stolu“. Zbytek je kontext.
+
+### Uvázlo: rozlišit klid od zácpy
+
+Ne každý nehybný úkol je problém. Něco čeká záměrně, něco čeká na jiného člověka a něco stojí, protože je špatně zadané. Rozdíl mezi těmi třemi rozhoduje o tom, co s tím uděláte, a stroj ho pozná jen tehdy, když se ho na to zeptáte.
+
+```text
+Vezmi sekci UVÁZLO z mého týdenního přehledu a rozeber ji hlouběji.
+Máš přístup k úkolovníku i k poště.
+
+Pro každou položku urči, do které kategorie patří:
+A) ČEKÁ NA DRUHÉHO — v poště nebo v komentářích je vidět, že míč
+   je u někoho jiného. Uveď u koho a od kdy.
+B) CHYBÍ VSTUP — chybí podklad, rozhodnutí nebo informace.
+   Napiš která a od koho ji potřebuju.
+C) ZÁMĚRNĚ ODLOŽENO — má termín v budoucnu nebo patří do etapy,
+   která ještě nezačala. Uveď kdy se stane aktuálním.
+D) BEZ DŮVODU — nic z výše uvedeného; prostě se to nedělá.
+
+U kategorie D navíc odhadni, proč: je úkol moc velký a nejde
+začít, není jasné, co je hotový výsledek, nebo je zadaný mně,
+ale patří někomu jinému? U každého odhadu napiš, z čeho usuzuješ.
+
+Nakonec vypiš položky, které jsou v kategorii D už druhý týden
+po sobě — u těch napiš návrh, co s nimi udělat (zmenšit, předat,
+zrušit) a co by se stalo, kdybych je zrušil úplně.
+```
+
+Kategorie D je celý smysl téhle sekce. Úkol, který v ní visí potřetí, vám něco říká o zadání, ne o vaší disciplíně — a věta „co by se stalo, kdybych to zrušil“ je nejrychlejší způsob, jak zjistit, že polovina takových položek nemá důsledky. Rozbor důvodů berte jako hypotézu: model odhaduje z toho, co je vidět, a nevidí, že projekt čeká na rozhodnutí, které padne až po dovolené vedení.
+
+### Spadlo ze stolu: porovnat plán se skutečností
+
+Nejcennější sekce je zároveň nejtěžší na sestavení, protože potřebuje minulost. Bez archivu přehledů rutina neví, co jste v pondělí zamýšleli.
+
+```text
+Porovnej můj přehled z minulého pátku [odkaz nebo vložit]
+se skutečností za uplynulý týden.
+
+Vrať tři seznamy:
+
+1. SPLNĚNO PODLE PLÁNU: co bylo minulý pátek navržené nebo
+   schválené jako priorita a je hotové.
+2. ZMĚNILO SE: co bylo v plánu a místo dokončení se posunul
+   termín, změnil rozsah nebo se to předalo — u každého uveď,
+   kdy a kde je ta změna vidět.
+3. ZMIZELO: co bylo v plánu a od té doby se s tím nestalo nic —
+   žádná změna v úkolovníku, žádná zmínka v poště, žádná událost
+   v kalendáři. Tohle je hlavní seznam, u každé položky uveď,
+   jak jsi zjistil, že se s ní nedělo nic.
+
+Pod seznamy napiš jednu větu: kolik procent minulotýdenního
+plánu se odehrálo. A jednu otázku, kterou bych si měl podle
+tebe položit — takovou, na kterou z dat neznáš odpověď.
+
+Nehodnoť mě a nepiš povzbuzení. Chci fakta a jednu otázku.
+```
+
+Seznam 3 je ten, kvůli kterému se páteční přehled vyplatí. Věci nemizí proto, že byste je odmítli, ale proto, že o nich nikdo nemluvil — a čím tiššeji zmizí, tím větší je pravděpodobnost, že to byla ta důležitá, nespěchající práce. Procento splněného plánu berte orientačně a nedělejte z něj metriku: jakmile ho začnete honit, začnete si plánovat jen to, co je jisté.
+
+## Fáze 5: příprava na příští týden
+
+Poslední část přehledu se dívá dopředu — a je to místo, kde se nejsnáz překročí čára z fáze 1. Rutina může navrhnout, spočítat a upozornit. Rozhodnout musíte vy.
+
+### Návrh tří priorit, ne plán týdne
+
+Tři je správné číslo, protože se vejdou do hlavy a přežijí i špatný týden; princip rozebírá tip [tři hlavní úkoly](/tipy/tri-hlavni-ukoly). Návrh má být krátký a hlavně odůvodněný — bez odůvodnění nemáte co posuzovat.
+
+```text
+Na základě celého týdenního přehledu navrhni tři priority
+na příští týden. Ber v úvahu: co uvázlo, co spadlo ze stolu,
+co má termín v příštích 14 dnech a na co se čeká kvůli mně.
+
+U každé priority napiš:
+- co konkrétně (výsledek, ne oblast: ne „řešit projekt X“,
+  ale „odeslat návrh smlouvy klientovi X“)
+- proč zrovna tahle, jednou větou podloženou daty z přehledu
+- odhad, kolik hodin soustředěné práce zabere
+- co se stane, když ji příští týden neudělám
+
+Pak přidej dvě věci:
+A) NEJZÁVAŽNĚJŠÍ VYNECHANÁ: čtvrtá věc, kterou jsi zvažoval
+   a nakonec ji mezi tři nedal — a proč.
+B) CO NAVRHUJU ZRUŠIT: jedna položka z úkolovníku, kterou bych
+   podle dat měl zrušit nebo předat, i s odůvodněním.
+
+Tohle je návrh ke schválení. Nic nezakládej ani neoznačuj.
+```
+
+Vrátí tři karty, ze kterých obvykle dvě potvrdíte a jednu vyměníte — a to je správný výsledek, ne selhání. Nejužitečnější je bod B: návrh, co zrušit, je věc, kterou si sami nenavrhnete, protože každý úkol v seznamu má nějakou historii. Model nemá sentiment. Zároveň platí, že rušení je rozhodnutí, ne výpočet: ověřte si, že za položkou nestojí slib, o kterém rutina neví.
+
+### Kapacitní kontrola: vejde se to vůbec do týdne?
+
+Nejčastější důvod, proč plán padne, není špatná volba priorit, ale to, že na ně v týdnu není místo. Kalendář to ví dopředu.
+
+```text
+Podívej se do mého kalendáře na příští týden a spočítej,
+kolik času reálně zbývá na soustředěnou práci.
+
+1. Kolik hodin je už obsazeno schůzkami, po dnech.
+2. Kolik hodin volna zbývá v mé pracovní době [8:00–17:00],
+   po odečtení schůzek a [1 hodiny denně] na poštu a provoz.
+3. Kolik z toho volna jsou souvislé bloky delší než [90 minut] —
+   vypiš je konkrétně: den, od kdy do kdy.
+4. Porovnej s odhadem hodin u mých tří priorit: vejdou se
+   do těch bloků? Pokud ne, napiš, kolik hodin chybí.
+5. Navrhni, které existující schůzky by šlo zkrátit, sloučit
+   nebo vynechat, aby se priority vešly — u každé napiš, proč
+   si myslíš, že je kandidát.
+
+Nic v kalendáři neměň a nic nenavrhuj účastníkům. Jen mi napiš
+seznam a nech rozhodnutí na mně.
+```
+
+Bod 4 je střízlivá odpověď na optimistické plánování: když tři priority zaberou dvanáct hodin a v kalendáři je šest volných, není to problém motivace. Bod 5 čtěte s odstupem — model nevidí, která schůzka je politicky nutná nebo která je pro tým jediným místem, kde se vidí. Bere je jako řádky v kalendáři a podle toho se chovají i jeho návrhy.
+
+## Fáze 6: pětiminutový rituál a archiv
+
+Přehled je hotový. Teď přichází ta část, která z něj dělá revizi — a trvá pět minut právě proto, že sběr už je udělaný.
+
+### Pět minut, čtyři otázky
+
+Postup, který funguje: přečíst přehled shora dolů bez zastavování, pak si položit čtyři otázky a odpovědět na ně jednou větou.
+
+**Souhlasí obrázek?** Jestli vám přehled ukazuje týden, který nepoznáváte, je chyba ve zdrojích, ne ve vás — a je to zjištění na pět vteřin.
+
+**Co z „uvázlo“ zruším nebo předám?** Aspoň jedna položka týdně. Seznam, ze kterého se nikdy nic neškrtá, roste do nekonečna.
+
+**Které tři priority beru?** Potvrdit, vyměnit, doplnit. Pak si na ně hned zablokovat čas — priorita bez bloku v kalendáři je přání.
+
+**Komu se mám ozvat?** Ze sekce „čeká se na druhé“ vyberte ty, u kterých čekání blokuje vaši práci, a napište krátkou zprávu. Nikdy to nenechávejte na rutině.
+
+Vaše odpovědi mají zůstat u přehledu — příští pátek jsou vstupem pro sekci „spadlo ze stolu“.
+
+```text
+Připrav mi rozhodovací část revize z dnešního přehledu.
+Vypiš čtyři bloky a u každého jen to, o čem mám rozhodnout:
+
+1. K ZRUŠENÍ NEBO PŘEDÁNÍ: kandidáti ze sekce „uvázlo“, u každého
+   jedna věta proč a komu by šel předat.
+2. PRIORITY: tvoje tři návrhy jako číslovaný seznam.
+3. K OZVÁNÍ: lidé ze sekce „čeká se na druhé“, u kterých čekání
+   blokuje moji práci, seřazeni podle počtu dní.
+4. ZBYTEK: jednou větou to, co jsem měl vidět a nespadá do 1–3.
+
+Pak počkej na moje rozhodnutí ve tvaru: co ruším, které priority
+beru, komu se ozvu. Podle odpovědi mi vrať krátký zápis revize
+v pěti řádcích, který si uložím k přehledu — moje rozhodnutí,
+ne tvoje doporučení. Nic neprováděj a nikam nic neposílej.
+```
+
+Věta o zápisu na konci je důležitější, než vypadá: pět řádků s vašimi rozhodnutími je to, co příští týden umožní zjistit, co jste zamýšleli. Bez nich má rutina k porovnání jen svoje vlastní návrhy, a ty jste ze třetiny neschválili.
+
+### Archiv: to nejlepší přijde po třech měsících
+
+Ukládejte přehledy na jedno místo — do složky, do poznámek, do stránky v Notionu. Po čtvrt roce z nich vyčtete víc než z jakéhokoli plánu, protože teprve v řadě za sebou je vidět vzorec.
+
+```text
+Tady je posledních [13] mých týdenních přehledů:
+[vložit nebo odkázat na složku]
+
+Najdi v nich vzorce, ne shrnutí. Zajímá mě:
+1. Které položky se v sekci UVÁZLO objevily nejvícekrát —
+   vypiš top 10 i s počtem výskytů.
+2. Které dny nebo týdny se opakovaně liší od ostatních
+   (extrémně málo dokončeného, extrémně moc schůzek) a jestli
+   se to váže na něco, co je v přehledech vidět.
+3. Jak se v čase vyvíjel podíl schůzek a soustředěné práce.
+4. Kolik procent navržených priorit jsem v průměru přijal
+   a jestli se to mění.
+5. Tři věci, které se v mých přehledech opakují a měl bych
+   s nimi něco udělat systémově, ne úkol po úkolu.
+
+U každého zjištění uveď, ze kterých přehledů vychází.
+Nepřikrášluj to a nedávej mi obecné rady o produktivitě —
+chci jen to, co je vidět v mých datech.
+```
+
+Bod 1 je nepříjemný a nejcennější: úkol, který se objevil v „uvázlo“ jedenáctkrát, nepotřebuje lepší plánovací techniku, ale rozhodnutí. Bod 4 je zpětná vazba na rutinu samotnou — když z návrhů přijímáte stabilně jednu ze tří, zadání neodpovídá tomu, jak přemýšlíte, a stojí za to ho přepsat.
+
+### Když přehled začne mít prázdné sekce
+
+Po měsíci nebo dvou se ustálí. Signál, že je hotovo: čtete ho stabilně pod pět minut, sekce „uvázlo“ obsahuje položky, které tam patří, a nemusíte kontrolovat, jestli rutina něco nevynechala. Pak už jen jednou za čtvrtletí projděte zadání a upravte kategorie podle toho, jak se změnila vaše práce.
+
+## Nejčastější chyby
+
+- **Nechat AI rozhodovat o prioritách.** Model vidí termíny a hlasitost, ne důležitost. Priorita bez vašeho potvrzení je jen nejnaléhavější položka v datech.
+- **Spouštět přehled v pátek večer nebo v neděli.** Přehled, který dorazí, když už nemůžete nic udělat, se čte jako výčitka. Pátek dopoledne je jediný správný čas.
+- **Přidat čtvrtý a pátý zdroj.** Poznámky, chat a dokumenty přehled prodlouží, ne zpřesní. Tři zdroje a jedna obrazovka.
+- **Nechat přehled bez sekce „dokončeno“.** Revize, která ukazuje jen resty, se přestane dělat. Zavřené úkoly patří nahoru, i když je jich málo.
+- **Nearchivovat.** Bez archivu nejde sestavit sekce „spadlo ze stolu“ ani najít vzorce. Jeden soubor týdně na jedno místo je celá práce.
+- **Nezapisovat vlastní rozhodnutí.** Když z revize nezůstane pět řádků o tom, co jste rozhodli, příští týden nemá rutina co porovnávat a přehled se scvrkne na výpis stavu.
 
 ## Nejlepší nástroje
 
-- **Vestavěná AI ve vašem prostředí (Gemini ve Workspace, Copilot v Microsoft 365)** — nejsnazší start, přístup ke kalendáři a poště má už vyřešený a běží pod firemním účtem.
-- **Zapier a Make** — plánované spuštění, načtení dat z kalendáře a úkolovníku, krok s AI a doručení výstupu; vše bez programování.
-- **n8n** — stejná role na vlastním serveru, když obsah kalendáře a pošty nemá odcházet do cizí služby.
-- **Claude s konektory a plánovanou úlohou** — přečte kalendář, úkolovník i poštu přímo a přehled sestaví a doručí podle rozvrhu, bez scénáře v jiné platformě.
-- **Todoist a Notion** — úkolovníky s otevřeným API a vlastní AI funkcí; slouží zároveň jako zdroj dat i jako místo, kde přehled bydlí.
+- **Claude s konektory a plánovanou úlohou** — přečte kalendář, úkolovník i poštu, sestaví přehled podle rozvrhu a doručí ho; zadání a formát žijí v Projektu, takže se upravují na jednom místě.
+- **Projekty (trvalý kontext)** — místo pro zadání, kategorie schůzek a definici toho, co je pro vás „uvázlo“; rutina je nedostává každý týden znovu.
+- **Todoist a Notion** — úkolovníky s otevřeným API a konektory; slouží zároveň jako zdroj dat a jako archiv, kde přehledy bydlí.
+- **Zapier, Make a n8n** — když chcete řetěz kalendář a úkolovník, model a doručení poskládat z kroků; n8n běží na vlastním serveru, když data nemají opustit firmu.
+- **Vestavěná AI ve vašem prostředí (Gemini ve Workspace, Copilot v Microsoft 365)** — nejsnazší start, přístup ke kalendáři a poště má vyřešený a běží pod firemním účtem.
 
 ## Co vám to přinese
 
-- **Čas:** 25 minut týdně, tedy zhruba dvacet hodin ročně. Úspora ale není hlavní zisk.
+- **Čas:** 20–25 minut týdně, tedy zhruba patnáct hodin ročně. Úspora ale není hlavní zisk.
 - **Návyk, který vydrží:** pětiminutovou revizi uděláte i v hektickém týdnu. Třicetiminutovou ne — a právě proto vám dosud padala.
-- **Lepší rozhodnutí:** priority vybíráte z úplného obrázku, ne z toho, co vám zrovna leží navrchu hlavy.
+- **Lepší rozhodnutí:** priority vybíráte z úplného obrázku včetně toho, co tiše spadlo ze stolu, ne z toho, co vám zrovna leží navrchu hlavy.
+- **Kvalita plánu:** kapacitní kontrola proti kalendáři odhalí nereálný týden v pátek, ne ve středu. Plán, který se vejde do volných bloků, se plní.
 - **Klidnější pondělí:** týden začíná vaším plánem, ne cizími požadavky z pošty.
 
 ## Pro tip
 
-Nechte přehled obsahovat jednu nepříjemnou sekci: „úkoly, které se posunuly už potřetí“. Opakovaně odkládaný úkol obvykle není o čase — je špatně zadaný, patří někomu jinému, nebo ho vůbec nechcete dělat. Takový seznam vám ušetří víc než jakákoli technika plánování. A bezpečnost: přehled čte vaši poštu i kalendář, takže ho stavte přes firemní účet se smluvní ochranou dat, citlivé projekty ze zdrojů vyjměte a v promptu žádejte jen shrnutí a odkazy, ne opisování celých zpráv.
+Nechte přehled obsahovat jednu nepříjemnou sekci navíc: **úkoly, které se posunuly už potřetí.** Stačí do zadání přidat větu „vypiš úkoly, u kterých se za poslední tři měsíce posunul termín víc než dvakrát, a u každého uveď původní a současné datum“. Opakovaně odkládaný úkol obvykle není o čase — je špatně zadaný, patří někomu jinému, nebo ho vůbec nechcete dělat. Takový seznam vám ušetří víc než jakákoli technika plánování.
+
+A závěrečné pravidlo nad vším ostatním: **přehled je vstup, ne rozhodnutí.** Ve chvíli, kdy rutině dovolíte priority rovnou zakládat, přesouvat termíny nebo rušit schůzky, přestane to být revize a stane se z toho řízení podle toho, co je vidět v datech. Ruční verzi rituálu, ze které tenhle návod vychází, popisuje tip [týdenní přehled](/tipy/tydenni-prehled) — a pořád platí, že těch pět minut myšlení je celý smysl té půlhodiny, kterou jste ušetřili.
