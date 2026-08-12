@@ -1,6 +1,6 @@
 ---
 title: "Dejte obsahu hlas: audioverze článků a newsletterů"
-excerpt: "Umělé hlasy už nezní jako navigace z roku 2010 — zvládají i češtinu. Z hotového textu máte za minutu MP3, které si lidé pustí cestou do práce."
+excerpt: "Kompletní návod s prompty: jak z hotového textu udělat poslouchatelné audio — příprava textu pro ucho, výběr hlasu, ruční i automatický workflow přes API, a tvrdá pravidla u klonování hlasu."
 category: "ai"
 platform: "vsude"
 audience: ["freelancer", "manazer", "student"]
@@ -9,37 +9,416 @@ saves: "~obsah navíc bez práce navíc"
 date: "2026-08-12"
 ---
 
-Text-to-speech měl dlouho jednu vadu: znělo to jako robot. U češtiny obzvlášť — špatný přízvuk, rozsekané věty, čísla čtená po číslicích. To se za poslední dva roky změnilo. Nové modely čtou přirozeně, drží intonaci a s češtinou si poradí natolik, že si posluchač po půl minutě přestane všímat, že to není člověk. A z toho plyne praktický důsledek: **obsah, který už máte hotový, můžete zdarma nebo skoro zdarma nabídnout i ve zvuku** — a oslovit tím lidi, kteří na čtení nikdy nemají čas, ale mají hodinu v autě.
+Text-to-speech měl dlouho jednu vadu: znělo to jako robot. U češtiny obzvlášť — špatný přízvuk, rozsekané věty, čísla čtená po číslicích. To se za poslední dva roky změnilo. Nové modely čtou přirozeně, drží intonaci a s češtinou si poradí natolik, že si posluchač po půl minutě přestane všímat, že to není člověk. A z toho plyne praktický důsledek: **obsah, který už máte hotový, můžete nabídnout i ve zvuku** — a oslovit tím lidi, kteří na čtení nikdy nemají čas, ale mají hodinu v autě.
+
+Tenhle návod vede od prvního pokusu k rutině. Nejdřív si ujasníme, co dnešní hlasy umí a kde je jejich hranice, pak projdeme pět situací, kde se audioverze vyplatí. Následuje jádro věci — příprava textu, protože **text psaný pro oko a text pro ucho nejsou totéž** a devadesát procent špatných audioverzí selže právě tady. Pak výběr hlasu, ruční postup, automatizace přes API a nakonec část, kterou nelze přeskočit: klonování hlasu a jeho právní i etické hranice.
+
+Nad celým textem platí jedno pravidlo: **generuje stroj, zveřejňuje člověk po poslechu.** Jedno špatně přečtené jméno nebo číslo zkazí dojem z celé nahrávky a na rozdíl od překlepu v textu ho nikdo neopraví v hlavě.
 
 ## Vzorová situace
 
-Konzultant Tomáš píše dvakrát měsíčně newsletter pro dvě stě klientů. Otevřenost slušná, ale prokliky na delší texty mizerné — lidé si je „nechávají na později“ a nikdy se k nim nevrátí. Nahrávat je sám zkusil jednou: dvacet minut nahrávání, čtyřicet minut sestříhání přeřeků, výsledek na jedno použití. Podruhé už do toho nešel.
+Konzultant Tomáš píše dvakrát měsíčně newsletter pro dvě stě klientů. Otevřenost slušná, ale prokliky na delší texty mizerné — lidé si je „nechávají na později“ a nikdy se k nim nevrátí. Nahrávat je sám zkusil jednou: dvacet minut nahrávání, čtyřicet minut sestříhání přeřeků, výsledek na jedno použití. Podruhé už do toho nešel, protože hodina práce navíc na každé vydání je cena, kterou nikdo neustojí.
 
-Teď má postup jiný: hotový text vloží do generátoru hlasu, za dvě minuty má MP3 a přiloží ho do mailu i na web jako přehrávač. Neinvestuje do toho ani hodinu měsíčně. Po třech měsících vidí, že zhruba každý pátý čtenář sáhne po zvuku — a jsou to většinou ti nejzaneprázdněnější, tedy klienti, na kterých mu záleží nejvíc. Studentka Eliška používá totéž na skripta: převede si poznámky na audio a poslouchá je při běhání.
+Teď má postup jiný. Hotový text projde promptem, který z něj udělá verzi pro ucho — rozepíše zkratky, vyhodí odrážky, přidá jednu uvozovací větu. Ta verze jde do generátoru hlasu, za dvě minuty je z toho MP3, které přiloží do mailu i na web jako přehrávač. Celé to zabere čtvrt hodiny měsíčně. Po třech měsících vidí, že zhruba každý pátý čtenář sáhne po zvuku — a jsou to většinou ti nejzaneprázdněnější, tedy klienti, na kterých mu záleží nejvíc.
 
-## Jak na to
+Studentka Eliška používá totéž na skripta: převede si poznámky na audio a poslouchá je při běhání. A menší firma, kde pracuje Tomášova klientka, dělá audioverze interních oběžníků — ne proto, že by je lidé nepřečetli, ale proto, že si je pustí cestou na stavbu, kde by mobil stejně nevytáhli.
 
-1. **Vyberte hlas a chvíli si s ním hrajte.** Služby nabízejí desítky hlasů; u češtiny se kvalita liší víc než u angličtiny. Zkuste stejný odstavec na pěti hlasech a vyberte ten, který zní jako vy nebo jako váš obsah. Tenhle výběr děláte jednou.
-2. **Připravte text pro ucho, ne pro oko.** Odstraňte odrážky, kterým bez zraku nikdo nerozumí, rozepište zkratky, čísla a jednotky. Pomůže i krátký úvod navíc: „Tohle je audioverze článku o…“ Úprava zabere pár minut a na výsledku je slyšet.
-3. **Vygenerujte a poslechněte si to celé.** Opravdu celé. Devadesát procent výstupu bývá v pořádku, ale jedno špatně přečtené jméno nebo číslo dokáže dojem zkazit. Problémová slova stačí ve vstupu přepsat foneticky.
-4. **Přiložte zvuk tam, kde je obsah.** K článku jako přehrávač, do newsletteru jako odkaz na soubor (většina mailových klientů audio nepřehraje přímo), do interního oběžníku jako přílohu ve firemním úložišti.
-5. **Když to děláte pravidelně, zautomatizujte to.** Služby mají API, takže jde postavit řetěz „nový článek → text jde do generátoru → MP3 se uloží k článku“. Kdo si na to netroufá, najde postup v [kapitole o AI a automatizaci](/prirucka/ai-a-automatizace) — je to přesně ta úroveň, kde se z chatu stává rutina.
-6. **Sledujte, jestli to někdo poslouchá.** Když po třech měsících vidíte nulu, ušetřete si práci. Pokud ne, přidejte i starší texty.
+## Fáze 1: co dnešní hlasy umí a kde je hranice
+
+### Přirozenost už není problém, čeština taky ne
+
+Rozdíl mezi generací hlasů z doby navigací a dneškem není v tom, že by mluvily zřetelněji. Je v tom, že **drží větnou melodii** — vědí, kde stoupnout, kde se nadechnout a kde nechat pauzu. U delšího poslechu je to celý rozdíl mezi „vypnul jsem to po minutě“ a „doposlouchal jsem to do konce“.
+
+Čeština patřila dlouho k jazykům, kde to fungovalo hůř. Dnes zvládají vícejazyčné modely češtinu na úrovni, která je pro předčítání článků použitelná. Neznamená to bezchybnost — znamená to, že chyby jsou vzácné a dají se odstranit úpravou vstupu.
+
+### Kde to pořád selhává
+
+Buďme konkrétní, protože právě tyhle věci budete v hotovém audiu hledat.
+
+**Vlastní jména.** Cizí příjmení, názvy firem a produktů jsou nejčastější zdroj přeřeků. Model netuší, jestli je „Wiener“ Vídeňan, nebo Američan.
+
+**Zkratky a jednotky.** Někdy je model rozepíše správně, jindy je hláskuje po písmenech, jindy si vybere špatnou variantu. Zkratky, které v češtině znamenají víc věcí, jsou loterie.
+
+**Čísla ve složitějším tvaru.** Rozsahy, desetinná čísla, procenta, datum psané číslicemi, telefonní čísla — všude tam se dá čekat, že to model přečte jinak, než jak byste to řekli vy.
+
+**Věci, které se dají číst dvěma způsoby.** Homografy, slova, kde záleží na kontextu, a hlavně **přízvuk u dlouhých souvětí**, kde se model rozhodne špatně, co je vsuvka.
+
+**Vizuální struktura.** Odrážky, tabulky, nadpisy, poznámky pod čarou, text v závorkách — to všechno je vidět, ale neslyšet. Model to přečte doslova a posluchač se ztratí.
+
+Poslední bod je zásadní a je to důvod, proč má fáze 3 vlastní kapitolu. Zbytek se řeší úpravou vstupu, ne hledáním lepšího nástroje.
+
+## Fáze 2: kde se audioverze vyplatí
+
+Ne u všeho. Vyplatí se tam, kde má člověk **volné uši a zaneprázdněné oči a ruce**. Pět situací, které to splňují.
+
+### Audioverze článků a blogových textů
+
+Nejpřímější použití. Delší text má u sebe přehrávač, čtenář si vybere. Funguje to u textů, které se dají poslouchat lineárně — úvahy, návody bez obrázků, rozhovory. Nefunguje to u textů, které jsou z poloviny tabulka nebo kód; tam je audio horší než nic, protože slibuje obsah, který nedodá.
+
+### Newsletter do uší
+
+Nejlepší poměr užitku k práci. Newsletter je krátký, píše se pravidelně a jeho čtenáři jsou typicky lidé, kteří ho otevřou a odloží. Zvuková verze jako odkaz v mailu má jednu výhodu navíc: přehraje se v mobilu na jedno kliknutí, zatímco článek by musel načíst web.
+
+### Interní oběžníky a firemní komunikace
+
+Podceňovaná kategorie. Když ve firmě pracují lidé v terénu, ve výrobě nebo za volantem, je hlasová verze zprávy praktičtější než mail — pustí si ji cestou. Platí tu ale dvě pravidla: **do generátoru nesmí citlivé osobní údaje** (personální, zdravotní, mzdové) jinak než přes placený či firemní účet se smluvní ochranou dat, a co jde, předem anonymizujte. A druhé: audiozpráva od vedení musí mít jasně napsáno, že je generovaná — jinak si lidé budou myslet, že slyšeli šéfa.
+
+### Studijní poznámky na cesty
+
+Pro studenty nejsilnější varianta. Vlastní výpisky převedené na audio se poslouchají při chůzi, běhání, v tramvaji. Efekt je dvojí: opakujete látku v čase, který by byl jinak ztracený, a hlavně **slyšíte, čemu nerozumíte** — pasáž, kterou při čtení očima přeskočíte, vás v poslechu zarazí. Kombinuje se to dobře s [technikou aktivního vybavování](/tipy/student-aktivni-vybavovani).
+
+### Voiceover k videu
+
+Když natáčíte krátká videa, mluvený komentář bývá největší brzda: nahrávání, přeřeky, střih. Generovaný voiceover z připraveného scénáře se dá vyrobit za minuty a hlavně **jde opravit jednou větou** — u vlastní nahrávky byste museli nahrávat znovu celý blok. U videí, kde vystupujete vy sami, je to ale rozhodnutí o důvěryhodnosti; víc ve fázi 7.
+
+## Fáze 3: příprava textu pro poslech
+
+Tohle je jádro celého návodu. Kvalita audioverze se rozhoduje tady, ne ve výběru nástroje.
+
+### Co všechno se musí změnit
+
+Text pro oko používá věci, které ucho nemá jak zachytit. **Odrážky a číslované seznamy** posluchač nevidí, takže tři odrážky za sebou splynou v jednu dlouhou větu. **Závorky** jsou v poslechu nesrozumitelné, protože není slyšet, kde končí vsuvka. **Nadpisy** oddělují úseky vizuálně, ale v audiu je potřeba slovní přechod. **Odkazy** nemá smysl číst nahlas. **Zkratky** je potřeba rozepsat. A **dlouhá souvětí**, která se v textu čtou v pohodě, se v poslechu ztrácejí, protože posluchač se nemůže vrátit o řádek zpátky.
+
+### Prompt, který text připraví
+
+```text
+Připrav tenhle text jako podklad pro předčítání hlasem (audioverze
+článku). Nezkracuj obsah, nic nevynechávej — jen ho převeď z podoby
+pro oko do podoby pro ucho.
+
+Udělej tohle:
+1. Odrážky a číslované seznamy převeď do souvislých vět
+   s přirozenými spojkami („zaprvé“, „a k tomu“, „poslední věc je“).
+2. Rozepiš všechny zkratky a jednotky slovy, jak by je řekl člověk.
+3. Zruš závorky — obsah buď vlož do věty, nebo vypusť, když je
+   to jen vizuální poznámka.
+4. Čísla, procenta, rozsahy a data napiš tak, jak se čtou.
+5. Dlouhá souvětí rozděl. Cílová délka věty je do dvaceti slov.
+6. Za každý nadpis dej slovní přechod, aby posluchač poznal, že
+   začíná nová část. Samotné nadpisy vypusť.
+7. Odkazy a poznámky pod čarou vypusť; kde je to důležité, řekni
+   to slovy („odkaz najdete v článku“).
+8. Na začátek přidej jednu uvozovací větu: co to je a jak dlouho
+   to trvá. Na konec jednu uzavírací.
+
+Zachovej můj styl a slovník. Nepřidávej nic, co v textu není.
+Na konci mi zvlášť vypiš seznam slov a jmen, u kterých hrozí, že
+je hlas přečte špatně.
+
+[vlož text]
+```
+
+Vrátí text, který jde rovnou vložit do generátoru, a — což je ta cenná část — seznam rizikových slov. Zkontrolujte dvě věci: jestli se při převodu odrážek neztratila informace (model občas tři body sloučí do dvou) a jestli uvozovací věta nezní jako reklama. Tenhle prompt si uložte do své knihovny promptů — budete ho používat u každého textu.
+
+### Slovník výslovnosti
+
+Rizikovým slovům se dá předejít fonetickým přepisem přímo ve vstupu. Vyplatí se vést si vlastní seznam, protože se stejná jména vracejí.
+
+```text
+Tady je seznam jmen, značek a odborných termínů, které se v mých
+textech opakují:
+
+[vlož seznam]
+
+U každého navrhni fonetický přepis v české transkripci, který
+můžu vložit místo původního slova do textu pro předčítání —
+tedy jak se to má vyslovit, zapsané českým pravopisem.
+
+Formát: původní zápis | přepis pro předčítání | poznámka
+
+U cizích jmen napiš, ze kterého jazyka vycházíš a jestli existuje
+víc přijímaných výslovností. Kde si nejsi jistý, napiš to místo
+toho, ať nehádáš — ověřím si to u zdroje.
+```
+
+Vrátí tabulku, ze které si postupně postavíte vlastní slovník. Poslední odstavec je důležitý: u výslovnosti jmen si modely rády vymyslí věrohodně znějící nesmysl, takže u jmen skutečných lidí a firem ověřte, jak se to říká doopravdy — ideálně u nich samotných.
+
+### Přizpůsobení podle formátu
+
+Newsletter, oběžník a studijní poznámky potřebují každý trochu jinou úpravu. Newsletter snese osobnější oslovení a měl by mít jasný konec s výzvou. Oběžník má být věcný, s uvedením, kdo mluví a čeho se to týká.
+
+```text
+Připrav tenhle newsletter jako audioverzi pro moje odběratele.
+
+Kontext: posílám ho [dvakrát měsíčně], odběratelé jsou [popis].
+Cílová délka poslechu je [5-7] minut.
+
+Kromě běžné úpravy pro poslech (odrážky do vět, zkratky rozepsat,
+závorky pryč, krátké věty):
+- začni oslovením a jednou větou, co v tomhle vydání zazní
+- na začátku řekni, co je nejdůležitější, ať to slyší i ten,
+  kdo doposlechne jen minutu
+- mezi tématy udělej zřetelný slovní předěl
+- na konci shrň jednu věc, kterou má posluchač udělat
+- žádné „jak jsem psal výše“ a podobné odkazy na text
+
+Text nezkracuj o obsah, jen o vizuální berličky.
+
+[vlož newsletter]
+```
+
+Vrátí verzi, která se dá pustit bez toho, aby posluchač musel držet v hlavě strukturu. Bod o nejdůležitější věci na začátku je tam schválně — poslech se opouští mnohem dřív než čtení.
+
+A pro studijní materiály se hodí ještě jiná úprava:
+
+```text
+Převeď moje poznámky na audio určené k opakování při [chůzi/běhu].
+
+[vlož poznámky]
+
+Pravidla:
+- rozděl to na úseky po zhruba [3] minutách poslechu, každý začni
+  větou „téma číslo X: [název]“
+- po každém úseku dej jednu kontrolní otázku, pauzu naznač větou
+  „zkuste si odpovědět“ a pak řekni správnou odpověď
+- definice a klíčové pojmy zopakuj dvakrát, podruhé jinými slovy
+- vzorce a čísla řekni tak, jak se vyslovují
+- nic nepřidávej z vlastních znalostí, drž se mých poznámek;
+  kde jsou poznámky nesrozumitelné, napiš to místo výmyslu
+
+Na konci celý materiál shrň v deseti větách.
+```
+
+Vrátí materiál na poslech s kontrolními otázkami, což je mnohem účinnější než pasivní předčítání. Pravidlo o nepřidávání je zásadní — do studijního materiálu nesmí vlézt tvrzení, které v poznámkách nebylo, protože to je přesně to, co si pak zapamatujete špatně.
+
+## Fáze 4: výběr hlasu
+
+### Testujte na svém textu, ne na ukázce
+
+Hlasy se u služeb vybírají z knihovny a každý zní na ukázce dobře. Rozhodnout se dá jen na vlastním textu — takovém, který obsahuje vaše typická slova, jména a délku vět.
+
+```text
+Napiš mi zkušební odstavec na porovnání hlasů pro předčítání
+mého obsahu. Téma: [téma mých textů].
+
+Odstavec má být na 45 vteřin poslechu a musí obsahovat:
+- dvě dlouhá souvětí a dvě krátké věty za sebou
+- jedno cizí příjmení a jeden název firmy
+- dvě čísla v různém tvaru (procento a rozsah)
+- jednu otázku a jednu větu s vloženou vsuvkou
+- jedno slovo, které se v češtině často čte špatně
+
+Napiš ho v mém stylu, ne neutrálně. Pod odstavec vypiš, na co
+se mám u každého hlasu soustředit a co je vyřazovací chyba.
+```
+
+Vrátí testovací text, který přehraje slabiny. Pusťte s ním pět hlasů, poslechněte si je za sebou a rozhodujte podle jediné otázky: **poslouchal bych to půl hodiny?** Ne „zní to hezky“, ale „vydržel bych to“.
+
+### Na co při výběru koukat
+
+**Tempo.** Většina hlasů čte rychleji, než je pro poslech na ulici příjemné. Pomalejší nastavení je skoro vždy lepší volba.
+
+**Barva a věk hlasu.** Musí sedět k obsahu. Mladý dynamický hlas u textu o penzijním spoření působí divně a naopak.
+
+**Stabilita napříč délkou.** Některé hlasy jsou skvělé na tři odstavce a po deseti minutách začnou působit monotónně. Test dělejte na delší ukázce, ne na pár větách.
+
+**Jak zvládá vaše typická slova.** Když píšete o oboru plném cizích termínů, vyhrává hlas, který je čte správně, i kdyby zněl o něco méně efektně.
+
+Tenhle výběr děláte jednou a pak se ho držte. Hlas je součást identity obsahu stejně jako písmo — když ho měníte každé vydání, posluchač ztrácí návyk.
+
+## Fáze 5: ruční workflow
+
+Než cokoli automatizujete, projděte to třikrát ručně. Zjistíte, kde ve vašem obsahu vznikají problémy, a teprve pak má smysl to zadrátovat.
+
+Postup má pět kroků a zabere zhruba čtvrt hodiny.
+
+**1. Text projděte přípravným promptem.** Výstup si přečtěte očima, než ho pošlete dál. Tady se opravují sloučené odrážky a nepovedené přechody.
+
+**2. Nahraďte riziková slova fonetickým přepisem.** Podle seznamu, který prompt vrátil, a podle vlastního slovníku.
+
+**3. Vygenerujte audio.** Vložte text do generátoru, vyberte svůj hlas, zvolte tempo. U delších textů generujte po částech — kratší úseky se lépe opravují a nemusíte při jedné chybě přegenerovat všechno.
+
+**4. Poslechněte si to celé.** Opravdu celé, ne prvních třicet vteřin. Devadesát procent výstupu bývá v pořádku a chyba se skoro vždy schová do zbylých deseti procent.
+
+**5. Opravte vstup a přegenerujte problémový úsek.** Chyba se neopravuje ve zvuku, opravuje se v textu.
+
+Ten čtvrtý krok si zaslouží pomůcku, protože poslouchat s tužkou v ruce je otrava:
+
+```text
+Poslouchám audioverzi tohohle textu a našel jsem tyhle problémy:
+
+[vypiš, co jsi slyšel: špatně přečtené slovo, divná pauza,
+příliš dlouhá věta, nesrozumitelný přechod]
+
+Uprav zdrojový text tak, aby se to při dalším generování nestalo:
+- u špatně přečtených slov navrhni fonetický přepis
+- u divných pauz uprav interpunkci nebo větu rozděl
+- u nesrozumitelných míst přeformuluj, ale zachovej význam
+
+Vrať mi jen upravené pasáže s uvedením, kde v textu jsou,
+ne celý text znovu. U každé úpravy napiš jednou větou, proč.
+
+[vlož zdrojový text]
+```
+
+Vrátí adresné opravy, které si zanesete do zdroje. Ty samé opravy si zapisujte i do vlastního slovníku — po třech vydáních se seznam problémů skoro vyprázdní, protože se stejná slova vracejí.
+
+## Fáze 6: automatizace přes API
+
+Když je ruční postup zaběhaný a stabilní, má smysl ho zautomatizovat. Cílový stav je jednoduchý: **nový článek znamená nové audio, aniž byste u toho byli.**
+
+### Co má řetěz dělat
+
+Typický řetěz má čtyři kroky: vezme nový text, projde ho přípravným promptem, pošle ho do hlasového API a uloží výsledný soubor tam, kde ho čeká web nebo mailový nástroj. K tomu patří dvě pojistky — upozornění, že audio vzniklo, a to, že se **nezveřejní samo**, dokud ho někdo neposlechne.
+
+```text
+Napiš mi skript, který ze zadaného textového souboru vyrobí
+audioverzi přes hlasové API [služba, kterou používám].
+Programovat neumím, napiš mi i návod, co nainstalovat a jak
+ho spustit na [macOS / Windows].
+
+Skript má:
+1. načíst soubor s článkem (markdown) a odstranit frontmatter
+2. text rozdělit na části po zhruba [2500] znacích na hranicích
+   odstavců, ne uprostřed věty
+3. každou část poslat do API se stejným hlasem a nastavením
+4. výsledky spojit do jednoho MP3 a uložit jako [slug].mp3
+5. do vedlejšího souboru uložit přesný text, ze kterého audio
+   vzniklo, ať vím, co se četlo
+6. vypsat výslednou délku nahrávky a velikost souboru
+
+Požadavky:
+- klíč k API načítej z proměnné prostředí, nikdy ne z kódu
+- při chybě zkus část ještě dvakrát, pak skonči srozumitelnou
+  hláškou česky a nesmaž, co už je hotové
+- soubor ukládej do složky, NEnahrávej ho nikam sám
+- ke každému kroku komentář česky, proč se dělá
+
+Na konci napiš, co všechno se může pokazit a jak to poznám.
+```
+
+Vrátí skript i instalační návod. Bod 5 vypadá jako drobnost, ale je to jediný způsob, jak po měsíci zjistit, proč nahrávka říká něco jiného než publikovaný text. A bod o neukládání na web je tam schválně — o tom níž. Jak si nechat napsat skript, když kód neumíte číst, popisuje tip [skripty pro nevývojáře](/tipy/ai-skripty-pro-nevyvojare).
+
+### Spojení do řetězu
+
+Skript sám o sobě pořád musíte spustit. Poslední krok je napojit ho na okamžik, kdy vznikne nový text.
+
+```text
+Chci propojit vznik nového článku s výrobou audioverze.
+
+Můj postup dnes vypadá takhle: [popiš — např. napíšu článek jako
+markdown do složky, pak ho publikuju přes …].
+
+Navrhni mi tři varianty automatizace, od nejjednodušší:
+1. varianta „ručně spuštěný příkaz“ — co přesně budu psát
+2. varianta „hlídač složky nebo naplánovaná úloha“ — co poběží
+   samo a jak často
+3. varianta „propojení přes automatizační nástroj“ — které kroky
+   kde budou
+
+U každé napiš: co je potřeba nastavit, kde to může spadnout,
+kolik práce dá údržba a jak poznám, že to neproběhlo.
+
+Do žádné varianty nedávej automatické zveřejnění — audio se má
+uložit a poslat mi upozornění, publikaci potvrzuju já.
+```
+
+Vrátí tři cesty podle toho, kolik si troufáte. Začněte první, přejděte na druhou, až vás omrzí. Třetí varianta dává smysl hlavně tehdy, když už automatizační nástroj používáte na jiné věci — srovnání je v tipu [n8n a Zapier s AI](/tipy/n8n-zapier-ai-automatizace) a hotové plánované rutiny popisuje [rutiny nad poštou a kalendářem](/tipy/claude-rutiny-posta-kalendar).
+
+### Poslední krok patří člověku
+
+Poslední odstavec předchozího promptu je tvrdé pravidlo, ne opatrnost. **Audio se nesmí publikovat samo.** Důvod je prostý: chyba ve zvuku je horší než chyba v textu. Překlep čtenář přejde, špatně přečtené jméno klienta v nahrávce si zapamatuje. A na rozdíl od článku, který opravíte a je hotovo, si nahrávku někdo mezitím stáhl.
+
+Praktický kompromis: řetěz běží automaticky, hotové audio se uloží a přijde upozornění. Vy si ho pustíte při první příležitosti a jedním kliknutím schválíte. Je to minuta práce, která odděluje užitečnou automatizaci od té, která vám jednou udělá ostudu.
+
+### Voiceover k videu
+
+Zvláštní případ, kde je API obzvlášť užitečné, protože scénář se mění a nahrávat znovu je otrava.
+
+```text
+Tady je scénář mého videa rozdělený na scény:
+
+[vlož scénář, u každé scény označení a text]
+
+Uprav ho pro namluvení hlasem:
+- u každé scény napiš cílovou délku v sekundách a odhad, jestli
+  se do ní text vejde při běžném tempu čtení
+- kde je text delší než scéna, navrhni kratší verzi se stejným
+  obsahem
+- zkratky, čísla a jednotky rozepiš, jak se čtou
+- na začátku a konci každé scény nech místo na nádech
+- žádné odkazy na to, co je vidět na obrazovce („jak vidíte zde“),
+  pokud to nedává smysl i bez obrazu
+
+Výstup jako tabulka: scéna | text k namluvení | odhad délky.
+```
+
+Vrátí scénář připravený k namluvení včetně odhadu časování, což je práce, která se jinak dělá metodou pokus-omyl. Odhady si ověřte na první scéně — tempo hlasu, který používáte, se od průměru liší.
+
+## Fáze 7: klonování hlasu, právo a licence
+
+Většina služeb umí naklonovat hlas z pár minut nahrávky. Je to lákavé, technicky snadné a je to místo, kde se dá napáchat nejvíc škody.
+
+### Pravidlo, které nemá výjimku
+
+**Klonujte výhradně svůj vlastní hlas, nebo hlas člověka, který k tomu dal doložitelný souhlas.** Doložitelný znamená písemný, konkrétní a odvolatelný — ne „říkal, že mu to nevadí“.
+
+Napodobit hlas kolegy, klienta, konkurence nebo známé osobnosti není vtip, je to právní i etický problém. Hlas je osobní údaj a projev osobní povahy; jeho použití bez souhlasu zasahuje do práv toho člověka. A z praktického hlediska: klonovaný hlas je dnes typický nástroj podvodů — falešné telefonáty „od šéfa“ s pokynem poslat peníze jsou reálná věc, kterou firmy řeší. Každý naklonovaný hlas, který se vám dostane z rukou, je potenciální zbraň.
+
+### Co si ošetřit u vlastního hlasu
+
+I když klonujete sami sebe, tři věci stojí za rozmyšlení. **Kde model hlasu bydlí a kdo k němu má přístup** — je to v účtu, který sdílí tým? Pak ho může použít kdokoli z týmu. **Co se stane, když účet zrušíte**, a jestli jde model smazat. A **jestli chcete, aby lidé věděli, že je to generované** — u vlastního obsahu je poctivé to říct, protože posluchač jinak předpokládá, že jste to skutečně namluvili.
+
+Praktické minimum: u generovaných nahrávek uveďte jednou větou, že jde o umělý hlas. Nesnižuje to hodnotu, naopak — lidé oceňují, když se s nimi hraje na rovinu.
+
+### Souhlas, když jde o cizí hlas
+
+Když opravdu potřebujete hlas jiného člověka (kolega jako firemní hlas, namluvení od profesionála), pořiďte si souhlas, který obstojí.
+
+```text
+Připrav mi osnovu písemného souhlasu s naklonováním hlasu.
+
+Situace: [např. kolegyně namluví vzorové nahrávky a chceme
+z nich vytvořit hlasový model pro interní firemní videa].
+
+Osnova má pokrýt:
+- k čemu přesně smí být hlas použit a k čemu ne
+- kde a jak dlouho bude model uložený a kdo k němu má přístup
+- jak se souhlas odvolává a co se pak stane s modelem
+- jestli a jak bude uvedeno, že jde o generovaný hlas
+- co se stane, když člověk z firmy odejde
+
+Napiš to jako srozumitelný podklad k jednání, ne jako hotovou
+smlouvu. Na konec dej seznam otázek, na které si musíme odpovědět
+my dva, a upozornění, které body bych měl probrat s právníkem —
+tohle není právní rada a chci vědět, kde ji potřebuju.
+```
+
+Vrátí osnovu k jednání a — hlavně — seznam míst, kde potřebujete skutečného právníka. Berte to tak: **prompt vám pomůže připravit se, ne nahradit právní posouzení.** U čehokoli, co má jít ven z firmy nebo se týká veřejně známé osoby, jděte za právníkem vždycky.
+
+### Licenční podmínky komerčního užití
+
+Druhá věc, kterou lidé přeskočí a pak řeší. To, že jste si audio vygenerovali, ještě neznamená, že s ním smíte dělat cokoli.
+
+Ověřte si u své služby čtyři body: **jestli smíte výstup použít komerčně** (u některých tarifů je to omezené), **jestli musíte uvádět původ**, **co platí pro hlasy z knihovny** (jsou to hlasy skutečných lidí a jejich použití má obvykle vlastní pravidla) a **co se stane s vaším právem k už vyrobeným nahrávkám, když předplatné zrušíte**. Odpovědi hledejte v aktuálním znění podmínek na webu služby, ne v odpovědi modelu — mění se a v odpovědi můžou být zastaralé. A když nahráváte obsah na platformu, která má vlastní pravidla pro generovaný zvuk, přečtěte si i ta.
+
+## Nejčastější chyby
+
+- **Poslat do generátoru text tak, jak je na webu.** Odrážky, závorky a zkratky posluchač nemá jak dekódovat. Příprava textu je nejdůležitější krok, ne formalita.
+- **Nepustit si to celé.** Chyba se nikdy neschová do prvních třiceti vteřin. Devadesát procent je v pořádku a právě ten zbytek zkazí dojem.
+- **Opravovat chybu ve zvuku místo ve vstupu.** Špatně přečtené jméno se řeší fonetickým přepisem ve zdrojovém textu a přegenerováním úseku.
+- **Nechat řetěz publikovat samo.** Automatizace má končit uloženým souborem a upozorněním, ne nahráním na web. Poslední krok patří člověku.
+- **Klonovat cizí hlas bez doložitelného souhlasu.** Právní i etická hranice bez výjimek — a v praxi typický nástroj podvodů.
+- **Neověřit licenční podmínky komerčního užití.** Než postavíte na generovaném hlase kanál nebo produkt, přečtěte si, co k tomu služba říká.
+- **Posílat do generátoru citlivé texty ve free účtu.** Personální, zdravotní a finanční údaje patří jen do placeného či firemního účtu se smluvní ochranou dat, a i tam po anonymizaci.
 
 ## Nejlepší nástroje
 
-- **[ElevenLabs](https://elevenlabs.io)** — nejpřirozenější výsledky včetně češtiny, jednoduché webové rozhraní i API pro automatizaci.
+- **[ElevenLabs](https://elevenlabs.io)** — nejpřirozenější výsledky včetně češtiny, jednoduché webové rozhraní i API pro automatizaci; klonování hlasu jen s doložitelným souhlasem.
 - **Google Cloud Text-to-Speech a Azure Speech** — spolehlivé firemní varianty s jasnými smluvními podmínkami; hodí se, když audio vzniká z interních dokumentů.
-- **NotebookLM** — udělá z vašich podkladů rovnou mluvenou diskuzi dvou hlasů; jiný žánr než předčítání, ale pro studijní materiály velmi silný.
+- **NotebookLM** — udělá z vašich podkladů rovnou mluvenou diskuzi dvou hlasů; jiný žánr než předčítání, ale pro studijní materiály velmi silný, protože odpovídá jen z nahraných zdrojů. Víc v tipu [NotebookLM nad vlastními zdroji](/tipy/notebooklm-vlastni-zdroje).
 - **Vestavěné předčítání v telefonu** — než začnete cokoli generovat, zkuste ho; na osobní potřebu často stačí a nestojí nic.
+- **Vlastní slovník výslovnosti** — obyčejná tabulka jmen a jejich fonetických přepisů. Po pár vydáních je to nástroj, který ušetří nejvíc přegenerovávání.
 
 ## Co vám to přinese
 
-- **Dosah:** stejný obsah zastihne lidi v autě, na procházce nebo u nádobí. Pro řadu čtenářů je to jediný čas, kdy vás vůbec můžou vnímat.
-- **Čas:** místo hodiny nahrávání a stříhání pár minut. Audioverze přestává být projekt a stává se běžnou součástí publikování.
-- **Dostupnost:** lidé se zrakovým omezením nebo dyslexií se k vašemu obsahu dostanou bez berliček.
-- **Kvalita:** poslech vlastního textu odhalí kostrbaté věty líp než jakákoli korektura. Co špatně zní, bývá špatně napsané.
+- **Dosah:** stejný obsah zastihne lidi v autě, na procházce nebo u nádobí. Pro řadu čtenářů je to jediný čas, kdy vás vůbec můžou vnímat — a bývají to ti nejzaneprázdněnější.
+- **Čas:** místo hodiny nahrávání a stříhání čtvrt hodiny, po zautomatizování minuty. Audioverze přestává být projekt a stává se běžnou součástí publikování.
+- **Dostupnost:** lidé se zrakovým omezením nebo dyslexií se k vašemu obsahu dostanou bez berliček. U firemní a veřejné komunikace to není bonus, ale povinnost slušnosti.
+- **Kvalita:** poslech vlastního textu odhalí kostrbaté věty líp než jakákoli korektura. Co špatně zní, bývá špatně napsané — a opravíte to i v psané verzi.
 
 ## Pro tip
 
-Většina služeb umí naklonovat hlas z pár minut nahrávky. Je to lákavé a u vlastního hlasu legitimní — vaše značka, váš zvuk, vaše svolení. Platí ale tvrdá hranice: **klonujte výhradně svůj vlastní hlas, nebo hlas člověka, který k tomu dal doložitelný souhlas.** Napodobit hlas kolegy, klienta nebo známé osobnosti je právní i etický problém, ne vtip — hlas je osobní údaj a jeho zneužití je dnes typický nástroj podvodů. A obecně: texty s citlivými údaji (personální, zdravotní, finanční) posílejte do generátoru jen na placeném či firemním účtu se smluvní ochranou dat, ne ve free verzi, a co jde, předem anonymizujte.
+Pokročilý trik: **nedělejte z každého článku audio.** Vyberte si formát, který se poslouchá dobře, a ten dělejte pravidelně — třeba jen newsletter, ale každý. Pravidelnost si posluchač zapamatuje, nahodilost ne. A když už do toho jdete, přidejte na začátek každé nahrávky stejnou uvozovací větu se stejným hlasem; po třech vydáních to funguje jako znělka a lidé podle ní poznají, že jste to vy.
+
+A závěrečné pravidlo: **hlas vyrábí stroj, zveřejňuje ho člověk po poslechu — a klonuje se jen se souhlasem.** Obojí je jednoduché dodržet a obojí je nepříjemné vysvětlovat, když to jednou nedodržíte.

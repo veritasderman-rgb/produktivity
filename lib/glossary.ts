@@ -16,7 +16,7 @@ export const glossary: GlossaryEntry[] = [
     id: "agent",
     term: { cs: "agent", en: "agent" },
     match: {
-      cs: "\\bagent(?!ur)[\\wáčďéěíňóřšťúůýž]*",
+      cs: "\\bagent(?!u[rř])[\\wáčďéěíňóřšťúůýž]*",
       en: "\\b(?:AI )?agents?\\b",
     },
     def: {
@@ -145,7 +145,7 @@ export const glossary: GlossaryEntry[] = [
     id: "dpa",
     term: { cs: "DPA (zpracovatelská smlouva)", en: "DPA (data processing agreement)" },
     match: {
-      cs: "\\bDPA\\b|\\bzpracovatelsk[\\wáčďéěíňóřšťúůýž]+\\s+smlouv[\\wáčďéěíňóřšťúůýž]*",
+      cs: "\\bDPA\\b|\\bzpracovatelsk[\\wáčďéěíňóřšťúůýž]+\\s+sml(?:ou|u)v[\\wáčďéěíňóřšťúůýž]*",
       en: "\\bDPAs?\\b|\\bdata processing agreements?\\b",
     },
     def: {
@@ -316,7 +316,7 @@ export const glossary: GlossaryEntry[] = [
     id: "kontingencni-tabulka",
     term: { cs: "kontingenční tabulka", en: "pivot table" },
     match: {
-      cs: "\\bkontingenčn[\\wáčďéěíňóřšťúůýž]+\\s+tabulk[\\wáčďéěíňóřšťúůýž]*|\\bpivot[\\s-]?tabulk[\\wáčďéěíňóřšťúůýž]*",
+      cs: "\\bkontingenčn[\\wáčďéěíňóřšťúůýž]+\\s+tabul[\\wáčďéěíňóřšťúůýž]*|\\bpivot[\\s-]?tabul[\\wáčďéěíňóřšťúůýž]*",
       en: "\\bpivot tables?\\b",
     },
     def: {
@@ -382,7 +382,7 @@ export const glossary: GlossaryEntry[] = [
     id: "planovana-uloha",
     term: { cs: "plánovaná úloha", en: "scheduled task" },
     match: {
-      cs: "\\bplánovan[\\wáčďéěíňóřšťúůýž]+\\s+úloh[\\wáčďéěíňóřšťúůýž]*",
+      cs: "\\bplánovan[\\wáčďéěíňóřšťúůýž]+\\s+úlo[hz][\\wáčďéěíňóřšťúůýž]*",
       en: "\\bscheduled tasks?\\b",
     },
     def: {
@@ -445,7 +445,7 @@ export const glossary: GlossaryEntry[] = [
     id: "subagent",
     term: { cs: "subagent", en: "subagent" },
     match: {
-      cs: "\\bsubagent(?!ur)[\\wáčďéěíňóřšťúůýž]*",
+      cs: "\\bsubagent(?!u[rř])[\\wáčďéěíňóřšťúůýž]*",
       en: "\\bsub[\\s-]?agents?\\b",
     },
     def: {
@@ -469,7 +469,7 @@ export const glossary: GlossaryEntry[] = [
     id: "text-expander",
     term: { cs: "text expander", en: "text expander" },
     match: {
-      cs: "\\btext[\\s-]?expander[\\wáčďéěíňóřšťúůýž]*|\\btextov[\\wáčďéěíňóřšťúůýž]+\\s+zkratk[\\wáčďéěíňóřšťúůýž]*",
+      cs: "\\btext[\\s-]?expander[\\wáčďéěíňóřšťúůýž]*|\\btextov[\\wáčďéěíňóřšťúůýž]+\\s+zkrat[kc][\\wáčďéěíňóřšťúůýž]*",
       en: "\\btext expanders?\\b",
     },
     def: {
