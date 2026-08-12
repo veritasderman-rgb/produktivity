@@ -7,6 +7,7 @@ import { NewsletterForm } from "@/components/NewsletterForm";
 import { DataDisclaimer } from "@/components/DataDisclaimer";
 import { TipCard } from "@/components/TipCard";
 import { chapterForTip, relatedTips } from "@/lib/related";
+import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 
 const T = {
@@ -83,6 +84,8 @@ export default async function TipDetail({
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">
+      <JsonLd data={articleJsonLd({ locale, path: `/tipy/${tip.slug}`, title: tip.title, description: tip.excerpt, datePublished: tip.date, section: tip.category })} />
+      <JsonLd data={breadcrumbJsonLd(locale, [{ name: t.breadcrumb, path: "/tipy" }, { name: tip.title, path: `/tipy/${tip.slug}` }])} />
       <p className="eyebrow mb-4 text-faint">
         <Link href={p("/tipy")} className="hover:underline">{t.breadcrumb}</Link>
         {" · "}

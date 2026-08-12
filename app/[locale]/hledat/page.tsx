@@ -42,10 +42,13 @@ export async function generateMetadata({
 
 export default async function SearchPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
   const { locale: raw } = await params;
+  const { q } = await searchParams;
   const locale: Locale = isLocale(raw) ? raw : "cs";
   const t = T[locale] ?? T.cs;
 
@@ -74,7 +77,7 @@ export default async function SearchPage({
     <div className="mx-auto max-w-3xl px-6 py-14">
       <p className="eyebrow mb-2 text-faint">{t.count(docs.length)}</p>
       <h1 className="display mb-8 text-[clamp(30px,5vw,48px)]">{t.heading}</h1>
-      <SearchAll docs={docs} locale={locale} />
+      <SearchAll docs={docs} locale={locale} initialQuery={q ?? ""} />
     </div>
   );
 }

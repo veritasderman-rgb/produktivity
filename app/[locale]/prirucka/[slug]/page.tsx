@@ -12,6 +12,7 @@ import { TipCard } from "@/components/TipCard";
 import { getAllTips } from "@/lib/tips";
 import { tipsForChapter } from "@/lib/related";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
 const T = {
   cs: {
@@ -107,6 +108,8 @@ export default async function ChapterPage({
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">
+      <JsonLd data={articleJsonLd({ locale, path: `/prirucka/${ch.slug}`, title: ch.title, description: ch.excerpt, section: sectionLabels[ch.section] })} />
+      <JsonLd data={breadcrumbJsonLd(locale, [{ name: t.breadcrumb, path: "/prirucka" }, { name: ch.title, path: `/prirucka/${ch.slug}` }])} />
       <p className="eyebrow mb-4 text-faint">
         <Link href={p("/prirucka")} className="hover:underline">{t.breadcrumb}</Link>
         {" · "}

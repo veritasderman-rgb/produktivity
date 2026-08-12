@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { Keycap } from "@/components/Keycap";
 import { LangSwitch } from "@/components/LangSwitch";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
+import { JsonLd, websiteJsonLd } from "@/components/JsonLd";
 import "../globals.css";
 
 const schibsted = Schibsted_Grotesk({
@@ -66,6 +67,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} className={`${schibsted.variable} ${lora.variable} ${jetbrainsMono.variable}`}>
       <body>
+        <JsonLd data={websiteJsonLd(locale)} />
         <header className="sticky top-0 z-10 border-b border-hairline bg-paper">
           <div className="mx-auto flex max-w-[var(--page-max)] items-center justify-between gap-4 px-[var(--page-pad)] py-3.5">
             <Link href={p("/")} className="flex items-center gap-3 no-underline">

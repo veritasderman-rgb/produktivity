@@ -49,12 +49,14 @@ function normalize(s: string) {
 export function SearchAll({
   docs,
   locale = "cs",
+  initialQuery = "",
 }: {
   docs: SearchDoc[];
   locale?: "cs" | "en";
+  initialQuery?: string;
 }) {
   const t = T[locale] ?? T.cs;
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
 
   const results = useMemo(() => {
     const q = normalize(query.trim());

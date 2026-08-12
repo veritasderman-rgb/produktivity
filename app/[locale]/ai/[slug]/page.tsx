@@ -7,6 +7,7 @@ import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infogra
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { DataDisclaimer } from "@/components/DataDisclaimer";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
 const T = {
   cs: {
@@ -88,6 +89,8 @@ export default async function NewsDetail({
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">
+      <JsonLd data={articleJsonLd({ locale, path: `/ai/${n.slug}`, title: n.title, description: n.excerpt, datePublished: n.date, section: "AI" })} />
+      <JsonLd data={breadcrumbJsonLd(locale, [{ name: t.breadcrumb, path: "/ai" }, { name: n.title, path: `/ai/${n.slug}` }])} />
       <p className="eyebrow mb-4 text-faint">
         <Link href={p("/ai")} className="hover:underline">{t.breadcrumb}</Link>
         {" · "}
