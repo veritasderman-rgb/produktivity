@@ -1,6 +1,6 @@
 ---
 title: "AI si vymýšlí s jistotou v hlase. Ověřujte"
-excerpt: "Jazykové modely občas halucinují — čísla, citace, paragrafy. Pravidlo: co jde ven z firmy nebo do rozhodnutí, to si ověřte."
+excerpt: "Kompletní návod s prompty: proč modely halucinují, které typy tvrzení selhávají nejčastěji, tři postupy ověření, pravidlo dvou zdrojů a hotový workflow pro obsah, který jde ven z firmy."
 category: "ai"
 platform: "vsude"
 audience: []
@@ -9,37 +9,418 @@ saves: "reputace"
 date: "2026-07-06"
 ---
 
-Největší riziko AI není, že něco neumí. Je to, že neumí spolehlivě říct „nevím“ — a chybu vysloví se stejnou jistotou jako pravdu, plynule a bez zaváhání. Jazykové modely občas halucinují: vymyslí si citaci, popletou paragraf zákona nebo uvedou číslo, které nikde v podkladech není, a přitom celá odpověď zní naprosto věrohodně. Čím víc na výstupu záleží, tím důležitější je ho ověřit, než ho pošlete dál.
+Největší riziko AI není, že něco neumí. Je to, že neumí spolehlivě říct „nevím“ — a chybu vysloví se stejnou jistotou jako pravdu, plynule a bez zaváhání. Jazykový model si vymyslí citaci, poplete paragraf zákona nebo uvede číslo, které nikde v podkladech není, a celá odpověď přitom zní naprosto věrohodně.
+
+Zásadní posun v myšlení je tenhle: **model negeneruje pravdu, generuje pravděpodobné pokračování textu.** Není to databáze, ze které se něco „vytahuje“. Je to stroj, který skládá slova tak, aby dávala smysl — a věrohodně znějící nesmysl je z jeho pohledu stejně dobré pokračování jako fakt. Halucinace proto není porucha, kterou by šlo opravit aktualizací. Je to vlastnost způsobu, jakým tyhle nástroje fungují, a vy s ní musíte pracovat.
+
+Tenhle návod není o strašení. Je o tom, jak si nastavit rutinu, která vás ochrání a přitom vás nezpomalí: které typy tvrzení jsou rizikové a které skoro nikdy, jak z modelu dostat zdroj a jak ho ověřit, kdy stačí jeden zdroj a kdy jsou potřeba dva, a hlavně — kde je hranice mezi „tomuhle můžu věřit rovnou“ a „tohle nikdy nepustím ven bez kontroly“. Na konci je hotový workflow pro obsah, který opouští vaši obrazovku. Prompty stačí okopírovat a doplnit hranaté závorky.
 
 ## Vzorová situace
 
-Asistentka nechá AI shrnout novelu zákona a v odpovědi dostane odkaz na konkrétní paragraf, který zní věrohodně a sedí do kontextu. Bez ověření: paragraf citovaný dál je jinak číslovaný nebo dávno zrušený a chyba vyjde najevo až později, s dopadem na důvěryhodnost celého dokumentu, nejen té jedné věty. S návykem ověřování si odkaz dohledá v originálním znění zákona, než ho pošle dál — a chybu odhalí dřív, než opustí její obrazovku, kdy ji ještě stojí pár minut opravit.
+Marek píše pro firemní web článek o změnách v oblasti, kterou má na starosti. Podklady sepsal sám, ale AI použil na tři věci: doplnit kontext, dohledat čísla a učesat text.
 
-## Jak na to
+Bez ověřovací rutiny to dopadne takhle. V článku skončí statistika, kterou model uvedl jako „podle studie z roku 2024“ — studie existuje, ale číslo se v ní týká jiného regionu. Dál odkaz na paragraf, který byl v mezidobí přečíslován. A citát odborníka, který zní přesně jako něco, co by ten člověk řekl, jenže neřekl. Článek vyjde, po třech týdnech na to upozorní čtenář v komentáři, oprava se dělá narychlo a nepříjemně — a otázka „co dalšího z toho není pravda“ dopadne na celý web.
 
-1. Rozpoznejte rizikové kategorie — konkrétní čísla, citace, právní odkazy, jména osob, ceny. Právě tady AI nejčastěji halucinuje s naprostou jistotou v hlase.
-2. U důležitých výstupů si vždy vyžádejte zdroje: „Odkud to číslo nebo tvrzení bereš?“ a zdroje skutečně otevřete a zkontrolujte.
-3. Kalibrujte míru kontroly podle dopadu — interní brainstorm snese drobnou nepřesnost, e-mail klientovi nebo právní dokument ne.
-4. U číselných výstupů si nechte ukázat výpočet, ne jen výsledek — snáz odhalíte, kde se stala chyba.
-5. Nejisté formulace berte jako varovný signál — pokud AI píše „přibližně“ nebo „obvykle“, jde o odhad, ne o ověřený fakt.
-6. U opakovaně používaných faktů (ceníky, kontakty, interní čísla) si veďte jeden ověřený zdroj a AI vždy nasměrujte na něj, ne na její obecnou paměť.
+S rutinou to vypadá jinak a stojí to čtyřicet minut navíc. Marek si po dopsání nechá z textu vypsat všechna ověřitelná tvrzení do tabulky. Je jich devatenáct. Devět z nich jsou jeho vlastní věty o vlastní firmě — ty neověřuje, ví, odkud jsou. Sedm ověří otevřením zdroje: dvakrát sedí, čtyřikrát sedí s výhradou (jiný rok, jiný základ procenta), jednou zdroj vůbec neexistuje. Tři klíčová tvrzení, na kterých článek stojí, ověřuje pravidlem dvou zdrojů a u jednoho zjistí, že druhý zdroj tvrdí opak — a odstavec kvůli tomu přepíše. Citát odborníka vyhodí, protože ho nikde nenajde. Článek vyjde o den později a je pravdivý.
+
+## Fáze 1: proč to modely dělají
+
+Ověřovat bez pochopení mechanismu znamená ověřovat všechno stejně, což nikdo dlouhodobě nevydrží. Když víte, **proč** a **kde** se to láme, ověřujete cíleně.
+
+### Text, ne pravda
+
+Jazykový model se učil na obrovském množství textu a jeho úkolem je odhadnout, jaké slovo přijde dál. Nemá v sobě uložený seznam faktů, ke kterému by se vracel. Má statistickou představu o tom, jak vypadá text na dané téma.
+
+Když se zeptáte na něco, co v učení viděl tisíckrát ve stejné podobě, odpoví správně. Když se zeptáte na něco, co viděl málokrát nebo v rozporných verzích, vygeneruje **tvar** odpovědi, který je pro danou otázku typický — a doplní ho obsahem, který k tomu tvaru sedí. Takhle vzniká citace: model ví, jak vypadá bibliografický záznam, ví, kdo v oboru publikuje, ví, jak se jmenují časopisy — a složí z toho záznam, který má všechny náležitosti a neexistuje.
+
+Praktický důsledek: **čím konkrétnější a specifičtější údaj chcete, tím vyšší riziko.** „Vysvětli mi, jak funguje složené úročení“ je bezpečná otázka. „Kolik procent českých firem zavedlo X v roce 2025“ je nebezpečná otázka, protože přesně takové číslo model nejspíš nezná a přesně takové číslo umí věrohodně vyrobit.
+
+### Sebejistota není signál
+
+Model nemá vnitřní ukazatel „tímhle si nejsem jistý“, který by se propisoval do tónu odpovědi. Ověřený fakt a dohad vypadají v textu stejně — plynule, bez zaváhání, se stejnou stavbou vět. Lidský mluvčí by zaváhal, uhnul očima, řekl „myslím, že“. Model ne.
+
+Proto nefunguje intuice, kterou máte na lidi. U kolegy poznáte, kdy si vymýšlí. U modelu ne — a zrovna tuhle schopnost si člověk snadno namluví.
+
+Dá se ale zeptat přímo, a to pomáhá víc, než by se čekalo:
+
+```text
+Tady je odpověď, kterou jsi mi právě dal:
+
+[vlož odpověď]
+
+Projdi ji ještě jednou a rozděl každé faktické tvrzení do tří skupin:
+
+A) VÍM JISTĚ — obecně známé, opakovaně doložené, nízké riziko chyby
+B) NEJSEM SI JISTÝ — plauzibilní, ale mohl jsem to složit dohromady;
+   napiš, co konkrétně by mohlo být špatně (číslo, rok, jméno, rozsah)
+C) NEVÍM / GENEROVAL JSEM PRAVDĚPODOBNÝ TVAR — hlavně konkrétní čísla,
+   citace, názvy studií, paragrafy
+
+Buď přísný na sebe. Když si nejsi jistý, patří to do B nebo C,
+ne do A. U skupiny A napiš u každého bodu, proč si jsi jistý.
+```
+
+Vrátí roztřídění, které je překvapivě užitečné — skupina C bývá přesně to, co byste jinak přehlédli. Ale pozor na hranici toho, co tenhle prompt umí: **model si není vědom svých mezer stejně, jako si jich není vědom člověk.** Když si je jistý mylně, zařadí to do A. Berte výsledek jako předfiltr, ne jako záruku.
+
+### Kde je riziko nejvyšší
+
+Halucinace nejsou rovnoměrné. Nejvyšší riziko je tam, kde se sejde několik podmínek: údaj je konkrétní a přesný, téma je úzké nebo lokální, informace je novější než trénink modelu, a odpověď má mít formu, kterou model dobře zná (citace, tabulka, seznam paragrafů). Nejnižší riziko je naopak u obecných principů a u transformace textu, který jste modelu sami dali.
+
+## Fáze 2: taxonomie rizik — co ověřovat vždy
+
+Tahle část je jádro rutiny. Když si zapamatujete pět kategorií, kde se to láme, ověřování přestane být otravné, protože přesně víte, na co sáhnout.
+
+### Čísla a statistiky
+
+Nejčastější a nejzrádnější kategorie. Model vygeneruje číslo, které je řádově správné a věrohodné — a proto ho nikdo nezpochybní. Typické chyby: správné číslo pro jiný rok, správné číslo pro jiný region nebo jinou populaci, procento počítané z jiného základu, „přibližně“ zaokrouhlené tak, že už to není pravda.
+
+Zvláštní kategorie jsou čísla, která model **spočítal**. Není kalkulačka — sčítání a procenta generuje jako text a plete se v nich. Když potřebujete výpočet nad daty, nechte si napsat skript, který se spustí, ne odpověď v chatu.
+
+### Citace a odkazy na zdroje
+
+Nejnebezpečnější kategorie z hlediska následků. Neexistující citace není jen chyba — je to doložitelný důkaz, že jste zdroj nečetli, a v akademickém i novinářském kontextu má vážné dopady.
+
+Typické podoby: článek s věrohodným názvem od skutečného autora, který ho nenapsal; správný časopis, ale vymyšlený ročník a stránky; DOI, které vede nikam; odkaz na „studii Univerzity X“, která neexistuje. Riziko je nejvyšší tam, kde o citaci sami požádáte — když řeknete „doplň zdroje“, model zdroje doplní, protože o to jste žádali.
+
+### Jména, funkce a autorství
+
+Kdo co řekl, kdo co napsal, kdo je ve funkci. Modely tady kombinují: přiřadí správný výrok nesprávné osobě, uvedou funkci, kterou dotyčný měl před pěti lety, nebo si vyrobí citát, který k člověku „sedí“. U žijících lidí je to navíc citlivé — nepravdivý výrok přiřazený konkrétní osobě může být problém i právně.
+
+### Data, letopočty a lhůty
+
+Vypadá to nevinně a přitom z toho vznikají praktické průšvihy: chybné datum účinnosti, špatná délka lhůty, zaměněné pořadí událostí. Model si plete blízké letopočty a u novějších událostí pracuje s neúplnými informacemi, protože jeho znalost má hranici.
+
+### Právní, daňová a odborně normativní tvrzení
+
+Nejvyšší kombinace pravděpodobnosti chyby a dopadu. Čísla paragrafů se mění novelami, ustanovení se ruší a přečíslovávají, výklad se vyvíjí. Model tohle nesleduje — pracuje s tím, co viděl při tréninku, a nemá spolehlivý způsob, jak poznat, že se to změnilo.
+
+Pravidlo bez výjimky: **právní, daňové, zdravotní a bezpečnostní tvrzení nikdy nepublikujte ani nepoužijte k rozhodnutí bez ověření v aktuálním primárním zdroji nebo u kvalifikovaného člověka.** AI je tady dobrá na jednu věc — připravit otázky pro odborníka, abyste u něj nestrávili hodinu vysvětlováním kontextu.
+
+### Prompt na roztřídění tvrzení podle rizika
+
+Než začnete ověřovat, potřebujete seznam toho, co ověřovat. Ruční vypisování je práce, kterou model dělá dobře, protože nepracuje se znalostmi, jen s textem před sebou.
+
+```text
+Projdi přiložený text a vypiš do tabulky VŠECHNA faktická tvrzení,
+která jde ověřit u nezávislého zdroje.
+
+Sloupce:
+tvrzení (doslovná citace z textu) | kde v textu (odstavec/kapitola) |
+typ (číslo / citace / jméno / datum / právní tvrzení / obecné) |
+riziko (vysoké / střední / nízké) | čím to ověřit (konkrétní typ zdroje)
+
+Pravidla pro sloupec riziko:
+- vysoké = konkrétní číslo, citace, paragraf, jméno s výrokem,
+  nebo cokoli, co je novější než tvůj trénink
+- střední = obecně přijímaný, ale konkrétní údaj
+- nízké = obecný princip, definice, můj vlastní obsah
+
+NEHODNOŤ, jestli je tvrzení pravdivé. Jen vypiš, co je potřeba ověřit.
+Nevynechávej tvrzení proto, že ti připadá samozřejmé.
+Na konec připoj tvrzení, která jsou formulovaná tak vágně,
+že se ověřit nedají — ta je potřeba přepsat.
+```
+
+Vrátí kontrolní seznam, který je základem celého workflow. U delších textů jich bývá dvacet až padesát; většina spadne do nízkého rizika a ověřovat je nebudete. Poslední odstavec promptu je bonus: vágní tvrzení („odborníci se shodují“, „studie ukazují“) jsou horší než chybná, protože se nedají ani vyvrátit.
+
+## Fáze 3: tři postupy ověření
+
+Ověřování nemá jednu podobu. Podle typu tvrzení se hodí jiný postup — a nejrychlejší je začít tím nejlevnějším.
+
+### Postup 1: vyhledávání s citacemi
+
+Modely s přístupem na web umějí dohledat aktuální zdroj a ocitovat ho. Tím se z generování stává vyhledávání, což je principiálně jiná a bezpečnější operace — model nevymýšlí obsah, ale ukazuje na existující stránku.
+
+```text
+Potřebuju ověřit tohle konkrétní tvrzení:
+
+„[doslovné znění tvrzení]“
+
+Vyhledej to na webu a vrať:
+1. Verdikt: POTVRZENO / VYVRÁCENO / ČÁSTEČNĚ / NENALEZENO
+2. Ke každému nalezenému zdroji: název, vydavatel, datum vydání,
+   odkaz a doslovná pasáž, ze které to vyplývá
+3. Jestli se zdroje mezi sebou rozcházejí, ukaž obě verze
+4. Původní zdroj údaje — kdo to zveřejnil první; když všechny
+   nalezené články jen přebírají jeden zdroj, napiš to
+5. Datum, ke kterému údaj platí, a jestli existuje novější verze
+
+Když to na webu nenajdeš, napiš NENALEZENO. Nedoplňuj to
+z vlastních znalostí a nesnaž se najít něco podobného.
+```
+
+Vrátí ověření s doložením. Bod 4 je ten podstatný — velká část „široce citovaných“ čísel pochází z jediné tiskové zprávy, kterou převzalo dvacet webů. Dvacet odkazů pak vypadá jako dvacet zdrojů, ale je to jeden. A bod 5 chrání před nejběžnější chybou: údaj je pravdivý, ale zastaralý.
+
+Zásadní disciplína: **odkazy skutečně otevřete.** Model občas ocituje stránku, na které tvrzení není, nebo je tam v jiném znění. Prokliknout tři odkazy trvá dvě minuty a je to jediná část celého postupu, kterou nikdo za vás neudělá. Víc o vyhledávání s citacemi je v tipu [vyhledávání s citacemi](/tipy/ai-vyhledavani-citace), u větších rešerší se hodí [hloubková rešerše](/tipy/deep-research-reserse-trhu).
+
+### Postup 2: zpětný dotaz na zdroj
+
+Nejrychlejší test, který zabere patnáct vteřin: zeptejte se, odkud to je. Formulace ale rozhoduje — „odkud to máš?“ vede k tomu, že model vygeneruje plauzibilní zdroj. Musíte se zeptat tak, aby bylo přiznání nevědomosti přijatelná odpověď.
+
+```text
+V předchozí odpovědi jsi uvedl: „[konkrétní tvrzení]“.
+
+Odpověz mi na tohle, a je pro mě naprosto v pořádku,
+když bude odpověď „nevím“:
+
+1. Je to údaj, který skutečně znáš z konkrétního zdroje,
+   nebo je to tvar odpovědi, který k téhle otázce sedí?
+2. Pokud znáš zdroj, jak přesně se jmenuje, kdo ho vydal a kdy?
+3. Jak jistý si tím údajem jsi na škále 1-5 a proč zrovna tolik?
+4. Co konkrétně by na tom údaji mohlo být špatně — rok, jednotka,
+   populace, ke které se vztahuje, řádová velikost?
+5. Kde bych to měl ověřit, abych měl primární zdroj, ne převzatý?
+
+Nehledej teď na webu. Zajímá mě, co víš a co nevíš.
+```
+
+Vrátí sebehodnocení, které je použitelné jako filtr. Když model u bodu 1 řekne, že jde o tvar odpovědi, máte ušetřený čas — tvrzení buď vyhodíte, nebo ho ověříte postupem 1. Bod 4 je zajímavý i u tvrzení, která jsou správná: ukáže vám, na co se při ověřování dívat. Nespoléhejte se ale na to, že model přizná neznalost pokaždé; přiznává ji častěji, když mu k tomu dáte prostor, ale ne vždy.
+
+### Postup 3: křížové ověření druhým modelem
+
+Třetí postup se hodí tam, kde nemáte snadno dohledatelný primární zdroj, nebo jako rychlá druhá kontrola u textu, který jde ven. Princip: dejte tvrzení **jinému modelu, který neviděl, jak vzniklo**, a nechte ho odpovědět nezávisle.
+
+Podmínka, na které to celé stojí: **nesmíte prozradit, co byla původní odpověď.** Když modelu ukážete tvrzení a zeptáte se „je to správně?“, dostanete potvrzení, protože souhlasit je pravděpodobnější pokračování textu než odporovat.
+
+```text
+Odpověz mi prosím na tuhle otázku vlastními slovy,
+bez ohledu na to, co si o tom myslí kdokoli jiný:
+
+[polož původní otázku znovu, přesně jak zněla poprvé]
+
+Zajímá mě:
+- konkrétní odpověď, včetně čísel a jednotek, pokud tam patří
+- odkud to víš, a jak jistý si tím jsi
+- co je na téhle otázce sporné nebo se často plete
+
+Když odpověď neznáš, napiš to. Nepotřebuju odhad.
+```
+
+Pak obě odpovědi porovnáte sami. Když se shodují ve všech konkrétních údajích, riziko výrazně klesá — ne na nulu (oba modely se učily na podobných datech a mohou sdílet stejnou chybu), ale znatelně. Když se rozcházejí, máte přesně vyznačené místo, které je potřeba ověřit u zdroje. Rozpor je cennější než shoda: ukazuje vám, kde hledat.
+
+Když chcete od druhého modelu přímo kritiku, dejte mu text a požádejte o roli oponenta podle tipu [AI jako oponent](/tipy/ai-oponent). Jen mu neříkejte, že text vznikl s AI — hodnotí pak shovívavěji.
+
+### Postup 4: ověření proti vlastnímu podkladu
+
+Nejspolehlivější varianta ze všech, když ji lze použít: model nepracuje se svou pamětí, ale výhradně s dokumentem, který jste mu dali. Riziko halucinace tím klesá nejvíc, protože model nemusí nic domýšlet.
+
+```text
+Přikládám dokument [název], který je pro tenhle úkol jediný
+platný zdroj. Tady je text, který jsem napsal:
+
+[vlož text]
+
+Zkontroluj každé faktické tvrzení v mém textu proti dokumentu
+a vrať tabulku:
+tvrzení | strana/část dokumentu | verdikt | přesná citace z dokumentu
+
+Verdikty používej tyhle:
+- SEDÍ = dokument to tvrdí stejně
+- POSUN = dokument to tvrdí, ale slaběji, s podmínkou nebo v jiném
+  rozsahu; napiš, v čem je rozdíl
+- NENÍ V DOKUMENTU = tohle tvrzení v dokumentu nenajdu
+- ODPORUJE = dokument tvrdí něco jiného
+
+Nepoužívej nic mimo přiložený dokument, ani obecné znalosti.
+Když si nejsi jistý, kde v dokumentu to je, napiš to.
+```
+
+Vrátí kontrolu, která odhalí hlavně verdikt POSUN — tichý posun tvrzení do silnější podoby je nejčastější způsob, jak se do textu dostane nepravda, aniž by kdokoli lhal. Pro práci nad stálou sadou zdrojů je vhodný [NotebookLM](/tipy/notebooklm-vlastni-zdroje), který odpovídá jen z nahraných dokumentů a u každé odpovědi ukazuje citaci.
+
+## Fáze 4: pravidlo dvou zdrojů
+
+Ověřovat všechno dvakrát nikdo nevydrží. Ověřovat všechno jednou je málo u věcí, na kterých něco stojí. Řešení je pravidlo, které si novináři vypěstovali dávno před AI:
+
+**Klíčové tvrzení potřebuje dva nezávislé zdroje. Ostatní tvrzení jeden.**
+
+Klíčové tvrzení je takové, na kterém stojí závěr textu, které skončí v titulku nebo abstraktu, které vede k rozhodnutí o penězích nebo lidech, nebo které by v případě chyby bylo trapné. Zpravidla jich v textu bývá tři až pět, ne třicet.
+
+Slovo **nezávislé** dělá celou práci. Dva články, které přebírají tutéž tiskovou zprávu, jsou jeden zdroj. Wikipedie a článek, který z ní čerpá, jsou jeden zdroj. Dva weby citující tutéž studii jsou jeden zdroj — a tím zdrojem je ta studie, kterou si máte otevřít. Nezávislost znamená, že údaj vznikl dvěma cestami, které o sobě nevědí.
+
+Hierarchie zdrojů od nejlepšího po nejhorší je jednoduchá a stojí za zapamatování. Nejlepší je **primární zdroj**: samotná studie, oficiální statistika instituce, která data sbírá, plné znění předpisu, výroční zpráva firmy. Pod ním je **kvalitní sekundární zdroj**, který primární zdroj cituje a dá se z něj k němu dostat. Nejhorší je **převzatý obsah bez odkazu** — a bohužel právě ten se vyhledáváním najde nejsnáz, protože je ho nejvíc.
+
+```text
+Mám tohle klíčové tvrzení, na kterém stojí celý můj text:
+
+„[tvrzení]“
+
+Potřebuju k němu DVA nezávislé zdroje. Nezávislé znamená,
+že jeden nepřebírá údaj od druhého.
+
+Postupuj takhle:
+1. Najdi primární zdroj — kdo ten údaj původně zveřejnil
+   (instituce, studie, výroční zpráva) a odkaz na plné znění
+2. Najdi druhý zdroj, který k témuž údaji došel nezávisle,
+   ne převzetím z prvního
+3. U obou uveď: kdo, kdy, jaká metoda nebo jaký sběr dat,
+   a doslovnou pasáž s údajem
+4. Porovnej je: shodují se v číslech, období a definici?
+5. Když druhý nezávislý zdroj neexistuje, NAPIŠ TO —
+   neuváděj místo něj další článek, který přebírá ten první
+
+Na konec napiš, jak silně je tvrzení podložené a co konkrétně
+bych měl v textu formulovat opatrněji.
+```
+
+Vrátí buď dvě opory, nebo — a to je stejně cenné — informaci, že druhý nezávislý zdroj není. Když není, máte tři možnosti: tvrzení z textu vyhodit, oslabit ho („podle jedné studie z roku X“), nebo ho nechat a k údaji explicitně uvést jediný zdroj. Co dělat nemáte: podat ho jako obecně platný fakt.
+
+## Fáze 5: kdy věřit a kdy nikdy
+
+Tohle je nejpraktičtější část návodu, protože ověřovací rutina, která zdržuje u všeho, se do měsíce přestane používat. Rozdělte úlohy do tří zón a chovejte se v každé jinak.
+
+### Zelená zóna: ověřovat nemusíte
+
+Společný jmenovatel: **model pracuje s obsahem, který jste mu dali, nebo negeneruje fakta.**
+
+Sem patří přeformulování vlastního textu, změna tónu, zkrácení, převod do jiného formátu, oprava gramatiky a stylu. Dál strukturování vlastních myšlenek do osnovy, brainstorming variant, které stejně budete sami vybírat, generování otázek k tématu, návrhy nadpisů. A také psaní kódu, který si spustíte a uvidíte, jestli funguje — tam je ověření vestavěné do práce samotné.
+
+Pozor na jednu past i tady: **při transformaci vlastního textu model občas přidá tvrzení, které jste nenapsali.** Typicky do závěru — doplní shrnující větu, která zní hezky a obsahuje fakt navíc. Nebo zesílí formulaci. Rychlá kontrola: přečtěte výstup a ptejte se „bylo tohle v mém vstupu?“. U delších textů to jde promptem.
+
+```text
+Tady je můj původní text a tady je verze, kterou jsi z něj udělal:
+
+PŮVODNÍ:
+[vlož]
+
+TVOJE VERZE:
+[vlož]
+
+Porovnej je a vypiš POUZE věcné rozdíly, ne stylistické:
+1. Tvrzení, která jsou v tvé verzi a v původním textu nebyla
+2. Tvrzení z původního textu, která ve tvé verzi chybí
+3. Místa, kde je tvrzení formulované silněji nebo slaběji
+   než v originále — cituj obě znění vedle sebe
+4. Čísla, jména nebo data, která se liší
+
+Když je věcný obsah shodný, napiš to. Stylistické změny nekomentuj.
+```
+
+### Oranžová zóna: ověřujte cíleně
+
+Sem patří většina běžné práce: vysvětlení obecného principu, přehled možností, návrh postupu, shrnutí cizího dokumentu, příprava podkladů. Model tu pracuje s obecnými znalostmi, které bývají v pořádku, ale detaily se lámou.
+
+Pravidlo pro oranžovou zónu: **ověřujte konkrétní údaje, ne celou odpověď.** Když dostanete přehled pěti možností s popisem, není potřeba kontrolovat každou větu — ale konkrétní čísla, názvy a odkazy uvnitř toho přehledu ano. U shrnutí cizího dokumentu je nejlepší kontrola zpětný dotaz na dokument, popsaný v tipu [shrnutí dlouhých dokumentů](/tipy/ai-shrnuti-dokumentu).
+
+### Červená zóna: nikdy bez ověření
+
+Tady neexistuje výjimka „tentokrát to spěchá“. Sem patří:
+
+**Cokoli, co jde ven z firmy nebo do publikace.** Článek, tisková zpráva, prezentace klientovi, nabídka, příspěvek na sítě, e-mail zákazníkovi. Chyba odhalená venku je nesrovnatelně dražší než ta odhalená u vás.
+
+**Právní, daňová, zdravotní a bezpečnostní tvrzení.** Vždy aktuální primární zdroj nebo kvalifikovaný člověk.
+
+**Čísla, na kterých stojí rozhodnutí.** Investice, rozpočet, kapacita, termín. Nezáleží na tom, jestli číslo jde ven — záleží na tom, že se podle něj rozhoduje.
+
+**Citace a odkazy na zdroje, jakékoli.** Bez výjimky otevřít a ověřit, včetně těch, které vypadají naprosto standardně.
+
+**Cokoli, co se týká konkrétních žijících lidí.** Výroky, funkce, autorství, životopisné údaje.
+
+A napříč všemi zónami platí zásada, která je zároveň nejjednodušší ochranou: **AI navrhuje, člověk schvaluje.** Odeslání, zveřejnění, platba, smazání — poslední krok patří vždycky člověku, který za to nese odpovědnost.
+
+## Fáze 6: workflow pro publikování obsahu
+
+Když píšete obsah, který jde ven pravidelně, potřebujete rutinu, ne rozhodování případ od případu. Tenhle postup má čtyři kroky a u běžného článku zabere třicet až padesát minut.
+
+### Krok 1: extrakce tvrzení
+
+Po dopsání textu (a před jakoukoli korekturou) si nechte vypsat ověřitelná tvrzení promptem z fáze 2. Výsledek zkopírujte do tabulky, kde přibudou sloupce: **ověřeno kým, kdy, odkaz na zdroj, verdikt.** Tahle tabulka je celý smysl workflow — je to doklad, ke kterému se dá vrátit, když se za rok někdo zeptá „odkud to máte?“.
+
+### Krok 2: roztřídění a ověření
+
+Projděte seznam a rozdělte ho:
+
+- **Vaše vlastní tvrzení** (o vaší firmě, vaší zkušenosti, vašich datech) — neověřujete, ale označte je, ať je poznáte.
+- **Nízké riziko** — obecné principy, definice. Namátková kontrola stačí.
+- **Střední riziko** — jeden zdroj, otevřít, ověřit, zapsat odkaz.
+- **Vysoké riziko a klíčová tvrzení** — pravidlo dvou zdrojů z fáze 4.
+
+Ověřujte odshora, od nejrizikovějších. Když vám dojde čas, chcete mít hotové ty důležité.
+
+### Krok 3: úprava textu podle nálezů
+
+Ověření skoro nikdy nedopadne binárně. Nejčastější výsledek není „pravda/nepravda“, ale „skoro“ — a právě tady se text opravuje.
+
+Pro každý nález se rozhodněte: **sedí** (nechat, zapsat zdroj), **sedí s výhradou** (upravit formulaci — doplnit rok, populaci, zúžit rozsah), **nesedí** (opravit podle zdroje), **nenalezeno** (vyhodit, nebo přeformulovat tak, aby tvrzení nebylo). Poslední možnost je důležitá: tvrzení, které nelze doložit, nemusí text opustit — někdy stačí ho převést z faktu na vlastní zkušenost („v našich projektech vidíme, že…“).
+
+```text
+Tady je odstavec z mého textu a výsledek ověření jeho tvrzení:
+
+ODSTAVEC:
+[vlož]
+
+NÁLEZY:
+[vlož, co ověření zjistilo — např. číslo platí pro rok 2023,
+ne 2025; zdroj mluví o jiném regionu; druhý zdroj nenalezen]
+
+Přepiš odstavec tak, aby byl přesný podle nálezů:
+- k číslům doplň rok, zdroj a populaci, které se týkají
+- tvrzení, ke kterým je jen jeden zdroj, formuluj opatrněji
+  a zdroj uveď přímo v textu
+- tvrzení, která se nepotvrdila, vypusť — nenahrazuj je
+  podobnými, které bys musel vymýšlet
+- zachovej můj styl a délku odstavce, nepřidávej nová tvrzení
+
+Na konec napiš seznam, co konkrétně jsi změnil a proč.
+```
+
+Vrátí opravený odstavec a soupis změn. Soupis si přečtěte — je to poslední místo, kde zachytíte, že model při opravě přidal něco nového.
+
+### Krok 4: finální kontrola před odesláním
+
+Poslední průchod, ideálně jiným modelem nebo jiný den. Cíl není najít další fakta, ale chytit to, co proklouzlo.
+
+```text
+Jsi editor, který kontroluje text před publikací. Nekoriguj styl,
+zajímá tě jedině faktická spolehlivost.
+
+Projdi přiložený text a vrať čtyři seznamy:
+
+1. Tvrzení podaná jako fakt, u kterých v textu není zdroj
+   a která by ho potřebovala
+2. Čísla bez kontextu — chybí rok, jednotka, populace nebo základ,
+   ze kterého je procento počítané
+3. Vágní odvolávky („studie ukazují“, „odborníci se shodují“,
+   „obecně se uvádí“), které nejdou ověřit
+4. Formulace silnější, než co text doopravdy dokládá —
+   hlavně záměna souvislosti za příčinu a zobecnění
+   z jednoho případu na celek
+
+U každého nálezu cituj místo v textu a navrhni,
+jak to formulovat obhajitelně. Neopravuj text sám.
+```
+
+Vrátí seznam posledních slabin. Bod 4 chytá věc, kterou při vlastním čtení nikdo nevidí — vlastnímu textu rozumíme tak, jak jsme ho mysleli, ne jak je napsaný.
+
+A úplně poslední krok je lidský a nedelegovatelný: **přečtěte text a u každého čísla si vzpomeňte, kde jste ho ověřili.** Když si nevzpomenete, ještě nebylo ověřené.
+
+## Nejčastější chyby
+
+- **Ptát se „je to správně?“.** Souhlas je pravděpodobnější pokračování než odpor. Když chcete kontrolu, položte otázku znovu a nezávisle — a odpovědi porovnejte sami.
+- **Věřit odkazu, který jste neotevřeli.** Odkaz vypadá jako důkaz, ale bývá na stránku, kde tvrzení není, nebo je tam v jiném znění. Proklik trvá dvacet vteřin.
+- **Zaměňovat počet odkazů za počet zdrojů.** Dvacet článků přebírajících jednu tiskovou zprávu je jeden zdroj. Nezávislost znamená, že údaj vznikl dvěma cestami, které o sobě nevědí.
+- **Nechat si „doplnit zdroje“ k hotovému textu.** Když o citace požádáte, dostanete je — včetně vymyšlených. Zdroje se sbírají při psaní, ne dodatečně.
+- **Ověřovat všechno stejně.** Rutina, která zdržuje u přeformulování vlastního e-mailu, se přestane používat. Ověřujte podle zón: zelená bez kontroly, oranžová cíleně, červená vždy.
+- **Nechat model počítat.** Sčítání a procenta model generuje jako text a plete se v nich. Výpočet nad daty patří do skriptu, který jde spustit znovu.
+- **Spoléhat na to, že model přizná nejistotu sám.** Přizná ji častěji, když se zeptáte, ale u mylné jistoty ji nepřizná vůbec. Sebehodnocení je předfiltr, ne záruka.
 
 ## Nejlepší nástroje
 
-- **Přímé ověření ve zdroji** (zákon, oficiální dokument, web) — nejspolehlivější a zdarma, jen to chce čas.
-- **AI s přístupem na web a citacemi** (ChatGPT s prohlížením webu, Gemini, Perplexity) — usnadní dohledání aktuálního zdroje k tvrzení.
-- **Claude s vyhledáváním** — dohledá aktuální zdroj k tvrzení a v odpovědi ho rovnou ocituje, takže ověření nezačínáte od nuly.
-- **Druhé kolo stejné nebo jiné konverzace na křížovou kontrolu** — „zkontroluj tohle tvrzení a řekni, jestli sedí“.
-- **Kolega nebo odborník jako poslední pojistka** — u právních, finančních a zdravotních témat je lidská kontrola nenahraditelná.
-- **Vlastní ověřené podklady nahrané do AI** — pokud AI pracuje jen s vaším dokumentem, riziko halucinace klesá, protože nemusí nic domýšlet.
+- **Primární zdroj** (plné znění předpisu, samotná studie, oficiální statistika, výroční zpráva) — nejspolehlivější a zdarma, jen to chce čas a klik navíc.
+- **Claude s vyhledáváním** — dohledá aktuální zdroj k tvrzení a v odpovědi ho ocituje, takže ověřování nezačínáte od nuly; u větších témat hloubková rešerše s citacemi.
+- **NotebookLM** — odpovídá jen z nahraných zdrojů a u každé odpovědi ukáže citaci; ideální, když ověřujete text proti vlastním podkladům.
+- **Druhý model jako nezávislá odpověď** — jiný nástroj, kterému neřeknete, jaká byla první odpověď; rozpor mezi nimi je nejlepší ukazatel, kde hledat.
+- **Vlastní tabulka ověřených tvrzení** — u opakovaně používaných čísel (ceníky, kapacity, interní údaje) jeden ověřený zdroj, na který AI vždycky nasměrujete místo její obecné paměti.
+- **Kolega nebo odborník** — u právních, daňových, zdravotních a bezpečnostních témat poslední a nenahraditelná pojistka.
 
 ## Co vám to přinese
 
-- **Reputaci:** chyba odhalená u vás, ne až u klienta nebo vedení, je levná; chyba odhalená venku je drahá a těžko se napravuje.
-- **Klid:** víte, na co se u AI spolehnout rovnou a co si vždy ověřit — méně nejistoty při práci s výstupy.
-- **Kvalitu rozhodnutí:** rozhodnutí založená na ověřených číslech jsou spolehlivější než ta založená na sebejistě znějícím, ale nesprávném textu.
-- **Návyk:** postupně poznáte, u kterých témat AI chybuje častěji, a kontrolu si tam automaticky zesílíte, aniž byste nad tím museli přemýšlet pokaždé znovu.
+- **Reputace:** chyba odhalená u vás stojí deset minut, chyba odhalená u klienta stojí důvěru — a otázku „co dalšího z toho není pravda“ dostanete i k textům, které v pořádku byly.
+- **Čas:** paradoxně ušetříte. Rutina rozdělená do zón znamená, že u devadesáti procent práce neověřujete nic, a soustředíte se na tvrzení, kde to má smysl. Bez rutiny buď kontrolujete všechno, nebo nic.
+- **Klid:** víte, u kterých typů úloh se dá modelu věřit rovnou, a u kterých ne. Ta jistota je pohodlnější než trvalá nedůvěra i než slepá důvěra.
+- **Kvalita:** tabulka ověřených tvrzení se zdroji je podklad, ke kterému se dá vrátit za rok. U obsahu, který obhajujete před vedením nebo veřejností, je to rozdíl mezi „myslím, že to bylo z ČSÚ“ a odkazem.
 
 ## Pro tip
 
-Dobrý zvyk je přímo se zeptat: „Uveď, čím si nejsi jistý.“ Kvalitní modely míru nejistoty přiznají — ale většinou jen tehdy, když se zeptáte. Bez otázky odpoví se stejnou jistotou u ověřeného faktu i u domněnky, a rozdíl mezi nimi tak zůstane skrytý.
+Pokročilý trik, který funguje překvapivě dobře: **nechte model odpovědět dvakrát na tutéž otázku ve dvou samostatných konverzacích a odpovědi porovnejte.** Tam, kde model fakt skutečně zná, dostanete obě odpovědi shodné do detailu. Tam, kde generuje pravděpodobný tvar, se čísla, názvy a roky mezi pokusy rozejdou — a rozdíl je pro vás mapa toho, co ověřit. Je to nejlevnější dostupný detektor halucinace a zabere minutu.
+
+A pravidlo na závěr: **rozhodujte se podle dopadu, ne podle pocitu.** Ptejte se „co se stane, když je tohle špatně?“. Když je odpověď „nic, opravím to“, pusťte to dál. Když je odpověď „ostuda, škoda, špatné rozhodnutí“, otevřete zdroj. Tahle jedna otázka nahradí všechna ostatní pravidla, když si nebudete jistí, do které zóny něco patří.
