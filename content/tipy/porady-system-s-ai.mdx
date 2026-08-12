@@ -1,0 +1,432 @@
+---
+title: "Porada, která nežere den: kompletní systém s AI"
+excerpt: "Kompletní návod s prompty: audit porad z kalendáře, agenda postavená na rozhodnutích, podklady účastníkům den předem, timeboxing bodů, zápis s úkoly a kontrola závazků před další poradou. Plus pravidlo, které smaže polovinu schůzek — porada bez agendy se nekoná."
+category: "ai"
+platform: "vsude"
+audience: ["manazer"]
+keys: []
+saves: "~5 h týdně celému týmu"
+date: "2026-08-12"
+---
+
+Hodinová porada se sedmi lidmi nestojí hodinu, ale sedm hodin lidského času. Většina firem to ví a stejně svolává porady, které nemají cíl, agendu ani výstup — protože je jednodušší sejít se a uvidíme než si předem rozmyslet, co se má rozhodnout. Výsledek zná každý: den rozsekaný na kusy, ve kterých se nedá nic dodělat, a v pátek pocit, že se celý týden mluvilo.
+
+Zápis z porady se dá zautomatizovat a je to obrovská úleva — ale je to poslední krok. **Dobrý zápis ze špatné porady je jen precizní záznam ztraceného času.** Tenhle návod je nadstavba nad zápisovými tipy: bere celý cyklus od otázky „má se tahle porada vůbec konat?“ přes agendu, podklady a průběh až po kontrolu úkolů před tou další. AI v něm nedělá nic magického. Dělá tu mechanickou půlku, kterou nikdo nemá čas dělat: rozebere kalendář, převede podklady na shrnutí, rozpočítá čas, vytáhne z přepisu úkoly a před příští poradou zjistí, co se z minula neudělalo.
+
+Čtěte to postupně, nebo si vezměte fázi, která vás pálí nejvíc. Každá obsahuje prompty k okopírování — stačí doplnit hranaté závorky. A jedno pravidlo platí nad celým systémem: **AI navrhuje, člověk rozhoduje.** Který meeting se zruší, kdo úkol dostane a co se pošle ven, určuje vždycky člověk. Model jen dodává podklad, na kterém se to dá rozhodnout rychleji.
+
+## Vzorová situace
+
+Martin vede tým osmi lidí. V kalendáři má týdně jedenáct opakovaných schůzek: pondělní plánování na hodinu, denní stand-up, středeční projektovou na devadesát minut, čtvrteční statusovou s celým týmem, dvě jedna-na-jednu a několik nepravidelných. Souvislý blok delší než padesát minut mu v týdnu zbývá dvakrát. Zápisy se píšou nepravidelně, úkoly z porad žijí v hlavách a půlka středeční porady je opakování toho, co se řeklo v pondělí.
+
+Nejhorší na tom není počet schůzek, ale jejich obsah. Na statusové poradě mluví osm lidí po třech minutách o věcech, které se šesti dalších netýkají. Na projektové se čtyřicet minut diskutuje a v poslední minutě se řekne „tak si to ještě rozmyslíme“. Nikdo neví, co bylo rozhodnuto minule, takže se rozhoduje znovu — a když se za měsíc někdo zeptá, proč jsme šli do varianty B, nikdo nemá odpověď.
+
+Po zavedení systému vypadá Martinův týden jinak. Statusová porada je zrušená a nahrazená psaným statusem. Stand-up je třikrát týdně místo pěti. Projektová porada má agendu se třemi rozhodovacími body, časovým limitem u každého a podkladem, který účastníci dostali den předem — takže se nezačíná vysvětlováním kontextu, ale rovnou názory. Zápis a úkoly vypadnou z přepisu do deseti minut po skončení. Ve čtvrtek ráno mu rutina napíše, co z minulé porady zůstalo nehotové. Celkem se v jeho týmu uvolní zhruba pět hodin týdně napříč všemi lidmi — a hlavně se přestanou dvakrát rozhodovat stejné věci.
+
+## Fáze 1: audit porad — které zrušit a které zkrátit
+
+Nejlevnější zlepšení porad je nekonat je. Než začnete ladit agendy, projděte to, co v kalendáři už máte — u opakovaných schůzek totiž skoro nikdo nekontroluje, jestli ještě dávají smysl. Vznikly kvůli projektu, který skončil, nebo kvůli problému, který se vyřešil, a běží dál setrvačností.
+
+### Rozhodovací test: má se ta porada konat?
+
+Než sáhnete po AI, mějte kritérium. Porada má smysl ve třech případech: **rozhoduje se** (potřebujete v jedné chvíli víc hlav a odpovědnost za volbu), **řeší se konflikt nebo citlivá věc** (tam, kde psaná zpráva zhorší situaci) a **tvoří se něco společně** (brainstorming, plánování, kde na sebe nápady navazují). Ve všech ostatních případech — sdílení informací, reporty stavu, „aby všichni věděli“ — je porada nejdražší dostupný nástroj a psaný formát je lepší, jak rozvádí tip [psaný status místo statusové porady](/tipy/manazer-async-status).
+
+### Analýza kalendáře
+
+Kalendář je jediný poctivý záznam toho, kam čas skutečně teče. Vyexportujte si z něj poslední měsíc (většina kalendářů umí export, případně stačí vypsat opakované události ručně) a nechte si ho rozebrat. Když máte kalendář napojený konektorem, může model číst události přímo.
+
+```text
+Tady je výpis mých schůzek za poslední [4] týdny: název, den,
+čas, délka, počet účastníků a moje role (svolávám / jsem zvaný).
+
+[vložit výpis]
+
+Udělej audit:
+1. Spočítej celkový čas na schůzkách a přepočti ho na člověkohodiny
+   (délka × počet účastníků). Seřaď schůzky podle člověkohodin,
+   ne podle délky.
+2. Najdi opakované schůzky, které se za sledované období konaly
+   pokaždé se stejným okruhem lidí — u každé napiš, kolik
+   člověkohodin ročně spotřebuje.
+3. Označ schůzky, které se překrývají tématem nebo účastníky
+   a nejspíš se dají sloučit.
+4. Vypiš dny, kde mi mezi schůzkami nezbývá souvislý blok
+   delší než 90 minut, a spočítej, kolik takových dnů mám.
+5. U každé opakované schůzky navrhni jednu z variant: ZRUŠIT /
+   ZKRÁTIT / ZŘEDIT (méně často) / NAHRADIT PSANÝM FORMÁTEM /
+   PONECHAT — a jednou větou proč.
+
+Body 1-4 spočítej z dat, která jsem vložil. V bodě 5 jde o návrh
+k rozhodnutí, ne o závěr — napiš u každé i riziko, které
+by zrušení přineslo.
+```
+
+Vrátí přehled, ve kterém obvykle překvapí bod 1: schůzka, která zabírá půl hodiny, ale sedí na ní deset lidí, stojí víc než hodinová se třemi. Čísla si namátkou přepočítejte — modely v součtech napříč dvaceti řádky chybují, a když má výstup rozhodovat o rušení porad, musí sedět. A hlavně: **poslední sloupec je návrh, ne rozhodnutí.** Zrušení porady je manažerský a sociální krok, který nese následky; model o nich neví nic.
+
+### Test tří měsíců
+
+Na opakované schůzky, u kterých váháte, funguje jednoduchý pokus: zrušte je na tři měsíce a sledujte, co se rozbije. Většinou se nerozbije nic. Když ano, poznáte přesně, k čemu porada sloužila — a můžete ji obnovit v podobě, která tomu odpovídá, obvykle kratší a s menším okruhem lidí.
+
+### Náhrada, aby po zrušení nevzniklo vakuum
+
+Zrušená porada bez náhrady se vrátí — lidé si domluví vlastní schůzky, protože informace, kterou tam brali, pořád potřebují. Náhradu proto připravte dřív, než pošlete zrušení.
+
+```text
+Rušíme opakovanou poradu [název], [frekvence], [délka],
+[počet] účastníků.
+
+K čemu podle mě sloužila:
+[popis — jaké informace tam kolovaly, co se tam rozhodovalo,
+co by lidem chybělo]
+
+Navrhni náhradu:
+1. Jaký psaný nebo asynchronní formát pokryje každou z funkcí,
+   které jsem vypsal — u každé konkrétní forma, kdo ji plní,
+   jak často a kam se to zapisuje.
+2. Šablona toho psaného formátu: jaké otázky mají lidé
+   vyplňovat, maximálně 5, formulované tak, aby odpověď
+   nešlo odbýt jednou větou o tom, že se pracuje.
+3. Co zůstane nepokryté a kdy se kvůli tomu bude přece
+   jen potřeba sejít — jednou větou spouštěč, ne pravidelný slot.
+4. Oznámení pro tým na 6 vět: co rušíme, proč, kde se informace
+   nově vezmou od kdy, a co mají lidé udělat.
+
+U bodu 4 piš věcně a bez omluv. Nic neslibuj za mě —
+kde je potřeba moje rozhodnutí, nech [DOPLNIT].
+```
+
+Vrátí náhradní formát i text oznámení. Bod 3 nepřeskakujte: poctivé přiznání, co psaný formát nepokryje, je to, co odliší zrušení od pouhého škrtnutí ze zápisu — a spouštěč typu „když se dvě oddělení neshodnou na prioritě, svoláme půlhodinu“ funguje líp než pravidelný slot pro jistotu.
+
+## Fáze 2: agenda, která rozhoduje
+
+Agenda není seznam témat. Agenda je seznam otázek, které se mají zodpovědět, a rozhodnutí, která mají padnout. Rozdíl mezi „bod 2: rozpočet“ a „bod 2: schválit, jestli přesuneme 200 tisíc z kampaně do vývoje — rozhoduje Martin, podklad v příloze“ je celý rozdíl mezi hodinou povídání a osmi minutami práce.
+
+### Pravidlo: porada bez agendy se nekoná
+
+Zaveďte jedno pravidlo a držte ho i tehdy, když se to nehodí: **kdo poradu svolává, posílá agendu nejpozději den předem; když agenda nedorazí, porada se ruší.** Efekt je okamžitý a dvojí. Za prvé zmizí schůzky, které nikdo neuměl zdůvodnit — sepsat agendu totiž znamená přiznat si, co vlastně chci. Za druhé se zbylé porady zkrátí, protože účastníci přijdou připravení. Podrobnosti k samotnému pravidlu rozvádí tip [porada bez agendy se nekoná](/tipy/manazer-porada-agenda); tenhle návod na něm staví zbytek systému.
+
+Pravidlo funguje jen tehdy, když platí i pro vás. První porada, kterou zrušíte kvůli vlastní chybějící agendě, je nejlepší investice do jeho věrohodnosti.
+
+### Agenda z rozsypaných podkladů
+
+Sepsat pořádnou agendu trvá dvacet minut a přesně proto vzniká pět minut před poradou v podobě tří odrážek. Vstupem přitom je to, co už máte: mailová vlákna, poznámky, nedodělky z minula, zprávy ze Slacku.
+
+```text
+Připrav agendu porady. Vstupem jsou moje rozsypané podklady —
+poznámky, útržky z mailů a věci, co se táhnou z minula.
+
+Porada: [název], délka [60] minut, [pravidelná / jednorázová].
+Účastníci a role: [jméno — role, …]
+Co chci, aby po poradě platilo: [cíl jednou větou]
+
+Podklady:
+[vložit poznámky, výpisky z vláken, nedokončené body z minula]
+
+Sestav agendu, kde je každý bod formulovaný jako otázka
+k zodpovězení nebo rozhodnutí k učinění, ne jako téma.
+U každého bodu uveď:
+- otázku nebo rozhodnutí v jedné větě
+- typ: ROZHODNUTÍ / VSTUPY (sbírám názory, rozhodnu později)
+  / INFORMACE
+- kdo bod uvádí a kdo je rozhodovatel (jedno jméno)
+- časový limit v minutách
+- co musí účastníci vědět předem, aby se dalo rozhodnout
+
+Rozhodovací body dej do první poloviny. Součet časů nech
+o 10 minut kratší, než je délka porady.
+
+Zvlášť vypiš:
+a) body, které podle podkladů nepotřebují poradu a stačí
+   je vyřešit písemně — u každého navrhni formu
+b) body, u kterých z podkladů není jasné, kdo rozhoduje
+```
+
+Vrátí agendu, kterou můžete rovnou poslat, a dva seznamy navíc. Seznam a) je hlavní přínos celého promptu: typicky vyřadí dvě až tři položky a porada se zkrátí ještě předtím, než začne. Seznam b) hlídejte sami — modely rády dosadí jako rozhodovatele toho, kdo poradu svolal, i když to tak není. A hlídejte typy bodů: skoro všechno bývá označeno jako ROZHODNUTÍ, protože to zní důležitěji; body, kde jen informujete, přeznačte ručně.
+
+### Kontrola agendy před odesláním
+
+Krátký druhý průchod, který stojí minutu a ušetří patnáct.
+
+```text
+Zkontroluj tuhle agendu jako někdo, kdo bude na poradě sedět,
+a vypiš nálezy. Nic nepřepisuj.
+
+1. Body formulované jako téma, ne jako otázka nebo rozhodnutí.
+2. Body, u kterých není jasné, jak poznáme, že jsou uzavřené.
+3. Účastníci, kterých se netýká žádný bod agendy — u každého
+   napiš, kterých bodů se týkají, a jestli by nestačilo pozvat
+   je jen na tu část.
+4. Body, které vyžadují podklad, jenž ještě neexistuje.
+5. Odhad, jestli jsou časové limity realistické vzhledem
+   k počtu účastníků a složitosti bodu; kde ne, napiš proč.
+
+Agenda:
+[vložit]
+```
+
+Bod 3 je nejnepříjemnější a nejužitečnější. Pozvat na hodinovou poradu člověka kvůli jednomu pětiminutovému bodu je nejtišší způsob, jak plýtvat cizím časem — a přitom se to řeší tím, že ho pozvete na prvních deset minut.
+
+## Fáze 3: podklady den předem
+
+Nejčastější důvod, proč hodinová porada nestačí, je jednoduchý: prvních dvacet minut se vysvětluje kontext, který si všichni mohli přečíst. Podklad poslaný den předem tenhle blok smaže. Podmínka je, že to musí být podklad, který se dá přečíst za pět minut — čtyřicetistránkový dokument v příloze nikdo neotevře.
+
+### Shrnutí podkladů pro účastníky
+
+```text
+Připrav podklad k poradě [název], která je [datum].
+Účastníci: [jména a role]. Rozhodnutí, která mají padnout:
+[seznam z agendy].
+
+Materiály:
+[vložit dokumenty, čísla, mailová vlákna, výsledky analýz]
+
+Napiš podklad, který se přečte do 5 minut:
+1. Stav věci v maximálně 8 větách — co se od minule změnilo.
+2. Ke každému rozhodovacímu bodu z agendy: v čem je problém,
+   jaké jsou reálné varianty (u každé 2 věty), co mluví pro
+   a proti, a co je potřeba znát, aby šlo rozhodnout.
+3. Čísla, o která se rozhodnutí opírá — v tabulce, se zdrojem
+   u každého údaje.
+4. Tři otázky, na které si mají účastníci před poradou
+   odpovědět sami za sebe.
+
+Pravidla:
+- vycházej výhradně z vložených materiálů
+- nedoplňuj čísla ani závěry, které v podkladech nejsou;
+  kde údaj chybí, napiš [CHYBÍ: co]
+- žádné doporučení, kterou variantu zvolit — od toho je porada
+- žádný úvod ani závěrečné shrnutí, rovnou obsah
+```
+
+Vrátí materiál, který se posílá spolu s agendou. Zákaz doporučení v posledním řádku je záměrný: podklad, který už obsahuje odpověď, poradu buď zbytečně nasměruje, nebo z ní udělá schvalovací rituál. A značky `[CHYBÍ: …]` neškrtejte — je lepší přijít na poradu s vědomím, že jedno číslo nemáme, než ho tam mít vymyšlené.
+
+### Citlivé porady a data
+
+Když do podkladu patří osobní údaje, mzdy, zdravotní stav, právní jednání nebo neveřejná finanční čísla, platí zásada bez výjimek: **citlivá data patří jen do placeného účtu se smluvně ošetřeným zpracováním dat**, ideálně do nástroje schváleného vaší firmou, a i tam s vyškrtanými jmény, kde to jde. Anonymizace přitom nestačí u porady o jednom konkrétním člověku — tam ho kontext prozradí i bez jména. V takovém případě podklad napište ručně; zbytek systému funguje dál.
+
+### Předčtení, které se opravdu stane
+
+Podklad rozeslaný den předem si přečte polovina lidí. Dvě věci to zlepší. Napište do pozvánky, co se stane, když ho nepřečtou („první bod otevřu rovnou otázkou, kterou variantu volíte“), a rozešlete ho ve stejný čas každý týden, ať to je návyk. Radikálnější varianta, která funguje: prvních pět minut porady se v tichosti čte podklad. Vypadá to divně přesně jednou.
+
+## Fáze 4: timeboxing a průběh porady
+
+Agenda s časovými limity, které nikdo nehlídá, je jen seznam přání. Timeboxing není o disciplíně, ale o rozpočtu: každý bod dostane čas, a když dojde, bod se uzavře nebo přesune. Čas je zdroj, který se dá rozdělit jen jednou — a porada je jediné místo, kde se utrácí násobkem počtu lidí v místnosti.
+
+### Rozpočet času na body
+
+```text
+Tady je agenda porady na [60] minut a počet účastníků: [7].
+
+Rozděl čas mezi body a vrať tabulku:
+bod | typ | minuty | proč tolik | co udělat, když čas dojde
+
+Pravidla pro rozdělení:
+- rozhodovací body dostanou víc času než informační
+- u bodu, kde má promluvit každý účastník, počítej realisticky
+  s [1] minutou na osobu plus čas na shrnutí
+- na začátek dej 3 minuty na rekapitulaci úkolů z minula
+- na konec nech 5 minut na projití úkolů a termínů
+- nech 10 procent času jako rezervu, nerozdělenou
+
+Ve sloupci „co udělat, když čas dojde“ napiš konkrétní postup:
+uzavřít hlasováním / přesunout na příště / delegovat na dva lidi
+mimo poradu / rozhodne [jméno] sám do [termín].
+
+Součet minut se musí rovnat délce porady.
+```
+
+Vrátí rozpis, který si dejte vedle sebe na poradě. Nejcennější je poslední sloupec: předem domluvený postup pro případ, že čas dojde, je jediná věc, která brání tomu, aby se poslední bod řešil pět minut po plánovaném konci s polovinou lidí, kteří už odešli. Součet minut si zkontrolujte ručně.
+
+### Uzavírací otázky pro každý bod
+
+Body se nejčastěji nerozhodnou proto, že se nikdo nezeptá tak, aby se rozhodnout dalo. „Co si o tom myslíte?“ otevírá další kolo; „volíme A, nebo B, a kdo je proti?“ bod uzavírá. Připravit si tu formulaci předem trvá minutu.
+
+```text
+Ke každému rozhodovacímu bodu téhle agendy připrav dvě věci:
+
+1. UZAVÍRACÍ OTÁZKU — jednu větu, kterou bod ukončím tak,
+   aby odpovědí bylo rozhodnutí, ne další diskuse. Musí
+   obsahovat konkrétní varianty, mezi kterými se volí.
+2. ZÁCHRANNOU VARIANTU — co udělám, když ani po uzavírací
+   otázce shoda nepadne: kdo rozhodne sám, do kdy, a co
+   k tomu potřebuje.
+
+Přidej ke každému bodu jednu větu, kterou naopak NEMÁM říct,
+protože otevírá diskusi znovu (typicky obecná otázka na názor).
+
+Agenda:
+[vložit]
+```
+
+Vrátí sadu formulací, které si dejte k rozpisu času. Poslední odstavec o větách, které neříkat, je nenápadně nejužitečnější — obecná otázka na názor položená v osmé minutě desetiminutového bodu spolehlivě přidá dvacet minut.
+
+### Tři návyky, které drží poradu v čase
+
+**Začínat přesně, i když někdo chybí.** Čekání na opozdilce trestá ty, kdo přišli včas, a garantuje, že příště přijdou pozdě taky.
+
+**Nahlas oznámit přechod na další bod.** Věta „tenhle bod má osm minut, jdeme“ zní úředně a funguje: dává skupině sdílenou informaci o tom, kolik je času.
+
+**Odbočky odkládat na papír, ne do diskuse.** Zaveďte si viditelný seznam „mimo agendu“ (rohová část tabule, sdílený dokument, kanál). Odbočka se do něj zapíše a jede se dál. Ten seznam je po pár poradách nejlepší podklad k tomu, jak agendu příště sestavit jinak — a bývá i zdrojem témat, která si zaslouží vlastní porady.
+
+## Fáze 5: zápis a úkoly
+
+Tahle fáze je v systému nejlépe zmapovaná a nemá smysl ji tu opakovat celou. Ručně řízenou verzi — od souhlasu s nahráváním přes čištění přepisu po zápis, který odděluje rozhodnutí od diskuse — má tip [z nahrávky porady zápis s úkoly](/tipy/ai-zapis-z-porady). Plně automatický řetěz, kde se úkoly rovnou zakládají v úkolovníku přes konektor a vzniká prohledávatelný archiv rozhodnutí, popisuje [schůzky, které se zapisují samy](/tipy/ai-zapisy-schuzek-automaticky). Co k tomu patří z pohledu celého systému, jsou tři věci.
+
+### Zápis se řídí agendou, ne časovou osou
+
+Když agendu posíláte předem, dejte ji do promptu na zápis jako kostru. Zápis pak není přepis průběhu, ale odpověď na otázky, které jste si položili — a rovnou je vidět, který bod se neprobral.
+
+```text
+Z přiloženého přepisu udělej zápis uspořádaný podle agendy,
+kterou přikládám, ne chronologicky.
+
+Ke každému bodu agendy uveď:
+- co bylo rozhodnuto (jednou větou, oznamovacím způsobem),
+  kdo rozhodl a kdo výslovně souhlasil
+- pokud rozhodnutí nepadlo, napiš NEUZAVŘENO a co k uzavření
+  chybí, kdo to má dotáhnout a do kdy
+- úkoly, které z bodu vyplynuly: akce se slovesem | jeden
+  vlastník | termín
+
+Na konec dej tři sekce:
+NEPROBRANÉ BODY — co z agendy se vůbec neotevřelo
+MIMO AGENDU — o čem se mluvilo a v agendě to nebylo
+BEZ VLASTNÍKA — co se má udělat, ale nikdo si to nevzal
+
+Vycházej výhradně z přepisu. Kde termín nebo vlastník nezazněl,
+napiš TERMÍN NEZAZNĚL / VLASTNÍK NEJASNÝ — nedomýšlej.
+
+Agenda:
+[vložit]
+
+Přepis:
+[vložit]
+```
+
+Vrátí zápis, ze kterého je vidět nejen co se rozhodlo, ale i co jste plánovali probrat a nestihli. Kontrolujte hranici mezi rozhodnutím a diskusí: modely rády povyšují „mohli bychom“ na „bylo rozhodnuto“, protože to zní hotověji.
+
+### Úkol bez vlastníka a termínu není úkol
+
+Ze zápisu musí odejít seznam ve tvaru kdo-co-dokdy, kde vlastník je jeden konkrétní člověk. „Tým se na to podívá“ znamená, že se na to nepodívá nikdo. Když vlastník na poradě nezazněl, doplňte ho hned při kontrole zápisu — ne příště.
+
+### Zápis odesílá člověk
+
+Návrh zápisu je hotový do pár minut, ale jméno u úkolu, číslo v termínu a rozhodnutí o tom, co se do zápisu vůbec dostane, jsou vaše odpovědnost. Projděte jména, čísla a termíny, škrtněte ironii a ostřejší výměny — zápis se často dostane i k lidem mimo poradu — a pošlete ho **do třiceti minut po skončení**, dokud si všichni pamatují kontext a chybu opraví hned v odpovědi.
+
+## Fáze 6: follow-up a kontrola před další poradou
+
+Tady se rozhoduje, jestli měl celý systém smysl. Porada, po které se úkoly neudělají, není lepší než porada bez zápisu — jen je lépe zdokumentovaná. Klíčový moment není den po poradě, ale den před tou další.
+
+### Kontrola závazků z minula
+
+Tenhle prompt spouštějte vždycky před poradou, nikdy po ní. Dvě minuty práce nahradí úvodní čtvrthodinu „tak kde jsme skončili“.
+
+```text
+Tady je zápis z minulé porady a to, co vím o stavu úkolů.
+
+Zápis z [datum]:
+[vložit]
+
+Co se od té doby stalo (maily, zprávy, stav v úkolovníku):
+[vložit]
+
+Připrav mi úvodní blok na dnešní poradu:
+1. Tabulka úkolů z minula: úkol | vlastník | termín |
+   stav (HOTOVO / ROZPRACOVÁNO / NEZAČATO / STAV NEZNÁMÝ)
+2. Úkoly po termínu, seřazené podle toho, jak dlouho jsou po něm.
+3. Rozhodnutí z minula, která se mezitím ukázala jako sporná
+   nebo je něco zpochybnilo — s citací toho, co to zpochybnilo.
+4. Otevřené body z minula, které je dnes potřeba uzavřít,
+   seřazené podle naléhavosti.
+5. Tři otázky, kterými poradu otevřu.
+
+Kde nemám informaci o stavu, napiš STAV NEZNÁMÝ a přidej
+to do seznamu, na co se mám zeptat — nedomýšlej, že je hotovo.
+```
+
+Vrátí podklad, se kterým porada začne od věcí, ne od vzpomínání. Kategorie STAV NEZNÁMÝ je důležitější, než vypadá: když jich je většina, problém není v lidech, ale v tom, že úkoly nikde nežijí a nikdo je nesleduje.
+
+### Rutina, která se ptá sama
+
+Jakmile kontrola funguje ručně, dá se svěsit z ramen úplně. Plánované úlohy (rutiny) umí spustit zadání podle rozvrhu — třeba každý čtvrtek v osm ráno před odpolední poradou — a s napojeným kalendářem, poštou a diskem si podklady najdou samy.
+
+```text
+Každý [čtvrtek v 8:00] připrav podklad na odpolední poradu
+[název].
+
+Postup:
+1. Najdi v [úložiště / složka] poslední zápis z téhle porady.
+2. Projdi moji poštu od data toho zápisu a najdi zprávy,
+   které se týkají úkolů v něm uvedených.
+3. Ke každému úkolu urči stav podle nalezených zpráv:
+   HOTOVO / ROZPRACOVÁNO / BEZ ZMÍNKY.
+4. Vypiš úkoly po termínu a u každého poslední zmínku
+   s datem a odesílatelem.
+5. Připoj tři otázky, kterými poradu otevřu.
+
+Nic neodesílej a nikomu nepiš — výstup dej jen mně.
+Kde si nejsi jistý stavem, napiš BEZ ZMÍNKY, nehádej.
+```
+
+Poslední odstavec je bezpečnostní pojistka a nevynechávejte ho: rutina, která má přístup k poště, nesmí sama nic rozeslat. **Upomínky posílá člověk** — už proto, že tón upomínky kolegovi, který má zpoždění kvůli nemoci, se dá zvolit jen s kontextem, který model nemá. Jak nastavit hlídání otevřených smyček napříč poštou rozvádí tip [hlídač follow-upů](/tipy/ai-follow-up-hlidac).
+
+### Vypořádání úkolů, které se nestihly
+
+Úkol, který se posune potřetí, není zpožděný — je špatně zadaný, špatně přiřazený nebo se nemá dělat. Zaveďte pravidlo, že třetí posun znamená rozhodnutí: buď se úkol zruší, nebo dostane jiného vlastníka, nebo se rozdělí na menší kusy. Bez toho pravidla se seznam úkolů z porad promění v archiv výčitek, který nikdo nečte.
+
+## Fáze 7: měření systému a čtvrtletní úklid
+
+Jednotlivá porada ukáže jednu poradu. Deset zápisů ukáže, jak fungujete. Jednou za čtvrtletí se vyplatí podívat se na sérii jako na celek — je to nepříjemné a je to nejužitečnější půlhodina v celém systému.
+
+```text
+Přikládám zápisy z porady [název] za poslední [3] měsíce.
+
+Udělej analýzu série:
+1. Témata, která se vrátila třikrát a víc, aniž by se uzavřela
+   — u každého napiš, kdy se objevilo poprvé a co brání uzavření.
+2. Rozhodnutí, která byla později změněna nebo zrušena —
+   obě verze a odstup mezi nimi.
+3. Rozdělení úkolů podle vlastníků: kdo dostává kolik a komu
+   se termíny posouvají opakovaně.
+4. Poměr rozhodnutí k celkovému času porad — kolik rozhodnutí
+   padlo na hodinu porady.
+5. Body, které se objevují v každé agendě a nikdy nevedou
+   k rozhodnutí — kandidáti na vyřazení nebo na jinou formu.
+
+U každého zjištění uveď, ze kterých zápisů vychází.
+Kde je podkladů málo na závěr, napiš to místo odhadu.
+```
+
+Vrátí nepříjemně přesné zrcadlo. Namátkou ověřte dvě tři čísla proti zápisům — napříč deseti dokumenty se modely v součtech pletou. Bod 3 před sdílením zvažte: rozdělení úkolů podle jmen je citlivý materiál a patří spíš do rozhovoru mezi čtyřma očima než do hromadného mailu. Bod 5 naopak sdílejte klidně, protože je to nejrychlejší cesta ke kratší agendě.
+
+## Nejčastější chyby
+
+- **Zautomatizovat zápis a nechat porady beze změny.** Precizní záznam špatné porady je pořád špatná porada. Audit a agenda musí přijít dřív než automatizace.
+- **Agenda jako seznam témat.** „Rozpočet“ není bod, je to oblast. Bod agendy je otázka, na kterou se má odpovědět, s určeným rozhodovatelem — jinak se čtyřicet minut sdílejí pocity.
+- **Zvát všechny pro jistotu.** Každý účastník navíc násobí cenu porady a snižuje šanci, že se rozhodne. Kdo se týká jednoho bodu, přijde na ten jeden bod.
+- **Poslat podklad, který se nedá přečíst.** Čtyřicetistránkový dokument v příloze nikdo neotevře a porada začne vysvětlováním. Podklad má mít pět minut čtení a končit otázkami.
+- **Nechat rutinu odesílat upomínky.** Automat, který sám napíše kolegovi „máš zpoždění“, dokáže poškodit vztahy rychleji, než systém ušetří čas. AI připraví, člověk odešle.
+- **Nechat AI rozhodnout, které porady zrušit.** Model nezná politiku, historii ani to, že jistá schůzka je jediné místo, kde spolu dvě oddělení mluví. Návrh je vstup do rozhodnutí, ne rozhodnutí.
+- **Kontrolovat úkoly po poradě místo před další.** Kontrola den po poradě zjistí, že se ještě nic nestalo. Kontrola den před další poradou je jediná, která něco změní.
+
+## Nejlepší nástroje
+
+- **Kalendář s exportem** — vstup pro audit; bez čísel o člověkohodinách je debata o rušení porad jen o pocitech.
+- **Projekty (trvalý kontext)** — uložte si formát agendy, seznam účastníků s rolemi, slovník firemních zkratek a ukázku hotového zápisu; pak stačí vkládat podklady.
+- **Přepis v Teams nebo Google Meet** — vestavěná funkce pod firemním účtem, nic se neinstaluje a záznam neodchází ven z firemního prostředí.
+- **Konektory ke kalendáři, poště a disku** — podklady a stavy úkolů si model najde sám místo kopírování do chatu; nastavte je jen na to, co skutečně potřebuje.
+- **Plánované úlohy (rutiny)** — spuštění kontroly závazků podle rozvrhu, den před poradou, bez toho, abyste si na to museli vzpomenout.
+- **Sdílený prostor pro zápisy** — jedno stálé místo a jednotné pojmenování se souborem začínajícím datem; co se nedá najít, neexistuje.
+
+## Co vám to přinese
+
+- **Čas:** u týmu velikosti osmi lidí se zrušením jedné statusové porady a zkrácením dvou dalších uvolní řádově pět hodin týdně napříč všemi účastníky. Příprava agendy a podkladu s AI zabere zhruba deset minut místo padesáti.
+- **Peníze:** nepřímo, ale citelně. Rozhodnutí, které se odkládá o dva týdny, obvykle stojí víc než celá porada — a nejdražší je téma, které se rozhoduje třikrát, protože se pokaždé zapomnělo, co bylo dohodnuto.
+- **Klid:** kalendář, ve kterém jsou souvislé bloky, a jistota, že se na nic nezapomnělo, protože kontrola závazků běží před každou poradou. Nemusíte si nic pamatovat.
+- **Kvalita rozhodování:** oddělení rozhodnutí od diskuse a písemný podklad předem znamenají, že se rozhoduje z informací, ne z toho, kdo mluví nejdéle. Po půl roce máte navíc historii, ve které je dohledatelné, proč se tehdy rozhodlo takhle.
+
+## Pro tip
+
+Zaveďte systém odzadu. Většina týmů začne u zápisů, protože je to nejviditelnější a nejsnazší — a skončí s dokonalou dokumentací porad, které se neměly konat. Začněte auditem kalendáře, pak nasaďte pravidlo o agendě, pak podklady, a teprve když tohle běží, řešte automatizaci zápisů. Každý krok samostatně ušetří čas; ve špatném pořadí se ale ušetřený čas hned spotřebuje na údržbu zápisů, které nikdo nečte.
+
+A závěrečné pravidlo, které stojí nad celým návodem: **cílem není mít lepší porady, ale méně porad, ve kterých se víc rozhodne.** AI je v tomhle systému skvělá na mechaniku — rozebere kalendář, shrne podklady, rozpočítá čas, vytáhne úkoly, ohlídá termíny. Rozhodnutí, koho pozvat, co zrušit a co komu říct, zůstávají u člověka. A je to tak správně, protože porada je nakonec o lidech, ne o dokumentech.
