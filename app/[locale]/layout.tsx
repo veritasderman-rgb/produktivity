@@ -60,6 +60,7 @@ export default async function RootLayout({
     { href: p("/prirucka"), label: t.nav.handbook },
     { href: p("/tipy"), label: t.nav.tips },
     { href: p("/ai"), label: t.nav.ai },
+    { href: p("/prompty"), label: t.nav.prompts },
     { href: p("/gadgety"), label: t.nav.gadgets },
     { href: p("/hledat"), label: t.nav.search },
   ];
@@ -131,6 +132,7 @@ export default async function RootLayout({
                 <li><Link href={p("/prirucka")} className="draw-link">{t.footer.handbook}</Link></li>
                 <li><Link href={p("/tipy")} className="draw-link">{t.footer.tips}</Link></li>
                 <li><Link href={p("/ai")} className="draw-link">{t.footer.aiSection}</Link></li>
+                <li><Link href={p("/prompty")} className="draw-link">{t.footer.prompts}</Link></li>
                 <li><Link href={p("/gadgety")} className="draw-link">{t.footer.gadgets}</Link></li>
                 <li><Link href={p("/slovnik")} className="draw-link">{t.footer.glossary}</Link></li>
                 <li><Link href="/rss.xml" className="draw-link">{t.footer.rss}</Link></li>

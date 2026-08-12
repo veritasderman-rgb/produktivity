@@ -14,6 +14,10 @@ import { annotateGlossary } from "@/lib/annotate";
 import { Pojem } from "@/components/Pojem";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
+import { CopyPre } from "@/components/CopyPre";
+import { ReadingProgress } from "@/components/ReadingProgress";
+import { Pomohlo } from "@/components/Pomohlo";
+import { extractHeadings, flatText, slugify } from "@/lib/toc";
 
 const T = {
   cs: {
@@ -23,6 +27,9 @@ const T = {
     relatedTitle: "Podobné tipy",
     ctaEyebrow: "Líbil se vám tip?",
     ctaDesc: "Každý týden posílám jeden takový do e-mailu. Dvě minuty čtení, hodiny úspor.",
+    readTime: "min čtení",
+    toc: "Obsah článku",
+    copy: { copy: "Zkopírovat", copied: "Zkopírováno ✓" },
   },
   en: {
     breadcrumb: "Tips & tricks",
@@ -31,8 +38,14 @@ const T = {
     relatedTitle: "Similar tips",
     ctaEyebrow: "Liked this tip?",
     ctaDesc: "I send one like it every week by email. Two minutes to read, hours saved.",
+    readTime: "min read",
+    toc: "In this article",
+    copy: { copy: "Copy", copied: "Copied ✓" },
   },
 };
+
+/** Minimální počet H2, od kterého se vyplatí ukázat obsah článku. */
+const TOC_MIN_HEADINGS = 4;
 
 export function generateStaticParams({ params }: { params: { locale: string } }) {
   return getAllTips(params.locale).map((tip) => ({ slug: tip.slug }));
@@ -65,10 +78,24 @@ export async function generateMetadata({
   };
 }
 
-const mdxComponents = {
-  kbd: (props: React.HTMLAttributes<HTMLElement>) => <kbd className="key" {...props} />,
-  Pojem,
-};
+/** Komponenty pro MDX se vyrábějí podle jazyka — kvůli popiskům tlačítka „zkopírovat". */
+function makeMdxComponents(locale: Locale) {
+  const copy = (T[locale] ?? T.cs).copy;
+  return {
+    kbd: (props: React.HTMLAttributes<HTMLElement>) => <kbd className="key" {...props} />,
+    Pojem,
+    pre: (props: React.HTMLAttributes<HTMLPreElement>) => (
+      <CopyPre label={copy}>
+        <pre {...props} />
+      </CopyPre>
+    ),
+    h2: ({ children }: { children?: React.ReactNode }) => (
+      <h2 id={slugify(flatText(children))} className="scroll-mt-24">
+        {children}
+      </h2>
+    ),
+  };
+}
 
 function heroImage(slug: string): string | null {
   const file = path.join(process.cwd(), "public", "img", "tipy", `${slug}.webp`);
@@ -93,16 +120,18 @@ export default async function TipDetail({
   const chapter = chapterForTip(tip, locale);
   const related = relatedTips(tip, allTips);
   const hero = heroImage(tip.slug);
+  const headings = extractHeadings(tip.body);
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">
+      <ReadingProgress />
       <JsonLd data={articleJsonLd({ locale, path: `/tipy/${tip.slug}`, title: tip.title, description: tip.excerpt, datePublished: tip.date, section: tip.category })} />
       <JsonLd data={breadcrumbJsonLd(locale, [{ name: t.breadcrumb, path: "/tipy" }, { name: tip.title, path: `/tipy/${tip.slug}` }])} />
       <p className="eyebrow mb-4 text-faint">
         <Link href={p("/tipy")} className="hover:underline">{t.breadcrumb}</Link>
         {" · "}
         {dict.categories[tip.category] ?? tip.category} ·{" "}
-        {dict.platforms[tip.platform] ?? tip.platform} · {tip.saves}
+        {dict.platforms[tip.platform] ?? tip.platform} · {tip.saves} · {tip.minutes} {t.readTime}
       </p>
       <h1 className="display text-[clamp(26px,4.5vw,42px)] normal-case" style={{ textTransform: "none" }}>
         {tip.title}
@@ -131,8 +160,20 @@ export default async function TipDetail({
           priority
         />
       )}
+      {headings.length >= TOC_MIN_HEADINGS && (
+        <details className="toc mt-8">
+          <summary>{t.toc}</summary>
+          <ol>
+            {headings.map((h) => (
+              <li key={h.id}>
+                <a href={`#${h.id}`}>{h.text}</a>
+              </li>
+            ))}
+          </ol>
+        </details>
+      )}
       <div className="prose-a mt-6">
-        <MDXRemote source={annotateGlossary(tip.body, locale)} components={mdxComponents} />
+        <MDXRemote source={annotateGlossary(tip.body, locale)} components={makeMdxComponents(locale)} />
       </div>
       {tip.category === "ai" && <DataDisclaimer locale={locale} />}
       {chapter && (
@@ -154,6 +195,7 @@ export default async function TipDetail({
           </div>
         </div>
       )}
+      <Pomohlo slug={tip.slug} locale={locale} />
       <div className="mt-14 border-t-2 border-hairline-strong pt-8">
         <p className="eyebrow mb-2 text-faint">{t.ctaEyebrow}</p>
         <p className="mb-5 max-w-[48ch] text-[15px] text-muted">{t.ctaDesc}</p>

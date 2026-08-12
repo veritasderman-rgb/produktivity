@@ -18,6 +18,7 @@ const cs = {
     handbook: "Příručka",
     tips: "Tipy & triky",
     ai: "AI",
+    prompts: "Prompty",
     gadgets: "Gadgety",
     training: "Školení",
     search: "Hledat",
@@ -30,6 +31,7 @@ const cs = {
     handbook: "Příručka produktivity",
     tips: "Tipy & triky",
     aiSection: "AI & produktivita",
+    prompts: "Databáze promptů",
     gadgets: "Gadgety",
     glossary: "Slovník pojmů",
     rss: "RSS",
@@ -42,6 +44,8 @@ const cs = {
   },
   tipCard: {
     read: "Číst celý tip",
+    megaBadge: "Velký návod",
+    minShort: "min",
     categories: {
       zkratky: "Zkratky", aplikace: "Aplikace", ai: "AI", workflow: "Workflow",
       komunikace: "Komunikace", hardware: "Vybavení",
@@ -67,6 +71,7 @@ const en: typeof cs = {
     handbook: "Handbook",
     tips: "Tips & tricks",
     ai: "AI",
+    prompts: "Prompts",
     gadgets: "Gadgets",
     training: "Training",
     search: "Search",
@@ -79,6 +84,7 @@ const en: typeof cs = {
     handbook: "Productivity handbook",
     tips: "Tips & tricks",
     aiSection: "AI & productivity",
+    prompts: "Prompt library",
     gadgets: "Gadgets",
     glossary: "Glossary",
     rss: "RSS",
@@ -91,6 +97,8 @@ const en: typeof cs = {
   },
   tipCard: {
     read: "Read the full tip",
+    megaBadge: "In-depth guide",
+    minShort: "min",
     categories: {
       zkratky: "Shortcuts", aplikace: "Apps", ai: "AI", workflow: "Workflow",
       komunikace: "Communication", hardware: "Gear",

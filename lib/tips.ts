@@ -13,7 +13,19 @@ export type Tip = {
   saves: string;
   date: string;
   body: string;
+  /** Odhad čtení: 200 slov za minutu, kódové bloky se nepočítají. */
+  minutes: number;
+  /** Velký návod (přes 15 000 znaků) — na kartě dostane odznak. */
+  isMega: boolean;
 };
+
+const FENCE_RE = /```[\s\S]*?```/g;
+const MEGA_CHARS = 15000;
+
+function readingMinutes(body: string): number {
+  const words = body.replace(FENCE_RE, " ").split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+}
 
 function tipsDir(locale: string = "cs") {
   return locale === "en"
@@ -40,6 +52,8 @@ export function getAllTips(locale: string = "cs"): Tip[] {
       saves: data.saves as string,
       date: data.date as string,
       body: content,
+      minutes: readingMinutes(content),
+      isMega: content.length >= MEGA_CHARS,
     };
   });
   return tips.sort((a, b) => (a.date < b.date ? 1 : -1));

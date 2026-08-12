@@ -15,12 +15,17 @@ import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { annotateGlossary } from "@/lib/annotate";
 import { Pojem } from "@/components/Pojem";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
+import { CopyPre } from "@/components/CopyPre";
+import { ReadingProgress } from "@/components/ReadingProgress";
+import { extractHeadings, flatText, slugify } from "@/lib/toc";
 
 const T = {
   cs: {
     breadcrumb: "Příručka",
     ogLabel: "produktivni.cz · příručka",
     readTime: "min čtení",
+    toc: "Obsah článku",
+    copy: { copy: "Zkopírovat", copied: "Zkopírováno ✓" },
     navAria: "Další kapitoly",
     prev: "← Předchozí",
     next: "Další →",
@@ -32,6 +37,8 @@ const T = {
     breadcrumb: "Handbook",
     ogLabel: "productive.tips · handbook",
     readTime: "min read",
+    toc: "In this article",
+    copy: { copy: "Copy", copied: "Copied ✓" },
     navAria: "More chapters",
     prev: "← Previous",
     next: "Next →",
@@ -72,16 +79,33 @@ export async function generateMetadata({
   };
 }
 
-const mdxComponents = {
-  Pojem,
-  kbd: (props: React.HTMLAttributes<HTMLElement>) => <kbd className="key" {...props} />,
-  Stats,
-  Timeline,
-  Bars,
-  Matrix,
-  Flow,
-  Donut,
-};
+/** Minimální počet H2, od kterého se vyplatí ukázat obsah článku. */
+const TOC_MIN_HEADINGS = 4;
+
+/** Komponenty pro MDX se vyrábějí podle jazyka — kvůli popiskům tlačítka „zkopírovat". */
+function makeMdxComponents(locale: Locale) {
+  const copy = (T[locale] ?? T.cs).copy;
+  return {
+    Pojem,
+    kbd: (props: React.HTMLAttributes<HTMLElement>) => <kbd className="key" {...props} />,
+    pre: (props: React.HTMLAttributes<HTMLPreElement>) => (
+      <CopyPre label={copy}>
+        <pre {...props} />
+      </CopyPre>
+    ),
+    h2: ({ children }: { children?: React.ReactNode }) => (
+      <h2 id={slugify(flatText(children))} className="scroll-mt-24">
+        {children}
+      </h2>
+    ),
+    Stats,
+    Timeline,
+    Bars,
+    Matrix,
+    Flow,
+    Donut,
+  };
+}
 
 function heroImage(slug: string): string | null {
   const file = path.join(process.cwd(), "public", "img", "prirucka", `${slug}.webp`);
@@ -108,9 +132,11 @@ export default async function ChapterPage({
   const next = chapters[idx + 1];
   const hero = heroImage(ch.slug);
   const related = tipsForChapter(ch.slug, getAllTips(locale));
+  const headings = extractHeadings(ch.body);
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">
+      <ReadingProgress />
       <JsonLd data={articleJsonLd({ locale, path: `/prirucka/${ch.slug}`, title: ch.title, description: ch.excerpt, section: sectionLabels[ch.section] })} />
       <JsonLd data={breadcrumbJsonLd(locale, [{ name: t.breadcrumb, path: "/prirucka" }, { name: ch.title, path: `/prirucka/${ch.slug}` }])} />
       <p className="eyebrow mb-4 text-faint">
@@ -134,9 +160,21 @@ export default async function ChapterPage({
           priority
         />
       )}
+      {headings.length >= TOC_MIN_HEADINGS && (
+        <details className="toc mt-8">
+          <summary>{t.toc}</summary>
+          <ol>
+            {headings.map((h) => (
+              <li key={h.id}>
+                <a href={`#${h.id}`}>{h.text}</a>
+              </li>
+            ))}
+          </ol>
+        </details>
+      )}
       <div className="prose-a mt-6">
         {/* blockJS: false — obsah je náš vlastní z repa; výrazy v props infografik jsou nutné */}
-        <MDXRemote source={annotateGlossary(ch.body, locale)} components={mdxComponents} options={{ blockJS: false }} />
+        <MDXRemote source={annotateGlossary(ch.body, locale)} components={makeMdxComponents(locale)} options={{ blockJS: false }} />
       </div>
 
       <nav className="mt-14 grid gap-3 border-t-2 border-hairline-strong pt-6 sm:grid-cols-2" aria-label={t.navAria}>

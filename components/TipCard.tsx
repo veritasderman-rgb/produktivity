@@ -13,6 +13,13 @@ export function TipCard({ tip, index, locale = "cs" }: { tip: Tip; index: number
         </span>
         <span className="tipcard-no tabular">{String(index).padStart(3, "0")}</span>
       </div>
+      {tip.isMega && (
+        <p className="mb-2.5">
+          <span className="mega-badge">
+            {t.megaBadge} · {tip.minutes} {t.minShort}
+          </span>
+        </p>
+      )}
       <h3 className="text-[17px] leading-[1.3] font-bold tracking-[-0.01em]">
         <Link href={href} className="draw-link">
           {tip.title}
@@ -33,7 +40,10 @@ export function TipCard({ tip, index, locale = "cs" }: { tip: Tip; index: number
         <Link href={href} className="draw-link text-[13.5px] font-bold">
           {t.read}
         </Link>
-        <span className="eyebrow text-faint">{tip.saves}</span>
+        <span className="eyebrow text-faint">
+          {tip.saves}
+          {!tip.isMega && ` · ${tip.minutes} ${t.minShort}`}
+        </span>
       </div>
     </article>
   );
