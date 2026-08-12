@@ -21,21 +21,37 @@ export default function AboutPage() {
       <div className="prose-a">
         <p>
           Jmenuji se <strong>Josef Pavlovic</strong> a produktivitou se zabývám roky —
-          nejdřív z nutnosti, pak z fascinace. Postupně jsem své know-how sepsal do
-          rozsáhlé příručky: systémy jako GTD a Pomodoro, psychologie práce, výběr
-          nástrojů, home office, studium.
+          nejdřív z nutnosti, pak z fascinace. Prošel jsem prostředími, kde se bez
+          systému utopíte během týdne: vedl jsem resortní tým na ministerstvu,
+          působil jako <strong>náměstek ministra zdravotnictví</strong> a člen
+          správní rady VZP, dnes vedu marketing mezinárodního lázeňského clusteru
+          Ensana. Vedle toho stavím datové projekty jako{" "}
+          <a href="https://skorezdravotnictvi.cz" target="_blank" rel="noopener noreferrer">
+            SkoreZdravotnictvi.cz
+          </a>{" "}
+          — a školím týmy i jednotlivce v time managementu a GTD.
         </p>
         <p>
+          Své know-how jsem postupně sepsal do rozsáhlé příručky: systémy jako GTD
+          a Pomodoro, psychologie práce, výběr nástrojů, home office, studium.
           Jenže doba kráčí rychle. Co platilo před dvěma lety, dnes AI dělá líp,
           rychleji, nebo úplně jinak. Proto vznikl tento web: <strong>živá verze
           příručky</strong>, kde evergreen základy doplňují denní tipy a novinky.
           Část obsahu pomáhá sbírat a připravovat AI — každý kus ale prochází mou
           redakcí, než se k vám dostane.
         </p>
+        <p>
+          Víc o mně, mých projektech a tom, co zrovna dělám, najdete na{" "}
+          <a href="https://josefpavlovic.cz" target="_blank" rel="noopener noreferrer">
+            josefpavlovic.cz
+          </a>
+          . Napsat mi můžete na{" "}
+          <a href="mailto:josef@josefpavlovic.cz">josef@josefpavlovic.cz</a>.
+        </p>
         <h2>Co tu najdete</h2>
         <ul>
           <li><strong>Příručku</strong> — kompletní systém produktivity v kapitolách,</li>
-          <li><strong>Tipy &amp; triky</strong> — krátké, okamžitě použitelné zlepšováky,</li>
+          <li><strong>Tipy &amp; triky</strong> — důkladné, okamžitě použitelné zlepšováky,</li>
           <li><strong>AI sekci</strong> — novinky přeložené do praxe,</li>
           <li><strong>Školení</strong> — když chcete know-how předat celému týmu naráz.</li>
         </ul>

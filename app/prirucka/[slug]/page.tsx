@@ -8,6 +8,9 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllChapters, getChapter, sectionLabels } from "@/lib/chapters";
 import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
 import { NewsletterForm } from "@/components/NewsletterForm";
+import { TipCard } from "@/components/TipCard";
+import { getAllTips } from "@/lib/tips";
+import { tipsForChapter } from "@/lib/related";
 
 export function generateStaticParams() {
   return getAllChapters().map((ch) => ({ slug: ch.slug }));
@@ -21,7 +24,15 @@ export async function generateMetadata({
   const { slug } = await params;
   const ch = getChapter(slug);
   if (!ch) return {};
-  return { title: ch.title, description: ch.excerpt };
+  return {
+    title: ch.title,
+    description: ch.excerpt,
+    openGraph: {
+      title: ch.title,
+      description: ch.excerpt,
+      images: [`/api/og?title=${encodeURIComponent(ch.title)}&label=${encodeURIComponent("produktivni.cz · příručka")}`],
+    },
+  };
 }
 
 const mdxComponents = {
@@ -96,6 +107,20 @@ export default async function ChapterPage({
           </Link>
         )}
       </nav>
+
+      {(() => {
+        const rel = tipsForChapter(ch.slug, getAllTips());
+        return rel.length > 0 ? (
+          <div className="mt-12">
+            <p className="eyebrow mb-4 text-faint">Související tipy</p>
+            <div className="grid gap-5 sm:grid-cols-2">
+              {rel.map((t, i) => (
+                <TipCard key={t.slug} tip={t} index={i + 1} />
+              ))}
+            </div>
+          </div>
+        ) : null;
+      })()}
 
       <div className="mt-12">
         <p className="eyebrow mb-2 text-faint">Chcete pokračovat v tempu?</p>

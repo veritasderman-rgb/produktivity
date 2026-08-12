@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Schibsted_Grotesk, Lora, JetBrains_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import { Keycap } from "@/components/Keycap";
 import "./globals.css";
 
@@ -35,6 +36,7 @@ const nav = [
   { href: "/tipy", label: "Tipy & triky" },
   { href: "/ai", label: "AI" },
   { href: "/skoleni", label: "Školení" },
+  { href: "/hledat", label: "Hledat" },
 ];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -81,6 +83,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
 
         <main>{children}</main>
+        <Analytics />
 
         <footer className="mt-24 border-t-2 border-hairline-strong">
           <div className="mx-auto grid max-w-[var(--page-max)] gap-10 px-[var(--page-pad)] py-14 sm:grid-cols-3">
@@ -109,6 +112,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <li><Link href="/skoleni" className="draw-link">Školení pro firmy</Link></li>
                 <li><Link href="/newsletter" className="draw-link">Newsletter</Link></li>
                 <li><Link href="/o-projektu" className="draw-link">O projektu</Link></li>
+                <li><a href="https://josefpavlovic.cz" target="_blank" rel="noopener noreferrer" className="draw-link">josefpavlovic.cz</a></li>
+                <li><Link href="/ochrana-osobnich-udaju" className="draw-link">Ochrana osobních údajů</Link></li>
               </ul>
             </div>
           </div>

@@ -5,6 +5,8 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllTips, getTip } from "@/lib/tips";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { DataDisclaimer } from "@/components/DataDisclaimer";
+import { TipCard } from "@/components/TipCard";
+import { chapterForTip, relatedTips } from "@/lib/related";
 
 export function generateStaticParams() {
   return getAllTips().map((tip) => ({ slug: tip.slug }));
@@ -18,7 +20,15 @@ export async function generateMetadata({
   const { slug } = await params;
   const tip = getTip(slug);
   if (!tip) return {};
-  return { title: tip.title, description: tip.excerpt };
+  return {
+    title: tip.title,
+    description: tip.excerpt,
+    openGraph: {
+      title: tip.title,
+      description: tip.excerpt,
+      images: [`/api/og?title=${encodeURIComponent(tip.title)}&label=${encodeURIComponent("produktivni.cz · tip")}`],
+    },
+  };
 }
 
 const mdxComponents = {
@@ -62,6 +72,31 @@ export default async function TipDetail({
         <MDXRemote source={tip.body} components={mdxComponents} />
       </div>
       {tip.category === "ai" && <DataDisclaimer />}
+      {(() => {
+        const ch = chapterForTip(tip);
+        return ch ? (
+          <p className="mt-10 border border-hairline bg-surface p-4 text-[14px] text-muted">
+            Chcete jít do hloubky? V příručce najdete kapitolu{" "}
+            <Link href={`/prirucka/${ch.slug}`} className="draw-link font-bold text-ink">
+              {ch.title}
+            </Link>
+            .
+          </p>
+        ) : null;
+      })()}
+      {(() => {
+        const rel = relatedTips(tip, getAllTips());
+        return rel.length > 0 ? (
+          <div className="mt-12">
+            <p className="eyebrow mb-4 text-faint">Podobné tipy</p>
+            <div className="grid gap-5 sm:grid-cols-3">
+              {rel.map((t, i) => (
+                <TipCard key={t.slug} tip={t} index={i + 1} />
+              ))}
+            </div>
+          </div>
+        ) : null;
+      })()}
       <div className="mt-14 border-t-2 border-hairline-strong pt-8">
         <p className="eyebrow mb-2 text-faint">Líbil se vám tip?</p>
         <p className="mb-5 max-w-[48ch] text-[15px] text-muted">

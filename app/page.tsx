@@ -3,10 +3,14 @@ import { getAllTips } from "@/lib/tips";
 import { TipCard } from "@/components/TipCard";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { Reveal } from "@/components/Reveal";
+import { tipOfTheDay } from "@/lib/related";
+
+export const revalidate = 3600; // tip dne se obměňuje bez nového deploye
 
 export default function HomePage() {
   const tips = getAllTips();
   const latest = tips.slice(0, 3);
+  const daily = tipOfTheDay(tips);
 
   return (
     <>
@@ -43,6 +47,20 @@ export default function HomePage() {
             </Link>{" "}
             — jeden notes, tři značky, čtyři minuty denně.
           </p>
+        </div>
+      </section>
+
+      {/* Tip dne */}
+      <section className="border-b border-hairline bg-surface">
+        <div className="mx-auto flex max-w-[var(--page-max)] flex-wrap items-center gap-x-10 gap-y-4 px-[var(--page-pad)] py-8">
+          <p className="eyebrow flex-none text-accent">Tip dne</p>
+          <p className="min-w-0 flex-1 text-[15.5px] leading-snug">
+            <Link href={`/tipy/${daily.slug}`} className="draw-link font-bold">
+              {daily.title}
+            </Link>
+            <span className="mt-1 block font-serif text-[13.5px] text-muted">{daily.excerpt}</span>
+          </p>
+          <span className="eyebrow flex-none text-faint">{daily.saves}</span>
         </div>
       </section>
 
