@@ -4,10 +4,11 @@ import { getAllChapters } from "@/lib/chapters";
 import { getAllNews } from "@/lib/news";
 
 const BASE = "https://produktivni.cz";
+const EN_BASE = "https://productive.tips";
 
 function withAlternates(csPath: string, hasEn: boolean) {
   return hasEn
-    ? { alternates: { languages: { cs: `${BASE}${csPath}`, en: `${BASE}/en${csPath}` } } }
+    ? { alternates: { languages: { cs: `${BASE}${csPath}`, en: `${EN_BASE}${csPath}` } } }
     : {};
 }
 
@@ -17,7 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const enNews = new Set(getAllNews("en").map((n) => n.slug));
 
   const staticPaths = [
-    "", "/prirucka", "/tipy", "/ai", "/gadgety", "/skoleni", "/newsletter", "/start",
+    "", "/prirucka", "/tipy", "/ai", "/gadgety", "/newsletter", "/start",
     "/o-projektu", "/hledat", "/ochrana-osobnich-udaju",
   ];
 
@@ -29,7 +30,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       ...withAlternates(p || "/", true),
     },
     {
-      url: `${BASE}/en${p}`,
+      url: `${EN_BASE}${p}`,
       changeFrequency: "weekly" as const,
       priority: p === "" ? 0.9 : 0.7,
     },
@@ -45,7 +46,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       ...withAlternates(csPath, enTips.has(t.slug)),
     }];
     if (enTips.has(t.slug)) {
-      entries.push({ url: `${BASE}/en${csPath}`, lastModified: t.date, changeFrequency: "monthly", priority: 0.5 });
+      entries.push({ url: `${EN_BASE}${csPath}`, lastModified: t.date, changeFrequency: "monthly", priority: 0.5 });
     }
     return entries;
   });
@@ -59,7 +60,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       ...withAlternates(csPath, enChapters.has(c.slug)),
     }];
     if (enChapters.has(c.slug)) {
-      entries.push({ url: `${BASE}/en${csPath}`, changeFrequency: "monthly", priority: 0.6 });
+      entries.push({ url: `${EN_BASE}${csPath}`, changeFrequency: "monthly", priority: 0.6 });
     }
     return entries;
   });
@@ -74,7 +75,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       ...withAlternates(csPath, enNews.has(n.slug)),
     }];
     if (enNews.has(n.slug)) {
-      entries.push({ url: `${BASE}/en${csPath}`, lastModified: n.date, changeFrequency: "yearly", priority: 0.4 });
+      entries.push({ url: `${EN_BASE}${csPath}`, lastModified: n.date, changeFrequency: "yearly", priority: 0.4 });
     }
     return entries;
   });

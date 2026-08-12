@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllNews } from "@/lib/news";
+import { getAllTips } from "@/lib/tips";
 import { NewsletterForm } from "@/components/NewsletterForm";
+import { TipCard } from "@/components/TipCard";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 
 const T = {
@@ -19,6 +21,9 @@ const T = {
     readMore: "Číst celou novinku",
     emptyTitle: "První novinky jsou na cestě",
     emptyDesc: "Rutina právě začala sbírat. První AI přehledy se tu objeví během pár dní.",
+    tipsEyebrow: "Návody krok za krokem",
+    tipsTitle: "Všechny AI tipy",
+    tipsLead: "Od prvního promptu po rutiny, které pracují za vás, když spíte.",
     ctaEyebrow: "Nezmeškejte nic",
     ctaDesc: "Nejdůležitější AI novinky posíláme i v týdenním newsletteru.",
   },
@@ -36,6 +41,9 @@ const T = {
     readMore: "Read the full update",
     emptyTitle: "The first updates are on their way",
     emptyDesc: "The routine has just started collecting. The first AI briefings will show up here within days.",
+    tipsEyebrow: "Step-by-step guides",
+    tipsTitle: "All AI tips",
+    tipsLead: "From your first prompt to routines that work for you while you sleep.",
     ctaEyebrow: "Do not miss anything",
     ctaDesc: "The AI news that matters also goes out in the weekly newsletter.",
   },
@@ -63,7 +71,7 @@ export async function generateMetadata({
   const locale: Locale = isLocale(raw) ? raw : "cs";
   const t = T[locale] ?? T.cs;
   const csUrl = "https://produktivni.cz/ai";
-  const enUrl = "https://produktivni.cz/en/ai";
+  const enUrl = "https://productive.tips/ai";
   return {
     title: t.title,
     description: t.description,
@@ -84,6 +92,7 @@ export default async function AiPage({
   const t = T[locale] ?? T.cs;
   const p = (path: string) => localePath(locale, path);
   const news = getAllNews(locale);
+  const aiTips = getAllTips(locale).filter((tip) => tip.category === "ai");
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-14">
@@ -127,6 +136,19 @@ export default async function AiPage({
           <p className="eyebrow mb-2 text-faint">{t.emptyTitle}</p>
           <p className="text-[14.5px] text-muted">{t.emptyDesc}</p>
         </div>
+      )}
+
+      {aiTips.length > 0 && (
+        <section className="mt-16 border-t-2 border-hairline-strong pt-10">
+          <p className="eyebrow mb-2 text-faint">{t.tipsEyebrow}</p>
+          <h2 className="display text-[clamp(24px,4vw,34px)]">{t.tipsTitle}</h2>
+          <p className="mt-3 max-w-[58ch] text-[15px] leading-relaxed text-muted">{t.tipsLead}</p>
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 md:grid-cols-3">
+            {aiTips.map((tip, i) => (
+              <TipCard key={tip.slug} tip={tip} index={aiTips.length - i} locale={locale} />
+            ))}
+          </div>
+        </section>
       )}
 
       <div className="mt-12 max-w-xl">

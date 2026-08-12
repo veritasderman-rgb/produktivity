@@ -9,7 +9,10 @@ export function LangSwitch({ locale }: { locale: Locale }) {
   const t = getDict(locale);
   const target = t.langSwitch.target;
   const bare = pathname.replace(/^\/(en|cs)(?=\/|$)/, "") || "/";
-  const href = target === "en" ? `/en${bare === "/" ? "" : bare}` || "/en" : bare;
+  // /en/* i /cs/* nechává kanonizovat middleware — na produkci vedou na
+  // správnou doménu (produktivni.cz ↔ productive.tips), na preview zůstávají relativní.
+  const href =
+    target === "en" ? `/en${bare === "/" ? "" : bare}` || "/en" : `/cs${bare === "/" ? "" : bare}` || "/cs";
 
   return (
     <a

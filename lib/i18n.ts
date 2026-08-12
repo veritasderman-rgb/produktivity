@@ -11,6 +11,7 @@ const cs = {
   siteName: "Produktivní",
   siteTld: ".cz — rychleji každý den",
   siteTitle: "Produktivní.cz — rychleji každý den",
+  siteBrand: "Produktivní.cz",
   siteDescription:
     "Ověřené systémy produktivity, denní tipy a triky, zkratky a AI novinky. Česky, bez balastu, k okamžitému použití.",
   nav: {
@@ -55,9 +56,10 @@ const cs = {
 };
 
 const en: typeof cs = {
-  siteName: "Produktivní",
-  siteTld: ".cz — faster every day",
-  siteTitle: "Produktivni.cz — faster every day",
+  siteName: "Productive",
+  siteTld: "— faster every day",
+  siteTitle: "Productive — faster every day",
+  siteBrand: "Productive",
   siteDescription:
     "Proven productivity systems, daily tips and tricks, shortcuts and AI news. No fluff, ready to use right away.",
   nav: {
@@ -83,7 +85,7 @@ const en: typeof cs = {
     newsletter: "Newsletter",
     aboutProject: "About",
     privacy: "Privacy policy",
-    copyright: "Josef Pavlovic · Produktivni.cz",
+    copyright: "Josef Pavlovic · Productive",
   },
   tipCard: {
     read: "Read the full tip",

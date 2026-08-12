@@ -10,6 +10,7 @@ export function JsonLd({ data }: { data: Record<string, unknown> }) {
 }
 
 const BASE = "https://produktivni.cz";
+const EN_BASE = "https://productive.tips";
 
 export const personJsonLd = {
   "@type": "Person",
@@ -27,8 +28,8 @@ export function websiteJsonLd(locale: "cs" | "en") {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": `${BASE}/#website`,
-    url: isEn ? `${BASE}/en` : BASE,
-    name: "Produktivní.cz",
+    url: isEn ? EN_BASE : BASE,
+    name: isEn ? "Productive" : "Produktivní.cz",
     description: isEn
       ? "Proven productivity systems, daily tips and tricks, shortcuts and AI news."
       : "Ověřené systémy produktivity, denní tipy a triky, zkratky a AI novinky.",
@@ -38,7 +39,7 @@ export function websiteJsonLd(locale: "cs" | "en") {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: `${BASE}${isEn ? "/en" : ""}/hledat?q={search_term_string}`,
+        urlTemplate: `${isEn ? EN_BASE : BASE}/hledat?q={search_term_string}`,
       },
       "query-input": "required name=search_term_string",
     },
@@ -53,7 +54,7 @@ export function articleJsonLd(opts: {
   datePublished?: string;
   section?: string;
 }) {
-  const url = `${BASE}${opts.locale === "en" ? "/en" : ""}${opts.path}`;
+  const url = `${opts.locale === "en" ? EN_BASE : BASE}${opts.path}`;
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -74,7 +75,7 @@ export function breadcrumbJsonLd(
   locale: "cs" | "en",
   crumbs: { name: string; path: string }[],
 ) {
-  const prefix = locale === "en" ? "/en" : "";
+  const base = locale === "en" ? EN_BASE : BASE;
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -82,7 +83,7 @@ export function breadcrumbJsonLd(
       "@type": "ListItem",
       position: i + 1,
       name: c.name,
-      item: `${BASE}${prefix}${c.path}`,
+      item: `${base}${c.path}`,
     })),
   };
 }

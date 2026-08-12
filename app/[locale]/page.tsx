@@ -84,7 +84,7 @@ export default async function HomePage({
   const p = (path: string) => localePath(locale, path);
 
   const tips = getAllTips(locale);
-  const latest = tips.slice(0, 3);
+  const latest = tips.slice(0, 9);
   const daily = tips.length > 0 ? tipOfTheDay(tips) : null;
 
   return (
@@ -163,26 +163,16 @@ export default async function HomePage({
         </section>
       )}
 
-      {/* Příručka + školení */}
+      {/* Příručka */}
       <section className="border-y border-hairline">
-        <div className="mx-auto grid max-w-[var(--page-max)] px-[var(--page-pad)] md:grid-cols-2">
-          <Reveal className="md:border-r md:border-hairline">
-            <Link href={p("/prirucka")} className="linkblock py-18 md:pr-12">
+        <div className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)]">
+          <Reveal>
+            <Link href={p("/prirucka")} className="linkblock py-18">
               <p className="eyebrow mb-2 text-faint">{t.handbookEyebrow}</p>
               <h2 className="display text-[clamp(22px,3vw,28px)]">{t.handbookTitle}</h2>
-              <p className="prose-a mt-4 text-[15.5px]">{t.handbookDesc}</p>
+              <p className="prose-a mt-4 max-w-2xl text-[15.5px]">{t.handbookDesc}</p>
               <span className="draw-link mt-6 inline-block text-[14px] font-bold">
                 {t.handbookCta}
-              </span>
-            </Link>
-          </Reveal>
-          <Reveal delay={0.12}>
-            <Link href={p("/skoleni")} className="linkblock py-18 md:pl-12">
-              <p className="eyebrow mb-2 text-faint">{t.trainingEyebrow}</p>
-              <h2 className="display text-[clamp(22px,3vw,28px)]">{t.trainingTitle}</h2>
-              <p className="prose-a mt-4 text-[15.5px]">{t.trainingDesc}</p>
-              <span className="draw-link mt-6 inline-block text-[14px] font-bold">
-                {t.trainingCta}
               </span>
             </Link>
           </Reveal>

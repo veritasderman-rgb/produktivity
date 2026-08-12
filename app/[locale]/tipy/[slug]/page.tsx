@@ -24,7 +24,7 @@ const T = {
   },
   en: {
     breadcrumb: "Tips & tricks",
-    ogLabel: "produktivni.cz · tip",
+    ogLabel: "productive.tips · tip",
     chapterPre: "Want to go deeper? The handbook has a whole chapter on it —",
     relatedTitle: "Similar tips",
     ctaEyebrow: "Liked this tip?",
@@ -47,7 +47,7 @@ export async function generateMetadata({
   const tip = getTip(slug, locale);
   if (!tip) return {};
   const csUrl = `https://produktivni.cz/tipy/${slug}`;
-  const enUrl = `https://produktivni.cz/en/tipy/${slug}`;
+  const enUrl = `https://productive.tips/tipy/${slug}`;
   return {
     title: tip.title,
     description: tip.excerpt,

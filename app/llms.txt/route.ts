@@ -17,9 +17,8 @@ export async function GET() {
     "# Produktivní.cz",
     "",
     "> Česká příručka produktivity od Josefa Pavlovice: ověřené systémy (GTD, Inbox Zero, time-blocking, Pomodoro, SCRUM/Kanban/OKR), " +
-      `${tips.length} praktických tipů s návody a AI novinky přeložené do praxe. Obsah je psaný česky, průběžně aktualizovaný člověkem i AI. Anglická verze: https://produktivni.cz/en`,
+      `${tips.length} praktických tipů s návody a AI novinky přeložené do praxe. Obsah je psaný česky, průběžně aktualizovaný člověkem i AI. Anglická verze: https://productive.tips`,
     "",
-    "Autor školí firemní týmy v produktivitě a AI nástrojích: https://produktivni.cz/skoleni",
     "Kurátorovaný výběr vybavení pro produktivitu: https://produktivni.cz/gadgety",
     "",
     "## Příručka (kapitoly)",
@@ -39,8 +38,8 @@ export async function GET() {
 
   if (enChapters.length > 0 || enTips.length > 0) {
     lines.push("", "## English version", "");
-    lines.push(...enChapters.map((c) => `- [${c.title}](https://produktivni.cz/en/prirucka/${c.slug}): ${c.excerpt}`));
-    if (enTips.length > 0) lines.push(`- [All ${enTips.length} tips in English](https://produktivni.cz/en/tipy)`);
+    lines.push(...enChapters.map((c) => `- [${c.title}](https://productive.tips/prirucka/${c.slug}): ${c.excerpt}`));
+    if (enTips.length > 0) lines.push(`- [All ${enTips.length} tips in English](https://productive.tips/tipy)`);
   }
 
   lines.push("", "## Kontakt", "", "- Josef Pavlovic: https://josefpavlovic.cz", "- E-mail: josef@josefpavlovic.cz", "");

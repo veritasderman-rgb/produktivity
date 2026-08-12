@@ -28,7 +28,7 @@ const T = {
   },
   en: {
     breadcrumb: "Handbook",
-    ogLabel: "produktivni.cz · handbook",
+    ogLabel: "productive.tips · handbook",
     readTime: "min read",
     navAria: "More chapters",
     prev: "← Previous",
@@ -54,7 +54,7 @@ export async function generateMetadata({
   const ch = getChapter(slug, locale);
   if (!ch) return {};
   const csUrl = `https://produktivni.cz/prirucka/${slug}`;
-  const enUrl = `https://produktivni.cz/en/prirucka/${slug}`;
+  const enUrl = `https://productive.tips/prirucka/${slug}`;
   return {
     title: ch.title,
     description: ch.excerpt,

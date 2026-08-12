@@ -37,8 +37,8 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = getDict(isLocale(locale) ? locale : "cs");
   return {
-    metadataBase: new URL("https://produktivni.cz"),
-    title: { default: t.siteTitle, template: `%s · Produktivní.cz` },
+    metadataBase: new URL(locale === "en" ? "https://productive.tips" : "https://produktivni.cz"),
+    title: { default: t.siteTitle, template: `%s · ${t.siteBrand}` },
     description: t.siteDescription,
   };
 }
@@ -61,7 +61,6 @@ export default async function RootLayout({
     { href: p("/tipy"), label: t.nav.tips },
     { href: p("/ai"), label: t.nav.ai },
     { href: p("/gadgety"), label: t.nav.gadgets },
-    { href: p("/skoleni"), label: t.nav.training },
     { href: p("/hledat"), label: t.nav.search },
   ];
 
@@ -120,7 +119,7 @@ export default async function RootLayout({
             <div>
               <div className="flex items-center gap-3">
                 <Keycap size={32} />
-                <span className="display text-[16px]">Produktivní.cz</span>
+                <span className="display text-[16px]">{t.siteBrand}</span>
               </div>
               <p className="mt-4 max-w-[38ch] text-[13.5px] leading-relaxed text-muted">
                 {t.footer.about}
@@ -139,7 +138,6 @@ export default async function RootLayout({
             <div>
               <div className="eyebrow mb-4 text-faint">{t.footer.coopLabel}</div>
               <ul className="space-y-2 text-[14px] font-semibold">
-                <li><Link href={p("/skoleni")} className="draw-link">{t.footer.training}</Link></li>
                 <li><Link href={p("/newsletter")} className="draw-link">{t.footer.newsletter}</Link></li>
                 <li><Link href={p("/o-projektu")} className="draw-link">{t.footer.aboutProject}</Link></li>
                 <li><a href="https://josefpavlovic.cz" target="_blank" rel="noopener noreferrer" className="draw-link">josefpavlovic.cz</a></li>
