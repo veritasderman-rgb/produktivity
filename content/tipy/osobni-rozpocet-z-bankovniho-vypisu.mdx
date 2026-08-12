@@ -1,6 +1,6 @@
 ---
 title: "Osobní rozpočet za večer: výpis z banky + AI"
-excerpt: "Nevíte, kam mizí peníze? Stáhněte si výpis transakcí jako CSV, nechte AI roztřídit útraty do oblastí a spočítat cash flow. Jeden večer a máte přehled, který vám vydrží roky."
+excerpt: "Kompletní návod s prompty: export CSV z banky, anonymizace, kategorizace transakcí, měsíční cash flow, odhalení zapomenutých předplatných a trvalá šablona v Tabulkách nebo Notionu — plus desetiminutová rutina, aby to vydrželo."
 category: "ai"
 platform: "vsude"
 audience: ["student", "freelancer"]
@@ -9,37 +9,456 @@ saves: "~přehled o penězích za 1 večer"
 date: "2026-08-12"
 ---
 
-Většina lidí nemá rozpočet ne proto, že by nechtěla, ale proto, že si představuje měsíce ručního zapisování útrat. Přitom všechna data už existují — vaše banka je za vás vede roky zpátky. Stačí je stáhnout a nechat roztřídit. **Za jeden večer se dá udělat kompletní obraz vašich peněz: kolik přiteče, kam odteče a jestli vám na konci měsíce něco zbývá, nebo jen tiše ujídáte rezervu.**
+Většina lidí nemá rozpočet ne proto, že by nechtěla, ale proto, že si představuje měsíce ručního zapisování útrat. Přitom všechna data už existují — vaše banka je za vás vede roky zpátky, položku po položce, s datem, částkou i protistranou. Stačí je stáhnout a nechat roztřídit. **Za jeden večer se dá udělat kompletní obraz vašich peněz: kolik přiteče, kam odteče a jestli vám na konci měsíce něco zbývá, nebo jen tiše ujídáte rezervu.**
+
+Tenhle návod není o šetření. Je o viditelnosti — o tom, jak z tisíce řádků výpisu udělat pár čísel, ze kterých se dá rozhodovat. Provede vás od exportu z bankovnictví přes anonymizaci a kategorizaci až k měsíčnímu přehledu, odhalení zapomenutých plateb, trvalé šabloně a rutině, díky které to za dva měsíce nezanikne. Ke každé fázi je prompt k okopírování; stačí doplnit hranaté závorky.
+
+Dvě pravidla platí nad celým návodem. **Finanční výpis je jedna z nejcitlivějších věcí, které o sobě máte** — je z něj vidět, kde bydlíte, kde nakupujete, u kterého lékaře jste byli a komu posíláte peníze. Patří proto jen do placeného nebo firemního účtu se smluvní ochranou dat, nikdy do volného chatu, a před nahráním se z něj mažou identifikátory. A druhé: **AI navrhuje, člověk schvaluje.** Kategorizaci klidně stroji, ale rušení předplatného, převod peněz nebo změnu trvalého příkazu děláte vy sami ve svém bankovnictví.
 
 ## Vzorová situace
 
-Kláře je devětadvacet, dělá na volné noze a má neustálý pocit, že „peníze prostě mizí“. Na účtu jí přistane zhruba 48 000 Kč měsíčně, na konci měsíce zbývá pár tisíc a někdy nic. Kam to jde, neví — má jen dojem, že „hodně na jídlo“.
+Kláře je devětadvacet, dělá na volné noze a má neustálý pocit, že „peníze prostě mizí“. Na účtu jí přistane zhruba 48 000 Kč měsíčně, na konci měsíce zbývá pár tisíc a někdy nic. Kam to jde, neví — má jen dojem, že „hodně na jídlo“. Rozpočet už dvakrát zkoušela: jednou aplikaci, do které tři týdny poctivě zapisovala a pak přestala, jednou tabulku, kterou vyplnila jednou.
 
-Večer si stáhne výpis za posledních dvanáct měsíců, dá ho zpracovat a během hodiny má odpověď, která ji nepotěší, ale pomůže. Předplatná: jedenáct různých plateb za 1 340 Kč měsíčně, ze tří služeb za posledního půl roku nepoužila ani jednu. Jídlo se rozpadlo na dvě položky — nákupy 4 900 Kč a rozvozy 6 200 Kč, což je číslo, které nečekala. A hlavně: tři měsíce po sobě měla záporné cash flow, aniž by si toho všimla, protože na účtu pořád nějaké peníze byly. Zrušila čtyři předplatná a dala si strop na rozvoz. Ne dieta, jen viditelnost.
+Večer si stáhne výpis za posledních dvanáct měsíců, smaže z něj čísla účtů a jména, nechá ho roztřídit a během hodiny má odpověď, která ji nepotěší, ale pomůže.
 
-## Jak na to
+Předplatná: jedenáct různých opakovaných plateb za 1 340 Kč měsíčně, tedy přes šestnáct tisíc ročně — a ze tří služeb za posledního půl roku nepoužila ani jednu. Jídlo se rozpadlo na dvě položky, které dohromady dávaly ten pocit „hodně na jídlo“: nákupy 4 900 Kč a rozvozy 6 200 Kč měsíčně. To druhé číslo nečekala vůbec; ve vlastním odhadu měla „tak dva tisíce“. A hlavně: tři měsíce po sobě měla záporné cash flow, aniž by si toho všimla, protože na účtu pořád nějaké peníze byly — jenže byly to peníze z lepšího jara, ne z těch tří měsíců.
 
-1. **Stáhněte si výpis jako CSV.** Umí to každá česká banka: v internetovém bankovnictví najděte historii pohybů, zvolte období (klidně rok) a export do CSV nebo XLSX. Soubor obsahuje datum, částku, protistranu a poznámku — přesně to, co je potřeba.
-2. **Před nahráním výpis anonymizujte.** Tohle nepřeskakujte. Smažte sloupce s čísly účtů a jména protistran, u kterých vám je to nepříjemné (zaměstnavatel, lékař, bývalý partner). Ke zpracování stačí datum, částka a hrubý popis platby. A použijte **placený účet AI se smluvní ochranou dat, ne free chat** — finanční data patří mezi ta nejcitlivější, co o sobě máte.
-3. **Nechte transakce roztřídit do oblastí.** Nahrajte soubor a zadejte kategorie, které dávají smysl vám: bydlení, jídlo, doprava, předplatná, zdraví, zábava, děti, jednorázové výdaje. Řekněte výslovně, že u nejasných plateb má AI zvlášť vypsat seznam „nezařazeno“ místo hádání — ty pak doplníte sami za pět minut.
-4. **Nechte sestavit měsíční přehled.** Chcete tři věci: příjmy, výdaje rozpadlé po oblastech a **cash flow**. Cash flow je rozdíl mezi tím, co za měsíc přiteče, a tím, co odteče. Není to zůstatek na účtu — a v tom je celý vtip. Můžete mít na účtu slušnou částku a přitom záporné cash flow, protože žijete z toho, co jste našetřili dřív. Kladné cash flow znamená, že si měsíc platíte sami; záporné, že vás platí vaše rezerva. Nechte si spočítat obojí za každý měsíc a podívejte se na řadu čísel, ne na jedno.
-5. **Přeneste výsledek do trvalé šablony.** Jednorázová analýza je hezká, ale za dva měsíce je k ničemu. Nechte si vygenerovat strukturu tabulky do Google Tabulek včetně vzorců na součty a cash flow, nebo databázi v Notionu s kategoriemi a měsíčními pohledy. Trvalý domov je to, co z jednorázového překvapení dělá nástroj.
-6. **Zaveďte měsíční rutinu na deset minut.** Nový výpis, stejný prompt, doplnit jeden řádek. Právě díky opakování si všimnete tendencí — že rozvozy rostou tři měsíce v řadě nebo že přibylo předplatné, které jste si nezaložili.
+Zrušila čtyři předplatná, dala si měsíční strop na rozvoz a založila si v Tabulkách list, do kterého každý první víkend v měsíci nahraje nový výpis a doplní jeden řádek. Po půl roce vidí, že rozvozy klesly na 2 400 Kč a že v prosinci a v červnu jí pravidelně padá cash flow do minusu — což už není překvapení, ale informace, se kterou se dá dopředu pracovat. Žádná dieta, jen viditelnost.
+
+## Fáze 1: Export z banky — jak se dostat k datům
+
+Celý návod stojí na jednom souboru. Dobrá zpráva: dostanete ho za tři minuty a zdarma, protože jde o vaše data, která už banka drží.
+
+### Kde výpis najdete
+
+V internetovém bankovnictví hledejte položku „Historie“, „Pohyby“, „Transakce“ nebo „Výpisy“. Nechcete měsíční PDF výpis (ten je na čtení, ne na počítání) — chcete **export do CSV nebo XLSX**. Bývá schovaný pod ikonou stažení nebo pod tlačítkem „Exportovat“ nad seznamem pohybů. Umí to všechny běžné české banky, jen tomu každá říká jinak. V mobilní aplikaci export často chybí nebo je omezený, takže si na to sedněte k počítači.
+
+**Stáhněte si dvanáct měsíců, ne tři.** Roční okno je jediné, ve kterém uvidíte věci, které se dějí jednou za rok: pojistky, dálniční známku, daně, dovolenou, vánoční nákupy. Kdo analyzuje kvartál, dostane zkreslený obraz a pak se diví, proč mu rozpočet nesedí. Pokud vám banka nedovolí stáhnout celý rok najednou, stáhněte to po měsících nebo čtvrtletích a soubory pak spojte.
+
+### Co v souboru je a co zkontrolovat
+
+Typický řádek obsahuje datum, částku (výdaje jako záporné číslo), název protistrany, variabilní symbol, typ platby a poznámku nebo zprávu pro příjemce. To bohatě stačí. Než soubor někam nahrajete, otevřete ho a podívejte se na tři věci, které v Česku dělají nejvíc potíží:
+
+- **Oddělovač.** České exporty používají většinou středník, ne čárku — protože čárka je desetinný oddělovač. Když se vám soubor v tabulkovém editoru otevře jako jeden sloupec, je to tohle.
+- **Kódování.** Starší exporty bývají ve Windows-1250 místo UTF-8. Poznáte to podle rozsypané diakritiky. Uložte soubor znovu jako CSV UTF-8, jinak budete mít kategorie plné rozbitých názvů.
+- **Desetinná čárka a mezery v tisících.** „1 234,50“ je pro stroj text, ne číslo. Buď to opravíte při importu, nebo o tom napíšete v promptu.
+
+### Víc účtů a karet
+
+Jestli máte běžný účet, spořicí účet a kreditní kartu, stáhněte všechny — ale rovnou si poznamenejte, které převody jsou **mezi vašimi vlastními účty**. Ty nejsou výdaj ani příjem, jsou to přesuny; kdyby se počítaly, každý převod na spořicí účet by vypadal jako útrata a vy byste si spolehlivě zkazili celou analýzu. Vlastní účty poznáte podle čísla nebo názvu protistrany a v další fázi je vyřadíte.
+
+Když si nejste jistí, co v souboru vlastně je, začněte diagnostikou. Vložte jen prvních pár řádků, ne celý výpis.
+
+```text
+Tady je hlavička mého bankovního výpisu — prvních 8 řádků včetně
+názvů sloupců. Jsou to už anonymizovaná data.
+
+[vlož 8 řádků]
+
+Popiš mi, co v tomhle souboru je:
+1. Co znamená každý sloupec a který z nich je částka, datum
+   a název protistrany.
+2. Jaký je oddělovač, jaké kódování a jak jsou zapsaná
+   desetinná místa a tisíce.
+3. Jak se v tomhle formátu pozná výdaj od příjmu.
+4. Které sloupce jsou pro rozpočet zbytečné a můžu je smazat.
+5. Co v tomhle exportu chybí, aby se z něj dal udělat rozpočet
+   (např. chybějící typ platby nebo prázdné popisy).
+
+Nic zatím nepočítej, jen popiš strukturu.
+```
+
+Vrátí popis souboru a seznam sloupců k vyhození. Bod 5 je užitečnější, než vypadá — některé banky exportují u karetních plateb prázdný název protistrany a mají obchodníka až v poznámce; když na to přijdete teď, ušetříte si zmatek v kategorizaci.
+
+## Fáze 2: Anonymizace — co z výpisu vymazat, než ho nahrajete
+
+Tohle nepřeskakujte. Výpis je nejpodrobnější deník vašeho života, jaký existuje: bydliště, zaměstnavatel, lékaři, koníčky, komu půjčujete peníze, kde jste byli minulý pátek večer. Pro analýzu rozpočtu z toho ale potřebujete jen zlomek.
+
+### Co smazat a co nechat
+
+**Smažte úplně:** čísla účtů (vaše i protistran), variabilní a specifické symboly, adresy, rodná čísla, celá jména fyzických osob. Pro sestavení rozpočtu nemají žádnou hodnotu.
+
+**Nechte:** datum, částku, typ platby (karta, převod, inkaso, výběr) a hrubý popis, ze kterého jde poznat druh útraty — název obchodního řetězce, „lékárna“, „doprava“, „streamovací služba“.
+
+**Zvlášť zvažte:** jména, ze kterých je vidět něco citlivého. Zaměstnavatele, konkrétního lékaře nebo psychoterapeuta, právníka, bývalého partnera, kterému posíláte peníze. Nahraďte je obecným popisem: „mzda“, „zdravotní péče“, „splátka“, „osoba A“. Analýze to neuškodí — pro rozpočet je podstatné, že v pondělí odešlo 1 200 Kč na zdraví, ne komu.
+
+### Anonymizace skriptem, ne ručně
+
+U ročního výpisu s tisícem řádků je ruční mazání otrava. Rychlejší je nechat si napsat malý skript, který soubor upraví **u vás v počítači** — do chatu tedy nikdy nepůjde původní verze, jen výsledek. Nemusíte umět programovat, jen skript spustit; postup je stejný jako v tipu [skripty pro nevývojáře](/tipy/ai-skripty-pro-nevyvojare).
+
+```text
+Napiš mi Python skript, který připraví můj bankovní výpis
+k dalšímu zpracování. Skript poběží u mě lokálně.
+
+Vstup: soubor vypis.csv, oddělovač středník, kódování
+[UTF-8 / Windows-1250], desetinná čárka, částky se zápornou
+hodnotou u výdajů.
+Sloupce: [vypiš názvy sloupců].
+
+Skript má:
+1. Načíst soubor a převést částky na čísla (poradit si
+   s mezerami v tisících a s desetinnou čárkou).
+2. Smazat sloupce: [čísla účtů, variabilní symbol, adresa].
+3. V názvu protistrany nahradit tyto řetězce obecným popisem:
+   [seznam, např. jméno zaměstnavatele -> „mzda“].
+4. Přidat sloupec „mesic“ ve formátu RRRR-MM.
+5. Označit řádky, kde je protistranou některý z mých vlastních
+   účtů [seznam identifikátorů], hodnotou „vlastní převod“.
+6. Uložit výsledek jako vypis-anonym.csv v UTF-8.
+
+Ke každému kroku napiš komentář česky, co dělá.
+Skript musí projít i s prázdnými buňkami.
+```
+
+Vrátí skript na pár desítek řádků. Než ho pustíte na ostrá data, zkontrolujte dvě věci: jestli po převodu částek sedí součet s tím, co ukazuje banka, a jestli v souboru po nahrazení opravdu nezůstalo žádné jméno. Otevřete výsledek a zběžně ho projděte očima — pět minut kontroly je levnějších než nahraný výpis se jménem lékaře.
+
+### Kde s tím pracovat
+
+I anonymizovaný výpis je citlivý dokument. Pracujte v **placeném nebo firemním účtu se smluvní ochranou dat**, ne ve volném chatu, a soubor po dokončení analýzy z konverzace odstraňte. Kdo chce být opatrný na maximum, nechá si napsat celý analytický skript a spustí si ho lokálně — pak z počítače neodejde vůbec nic kromě hlavičky souboru.
+
+## Fáze 3: Kategorizace — z tisíce řádků deset čísel
+
+Kategorizace je krok, který ručně zabere víkend a strojově deset minut. Zároveň je to krok, kde se rozhoduje, jestli vám výsledek k něčemu bude.
+
+### Kategorie si určete vy, ne model
+
+Výchozí kategorie z aplikací jsou vymyšlené pro průměrného člověka, který neexistuje. Užitečná kategorie je taková, o které se dá **rozhodovat**. Když víte, že chcete řešit jídlo, nestačí „jídlo“ — rozdělte na nákupy, restaurace a rozvoz, protože každá z těch tří položek se ovlivňuje jinak. Naopak sledovat zvlášť „papírnictví“ nemá smysl, pokud tam ročně necháte tři stovky.
+
+Osvědčená kostra pro začátek: bydlení (nájem, energie, internet), jídlo (nákupy, restaurace, rozvoz), doprava, předplatná a služby, zdraví, děti, oblečení, zábava a koníčky, dárky, jednorázové velké výdaje, splátky a spoření, ostatní. Deset až patnáct kategorií je maximum, které se dá udržet; při třiceti přestanete rozumět vlastní tabulce.
+
+Zvlášť si vyčleňte **jednorázové velké výdaje** — pračka, kolo, dovolená, kauce. Bez nich vám jeden měsíc rozhodí celý průměr a vy budete mít pocit, že žijete draze, i když jste jen jednou koupili pračku.
+
+```text
+Přikládám anonymizovaný výpis z banky za [12] měsíců
+(sloupce: datum, částka, typ platby, popis, měsíc).
+
+Roztřiď každou transakci do jedné z těchto kategorií:
+[bydlení, jídlo - nákupy, jídlo - restaurace, jídlo - rozvoz,
+doprava, předplatná a služby, zdraví, oblečení, zábava,
+dárky, jednorázové velké výdaje, splátky a spoření, ostatní]
+
+Pravidla:
+- Řádky označené jako vlastní převod vůbec nezapočítávej,
+  jen je vypiš zvlášť na konec.
+- Příjmy nekategorizuj do výdajů, dej je do samostatné skupiny
+  a rozliš pravidelný příjem od nepravidelného.
+- Když si u platby nejsi jistý, NEHÁDEJ. Dej ji do skupiny
+  „nezařazeno“ a vypiš ji do samostatného seznamu.
+- Jednorázové výdaje nad [5 000] Kč označ zvlášť, i když
+  patří do jiné kategorie.
+
+Vrať mi:
+1. Tabulku: kategorie, součet za celé období, měsíční průměr,
+   počet transakcí, podíl na celkových výdajích.
+2. Seznam „nezařazeno“ s datem, částkou a popisem.
+3. Deset největších jednotlivých výdajů za období.
+```
+
+Vrátí kompletní rozpad útrat a k tomu dva seznamy, se kterými budete dál pracovat. Klíčový je zákaz hádání — bez něj model nejasné platby tiše rozdělí podle dojmu a vy dostanete přesně vypadající čísla, která nesedí. Seznam „nezařazeno“ bývá padesát až sto řádků a doplníte ho ručně za pět minut; typicky jsou to platby s prázdným popisem, výběry z bankomatu a převody lidem.
+
+### Pravidla, která si zapamatujete napříč měsíci
+
+Aby příští měsíc nebyla kategorizace znovu od nuly, nechte si z první analýzy vyrobit **mapovací tabulku**: podle jakého slova v popisu se platba přiřazuje do které kategorie. Je to obyčejný seznam, ale je to jádro celé rutiny.
+
+```text
+Na základě toho, jak jsi právě roztřídil moje transakce, mi vyrob
+mapovací tabulku pravidel, kterou budu používat každý měsíc.
+
+Formát: klíčové slovo nebo vzor v popisu | kategorie | poznámka
+
+Podmínky:
+- Vycházej jen z plateb, které se v mém výpisu skutečně objevily.
+- Používej co nejobecnější vzory (název řetězce, ne konkrétní
+  pobočku), ať pravidlo platí i příště.
+- Ke každému pravidlu napiš, kolik transakcí by jím bylo
+  pokryto v mém ročním výpisu.
+- Zvlášť vypiš platby, které se opakují, ale nedají se dobře
+  zachytit pravidlem, a napiš proč.
+- Seřaď pravidla od nejčastějších.
+
+Na konci napiš, jaký podíl mých transakcí by tahle sada
+pravidel pokryla automaticky.
+```
+
+Vrátí tabulku, kterou si uložíte vedle rozpočtu. U většiny lidí pokryje osmdesát až devadesát procent transakcí — zbytek dořešíte ručně. A jakmile máte pravidla napsaná, můžete si stejnou logiku nechat převést do skriptu a kategorizovat úplně bez chatu.
+
+## Fáze 4: Měsíční přehled — příjmy, výdaje a cash flow
+
+Teď přichází číslo, kvůli kterému se to celé dělá. Ne „kolik jsem utratil za jídlo“, ale **jestli si každý měsíc platím sám, nebo mě platí moje rezerva**.
+
+### Cash flow není zůstatek na účtu
+
+Cash flow je rozdíl mezi tím, co za měsíc přiteklo, a tím, co odteklo. Zůstatek na účtu je něco úplně jiného — to je součet všeho, co se nastřádalo za celou historii účtu. **Přítok minus odtok se nerovná zůstatku a zaměňovat to je nejdražší omyl v osobních financích.**
+
+Můžete mít na účtu sto tisíc a přitom pět měsíců po sobě záporné cash flow. Účet vypadá zdravě, protože z něj ubývá pomalu, a vy nemáte pocit, že by se dělo něco zlého — dokud ta stovka nedojde. Kladné cash flow znamená, že si měsíc platíte sami. Záporné znamená, že vás platí to, co jste našetřili dřív. Obojí může být v pořádku (záporný měsíc kvůli dovolené je normální), ale musíte o tom vědět.
+
+Proto se nedívejte na jedno číslo, ale na řadu dvanácti. Teprve v řadě je vidět rozdíl mezi „jednou to vyšlo hůř“ a „už půl roku jedu na dluh vůči sobě“.
+
+```text
+Z roztříděných transakcí mi sestav měsíční přehled za celé období.
+
+Pro každý měsíc spočítej:
+- celkové příjmy (a zvlášť pravidelné a nepravidelné),
+- celkové výdaje,
+- výdaje rozepsané po kategoriích,
+- cash flow = příjmy minus výdaje,
+- cash flow BEZ jednorázových velkých výdajů (abych viděl,
+  jak vypadá můj běžný provoz).
+
+Vlastní převody mezi mými účty do výpočtu nezahrnuj.
+
+Pak mi napiš shrnutí:
+1. Kolik měsíců mělo záporné cash flow a které to byly.
+2. Jaký je můj průměrný měsíční provoz (medián výdajů, ne průměr
+   — a vysvětli, proč se v mém případě liší).
+3. Tři kategorie, které nejvíc kolísají mezi měsíci.
+4. Které měsíce jsou pro mě pravidelně nejdražší a čím.
+
+Ke každému číslu napiš, z kolika transakcí vzniklo.
+Nedělej mi doporučení, jen čísla a popis.
+```
+
+Vrátí tabulku dvanácti měsíců a shrnutí. Nejužitečnější bývá bod 2: **medián říká víc než průměr**, protože jeden nákup pračky vám průměr zvedne o tisíce, zatímco medián zůstane tam, kde je vaše skutečná normální útrata. A bod 4 je ten, který vám dovolí přestat se každý prosinec divit.
+
+Jedna kontrola na závěr, než se na čísla spolehnete: sečtěte příjmy a výdaje za jeden konkrétní měsíc a porovnejte se svým bankovnictvím. Když to nesedí, nejčastější příčina je, že se do výdajů připletly převody na vlastní spořicí účet, nebo že se špatně načetly částky s mezerou v tisících. Podrobněji o práci s tabulkovými daty v tipu o analýze dat s AI.
+
+### Poměry, ne jen absolutní čísla
+
+Když už máte měsíční řadu, vyplatí se přepočítat výdaje na podíl z příjmů. „Bydlení 14 500 Kč“ nic neříká; „bydlení 30 procent příjmů“ ano, protože to jde srovnat mezi lety i mezi měsíci, kdy vyděláte různě — což ocení hlavně lidé na volné noze s kolísavým příjmem. Nechte si k tabulce dopočítat sloupec s podílem a sledujte ho stejně pozorně jako korunové částky.
+
+## Fáze 5: Předplatná a opakované platby
+
+Tady bývá nejrychleji vydělaná částka celého večera. Opakované platby mají jednu společnou vlastnost: rozhodli jste o nich jednou, často před lety, a od té doby odcházejí samy a bez ptaní.
+
+### Najděte je automaticky
+
+Nespoléhejte na paměť. Většina lidí si vybaví čtyři pět předplatných a ve výpisu jich má deset až patnáct — protože se na ně zapomíná systematicky, hlavně na ta roční.
+
+```text
+Projdi můj roční výpis a najdi všechny opakující se platby.
+
+Za opakovanou plať považuj platbu, která se stejné nebo velmi
+podobné protistraně objevila aspoň [3]krát za období, v podobné
+částce a v pravidelném rytmu.
+
+Pro každou vrať:
+- popis protistrany,
+- typickou částku a jestli se během roku měnila (pokud ano,
+  kdy a o kolik),
+- rytmus (měsíčně, čtvrtletně, ročně),
+- kolikrát se za období objevila,
+- celkovou částku za období a přepočet na rok,
+- datum poslední platby.
+
+Zvlášť vypiš tři skupiny:
+A) platby, které vypadají jako předplatné digitálních služeb,
+B) pravidelné platby, které předplatné nejsou (nájem, pojistky,
+   splátky, spoření),
+C) roční nebo pololetní platby, které se za rok objevily jen
+   jednou nebo dvakrát.
+
+Na konec napiš součet: kolik mě ročně stojí skupina A a kolik
+dohromady všechny pravidelné platby.
+```
+
+Vrátí seznam, který bývá první nepříjemné překvapení večera. Skupina C je ta, na kterou se nejvíc zapomíná — antivir, doména, pojištění, členství, dálniční známka. Zkontrolujte u ní jednu věc ručně: model občas označí jako opakovanou platbu i tři nákupy v témže obchodě, takže se u každé položky podívejte na skutečná data plateb.
+
+### Rozhodněte, co s nimi
+
+Seznam sám nic neušetří. Užitečné je projít ho jednou pořádně, s jasnou otázkou u každé položky.
+
+```text
+Vezmi seznam mých opakovaných plateb ze skupiny A a udělej z něj
+rozhodovací tabulku, kterou si projdu.
+
+Sloupce:
+sluzba | mesicne | rocne | kdy jsem platil naposled |
+otazka, kterou si mam polozit | co overit pred zrusenim
+
+Do sloupce s otázkou dej konkrétní otázku k té službě, ne obecnou
+frázi — např. „kdy jsem to naposledy otevřel“ u zábavy nebo
+„mám to i v jiné službě“ u překrývajících se předplatných.
+
+Do posledního sloupce napiš, co si mám ověřit, než něco zruším:
+jestli na tom něco nevisí, jestli nejde o roční platbu, kterou
+už jsem letos zaplatil, jestli není ve službě uložený obsah.
+
+Seřaď od nejdražšího ročně. Nic nerušit nedoporučuj sám —
+jen mi připrav otázky, rozhoduju já.
+```
+
+Vrátí tabulku, kterou si projdete za deset minut. Poslední odstavec promptu je tam schválně: **rušení plateb dělá člověk ve svém bankovnictví nebo přímo u služby, ne asistent.** Jednak to nikdo jiný dělat nemá, jednak se u zrušení překvapivě často zjistí, že na službě visí něco, o čem jste zapomněli — sdílený účet v rodině, doména, zálohy fotek. A pozor na zrušení uprostřed předplaceného období: u ročních plateb má obvykle smysl nechat službu doběhnout a jen vypnout obnovení.
+
+## Fáze 6: Trvalá šablona a měsíční rutina
+
+Tady většina lidí skončí — a proto většina lidí za dva měsíce nemá rozpočet. Jednorázová analýza je zajímavá, ale je to fotka, ne měřič. Užitek přichází až z opakování.
+
+### Šablona v Tabulkách
+
+Nejjednodušší trvalý domov je tabulka: jeden list se všemi transakcemi, jeden s měsíčním souhrnem, jeden s nastavením kategorií. Nemusíte ji stavět ručně.
+
+```text
+Navrhni mi strukturu rozpočtové tabulky pro Google Tabulky,
+kterou budu doplňovat každý měsíc.
+
+Chci tři listy:
+1. „transakce“ — sem vkládám export z banky. Sloupce: datum,
+   měsíc, částka, typ platby, popis, kategorie, poznámka.
+2. „prehled“ — měsíční souhrn: řádky kategorie, sloupce měsíce,
+   v buňkách součty. Pod tabulkou řádky: příjmy celkem,
+   výdaje celkem, cash flow, cash flow bez jednorázových výdajů.
+3. „kategorie“ — seznam mých kategorií a mapovací pravidla.
+
+Napiš mi konkrétně:
+- jaké vzorce mám dát do listu „prehled“, aby se součty
+  počítaly samy podle kategorie a měsíce (uveď je i s tím,
+  do které buňky patří),
+- jak nastavit rozevírací seznam kategorií v listu „transakce“,
+- jak barevně odlišit měsíce se záporným cash flow,
+- jak zajistit, aby se vzorce nerozbily, když přibudou řádky.
+
+Předpokládej, že jsem začátečník: piš postup krok za krokem.
+```
+
+Vrátí návod i s hotovými vzorci. Pozor na dvě věci: součtové funkce s podmínkami jsou citlivé na přesné znění kategorie, takže rozevírací seznam není kosmetika, ale nutnost — jedno „Jídlo“ navíc vedle „jídlo“ a součet nesedí. A vzorce si po prvním vložení ověřte na jednom měsíci ručně, než jim začnete věřit. Kdo chce místo vzorců klikací souhrn, najde postup v tipu [kontingenční tabulka za dvě minuty](/tipy/excel-kontingencni-tabulka).
+
+### Nebo databáze v Notionu
+
+Jestli už v Notionu vedete poznámky a chcete mít rozpočet vedle nich, dává smysl databáze — hlavně kvůli filtrům a pohledům po měsících.
+
+```text
+Navrhni mi databázi osobního rozpočtu v Notionu.
+
+Popiš:
+- jaké vlastnosti má databáze transakcí mít a jakého typu
+  (datum, číslo, výběr, vzorec, relace),
+- jak nastavit vlastnost, která z data automaticky udělá
+  měsíc, aby se dalo seskupovat,
+- jaké pohledy si mám vytvořit: aktuální měsíc, srovnání
+  kategorií, jen opakované platby, jen nezařazené transakce,
+- jak nastavit souhrn cash flow pro vybraný měsíc,
+- jakou šablonu stránky použít pro měsíční uzávěrku a co
+  na ní má být za checklist.
+
+Piš to jako postup, který můžu naklikat, ne jako teorii.
+Nepředpokládej, že umím vzorce v Notionu.
+```
+
+Vrátí návrh databáze i s pohledy. Notion je pohodlnější na prohlížení a horší na počty přes tisíce řádků — pokud máte hodně transakcí, nechte výpočty v tabulce a v Notionu mějte jen měsíční souhrn. Na měsíční uzávěrku se hodí šablona stránky, viz [šablony v Notion databázích](/tipy/notion-sablony-databaze).
+
+### Rutina na deset minut
+
+Rytmus je jednoduchý: první víkend v měsíci, deset minut, vždycky stejně. Stáhnout výpis, spustit stejný prompt, doplnit řádek, mrknout na tři čísla. Klíč je, že prompt se nevymýšlí znovu — uložíte si ho a jen měníte období.
+
+```text
+Tohle je můj měsíční rozpočtový prompt. Přikládám anonymizovaný
+výpis za [měsíc] a moji mapovací tabulku pravidel.
+
+1. Roztřiď transakce podle přiložených pravidel. Co pravidlům
+   neodpovídá, dej do „nezařazeno“ a vypiš — nehádej.
+2. Spočítej za tenhle měsíc: příjmy, výdaje po kategoriích,
+   cash flow a cash flow bez jednorázových výdajů.
+3. Porovnej s předchozími měsíci, které přikládám jako souhrn:
+   - kategorie, které vyrostly nebo klesly o víc než [20] %,
+   - nové opakované platby, které se dřív neobjevovaly,
+   - opakované platby, které tenhle měsíc chybí,
+   - platby, které vybočují z mého obvyklého vzorce.
+4. Vrať mi tři věty shrnutí: co se tenhle měsíc změnilo.
+
+Nedávej mi rady na šetření. Chci fakta a odchylky.
+```
+
+Vrátí měsíční uzávěrku v podobě, kterou opíšete do tabulky za dvě minuty. Bod 3 je jádro rutiny — teprve srovnání s předchozími měsíci odhalí, že rozvozy rostou třetí měsíc v řadě nebo že přibylo předplatné, o kterém nevíte. Prompt si uložte tam, kde ho najdete — nejlépe do projektu s trvalým kontextem, kde už bude ležet i vaše mapovací tabulka.
+
+Aby vám termín neutekl, nastavte si připomínku — buď obyčejnou opakovanou událost v kalendáři, nebo [plánovanou rutinu](/tipy/claude-rutiny-posta-kalendar), která vám první víkend v měsíci sama napíše, že je čas. Deset minut měsíčně je celá cena za to, aby rozpočet zůstal živý.
+
+## Fáze 7: Roční pohled, trendy a graf
+
+Po půl roce rutiny máte něco, co jednorázová analýza nikdy nedá: řadu. A v řadě se čtou věci, které v jednom měsíci nejsou vidět.
+
+### Trendy a sezónnost
+
+```text
+Přikládám měsíční souhrny svého rozpočtu za [období].
+Zajímá mě vývoj, ne jednotlivé měsíce.
+
+Vyhodnoť:
+1. Které kategorie dlouhodobě rostou a které klesají — u každé
+   uveď, o kolik procent mezi prvním a posledním měsícem
+   a jestli je růst plynulý, nebo skokový.
+2. Sezónnost: které měsíce jsou pravidelně nejdražší a proč
+   (které kategorie za to můžou).
+3. Vývoj cash flow: kolik měsíců bylo záporných, jestli se
+   situace zlepšuje nebo zhoršuje, a jaký je součet cash flow
+   za celé období.
+4. Podíl fixních (opakovaných) výdajů na celkových — a jak se
+   tenhle podíl mění.
+5. Kolik bych potřeboval měsíčně na pokrytí jen těch výdajů,
+   které nejdou hned zrušit.
+
+U každého závěru napiš, o která čísla se opíráš. Kde je období
+příliš krátké na závěr, napiš to místo dohadu.
+```
+
+Vrátí analýzu, ve které je nejcennější bod 5. To číslo — kolik měsíčně musíte mít, aby se nic nezhroutilo — je základ pro rozhodování o rezervě, o tom, kolik zakázek potřebujete na volné noze, i o tom, jestli si můžete dovolit tři měsíce bez příjmu. Poslední věta promptu je pojistka proti tomu, aby model z pěti měsíců vyvozoval trendy; u krátkých řad se to stává běžně.
+
+### Artefakt s grafem
+
+Tabulka čísel je horší než obrázek. Nechte si postavit malou stránku s grafem — v Claude to zvládne [artefakt](/tipy/claude-artefakty-miniappky), tedy mini-aplikace přímo v chatu, kterou si můžete uložit a znovu otevřít.
+
+```text
+Vyrob mi artefakt: jednoduchou stránku s přehledem mého rozpočtu.
+Data ti dám jako měsíční souhrny, které přikládám.
+
+Chci v ní:
+1. Sloupcový graf cash flow po měsících — kladné a záporné
+   měsíce barevně odlišené, s nulovou čárou.
+2. Graf vývoje tří kategorií, které si vyberu v rozevíracím
+   seznamu (data ber z mého souhrnu).
+3. Řádek s klíčovými čísly nahoře: průměrné měsíční výdaje
+   (medián), podíl fixních výdajů, počet záporných měsíců.
+4. Tabulku pod grafy, seřaditelnou podle kategorie a částky.
+
+Popisky česky, částky v korunách s oddělovačem tisíců.
+Žádné rady ani hodnocení, jen zobrazení mých dat.
+Ať to funguje i na mobilu.
+```
+
+Vrátí funkční stránku s grafy, kterou otevřete pokaždé po měsíční uzávěrce. Zkontrolujte jednu věc: jestli graf používá skutečně vaše čísla ze souhrnu, a ne vzorová data, která si model doplnil při stavbě rozhraní — porovnejte jeden měsíc s tabulkou. Do artefaktu nedávejte jednotlivé transakce, stačí měsíční souhrny; méně dat, méně starostí.
+
+### Co s tím dál
+
+Roční pohled je moment, kdy se z účetnictví stává rozhodování. Tři otázky, které v něm dávají smysl: kolik měsíců provozu pokryje moje rezerva, která jedna kategorie za rok stála nejvíc bez toho, abych si toho všiml, a co bych musel změnit, aby cash flow bylo kladné i v nejhorším měsíci. Odpovědi na ně už nejsou práce pro model — ta čísla máte, zbytek je vaše rozhodnutí.
+
+## Nejčastější chyby
+
+- **Jednorázová analýza bez rutiny.** Nejčastější a nejdražší chyba celého postupu. Jeden večer dá skvělou fotku, ale za dva měsíce je k ničemu — protože rozhodnutí („zruším rozvoz“) se bez měření vrátí do starých kolejí. Bez desetiminutové měsíční rutiny je celý večer jen zajímavý zážitek.
+- **Analyzovat tři měsíce místo dvanácti.** Roční platby, dovolená, Vánoce a daně se do kvartálu nevejdou. Krátké okno vytvoří falešný obraz „normálního měsíce“, který ve skutečnosti neexistuje.
+- **Zaměnit cash flow za zůstatek.** Účet, na kterém pořád nějaké peníze jsou, není důkaz, že vám měsíc vyšel. Přítok minus odtok je jiné číslo než zůstatek a jen to první říká, jestli si měsíc platíte sami.
+- **Nahrát neanonymizovaný výpis do volného chatu.** Bankovní výpis je nejpodrobnější deník vašeho života. Čísla účtů, jména a symboly ven, práce jen v placeném účtu se smluvní ochranou dat — a soubor po analýze z konverzace smazat.
+- **Nechat model hádat u nejasných plateb.** Bez výslovného pokynu „nehádej, dej to do nezařazeno“ dostanete přesně vypadající tabulku s tiše rozhozenými čísly. Deset minut ručního dotřídění je levnějších než nedůvěra k vlastnímu rozpočtu.
+- **Zapomenout vyloučit převody mezi vlastními účty.** Každý převod na spořicí účet se jinak započítá jako útrata a vy si zkazíte cash flow i všechny podíly.
+- **Třicet kategorií.** Rozpočet, kterému nerozumíte, nepoužijete. Deset až patnáct kategorií, u kterých se dá rozhodovat, poslouží líp než dokonalé členění, které vyplníte jednou.
 
 ## Nejlepší nástroje
 
-- **[Claude](https://claude.ai)** — analýza CSV a rovnou artefakt s grafem, ve kterém vidíte vývoj po měsících bez skládání vzorců; zvládne i dotaz „největších deset výdajů loni“.
-- **Google Tabulky** — nejlepší místo pro trvalou šablonu; kontingenční tabulka vám sečte výdaje po kategoriích a měsících, viz tip [kontingenční tabulka za dvě minuty](/tipy/excel-kontingencni-tabulka).
-- **[Notion](https://notion.com)** — pokud chcete rozpočet vedle ostatních poznámek: databáze s kategoriemi, filtry a šablonou měsíčního záznamu ([šablony v Notion databázích](/tipy/notion-sablony-databaze)).
-- **Specializované rozpočtové aplikace** — umí se napojit rovnou na banku a kategorizovat automaticky; dávají smysl, až když víte, jaké kategorie vlastně chcete sledovat.
+- **[Claude](https://claude.ai)** — kategorizace CSV, měsíční souhrny a rovnou artefakt s grafem, ve kterém vidíte vývoj po měsících bez skládání vzorců; zvládne i dotaz „deset největších výdajů loni“.
+- **Google Tabulky** — nejlepší trvalý domov rozpočtu: součty podle kategorie a měsíce, rozevírací seznamy a podmíněné formátování na záporné cash flow.
+- **[Notion](https://notion.com)** — pokud chcete rozpočet vedle ostatních poznámek: databáze s kategoriemi, filtry a šablonou měsíční uzávěrky.
+- **Python skript u vás v počítači** — anonymizace a kategorizace bez toho, aby data opustila počítač; napsat ho umí model, spustit ho zvládnete i bez znalosti programování.
+- **Plánovaná rutina nebo kalendář** — připomínka na první víkend v měsíci. Bez ní rutina zanikne třetí měsíc, ať je tabulka jakkoli pěkná.
+- **Bankovní aplikace s kategorizací** — dávají smysl jako doplněk, až když víte, jaké kategorie vlastně chcete sledovat; jejich výchozí členění bývá pro vaše rozhodování moc hrubé.
 
 ## Co vám to přinese
 
+- **Čas:** jeden večer místo měsíců ručního zapisování, pak deset minut měsíčně. Ruční vedení rozpočtu je práce na hodiny týdně a právě proto ho skoro nikdo nevydrží.
+- **Peníze:** zapomenutá předplatná a duplicitní služby najde tenhle postup skoro u každého; u lidí s deseti a víc opakovanými platbami jde běžně o tisíce ročně. Bývá to nejrychleji vydělaná částka v roce.
 - **Přehled:** poprvé uvidíte celý rok pohromadě, ne jednotlivé platby. To je rozdíl mezi „bylo to drahé“ a „na tohle jdou ročně čtyři tisíce“.
-- **Čas:** jeden večer místo měsíců ručního zapisování — a pak deset minut měsíčně.
-- **Peníze:** zapomenutá předplatná a duplicitní služby najde tenhle postup skoro u každého. Bývá to nejrychleji vydělaná částka v roce.
-- **Klid:** záporné cash flow zjištěné v srpnu se řeší jinak než záporné cash flow zjištěné v prosinci, když už rezerva došla.
+- **Klid:** záporné cash flow zjištěné v srpnu se řeší jinak než záporné cash flow zjištěné v prosinci, když už rezerva došla. A číslo „kolik měsíčně potřebuju na provoz“ je jediný spolehlivý základ rezervy.
+- **Kvalita rozhodování:** místo pocitů máte podíly. Rozhodnutí o stěhování, o nové zakázce nebo o větším nákupu se dělá jinak, když víte, kolik z příjmu vám dnes reálně zbývá.
 
 ## Pro tip
 
-Vytáhněte si zvlášť seznam všech opakovaných plateb — tedy stejná částka stejné protistraně každý měsíc. To je ta část rozpočtu, o které se nerozhoduje, ta jde z účtu sama a bez ptaní. Většina lidí odhadne své pravidelné výdaje o dost níž, než jaké skutečně jsou. A držte se pravidla, které platí všude na tomhle webu: **AI navrhuje, člověk schvaluje.** Nedávejte žádnému nástroji právo na účtu cokoli měnit nebo rušit — kategorizaci klidně stroji, ale zrušení předplatného zůstává na vás.
+Až budete mít roční data, zkuste jeden experiment: nechte si spočítat, jak by vypadalo vaše cash flow, kdybyste jednu jedinou kategorii snížili o třetinu. Ne všechny najednou — jednu. U většiny lidí se ukáže, že celý problém dělá jedna nebo dvě položky, zatímco zbytek rozpočtu je v pořádku, a že škrtat všude je zbytečné trápení. Rozhodnutí, kterou kategorii to bude, je vaše; model jen ukáže, o kolik se čísla pohnou.
+
+A závěrečné pravidlo: **AI navrhuje, člověk schvaluje.** Kategorizaci, součty i grafy klidně stroji. Ale zrušení předplatného, změna trvalého příkazu, převod peněz i rozhodnutí, co si v životě dovolíte — to zůstává na vás, ve vašem bankovnictví, s vaším podpisem. Rozpočet je nástroj na vidění, ne na rozhodování za vás.
