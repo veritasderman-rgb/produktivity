@@ -1,17 +1,46 @@
 import type { Tip } from "./tips";
 
 /** Kategorie tipu → slug nejrelevantnější kapitoly příručky. */
-const categoryToChapter: Record<string, { slug: string; title: string }> = {
-  ai: { slug: "ai-a-automatizace", title: "AI a automatizace" },
-  workflow: { slug: "zakladni-systemy", title: "Základní systémy: inbox, priority, revize" },
-  komunikace: { slug: "emailova-komunikace", title: "Profesionální e-mailová komunikace" },
-  hardware: { slug: "home-office", title: "Kompletní průvodce efektivním home office" },
-  aplikace: { slug: "kategorie-aplikaci", title: "Klíčové kategorie aplikací" },
-  zkratky: { slug: "kategorie-aplikaci", title: "Klíčové kategorie aplikací" },
+const categoryToChapter: Record<string, { slug: string; title: string; titleEn: string }> = {
+  ai: {
+    slug: "ai-a-automatizace",
+    title: "AI a automatizace",
+    titleEn: "AI and automation",
+  },
+  workflow: {
+    slug: "zakladni-systemy",
+    title: "Základní systémy: inbox, priority, revize",
+    titleEn: "Core systems: inbox, priorities, reviews",
+  },
+  komunikace: {
+    slug: "emailova-komunikace",
+    title: "Profesionální e-mailová komunikace",
+    titleEn: "Professional email communication",
+  },
+  hardware: {
+    slug: "home-office",
+    title: "Kompletní průvodce efektivním home office",
+    titleEn: "The complete guide to an effective home office",
+  },
+  aplikace: {
+    slug: "kategorie-aplikaci",
+    title: "Klíčové kategorie aplikací",
+    titleEn: "The app categories that matter",
+  },
+  zkratky: {
+    slug: "kategorie-aplikaci",
+    title: "Klíčové kategorie aplikací",
+    titleEn: "The app categories that matter",
+  },
 };
 
-export function chapterForTip(tip: Tip): { slug: string; title: string } | null {
-  return categoryToChapter[tip.category] ?? null;
+export function chapterForTip(
+  tip: Tip,
+  locale: string = "cs",
+): { slug: string; title: string } | null {
+  const ch = categoryToChapter[tip.category];
+  if (!ch) return null;
+  return { slug: ch.slug, title: locale === "en" ? ch.titleEn : ch.title };
 }
 
 /** Deterministický výběr podobných tipů (stejná kategorie, pak platforma). */

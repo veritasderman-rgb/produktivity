@@ -15,13 +15,19 @@ export type Tip = {
   body: string;
 };
 
-const TIPS_DIR = path.join(process.cwd(), "content", "tipy");
+function tipsDir(locale: string = "cs") {
+  return locale === "en"
+    ? path.join(process.cwd(), "content", "en", "tipy")
+    : path.join(process.cwd(), "content", "tipy");
+}
 
-export function getAllTips(): Tip[] {
-  const files = fs.readdirSync(TIPS_DIR).filter((f) => f.endsWith(".mdx"));
+export function getAllTips(locale: string = "cs"): Tip[] {
+  const dir = tipsDir(locale);
+  if (!fs.existsSync(dir)) return [];
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".mdx"));
   const tips = files.map((file) => {
     const slug = file.replace(/\.mdx$/, "");
-    const raw = fs.readFileSync(path.join(TIPS_DIR, file), "utf8");
+    const raw = fs.readFileSync(path.join(dir, file), "utf8");
     const { data, content } = matter(raw);
     return {
       slug,
@@ -39,6 +45,6 @@ export function getAllTips(): Tip[] {
   return tips.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
-export function getTip(slug: string): Tip | undefined {
-  return getAllTips().find((t) => t.slug === slug);
+export function getTip(slug: string, locale: string = "cs"): Tip | undefined {
+  return getAllTips(locale).find((t) => t.slug === slug);
 }

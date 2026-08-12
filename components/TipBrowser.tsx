@@ -4,29 +4,23 @@ import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Tip } from "@/lib/tips";
 import { TipCard } from "@/components/TipCard";
+import { getDict, localePath, type Locale } from "@/lib/i18n";
 
-export const categoryLabels: Record<string, string> = {
-  zkratky: "Zkratky",
-  aplikace: "Aplikace",
-  ai: "AI",
-  workflow: "Workflow",
-  komunikace: "Komunikace",
-  hardware: "Vybavení",
-};
-
-export const platformLabels: Record<string, string> = {
-  windows: "Windows",
-  mac: "Mac",
-  prohlizec: "Prohlížeč",
-  mobil: "Mobil",
-  vsude: "Všude",
-};
-
-export const audienceLabels: Record<string, string> = {
-  manazer: "Manažeři",
-  student: "Studenti",
-  vyvojar: "Vývojáři",
-  freelancer: "Freelanceři",
+const ui = {
+  cs: {
+    all: "Vše", category: "Kategorie", platform: "Platforma", who: "Pro koho",
+    placeholder: "Hledat v tipech… (např. „schránka“, „Excel“, „porady“)",
+    ariaSearch: "Hledat v tipech", of: "z", tips: "tipů", clear: "Zrušit filtry",
+    emptyTitle: "Tomuhle filtru zatím žádný tip neodpovídá.",
+    emptyDesc: "Zkuste zrušit část filtrů — nebo nám napište, co vám chybí, a rutina to najde.",
+  },
+  en: {
+    all: "All", category: "Category", platform: "Platform", who: "For whom",
+    placeholder: "Search tips… (e.g. “clipboard”, “Excel”, “meetings”)",
+    ariaSearch: "Search tips", of: "of", tips: "tips", clear: "Clear filters",
+    emptyTitle: "No tip matches this filter yet.",
+    emptyDesc: "Try removing some filters — or tell us what you are missing and the daily routine will find it.",
+  },
 };
 
 function normalize(s: string) {
@@ -35,12 +29,14 @@ function normalize(s: string) {
 
 function FilterRow({
   label,
+  allLabel,
   options,
   active,
   counts,
   onPick,
 }: {
   label: string;
+  allLabel: string;
   options: Record<string, string>;
   active: string | null;
   counts: Record<string, number>;
@@ -58,7 +54,7 @@ function FilterRow({
             : "border-hairline bg-paper hover:border-ink"
         }`}
       >
-        Vše
+        {allLabel}
       </button>
       {Object.entries(options).map(([value, text]) =>
         counts[value] ? (
@@ -80,7 +76,9 @@ function FilterRow({
   );
 }
 
-export function TipBrowser({ tips }: { tips: Tip[] }) {
+export function TipBrowser({ tips, locale = "cs" }: { tips: Tip[]; locale?: Locale }) {
+  const L = ui[locale];
+  const dict = getDict(locale).tipCard;
   const router = useRouter();
   const params = useSearchParams();
   const [category, setCategory] = useState<string | null>(params.get("kategorie"));
@@ -93,7 +91,7 @@ export function TipBrowser({ tips }: { tips: Tip[] }) {
     if (cat) p.set("kategorie", cat);
     if (plat) p.set("platforma", plat);
     if (aud) p.set("pro", aud);
-    router.replace(`/tipy${p.size ? `?${p}` : ""}`, { scroll: false });
+    router.replace(`${localePath(locale, "/tipy")}${p.size ? `?${p}` : ""}`, { scroll: false });
   }
 
   const filtered = useMemo(() => {
@@ -123,22 +121,25 @@ export function TipBrowser({ tips }: { tips: Tip[] }) {
     <div>
       <div className="grid gap-3 border-y border-hairline py-5">
         <FilterRow
-          label="Kategorie"
-          options={categoryLabels}
+          label={L.category}
+          allLabel={L.all}
+          options={dict.categories}
           active={category}
           counts={count((t) => t.category)}
           onPick={(v) => { setCategory(v); sync(v, platform, audience); }}
         />
         <FilterRow
-          label="Platforma"
-          options={platformLabels}
+          label={L.platform}
+          allLabel={L.all}
+          options={dict.platforms}
           active={platform}
           counts={count((t) => t.platform)}
           onPick={(v) => { setPlatform(v); sync(category, v, audience); }}
         />
         <FilterRow
-          label="Pro koho"
-          options={audienceLabels}
+          label={L.who}
+          allLabel={L.all}
+          options={dict.audiences}
           active={audience}
           counts={count((t) => t.audience)}
           onPick={(v) => { setAudience(v); sync(category, platform, v); }}
@@ -148,12 +149,12 @@ export function TipBrowser({ tips }: { tips: Tip[] }) {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Hledat v tipech… (např. „schránka“, „Excel“, „porady“)"
-            aria-label="Hledat v tipech"
+            placeholder={L.placeholder}
+            aria-label={L.ariaSearch}
             className="min-w-0 flex-1 border-[1.5px] border-hairline-strong bg-card px-4 py-2.5 text-[14px] outline-offset-[-2px] sm:max-w-md"
           />
           <span className="eyebrow text-faint">
-            {filtered.length} z {tips.length} tipů
+            {filtered.length} {L.of} {tips.length} {L.tips}
           </span>
           {(category || platform || audience || query) && (
             <button
@@ -161,7 +162,7 @@ export function TipBrowser({ tips }: { tips: Tip[] }) {
               onClick={() => { setCategory(null); setPlatform(null); setAudience(null); setQuery(""); sync(null, null, null); }}
               className="draw-link text-[13px] font-bold"
             >
-              Zrušit filtry
+              {L.clear}
             </button>
           )}
         </div>
@@ -170,14 +171,14 @@ export function TipBrowser({ tips }: { tips: Tip[] }) {
       {filtered.length > 0 ? (
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((tip) => (
-            <TipCard key={tip.slug} tip={tip} index={tips.length - tips.indexOf(tip)} />
+            <TipCard key={tip.slug} tip={tip} index={tips.length - tips.indexOf(tip)} locale={locale} />
           ))}
         </div>
       ) : (
         <div className="mt-8 border border-hairline bg-card p-8 text-center">
-          <p className="font-bold">Tomuhle filtru zatím žádný tip neodpovídá.</p>
+          <p className="font-bold">{L.emptyTitle}</p>
           <p className="mt-2 text-[14px] text-muted">
-            Zkuste zrušit část filtrů — nebo nám napište, co vám chybí, a rutina to najde.
+            {L.emptyDesc}
           </p>
         </div>
       )}

@@ -13,9 +13,14 @@ export type NewsItem = {
   body: string;
 };
 
-const DIR = path.join(process.cwd(), "content", "ai");
+function newsDir(locale: string = "cs") {
+  return locale === "en"
+    ? path.join(process.cwd(), "content", "en", "ai")
+    : path.join(process.cwd(), "content", "ai");
+}
 
-export function getAllNews(): NewsItem[] {
+export function getAllNews(locale: string = "cs"): NewsItem[] {
+  const DIR = newsDir(locale);
   if (!fs.existsSync(DIR)) return [];
   const files = fs.readdirSync(DIR).filter((f) => f.endsWith(".mdx"));
   const items = files.map((file) => {
@@ -36,6 +41,6 @@ export function getAllNews(): NewsItem[] {
   return items.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
-export function getNewsItem(slug: string): NewsItem | undefined {
-  return getAllNews().find((n) => n.slug === slug);
+export function getNewsItem(slug: string, locale: string = "cs"): NewsItem | undefined {
+  return getAllNews(locale).find((n) => n.slug === slug);
 }

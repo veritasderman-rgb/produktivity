@@ -11,7 +11,9 @@
 | Lead magnet | **Úderný e-book** („Top 30 tipů"), celá příručka žije na webu |
 | Sociální kanály (Buffer) | **Instagram, Facebook, LinkedIn** |
 | Cena školení | Rešerše hotová (§9), ale **ceny se na webu zatím nezobrazují** (rozhodnutí 11. 8.) — „cena na vyžádání", doplní se časem |
-| Doména produktivni.cz | Zatím neregistrována — vyřeší se ve Fázi 3 (nasazení) |
+| Doména produktivni.cz | **Zaregistrována a živá** (apex přesměrovává na www) |
+| Anglická mutace (11. 8.) | Kompletní překlad webu na `/en/*`, přepínač jazyka + auto-detekce dle prohlížeče (cookie NEXT_LOCALE), hreflang. Samostatná EN doména se vybere a namapuje přes env `EN_DOMAIN` v middleware — kandidáti viz diskuse (doporučení: productive.tips) |
+| SEO pro AI (11. 8.) | `/llms.txt`, robots.txt s výslovným povolením AI crawlerů (GPTBot, ClaudeBot, PerplexityBot…), sitemap s hreflang, OG karty, strukturovaná data |
 | Vizuální identita | **Nová identita (11. 8. večer, nahrazuje směr A):** bílá + černá + signálová červená `#E03616` jen pro interakce, Schibsted Grotesk + Lora + JetBrains Mono, ručně kreslený line-art, výraznější scroll animace, bez dark mode („později") — definováno design systémem, viz §10 |
 
 ---

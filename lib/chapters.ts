@@ -19,9 +19,25 @@ export const sectionLabels: Record<Chapter["section"], string> = {
   situace: "Situace",
 };
 
-const DIR = path.join(process.cwd(), "content", "prirucka");
+export const sectionLabelsEn: Record<Chapter["section"], string> = {
+  zaklady: "Foundations",
+  metody: "Methods",
+  nastroje: "Tools",
+  situace: "Situations",
+};
 
-export function getAllChapters(): Chapter[] {
+export function getSectionLabels(locale: string = "cs") {
+  return locale === "en" ? sectionLabelsEn : sectionLabels;
+}
+
+function chaptersDir(locale: string = "cs") {
+  return locale === "en"
+    ? path.join(process.cwd(), "content", "en", "prirucka")
+    : path.join(process.cwd(), "content", "prirucka");
+}
+
+export function getAllChapters(locale: string = "cs"): Chapter[] {
+  const DIR = chaptersDir(locale);
   if (!fs.existsSync(DIR)) return [];
   const files = fs.readdirSync(DIR).filter((f) => f.endsWith(".mdx"));
   const chapters = files.map((file) => {
@@ -41,6 +57,6 @@ export function getAllChapters(): Chapter[] {
   return chapters.sort((a, b) => a.order - b.order);
 }
 
-export function getChapter(slug: string): Chapter | undefined {
-  return getAllChapters().find((c) => c.slug === slug);
+export function getChapter(slug: string, locale: string = "cs"): Chapter | undefined {
+  return getAllChapters(locale).find((c) => c.slug === slug);
 }

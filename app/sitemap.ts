@@ -5,35 +5,79 @@ import { getAllNews } from "@/lib/news";
 
 const BASE = "https://produktivni.cz";
 
+function withAlternates(csPath: string, hasEn: boolean) {
+  return hasEn
+    ? { alternates: { languages: { cs: `${BASE}${csPath}`, en: `${BASE}/en${csPath}` } } }
+    : {};
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = [
+  const enTips = new Set(getAllTips("en").map((t) => t.slug));
+  const enChapters = new Set(getAllChapters("en").map((c) => c.slug));
+  const enNews = new Set(getAllNews("en").map((n) => n.slug));
+
+  const staticPaths = [
     "", "/prirucka", "/tipy", "/ai", "/skoleni", "/newsletter", "/start",
     "/o-projektu", "/hledat", "/ochrana-osobnich-udaju",
-  ].map((p) => ({
-    url: `${BASE}${p}`,
-    changeFrequency: "weekly" as const,
-    priority: p === "" ? 1 : 0.8,
-  }));
+  ];
 
-  const tips = getAllTips().map((t) => ({
-    url: `${BASE}/tipy/${t.slug}`,
-    lastModified: t.date,
-    changeFrequency: "monthly" as const,
-    priority: 0.6,
-  }));
+  const staticRoutes = staticPaths.flatMap((p) => [
+    {
+      url: `${BASE}${p}`,
+      changeFrequency: "weekly" as const,
+      priority: p === "" ? 1 : 0.8,
+      ...withAlternates(p || "/", true),
+    },
+    {
+      url: `${BASE}/en${p}`,
+      changeFrequency: "weekly" as const,
+      priority: p === "" ? 0.9 : 0.7,
+    },
+  ]);
 
-  const chapters = getAllChapters().map((c) => ({
-    url: `${BASE}/prirucka/${c.slug}`,
-    changeFrequency: "monthly" as const,
-    priority: 0.7,
-  }));
+  const tips = getAllTips().flatMap((t) => {
+    const csPath = `/tipy/${t.slug}`;
+    const entries: MetadataRoute.Sitemap = [{
+      url: `${BASE}${csPath}`,
+      lastModified: t.date,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+      ...withAlternates(csPath, enTips.has(t.slug)),
+    }];
+    if (enTips.has(t.slug)) {
+      entries.push({ url: `${BASE}/en${csPath}`, lastModified: t.date, changeFrequency: "monthly", priority: 0.5 });
+    }
+    return entries;
+  });
 
-  const news = getAllNews().map((n) => ({
-    url: `${BASE}/ai/${n.slug}`,
-    lastModified: n.date,
-    changeFrequency: "yearly" as const,
-    priority: 0.5,
-  }));
+  const chapters = getAllChapters().flatMap((c) => {
+    const csPath = `/prirucka/${c.slug}`;
+    const entries: MetadataRoute.Sitemap = [{
+      url: `${BASE}${csPath}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+      ...withAlternates(csPath, enChapters.has(c.slug)),
+    }];
+    if (enChapters.has(c.slug)) {
+      entries.push({ url: `${BASE}/en${csPath}`, changeFrequency: "monthly", priority: 0.6 });
+    }
+    return entries;
+  });
+
+  const news = getAllNews().flatMap((n) => {
+    const csPath = `/ai/${n.slug}`;
+    const entries: MetadataRoute.Sitemap = [{
+      url: `${BASE}${csPath}`,
+      lastModified: n.date,
+      changeFrequency: "yearly" as const,
+      priority: 0.5,
+      ...withAlternates(csPath, enNews.has(n.slug)),
+    }];
+    if (enNews.has(n.slug)) {
+      entries.push({ url: `${BASE}/en${csPath}`, lastModified: n.date, changeFrequency: "yearly", priority: 0.4 });
+    }
+    return entries;
+  });
 
   return [...staticRoutes, ...chapters, ...tips, ...news];
 }
