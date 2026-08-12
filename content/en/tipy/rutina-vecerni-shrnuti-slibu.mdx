@@ -1,6 +1,6 @@
 ---
 title: "Evening routine: AI pulls every promise you made out of your inbox"
-excerpt: "At 5:30 pm an automation scans today's mail and lists what you promised whom, what others promised you, and what you never answered — then drafts tasks for you to approve."
+excerpt: "A complete guide with prompts: how to teach the routine to tell a promise from a pleasantry, connect mail, meetings, and your task manager with a connector, set up the evening run at 5:30 pm, and a five-minute morning approval ritual. AI lists the commitments — only a human confirms them."
 category: "ai"
 platform: "vsude"
 audience: ["manazer", "freelancer"]
@@ -9,37 +9,436 @@ saves: "~20 min a day"
 date: "2026-08-11"
 ---
 
-The sneakiest hole in productivity isn't unfinished tasks — it's promises scattered across conversations. “I'll send it by Friday.” “I'll take a look.” “I'll get back to you next week.” Every one of those sentences is a commitment that nobody wrote down — and that the other side will remember in three days, not you. An evening routine plugs that hole: once a day it scans your mail and pulls out commitments before they turn into a problem.
+The sneakiest hole in productivity isn't unfinished tasks — it's promises scattered across conversations. “I'll send it to you by Friday.” “I'll take a look.” “I'll get back to you next week.” Every one of those sentences is a commitment that nobody wrote down — and that the other side will remember in three days, not you. Your task manager doesn't know about it, your calendar doesn't either, and you'll remember it at exactly the moment it's too late.
+
+**An evening routine plugs that hole in one specific way: half an hour before you finish work, it scans today's mail and meeting notes, pulls the commitments out of them, and prepares draft tasks that you simply approve in the morning.** This isn't a summary of your day for a warm feeling of being on top of things. It's converting sentences like “I'll take care of it” into items with a name, content, and a deadline — something you can actually check off.
+
+This guide takes you from zero to a working routine in seven phases: what counts as a promise, connecting your sources with a connector, setting up the evening run, drafting tasks, the morning ritual, tuning, and boundaries. Don't skip Phase 1 — without it, the routine will hand you back a list of pleasantries. And over everything sits the one rule that decides whether you're building an assistant or a noise generator: **the routine may propose anything; only a human may confirm a commitment.**
 
 ## A typical scenario
 
-Sales rep Marek wraps up a day with four calls and forty emails. At six he closes his laptop with the nagging feeling that “I still owed someone something,” but no idea what. On Friday a client calls, waiting on materials promised Tuesday. Marek apologizes and scrambles to find them — and in the process remembers he himself is still waiting on a quote from a supplier that was due a week ago.
+Sales rep Marek wraps up a day with four calls and forty emails. At six he closes his laptop with the nagging feeling that “I still owed someone something,” but no idea what. It's not a bad memory: during one call he said “I'll get you the materials sometime this week,” and because he was busy typing a note about pricing into another window at the same time, the sentence never got written down anywhere. He lets seven to ten of those slip in a single day. On Friday a client calls asking about materials promised on Tuesday — and while scrambling to find them, Marek remembers that he himself has been waiting a week for a quote from a supplier. Same mistake, just from the other side.
 
-With an evening routine, Marek gets a single summary at 5:30: three things he promised today, with deadlines; two things promised to him, including how long he's been waiting; and four emails older than two days with no reply. Draft tasks are already sitting in his task manager tagged “needs approval.” Marek runs through them in three minutes, deletes two, confirms three — and leaves work with a clear head.
+With an evening routine, he gets a one-screen summary at 5:30 pm: three things he promised today, with deadlines and a quote of the sentence where the promise was made; two things promised to him, including how long he's been waiting; four emails older than two days with no reply from him; and two sentences flagged as uncertain. Draft tasks are already sitting in the “Needs approval” project.
 
-## How to do it
+At 8:05 the next morning, Marek goes through the drafts. He deletes two (“I'll take a look” wasn't a promise), confirms three, and just does one on the spot because it takes a minute. The ritual takes four minutes. After a month of running: apology emails along the lines of “it slipped my mind” drop from four a week to zero, and the time between making a promise and keeping it goes from six days to two. The routine never sent anything or finished anything on his behalf — it just stopped letting that part of his work, the part that happens between the lines, disappear.
 
-1. **Decide what the routine should read.** At minimum, today's sent mail (that's where your promises live) and received mail (that's where everyone else's live). Optionally add meeting notes.
-2. **Set up a scheduled run.** In an automation platform (Zapier, Make, n8n), build a scenario that fires every workday at a fixed time — typically half an hour before you wrap up.
-3. **Write the prompt like a form.** Not “summarize my day,” but structured: “From these emails, pull out (a) what I promised whom, including the deadline, (b) what others promised me and since when I've been waiting, (c) emails with no reply older than two days. If no deadline was given, write ‘no deadline stated.’ Don't infer anything that isn't there.”
-4. **Send the output somewhere you'll actually see it.** An email to yourself, a Slack message, a Notion page. A summary nobody opens is pointless.
-5. **Create tasks automatically, but only as drafts.** Through your task manager's API (Todoist, Notion), have the routine create items tagged “needs approval” or drop them in a separate Inbox project. Never let them land directly among your confirmed tasks.
-6. **Build in a thirty-second ritual.** You review the summary, confirm or delete the drafts. That's it — and it's the only point where a human enters the process.
+## Phase 1: what counts as a promise, and what's just politeness
+
+Most people skip this phase, which is why the routine hands them fifteen items a day in the first week, three of which actually make sense. A model can pull sentences out of text, but it can't know that “I'll be in touch” means a two-day commitment in your line of work, while “we should definitely meet up sometime” means nothing at all. You draw that line — once, on a single page, in plain language.
+
+### The three kinds of items the routine looks for
+
+The routine doesn't collect “important things.” It collects three well-defined types and ignores everything else:
+
+- **My commitment.** I promised someone something. Marker: first person plus a future-tense verb (“I'll send,” “I'll prepare,” “I'll check,” “I'll let you know”).
+- **Someone else's commitment.** Someone promised me something. Marker: the other party speaking in the first person, plus a deadline, however vague.
+- **An open question with no answer.** Someone asked me something and I didn't reply. It's not a promise, but it behaves like one: someone is waiting.
+
+Silence after your own messages is tracked by a separate mechanism described in the tip [follow-up watchdog](/tipy/ai-follow-up-hlidac).
+
+### Hard commitment, soft commitment, pleasantry
+
+A three-way split works best, based on how much information the sentence carries.
+
+**A hard commitment** contains who, what, and when: “I'll send you the quote by Friday.” No debate — a task with a deadline.
+
+**A soft commitment** contains who and what, but not when: “I'll take a look and let you know.” It's still a commitment — the other side is counting on it — just without a date. The routine should log it with the note “no deadline stated,” not invent one. A deadline that was never actually said is the single most dangerous output the whole routine can produce: it looks like a fact, and it's a guess.
+
+**A pleasantry** doesn't even contain the what: “Let me know if anything comes up.” The routine ignores this.
+
+The line between a soft commitment and a pleasantry decides whether the whole setup is usable. The sentence “I'll take a look” is a next-day commitment on one team and filler on another — which is why it can't be copied from a guide and has to be extracted from your own mail.
+
+### Calibrating on your own sent mail
+
+The best source of definitions is what you actually wrote over the last month.
+
+```text
+I'm attaching 30 emails I sent over the past month and 10 I
+received. Names and companies have been replaced with tags.
+
+Build me a “commitment dictionary” that I'll use as the reference
+for an evening routine that pulls promises out of my mail.
+
+1. List every phrasing I use in those emails to promise something.
+   For each one, note how many times it appears and whether it
+   usually comes with a deadline.
+2. Split them into three groups: hard commitment (clear what and
+   when), soft commitment (clear what, no when), pleasantry.
+3. For borderline phrasings, explain why they're borderline, and
+   ask me a question that will help me decide where to put them.
+4. Do the same for the emails I received: what words do people use
+   to make promises to me?
+5. At the end, write 10 sentences from the material that look like
+   a promise but, given the context, aren't one — and explain why
+   for each.
+
+Don't add phrasings that aren't in the material. Don't generalize
+from a single occurrence — if a phrase appears only once, mark it
+as one-off.
+```
+
+This will return a dictionary in which you'll usually notice that you make promises more often than you thought, and that half of them are soft. Point 5 is the reason this whole exercise exists — ten sentences that look like a promise and aren't will save the routine the most false alarms. And watch the ban on generalizing: given a single occurrence, a model loves to turn it into a rule that then flags a commitment every time you write “thanks for the reminder.”
+
+Then test the dictionary: take fifteen sentences whose correct category you already know yourself, and have the routine sort them accordingly. If twelve line up and three land in “uncertain,” you're good to move on. If the model confidently categorizes sentences that are borderline even for you, tighten the instruction for the “uncertain” category — an overconfident routine is worse than a cautious one.
+
+## Phase 2: sources and connecting via a connector
+
+You have the definitions. Now the AI needs to get at the material — without you copying emails into the chat every single evening.
+
+### Three sources are enough
+
+Every additional source makes the summary longer and increases the number of false alarms, not the accuracy. **Sent mail** is source number one: it holds your promises — the half that nobody else is watching for you. **Received mail** supplies other people's promises and open questions. **Calendar and meeting notes** supply what mail doesn't have — more commitments get made on a call than in an email, and they leave no trace unless you're taking notes the way the tip [automatic meeting notes](/tipy/ai-zapisy-schuzek-automaticky) describes.
+
+Add team chat only in a second round, and only selected channels: the ratio of commitments to noise is the worst of any source there.
+
+### What the connector can see and what it's allowed to write
+
+Connectors (built on the MCP protocol) are standardized links between AI and common services — mail, calendar, drive, notes, task manager. You attach them in settings, and the model then searches and reads within whatever scope you grant it; the tip [connectors as USB-C for AI](/tipy/mcp-konektory-usb-c-pro-ai) explains the principle in detail.
+
+For this routine you need to read mail and calendar and write to your task manager. You don't need permission to send mail, delete messages, or edit the calendar — and not wanting those permissions isn't caution, it's a design decision.
+
+Work mail belongs on a business account with contractual data protection, not in a personal chat. Explicitly exclude folders that hold HR, legal, and health matters from the prompt. Store the commitment dictionary and the rules in a **Project** (persistent context) named something like “Evening summary” — that way the routine doesn't need them handed to it fresh every evening, and you edit them in one place.
+
+### A dry run first
+
+Before the routine starts creating anything, let it run read-only for two days.
+
+```text
+Connect to my mail and go through today's sent and received
+messages. Don't create anything, don't flag anything, don't save
+anything anywhere — this run is read-only.
+
+Return a table with these columns:
+source (sent / received) | counterparty (name, not address) |
+the sentence where you see a commitment, verbatim | type (my
+commitment / their commitment / open question) | hard / soft /
+uncertain | deadline, if stated | confidence (high / medium / low)
+
+Below the table, write:
+1. how many messages you went through in total, and over what
+   period
+2. three sentences you spent the longest deciding on, and why
+3. what was missing from my rules
+
+Always include the verbatim sentence, so I can check you didn't
+make it up. When you're not sure, use “uncertain” and state why.
+```
+
+The verbatim-sentence column is a check you can do in ten seconds — you read the sentence and know whether the promise is really there. It also catches the most common silent model mistake: a paraphrase that shifts the meaning (“I'll take a look at it” turns into “I'll take care of it”). Check the first number below the table too: if the routine went through twelve messages and you actually had forty, the scope is set up wrong.
+
+### Promises made in meetings
+
+A call transcript contains commitments that exist nowhere else, but different rules apply to it than to mail: spoken language has more filler, fewer deadlines, and it's often unclear who took on what.
+
+```text
+Here are the notes (or transcript) from a meeting:
+[insert notes]
+
+Participants and their roles: [list]. I am [name].
+
+Pull out only commitments, nothing else. For each one, write:
+- who is committed, by name; if the text doesn't make it clear,
+  write “owner unclear” and quote the sentence that makes it
+  impossible to tell
+- what exactly they have to do, in one sentence, with a verb
+- a deadline, only if one was actually stated in the notes
+- the verbatim sentence from the notes the commitment comes from
+
+Then add two short sections:
+A) DECISIONS made in the meeting (not tasks — decisions)
+B) OPEN ITEMS: what was discussed but not settled, noting for
+   each who should be the one to decide
+
+Don't add tasks that would logically make sense but that nobody
+actually said out loud. If the meeting ended without a single
+commitment, say so instead of hunting for one at any cost.
+```
+
+The last paragraph is essential: without it, the model will manufacture five tasks out of a meeting that was purely informational, because “meeting notes” means “task list” to it by default. The “owner unclear” item is the most valuable line in the output — a task nobody was assigned never gets done, and catching that while everyone still remembers what was said costs you one message.
+
+## Phase 3: setting up the evening routine
+
+Now you turn this into a task that runs on its own every workday. The prompt has five parts: **scope** (without a time window, the routine will occasionally rework the whole past week), **what to look for**, **what to ignore**, **output format** (a fixed structure — a summary that looks different every day doesn't get read as a matter of routine), and **what to do with the drafts**.
+
+### The complete prompt
+
+The core of this whole guide. Paste it into a scheduled task, fill in the bracketed placeholders, and have it run at a fixed time every workday.
+
+```text
+Every workday at [5:30 pm], go through my mail and today's
+meetings and put together a daily summary of commitments.
+Follow this exactly:
+
+1. SCOPE
+Go through messages sent and received from [today 00:00] until
+now, and notes from meetings I have on today's calendar.
+Skip the folders [HR, Legal, Archive], plus mailing lists, system
+notifications, and auto-replies.
+
+2. WHAT TO LOOK FOR
+Using my commitment dictionary (see project rules), pull out:
+a) MY PROMISES — what I promised whom today
+b) PROMISES TO ME — what someone promised me today, and if the
+   promise was made earlier, how long I've been waiting for it
+c) AWAITING MY REPLY — messages older than [2 days] where someone
+   asked me something and I didn't answer
+d) UNCERTAIN — sentences you're not sure are a commitment or just
+   a pleasantry
+
+3. ACCURACY RULES
+- For every item, include the verbatim sentence the commitment
+  comes from, and a link to the message or notes.
+- Only state a deadline if one was actually said in the text. If
+  not, write “no deadline stated.” NEVER calculate or guess a
+  deadline from context.
+- Don't reproduce whole passages of messages. One quoted sentence
+  plus a summary in your own words is enough.
+- When you're not sure, put the item in UNCERTAIN instead of
+  guessing.
+
+4. FORMAT
+Return the summary in this order and add nothing to it:
+- one sentence about today: how many messages, how many meetings,
+  how many commitments
+- MY PROMISES (sorted by deadline, soonest at the top)
+- PROMISES TO ME (sorted by how long I've been waiting)
+- AWAITING MY REPLY
+- UNCERTAIN
+- one sentence: what from today is most urgent
+The whole thing has to fit on one screen. If there are too many
+items, shorten the descriptions, not the number of items.
+
+5. TASK DRAFTS
+For every item in the MY PROMISES and AWAITING MY REPLY sections,
+create a draft task in the task manager, in the [Needs approval]
+project, tagged [draft]. Don't create anything from the UNCERTAIN
+section.
+Never send any message, delete anything, mark anything as read,
+or edit the calendar.
+```
+
+This returns a one-screen summary and a set of task drafts in your task manager — every item with a quote, with a deadline either stated or honestly flagged as missing, and doubts parked in the “uncertain” section. Three places where this prompt tends to break. **The time window:** “from today 00:00” on a Monday doesn't cover Friday afternoon — shift it to “since the end of the previous workday.” **The ban on calculating deadlines:** in the first week, check every item with a date against the original message to confirm it's really there. **The ban on reproducing text:** without it, you get a summary as long as your mail itself.
+
+### Where to deliver the summary
+
+A summary nobody opens is useless. Deliver it somewhere you're already looking anyway: an email to yourself, a message in team chat, a page in your notes. Only one thing matters — it has to arrive before you close your laptop. That's why 5:30 pm, if you wrap up at six. If you're already running a morning routine with reply drafts based on the tip [morning routine with drafts](/tipy/rutina-ai-drafty-mailu), half the setup is already done: the rules, the connector, and the Project are all the same.
+
+## Phase 4: from summary to task manager
+
+The summary solves half the problem. The other half is getting the commitments into the system where you actually do the work.
+
+### Why drafts, not tasks straight away
+
+Mixing automatically created items in among your confirmed tasks is the fastest way to lose trust in your own task manager: it only takes three false items before you start skimming past the whole list. Hence the hard rule: **drafts live in a separate project or under their own tag, and only reach the main list once approved.** In practice that means a “Needs approval” project, or a “draft” tag plus a filter that hides those items from your main view.
+
+### A task format you can approve in three seconds
+
+A draft has exactly one purpose: letting you decide without opening the source. If you have to dig up the original email for every item, the morning ritual stretches to twenty minutes and you stop doing it.
+
+```text
+Change how you create task drafts from the evening summary.
+Every draft must follow this shape:
+
+TITLE: infinitive verb + what + for whom, max 60 characters.
+Example: “Send price quote — Smith, ABC”
+
+DESCRIPTION (exactly these four lines, nothing more):
+Source: [source type and date, e.g. email 8/12 2:22 pm]
+Verbatim: [the sentence the commitment comes from]
+Deadline: [date, or “not stated”]
+Link: [link to the message or notes]
+
+DEADLINE IN THE TASK MANAGER: set it only if a deadline was
+stated. If not, leave the task without a date — don't put
+“today” or “tomorrow.”
+Don't set PRIORITY, I decide that when approving.
+TAG: [draft]. PROJECT: [Needs approval].
+
+Never create a task from an item you flagged as uncertain.
+Never create a task for something I've already done, according
+to my mail.
+```
+
+The most important line is the ban on setting a “today” deadline when none was stated: a task manager full of fake todays is just as unusable as one with no deadlines at all. Keep priority for yourself — it's a decision about what matters to you, and that's not something you can read out of an email.
+
+### Deduplication: don't create the same thing a third time
+
+The most common complaint about this type of routine is “it keeps creating the same things over and over.” That's because a promise repeats within a thread: you make it on Tuesday, repeat it on Wednesday, reference it on Thursday. The prompt needs three extra sentences for this: **before creating a draft, load the open tasks** from both projects and look for a match by counterparty and subject, not by matching the title text; **on a match, don't create anything new**; and **if a new message shows a deadline that's new or changed, write that into the summary under a “changes to existing tasks” section, with both dates and the quote — but don't change the task itself.**
+
+That last part is deliberate: an automation that changes deadlines on tasks you've already approved does more harm than good. The “changes” section is actually more valuable than new drafts — a deadline shift you agreed to in an email and never entered into the system is a classic source of misunderstandings.
+
+### Connecting to your task manager
+
+There are three routes: **a connector straight from the AI tool** (the routine writes tasks itself), **through an automation platform** (Zapier, Make, n8n), or **not at all** — the summary arrives by email and you create items by hand. That last option sounds like a step backward, but it's the best place to start: two weeks of creating tasks manually will show you exactly which items you'd have deleted anyway.
+
+## Phase 5: the five-minute morning approval ritual
+
+Now comes the part you don't delegate — and it has its own procedure so it doesn't eat up half an hour. Do it in the morning, not the evening: in the evening you're tired and everything looks like work; in the morning you decide faster and better.
+
+### An order that works
+
+**Step one: the summary, not the task manager.** Read the evening summary top to bottom. It takes forty seconds and gives you a picture that individual items don't — for instance, that three of five promises are for the same client and can be handled with a single message.
+
+**Step two: drafts, item by item, no skipping.** For each one you have four options: **confirm** (move it into the main project, fill in priority and, if needed, a deadline — most items), **do it now** (if it's a two-minute job; don't create a task for something you can finish faster than you can log it), **edit** (the title or deadline is off, but the commitment stands), and **delete** (it wasn't a promise). For anything you edit or delete, note why — that's the input for Phase 6.
+
+**Step three: the “uncertain” section.** Quick, yes/no. No drafts get created from it, so you either add the item by hand or leave it — and in doing so, you're teaching the routine where the line is.
+
+### A morning batch in a single message
+
+If you'd rather not click around in your task manager, you can have a decision batch prepared instead, where you respond in a single line.
+
+```text
+Prepare a morning approval batch from yesterday's drafts.
+
+List them as a numbered list, one line per item, format:
+[number] [deadline or “no deadline”] [title] — [counterparty]
+
+Below the list, give one sentence per item: why you thought it
+was a commitment (a verbatim quote is enough).
+
+Then wait for my reply in this form: numbers to confirm, numbers
+to delete, numbers to edit along with what to change. For
+example: “confirm 1,3,5 / delete 2 / edit 4: deadline to Friday.”
+
+Based on that, move confirmed items to the [main] project and
+remove the [draft] tag, delete the deleted ones, edit and move
+the edited ones. Don't change anything else. Once done, write one
+sentence about what you did, and for anything deleted, ask
+whether I want to turn it into a rule in the commitment
+dictionary.
+```
+
+That last paragraph matters: every deletion is feedback, and when the routine asks about it right away, you don't need to keep a separate log of corrections. One thing to watch — batch confirmation tempts you toward a mechanical “confirm everything.” If you've confirmed absolutely everything three days running, either the routine is superbly tuned or you've stopped reading; check at random to find out which.
+
+Don't discard deleted drafts — keep them in a separate list until the end of the week; on Friday, they become input for tuning. The chapter on [GTD](/prirucka/getting-things-done) covers how this fits into a broader weekly rhythm; in its terms, the evening routine is just ordinary collection, done by a machine instead of by your head.
+
+## Phase 6: tuning out false promises
+
+A routine set up on day one runs at roughly seventy percent accuracy. The gap between “pretty good” and “I barely have to touch it” sits in two weeks of tuning — and you're tuning two things that pull against each other.
+
+### Two errors that trade off against each other
+
+A **false promise** is an item that got logged and shouldn't have: a pleasantry read as a commitment, a sentence pulled out of context, a promise you walked back two paragraphs later. It shows up immediately — you delete it in the morning. A **missed promise** is one the routine didn't catch, and it shows up a week later when the other side follows up.
+
+There's a direct trade-off between them: tighten the definitions so the routine stops throwing false alarms, and it starts missing things. So the target isn't zero false promises — it's **rather more false ones than even a single missed one.** Deleting a draft takes two seconds; apologizing to a client takes ten minutes and costs you credibility.
+
+### A weekly accuracy retrospective
+
+Once a week, preferably on Friday, ask the routine about its own performance: it has access to what it proposed and to what actually survived into the main list, and the difference between the two is exactly the feedback you need.
+
+```text
+Do a retrospective on our evening routine for this week. You
+have access to the drafts you created, to my tasks, and to my
+mail.
+
+Return five blocks:
+
+1. NUMBERS: how many drafts you created this week, how many I
+   confirmed, edited, and deleted. For the edited ones, note what
+   I most often changed (title / deadline / both).
+
+2. FALSE ALARMS: group the deleted drafts by cause — pleasantry,
+   pulled out of context, a commitment made by someone other than
+   me, something I'd already done, duplicate. Give two examples
+   with the verbatim sentence for each group.
+
+3. MISSED: go through my sent mail for the week and find
+   commitments I made that you didn't catch. For each one, write
+   why you think it slipped through.
+
+4. DEADLINES: was a deadline stated anywhere that wasn't actually
+   in the source message? That's the most serious error — list
+   it first.
+
+5. RECOMMENDATION: three changes to the commitment dictionary or
+   the routine's prompt, ranked by impact. For each, show the old
+   and new wording side by side, plus the risk: what kind of real
+   promise this change might cause me to miss.
+
+Don't add rules just for the sake of it — if the same problem can
+be solved by editing an existing rule, do that instead. Target
+size for the dictionary is at most [one page]. Be critical of
+your own work: I don't want to hear it went well, I want to know
+where it's rough.
+```
+
+Block 3 is the reason this retrospective exists — you'd otherwise never find out about missed promises, because by definition you don't know about them. Treat the numbers in block 1 as directional. Always read block 4 in full: an invented deadline is the one error in this routine that has consequences outside it. And the note about the dictionary's size isn't cosmetic — rules tend to only accumulate, until the one page turns into a manual the model starts picking and choosing from.
+
+### When the routine is done
+
+You'll know by three signals: the morning ritual reliably takes under five minutes, at least five drafts get confirmed for every one deleted, and the “missed” block shows zero to one item. At that point, stop tuning and only revisit the dictionary once a quarter — and whenever your role, clients, or team change.
+
+## Phase 7: boundaries that don't move
+
+The last phase isn't about what the routine can do — it's about what you don't let it do.
+
+### Logging yes, acting no
+
+**AI proposes, a human approves.** For the evening routine that means three bans. The routine never **sends** anything — not a reminder, not “just a quick note that it'll be tomorrow.” It never **deletes** anything — no messages, no tasks. And it never **closes out a commitment on your behalf** — it doesn't confirm deadlines, accept meetings, or set priorities. This isn't distrust of the model: a commitment is a relationship between people, and when an automation confirms it, it's still your promise — you just weren't there when it was made.
+
+### Keep sensitive matters out
+
+Explicitly exclude HR, legal, and health folders in the prompt — not with a “be careful” rule. Leave out meetings where people's performance reviews or trade secrets get discussed. If that kind of content lands in your main inbox and can't be separated out, narrow the routine down to one safe category — customer emails only, say.
+
+```text
+Prepare a list of exclusions for the evening routine.
+Context: [role, industry, company type]. The routine reads mail
+and meeting notes and creates task drafts.
+
+Suggest which sources and content types the routine should skip
+entirely. Start from these areas and add more: HR matters
+(salaries, performance reviews, hiring, terminations), legal
+matters and complaints, colleagues' health and personal matters,
+business deals in the price-negotiation stage, addressees on my
+“always manual” list.
+
+For each item, write:
+1. how to recognize that content specifically (by folder, tag,
+   addressee, or meeting participants), not with a general
+   description
+2. whether the whole folder can be excluded, or a rule is needed
+   inside the prompt
+3. one false-positive situation: when it looks like sensitive
+   content but is actually a routine operational message
+
+Write the output as a list in the imperative, so I can paste it
+straight into the routine's prompt.
+```
+
+Trim the list down to what actually applies to your work — twenty exclusions are just as unusable as none. Read point 3 carefully: too broad an exclusion (“anything with the word contract”) means the routine ends up blind to half your business correspondence.
+
+### Data and account
+
+The whole operation belongs on a **business account with contractual data protection**, not in a personal chat. Anonymize any material you feed the routine by hand: replace names, companies, and contract numbers with tags. And keep the ban on reproducing whole message passages in the prompt — one quoted sentence plus a link is everything you need, and also the smallest volume of sensitive content the routine ever handles.
+
+## Common mistakes
+
+- **Running the routine without defining what a promise is.** Without a commitment dictionary you get fifteen items a day, three of which make sense — and after three days you stop opening the summary.
+- **Letting the routine calculate deadlines.** The sentence “I'll take a look” has no deadline. When the model fills one in as “by tomorrow,” it looks like a fact, and you plan around it.
+- **Creating drafts straight among your confirmed tasks.** Three false items are enough to make you stop trusting your own list.
+- **Doing the ritual in the evening.** The summary should arrive in the evening; the deciding should happen in the morning. A tired person either approves everything or nothing.
+- **Only tuning for false alarms.** You never find out about a missed promise on your own. Without a “missed” block in the weekly retrospective, you're tuning blind.
+- **Giving the routine permission to write or delete.** An automation that sends “I'll get it to you tomorrow” on its own has created a commitment you don't even know about.
 
 ## The best tools
 
-- **Built-in AI in your inbox** (Gemini in Workspace, Copilot in Microsoft 365) — the simplest starting point if you just want a daily summary without creating tasks.
-- **Zapier and Make** — no-code cloud platforms; they handle the scheduled trigger, the AI step, and writing into your task manager.
-- **n8n** — a self-hosted option for companies that don't want to send inbox content to a third-party cloud service.
-- **Todoist and Notion** — task managers with open APIs where drafts get created reliably and are easy to separate out with a tag.
+- **Claude with connectors and a scheduled task** — reads mail, calendar, and notes, puts together the summary, and creates drafts in your task manager on schedule; the commitment dictionary lives in a Project.
+- **Projects (persistent context)** — the home for your commitment dictionary, exclusions, and draft-task format; the routine doesn't need them handed to it fresh every evening.
+- **Todoist and Notion** — task managers with open APIs and connectors; drafts separate out cleanly by project or tag.
+- **Zapier, Make, and n8n** — for assembling the mail-model-task manager chain out of individual steps; n8n runs on your own server when mail content shouldn't leave the company.
+- **Automatic meeting-notes tools** — without notes, half your commitments slip away; the most expensive ones get made on a call, not in an email.
+- **Built-in AI in your inbox (Gemini in Workspace, Copilot in Microsoft 365)** — the simplest starting point if you just want a daily summary without creating tasks.
 
 ## What you get out of it
 
-- **Time:** 15–25 minutes a day that would otherwise go into figuring out “what was I supposed to do” and writing apologetic emails.
-- **Peace of mind:** no more evening rumination. Promises are written down, your head is clear — exactly the point of any decent work-organization method.
-- **Outward reliability:** a broken promise damages trust more than a slow reply. The routine also tracks what you're waiting on.
-- **Material for follow-ups:** a “who owes me what” list is ready-made material for a polite nudge.
+- **Time:** a sober 15–25 minutes a day that would otherwise go into tracking down “what was I supposed to do” and writing apology emails. The ritual costs five minutes; the net saving is about a quarter hour a day.
+- **Money:** a broken promise on client work doesn't cost you in hours, it costs you in contracts — one proposal that didn't fall through the cracks pays for a whole year of running this routine.
+- **Peace of mind:** no more evening rumination over whether you forgot something. Your head doesn't have to hold a list it can't actually hold anyway.
+- **Outward quality and reliability:** a broken promise damages trust more than a slow reply. The routine watches both directions, so you always have a “who owes me what” list ready as material for a polite nudge.
 
 ## Pro tip
 
-Let the routine work with silence too: the most valuable item in the summary is usually the list of emails nobody responded to. And hold the line — the automation may create, but never delete and never send. Security minimum: run the routine on a business account with contractual data protection, not a personal chat; exclude folders with sensitive matters from it, and explicitly forbid the prompt from reproducing whole email passages — one summary sentence and a link to the message is enough.
+An advanced trick that costs one sentence in the prompt: have the routine list, once a week, **promises that repeated over the past month.** If you've promised the same thing three times and pushed it back every time, that's not a time-management problem — the task is either poorly scoped, belongs to someone else, or you don't actually want to do it at all. Add this to the Friday run: “list commitments I've made more than once to the same counterparty over the past month, and for each one note how many times and with what deadline.” That list is uncomfortable, and the most valuable thing in the whole setup.
+
+And the closing rule that sits above everything else: **the routine watches your promises — it doesn't keep them.** It's allowed to find them, log them, remind you of them, and show you when they recur. The moment you let it reply, confirm a deadline, or send anything at all, you stop having an assistant and start having a second person making promises in your name. Close out the day the way the [shutdown ritual](/tipy/shutdown-ritual) describes — just with the difference that you no longer have to write down loose ends from memory.
