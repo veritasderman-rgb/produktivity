@@ -1,6 +1,6 @@
 ---
 title: "Your first no-code AI automation: trigger, AI step, draft for approval"
-excerpt: "Zapier, Make, and n8n are the glue between your tools and AI. Build a chain of trigger → AI → action without writing a line of code."
+excerpt: "A complete guide with prompts: when a Claude routine is enough and when you need n8n, Zapier, or Make, what a scenario's anatomy looks like, three full scenarios step by step, the AI-step prompt, and error handling."
 category: "ai"
 platform: "vsude"
 audience: ["manazer", "freelancer"]
@@ -9,39 +9,515 @@ saves: "~2 hrs a week"
 date: "2026-08-11"
 ---
 
-Chatting with AI is manual labor: you carry data in, and you carry results out. An automation platform removes that back-and-forth — data reaches the AI on its own, and the result lands wherever you need it. You don't need to know how to code; you assemble steps like building blocks. And since we're talking about an automated system that touches your mail and your tasks, one rule applies from the start: **AI proposes, you approve.**
+Chatting with AI is manual labor: you carry data in and results out. An automation platform removes that back-and-forth — data reaches the model on its own, and the result ends up wherever you need it. You don't need to know how to code; you assemble steps like building blocks. **The whole trick is that AI isn't the whole automation, but one step in the middle:** something triggers it, the model pulls something out of it or writes something, and the result travels onward into a spreadsheet, a CRM, or a Drafts folder.
+
+You can read this guide with your scenario editor open. It starts with the question most people skip — whether you need a platform at all, or a routine directly in Claude is enough. It then breaks down a scenario's anatomy, walks through three complete examples step by step, explains why the AI-step prompt is written differently than a chat prompt, and ends with the least fun part: what to do when a scenario breaks, and when the right answer is not to automate at all.
+
+And since we're talking about an automated system that touches your mail, invoices, and client data, one rule applies from minute one: **AI proposes, a human approves.** Sending, paying, deleting, signing — always a human. Every scenario here ends in a draft for review, never a completed action.
 
 ## A typical scenario
 
-Freelancer Klára gets inquiries through a web form. She used to read each one by hand, copy it into a spreadsheet, create a “follow up” task, and write an initial reply. Ten inquiries a week meant two hours of copying — work that never actually required her to decide anything, just transcribe.
+Klára, a freelancer, gets inquiries through a web form, ten a week on average. For each one she runs the same ritual: reads it, copies the name, company, project type, and budget into a spreadsheet, creates a “follow up” task, and writes an initial reply. It takes her roughly twelve minutes per inquiry — two hours a week — and not once during that did she actually have to decide anything, just transcribe. Worse than the time is the disruption: the form arrives at random moments, and Klára opens it right away, so her day keeps shattering.
 
-After building a single scenario, things look different. A new inquiry triggers the automation: AI pulls the name, project type, budget range, and deadline out of the text, writes a row into the spreadsheet, creates a task in her task manager labeled “needs approval,” and drafts a reply in her inbox. Klára goes through the drafts each morning, edits two, deletes one. She's still the one sending — she just no longer spends time on the copying.
+After building a single scenario, it's different. A new inquiry triggers the automation: the model pulls the name, company, project type, budget range, and deadline out of the text, grades the inquiry A through C based on how well it fits Klára's focus, writes a row into the spreadsheet, creates a task labeled “needs approval,” and drafts a reply in her inbox. Klára opens her mail twice a day, goes through the drafts, edits two, deletes one.
 
-## How to do it
+After a month: two hours a week is down to twenty minutes, and more importantly, the form stopped shattering her day. Klára is still the one sending — she just no longer spends time copying things over.
 
-1. **Pick one pain point, not five.** The best first scenario is something you do at least three times a week, is tedious, and has a clear start and end. Inquiries, invoices, meeting notes, new tasks from a form.
-2. **Sketch three steps on paper.** What triggers it (the trigger), what should the AI do (the model step), where should the result go (the action). If it doesn't fit into three steps, the scenario is too big for a first attempt.
-3. **Choose a platform.** Zapier is the easiest to get started with, Make offers clearer handling of branching logic, and n8n can be self-hosted on your own server. Decide based on where your data is allowed to go.
-4. **Write the prompt like a brief for a temp worker.** What it receives as input, what it should return, in what format, and what to do if it's unsure. Add the line “If a piece of information isn't in the text, write ‘not specified’” — that limits guessing.
-5. **Always make the output a draft.** A draft instead of a sent email, a task labeled “needs approval” instead of a task in a live project, a spreadsheet row to review. The automation must never have permission to send or delete.
-6. **Test it against ten real cases.** Run the scenario manually over old data and compare what came out. Only then switch it on permanently.
-7. **Have it notify you when something fails.** A scenario that breaks silently is worse than no scenario at all — you get used to relying on it.
+## When a Claude routine is enough, and when you need a platform
+
+The most expensive beginner mistake is building a seven-step scenario where a single sentence in a routine would have done. And the flip side is just as costly — cramming something that needs to react to an event in another system into a routine.
+
+### A Claude routine is enough when…
+
+- The trigger is **time**: every morning at 6:30, every Friday at 15:00.
+- The data lives wherever a **connector** reaches: mail, calendar, Drive, Notion — see [connectors explained](/tipy/mcp-konektory-usb-c-pro-ai).
+- The instructions **change often** and are somewhat vague. You fix a routine by rewriting one sentence; a platform scenario means remapping fields.
+- The output is **text for a human**: a draft, an overview, a list awaiting approval.
+
+A typical example is the set of routines over mail and calendar; the full walkthrough is in the tip [routines in Claude](/tipy/claude-rutiny-posta-kalendar). If your case fits all four points, build it as a routine and save yourself one extra service.
+
+### You need a platform when…
+
+- The trigger is **an event in another system**: a submitted form, a new invoice, a status change in a CRM, a payment. This can't be scheduled by time — it has to be called.
+- The chain has **more than two applications**: form → AI → spreadsheet → CRM → team notification.
+- You need a **webhook**, because you want to react within seconds, not by the next morning.
+- You need **reliable operation at volume**: two hundred rows a day, with a log and the ability to retry whatever failed.
+- The data **can't leave your infrastructure** — that's when self-hosted n8n comes into play.
+
+### Deciding in five minutes
+
+Write down three things: what triggers it, how many applications are involved, and how fast it needs to be done. One application plus time as the trigger means a routine. Two or more applications, or an event as the trigger, means a platform. Handle borderline cases with the simpler option — rebuilding a routine into a scenario takes an afternoon, abandoning a scenario that's already live hurts.
+
+Before you start building, have something choose what your first scenario should be. Run this prompt in an ordinary chat:
+
+```text
+I'll describe my recurring work, and you pick the first scenario
+worth automating.
+
+What I do repeatedly:
+[list 8-12 activities; for each: how often, how many minutes it
+takes, where the data comes from, and where you store it]
+
+Tools I use: [list them]
+
+Give me:
+1. Those activities ranked by time saved / build effort
+2. For the three best, sketch out the scenario: what triggers it,
+   which steps follow, where AI fits in, and where the result goes
+3. For each of the three, say whether a scheduled routine in an AI
+   assistant with connectors is enough, or whether an automation
+   platform is needed — and why
+4. Which of those activities NOT to automate, and why (too
+   infrequent, too many exceptions, too high a cost of error)
+
+Be strict on point 4 — I don't want to automate things I do twice
+a month.
+```
+
+You'll get back a ranked list where the top scenario is usually not what you expected — people underrate boring transcription work and overrate visible but rare tasks. Read point 4 carefully: automating something you do twice a month won't pay for itself, even if it's technically easy.
+
+## Anatomy of a scenario: trigger, AI step, action
+
+Every scenario, whether in Zapier, Make, or n8n, has the same skeleton. Understand it once and you can carry it across platforms in an afternoon.
+
+### Trigger: what sets it off
+
+There are three kinds of triggers, and the difference between them decides both speed and how many operations you burn through. A **webhook** is an address another system calls the moment something happens — the fastest and cheapest option, because it never wastes a run on nothing. **Polling** means the platform asks every few minutes whether anything new has shown up; it's used where a service doesn't support webhooks, and you pay for it in both delay and runs where nothing happened. A **schedule** is a plain timer — and this is worth pausing on: when the trigger is time and the data is reachable through a connector, you may not need a platform at all.
+
+Whatever you choose, a **filter** belongs right after the trigger: only inquiries with an email filled in, only invoices above a certain amount, only messages with a given label. A scenario that only discovers in the AI step that it shouldn't be processing an item wastes both operations and money.
+
+### AI step: one task, one output
+
+The model step has three parts: what you send it, what it should do, and what shape it should return. The most common beginner mistake is sending it everything and asking for everything at once. Two smaller AI steps in sequence are more reliable than one big one — mainly because when something breaks, you can tell where.
+
+The key difference from a chat: **a human doesn't read the output — the next step does.** So have it return JSON with fixed keys, and parse it into fields in the platform:
+
+```json
+{
+  "jmeno": "Jane Novak",
+  "firma": "Sever Building Materials",
+  "typ_zakazky": "custom website",
+  "rozpocet": "not specified",
+  "termin": "by the end of October",
+  "znamka": "B",
+  "zduvodneni_znamky": "industry fits, budget unknown",
+  "chybi": ["rozpocet", "telefon"]
+}
+```
+
+Two details make the difference between a toy and something production-ready. The `chybi` key is a list of what wasn't in the source material — it lets you spot an incomplete inquiry without reading it. And the value `neuvedeno` (not specified) is a mandatory stand-in for guessing: without it, the model fills in a missing budget with an estimate that looks like a fact.
+
+### Action: the output is always a draft
+
+The last step decides whether a scenario is a helper or a risk. Three rules with no exceptions: **a draft instead of a sent email**, **a task labeled “needs approval” instead of a task in a live project**, **a new row instead of overwriting an existing one**. An automation must never be allowed to send, pay, or delete — and grant write access to a separate spreadsheet, not straight into live records.
+
+Before you start clicking, have the scenario sketched out, field mapping included:
+
+```text
+I want to build an automation scenario and need a plan before I
+start clicking.
+
+What the scenario does: [one-sentence description]
+Trigger: [new form entry / webhook from CRM / new file…]
+Applications in the chain: [list them in order]
+What the result should be: [spreadsheet row, email draft, task…]
+
+Give me:
+1. A list of the scenario's steps in order; for each: what it
+   receives as input, what it does, what it passes on
+2. Exactly where the filter belongs so the scenario doesn't run
+   unnecessarily
+3. Field mapping: which field from the trigger goes into which
+   field in the target application — as a table
+4. Which steps can fail and what the scenario should do in each
+   of those cases
+5. Whether the number of steps can be reduced — and how
+
+Don't write instructions for a specific platform — I want the
+scenario's logic.
+```
+
+You'll get back a plan you just click together in the editor. Point 3 is why the prompt pays off: most mistakes in first scenarios don't happen in the AI step — they happen in swapped field mapping, where a phone number gets written into the budget column and nobody notices for a month.
+
+## Scenario 1: new lead → AI enrichment → CRM
+
+Goal: every new inquiry turns into a structured record with a quality grade and a reply draft, without a human hand touching any of it before the moment of approval.
+
+### Scenario steps
+
+1. **Trigger:** a webhook from the web form (or a new row in the spreadsheet the form writes to).
+2. **Filter:** only when the email field is filled in and the text is at least twenty characters. This weeds out spam and unfinished submissions.
+3. **AI step A — extraction:** turn free text into structured data.
+4. **AI step B — evaluation:** grade the inquiry A/B/C and list the risks.
+5. **Action 1:** write a row into the spreadsheet or CRM with status “new, not processed.”
+6. **Action 2:** create a task labeled “needs approval” with a 24-hour deadline.
+7. **Action 3:** create a reply draft in your mail. Never send.
+
+### AI step A: extraction
+
+```text
+You are a data extractor for inquiries. You'll receive the raw text
+of an inquiry from a web form.
+
+INQUIRY TEXT:
+[input from the form]
+
+Return only JSON with these keys, no commentary and no lead-in text:
+jmeno, firma, email, telefon, typ_zakazky, rozpocet, termin,
+strucne_zadani (max 200 characters), chybi (an array of key names
+that were not present in the text)
+
+Rules:
+- If a piece of information isn't in the text, write the value
+  neuvedeno into that key and add the key's name to the chybi array.
+- Do NOT infer anything. Don't estimate the budget from the project
+  type, don't derive a deadline from a phrase like "as soon as
+  possible" — that's neuvedeno.
+- Pick typ_zakazky from: [web, e-shop, grafika, konzultace, jiné].
+  If it can't be classified, write jiné.
+- Don't correct or restyle the text — you're extracting facts.
+```
+
+You'll get back clean JSON that you parse into fields in the platform. Watch two things: whether the model really returns only JSON (it occasionally adds an explanatory sentence and breaks the parser — a step that keeps only the text between the first and last curly brace helps) and whether it respects `neuvedeno` for the budget field, where the temptation to guess is strongest.
+
+### AI step B: enrichment and grade
+
+```text
+You'll receive structured data about an inquiry and information
+about my business. Your job is to evaluate the inquiry, not sell it.
+
+INQUIRY:
+[JSON from the previous step]
+
+MY FOCUS:
+I do [field], a typical project is [description], I don't do
+[what I decline]. Smallest project that makes sense for me:
+[threshold]. Ideal client: [description].
+
+Return JSON with the keys: znamka, zduvodneni, rizika, prvni_otazky.
+- znamka: A (fits my focus and is realistic), B (fits, but
+  something is missing or unclear), C (outside my field,
+  unrealistic deadline, or clearly out of scope)
+- zduvodneni: two sentences, specific, no stock phrases
+- rizika: an array of 1-3 sentences — what could be a problem
+  (unclear brief, unrealistic deadline, client wants something
+  I don't do)
+- prvni_otazky: 3 questions I need to ask before I quote a price
+
+When the data is incomplete, evaluate based on what's there —
+don't guess at what the project probably looks like.
+```
+
+You'll get back an evaluation that decides the order of your queue. Don't use grades for automatic rejection — a C means “look at this last,” not “throw it out.” The model doesn't have the context you do.
+
+### Action: reply draft
+
+The last step composes a reply out of what the earlier steps found — and deliberately assumes the data will be incomplete:
+
+```text
+Write a draft of the first reply to this inquiry. I'm writing as
+[name, field], tone: [matter-of-fact and friendly, formal address,
+no marketing phrases].
+
+INQUIRY DATA:
+[JSON from step A]
+EVALUATION:
+[JSON from step B]
+
+Rules:
+- 150 words maximum, three paragraphs.
+- Thank them, summarize in one sentence how I understood the brief,
+  and ask the two most important questions from the prvni_otazky
+  list.
+- Do NOT state a price or a deadline, not even roughly.
+- If chybi is non-empty in the data, ask specifically for exactly
+  those missing pieces of information, by name.
+- If the grade is C, write a polite variant that offers a referral
+  elsewhere — but don't reject anyone outright, I'll do that myself.
+- Close with the signature [signature].
+
+Return only the email text, no explanation.
+```
+
+You'll get back a draft that, most of the time, you'll send after one edit. The most important line is the ban on stating a price or a deadline: that's information the model happily fills in with a plausible-sounding guess — and one that then traps you during negotiation.
+
+## Scenario 2: form → categorization → notification
+
+The second scenario is simpler and gets deployed most often: sort incoming requests and route them to the right person. It works for an internal help desk, complaints, and requests from a production floor alike.
+
+### Scenario steps
+
+1. **Trigger:** a new form response (webhook or new row).
+2. **AI step:** categorization, priority, and a two-sentence summary.
+3. **Branching by category:** each category has its own recipient.
+4. **Action 1:** a message to the team channel, readable on a phone.
+5. **Action 2:** a row written to a spreadsheet for statistics.
+6. **Action 3 (high priority only):** an alert to the on-call phone.
+
+### AI step: categorization
+
+```text
+You are a triage system for incoming requests. The categories are
+fixed — don't invent others.
+
+REQUEST:
+Sender: [name and role]
+Text: [text from the form]
+Attachments: [file names, if any]
+
+Categories: [technical issue, billing, complaint, business inquiry,
+HR, other]
+
+Priorities:
+- high: something is broken and it's blocking work, or a legal or
+  contractual deadline is at risk of being missed
+- medium: needs a response within two business days
+- low: informational, can wait
+
+Return JSON: kategorie, priorita, shrnuti (max 2 sentences, factual,
+not a restatement of the whole text), kdo_by_to_mel_resit (a guess
+at the role responsible), chybejici_informace (what needs to be
+asked before this can be resolved), citlivost (yes/no — whether the
+text contains personal or health information, payroll data, or
+anything under confidentiality).
+
+If you're unsure of the category, use other and explain why in
+shrnuti. Never assign high priority just because the sender used
+all caps or the word urgent.
+```
+
+You'll get a more accurate classification than a tired person can manage on a Friday afternoon. The last paragraph prevents escalation-by-tone — without it, every irritated message turns into high priority. And the `citlivost` key is a safeguard: when it's `ano` (yes), have the scenario send only “a sensitive request came in, open it in the system” to the channel.
+
+### Action: a notification you can read on a phone
+
+```text
+Compose a team-channel message from the categorized request.
+
+DATA:
+[JSON from the previous step]
+Link to the original request: [link]
+
+Format:
+Line one: priority in caps, category, from whom
+Line two: summary, 20 words maximum
+Line three: what needs to happen as the first step
+Line four: the link
+
+Rules:
+- No greetings, no emoji, no lead-in sentences.
+- If citlivost is yes in the data, write only "sensitive content —
+  open directly in the system" instead of a summary, and don't
+  quote any of the text.
+- The whole thing has to be readable on a phone without scrolling.
+```
+
+You'll get back a message the team actually reads, because it's short. The ban on greetings and emoji isn't there out of grumpiness — a notification that starts with “Hey team, we got a new request” gets skimmed past by the twentieth time.
+
+## Scenario 3: RSS → summary → newsletter draft
+
+The third scenario shows a different pattern: gathering material across a whole week and one summary output at the end. This is exactly where splitting AI work into two steps at different times pays off the most.
+
+### Scenario steps
+
+1. **Trigger A (ongoing):** a new item in the RSS feeds you follow.
+2. **Filter:** only items with your keywords in the title or lead paragraph. Without a filter, the scenario drowns in volume.
+3. **AI step A:** for each item, a summary and a decision on whether it's relevant.
+4. **Action:** write it into a “newsletter candidates” spreadsheet with a score.
+5. **Trigger B (Thursday 9:00):** a schedule.
+6. **AI step B:** build a newsletter draft from the collected items.
+7. **Action:** save the draft — into your mailing tool, a document, or your mail. Never send.
+
+### AI step A: summarizing one item
+
+```text
+Summarize one article for my newsletter.
+
+I write the newsletter for: [target audience], and they're
+interested in [topics]. They're not interested in: [what to skip].
+
+ARTICLE:
+Title: [title]
+Source and date: [source, date]
+Text: [content or lead paragraph]
+
+Return JSON: relevance (0-10), shrnuti (3 sentences: what happened
+and why the reader cares), citace (one verbatim sentence from the
+article worth quoting — if there isn't one, write an empty string),
+pro_koho (which part of my audience this helps most), zdroj_typ
+(original report / commentary / reprinted press release / ad).
+
+Rules:
+- Rely exclusively on the article text, don't fill in context from
+  memory.
+- If the article is just a reprinted press release or disguised
+  advertising, cap relevance at 3 and note it in zdroj_typ.
+- Copy numbers and names exactly, don't round them.
+```
+
+You'll get back a score that the spreadsheet uses to rank candidates on its own. The `zdroj_typ` key is there deliberately: without it, press releases sneak into the newsletter because they sound informative. Verify secondhand numbers against the original source — see [fact-checking](/tipy/ai-overovani-faktu).
+
+### AI step B: newsletter draft
+
+```text
+Assemble a newsletter draft from this week's collected items.
+
+ITEMS (sorted by relevance):
+[paste the spreadsheet rows: title, summary, link, relevance,
+pro_koho]
+
+The newsletter is: [name], published [frequency], written in
+[tone: matter-of-fact, slightly personal, no superlatives], length
+[about 400 words].
+
+Structure:
+1. Opening paragraph (3 sentences) — what the main theme was this
+   week across the items. If there's no common theme, say so plainly.
+2. Three lead items — for each, a headline, two to three sentences
+   in your own words, and a link. Don't copy the summaries verbatim,
+   rewrite them in my tone.
+3. A short "also worth a look" block — the rest as one-sentence
+   bullets.
+4. A closing question to the reader, one sentence.
+
+Rules:
+- Use only the items I gave you. Don't add anything from memory,
+  no "as is well known."
+- No claim that isn't in the source material, even if it sounds
+  obvious.
+- Keep every item's link exactly as it was given to you.
+- At the end, attach a CHECK list: numbers and names from the draft
+  that I need to verify against the original articles.
+```
+
+You'll get back a draft you rewrite and add your own commentary to — and, more importantly, the CHECK list at the end that keeps a wrong number from ending up in the newsletter. Never send without reading: one made-up sentence shows in a public piece more than ten good ones do.
+
+## The AI-step prompt: why it's written differently than a chat prompt
+
+A prompt inside an automation has three properties you never deal with in chat. **You won't see it fail** — a bad output gets quietly written into a spreadsheet. **You can't ask a follow-up question** — the model has to get it right the first time. And **a machine reads the output**, so format matters more than elegance.
+
+That leads to five rules. **One step, one task** — extraction separate, evaluation separate, wording separate. **A fixed output format**, ideally JSON with named keys. **An explicit ban on guessing**: the sentence “if a value isn't in the text, write not specified” saves more trouble than any other single line. **Closed vocabularies** instead of free-form categories — let the model invent categories and within a month you'll have forty variants of the same thing. And **a sample input and output** right inside the prompt — see [examples over descriptions](/tipy/ai-ukazky-formatu). Keep your prompts outside the platform, in your own [prompt library](/tipy/ai-knihovna-promptu), and version them by date.
+
+Tuning a prompt blind doesn't work. Build yourself a test set from real data:
+
+```text
+I'm attaching the prompt I use in an automated step, along with
+twenty real inputs from past months and what the output should
+have looked like for each.
+
+PROMPT:
+[paste the prompt]
+
+INPUTS AND EXPECTED OUTPUTS:
+[paste 20 pairs]
+
+Do three things:
+1. Go through the inputs and find the ones where the prompt is
+   ambiguous — where the instructions could be read two ways
+2. For each ambiguity, propose a specific sentence to add to the
+   prompt that removes it
+3. List 5 edge cases missing from my set that the prompt is likely
+   to fail on (empty input, a foreign language, two inquiries in
+   one message, an attachment instead of text, spam)
+
+Don't rewrite the whole prompt — I want targeted fixes with
+reasoning.
+```
+
+You'll get back a list of gaps and edge cases you wouldn't have thought of yourself — a scenario's first real failure in production is usually exactly “two inquiries in one message” or “form submitted empty.”
+
+## Testing and error handling
+
+A scenario that has quietly broken is worse than none at all — you're relying on it and don't know it isn't running. This is the boring section that decides whether you'll be turning the automation off in two months.
+
+### Start with a dry run
+
+Run the scenario manually over twenty old cases and compare what came out to what you actually did at the time. For the first week, point every action at a test target: a test spreadsheet, a test channel, drafts in your mail. The live CRM comes into play once you trust the output.
+
+### Four kinds of failure and what to do about them
+
+**A third-party service doesn't respond.** The most common and most harmless case. The fix is automatic retry with a delay — two to three attempts, minutes apart, not seconds.
+
+**The model returns something that can't be parsed.** Three layers of defense: the instruction “return only JSON,” a step that extracts only the part between the curly braces from the response, and validation — if parsing fails, the scenario writes nothing and sends you the item for manual handling.
+
+**The model returns valid but nonsensical content.** The trickiest case, because the scenario completes as a success. The defense is a sanity check before writing: a budget outside the expected range, a date in the past, a category outside the closed list, an empty required field — any of these should route to a manual queue, not into the CRM.
+
+**The scenario processes the same thing twice.** This happens when one scenario's action triggers another one, or when a webhook fires more than once for the same event. The defense is a processed marker: the scenario notes on the record that it has already seen it, and checks that marker at the start.
+
+Every scenario needs **a failure path**: a separate spreadsheet that everything that didn't work falls into, and one summary alert a day, not a separate one for every error. Check it once a week — if it's been empty for a month, either the scenario is excellent, or error reporting isn't working.
+
+```text
+I'm attaching a description of my automation scenario. I want you
+to propose error handling, not praise.
+
+SCENARIO:
+[list the steps and applications used]
+What happens if the output is wrong: [impact, e.g. a wrong number
+gets written into the CRM and nobody notices]
+
+Give me:
+1. A table: step | how it can fail | how I'll know | what the
+   scenario should do | what I should do
+2. Sanity checks I should add between the AI step and the write
+   (value ranges, required fields, closed lists)
+3. A way to make sure the same input never gets processed twice
+4. What the daily summary alert should contain so it can be read
+   in ten seconds
+5. One test I can run once a month to confirm the scenario is
+   actually running
+
+Be specific — generic advice like "monitor it" doesn't help me.
+```
+
+You'll get back a plan you can click together in an hour, and it will save your day the moment something breaks. Don't skip point 5 — a regular artificial test is the only way to tell the difference between “nothing happened” and “the scenario didn't run for a week.”
+
+### How much it costs to run
+
+Platforms bill by number of operations, and the AI step bills by the amount of text processed. So watch two things: **filter as early as possible**, and **don't send the model more text than it needs**. A scenario that polls a mailbox every minute and sends whole messages into the AI step burns through many times what a scenario with a webhook and a filter does — for the same result.
+
+### Permissions and data
+
+An automation with access to your entire mailbox and permission to delete is a ridiculously oversized weapon for the task “copy an inquiry into a spreadsheet.” Give it access to one folder and, where possible, read-only; limit write access to a single target.
+
+Send sensitive data (personal information, health information, payroll, trade secrets) only to tools your company has approved, and only to accounts with contractual data protection. If you're unsure, you have two clean paths: self-host n8n, or leave the sensitive fields out of the scenario entirely and keep only an identifier a human can use to open the record in the system.
+
+## When not to automate
+
+Not everything that can be automated should be. Six situations where the right answer is “leave it alone”:
+
+- **You do it fewer than three times a week.** Building and maintaining it costs time forever; the payoff scales with frequency. For rare tasks, it never pays for itself.
+- **The process is unstable.** A procedure that changes every month means rebuilding every month. Stabilize it first and write it up as a [checklist](/tipy/checklisty-opakovanych-procesu), then automate.
+- **The cost of a mistake is high and the mistake isn't visible.** Anything that touches money, legal deadlines, or health data. If you do automate it, only ever as a draft awaiting approval.
+- **It's about a relationship, not data transfer.** Responding to a complaint, a thank-you note, condolences, negotiating a price. Automated politeness is worse than none — the recipient can tell.
+- **There are more exceptions than rules.** If you have to step in on three out of ten cases, the scenario isn't saving time — it just added a review step.
+- **The scenario would need permissions you wouldn't hand to an intern.** Sending on your behalf, deleting records, confirming orders. If the scope can't be narrowed, don't build it.
+
+## Common mistakes
+
+- **Building a big scenario on the first try.** Seven steps, four applications, two branches — and the first time something breaks, you have no idea where to look. Build three steps, get them working, then add more.
+- **Letting the automation send.** A draft costs you ten seconds of reading; one badly sent email can cost you a client.
+- **Letting the model invent categories.** Without a closed list, you'll have forty variants of the same category within a month, and your statistics become useless.
+- **Not filtering right after the trigger.** A scenario that fires on every single item wastes operations and money.
+- **Not testing on real historical data.** What works on a made-up example falls over on the first real input — typically an empty form submission.
+- **Forgetting error reporting.** A silently broken scenario looks exactly like a working one. You find out the difference only when someone asks why you never responded.
 
 ## The best tools
 
-- **Zapier** — the most widely used cloud platform with a huge number of integrations; the fastest path to a first working scenario without coding.
-- **Make** — a visual scenario editor, clear even for more complex flows with conditions and branching.
-- **n8n** — an open platform you can self-host on your own server; the choice for companies whose data can't go into someone else's cloud.
-- **Built-in automations in tools you already have** — mail rules, Notion automations, Power Automate in Microsoft 365. When they're enough, there's no reason to add another service.
-- **Agentic tools (Claude connected to your tools)** — instead of assembling steps, you describe the routine in sentences; useful when the requirements change often.
+- **Zapier** — the fastest route to a first working scenario and the largest number of integrations; the choice when the scenario is simple.
+- **Make** — a visual editor that shows the flow of data; clearer for conditions, branching, and loops.
+- **n8n** — an open platform you can self-host; the choice when data can't go into someone else's cloud, or when you need a custom code step.
+- **Built-in automations in tools you already have** — mail rules, Notion automations, Power Automate in Microsoft 365. If they're enough, don't add another service.
+- **Routines in Claude with connectors** — when the trigger is time and the output is text for a human; the walkthrough is in the tip [routines in Claude](/tipy/claude-rutiny-posta-kalendar).
+- **Claude Code or a custom script** — when a scenario needs to touch files or recompute data; see [scripts for non-developers](/tipy/ai-skripty-pro-nevyvojare).
 
 ## What you get out of it
 
-- **Time:** one well-chosen scenario typically saves an hour or two a week. Three scenarios make automation the highest-return investment of your month.
-- **Reliability:** an automation doesn't forget, doesn't put things off until tomorrow, and doesn't mistype a number while copying it.
-- **Calm:** you stop having to remember the routine yourself. Your memory can be put to better use.
-- **Control:** because everything ends up as a draft, your speed goes up, not your risk.
+- **Time:** one well-chosen scenario typically saves an hour or two a week — but only until you build a fifth one that nobody checks.
+- **Money:** a faster response to an inquiry raises your odds of winning it; a scenario that cuts reply time from the next day to two hours pays for itself on a single deal.
+- **Reliability:** an automation doesn't forget and doesn't mistype a number while copying it. But it will make the same mistake a hundred times if you configure it wrong — hence all the sanity checks.
+- **Peace of mind:** every incoming item stops shattering your day. You decide in batches, not one at a time.
 
 ## Pro tip
 
-Before you switch a scenario on, review what permissions you're giving it. An automation with access to your entire mailbox and the right to delete is way too much firepower for the task “copy an inquiry into a spreadsheet” — give it access to just one folder, and read-only at that. Send sensitive data (personal information, health data, trade secrets) exclusively to tools your company has approved; if you're unsure, either self-host with n8n or leave that data out of the automation entirely. And once a quarter, go through your list of scenarios and turn off the ones nobody uses anymore.
+Build yourself a **scenario dashboard**: one spreadsheet with a row for every run — time, scenario, input, result, and whether you approved it unchanged or had to fix it. Add writing to it as the last step of every scenario. After a month it'll tell you three things you couldn't find out any other way: which scenario you rewrite most often (fix the prompt there), which one you never used even once (turn it off), and how much time the whole thing actually saved you — not as a guess, but as a row count.
+
+And the rule that sums it all up: **an automation may prepare anything; the last click stays yours.** On the day you're tempted to make an exception and let a scenario send or pay for something, don't make that exception.
