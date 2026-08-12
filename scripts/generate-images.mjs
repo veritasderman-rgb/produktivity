@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 /**
- * Vygeneruje ilustrační obrázky kapitol příručky přes Gemini API.
+ * Vygeneruje ilustrační obrázky kapitol příručky nebo tipů přes Gemini API.
  *
- * Použití:  GEMINI_API_KEY=... node scripts/generate-images.mjs [slug]
- * Bez argumentu projde všechny kapitoly v content/prirucka a vygeneruje
- * obrázek pro každou, které chybí public/img/prirucka/<slug>.png.
+ * Použití:  GEMINI_API_KEY=... node scripts/generate-images.mjs [slug…]
+ *           GEMINI_API_KEY=... IMG_TARGET=tipy node scripts/generate-images.mjs [slug…]
+ * Bez argumentu projde všechny soubory v content/<target> a vygeneruje
+ * obrázek pro každý, kterému chybí public/img/<target>/<slug>.png i .webp.
+ * S argumenty generuje jen zadané slugy (i když už existují).
  *
  * Klíč se čte VÝHRADNĚ z env — nikdy ho nedávejte do repozitáře.
  */
@@ -18,8 +20,9 @@ if (!KEY) {
 }
 
 const MODEL = process.env.GEMINI_IMAGE_MODEL ?? "gemini-3.1-flash-image";
-const CONTENT_DIR = path.join(process.cwd(), "content", "prirucka");
-const OUT_DIR = path.join(process.cwd(), "public", "img", "prirucka");
+const TARGET = process.env.IMG_TARGET === "tipy" ? "tipy" : "prirucka";
+const CONTENT_DIR = path.join(process.cwd(), "content", TARGET);
+const OUT_DIR = path.join(process.cwd(), "public", "img", TARGET);
 
 const STYLE = `Hand-drawn line-art editorial illustration for a minimalist Czech productivity website.
 Pure white background (#FFFFFF). Black ink pen strokes only (~2px weight, #141414),
@@ -57,13 +60,16 @@ async function generate(slug, subject) {
   fs.writeFileSync(path.join(OUT_DIR, `${slug}.png`), Buffer.from(part.inlineData.data, "base64"));
 }
 
-const only = process.argv[2];
+const only = process.argv.slice(2);
 const files = fs.readdirSync(CONTENT_DIR).filter((f) => f.endsWith(".mdx"));
 let ok = 0, skip = 0, fail = 0;
 for (const file of files) {
   const slug = file.replace(/\.mdx$/, "");
-  if (only && slug !== only) continue;
-  if (!only && fs.existsSync(path.join(OUT_DIR, `${slug}.png`))) { skip++; continue; }
+  if (only.length > 0 && !only.includes(slug)) continue;
+  if (
+    only.length === 0 &&
+    (fs.existsSync(path.join(OUT_DIR, `${slug}.png`)) || fs.existsSync(path.join(OUT_DIR, `${slug}.webp`)))
+  ) { skip++; continue; }
   const fm = frontmatter(fs.readFileSync(path.join(CONTENT_DIR, file), "utf8"));
   const subject = `${fm.title ?? slug}. ${fm.excerpt ?? ""}`;
   process.stdout.write(`Generuji ${slug} … `);

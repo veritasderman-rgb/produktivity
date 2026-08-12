@@ -1,4 +1,7 @@
+import fs from "node:fs";
+import path from "node:path";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
@@ -64,6 +67,11 @@ const mdxComponents = {
   kbd: (props: React.HTMLAttributes<HTMLElement>) => <kbd className="key" {...props} />,
 };
 
+function heroImage(slug: string): string | null {
+  const file = path.join(process.cwd(), "public", "img", "tipy", `${slug}.webp`);
+  return fs.existsSync(file) ? `/img/tipy/${slug}.webp` : null;
+}
+
 export default async function TipDetail({
   params,
 }: {
@@ -81,6 +89,7 @@ export default async function TipDetail({
   const allTips = getAllTips(locale);
   const chapter = chapterForTip(tip, locale);
   const related = relatedTips(tip, allTips);
+  const hero = heroImage(tip.slug);
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">
@@ -108,6 +117,16 @@ export default async function TipDetail({
             </span>
           ))}
         </p>
+      )}
+      {hero && (
+        <Image
+          src={hero}
+          alt=""
+          width={1280}
+          height={720}
+          className="mt-8 w-full border border-hairline-strong"
+          priority
+        />
       )}
       <div className="prose-a mt-6">
         <MDXRemote source={tip.body} components={mdxComponents} />
