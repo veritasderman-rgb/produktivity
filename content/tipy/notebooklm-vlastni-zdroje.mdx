@@ -1,42 +1,496 @@
 ---
 title: "NotebookLM: AI, která zná jen vaše dokumenty"
-excerpt: "Nahrajte skripta, smlouvy nebo manuály — a ptejte se. Odpovídá jen z nahraných zdrojů, s odkazy na konkrétní pasáže."
+excerpt: "Kompletní návod s prompty: čím se notebook ukotvený ve vašich zdrojích liší od běžného chatu, jak vybrat a připravit dokumenty, jak se ptát, aby odpovědi šly ověřit, co umí audio přehledy, kde jsou limity — a kdy sáhnout radši po Claude nebo ChatGPT."
 category: "ai"
 platform: "prohlizec"
 audience: ["student"]
 keys: []
-saves: "~1 h na zkoušku"
+saves: "~hodiny hledání v dokumentech"
 date: "2026-07-04"
 ---
 
-Obecná AI ví všechno tak trochu — a občas si něco domyslí, aniž by to přiznala. NotebookLM od Googlu jde opačnou cestou: ví přesně to, co jste mu dali, nic víc. Nahrajete vlastní zdroje a nástroj odpovídá výhradně z nich, s odkazem na konkrétní pasáž, ze které odpověď vzal. Pro učení ze skript, přípravu na zkoušku nebo orientaci ve stovkách stran smluv je to zásadní rozdíl oproti běžnému chatování s AI.
+Obecná AI ví všechno tak trochu — a když neví, občas si domyslí. Je to daň za to, že odpovídá z toho, co viděla při trénování: obrovské množství textu, ve kterém je vaše skriptum, vaše směrnice ani vaše smlouva vůbec nejsou. NotebookLM od Googlu jde opačnou cestou. Nahrajete zdroje, on odpovídá **výhradně z nich** a u každé věty ukáže, ze kterého dokumentu a z které pasáže ji vzal.
+
+Ten rozdíl vypadá jako detail a je to změna žánru. Běžný chat je expert, který mluví z hlavy. **Notebook s vašimi zdroji je knihovník, který nikdy nic nevykládá zpaměti — vždycky přinese knihu a ukáže prstem na řádek.** Pro učení ze skript, orientaci v třiceti smlouvách, hledání ve firemní dokumentaci nebo onboarding nováčka je to přesně ten režim, který potřebujete: odpověď, kterou jde do deseti vteřin ověřit.
+
+Tenhle návod vás provede celou cestou: kdy notebook použít a kdy ne, jak vybrat a připravit zdroje (nejčastější chyba se dělá tady), jak formulovat dotazy, aby výsledek šel použít, co dělat s audio přehledy, kde nástroj naráží na limity — a jak ho zkombinovat s Claude nebo ChatGPT, protože každý z nich umí něco jiného. Prompty jsou k okopírování, stačí doplnit hranaté závorky.
 
 ## Vzorová situace
 
-Student medicíny Adam má tři dny do zkoušky a tři sta stran skript, které za semestr pořádně nečetl. Zeptat se obecné AI „co je důležité vědět o X“ je riskantní — může odpovědět obecně podle internetu, ne podle toho, co po něm bude chtít konkrétní vyučující. Adam místo toho nahraje do NotebookLM přesně ta skripta, prezentace z přednášek a své poznámky. Pak se ptá: co říkají skripta o daném tématu, a nechá si z kapitol vygenerovat testové otázky. Každá odpověď obsahuje odkaz na konkrétní stránku či odstavec, takže si může okamžitě ověřit, že se AI nic nevymyslela. Za tři dny takhle projde látku, na kterou by jinak potřeboval týden.
+Adam studuje medicínu, má tři dny do zkoušky a tři sta stran skript, která za semestr pořádně neotevřel. Klasický postup: číst od začátku, po dvaceti stranách zjistit, že si nic nepamatuje, a zbytek noci hledat v PDF slova, o kterých doufá, že se zkoušejí.
 
-## Jak na to
+Adam místo toho založí notebook a nahraje do něj přesně tři věci: skripta, prezentace z přednášek toho konkrétního vyučujícího a okruhy otázek ke zkoušce. Nic víc — žádné články z internetu, žádná cizí skripta z jiné fakulty. Pak se ptá jako u zkoušky: „vysvětli mechanismus X tak, jak ho popisují moje skripta", „ke každému okruhu z nahraného seznamu vypiš, kde je v materiálech pokrytý a jak podrobně", „udělej mi třicet testových otázek z kapitol 3 až 5". Každá odpověď má citaci, takže když něco zní divně, klikne a za pět vteřin vidí originální odstavec.
 
-1. Otevřete notebooklm.google.com a založte nový notebook.
-2. Nahrajte zdroje, ze kterých má AI čerpat — podporované jsou PDF, Dokumenty Google, weby a další formáty. Čím relevantnější a ucelenější zdroje, tím lepší odpovědi.
-3. Ptejte se konkrétně a vztaženě k nahranému materiálu, například „co říkají skripta o daném tématu“ nebo „vytvoř z kapitol 3 až 5 testové otázky“.
-4. Každá odpověď cituje zdroj, ze kterého vychází — kliknutím na citaci se okamžitě přesvědčíte, že odpověď sedí, a v kontextu vidíte i okolní text.
-5. Než nahrajete cokoli s osobními nebo citlivými údaji (třeba smlouvu s konkrétními jmény, rodnými čísly nebo interní firemní data), údaje anonymizujte nebo je z dokumentu odstraňte. Nahraný obsah zpracovává externí služba, a i když je určena k práci s vlastními zdroji, s citlivými daty je vždy rozumnější zacházet opatrně.
+Výsledek po prvním večeru: seznam okruhů, které materiály nepokrývají vůbec (a musí je dohledat jinde), stránkový plán, co číst celé a co jen prolétnout, a sada otázek na procvičování. Za tři dny projde látku, na kterou by jinak potřeboval týden — a hlavně se učí z toho, co bude zkoušející chtít, ne z toho, co si o tématu myslí internet.
+
+Ta samá mechanika funguje pro obchodní ředitelku s třiceti dodavatelskými smlouvami, pro nováčka, který dostal patnáct interních wiki stránek, i pro člověka, který se snaží pochopit tři sta stran technické dokumentace. Zbytek návodu je o tom, jak to udělat dobře.
+
+## Fáze 1: kdy notebook a kdy běžný chat
+
+Nejdřív rozhodnutí, které ušetří nejvíc zklamání. NotebookLM je specializovaný nástroj, ne lepší chat — a použitý na špatnou úlohu působí hloupě.
+
+### Čím se ukotvení ve zdrojích liší
+
+Běžný chat generuje odpověď z toho, co se naučil, plus z toho, co jste do konverzace vložili. Když se ho zeptáte na něco, co ve vašem dokumentu není, obvykle odpoví stejně plynule — jen z obecné znalosti, a vy to na výstupu nepoznáte. Notebook ukotvený ve zdrojích tohle dělat nemá: když odpověď ve zdrojích není, měl by to říct.
+
+Prakticky z toho plynou tři rozdíly, kvůli kterým se to celé vyplatí:
+
+- **Odpovědi jsou ohraničené vaším materiálem.** Když se zeptáte „jaká je výpovědní lhůta", nedostanete obecnou informaci o českém právu, ale to, co stojí ve vaší smlouvě.
+- **Každá odpověď nese citaci.** V postranním panelu vidíte pasáž, ze které tvrzení pochází. To je jediná forma ověřování, která je rychlá natolik, že ji budete opravdu dělat.
+- **Mezera je vidět.** Když se ptáte na téma, které zdroje nepokrývají, dozvíte se to — a informace „tohle v mých materiálech není" je často cennější než odpověď.
+
+### Kdy sáhnout po notebooku
+
+Notebook je správná volba, když platí aspoň dvě z těchhle podmínek: máte **hodně textu** (desítky až stovky stran), text je **váš nebo pro vás závazný** (skripta, směrnice, smlouvy, dokumentace, přepisy), a hlavně **záleží na tom, aby odpověď pocházela z něj** a ne z obecného povědomí.
+
+Typicky: příprava na zkoušku ze skript, orientace v dokumentaci produktu, hledání v souboru smluv, rešerše z odborných článků, které jste sami stáhli, onboarding do interních postupů, projití zápisů z porad za rok zpátky.
+
+### Kdy je běžný chat lepší
+
+Naopak nemá smysl notebook otevírat, když potřebujete něco vytvořit z ničeho, pracovat s daty nebo sáhnout mimo vlastní materiál. Psaní e-mailu, návrh struktury dokumentu, výpočty nad tabulkou, kód, brainstorming, práce s aktuálním webem, práce se soubory na disku a spouštění skriptů — to všechno je práce pro Claude nebo ChatGPT. Podrobně se k dělbě práce vrátíme ve fázi 6.
+
+Rychlé rozhodovací pravidlo: **ptáte se na obsah dokumentů, které máte? Notebook. Chcete něco vyrobit, spočítat nebo zařídit? Chat.**
+
+## Fáze 2: založení notebooku a příprava zdrojů
+
+Kvalita odpovědí se rozhoduje tady, ne v promptech. Notebook je přesně tak dobrý jako to, co v něm leží — a nejčastější chyba je nahrát „všechno pro jistotu".
+
+### Jeden notebook, jedno téma
+
+Zakládejte notebook podle **tématu, ne podle typu souboru**. Jeden notebook na jednu zkoušku, jeden na jeden projekt, jeden na dodavatelské smlouvy, jeden na onboarding do role. Když do jednoho notebooku smícháte podklady k diplomce, smlouvy z brigády a poznámky z rodinné dovolené, odpovědi budou míchat světy, které spolu nesouvisejí.
+
+Počet zdrojů na notebook je omezený (řádově desítky, u placených verzí víc) a je to spíš dobře než špatně. Nutí vás to vybírat.
+
+### Co nahrát a co ne
+
+Nahrajte to, co je **relevantní a autoritativní**: závazné dokumenty, materiály, ze kterých se skutečně zkouší, aktuální verze směrnic, přepisy schůzek, které opravdu proběhly. Podporované jsou PDF, dokumenty z Disku Google, textové soubory, odkazy na webové stránky, videa z YouTube a v novějších verzích i zvukové nahrávky.
+
+Nenahrávejte:
+
+- **Duplicity a staré verze.** Dvě verze téže směrnice udělají z notebooku nespolehlivý zdroj — na otázku dostanete odpověď z té, kterou zrovna našel dřív.
+- **Materiál „pro kontext", který nikdo nečetl.** Sto zdrojů, ze kterých je deset relevantních, zhorší odpovědi na těch deset.
+- **Cizí materiál, o kterém nevíte, jestli platí.** Skripta z jiné fakulty, návrh smlouvy, který nebyl podepsaný, blogový článek o zákoně místo zákona.
+
+### Anonymizace, než něco nahrajete
+
+Než nahrajete cokoli s osobními údaji — smlouvu se jmény, rodnými čísly a adresami, personální podklady, zdravotní dokumentaci, klientská data — **údaje odstraňte nebo je nahraďte zástupnými jmény**. Pro odpovědi o výpovědní lhůtě není potřeba vědět, že pronajímatel je Jan Novák, narozen tehdy a tehdy.
+
+Platí zásada, která platí na celém webu: citlivá data patří jen do placeného účtu se smluvní ochranou dat, ne do volné verze jakékoli služby. A i tam bez identifikujících kombinací, které by šly zpětně přiřadit ke konkrétnímu člověku. Když si nejste jistí, jestli materiál smíte nahrát, zeptejte se toho, kdo dokument vlastní — u firemních podkladů je to obvykle vedoucí nebo právní oddělení.
+
+### Kontrola, co vlastně v notebooku je
+
+První dotaz v novém notebooku nemá být obsahový, ale inventurní. Chcete vědět, co jste vlastně nahráli a co z toho notebook opravdu vidí — hlavně u naskenovaných PDF, kde se stává, že soubor je jen obrázek stránky a stroj z něj přečte polovinu.
+
+```text
+Udělej mi inventuru nahraných zdrojů. Pro každý zdroj vypiš:
+- název souboru a jednou větou, o čem je
+- typ dokumentu (skripta, prezentace, smlouva, směrnice,
+  přepis, článek, web)
+- přibližný rozsah a jak podrobný je (přehled vs. detail)
+- kvalitu textu: je čitelný celý, nebo jsou v něm pasáže,
+  které nedávají smysl, chybí, nebo vypadají jako špatně
+  rozpoznaný sken
+
+Na konec napiš dvě věci:
+1. Které zdroje se obsahem překrývají
+2. Které zdroje se vůbec netýkají tématu [téma notebooku]
+```
+
+Vrátí seznam, ve kterém obvykle najdete jedno až dvě překvapení: dokument, který jste nahráli omylem, a sken, ze kterého je čitelná jen půlka. Pasáže označené jako nečitelné berte vážně — všechno, co se na ně bude odkazovat, je nespolehlivé. Špatně rozpoznané skeny nejčastěji rozbíjejí čísla a diakritiku, takže největší riziko je u letopočtů, částek a lhůt.
+
+### Mapa obsahu jako druhý krok
+
+Když víte, co v notebooku je, potřebujete vědět, co v něm najdete. Tenhle prompt vyrobí obsah celého notebooku napříč zdroji — něco, co jednotlivé dokumenty nemají.
+
+```text
+Projdi všechny nahrané zdroje a udělej mapu obsahu celého notebooku:
+
+1. Hlavní témata, která se ve zdrojích objevují — seřaď je
+   podle toho, kolik prostoru jim materiály věnují
+2. U každého tématu uveď, ve kterých zdrojích je pokryté
+   a jak podrobně (jedna zmínka / celá kapitola)
+3. Témata, která se objevují jen v jednom zdroji
+4. Témata, kde se zdroje navzájem doplňují — a témata,
+   kde si podle všeho odporují
+
+Nepřidávej nic, co v nahraných zdrojích není. Kde si nejsi
+jistý, napiš to místo odhadu.
+```
+
+Bod 4 je ten, kvůli kterému prompt spouštět. Rozpor mezi dvěma zdroji je vždycky signál: buď máte starou verzi dokumentu, nebo jste narazili na skutečný spor, který musíte vyřešit — u smluv voláním protistraně, u odborné literatury citací obou pozic.
+
+## Fáze 3: ptaní se — prompty, které z notebooku dostanou práci
+
+Notebook odpovídá tím lépe, čím konkrétnější je otázka. „Shrň mi to" je ta nejhorší možná instrukce — vrátí obecnou vatu. Následující prompty jsou stavěné tak, aby výstup šel rovnou použít.
+
+### Dotaz na jeden zdroj
+
+Když potřebujete rozebrat jeden konkrétní dokument, řekněte to výslovně — jinak vám odpověď smíchá ze všech.
+
+```text
+Vezmi POUZE zdroj [název souboru] a udělej z něj strukturovaný
+rozbor:
+- o čem dokument je, v 5 větách
+- hlavní tvrzení nebo ustanovení, u každého odkaz na místo
+  v dokumentu
+- pasáže, které jsou formulované nejednoznačně nebo si
+  vzájemně odporují
+- pojmy, které dokument používá, ale nedefinuje
+- co v dokumentu podle jeho vlastní struktury chybí
+  (odkazuje na přílohu, která tu není, na paragraf,
+  který necituje, apod.)
+
+Vycházej výhradně z tohoto jednoho zdroje. Ostatní ignoruj.
+```
+
+Vrátí rozbor, který je použitelný jako podklad pro poradu i jako první čtení před podrobným studiem. Poslední bod bývá nejcennější u smluv a směrnic: dokument, který se odvolává na přílohu, kterou nemáte, je dokument, který jste nečetli celý.
+
+### Srovnání napříč zdroji
+
+Tohle notebook umí líp než cokoli jiného, protože má všechny dokumenty najednou a nemusí je držet v hlavě.
+
+```text
+Porovnej napříč všemi nahranými zdroji, jak se přistupuje
+k [téma nebo pojem].
+
+Udělej tabulku: zdroj | jak to popisuje | přesná formulace
+(krátký citát) | v čem se liší od ostatních.
+
+Pod tabulku napiš:
+- v čem se všechny zdroje shodují
+- kde se přímo rozcházejí a v čem přesně
+- který zdroj je v této otázce nejpodrobnější
+- kterou z těch verzí bych měl brát jako závaznou a proč
+  (pokud to ze zdrojů jde poznat — pokud ne, napiš to)
+```
+
+Pro rešerši dostanete přehled pozic, pro smlouvy přehled odlišných ustanovení mezi dodavateli, pro dokumentaci zjištění, že tři stránky wiki popisují stejný proces třemi různými způsoby. Poslední bod hlídejte: notebook nemá jak vědět, který dokument je nadřazený, a když si to má domyslet, občas si to domyslí.
+
+### Otázky, na které zdroje neodpovídají
+
+Nejužitečnější dotaz celého návodu. Obrací logiku: místo hledání odpovědí hledáte díry.
+
+```text
+Chystám se [na zkoušku z předmětu / podepsat tuhle smlouvu /
+převzít tuhle agendu / napsat rešerši k tématu] — kontext:
+[jedna až tři věty o situaci].
+
+Vypiš 15 otázek, které v téhle situaci budu potřebovat
+zodpovědět, a rozděl je do tří skupin:
+A) nahrané zdroje na ně odpovídají jednoznačně — u každé
+   uveď odpověď a zdroj
+B) zdroje na ně odpovídají jen částečně nebo nejednoznačně
+   — napiš, co ve zdrojích je a co chybí
+C) zdroje na ně neodpovídají vůbec — napiš, kde bych
+   odpověď měl hledat
+
+Nedomýšlej odpovědi ze skupiny C z obecných znalostí.
+```
+
+Skupina C je důvod, proč tenhle prompt pouštět jako jeden z prvních. U zkoušky vám řekne, co si musíte dohledat jinde. U smlouvy vám dá seznam otázek na protistranu — přesně v duchu tipu [smlouva před podpisem](/tipy/smlouva-pred-podpisem-ai). U převzaté agendy vám dá seznam otázek na předchůdce, dokud je ještě ve firmě.
+
+### Testové otázky a procvičování
+
+Pro studium je tohle hlavní výstup. Rozdíl proti obecné AI je zásadní: otázky vznikají z toho, co bude zkoušející chtít, ne z toho, co je o tématu obvyklé.
+
+```text
+Z kapitol [3 až 5] nahraných skript mi udělej 30 zkušebních
+otázek na procvičování.
+
+Rozděl je na tři úrovně:
+- 10 otázek na zapamatování (definice, výčty, hodnoty)
+- 10 otázek na porozumění (vysvětli mechanismus, proč to
+  funguje takhle)
+- 10 otázek na aplikaci (modelová situace, ve které se
+  látka použije)
+
+U každé otázky uveď: správnou odpověď podle skript, odkaz
+na stránku nebo kapitolu, a u aplikačních otázek i typickou
+chybu, které se u ní dá dopustit.
+
+Otázky formuluj tak, jak by je položil zkoušející, ne jako
+kvíz. Ptej se jen na to, co je v nahraných materiálech.
+```
+
+Vrátí sadu, se kterou se dá pracovat několik dní. Otázky si nejdřív zkuste zodpovědět a teprve pak se dívejte na odpovědi — pasivní čtení připravených odpovědí je nejméně účinná forma učení, jaká existuje. Vygenerované otázky se hodí přenést do aplikace na opakování s odstupem, viz [rozložené učení](/tipy/student-rozlozene-uceni).
+
+### Vysvětlení podle vašich materiálů
+
+Když látce nerozumíte, chcete vysvětlení — ale takové, které neodejde od toho, co se po vás bude chtít.
+
+```text
+Vysvětli mi [téma / pojem / mechanismus] tak, jak ho podávají
+moje nahrané materiály. Postupuj takhle:
+
+1. Nejdřív jednou větou, co to je
+2. Pak podrobně, ale běžnou češtinou — jako bys to vysvětloval
+   někomu, kdo předmět teprve začal
+3. Pak přesně tak, jak to formulují skripta, s citací
+4. Nakonec: v čem se moje zjednodušené vysvětlení liší od
+   formulace ve skriptech a co bych u zkoušky říct neměl
+
+Pokud materiály téma pokrývají jen okrajově, napiš to
+a neuváděj nic, co v nich není.
+```
+
+Bod 4 je pojistka proti tomu, čemu se říká „rozuměl jsem tomu, ale řekl jsem to špatně". Obecnější techniku vysvětlování popisuje tip [vysvětli mi to jako…](/tipy/ai-vysvetleni-latky) — tady je navíc ukotvení ve zdroji.
+
+### Časová osa a chronologie
+
+U zápisů z porad, projektové dokumentace nebo souboru e-mailů je nejcennější výstup pořadí událostí.
+
+```text
+Ze všech nahraných zdrojů sestav časovou osu k [projekt /
+téma / kauza].
+
+Pro každou položku: datum, co se stalo, kdo to rozhodl nebo
+udělal, ze kterého zdroje to máš.
+
+Pak zvlášť vypiš:
+- rozhodnutí, která byla později změněna nebo zrušena
+- úkoly, které někde vznikly a nikde se neuzavřely
+- období, ze kterých ve zdrojích není nic — mezery v záznamu
+
+Kde ve zdroji chybí datum, napiš „datum neuvedeno",
+neodhaduj ho.
+```
+
+Nedokončené úkoly a mezery v záznamu jsou dvě věci, které při ručním čtení nikdo nenajde, protože vyžadují držet v hlavě celý materiál naráz. Tenhle prompt se osvědčuje při přebírání projektu po někom jiném.
+
+### Poznámky a shrnutí, které přežijí
+
+Notebook umí uložit odpověď jako poznámku přímo v prostředí. Vyplatí se toho využít: dobrá odpověď, kterou nechytíte, se za dva dny hledá znovu.
+
+```text
+Z celého notebooku mi vytvoř studijní přehled k tématu
+[téma], strukturovaný takhle:
+
+## Co musím umět
+odrážky s klíčovými fakty, u každé odkaz na zdroj
+
+## Jak to spolu souvisí
+souvislosti mezi pojmy, ne jejich výčet
+
+## Nejčastější záměny
+dvojice pojmů, které se pletou, a jak je rozlišit
+
+## Kde je to ve zdrojích
+kapitoly a stránky, kam se vrátit pro detail
+
+Piš hutně, bez úvodů a shrnutí. Vejde se to na dvě stránky.
+```
+
+Výstup si uložte jako poznámku a nechte ji v notebooku — poznámky se dají použít jako další zdroj, takže se na ně můžete v dalších dotazech odvolávat. Tím si postupně stavíte destilovanou vrstvu nad původními dokumenty.
+
+## Fáze 4: audio přehledy — dokumenty, které si pustíte
+
+Funkce, kvůli které NotebookLM zná i lidé, kteří ho nikdy nepoužili na práci: z nahraných zdrojů vygeneruje rozhovor dvou hlasů, které o vašich dokumentech mluví jako moderátoři podcastu. Zní to jako hračka a částečně to hračka je — ale má několik použití, ve kterých nic lepšího není.
+
+### Kdy audio přehled skutečně pomůže
+
+**První průlet materiálem.** Než se pustíte do čtení tří set stran, poslechnete si dvacet minut o tom, co v nich je. Nezískáte detaily, získáte mapu — a s mapou se čte úplně jinak.
+
+**Mrtvý čas.** Cesta do práce, procházka, mytí nádobí. Materiál, který byste jinak nečetli vůbec, se dá poslechnout.
+
+**Druhý průchod před zkouškou.** Poslech látky, kterou už jednou znáte, funguje jako opakování — hlavně proto, že slyšíte souvislosti mezi tématy, ne jednotlivá fakta.
+
+**Předání kontextu v týmu.** Kolega, který nemá čas přečíst padesátistránkový podklad, si cestou na schůzku pustí přehled a přijde připravený aspoň rámcově.
+
+### Jak z audia dostat víc než bavičství
+
+Výchozí přehled je konverzační a občas až moc uvolněný. Prostředí umožňuje generování nasměrovat — zadáte, na co se má zaměřit a pro koho to je. Podobné zadání funguje i jako textový prompt, když chcete scénář místo zvuku:
+
+```text
+Vytvoř audio přehled zaměřený takhle:
+
+Publikum: [student před zkouškou / kolega, který přebírá
+projekt / vedení firmy]
+Cíl poslechu: [porozumět hlavním tématům před podrobným
+čtením / vědět, na co se mě můžou zeptat / rozhodnout se]
+
+Soustřeď se na:
+- [téma A], [téma B] — tyhle rozeber podrobně
+- souvislosti mezi tématy, ne výčty faktů
+- místa, kde se zdroje neshodují
+
+Vynech: [obecné úvody, historii oboru, motivační pasáže].
+Drž věcný tón, žádné vtipkování. Délka kolem [15] minut.
+```
+
+Vrátí přehled, který je použitelný jako příprava, ne jako zábava. Českou lokalizaci ověřte poslechem prvních dvou minut — kvalita českého výstupu se u těchhle funkcí mění, a když je výsledek špatný, je rychlejší nechat si vygenerovat textový scénář a přečíst si ho.
+
+### Limit, který u audia platí dvojnásob
+
+Audio nemá citace. Nemůžete kliknout a podívat se, odkud tvrzení pochází, a nemáte jak poznat, kde přehled zjednodušil nebo si domyslel pojítko mezi dvěma tématy. **Poslouchejte ho jako orientaci, nikdy jako zdroj.** Cokoli, co z přehledu použijete dál — do práce, do e-mailu, do rozhodnutí — si najděte v textu.
+
+Pokud chcete audioverzi vlastního hotového textu s plnou kontrolou nad tím, co v ní zazní, je to jiná úloha a řeší ji [audioverze obsahu](/tipy/elevenlabs-audioverze-obsahu).
+
+## Fáze 5: use-casy — pět situací a co v nich dělat jinak
+
+Mechanika je pořád stejná, ale to, co do notebooku nahrajete a na co se ptáte, se liší podstatně. Tady je pět nejčastějších situací.
+
+### Studium a příprava na zkoušku
+
+Nahrajte skripta, prezentace **toho konkrétního vyučujícího**, okruhy ke zkoušce a vlastní poznámky z přednášek. Nenahrávejte cizí vypracované otázky z internetu — obsahují chyby, které se pak dozvíte u zkoušky.
+
+Postup na tři dny: první večer inventura a mapa obsahu plus prompt na díry ve zdrojích, druhý den vysvětlení témat, kterým nerozumíte, a generování testových otázek, třetí den procvičování a audio přehled jako opakování. Klíčová věc: **odpovědi si říkejte nahlas**, než se podíváte na to, co vrátil notebook.
+
+### Rešerše a odborná literatura
+
+Nahrajte články, které jste sami našli a stáhli. Nikdy nenechte model „doplnit relevantní literaturu" — v notebooku to nejde a je to dobře, protože obecné chaty na tuhle žádost vymýšlejí názvy, které vypadají přesvědčivě a neexistují.
+
+Nejužitečnější je prompt na srovnání napříč zdroji a mapa definic pojmu. Kompletní workflow pro závěrečnou práci — od výzkumné otázky po obhajobu — má vlastní návod: [bakalářka s AI](/tipy/bakalarka-s-ai-poctivy-workflow).
+
+### Firemní dokumentace
+
+Nahrajte interní směrnice, procesní popisy, dokumentaci produktu a FAQ. Největší přínos není v hledání — v tom je i běžné fulltextové vyhledávání ucházející — ale v otázkách, které fulltext neumí: „platí tenhle postup i pro klienty ze zahraničí?", „kdo schvaluje výjimku a podle čeho?".
+
+Zásadní podmínka: **jedna verze každého dokumentu.** Ve firemních wiki bývá typicky tři až pět verzí téhož postupu z různých let. Než začnete nahrávat, projděte to a nahrajte jen platné znění; jinak si vyrobíte nástroj, který sebejistě odpovídá podle nejstaršího dokumentu.
+
+```text
+Projdi nahranou dokumentaci a najdi v ní nesrovnalosti:
+
+1. Místa, kde dva dokumenty popisují stejnou věc odlišně
+   — u každého uveď obě formulace a zdroje
+2. Postupy, které se odkazují na dokument, formulář nebo
+   systém, který v nahraných zdrojích není
+3. Kroky, u kterých není uvedeno, kdo je dělá nebo schvaluje
+4. Pasáže, ze kterých je poznat, že jsou zastaralé (odkazují
+   na nástroje, role nebo lhůty, které jinde neplatí)
+
+Ke každému nálezu napiš, čeho se týká a kde v dokumentaci to je.
+Neopravuj to, jen vypiš.
+```
+
+Výstup je audit dokumentace, který by ručně zabral dny. Pouštějte ho jednou za čas — třeba dvakrát ročně — a nálezy rozdělte mezi lidi, kteří dokumenty vlastní.
+
+### Právní podklady a smlouvy
+
+Nahrajte smlouvy, obchodní podmínky a přílohy, na které se odkazují. Anonymizujte jména a identifikátory. A hlavně: **výstup není právní názor.** Notebook vám ukáže, co ve smlouvě stojí, ne jestli je to v pořádku a jestli to obstojí.
+
+```text
+Nahrané dokumenty jsou [dodavatelské smlouvy / obchodní
+podmínky]. Udělej z nich srovnávací přehled.
+
+Tabulka: dokument | doba trvání | výpovědní lhůta | způsob
+automatického prodloužení | sankce a jejich výše | kdo může
+jednostranně měnit podmínky | rozhodné právo a soud.
+
+Kde údaj ve smlouvě chybí, napiš „neupraveno" — nedoplňuj
+ho z obecné znalosti práva.
+
+Pod tabulku vypiš:
+- smlouvy, které se od ostatních nejvíc liší v náš neprospěch
+- ustanovení, kterým nerozumím ani po přečtení a chtějí
+  právníka
+- termíny, které z těch smluv plynou pro příštích 12 měsíců
+```
+
+Poslední bod je ten praktický: automatické prodloužení, které si nikdo nepohlídal, je nejdražší chyba v téhle kategorii. Termíny si hned přeneste do kalendáře s upozorněním měsíc předem. A u čehokoli, co má finanční dopad, platí: **AI navrhuje, člověk schvaluje** — podpis, výpověď i platba jsou vždycky rozhodnutí člověka.
+
+### Onboarding a předání agendy
+
+Nahrajte interní postupy, šablony, FAQ a zápisy z porad k dané agendě. Nováček se pak ptá notebooku místo toho, aby patnáctkrát denně vyrušoval kolegy — a hlavně se ptá i na věci, na které by se styděl zeptat počtvrté.
+
+```text
+Jsem nový v roli [role] a dostal jsem tyhle materiály.
+Připrav mi orientační plán na první dva týdny:
+
+1. Co si mám přečíst v jakém pořadí a proč (odkaz na
+   konkrétní zdroje)
+2. 10 věcí, které musím vědět hned první den
+3. Procesy, kterých se moje role účastní — u každého moje
+   role v něm a na koho navazuje
+4. Zkratky, interní pojmy a názvy systémů, které se
+   v materiálech objevují bez vysvětlení
+5. Otázky, na které materiály neodpovídají a musím je
+   položit člověku — seřazené podle naléhavosti
+
+Vycházej jen z nahraných materiálů.
+```
+
+Bod 4 je věc, kterou nikdo ve firmě nevidí, protože všichni ty zkratky znají. Bod 5 je seznam, se kterým jde nováček za vedoucím — jednou, se vším naráz, místo patnácti vyrušení. Doplňkově se hodí Projekt s trvalým kontextem podle tipu [onboarding nováčka](/tipy/onboarding-novacka-ai-projekt), který na rozdíl od notebooku umí i psát a navrhovat.
+
+## Fáze 6: limity a kombinace s Claude nebo ChatGPT
+
+Notebook je jednoúčelový nástroj a jednoúčelovost je jeho síla. Ve chvíli, kdy po něm chcete něco jiného, potřebujete druhý nástroj.
+
+### Co notebook neumí
+
+- **Neví nic mimo zdroje.** Nedoplní kontext, neporovná vaši smlouvu s běžnou tržní praxí, neřekne, co je v oboru obvyklé.
+- **Nepočítá.** Jako každý jazykový model negeneruje výpočet, ale text, který jako výpočet vypadá. Čísla z tabulek nechte spočítat skriptem, ne dotazem.
+- **Nepracuje se soubory na disku a nic nespouští.** Nepřejmenuje, nepřevede, nevygeneruje graf.
+- **Nemá konektory do vašich aplikací.** Nesáhne do pošty, kalendáře ani do Notionu.
+- **Není autor.** Umí shrnout a strukturovat, ale psaní textu vaším hlasem, návrh e-mailu nebo prezentace je práce pro chat.
+- **Citace nejsou neomylné.** Ukazují pasáž, ze které tvrzení vzniklo, ale formulace odpovědi může být silnější než originál. U všeho důležitého si originál otevřete.
+
+### Dělba práce, která funguje
+
+Nejlepší výsledky dává postup, ve kterém notebook dělá ukotvení a chat dělá výrobu:
+
+1. **Notebook**: nahrajete zdroje, ptáte se, dostanete odpovědi s citacemi, vytáhnete si ověřený materiál.
+2. **Chat (Claude nebo ChatGPT)**: ověřený materiál vložíte a necháte z něj vyrobit výstup — text, prezentaci, e-mail, tabulku, skript.
+
+Klíčové je to slovo „ověřený". Do chatu putuje to, co jste si v notebooku proklikli na citace, ne surová odpověď.
+
+```text
+Přikládám ověřený výtah z odborných podkladů. Všechna tvrzení
+v něm jsou podložená citacemi ze zdrojů, které mám k dispozici.
+
+[vlož výtah včetně citací]
+
+Vyrob z toho [podklad na poradu / kapitolu / e-mail klientovi
+/ prezentaci na 10 slidů] pro publikum [kdo] s cílem [co má
+publikum udělat nebo pochopit].
+
+Pravidla:
+- používej jen tvrzení z přiloženého výtahu
+- nedoplňuj nic z vlastních znalostí, ani obecně známé věci
+- citace nech u tvrzení, ke kterým patří
+- kde ti podklad chybí pro plynulý přechod, napiš na
+  samostatný řádek TODO: [co doplnit] místo výplně
+```
+
+Pravidlo o TODO je to podstatné. Bez něj model mezeru vyplní větou, která zní dobře a nemá oporu — a vy ji v hotovém textu nepoznáte.
+
+### Kdy který nástroj
+
+- **NotebookLM** — když je otázka „co o tom říkají moje dokumenty" a záleží na dohledatelnosti.
+- **Claude** — když potřebujete pracovat se soubory ve složce (Claude Cowork), psát a spouštět skripty (Claude Code), napojit se na poštu, kalendář nebo Notion přes konektory, nechat si postavit malou aplikaci jako artefakt, nebo držet trvalý kontext v Projektu. Zvládá i čtení skenů a rukopisu a hloubkovou rešerši s citacemi z webu.
+- **ChatGPT** — když už v něm pracujete, potřebujete běžnou práci s textem a nechcete přepínat; nahrané soubory zvládne taky, ale dohledatelnost odpovědí není tak přehledná jako v notebooku.
+
+Praktická poznámka k oponentuře: když si necháte materiál posoudit, použijte **jiný nástroj, než ve kterém jste ho vyráběli**. Model, který text spoluvytvářel, ho hodnotí shovívavě.
+
+### Ověřování zůstává na vás
+
+Ukotvení ve zdrojích snižuje riziko vymyšlených tvrzení, neodstraňuje ho. Notebook může špatně přečíst sken, sloučit dvě pasáže do jedné věty, nebo formulovat opatrné tvrzení zdroje jako jistotu. Základ zůstává stejný jako u jakékoli AI: **u všeho, co má následek — u zkoušky, v podpisu, v e-mailu klientovi — otevřete citaci a přečtěte originál.** Postup je v tipu [ověřování faktů s AI](/tipy/ai-overovani-faktu).
+
+## Nejčastější chyby
+
+- **Nahrát všechno „pro jistotu".** Sto zdrojů, ze kterých je deset relevantních, zhorší odpovědi na těch deset. Notebook je tím lepší, čím přísněji vybíráte, co do něj patří.
+- **Nechat v notebooku staré verze dokumentů.** Dvě verze téže směrnice udělají z nástroje nespolehlivého rádce, který sebejistě odpovídá podle té špatné. Před nahráním pročistit.
+- **Věřit citaci, aniž byste na ni klikli.** Citace je pozvánka k ověření, ne důkaz. Formulace odpovědi bývá silnější než originální text — hlavně u opatrných tvrzení odborných zdrojů.
+- **Nahrát neanonymizované osobní údaje.** Jména, rodná čísla, adresy, zdravotní nebo personální data patří jen do placeného účtu se smluvní ochranou dat, a i tam bez identifikujících kombinací.
+- **Používat audio přehled jako zdroj.** Nemá citace a zjednodušuje. Je to orientace před čtením, ne náhrada čtení.
+- **Chtít po notebooku práci pro chat.** Psaní, výpočty, práce se soubory a napojení na aplikace nejsou jeho úloha — a když ho k tomu donutíte, dostanete horší výsledek než z běžného chatu.
 
 ## Nejlepší nástroje
 
-- **NotebookLM (Google)** — zdarma, nejlepší volba pro práci s vlastními texty a citace zdrojů přímo v odpovědi.
-- **ChatGPT s nahranými soubory** — dobrá alternativa, pokud už v ChatGPT pracujete a nechcete přepínat mezi nástroji, byť citace zdrojů nejsou tak přehledné.
-- **Google Docs / Poznámky** — pro samotnou přípravu zdrojů před nahráním, ať máte skripta v přehledné a čisté podobě.
-- **Anki nebo jiná aplikace na opakování** — na dotažení vygenerovaných otázek do dlouhodobé paměti pomocí opakování s odstupem.
+- **[NotebookLM](https://notebooklm.google.com)** — jádro celého postupu: odpovědi výhradně z nahraných zdrojů, citace do konkrétních pasáží, audio přehledy a poznámky, které se dají použít jako další zdroj.
+- **Claude** — druhá polovina dvojice: výroba textů a prezentací z ověřeného výtahu, práce nad složkou souborů v Cowork, skripty a výpočty v Claude Code, konektory do pošty a kalendáře, trvalý kontext v Projektech.
+- **ChatGPT s nahranými soubory** — alternativa, pokud v něm už pracujete a nechcete přepínat; hodí se i jako druhý názor na materiál, který vznikl jinde.
+- **Aplikace na opakování s odstupem** — Anki a podobné: místo, kam patří vygenerované testové otázky, aby se z nich stala dlouhodobá paměť. Viz [rozložené učení](/tipy/student-rozlozene-uceni).
+- **Nástroj na čištění PDF a skenů** — než nahrajete naskenovaná skripta, ověřte, že v souboru je textová vrstva; z obrázku stránky se čte podstatně hůř a nejvíc na tom trpí čísla.
 
 ## Co vám to přinese
 
-- **Čas:** hodinu i více na zkoušku díky tomu, že se neprohrabáváte stovkami stran ručně a otázky vám AI vygeneruje za pár vteřin.
-- **Spolehlivost:** odpovědi vycházejí jen z vašich materiálů, ne z obecného internetu, takže sedí na to, co po vás skutečně chce vyučující nebo firma.
-- **Ověřitelnost:** díky citacím vidíte, odkud odpověď pochází, a nemusíte věřit AI naslepo.
-- **Klid:** místo pocitu, že jste nic nestihli, máte přehledný a ověřený souhrn celé látky.
+- **Čas:** místo hledání v třech stech stranách se ptáte a odpověď máte za vteřiny. U přípravy na zkoušku typicky několik hodin za předmět, u orientace ve firemní dokumentaci desítky minut týdně, u převzetí cizí agendy klidně dva dny první práce.
+- **Peníze:** srovnávací přehled smluv odhalí automatická prodloužení a sankce, které by jinak proběhly bez povšimnutí — jedno zachycené prodloužení zaplatí veškerý čas, který do notebooku vložíte.
+- **Klid:** odpovědi pocházejí z toho, co po vás skutečně někdo chce — ze skript vašeho vyučujícího, z vaší smlouvy, z vaší směrnice. Mizí pochybnost, jestli se učíte to správné.
+- **Kvalita:** citace u každé odpovědi znamená, že ověřování trvá deset vteřin místo deseti minut — a proto ho budete opravdu dělat. To je rozdíl mezi „mělo by to tak být" a „vím, kde to stojí".
 
 ## Pro tip
 
-NotebookLM umí ze zdrojů vygenerovat i shrnutí, myšlenkovou mapu nebo přehled klíčových témat celého notebooku — hodí se jako první rychlý průlet materiálem, než se pustíte do detailních otázek.
+Nejlepší dotaz do notebooku není otázka na obsah, ale na hranice obsahu. Zeptejte se **„na co ve zdrojích odpověď není"** — u zkoušky vám to řekne, co si musíte dohledat jinde, u smlouvy to vygeneruje seznam otázek na protistranu, u dokumentace to odhalí procesy, které nikdo nikdy nepopsal. Většina nástrojů umí hledat to, co tam je; hodnota tohohle je v tom, že umí spolehlivě ukázat, co tam není.
+
+A závěrečné pravidlo: **notebook mění, odkud odpověď pochází, ne kdo za ni odpovídá.** Citace zkracuje ověření na deset vteřin — ale těch deset vteřin musíte udělat vy.
