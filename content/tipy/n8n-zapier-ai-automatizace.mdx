@@ -19,13 +19,13 @@ A protože se bavíme o automatu, který sahá na vaši poštu, faktury a klient
 
 Freelancerka Klára dostává poptávky z webového formuláře, průměrně deset týdně. U každé udělá tentýž rituál: přečte, přepíše jméno, firmu, typ zakázky a rozpočet do tabulky, založí si úkol „ozvat se“, podívá se, jestli o firmě něco ví, a napíše úvodní odpověď. Zabere jí to zhruba dvanáct minut na poptávku, tedy dvě hodiny týdně — a ani jednou při tom nemusela nic rozhodnout, jen přenášet. Horší než čas je rozptýlení: formulář chodí v náhodných chvílích a Klára ho otevírá hned, takže se jí den tříští.
 
-Po postavení jednoho scénáře je to jinak. Nová poptávka spustí automat: model z textu vytáhne jméno, firmu, typ zakázky, rozpočtový rámec a termín, sám si k firmě dohledá tři věty kontextu, přiřadí poptávce známku od A do C podle toho, jak sedí na Klářino zaměření, zapíše řádek do tabulky, založí úkol se štítkem „ke schválení“ a připraví koncept odpovědi ve schránce. Klára otevře poštu dvakrát denně, projde koncepty, dva upraví, jeden smaže, jeden nechá být, protože poptávka je mimo obor.
+Po postavení jednoho scénáře je to jinak. Nová poptávka spustí automat: model z textu vytáhne jméno, firmu, typ zakázky, rozpočtový rámec a termín, přiřadí poptávce známku od A do C podle toho, jak sedí na Klářino zaměření, zapíše řádek do tabulky, založí úkol se štítkem „ke schválení“ a připraví koncept odpovědi ve schránce. Klára otevře poštu dvakrát denně, projde koncepty, dva upraví, jeden smaže.
 
-Po měsíci: z dvou hodin týdně zbylo dvacet minut, tři poptávky odešly rychleji než dřív (což jednu z nich pravděpodobně rozhodlo), a hlavně přestal formulář rozbíjet den. Odesílá pořád Klára — jen už netráví čas přepisováním.
+Po měsíci: z dvou hodin týdně zbylo dvacet minut a hlavně přestal formulář rozbíjet den. Odesílá pořád Klára — jen už netráví čas přepisováním.
 
 ## Kdy stačí rutina v Claude a kdy potřebujete platformu
 
-Tohle je nejdražší chyba začátečníků: postavit scénář na sedm kroků tam, kde stačila jedna věta v rutině. A stejně tak druhá strana — snažit se do rutiny nacpat něco, co potřebuje reagovat na událost v cizím systému.
+Nejdražší chyba začátečníků je postavit scénář na sedm kroků tam, kde stačila jedna věta v rutině. A stejně tak druhá strana — cpát do rutiny něco, co potřebuje reagovat na událost v cizím systému.
 
 ### Rutina v Claude stačí, když…
 
@@ -88,9 +88,9 @@ Ať zvolíte cokoli, hned za spouštěč patří **filtr**. Scénář, který se
 
 ### AI krok: jeden úkol, jeden výstup
 
-Krok s modelem má tři části: co mu pošlete (data z předchozích kroků), co má udělat (prompt) a v jakém tvaru to má vrátit (formát). Nejčastější začátečnická chyba je poslat mu všechno a chtít po něm všechno naráz. Dva menší AI kroky za sebou jsou skoro vždycky spolehlivější než jeden velký — hlavně proto, že když se něco pokazí, poznáte kde.
+Krok s modelem má tři části: co mu pošlete, co má udělat a v jakém tvaru to má vrátit. Nejčastější začátečnická chyba je poslat mu všechno a chtít po něm všechno naráz. Dva menší AI kroky za sebou jsou spolehlivější než jeden velký — hlavně proto, že když se něco pokazí, poznáte kde.
 
-Zásadní rozdíl proti chatu: **výstup nečte člověk, výstup čte další krok.** Proto musí být strojově zpracovatelný. Nechte si vracet JSON s pevně danými klíči a v platformě ho rozparsujte do polí. Tvar, který se osvědčil:
+Zásadní rozdíl proti chatu: **výstup nečte člověk, výstup čte další krok.** Nechte si proto vracet JSON s pevně danými klíči a v platformě ho rozparsujte do polí:
 
 ```json
 {
@@ -105,13 +105,13 @@ Zásadní rozdíl proti chatu: **výstup nečte člověk, výstup čte další k
 }
 ```
 
-Všimněte si dvou detailů, které dělají rozdíl mezi hračkou a provozem. Klíč `chybi` je seznam toho, co v podkladu nebylo — díky němu poznáte neúplnou poptávku, aniž byste ji museli číst. A hodnota `neuvedeno` je povinná náhrada za vymýšlení: bez ní model chybějící rozpočet doplní odhadem, který vypadá jako fakt.
+Dva detaily dělají rozdíl mezi hračkou a provozem. Klíč `chybi` je seznam toho, co v podkladu nebylo — poznáte podle něj neúplnou poptávku, aniž byste ji četli. A hodnota `neuvedeno` je povinná náhrada za vymýšlení: bez ní model chybějící rozpočet doplní odhadem, který vypadá jako fakt.
 
 ### Akce: výstup vždycky jako návrh
 
-Poslední krok posílá výsledek dál. Tady se rozhoduje, jestli je scénář pomocník, nebo riziko. Pravidla jsou tři a nemají výjimku: **koncept místo odeslaného mailu**, **úkol se štítkem „ke schválení“ místo úkolu v ostrém projektu**, **nový řádek místo přepsání existujícího**. Automat nesmí mít právo odesílat, platit ani mazat — a když mu právo zápisu dáváte, dávejte ho do oddělené tabulky nebo do samostatné složky, ne doprostřed vaší ostré agendy.
+Poslední krok posílá výsledek dál a rozhoduje o tom, jestli je scénář pomocník, nebo riziko. Tři pravidla bez výjimky: **koncept místo odeslaného mailu**, **úkol se štítkem „ke schválení“ místo úkolu v ostrém projektu**, **nový řádek místo přepsání existujícího**. Automat nesmí mít právo odesílat, platit ani mazat — a právo zápisu dávejte do oddělené tabulky, ne doprostřed ostré agendy.
 
-Než začnete klikat, nechte si scénář rozkreslit včetně mapování polí. Ušetří to většinu ladění:
+Než začnete klikat, nechte si scénář rozkreslit včetně mapování polí:
 
 ```text
 Chci postavit automatizační scénář a potřebuju plán, než začnu klikat.
@@ -173,7 +173,7 @@ Pravidla:
 - Text neopravuj ani nestylizuj, přebíráš fakta.
 ```
 
-Vrátí čistý JSON, který v platformě rozparsujete do polí. Dvě věci hlídejte při testování: jestli model opravdu vrací jen JSON (občas přidá vysvětlující větu před něj, což parser rozbije — pomůže věta „bez komentáře a bez uvozovacího textu“ a v platformě krok, který vezme jen text mezi první a poslední složenou závorkou), a jestli respektuje `neuvedeno` u rozpočtu, protože právě tam je pokušení domýšlet největší.
+Vrátí čistý JSON, který v platformě rozparsujete do polí. Hlídejte dvě věci: jestli model vrací opravdu jen JSON (občas přidá vysvětlující větu, což parser rozbije — pomůže krok, který vezme jen text mezi první a poslední složenou závorkou) a jestli respektuje `neuvedeno` u rozpočtu, protože právě tam je pokušení domýšlet největší.
 
 ### AI krok B: obohacení a známka
 
@@ -202,11 +202,11 @@ Když jsou data neúplná, hodnoť podle toho, co je — nedomýšlej si,
 jak asi zakázka vypadá.
 ```
 
-Vrátí hodnocení, které rozhoduje o pořadí ve frontě. Známky nepoužívejte na automatické odmítání — céčko znamená „podívej se na to jako na poslední“, ne „zahoď“. Model nezná kontext, který máte vy (že ta firma je doporučení od nejlepšího klienta), a právě proto je poslední slovo vaše.
+Vrátí hodnocení, které rozhoduje o pořadí ve frontě. Známky nepoužívejte na automatické odmítání — céčko znamená „podívej se na to jako na poslední“, ne „zahoď“. Model nezná kontext, který máte vy (že ta firma je doporučení od nejlepšího klienta).
 
 ### Akce: koncept odpovědi
 
-Poslední krok skládá odpověď z toho, co předchozí kroky zjistily. Prompt záměrně pracuje s neúplnými daty, protože právě to je běžný stav:
+Poslední krok skládá odpověď z toho, co zjistily kroky před ním — a záměrně počítá s tím, že data budou neúplná:
 
 ```text
 Napiš koncept první odpovědi na poptávku. Píšu jako [jméno, obor],
@@ -231,7 +231,7 @@ Pravidla:
 Vrať jen text mailu, žádné vysvětlování.
 ```
 
-Vrátí koncept, který v drtivé většině případů odešlete po jedné úpravě. Nejdůležitější řádek je zákaz uvádět cenu a termín: to je přesně ta informace, kterou model rád doplní přijatelně znějícím odhadem a která vás pak drží v pasti u vyjednávání.
+Vrátí koncept, který většinou odešlete po jedné úpravě. Nejdůležitější řádek je zákaz uvádět cenu a termín: to je informace, kterou model rád doplní přijatelně znějícím odhadem — a která vás pak drží v pasti při vyjednávání.
 
 ## Scénář 2: formulář → kategorizace → notifikace
 
@@ -378,11 +378,9 @@ Vrátí draft, který přepíšete a doplníte o vlastní komentář — a hlavn
 
 ## Prompt v AI kroku: proč se píše jinak než v chatu
 
-Prompt v automatu má tři vlastnosti, které v chatu neřešíte. **Neuvidíte ho selhat** — když se spletete v chatu, hned to vidíte a opravíte; v automatu se špatný výstup tiše zapíše do tabulky. **Nemůžete se doptat** — model nemá druhé kolo, musí to trefit napoprvé. A **výstup čte stroj**, takže na formátu záleží víc než na eleganci.
+Prompt v automatu má tři vlastnosti, které v chatu neřešíte. **Neuvidíte ho selhat** — špatný výstup se tiše zapíše do tabulky. **Nemůžete se doptat**, model musí trefit napoprvé. A **výstup čte stroj**, takže na formátu záleží víc než na eleganci.
 
-Z toho plyne pět pravidel. Za prvé: **jeden krok, jeden úkol.** Extrakce zvlášť, hodnocení zvlášť, formulace zvlášť. Za druhé: **pevný výstupní formát**, ideálně JSON s vyjmenovanými klíči a s poznámkou „vrať výhradně JSON“. Za třetí: **výslovný zákaz domýšlení** — věta „když údaj v textu není, napiš neuvedeno“ ušetří víc problémů než jakákoli jiná. Za čtvrté: **uzavřené číselníky** místo volných kategorií; když necháte model kategorie vymýšlet, dostanete za měsíc čtyřicet variant téhož. A za páté: **ukázka vstupu i výstupu** přímo v promptu, pokud je úloha jen trochu netriviální — jedna dobrá ukázka vydá za odstavec instrukcí, viz [ukázky formátu](/tipy/ai-ukazky-formatu).
-
-Prompty si ukládejte mimo platformu, ve svojí [knihovně promptů](/tipy/ai-knihovna-promptu), a verzujte je datem. Až budete za tři měsíce ladit, budete chtít vědět, co se změnilo.
+Z toho plyne pět pravidel. **Jeden krok, jeden úkol** — extrakce zvlášť, hodnocení zvlášť, formulace zvlášť. **Pevný výstupní formát**, ideálně JSON s vyjmenovanými klíči. **Výslovný zákaz domýšlení**: věta „když údaj v textu není, napiš neuvedeno“ ušetří víc problémů než jakákoli jiná. **Uzavřené číselníky** místo volných kategorií — když necháte model kategorie vymýšlet, dostanete za měsíc čtyřicet variant téhož. A **ukázka vstupu i výstupu** přímo v promptu, viz [ukázky formátu](/tipy/ai-ukazky-formatu). Prompty si ukládejte mimo platformu, ve svojí [knihovně promptů](/tipy/ai-knihovna-promptu), a verzujte je datem.
 
 Ladit prompt naslepo nemá smysl. Postavte si testovací sadu z reálných dat:
 
@@ -412,23 +410,23 @@ Vrátí seznam děr a hraniční případy, na které byste sami nepřišli. Bod
 
 ## Testování a ošetření chyb
 
-Scénář, který se tiše rozbil, je horší než žádný — spoléháte na něj a nevíte, že neběží. Tahle sekce je nudná a je to ta, která rozhoduje, jestli automatizaci za dva měsíce vypnete.
+Scénář, který se tiše rozbil, je horší než žádný — spoléháte na něj a nevíte, že neběží. Tahle sekce je nudná a rozhoduje o tom, jestli automatizaci za dva měsíce vypnete.
 
 ### Nejdřív běh naprázdno
 
-Pusťte scénář ručně nad dvaceti starými případy a porovnejte, co vypadlo, s tím, co jste tehdy udělali vy. Teprve pak ho zapněte natrvalo. Během prvního týdne ať všechny akce míří do zkušebních cílů: testovací tabulka, testovací kanál, koncepty v poště. Ostrý CRM přijde na řadu, až budete výstupu věřit.
+Pusťte scénář ručně nad dvaceti starými případy a porovnejte, co vypadlo, s tím, co jste tehdy udělali vy. Během prvního týdne ať všechny akce míří do zkušebních cílů: testovací tabulka, testovací kanál, koncepty v poště. Ostrý CRM přijde na řadu, až budete výstupu věřit.
 
 ### Čtyři druhy selhání a co s nimi
 
-**Cizí služba neodpoví.** Nejběžnější a nejnevinnější. Řešení je automatické opakování s odstupem — dva až tři pokusy, mezi nimi minuty, ne vteřiny. Většina platforem to umí zapnout u kroku.
+**Cizí služba neodpoví.** Nejběžnější a nejnevinnější. Řešení je automatické opakování s odstupem — dva až tři pokusy, mezi nimi minuty, ne vteřiny.
 
-**Model vrátí něco, co se nedá rozparsovat.** Občasný jev, který má tři vrstvy obrany: instrukce „vrať výhradně JSON“, krok, který z odpovědi vytáhne jen část mezi složenými závorkami, a validace — když parsování selže, scénář nezapíše nic a pošle vám položku k ručnímu zpracování.
+**Model vrátí něco, co se nedá rozparsovat.** Tři vrstvy obrany: instrukce „vrať výhradně JSON“, krok, který z odpovědi vytáhne jen část mezi složenými závorkami, a validace — když parsování selže, scénář nezapíše nic a pošle vám položku k ručnímu zpracování.
 
-**Model vrátí platný, ale nesmyslný obsah.** Nejzákeřnější případ, protože scénář proběhne jako úspěšný. Obrana je kontrola rozumnosti přímo ve scénáři: rozpočet mimo očekávaný rozsah, datum v minulosti, kategorie mimo číselník, prázdné povinné pole — cokoli z toho ať vede na ruční frontu, ne do CRM.
+**Model vrátí platný, ale nesmyslný obsah.** Nejzákeřnější případ, protože scénář proběhne jako úspěšný. Obrana je kontrola rozumnosti před zápisem: rozpočet mimo očekávaný rozsah, datum v minulosti, kategorie mimo číselník, prázdné povinné pole — cokoli z toho ať vede na ruční frontu, ne do CRM.
 
-**Scénář se zacyklí nebo zpracuje totéž dvakrát.** Vzniká, když akce jednoho scénáře spustí trigger druhého, nebo když se webhook doručí opakovaně. Obrana je značka o zpracování: scénář si u záznamu poznamená, že ho už viděl, a na začátku zkontroluje, jestli tam ta značka není.
+**Scénář zpracuje totéž dvakrát.** Vzniká, když akce jednoho scénáře spustí trigger druhého nebo když se webhook doručí opakovaně. Obrana je značka o zpracování: scénář si u záznamu poznamená, že ho už viděl, a na začátku ji zkontroluje.
 
-Ke každému scénáři patří **cesta pro neúspěch**: samostatná tabulka nebo složka, kam padá všechno, co se nepovedlo, a jedno souhrnné upozornění denně, ne u každé chyby zvlášť. A jednou týdně se do té tabulky podívejte — pokud je prázdná měsíc, buď je scénář výborný, nebo hlášení chyb nefunguje.
+Ke každému scénáři patří **cesta pro neúspěch**: samostatná tabulka, kam padá všechno, co se nepovedlo, a jedno souhrnné upozornění denně, ne u každé chyby zvlášť. Jednou týdně se do ní podívejte — když je prázdná měsíc, buď je scénář výborný, nebo hlášení chyb nefunguje.
 
 ```text
 Přikládám popis svého automatizačního scénáře. Chci od tebe návrh
@@ -456,25 +454,20 @@ Vrátí plán, který naklikáte za hodinu a který vám zachrání den, kdy se 
 
 ### Oprávnění a data
 
-Před zapnutím si projděte, co scénáři dáváte. Automat s přístupem do celé pošty a právem mazat je nesmyslně velká zbraň na úkol „přepiš poptávku do tabulky“. Dejte mu přístup do jedné složky a pokud možno jen na čtení; zápis omezte na jeden cíl.
+Automat s přístupem do celé pošty a s právem mazat je nesmyslně velká zbraň na úkol „přepiš poptávku do tabulky“. Dejte mu přístup do jedné složky a pokud možno jen na čtení, zápis omezte na jeden cíl.
 
-Citlivá data (osobní údaje, zdravotní informace, mzdy, obchodní tajemství) posílejte jen do nástrojů schválených vaší firmou a jen na účty se smluvní ochranou dat. Když si nejste jistí, máte dvě čisté cesty: provozovat n8n u sebe, nebo citlivá pole ze scénáře úplně vynechat a nechat v něm jen identifikátor, podle kterého si člověk záznam otevře v systému.
+Citlivá data (osobní údaje, zdravotní informace, mzdy, obchodní tajemství) posílejte jen do nástrojů schválených vaší firmou a jen na účty se smluvní ochranou dat. Když si nejste jistí, máte dvě čisté cesty: provozovat n8n u sebe, nebo citlivá pole ze scénáře vynechat a nechat v něm jen identifikátor, podle kterého si člověk záznam otevře v systému.
 
 ## Kdy neautomatizovat
 
 Ne všechno, co jde zautomatizovat, se má zautomatizovat. Šest situací, kde je správná odpověď „nechte to být“:
 
-**Když to děláte míň než třikrát týdně.** Stavba a údržba scénáře stojí čas navždy, úspora je úměrná četnosti. U vzácných úkolů se to nikdy nevrátí.
-
-**Když je proces nestabilní.** Automatizovat postup, který se každý měsíc mění, znamená přestavovat scénář každý měsíc. Nejdřív proces ustálit, sepsat ho jako [checklist](/tipy/checklisty-opakovanych-procesu), a teprve ustálenou verzi automatizovat.
-
-**Když je cena chyby vysoká a chyba není vidět.** Cokoli, co sahá na peníze, na právní lhůty nebo na zdravotní údaje. Když už, tak jen jako návrh ke schválení s povinnou lidskou kontrolou.
-
-**Když jde o vztah, ne o přenos dat.** Odpověď na stížnost, poděkování za spolupráci, kondolence, vyjednávání ceny. Automatizovaná zdvořilost je horší než žádná — příjemce ji pozná.
-
-**Když je výjimek víc než pravidel.** Když u tří z deseti případů musíte zasáhnout, scénář vám nešetří čas, jen přidal krok kontroly.
-
-**Když by scénář musel dostat práva, která byste nedali ani stážistovi.** Právo odesílat vaším jménem, mazat záznamy, potvrzovat objednávky. Když se rozsah oprávnění nedá zúžit, nestavte to.
+- **Děláte to míň než třikrát týdně.** Stavba a údržba stojí čas navždy, úspora je úměrná četnosti. U vzácných úkolů se to nevrátí.
+- **Proces je nestabilní.** Postup, který se každý měsíc mění, budete každý měsíc přestavovat. Nejdřív ho ustalte a sepište jako [checklist](/tipy/checklisty-opakovanych-procesu), teprve pak automatizujte.
+- **Cena chyby je vysoká a chyba není vidět.** Cokoli, co sahá na peníze, na právní lhůty nebo na zdravotní údaje. Když už, tak výhradně jako návrh ke schválení.
+- **Jde o vztah, ne o přenos dat.** Odpověď na stížnost, poděkování, kondolence, vyjednávání ceny. Automatizovaná zdvořilost je horší než žádná — příjemce ji pozná.
+- **Výjimek je víc než pravidel.** Když u tří z deseti případů musíte zasáhnout, scénář nešetří čas, jen přidal krok kontroly.
+- **Scénář by musel dostat práva, která byste nedali ani stážistovi.** Odesílat vaším jménem, mazat záznamy, potvrzovat objednávky. Když se rozsah nedá zúžit, nestavte to.
 
 ## Nejčastější chyby
 
