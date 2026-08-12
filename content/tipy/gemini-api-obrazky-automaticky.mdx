@@ -1,0 +1,47 @@
+---
+title: "Obrázky pro projekt automaticky: jeden styl, jeden skript"
+excerpt: "Místo abyste u každé ilustrace znovu klikali v generátoru a doufali, že bude ladit s ostatními, popíšete styl jednou — a skript pak vygeneruje všechny obrázky sám."
+category: "ai"
+platform: "vsude"
+audience: ["freelancer", "vyvojar"]
+keys: []
+saves: "~30 min na ilustraci"
+date: "2026-08-12"
+---
+
+Generátory obrázků umí většina lidí používat jedním způsobem: otevřít web, napsat prompt, počkat, stáhnout, zmenšit, nahrát. U jednoho obrázku je to zábava. U dvacátého už je to práce — a hlavně je vidět, že každý vznikl v jiné náladě a v jiném stylu. Jenže tatáž služba má skoro vždy i API. A tam se otevírá jiný svět: **stylový prompt napíšete jednou a od té chvíle je obrázek jen jeden příkaz.** Ne půl hodiny v editoru.
+
+## Vzorová situace
+
+Grafička na volné noze Klára dělá blog pro klienta z oblasti financí. Každý článek chce úvodní ilustraci. Dosud to znamenalo: vymyslet motiv, napsat prompt, vygenerovat čtyři varianty, vybrat, dogenerovat, otevřít editor, ořezat na správný poměr, exportovat, zkomprimovat, přejmenovat, nahrát. Třicet až čtyřicet minut na obrázek. A po půl roce byl blog vizuálně roztříštěný — starší ilustrace měly jiné barvy než nové, protože se mezitím posunul model i její vkus.
+
+Teď má Klára soubor se stylovým zadáním a krátký skript. Napíše jednu větu o motivu, spustí příkaz a za minutu má hotový obrázek ve správném rozměru, ve formátu WebP a se stejnou vizuální řečí jako všech předchozích osmdesát. Práce na ilustraci se scvrkla na rozmyšlení motivu.
+
+Stejně vznikají ilustrace na tomto webu. Existuje jeden stylový prompt — černobílá kresba linkou s jediným červeným akcentem — skript, který napsal [Claude Code](/tipy/ai-skripty-pro-nevyvojare), a napojení na obrázkové API Googlu. Výstup se automaticky zkomprimuje do WebP a uloží pod správným jménem. Nový článek znamená jeden příkaz, ne půlhodinu v grafickém editoru.
+
+## Jak na to
+
+1. **Nejdřív definujte styl, ne obrázek.** Sepište odstavec, který popisuje techniku (kresba linkou, akvarel, plochá vektorová ilustrace), barevnou paletu (klidně jen dvě barvy), náladu, pozadí a čeho se vyvarovat. Tenhle odstavec je jádro celé věci — obrázky se mění, styl zůstává.
+2. **Vyzkoušejte styl ručně.** Než napíšete jakýkoli skript, projděte pět různých motivů v běžném webovém generátoru se stejným stylovým odstavcem. Když spolu výsledky vizuálně drží, máte vyhráno. Když ne, laďte popis dál — v tomhle kroku je to nejlevnější.
+3. **Nechte si napsat skript.** Nemusíte umět programovat. Řekněte AI asistentovi: „napiš mi skript, který vezme můj stylový prompt, přidá k němu popis motivu z argumentu, zavolá obrázkové API, uloží výsledek a převede ho do WebP v šířce 1200 px.“ Dostanete hotový kód i s návodem, co doinstalovat.
+4. **Vytvořte si účet a klíč k API.** U služeb jako Google AI Studio nebo OpenAI se klíč generuje v nastavení účtu na pár kliknutí. Klíč vložíte do proměnné prostředí, ne do skriptu.
+5. **Přidejte poslední krok: kompresi a pojmenování.** Nekomprimovaný výstup z generátoru má běžně několik megabajtů. Automatický převod do WebP a rozumné pojmenování podle článku ušetří víc práce, než by člověk čekal.
+6. **Nechte si vygenerovat víc variant naráz.** Skript může udělat tři obrázky místo jednoho a vy si vyberete. Pořád je to rychlejší než jedno kolo ručního klikání.
+
+## Nejlepší nástroje
+
+- **Obrázkové API Googlu (Gemini)** — dobrá kvalita, jednoduché rozhraní, klíč získáte v [Google AI Studiu](https://aistudio.google.com) během minuty.
+- **Claude Code** — napíše skript, otestuje ho a rovnou ho spustí; hodí se i pro člověka, který kód číst neumí.
+- **Sharp nebo ImageMagick** — knihovny na automatický ořez a převod do WebP; do skriptu se přidají jedním řádkem.
+- **Vlastní soubor se stylovým promptem** — nejdůležitější „nástroj“ z celého seznamu, i když je to jen textový soubor.
+
+## Co vám to přinese
+
+- **Čas:** z třiceti minut na obrázek na jednu až dvě. U webu s desítkami článků je to řádově desítky hodin ročně.
+- **Konzistence:** všechny ilustrace vycházejí ze stejného zadání, takže spolu ladí i po roce.
+- **Klid:** odpadá nejotravnější část — ruční ořez, komprese a přejmenovávání souborů.
+- **Kvalita:** protože je generování levné, můžete si dovolit vyhodit nepovedený obrázek a udělat nový.
+
+## Pro tip
+
+Klíč k API je heslo, i když tak nevypadá. Držte ho v proměnné prostředí nebo v souboru, který nikdy nejde do veřejného repozitáře — nikdy ne přímo v textu skriptu, který někam pošlete nebo zveřejníte. Zveřejněný klíč umí někdo cizí protočit za peníze během hodin. A druhé pravidlo: **generování spouštíte vy, publikaci schvalujete vy.** Skript ať obrázky vytváří do složky, ne rovnou na web — každý obrázek si před nasazením prohlédněte. Generátory umí čas od času vyrobit nesmysl, deformovaný text nebo motiv, který se do článku o financích prostě nehodí.

@@ -1,0 +1,47 @@
+---
+title: "Subagenti: nechte AI řídit AI"
+excerpt: "Velkou práci nejde udělat jedním promptem. Rozdělte ji mezi paralelní agenty: jeden šéf rozdá zadání, ostatní pracují souběžně, vy schvalujete výsledek."
+category: "ai"
+platform: "vsude"
+audience: ["vyvojar", "manazer"]
+keys: []
+saves: "~týdny práce"
+date: "2026-08-12"
+---
+
+Existuje strop, přes který se s AI v jednom okně nedostanete. Šedesát rešerší, tři sta dokumentů, kompletní překlad celého webu — to se do jedné konverzace nevejde a po dvacáté iteraci už vám model zapomíná, co jste chtěli na začátku. Řešení není lepší prompt, ale jiná organizace práce: **jeden hlavní agent rozdá zadání, dílčí agenti pracují souběžně a šéf pak sbírá a kontroluje výsledky.** Claude Code tohle umí sám od sebe. Vy přestanete být operátorem a stanete se zadavatelem.
+
+## Vzorová situace
+
+Vedoucí marketingu Tomáš má do konce týdne srovnat šedesát konkurenčních produktů: co nabízejí, komu, čím se odlišují, jak komunikují. Ručně je to dvacet minut na jednu položku, tedy dvacet hodin — a to jen sběr, ne psaní závěru. V chatu po jednom to není o moc lepší, jen ho u toho bolí zápěstí.
+
+Místo toho stráví devadesát minut psaním jediného instrukčního souboru: co přesně hledat, do jaké struktury to zapsat, co dělat, když se informace nenajde, čemu nevěřit. Pak zadá jednu větu: rozděl šedesát položek mezi osm agentů, každý ať postupuje podle těchhle instrukcí a vrátí vyplněnou tabulku. Za necelou hodinu má hlavní agent osm dílčích výstupů sesbíraných do jednoho souboru. Tomáš dvě hodiny kontroluje, u pěti položek dohledává detail sám. Z dvaceti hodin zbyly čtyři a půl — a instrukční soubor mu příště poslouží znovu.
+
+Případová studie z tohoto webu: rozšíření na dvě stě padesát tipů a kompletní anglický překlad vznikly přesně takhle. Desítky agentů běžely podle jednoho instrukčního souboru, který popisoval formát, tón a tvrdá pravidla; člověk psal zadání a schvaloval hotové výstupy. Ta přenositelná lekce nemá s weby nic společného: **dobré zadání napsané jednou se dá využít stokrát.** Stejný princip funguje na hromadné rešerši, zpracování stohu dokumentů i na kontrole stovek smluv proti jednomu seznamu kritérií.
+
+## Jak na to
+
+1. **Rozdělte úlohu na stejnorodé kusy.** Paralelizace funguje jen tam, kde jsou položky nezávislé — šedesát firem, tři sta faktur, sto textů. Kde krok B potřebuje výsledek kroku A, se nic paralelizovat nedá.
+2. **Napište jeden instrukční soubor.** Tohle je nejdůležitější krok celého postupu a jediný, který musíte odvést sami. Patří do něj formát výstupu, hranice („nedomýšlej, co nenajdeš“), příklad správného výsledku a příklad špatného.
+3. **Ověřte instrukce na jedné položce.** Pusťte jednoho agenta na jeden kus a výsledek si přečtěte řádek po řádku. Každá nejasnost, kterou teď najdete, by se jinak zopakovala padesátkrát.
+4. **Zadejte rozdělení práce.** Řekněte, kolik agentů má běžet souběžně a který dostane které položky. Hlavní agent si drží přehled, dílčí agenti se navzájem nevidí — proto musí být zadání soběstačné.
+5. **Nechte šéfa výsledky sesbírat a sjednotit.** Ne jen slepit: zkontrolovat formát, najít chybějící pole, upozornit na položky, kde si agent nebyl jistý. Tenhle úklid ušetří nejvíc vašeho času.
+6. **Schvalujte vy.** Namátkově projděte deset procent výstupů a všechny, kde agent hlásil pochybnost. Nic se neodesílá, nepublikuje ani nefakturuje bez lidského podpisu.
+
+## Nejlepší nástroje
+
+- **Claude Code** — umí rozdělit práci mezi víc paralelních agentů a řídit je; nejpřímější cesta k orchestraci bez stavění vlastní infrastruktury.
+- **Projekty na claude.ai** — trvalý kontext pro instrukce a podklady, které mají platit v každé konverzaci; dobrý domov pro zadání, které teprve ladíte.
+- **Vlastní knihovna promptů** — instrukční soubory se vyplácí uchovávat a vylepšovat, viz tip [knihovna promptů](/tipy/ai-knihovna-promptu).
+- **n8n, Make nebo Zapier** — když má orchestrace běžet na rozvrhu a mezi cloudovými službami, ne u vás na disku.
+
+## Co vám to přinese
+
+- **Čas:** u hromadných úloh se nemluví o minutách, ale o týdnech. Práce se nezrychlí dvakrát, ale řádově.
+- **Klid:** velké zadání přestane být děsivé. Neřešíte tři sta položek, řešíte jedny pořádné instrukce.
+- **Kvalita:** všechny výstupy vznikly podle stejného pravidla, takže jsou porovnatelné. Ruční zpracování se u položky číslo dvě stě vždycky někam ujede.
+- **Znovupoužitelnost:** instrukční soubor je majetek. Příští podobná dávka začíná na osmdesáti procentech hotovo.
+
+## Pro tip
+
+Paralelismus má svou cenu: agenti o sobě nevědí, takže dva nesmí sahat na stejný soubor a nesmí se rozhodovat o věcech, které musí být napříč celkem konzistentní (názvosloví, číslování, styl). Tahle rozhodnutí patří do instrukcí předem, ne do hlavy dílčího agenta. A pozor na data — čím víc agentů, tím víc kopií toho, co jim pošlete. Citlivé podklady (osobní údaje, finance, zdravotní záznamy) dávejte jen do placeného či firemního účtu se smluvní ochranou dat, ne do free chatu, a co jde anonymizovat, anonymizujte před spuštěním dávky.
