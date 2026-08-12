@@ -1,0 +1,47 @@
+---
+title: "Subagents: let AI manage AI"
+excerpt: "Big work doesn't fit into one prompt. Split it across parallel agents: one lead hands out the assignments, the rest work simultaneously, you approve the result."
+category: "ai"
+platform: "vsude"
+audience: ["vyvojar", "manazer"]
+keys: []
+saves: "~weeks of work"
+date: "2026-08-12"
+---
+
+There's a ceiling you can't get past with AI in a single window. Sixty pieces of research, three hundred documents, a complete translation of an entire website — none of that fits into one conversation, and by the twentieth iteration the model has already started forgetting what you asked for at the start. The fix isn't a better prompt — it's a different way of organizing the work: **one lead agent hands out the assignments, sub-agents work simultaneously, and the lead then collects and checks the results.** Claude Code does this on its own. You stop being the operator and become the one giving the brief.
+
+## A typical scenario
+
+Tomáš, a marketing lead, has to compare sixty competing products by the end of the week: what they offer, to whom, what sets them apart, how they communicate. By hand, that's twenty minutes per item — twenty hours total, and that's just gathering the information, not writing up the conclusions. One at a time in a chat window isn't much better — it's just harder on the wrists.
+
+Instead, he spends ninety minutes writing a single instruction file: exactly what to look for, what structure to record it in, what to do when information can't be found, what not to trust. Then he gives one instruction: split the sixty items across eight agents, have each follow these instructions, and return a filled-in table. In under an hour the lead agent has eight sub-results collected into a single file. Tomáš spends two hours reviewing it and tracks down the detail himself on five items. Twenty hours turned into four and a half — and the instruction file will serve him again next time.
+
+A case study from this very site: expanding to two hundred and fifty tips and the full English translation happened exactly this way. Dozens of agents ran off a single instruction file describing the format, the tone, and the hard rules; a human wrote the briefs and approved the finished output. The transferable lesson has nothing to do with websites: **a good brief written once can be used a hundred times.** The same principle works for bulk research, working through a stack of documents, or checking hundreds of contracts against one list of criteria.
+
+## How to do it
+
+1. **Split the task into uniform pieces.** Parallelization only works where the items are independent — sixty companies, three hundred invoices, a hundred texts. Where step B needs the result of step A, nothing can be parallelized.
+2. **Write one instruction file.** This is the most important step in the whole process, and the only one you have to do yourself. It should include the output format, boundaries (“don't guess at what you can't find”), an example of a correct result, and an example of a bad one.
+3. **Test the instructions on a single item.** Run one agent on one piece and read the result line by line. Every ambiguity you catch now would otherwise repeat itself fifty times over.
+4. **Assign the split of work.** Say how many agents should run simultaneously and which one gets which items. The lead agent keeps the overview; sub-agents can't see each other, so the brief has to be self-contained.
+5. **Have the lead collect and reconcile the results.** Not just stitch them together: check the format, find missing fields, flag items the agent wasn't sure about. This cleanup step saves you the most time of all.
+6. **You do the approving.** Spot-check ten percent of the outputs, plus everything the agent flagged as uncertain. Nothing gets sent, published, or invoiced without a human sign-off.
+
+## The best tools
+
+- **Claude Code** — can split work across multiple parallel agents and manage them; the most direct route to orchestration without building your own infrastructure.
+- **Projects on claude.ai** — persistent context for instructions and materials that should apply to every conversation; a good home for a brief you're still refining.
+- **Your own prompt library** — instruction files pay off when you keep and improve them; see the tip on [a prompt library](/tipy/ai-knihovna-promptu).
+- **n8n, Make, or Zapier** — when orchestration needs to run on a schedule between cloud services, not on your own disk.
+
+## What you get out of it
+
+- **Time:** on bulk tasks, we're not talking minutes, we're talking weeks. The work doesn't get twice as fast — it gets an order of magnitude faster.
+- **Peace of mind:** a huge assignment stops being intimidating. You're not dealing with three hundred items, you're dealing with one solid set of instructions.
+- **Quality:** every output follows the same rule, so they're comparable. Manual processing always starts to drift by item two hundred.
+- **Reusability:** an instruction file is an asset. The next similar batch starts eighty percent done.
+
+## Pro tip
+
+Parallelism has a cost: agents don't know about each other, so two of them must never touch the same file, and they can't be left to decide things that need to stay consistent across the whole set (terminology, numbering, style). Those decisions belong in the instructions up front, not in a sub-agent's head. And watch your data — the more agents, the more copies of whatever you send them. Sensitive material (personal data, finances, health records) goes only on a paid or business account with contractual data protection, never a free chat, and anonymize whatever can be anonymized before you kick off the batch.
