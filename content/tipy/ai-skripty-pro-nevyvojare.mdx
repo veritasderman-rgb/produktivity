@@ -1,47 +1,549 @@
 ---
 title: "Malé skripty bez programování: AI je napíše za vás"
-excerpt: "Přejmenovat 200 souborů, spojit PDF, stáhnout data — AI napíše skript a řekne vám, jak ho spustit."
+excerpt: "Kompletní návod s prompty: jak popsat úlohu, nechat si napsat a laicky vysvětlit skript, bezpečně ho spustit na kopii dat, vyřešit chybovou hlášku a postavit si vlastní knihovnu hotových nástrojů. Bez jediného řádku kódu napsaného vlastní rukou."
 category: "ai"
 platform: "vsude"
 audience: []
 keys: []
-saves: "~1 h týdně"
+saves: "~hodiny ruční práce měsíčně"
 date: "2026-07-03"
 ---
 
-Hranice mezi „umím programovat“ a „neumím programovat“ se posunula. Dřív jste bez znalosti syntaxe nenapsali ani jednoduchý skript na přejmenování souborů; dnes stačí umět popsat, co chcete, běžnými slovy, a AI napíše kód i návod, jak ho spustit — klidně i pro člověka, který nikdy neprogramoval a ani se to učit nechce.
+Hranice mezi „umím programovat“ a „neumím programovat“ se posunula. Dřív jste bez znalosti syntaxe nenapsali ani jednoduchý skript na přejmenování souborů. Dnes stačí umět **popsat, co chcete, běžnými slovy** — a AI napíše kód, vysvětlí, co dělá, a řekne vám přesně, kam ho vložit a jak ho spustit. Nemusíte se učit programovat. Musíte se naučit zadávat a kontrolovat.
+
+Tenhle návod je o té druhé části. Napsat skript je dnes triviální, riziková je ta minuta, kdy ho pouštíte na svoje soubory. Proto tady projdeme celý cyklus: jak poznat úlohu, která se na skript hodí, jak ji popsat, aby z toho vznikl použitelný nástroj napoprvé, jak si ho nechat vysvětlit lidsky, jak ho pustit tak, aby nešlo nic nevratně pokazit, co dělat, když spadne, a jak si z jednorázových skriptů postavit knihovnu, ze které příště jen vytáhnete hotové řešení.
+
+Jedno pravidlo platí nad vším ostatním a vrátíme se k němu ještě několikrát: **nikdy nespouštějte skript, kterému nerozumíte aspoň rámcově.** Nemusíte znát syntaxi. Musíte umět říct větou, co skript udělá se soubory na vašem disku — a mít zálohu pro případ, že se pletete.
 
 ## Vzorová situace
 
-Účetní má ve složce dvě stě faktur ve formátu PDF pojmenovaných nesourodě a potřebuje je přejmenovat podle data v jednotném formátu, aby se v nich dalo vyhledávat. Bez tipu jsou to hodiny ručního přejmenovávání po jedné, nebo hledání placeného nástroje, který to umí a který se navíc musí naučit ovládat. S tipem popíše AI, co potřebuje, dostane krátký skript a přesný návod, kam ho vložit a jak spustit — a celou složku přejmenuje za pár minut, i bez jediného řádku kódu napsaného vlastní rukou.
+Účetní Jana má ve složce pět set faktur v PDF, pojmenovaných tak, jak jí přišly: „faktura_final(2).pdf“, „scan0093.pdf“, „FA 2026 dodavatel.pdf“. Potřebuje je přejmenovat na jednotný tvar `2026-03-15_dodavatel_castka.pdf`, aby se v nich dalo vyhledávat a aby šly setřídit podle data. Ručně je to zhruba osm hodin klikání, při kterých udělá pár překlepů a dvakrát omylem přepíše soubor.
 
-## Jak na to
+Jana místo toho popíše úlohu do chatu, přiloží seznam prvních dvaceti názvů a dostane skript. Nejdřív si ho nechá vysvětlit po krocích běžnou češtinou — a hned u druhého bodu zjistí, že skript by soubory, u kterých datum nenajde, přeskočil beze slova. To nechce, chce je vypsat. Doplní to. Pak skript pustí v režimu náhledu, kde jen vypíše, co by přejmenoval, a projde si prvních třicet řádků. Dvě faktury by dostaly datum splatnosti místo data vystavení, protože jsou v nich obě čísla; doplní pravidlo. Teprve pak zkopíruje složku a pustí skript naostro.
 
-1. Popište úlohu konkrétně: „Mám složku PDF faktur. Potřebuji je přejmenovat podle data v názvu na formát RRRR-MM.“
-2. Uveďte svůj operační systém a úroveň zkušeností: „Jsem na Windows a neprogramuji — řekni mi přesně, kam skript vložit a jak ho spustit.“
-3. Nechte si vysvětlit, co skript dělá krok za krokem, ne jen zkopírovat kód naslepo — pomůže vám to odhalit, pokud by měl udělat něco jiného, než chcete.
-4. Než skript pustíte na ostrá data, vyzkoušejte ho na kopii složky — u hromadných operací, jako je přejmenování nebo mazání, je chyba snadno nevratná.
-5. Pokud skript selže s chybovou hláškou, vložte ji AI přesně tak, jak se zobrazila — obvykle podle ní chybu rychle najde a opraví.
-6. Hotový a funkční skript si uložte i s krátkým popisem, k čemu je — příště podobnou úlohu vyřešíte jen drobnou úpravou, ne psaním od nuly.
+Celkem hodina a půl, z toho čtyřicet minut kontroly. Skript si uloží do složky `skripty/` s poznámkou, k čemu je. Za měsíc přijde stejná úloha na složku dodacích listů — Jana skript vytáhne, změní v zadání dvě věty a je hotová za deset minut. To je celý smysl tohohle návodu: **první úloha stojí hodinu, každá další deset minut.**
+
+## Fáze 1: co je skript a kdy se vyplatí
+
+### Skript lidsky
+
+Skript je **napsaný postup, který počítač provede na povel** — jako recept, jen ho místo vás vykoná stroj. Neinstaluje se, není to program s okny a tlačítky; je to textový soubor s příkazy typu „projdi všechny soubory v téhle složce, u každého se podívej na datum a přejmenuj ho podle šablony“.
+
+Tři vlastnosti, kvůli kterým se vyplatí:
+
+- **Opakovatelnost.** Skript udělá pětistý soubor přesně stejně jako první. Člověk po dvou hodinách klikání ne.
+- **Rychlost při opakování.** Napsat ho trvá desítky minut, spustit vteřiny. Když úlohu děláte podruhé, cena je nula.
+- **Doložitelnost.** Vidíte, podle jakého pravidla se to stalo, a dá se to udělat znovu. U ručního přejmenování si za měsíc nevzpomenete, proč jsou tři soubory jinak.
+
+Nejčastěji uvidíte **Python** (univerzální, čitelný i pro laika, funguje všude), **PowerShell** na Windows nebo **shellový skript** na macOS a Linuxu (pro jednodušší operace se soubory, nic se neinstaluje). Když nemáte preferenci, řekněte si o Python — je nejsrozumitelnější, když si ho pak necháváte vysvětlit.
+
+### Kdy skript ano a kdy ne
+
+Skript se vyplatí, když platí aspoň dvě z těchto tří věcí: úloha je **hromadná** (víc než pár desítek položek), **mechanická** (pravidlo jde popsat větou, nevyžaduje úsudek u každé položky) a **bude se opakovat**. Jednorázové přejmenování pěti souborů skriptem neřešte, otevřete správce souborů.
+
+Neplatí to naopak absolutně: i jednorázová úloha se vyplatí, pokud je natolik velká, že ruční průchod znamená chyby z únavy. Pět set faktur je přesně ten případ.
+
+Kde skript naopak není odpověď: **úlohy, kde u každé položky rozhoduje člověk** (schvalování, hodnocení kvality, odpovědi zákazníkům), věci, které umí vestavěná funkce programu, který už máte (hromadné přejmenování zvládne i [Finder na macOS](/tipy/mac-hromadne-prejmenovani), rozdělení textu do sloupců zvládne Excel), a procesy, které mají běžet trvale na pozadí a propojovat služby — tam patří spíš [automatizační platformy](/tipy/n8n-zapier-ai-automatizace).
+
+Než se pustíte do psaní, nechte si tuhle otázku položit zvenčí:
+
+```text
+Popíšu ti úlohu a ty mi poraď, jestli se na ni vůbec hodí skript.
+
+Úloha: [popis, např. každý měsíc stáhnu z e-shopu export objednávek
+v CSV, ručně z něj smažu storna, sečtu tržby po krajích a výsledek
+přepíšu do tabulky]
+Jak často to dělám: [jednou měsíčně]
+Kolik položek: [zhruba 2000 řádků]
+Co používám: [Windows 11, Excel, Google Disk]
+Zkušenosti s programováním: žádné
+
+Odpověz ve třech blocích:
+1. Zvládne to něco, co už mám? (funkce Excelu, vestavěný nástroj
+   systému, funkce aplikace) — pokud ano, popiš postup a skončeme.
+2. Pokud ne, proč se vyplatí skript a kolik zhruba práce to bude.
+3. Co je na téhle úloze rizikové — kde by špatně napsaný skript
+   mohl nevratně poškodit data.
+
+Nedoporučuj skript automaticky. Když je jednodušší cesta, řekni ji.
+```
+
+Vrátí poctivé rozhodnutí, a docela často zjistíte, že úlohu vyřeší funkce, kterou máte roky nainstalovanou. Pozor na bod 1: modely mají tendenci nabídnout skript i tam, kde stačí dvě kliknutí, proto je ten zákaz v posledním řádku podstatný — bez něj dostanete kód vždycky.
+
+## Fáze 2: typické úlohy, které skript vyřídí
+
+Tahle fáze je katalog. Nejsou to teoretické příklady — jsou to úlohy, které lidé řeší ručně nejčastěji, a u každé je hotový prompt.
+
+### Hromadné přejmenování souborů
+
+Nejčastější úloha vůbec. Klíč je popsat **vzor, který v názvech je**, a **vzor, který chcete**, na skutečných příkladech.
+
+```text
+Mám složku s [500] soubory PDF. Potřebuju je hromadně přejmenovat.
+
+Tady je 15 skutečných současných názvů:
+[vlož seznam názvů, klidně zkopírovaný ze správce souborů]
+
+Cílový tvar názvu: [RRRR-MM-DD_dodavatel_cislofaktury.pdf]
+Datum je uvnitř souboru [/ v názvu / v datu vytvoření souboru].
+
+Napiš mi skript v Pythonu, který:
+1. projde jen soubory .pdf v zadané složce, do podsložek nesahá,
+2. z každého názvu vytáhne potřebné údaje podle pravidel výše,
+3. NEJDŘÍV vypíše tabulku „původní název → nový název“ a nic nemění,
+4. teprve po potvrzení klávesou soubory přejmenuje,
+5. soubory, u kterých údaje nenajde, nepřeskočí mlčky — vypíše je
+   na konec do seznamu „nezpracováno, vyřeším ručně“,
+6. když by nový název kolidoval s existujícím souborem, nepřepíše ho,
+   ale přidá pořadové číslo a nahlásí to.
+
+Na začátek skriptu dej jednu proměnnou s cestou ke složce a napiš
+komentářem, kam mám cestu vepsat. Ke každému bloku komentář česky.
+```
+
+Vrátí skript, který nejdřív ukáže, co by udělal — a to je celý rozdíl mezi bezpečnou a nebezpečnou verzí téhle úlohy. Kontrolujte hlavně bod 6: kolize názvů je nejčastější způsob, jak si hromadným přejmenováním nenávratně smažete soubor.
+
+### Sloučení mnoha CSV nebo Excelů do jednoho
+
+Klasika konce měsíce: dvanáct exportů, každý za jinou pobočku, a vy je slepujete kopírováním. Skript to udělá za vteřinu a hlavně ohlídá, že mají stejné sloupce.
+
+```text
+Mám [12] souborů CSV ve složce — měsíční exporty z [systému],
+každý za jednu pobočku. Potřebuju z nich jeden soubor.
+
+Hlavička a první dva řádky jednoho z nich (oddělovač [středník],
+kódování [UTF-8], desetinná [čárka]):
+[vlož 3 řádky]
+
+Napiš skript v Pythonu (pandas), který:
+1. načte všechny .csv ze složky,
+2. zkontroluje, že mají stejné sloupce — když se liší, VYPÍŠE rozdíl
+   a skončí, nesluč je násilím,
+3. přidá sloupec „zdroj“ s názvem souboru, ze kterého řádek pochází,
+4. sloučí je do jednoho souboru vse.csv,
+5. na konec vypíše kontrolní součet: kolik řádků mělo každé CSV
+   a kolik jich má výsledek, ať vidím, že se nic neztratilo,
+6. duplicity nemaže, jen vypíše, kolik úplně shodných řádků našel.
+
+Skript nesmí přepsat žádný ze vstupních souborů.
+```
+
+Nejdůležitější je bod 5 — kontrolní součet je jediná věc, která vám u slučování dat řekne, že výsledek sedí. Když se počty nerovnají, obvykle za to může kódování nebo nesprávný oddělovač u jednoho souboru, ne chyba skriptu. Na navazující výpočty nad sloučenými daty se hodí [analýza dat s AI](/tipy/ai-analyza-dat).
+
+### Roztřídění fotek podle data pořízení
+
+Deset tisíc fotek v jedné složce je stav, který zná skoro každý. Fotky v sobě nesou datum pořízení, takže třídění do složek podle roku a měsíce je čistě mechanická úloha.
+
+```text
+Mám složku s [několika tisíci] fotografiemi z telefonu a fotoaparátu
+(JPG, HEIC, pár MP4). Chci je roztřídit do složek podle data pořízení
+ve tvaru [RRRR/RRRR-MM].
+
+Napiš skript v Pythonu, který:
+1. u každého souboru přečte datum pořízení z metadat (EXIF),
+2. když EXIF chybí (typicky u stažených obrázků a videí), použije
+   datum úpravy souboru, ale takové soubory vypíše zvlášť,
+   ať vím, u kterých je datum jen odhad,
+3. soubory KOPÍRUJE do cílové struktury, originály nechá být,
+4. při shodě názvů nic nepřepíše — přidá pořadové číslo,
+5. na konci vypíše statistiku: kolik souborů, kolik do které složky,
+   kolik bez EXIF, kolik přeskočeno a proč.
+
+Nejdřív mi napiš verzi, která jen vypíše plán třídění a nic nekopíruje.
+Až plán schválím, dopiš verzi, která opravdu kopíruje.
+```
+
+Bod 3 je záměrný: u fotek se kopíruje, nepřesouvá. Když skript zklame, máte pořád původní složku. Pozor na HEIC z iPhonu — knihovny na čtení EXIF ho ne vždy zvládnou a skript může u těch souborů spadnout; nechte si ošetřit, ať běží dál a soubor jen vypíše.
+
+### Převod formátů dávkou
+
+Sto obrázků do JPG v rozumné velikosti, PDF do textu, docx do PDF, WAV do MP3. Všechno je to stejná úloha: projdi složku, u každého souboru zavolej převod, ulož vedle.
+
+```text
+Potřebuju hromadně převést soubory: ze [formátu A] do [formátu B].
+Vstup: složka s [počet] soubory. Systém: [Windows 11 / macOS].
+Nechci instalovat velké programy, ideálně jen knihovnu k Pythonu.
+
+Napiš skript, který:
+1. projde vstupní složku a najde soubory [přípona],
+2. každý převede do [cílový formát] s parametry [max šířka 2000 px,
+   kvalita 85, zachovat poměr stran],
+3. výsledky ukládá do podsložky prevedeno/, vstupy nechává být,
+4. přeskočí soubor, který už je převedený (existuje výstup),
+   a napíše proč,
+5. u souboru, který se převést nepodaří, vypíše název a důvod
+   a pokračuje dál — nesmí to celý běh zastavit,
+6. na konci shrne: převedeno X, přeskočeno Y, selhalo Z.
+
+Napiš mi taky, co přesně musím doinstalovat a jakým příkazem.
+```
+
+Bod 5 je ten, na kterém dávkové převody typicky ztroskotají: jeden poškozený soubor uprostřed složky shodí celý běh a vy nevíte, kde skončil. A pozor na poslední odstavec — instalace knihovny je jediný krok, kde budete potřebovat příkazovou řádku, tak ať vám ji AI napíše doslova.
+
+### Vytáhnout přílohy a data z hromady souborů
+
+Stažené přílohy z mailů, výpisy z banky, faktury — úloha „projdi soubory a vytáhni z nich údaje do tabulky“ je zdaleka nejužitečnější, protože jinak znamená hodiny opisování.
+
+```text
+Mám složku s [80] fakturami v PDF od různých dodavatelů. Potřebuju
+z nich tabulku: soubor, dodavatel, IČO, číslo faktury, datum
+vystavení, datum splatnosti, částka bez DPH, částka s DPH.
+
+Napiš skript v Pythonu, který:
+1. z každého PDF přečte textovou vrstvu,
+2. pokusí se najít uvedené údaje pomocí vzorů (např. IČO je osm
+   číslic za slovem IČ nebo IČO; částka je u slova „Celkem“),
+3. výsledky zapíše do tabulky vysledek.csv,
+4. u údaje, který nenajde, nechá prázdno a NIC neodhaduje,
+5. přidá sloupec „jistota“: úplný záznam / neúplný / nečitelné PDF,
+6. na konec vypíše seznam souborů, které jsou nejspíš jen sken bez
+   textové vrstvy a bude je potřeba přečíst jinak.
+
+Pravidla vzorů piš do komentářů česky, ať je můžu upravit,
+až narazím na dodavatele s jiným rozvržením faktury.
+```
+
+Bod 4 je nepřekročitelný: skript, který chybějící částku „dopočítá“, vám do účetnictví zanese čísla, která nikde nejsou. Počítejte s tím, že první běh vytáhne dobře tak dvě třetiny souborů a pár vzorů budete doplňovat — u faktur od pěti dodavatelů to je pořád rychlejší než opisování. Skenům bez textové vrstvy se věnuje fáze 6.
+
+### Úklid a kontrola složek
+
+Poslední kategorie: najít duplicity podle obsahu (ne podle názvu), vypsat padesát největších souborů, najít to, co nikdo dva roky neotevřel, odhalit prázdné složky. Zadání se píše stejně jako předchozí, jen s jedním pravidlem navíc, které do promptu napište doslova: **skript nesmí obsahovat žádný příkaz na mazání ani přesun** — nálezy uloží do přehledové tabulky se sloupcem „návrh“ a rozhoduje člověk. Platí **AI navrhuje, člověk schvaluje**, a u mazání dat to platí dvojnásob.
+
+## Fáze 3: jak popsat úlohu, aby skript vyšel napoprvé
+
+Rozdíl mezi „napiš mi skript na přejmenování souborů“ a promptem z předchozí fáze je hodina vaší práce. Dobré zadání má šest částí a stojí za to si je odškrtat, než odešlete.
+
+**Kontext o vás.** Operační systém, jestli programujete (ne), co máte nainstalované. Bez toho dostanete skript pro Linux a návod, který na Windows nefunguje.
+
+**Skutečná ukázka vstupu.** Ne popis — ukázka. Patnáct názvů souborů, tři řádky CSV včetně hlavičky, kus textu z PDF. Modely odhadují strukturu dat a odhadují ji špatně; české exporty s oddělovačem středníkem a desetinnou čárkou jsou klasická past.
+
+**Přesně popsaný cíl.** Jak má vypadat výsledek. Nejlíp opět ukázkou: „ze `scan0093.pdf` má být `2026-03-15_ACME_2026041.pdf`“.
+
+**Hraniční případy.** Co se má stát, když údaj chybí, když je název duplicitní, když je soubor poškozený. Tohle je část, kterou lidé vynechávají a která rozhoduje o tom, jestli je skript použitelný.
+
+**Bezpečnostní mantinely.** Co skript nesmí: přepisovat vstupy, mazat, sahat do podsložek, běžet bez potvrzení.
+
+**Forma výstupu.** Komentáře česky, cesta ke složce jako jedna proměnná nahoře, výpis průběhu, aby bylo vidět, že skript běží.
+
+Když si nejste jistí, nechte si zadání nejdřív zkontrolovat:
+
+```text
+Chci si nechat napsat skript na tuhle úlohu:
+[vložte svoje zadání]
+
+Ještě ho nepiš. Nejdřív se mě zeptej na všechno, co ti chybí,
+abys ho napsal správně napoprvé — hlavně na strukturu vstupních dat,
+na to, co se má stát v neobvyklých případech, a na to, co se nesmí
+stát v žádném případě.
+
+Ptej se po jedné otázce, maximálně osm otázek, ať to zvládnu odpovědět.
+Až budeš mít jasno, shrň mi zadání do odrážek a nech si ho potvrdit.
+Teprve pak piš kód.
+```
+
+Vrátí rozhovor místo kódu a je to nejlepší investovaná minuta celého postupu — otázky obvykle odhalí dvě tři věci, které jste vůbec nezvážili. Pokud se model přesto vrhne rovnou na kód, zopakujte, že chcete nejdřív otázky; postup po krocích je popsaný v tipu o [iteraci s AI](/tipy/ai-iterace).
+
+### Citlivá data do zadání nepatří
+
+Ke psaní skriptu **stačí struktura dat, ne jejich obsah.** Když potřebujete ukázat, jak vypadá tabulka klientů, přepište jména na „Novák Jan“, „Dvořák Petr“, čísla účtů a rodná čísla nahraďte smyšlenými hodnotami stejného tvaru. Skript nepozná rozdíl, protože pracuje se sloupci, ne s lidmi.
+
+```text
+Tady je ukázka mých dat, ve které jsou skutečné údaje:
+[vlož 3 řádky]
+
+Nepiš zatím žádný skript. Vytvoř mi místo toho smyšlený vzorek
+10 řádků se STEJNOU strukturou: stejné názvy a pořadí sloupců,
+stejný formát hodnot (počet číslic, tvar data, oddělovače),
+ale úplně vymyšlený obsah — jména, adresy, čísla i identifikátory.
+
+Nechci žádnou hodnotu z původního vzorku kromě hlavičky.
+```
+
+Vrátí vzorek, který můžete používat dál, aniž byste kamkoli posílali skutečné údaje. A obecně platí zásada webu: **osobní a firemní data patří jen do placeného účtu se smluvní ochranou dat**, ne do volného chatu — a i tam raději anonymizovaně. Samotný skript pak pouštíte u sebe, kde data nikam neodcházejí.
+
+## Fáze 4: nechte si skript vysvětlit, než ho spustíte
+
+Tohle je krok, který většina lidí přeskočí, a je to přesně ten krok, kvůli kterému se návod jmenuje tak, jak se jmenuje. **Nemusíte umět kód napsat. Musíte umět říct, co dělá.**
+
+### Prompt na laické vysvětlení
+
+```text
+Vysvětli mi tenhle skript tak, jako bych nikdy neviděl řádek kódu.
+
+U každého bloku napiš:
+- co se v něm děje běžnou češtinou, jednou dvěma větami,
+- proč je ten krok potřeba,
+- co se stane, když v datech narazí na něco neočekávaného.
+
+Pak odpověz zvlášť na tyhle otázky:
+1. Které soubory nebo složky skript ČTE?
+2. Které soubory VYTVÁŘÍ, PŘEPISUJE nebo MAŽE? Vypiš je jmenovitě.
+3. Posílá něco na internet? Kam a co?
+4. Co se stane, když ho pustím dvakrát po sobě?
+5. Co je nejhorší, co se může stát, když je v něm chyba?
+
+Na konec napiš jednou větou, co skript dělá — tak, abych to mohl
+říct kolegovi.
+
+[sem vlož skript]
+```
+
+Otázky 2 a 5 jsou jádro. Když u druhé otázky uvidíte cokoli, co jste nečekali — třeba že skript kromě přejmenování ještě maže „prázdné“ soubory —, máte odpověď na to, jestli ho pouštět. Odpověď na poslední otázku si přečtěte nahlas: pokud jí nerozumíte, skript ještě nepouštějte, ptejte se dál.
+
+U skriptů, které se dotýkají hodně souborů nebo firemních dat, přidejte druhé kolo — a ideálně **v jiném nástroji, než ve kterém skript vznikl**. Autor je k vlastnímu dílu shovívavý. Stačí krátké zadání: „projdi tenhle skript jako přísný recenzent, napiš, co může nenávratně poškodit, jaké mu chybí pojistky a co zůstane rozbité, když ho přeruším uprostřed běhu“. Právě poslední bod bývá nejcennější — skript, který přejmenoval půlku složky a spadl, vás nechá ve stavu, který se rozplétá hůř než původní nepořádek.
+
+### Náhledový režim: skript, který nejdřív jen mluví
+
+Zlaté pravidlo hromadných operací: **první verze skriptu nemění nic, jen vypisuje, co by udělala.** V programátorském žargonu se tomu říká běh nasucho.
+
+```text
+Uprav tenhle skript tak, aby měl nahoře přepínač NAHLED = True/False.
+
+Když je NAHLED = True:
+- skript neprovede žádnou změnu na disku,
+- místo toho vypíše přehlednou tabulku všeho, co by udělal:
+  akce, původní cesta, cílová cesta,
+- na konci shrne: přejmenovalo by se X, přeskočilo Y, kolizí Z,
+- u prvních 20 položek vypíše i důvod, proč zrovna takhle.
+
+Když je NAHLED = False, provede to doopravdy, ale nejdřív se zeptá
+„Opravdu provést X změn? Napiš ANO“ a bez odpovědi ANO skončí.
+
+Přepínač nech úplně nahoře s komentářem, že se výchozí hodnota
+nemá měnit, dokud si člověk náhled neprojde.
+
+[sem vlož skript]
+```
+
+Vrátí verzi, kterou můžete pustit bez obav — a těch dvacet vypsaných důvodů je nejrychlejší způsob, jak odhalit, že skript rozumí datům jinak než vy. Náhled si opravdu projděte; přeskočit ho a rovnou přepnout na `False` je nejčastější chyba celého tohohle postupu.
+
+## Fáze 5: bezpečné spuštění
+
+### Zálohu, vždycky
+
+Než pustíte cokoli, co mění soubory: **zkopírujte celou složku.** Ne přesunout, ne „mám to v cloudu“ — udělejte kopii, kterou skript nevidí, ideálně na jiný disk nebo aspoň do jiné složky mimo cestu, se kterou skript pracuje.
+
+Synchronizace do cloudu není záloha. Když skript přejmenuje pět set souborů, cloud poslušně přejmenuje pět set souborů i tam. Historie verzí ve OneDrivu nebo na Google Disku vám sice může pomoct, ale obnovit pět set souborů po jednom je horší než ta původní ruční práce.
+
+### Kde skript spustit
+
+Tři cesty, seřazené podle toho, jak citlivá data zpracováváte:
+
+- **Lokálně u sebe.** Nainstalujete Python (jednou, pár minut), skript uložíte jako soubor a spustíte příkazem. **Data nikam neodcházejí** — u čehokoli osobního nebo firemního je tohle jediná správná volba.
+- **Online prostředí v prohlížeči** (například Google Colab). Neinstalujete nic, ale soubory tam musíte nahrát — takže jen pro data, která můžou opustit váš počítač.
+- **Analytický nástroj přímo v chatu.** Nahrajete soubor, model kód napíše i spustí a vrátí výsledek. Nejrychlejší pro jednorázový výpočet nad neškodnými daty, nepraktické pro pět set souborů.
+
+Když nevíte, jak na to technicky, nechte si napsat návod na míru:
+
+```text
+Napiš mi úplně podrobný návod, jak tenhle skript spustím.
+Jsem na [Windows 11 / macOS], nikdy jsem nic neinstaloval
+z příkazové řádky a nevím, co je terminál.
+
+Chci:
+1. co musím nainstalovat, odkud to stáhnu a jak poznám, že je to hotové,
+2. kam uložit soubor se skriptem a jak ho pojmenovat,
+3. jak otevřít terminál a jak se v něm dostat do té složky,
+4. jaký příkaz napsat, doslova, i s uvozovkami,
+5. jak pozná, že skript doběhl správně,
+6. co udělat, když se okno hned zavře a nic neuvidím.
+
+Piš po krocích, každý krok jedna věta a co uvidím na obrazovce.
+Nepředpokládej žádné znalosti.
+```
+
+Vrátí návod, podle kterého se dá postupovat naslepo. Bod 6 řešte hned — zavírající se okno je nejčastější důvod, proč lidé skončí s pocitem, že „to nefunguje“, přestože skript proběhl.
+
+### Postup, kterým se nedá nic pokazit
+
+1. **Kopie složky** stranou, mimo dosah skriptu.
+2. **Náhledový režim** — přečíst si prvních dvacet řádků výpisu a zkontrolovat, že sedí.
+3. **Zkušební vzorek**: vytvořte složku s deseti soubory, které pokrývají i ty divné případy, a skript pusťte naostro tam.
+4. **Kontrola výsledku** ručně, po jednom, u všech deseti.
+5. **Ostrý běh** na kopii celé složky.
+6. **Kontrola po běhu**: sedí počet souborů? Otevřete pět náhodných — jsou to opravdu ty, které mají mít daný název?
+7. Teprve pak nahradit původní složku.
+
+Zní to zdlouhavě, celé to trvá dvacet minut a je to jediný rozdíl mezi „skript mi ušetřil den“ a „skript mi přejmenoval archiv a nevím, co je co“.
+
+## Fáze 6: když to spadne
+
+Skript, který skončí červeným textem, není problém. Je to nejnormálnější část procesu a řeší se jedním promptem.
+
+### Chybová hláška je informace, ne selhání
+
+Klíčové pravidlo: **zkopírujte hlášku celou, přesně tak, jak se zobrazila.** Ne popis „hodilo to nějakou chybu“, ne screenshot půlky okna — celý text včetně řádků, které vypadají nesrozumitelně. Právě v nich je napsané, na kterém řádku a proč to spadlo.
+
+```text
+Skript, který jsi mi napsal, spadl. Tady je situace:
+
+Co jsem udělal: [spustil jsem ho příkazem X ve složce Y]
+Co jsem čekal: [že vypíše plán přejmenování]
+Co se stalo: [vypsal 12 řádků a pak tohle]
+
+Celá chybová hláška:
+[vlož doslova celý výpis, včetně všech řádků]
+
+Kontext: systém [Windows 11], soubor má [500] položek,
+skript běžel [asi 3 vteřiny] a stihl [nic / přejmenovat 12 souborů].
+
+Napiš mi:
+1. co ta hláška znamená běžnou češtinou,
+2. jestli skript něco stihl změnit a jestli je něco v rozbitém stavu,
+3. opravenou verzi celého skriptu (ne jen ten řádek, celý soubor),
+4. co jsem měl udělat jinak, ať to příště nenastane.
+```
+
+Vrátí obvykle správnou opravu napoprvé. Bod 2 je ale ten, kvůli kterému se vyplatí prompt psát takhle: než se pustíte do opravy, potřebujete vědět, jestli první běh nenechal složku v polovičním stavu. Když si opravou nejste jistí, vraťte se ke kopii a začněte znovu — je to levnější než rozplétání.
+
+### Když výsledek není chyba, ale nesmysl
+
+Horší případ: skript proběhne bez hlášky a udělá něco jiného, než jste chtěli. Tady nepomůže chybová hláška, ale konkrétní příklad.
+
+```text
+Skript proběhl bez chyby, ale výsledek je špatně.
+
+Ukázka toho, co udělal (5 skutečných případů):
+[původní název] → [co z toho udělal]
+
+Co z toho je špatně a jak to má vypadat správně:
+[u každého případu napiš požadovaný výsledek]
+
+U ostatních [480] souborů to dopadlo správně, nechci to rozbít.
+
+Zjisti, proč se ty případy chovají jinak, vysvětli mi to česky
+a pak uprav skript tak, aby zvládl obojí. Napiš mi taky, jak si
+mám ověřit, že oprava nerozbila případy, které fungovaly.
+```
+
+Vrátí diagnózu a opravu. Poslední věta je podstatná — u úprav skriptů je běžné, že oprava jedné skupiny případů rozbije jinou, a bez kontrolního postupu si toho všimnete až na tisícím souboru.
+
+### Skenované PDF a další případy, kde skript sám nestačí
+
+Když skript hlásí, že v PDF nenašel žádný text, obvykle nejde o chybu skriptu: dokument je jen obrázek stránky bez textové vrstvy. Skript umí text jen číst, ne rozpoznávat.
+
+Cesty ven jsou dvě. Buď doplnit do skriptu rozpoznávání textu (OCR), což znamená instalaci navíc a u českých dokumentů s diakritikou to vyžaduje trochu ladění. Nebo — u menšího počtu souborů rychlejší — nechat skeny přečíst přímo AI, která **umí číst obrázky a skeny včetně rukopisu**, a výsledek dál zpracovat skriptem. U čísel z takto přečtených dokumentů vždycky namátkou porovnejte pár hodnot s originálem; rozpoznávání zaměňuje číslice a u rukou psaných částek se plete pravidelně.
+
+## Fáze 7: Claude Code — když skript rovnou běží
+
+Všechno předchozí předpokládá, že skript zkopírujete z chatu do souboru a spustíte ho sami. Existuje ale kratší cesta: **Claude Code je nástroj, který pracuje přímo se soubory na vašem počítači** — kód napíše, spustí ho, uvidí výsledek nebo chybu a rovnou opraví. Podobně funguje **Claude Cowork**, desktopový režim nad složkou souborů, kde zadáváte úkoly nad tím, co v ní máte.
+
+Rozdíl je zásadní hlavně u dat, která jsou „ošklivá“ — nekonzistentní názvy, pár poškozených souborů, tři různé formáty data v jednom sloupci. V chatu byste absolvovali pět kol „spadlo to, tady je hláška“. Tady tu smyčku dělá nástroj sám a vy vidíte, co se děje.
+
+Cena za pohodlí: nástroj skutečně sahá na vaše soubory. **Proto se stejná pravidla nezmírňují, ale zpřísňují** — kopie dat, náhled před změnou, potvrzování kroků.
+
+```text
+Pracuj ve složce tohoto projektu.
+
+Ve složce faktury/ je [500] PDF s nesourodými názvy. Chci je
+přejmenovat na tvar [RRRR-MM-DD_dodavatel_cislo.pdf].
+
+Postupuj takhle a po každém kroku počkej, až ti to odsouhlasím:
+1. Projdi prvních 20 souborů a napiš mi, jaké vzory názvů vidíš
+   a odkud se dá datum a dodavatel spolehlivě vzít.
+2. Navrhni pravidla převodu a ukaž mi je na těch 20 příkladech
+   ve tvaru „původní → nový“.
+3. Vytvoř kopii složky jako faktury-zaloha/ a ověř, že se zkopírovaly
+   všechny soubory (porovnej počty).
+4. Pusť přejmenování jen na prvních 20 souborů a ukaž mi výsledek.
+5. Teprve po mém schválení zpracuj zbytek.
+
+Nic nemaž. Soubory, u kterých si nejsi jistý, nech beze změny
+a vypiš mi je na konci jako seznam k ručnímu vyřízení.
+```
+
+Vrátí postup rozdělený na kroky, u kterých se vás nástroj ptá — a přesně o to jde. Bez explicitního „počkej na schválení“ mají agentní nástroje sklon udělat celou úlohu naráz; u pěti set souborů chcete vidět dvacet, ne pět set. Víc o téhle práci v tipu o [osobní automatizaci s Claude Code](/tipy/claude-code-osobni-automatizace).
+
+Když se úloha opakuje pravidelně (každý pátek zpracovat export, každý měsíc uklidit složku), dá se navázat na **plánované úlohy a rutiny**, které spouštějí zadání podle rozvrhu. Pravidlo zůstává: rutina může připravit a vypsat, rozhodnutí a nevratné kroky zůstávají člověku.
+
+## Fáze 8: vlastní knihovna skriptů
+
+První skript stojí hodinu. Druhý podobný by měl stát deset minut — ale jen tehdy, když ho najdete a pochopíte. Bez evidence budete za tři měsíce psát totéž znovu, protože nebudete vědět, co ten soubor `skript2_final.py` na ploše vlastně dělal.
+
+### Jak knihovnu založit
+
+Jedna složka, například `skripty/`, a v ní podsložka pro každý skript s třemi věcmi: samotný skript, krátký popis a ukázka vstupních dat, na kterých se dá vyzkoušet. Názvy pište česky a popisně: `prejmenovani-faktur-podle-data`, ne `script7`.
+
+```text
+Tady je skript, který jsem doladil a funguje mi. Napiš mi k němu
+dokumentaci do souboru POPIS.md, kterou pochopím za tři měsíce,
+až si nebudu pamatovat vůbec nic.
+
+Obsah:
+1. Jednou větou: co skript dělá.
+2. Kdy ho použít a kdy naopak ne.
+3. Co musí být připravené, než ho pustím (formát dat, instalace).
+4. Co přesně musím ve skriptu změnit — vypiš každou proměnnou,
+   kterou je potřeba upravit, a co do ní patří.
+5. Jak ho spustit, doslovný příkaz.
+6. Jak poznám, že dopadl dobře.
+7. Známá omezení: co neumí, na čem spadne, co jsem řešil ručně.
+8. Datum a jednou větou, k čemu jsem ho původně psal.
+
+Piš pro člověka bez programátorských znalostí, česky, stručně.
+
+[sem vlož skript]
+```
+
+Vrátí popis, který je za tři měsíce cennější než samotný kód. Bod 7 doplňte ručně o to, co jste zjistili při používání — model netuší, že se skript zadrhne na souborech od jednoho konkrétního dodavatele.
+
+### Recyklace: z hotového skriptu nový
+
+Většina dalších úloh je variace. Nezačínejte od nuly.
+
+```text
+Tady je skript, který mi funguje na [přejmenování faktur podle data
+z názvu souboru]:
+
+[vlož skript]
+
+Potřebuju teď skoro totéž, ale pro jinou úlohu: [dodací listy, kde
+je datum uvnitř PDF, ne v názvu, a cílový tvar je jiný: [popis]].
+
+Uprav ho tak, aby:
+- zůstala zachovaná struktura a všechny pojistky, které v něm jsou
+  (náhledový režim, ochrana proti přepsání, výpis nezpracovaných),
+- změnily se jen části potřebné pro novou úlohu,
+- v komentářích bylo označené, co jsi změnil oproti původní verzi.
+
+Na konci mi vypiš seznam změn v odrážkách, ať vím, co znovu překontrolovat.
+```
+
+Vrátí novou verzi, u které přesně víte, co je nové — a kontrolujete jen to. Právě proto stojí za to psát první skript pořádně, s pojistkami: dědí se do všech dalších.
+
+### Kdy knihovnu zahodit
+
+Skript, který jste půl roku nepoužili a jehož popis nedává smysl, smažte. Knihovna má být deset věcí, které používáte, ne archiv čtyřiceti pokusů. Jednou za rok projděte složku a nechte jen to, co jste za poslední rok skutečně spustili.
+
+## Nejčastější chyby
+
+- **Spustit skript, kterému nerozumíte ani rámcově.** Nemusíte umět syntaxi, ale musíte umět odpovědět, které soubory skript čte, které mění a co se stane při chybě. Když to nevíte, není to připravené k puštění.
+- **Vynechat náhledový režim a zálohu.** Hromadné operace nemají tlačítko zpět. Kopie složky stojí deset vteřin, obnova pěti set souborů den.
+- **Popsat úlohu obecně a doufat.** „Přejmenuj mi soubory pěkně“ dá skript pro jinou strukturu dat, než máte. Patnáct skutečných názvů a jeden ukázkový výsledek ušetří tři kola oprav.
+- **Nechat skript odhadovat chybějící údaje.** Když v PDF není částka, má zůstat prázdno. Dopočítaná hodnota vypadá stejně věrohodně jako skutečná a odhalí se až v účetnictví.
+- **Poslat skutečná osobní nebo firemní data do volného chatu.** Ke psaní kódu stačí struktura, ne obsah — smyšlený vzorek se stejným tvarem hodnot funguje stejně dobře. Citlivá data patří jen do placeného účtu se smluvní ochranou dat, samotný běh pak lokálně.
+- **Řešit skriptem to, co umí program, který už máte.** Než napíšete kód na hromadné přejmenování nebo rozdělení textu, ověřte, jestli to nemá vestavěné váš správce souborů nebo tabulkový editor.
+- **Nechat si skript „vylepšit“ do podoby, které přestanete rozumět.** Každé kolo úprav znamená nové kolo vysvětlení. Skript, který se rozrostl na tři obrazovky a už nevíte proč, je čas napsat znovu od jednoduššího zadání.
 
 ## Nejlepší nástroje
 
-Pro drtivou většinu jednorázových úloh vystačíte s prvními dvěma položkami ze seznamu, bez instalace čehokoli navíc.
-
-- **ChatGPT / Claude / Gemini** — napíšou skript v Pythonu nebo jako dávkový soubor podle vašeho systému, i s návodem na spuštění.
-- **Vestavěný terminál nebo PowerShell** — místo, kam se skript vloží a spustí, žádná instalace navíc.
-- **Google Colab nebo podobné online prostředí** — pokud nechcete nic instalovat lokálně, skript spustíte přímo v prohlížeči.
-- **Zkušenější kolega nebo IT oddělení jako pojistka** — u skriptů, které se dotýkají firemních systémů nebo citlivých dat, je druhé oko na místě.
-
-Stejný postup funguje i na drobné automatizace mimo soubory — třídění e-mailů, hromadné úpravy textu nebo jednoduché výpočty.
+- **Claude, ChatGPT nebo Gemini v prohlížeči** — napíšou skript i návod na spuštění a hlavně vám ho vysvětlí laicky; sem patří i kolo revize rizik před prvním spuštěním.
+- **Claude Code** — když chcete, aby AI skript rovnou spustila nad vašimi soubory, viděla chybu a opravila ji; nejrychlejší cesta u nepořádných dat, ale vyžaduje důslednější mantinely v zadání.
+- **Claude Cowork** — desktopový režim nad složkou souborů, kde zadáváte úkoly nad tím, co ve složce leží, bez kopírování dat do chatu.
+- **Python s knihovnou pandas** — univerzální základ pro práci se soubory a tabulkami; nemusíte ho umět psát, stačí mu rozumět natolik, abyste věděli, co skript udělá.
+- **Terminál nebo PowerShell** — místo, kde se skript spouští; nic se neinstaluje navíc a návod na první spuštění si necháte napsat na míru svému systému.
+- **Online prostředí v prohlížeči** (Google Colab a podobné) — když nechcete nic instalovat, ale jen pro data, která smí opustit váš počítač.
+- **Zkušenější kolega nebo IT** — u skriptů, které se dotýkají firemních systémů nebo sdílených disků, si nechte návrh prohlédnout, než ho pustíte.
 
 ## Co vám to přinese
 
-- **Čas:** hodiny ruční, opakující se práce se zkrátí na minuty běhu skriptu.
-- **Přesnost:** skript zpracuje sto souborů úplně stejně, bez únavy a bez překlepů, které se vloudí při ruční práci.
-- **Nervy:** konec otravné rutiny typu přejmenovávání, třídění nebo slučování souborů po jednom.
-- **Rozsah:** úlohy, na které byste si dřív museli najmout vývojáře nebo koupit specializovaný nástroj, teď zvládnete sami.
+- **Čas:** hromadné úlohy, které zabíraly půl dne (přejmenování stovek souborů, slučování exportů, třídění fotek), se zkrátí na minuty běhu plus dvacet minut kontroly. U opakovaných úloh klesá cena při druhém použití prakticky na nulu.
+- **Peníze:** odpadá nákup jednoúčelových programů „na přejmenování“ a „na převod formátů“, kterých byste potřebovali pět a každý se ovládá jinak. U opakujících se úloh odpadá i zadávání externímu vývojáři.
+- **Klid:** konec rutiny, u které se člověk po dvou hodinách přestává soustředit — a konec obav, že se ve stovkách souborů někde skrývá překlep, který se ukáže za půl roku.
+- **Kvalita:** skript zpracuje pětistý soubor stejně jako první a umí doložit, podle jakého pravidla to udělal. Ruční průchod tuhle vlastnost nemá a chyby v něm nejdou dohledat.
 
 ## Pro tip
 
-Než skript pustíte na ostrá data, vyzkoušejte ho na kopii složky. A pokud AI pro vytvoření skriptu potřebuje vidět ukázku dat, například strukturu souboru, použijte smyšlený vzorek se stejnou strukturou místo skutečných citlivých údajů — pro napsání kódu obvykle stačí, jak data vypadají, ne jejich skutečný obsah.
+Pokročilý trik, který vypadá zbytečně a šetří nejvíc: **nechte si ke každému skriptu napsat kontrolní skript.** Když první přejmenuje soubory, druhý po něm projde složku a ověří, že každý název odpovídá očekávanému tvaru, že se počet souborů nezměnil a že žádný nezůstal prázdný. Trvá to jeden prompt navíc a nahradí to hodinu ručního kontrolování — a hlavně vám dá odpověď, kterou u hromadných operací jinak nemáte: opravdu je hotovo, nebo to jen vypadá hotově?
+
+A závěrečné pravidlo, které platí i po padesátém skriptu: **AI navrhuje, člověk schvaluje.** Kód smí napsat stroj, ale rozhodnutí spustit ho na vaše data je vaše — a s ním i povinnost mít zálohu a rozumět aspoň větou tomu, co se za chvíli stane.

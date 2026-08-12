@@ -1,52 +1,436 @@
 ---
 title: "Artefakty: mini-aplikace bez programování"
-excerpt: "Popíšete, co potřebujete, a Claude to v chatu rovnou postaví — funkční kalkulačku, kvíz nebo tracker. Sdílíte odkazem, nic se neinstaluje."
+excerpt: "Kompletní návod s prompty: jak z popisu slovy vznikne funkční kalkulačka, kvíz, tracker nebo prototyp, jak ho vyladit iterací, otestovat, sdílet odkazem — a kdy artefakt přestane stačit a je čas na skutečnou aplikaci."
 category: "ai"
 platform: "vsude"
 audience: ["manazer", "student", "freelancer"]
 keys: []
-saves: "~1 den vývoje"
+saves: "~1 den vývoje na nástroj"
 date: "2026-08-12"
 ---
 
-Ve firmách se pořád opakuje stejná scéna: někdo potřebuje jednoduchý nástroj — kalkulačku, formulář, tabulku, která něco spočítá — a odpověď zní „to by musel udělat vývojář, dej to do backlogu“. Za tři měsíce se na to zapomene a lidé počítají dál v Excelu, který má každý jiný. Artefakty tuhle frontu obcházejí. **Claude umí přímo v chatu vytvořit funkční mini-aplikaci nebo stránku a vy ji sdílíte odkazem — bez instalace, bez vývojáře, bez čekání.** Hodina povídání místo dne programování. Kam tenhle způsob práce zapadá mezi ostatní úrovně používání AI, popisuje [kapitola o AI a automatizaci](/prirucka/ai-a-automatizace).
+Ve firmách se pořád opakuje stejná scéna: někdo potřebuje jednoduchý nástroj — kalkulačku, formulář, přehled, který něco spočítá — a odpověď zní „to by musel udělat vývojář, dej to do backlogu“. Za tři měsíce se na to zapomene a lidé počítají dál v Excelu, který má každý jiný. Artefakty tuhle frontu obcházejí. **Claude umí přímo v konverzaci postavit funkční mini-aplikaci a vy ji sdílíte odkazem — bez instalace, bez vývojáře, bez čekání.** Odpoledne povídání místo dne programování.
+
+Tenhle návod je celý o tom, jak z „potřeboval bych něco, co…“ udělat nástroj, který tým skutečně používá. Projdeme zadání, ze kterého vznikne použitelná první verze, iteraci v konverzaci, testování před rozesláním, sdílení a údržbu, čtyři hotové scénáře podle rolí a nakonec hranici, za kterou artefakt přestane stačit. Každá fáze má prompty k okopírování — stačí doplnit hranaté závorky. Nemusíte číst všechno najednou; první nástroj postavíte z fází 1 až 3, zbytek je o tom, aby vydržel.
+
+Dvě pravidla platí nad celým návodem. Za prvé: **artefakt smí počítat a navrhovat, rozhodnutí zůstává na člověku.** Nástroj, který sám odešle nabídku, provede platbu nebo někoho oznámkuje, není zjednodušení, ale přenesení odpovědnosti na něco, co se nemá jak omluvit. Za druhé: **do artefaktu nedávejte citlivá data.** Pracujte se sazbami, pravidly a vzorci — ne s databází klientů, mzdami ani zdravotními údaji. Když s citlivými daty pracovat musíte, jedině na placeném či firemním účtu se smluvní ochranou dat a s anonymizací všeho, co jde anonymizovat. Kam tenhle způsob práce zapadá mezi ostatní úrovně používání AI, popisuje [kapitola o AI a automatizaci](/prirucka/ai-a-automatizace).
 
 ## Vzorová situace
 
-Obchodní ředitel Tomáš má šest obchodníků a jeden trvalý problém: každý počítá cenu nabídky po svém. Základní sazba, příplatek za expres, sleva podle objemu, doprava. Výsledkem jsou tři různé ceny za stejnou zakázku a měsíčně zhruba dvě reklamace typu „ale kolega mi řekl jinou částku“. Interní kalkulačku Tomáš chtěl dva roky; IT ji odhadovalo na týden práce a nikdy se nedostala na řadu.
+Obchodní ředitel Tomáš má šest obchodníků a jeden trvalý problém: každý počítá cenu nabídky po svém. Základní sazba za kus, příplatek za expresní termín, sleva podle objemu, doprava podle vzdálenosti, u dlouhodobých klientů ještě individuální dohody. Pravidla jsou popsaná ve třech dokumentech a jedné prezentaci z předloňska. Výsledkem jsou tři různé ceny za stejnou zakázku, měsíčně zhruba dvě reklamace typu „ale kolega mi řekl jinou částku“ a jedna zakázka za čtvrtletí, která se udělá pod nákladovou cenou, protože se sečetly dvě slevy, které se sčítat neměly.
 
-Odpoledne stráví s Claude. Popíše sazby, pravidla slev a to, co má výstup obsahovat. Za deset minut má první verzi kalkulačky přímo v chatu — zadá parametry, vyjede cena. Další půlhodinu ladí: přidá pole na dopravu, zakáže slevu nad dvacet procent, doplní shrnutí, které jde zkopírovat do nabídky. Pak pošle obchodníkům odkaz. Od pondělí počítá celý tým stejně a spor o cenu zmizel z agendy.
+Interní kalkulačku Tomáš chtěl dva roky. IT ji odhadovalo na týden práce, a protože týden práce se nikdy neuvolní kvůli obchodu, nikdy se nedostala na řadu.
 
-## Jak na to
+Odpoledne stráví s Claude. Nadiktuje sazby, pravidla slev a to, co má výstup obsahovat, a přidá tři skutečné nabídky z minulého měsíce i s výslednou cenou — na nich se hned ukáže, jestli nástroj počítá správně. Za deset minut má první verzi kalkulačky přímo v konverzaci: zadá parametry, vyjede cena. Další hodinu ladí: přidá pole na dopravu, zakáže součet dvou slev nad dvacet procent, doplní shrnutí, které jde jedním kliknutím zkopírovat do mailu, a do patičky datum platnosti ceníku. Pak pošle obchodníkům odkaz.
 
-1. **Popište nástroj slovy, ne zadáním pro vývojáře.** Řekněte, k čemu to má být, co uživatel zadá a co má vypadnout ven. „Chci kalkulačku nabídek: zadám počet kusů, typ produktu a termín, spočítá cenu podle těchto pravidel a napíše shrnutí, které vložím do mailu.“
-2. **Dodejte skutečná pravidla a jeden příklad.** Sazby, hranice slev, výjimky — a jeden vzorový výpočet i s výsledkem. Podle něj Claude ověří, že počítá správně, a vy hned poznáte chybu.
-3. **Iterujte v konverzaci.** První verze nebude finální a nemá být. Pište připomínky normálně: „přidej pole na dopravu“, „ať nejde zadat záporný počet“, „výsledek zaokrouhli na celé koruny“. Každá úprava je jedna věta a nová verze je hned k vyzkoušení.
-4. **Otestujte na okrajích.** Zadejte nulu, obrovské číslo, nesmyslnou kombinaci. Nástroj, který se nechá rozbít prvním překlepem, používat nikdo nebude.
-5. **Sdílejte odkazem.** Hotový artefakt pošlete kolegům jako odkaz. Nic se neinstaluje, otevře se v prohlížeči i na telefonu.
-6. **Ohlídejte data.** Do artefaktu nedávejte osobní údaje, finanční ani zdravotní informace — pracujte se sazbami a pravidly, ne s databází klientů. Když s citlivými daty pracovat musíte, jedině na placeném či firemním účtu se smluvní ochranou dat a s anonymizací všeho, co jde anonymizovat.
+Za měsíc vypadá bilance takhle: spory o cenu z porady zmizely, žádná zakázka pod nákladovou cenou, a příprava nabídky trvá místo dvaceti minut tři. Bonus, se kterým Tomáš nepočítal: když se v dubnu měnil ceník, změna trvala pět minut a všichni ji měli hned — místo kolování nové tabulky, kterou si polovina lidí neuloží.
 
-## K čemu se to hodí nejčastěji
+## Fáze 1: co artefakt je a kdy má smysl
 
-- **Interní kalkulačka** — ceny nabídek, marže, návratnost investice. Celý tým počítá jedním způsobem.
-- **Onboardingový kvíz** — deset otázek na směrnice nebo produktové portfolio, s vyhodnocením na konci.
-- **Jednoduchý tracker** — přehled kroků procesu, kontrolní seznam před spuštěním kampaně, počítadlo návyků.
-- **Interaktivní vysvětlení** — stránka, kde si posluchač sám posune parametr a vidí, jak se výsledek mění; nedocenitelné na školení i u obhajoby.
+Než začnete stavět, vyplatí se deset minut na to, abyste věděli, s čím pracujete. Nejčastější zklamání z artefaktů nepramení z toho, že by nefungovaly, ale z toho, že po nich někdo chtěl věc, na kterou nejsou.
+
+### Jak to vypadá
+
+Napíšete, co potřebujete. Claude odpoví běžným textem a vedle konverzace se otevře panel, ve kterém běží hotová věc — kalkulačka s poli, kvíz s otázkami, graf, se kterým jde hýbat. Není to popis nástroje ani návod, jak si ho udělat: je to nástroj sám, spuštěný, k okamžitému vyzkoušení. Když napíšete „přidej pole na dopravu“, panel se během chvilky překreslí s novou verzí. Původní verze nezmizí, dá se k ní vrátit.
+
+Když je nástroj hotový, sdílíte ho odkazem. Kdo odkaz dostane, otevře ho v prohlížeči na počítači i na telefonu, nic neinstaluje a nemusí mít vlastní účet ani rozumět tomu, jak nástroj vznikl. Vidí jen aplikaci.
+
+### Co artefakt zvládne dobře
+
+- **Kalkulačky a modely.** Cena nabídky, marže, návratnost investice, splátkový plán, propočet spotřeby materiálu. Cokoli, co je „vzorec plus pravidla plus výjimky“.
+- **Interaktivní nástroje.** Konfigurátor, průvodce rozhodováním („odpověz na pět otázek a řekneme ti, který postup použít“), generátor textu ze šablony, převodník.
+- **Kvízy a procvičování.** Otázky s vyhodnocením, opakování pojmů, test znalosti směrnice po onboardingu.
+- **Trackery a kontrolní seznamy.** Postup procesu, checklist před spuštěním kampaně, počítadlo návyků, plánovač na týden.
+- **Prototypy.** Klikací návrh obrazovky nebo formuláře, na kterém si s klientem nebo týmem ověříte, co vlastně chcete, než to někdo začne stavět doopravdy.
+- **Vizualizace.** Graf z vašich čísel, se kterým jde hýbat — posuňte parametr a je vidět, jak se výsledek mění. Na školení a při obhajobě čísel je to nedocenitelné.
+
+### Co od artefaktu nečekat
+
+Artefakt je stránka, která běží u toho, kdo ji otevřel. Počítejte s tím, že **nemá sdílenou paměť mezi lidmi**: co do něj zadá jeden člověk, druhý neuvidí, a po zavření okna se to obvykle ztratí. Pro kalkulačku je to jedno, pro evidenci docházky celého týmu je to zásadní překážka. Stejně tak sám od sebe nesahá do vašich firemních systémů, nemá přihlašování, role ani auditní stopu, kdo co kdy změnil.
+
+To není nedostatek, je to volba: přesně díky téhle jednoduchosti vznikne nástroj za odpoledne. Jakmile ale potřebujete data, která přetrvají a sdílí je víc lidí, jste v jiné kategorii — a to řeší fáze 7.
+
+### Rychlý test, jestli je artefakt správná odpověď
+
+Odpovězte si na tři otázky. **Vejde se logika nástroje na jednu stránku popisu?** Když ne, rozdělte to na víc menších nástrojů. **Stačí, když nástroj počítá z toho, co do něj člověk právě zadal?** Když potřebuje znát historii nebo data ostatních, artefakt to neutáhne. **Nese odpovědnost člověk, který výsledek použije?** Když má nástroj sám něco rozhodnout nebo odeslat, není to artefakt, ale automatizace — a ta patří jinam, viz [rutiny nad poštou a kalendářem](/tipy/claude-rutiny-posta-kalendar).
+
+Tři ano znamenají, že nástroj postavíte dnes.
+
+## Fáze 2: zadání, ze kterého vznikne použitelná první verze
+
+Kvalita první verze je skoro celá v zadání. Rozdíl mezi „udělej mi kalkulačku nabídek“ a promptem níž jsou dvě hodiny ladění.
+
+### Šest věcí, které v zadání musí být
+
+**K čemu to je a kdo to bude používat.** Nástroj pro šest obchodníků na telefonu vypadá jinak než nástroj pro vás na velkém monitoru. **Co uživatel zadá** — vyjmenujte pole i s typem a rozsahem. **Jaká platí pravidla** — sazby, hranice, výjimky, co se nesmí kombinovat. **Co má vypadnout ven** — nejen číslo, ale i podoba výstupu. **Vzorový příklad i s výsledkem** — tohle je ta nejcennější položka: bez ní nemáte jak poznat, že nástroj počítá špatně. A **omezení** — co nástroj naopak dělat nemá.
+
+### Kompletní zadání kalkulačky
+
+```text
+Postav mi jako artefakt interní kalkulačku cenových nabídek.
+Budou ji používat obchodníci, často na mobilu u klienta.
+
+Vstupy:
+- typ produktu: [A / B / C]
+- počet kusů: celé číslo 1 až 10000
+- termín dodání: standardní / expres
+- vzdálenost dopravy v km: 0 až 500
+- typ klienta: nový / stálý
+
+Pravidla:
+- základní cena za kus: A = [1200] Kč, B = [1850] Kč, C = [2400] Kč
+- množstevní sleva: od [50] ks [5] %, od [200] ks [10] %, od [500] ks [15] %
+- expres: příplatek [20] % k ceně zboží, u objednávek nad [500] ks
+  expres nelze zvolit
+- doprava: [25] Kč za km, nad [300] km je doprava zdarma
+- stálý klient: sleva [3] %, ale celková sleva nikdy nesmí přesáhnout [20] %
+
+Výstup:
+- rozpis položek (zboží, slevy, doprava) a celková cena bez DPH i s DPH [21] %
+- textové shrnutí nabídky připravené ke zkopírování do mailu
+- upozornění červeně, když by cena za kus klesla pod [900] Kč
+
+Kontrolní příklad: produkt B, 250 ks, expres, 120 km, stálý klient
+= [sem doplňte správný výsledek, který jste spočítali ručně].
+Nejdřív mi ukaž, jak na tenhle příklad vyjde tvoje kalkulačka.
+```
+
+Vrátí funkční kalkulačku a rovnou u ní výsledek kontrolního příkladu. Když se výsledek neshoduje s vaším ručním výpočtem, nespravujte kód — napište, které číslo je špatně a jaké má být správně, a nechte pravidlo opravit. Pozor na pořadí slev: pokud v zadání neřeknete, jestli se sleva počítá z ceny před dopravou nebo po ní, model si vybere sám a vy si toho nemusíte všimnout.
+
+### Když si nejste jistí zadáním
+
+Někdy nevíte přesně, co chcete, dokud to nevidíte. Pak se vyplatí obrátit postup a nechat se vyzpovídat.
+
+```text
+Chci si postavit nástroj, který [popis jednou větou, k čemu to je].
+Zatím nemám promyšlené detaily.
+
+Nestav nic. Nejdřív se mě zeptej na 6 věcí, které potřebuješ vědět,
+abys mohl postavit použitelnou první verzi — vždycky jednu otázku,
+počkej na odpověď, pak další. Ptej se na konkrétní čísla a pravidla,
+ne na obecné dojmy.
+
+Až budeš mít odpovědi, shrň mi zadání do odrážek a zeptej se,
+jestli je to tak správně. Teprve po mém potvrzení postav artefakt.
+```
+
+Vrátí otázky, které vás donutí rozhodnout věci, na které byste jinak přišli až v páté verzi. Trvejte na jedné otázce po druhé — když jich přijde šest naráz, půlku odpovědí odbydete.
+
+### Pravidla, která už někde máte
+
+Když jsou sazby a pravidla popsané v dokumentech, nepřepisujte je do promptu ručně. Nahrajte je a nechte z nich vyjít nástroj.
+
+```text
+Přikládám [ceník / směrnici / metodiku] a chci z toho postavit
+artefakt, který podle nich počítá.
+
+Postupuj takhle:
+1. Vypiš mi z dokumentů všechna pravidla, která ovlivňují výpočet —
+   jako číslovaný seznam, u každého odkaz, ze které části dokumentu je.
+2. Zvlášť vypiš místa, která jsou nejednoznačná nebo si protiřečí,
+   a zeptej se mě, jak to platí ve skutečnosti.
+3. Až ti to potvrdím, postav kalkulačku podle bodu 1.
+
+Nic si nedomýšlej. Kde v dokumentu údaj chybí, napiš to
+místo toho, abys ho odhadl.
+```
+
+Bod 2 je důvod, proč prompt takhle formulovat. Firemní ceníky si běžně protiřečí a nikdo o tom neví, protože je vždycky čte člověk, který „ví, jak to je myšlené“. Nástroj takovou volnost nemá — a tenhle prompt rozpory vytáhne na světlo dřív, než se zabetonují do nástroje, který používá šest lidí. Trvalé místo pro sazby a pravidla je [projekt s vlastním kontextem](/tipy/ai-projekty-kontext): jednou je tam uložíte a každá další verze nástroje z nich vychází.
+
+## Fáze 3: iterace — jak z první verze udělat použitelnou
+
+První verze není finální a nemá být. Zajímavá práce začíná tady: nástroj máte před sebou, klikáte do něj a hned vidíte, co chybí. Právě tahle smyčka — vyzkoušet, říct větu, vyzkoušet znovu — dělá artefakty tím, čím jsou.
+
+### Jak formulovat úpravy
+
+Platí tři návyky. **Jedna změna, jedna věta.** „Přidej pole na dopravu“ funguje, „přidej dopravu, změň barvy, uprav zaokrouhlování a přidej export“ vede k verzi, ve které je jedna z těch věcí rozbitá a vy nevíte která. **Popisujte chování, ne řešení.** Místo „dej tam validaci“ napište „když zadám nulu kusů, ať se místo ceny objeví hláška, že počet musí být aspoň jeden“. A **řekněte, co se měnit nemá** — u větších úprav ušetří větu „ostatní nech beze změny“ půl hodiny hledání, co se cestou pokazilo.
+
+### Dávka úprav po prvním testu
+
+Když si nástroj proklikáte a máte poznámek víc, dají se poslat najednou — ale strukturovaně a s jasnou hranicí, kam sáhnout smí a kam ne.
+
+```text
+Vyzkoušel jsem kalkulačku a mám tyhle připomínky. Uprav jen tohle,
+zbytek nech přesně jak je:
+
+1. Pole „počet kusů“ ať nejde vyplnit záporným číslem ani písmeny.
+2. Cenu zaokrouhli na celé koruny, ale až na konci — mezivýpočty
+   nezaokrouhluj.
+3. Pod celkovou cenu přidej řádek „cena za kus po slevách“.
+4. Shrnutí do mailu ať jde zkopírovat jedním tlačítkem.
+5. Na mobilu jsou pole moc malá — udělej je přes celou šířku.
+
+Po úpravě mi napiš, co přesně jsi změnil, a znovu spočítej
+kontrolní příklad z mého původního zadání, ať vidím,
+že se výsledek nezměnil.
+```
+
+Poslední odstavec je pojistka proti tiché regresi: nejčastější způsob, jak se kalkulačka rozbije, je úprava, která vedle sebe změní i něco, o co nešlo. Když si necháte po každé dávce přepočítat kontrolní příklad, chytíte to hned.
+
+### Vzhled a použitelnost
+
+Nástroj, který vypadá jako rozpracovaná věc, lidé nepoužívají — i když počítá správně. Deset minut na vzhled se vrátí.
+
+```text
+Nech výpočty přesně jak jsou a uprav jen vzhled a použitelnost:
+
+- výsledek ať je největší prvek na stránce, ať ho je vidět bez
+  scrollování hned po zadání
+- pole seskup do bloků: co objednávka obsahuje / kam se veze /
+  kdo je klient
+- k poli „typ produktu“ přidej krátké vysvětlení, co který typ znamená
+- používej jednoduché, klidné barvy; červenou jen pro upozornění
+- ať je to dobře čitelné na telefonu i na velkém monitoru
+- nahoru dej název nástroje a jednu větu, k čemu slouží
+
+Nepřidávej žádné nové funkce ani pole.
+```
+
+Vrátí verzi, kterou jde poslat lidem. Zákaz nových funkcí je tam schválně — bez něj má model tendenci „při té příležitosti“ přidat věci, o které jste nestáli.
+
+### Vracení a větvení
+
+Když se nová verze nepovede, nemusíte popisovat cestu zpátky slovem. Panel s artefaktem si drží starší verze, takže se dá vrátit k té, která fungovala, a pokračovat odtud. Vyplatí se to hlavně ve chvíli, kdy zkoušíte něco odvážnějšího: rovnou řekněte „tohle je zkouška, když to nevyjde, vrátíme se k předchozí verzi“ a experimentujte bez obav. A když nástroj funguje a chcete jen variantu pro jiný tým, nezačínejte znovu — nechte udělat kopii s jinými sazbami.
+
+## Fáze 4: testování — než to pošlete lidem
+
+Chyba v kalkulačce je tichá. Nespadne, nevypíše varování — jen vrací špatné číslo, které vypadá naprosto normálně. Než nástroj rozešlete, projděte tři kontroly. Zaberou dvacet minut a jsou to nejlépe investované minuty celého postupu.
+
+### Kontrola pravidel: nechte si vysvětlit, jak to počítá
+
+```text
+Nech nástroj beze změny a vypiš mi česky, podle jakých pravidel počítá.
+Pro každé pravidlo:
+- co dělá (jednou větou, bez odborných výrazů)
+- v jakém pořadí se aplikuje vůči ostatním
+- jaký je zdroj té hodnoty — je v mém zadání, nebo sis ji doplnil sám?
+
+Zvlášť vypiš:
+- všechny hodnoty, které jsem ti nezadal a ty sis je zvolil
+- všechna místa, kde bylo moje zadání nejednoznačné a ty sis
+  vybral jeden výklad
+
+Nic neopravuj, jen popiš.
+```
+
+Tohle je nejdůležitější prompt celého návodu. Seznam „hodnot, které sis doplnil sám“ bývá delší, než čekáte — sazba DPH, způsob zaokrouhlování, pořadí slev, co se stane při prázdném poli. Projděte ho řádek po řádku a co nesedí, opravte. Zbytek nechte a mějte to zapsané: až se za rok bude ptát, proč nástroj počítá takhle, budete to vědět.
+
+### Testovací případy včetně okrajů
+
+```text
+Vygeneruj mi tabulku 12 testovacích případů pro tuhle kalkulačku:
+
+- 4 běžné případy, jaké nastanou v praxi nejčastěji
+- 4 okrajové: nula kusů, maximum kusů, přesně na hranici slevy
+  ([50] ks, [200] ks), nulová vzdálenost
+- 4 nesmyslné: záporné číslo, text místo čísla, prázdné pole,
+  kombinace, která podle pravidel nemá být povolená (expres
+  nad [500] ks)
+
+Sloupce: vstupy | co má nástroj udělat | co udělal doopravdy.
+Třetí sloupec nech prázdný, vyplním si ho sám při zkoušení.
+```
+
+Vrátí tabulku, kterou si vytisknete nebo dáte vedle a proklikáte. Hranice slev testujte vždycky trojicí hodnot — o jednu pod, přesně na hranici, o jednu nad. Chyba typu „sleva se aplikuje od 51 kusů místo od 50“ se jinak neodhalí a v praxi z ní bývá spor s klientem.
+
+### Kontrola proti realitě
+
+Poslední kontrola je nejjednodušší a nikdo ji nedělá: vezměte tři skutečné případy z minulého měsíce, u kterých znáte správný výsledek, a projeďte je nástrojem. Když se shodnou, máte hotovo. Když se neshodnou, buď je chyba v nástroji, nebo — což se stává překvapivě často — se ukázalo, že se v praxi počítalo jinak, než jak zní oficiální pravidlo. Obojí je cenné zjištění a obojí se má vyřešit dřív, než nástroj dostane šest lidí.
+
+## Fáze 5: sdílení, provoz a údržba
+
+Nástroj, který používá jen jeho autor, není nástroj, ale zápisník. Rozeslání odkazem trvá minutu — udržet ho v kondici je práce na pár minut čtvrtletně, na kterou se ovšem zapomíná.
+
+### Rozeslání
+
+Hotový artefakt sdílíte odkazem. Kdo ho dostane, otevře ho v prohlížeči, nic si neinstaluje. Než odkaz pošlete, zkontrolujte tři věci: jestli se nástroj otevře i na telefonu, jestli je z první obrazovky poznat, k čemu je, a jestli v něm nezůstala testovací data z vašeho zkoušení.
+
+K odkazu napište tři věty: co to je, kdy to použít a co dělat při divném výsledku (odpověď má znít „napiš mi, nepřepisuj to ručně“). Bez toho vzniká nejhorší možný stav — lidé nástroj používají, výsledek si po svém opravují a nikdo neví, že něco nesedí.
+
+### Verze a vlastník přímo v nástroji
+
+```text
+Přidej do patičky nástroje diskrétní řádek s:
+- názvem a verzí nástroje
+- datem, ke kterému platí sazby: [datum]
+- jménem člověka, kterému se hlásí nesrovnalosti: [jméno]
+
+A přidej rozbalovací sekci „Jak to počítá“, ve které bude
+česky a srozumitelně popsané, jaká pravidla se používají —
+tak, aby si to mohl přečíst obchodník, ne programátor.
+
+Výpočty nech beze změny.
+```
+
+Sekce „Jak to počítá“ dělá dvě věci naráz: uživatel si může ověřit, proč vyšlo to, co vyšlo, a vy máte dokumentaci, aniž byste ji psali zvlášť. Datum platnosti sazeb je ochrana před nejtypičtější tichou chybou — tým počítá půl roku s loňským ceníkem a nikdo si toho nevšimne.
+
+### Údržba
+
+Dejte si do kalendáře čtvrtletní patnáctiminutovku na revizi nástrojů: platí ještě sazby? Používá to někdo? Vrátil někdo připomínku, která zapadla? Nástroje, které nikdo neotevřel, zrušte — sbírka dvaceti odkazů, ze kterých fungují tři, důvěru ničí rychleji než žádný nástroj.
+
+Když se sazby mění pravidelně, nedržte je v hlavě, ale v projektu. Pak vypadá aktualizace takhle:
+
+```text
+V projektu je aktualizovaný ceník platný od [datum].
+Vezmi můj stávající nástroj [název] a přepiš v něm sazby
+podle nového ceníku.
+
+- změň jen čísla, logika a vzhled zůstávají
+- vypiš mi seznam všech změn ve tvaru: co bylo → co je
+- uprav datum platnosti v patičce
+- na kontrolním příkladu [popis] mi ukaž starý a nový výsledek
+  vedle sebe
+```
+
+Srovnání starého a nového výsledku vedle sebe je poslední kontrola před rozesláním: když se cena změnila jinak, než jste čekali, něco se přepsalo špatně.
+
+## Fáze 6: čtyři hotové scénáře podle rolí
+
+Následující čtyři prompty jsou k okamžitému použití — vyměňte hranaté závorky a máte nástroj.
+
+### Obchod: co s kalkulačkou dál
+
+Kalkulačka nabídek je první krok. Přirozené pokračování je nástroj, který obchodníkovi pomůže rozhodnout, ne jen spočítat: propočet, jestli se zakázka vůbec vyplatí.
+
+```text
+Postav artefakt „ověřovačka zakázky“ pro obchodníky.
+
+Uživatel zadá: cenu zakázky, přímé náklady, odhad hodin práce
+našeho týmu, splatnost ve dnech, riziko (nízké/střední/vysoké).
+
+Nástroj spočítá a ukáže:
+- marži v korunách i procentech
+- hodinovou výnosnost (marže děleno hodinami) a porovná ji
+  s naší cílovou hodnotou [X] Kč/h
+- jednoduchý semafor: zelená = brát, oranžová = probrat s vedoucím,
+  červená = nebrat, s hranicemi [doplňte]
+- u oranžové a červené vypíše, co konkrétně je špatně a o kolik
+  by se musela zvednout cena nebo snížit hodiny, aby to bylo zelené
+
+Semafor je doporučení, ne rozhodnutí — napiš to viditelně
+přímo do nástroje.
+```
+
+Poslední věta není kosmetika. Jakmile má nástroj barvu, lidé mají tendenci brát ji jako verdikt — a právě u hraničních zakázek je člověk potřeba.
+
+### HR: onboardingový kvíz
+
+```text
+Postav artefakt: onboardingový kvíz pro nové kolegy.
+Podklad je přiložená [směrnice / příručka] — otázky tvoř
+výhradně z ní, nic nedoplňuj z obecných znalostí.
+
+- 12 otázek, u každé 4 možnosti a právě jedna správná
+- otázky ať jsou na situace („co uděláš, když…“), ne na
+  doslovné znění vět ze směrnice
+- po odpovědi hned ukaž, jestli byla správně, a vysvětli proč,
+  s odkazem na část dokumentu
+- na konci skóre, seznam témat, ve kterých člověk chyboval,
+  a doporučení, které části si přečíst znovu
+- ať jde kvíz spustit znovu s otázkami v jiném pořadí
+
+Výsledek se nikam neodesílá a nikde se neukládá — napiš to
+do úvodu kvízu, ať to nováček ví.
+```
+
+Poslední odstavec je podstatný nejen technicky, ale i lidsky: kvíz, o kterém si nováček myslí, že ho hodnotí HR, se vyplňuje jinak než kvíz na vlastní kontrolu. A protože artefakt data nikam neposílá, je to i pravda.
+
+### Učitel: procvičovadlo na míru látce
+
+```text
+Postav artefakt na procvičování pro žáky [ročník], téma [téma].
+
+- generuje příklady typu [popis, např. rovnice o jedné neznámé
+  s celočíselným výsledkem], vždy nové, ne stále stejné
+- tři úrovně obtížnosti, přepínatelné
+- po odpovědi ukáže, jestli je správně, a u chybné odpovědi
+  postup krok za krokem — ne jen výsledek
+- počítadlo, kolik jich žák udělal správně za sebou
+- tlačítko „další příklad“ a tlačítko „ukaž mi vzorový postup“
+
+Jazyk přiměřený věku, žádné odborné výrazy navíc.
+Žádné hodnocení známkou a žádné odesílání výsledků.
+```
+
+Vrátí procvičovadlo, které jde promítnout na tabuli i poslat žákům odkazem. Než ho pustíte do třídy, vygenerujte si dvacet příkladů a projděte je: generátory umějí sem tam vyrobit úlohu, která nemá pěkné řešení nebo je zadaná nejednoznačně. A pravidlo o známkách platí bez výjimky — **procvičování ano, hodnocení dělá učitel.**
+
+### Freelancer: prototyp pro klienta místo dohadování
+
+```text
+Postav klikací prototyp [popis obrazovky, např. rezervační
+formulář pro kadeřnictví] jako artefakt.
+
+- funguje na klikání: dá se v něm projít celý postup od začátku
+  do konce a vidět, co se kdy stane
+- data ať jsou smyšlená, ale realistická
+- žádné napojení kamkoli, nic se nikam neodesílá
+- na každé obrazovce krátká poznámka, co se v ostré verzi
+  bude dít na pozadí
+
+Cílem je odsouhlasit s klientem postup a rozsah, ne finální vzhled.
+Napiš mi k tomu 8 otázek, které se mám klienta při ukázce zeptat.
+```
+
+Tohle je nejlevnější způsob, jak zjistit, že si klient představoval něco jiného. Hodinu práce vyměníte za jistotu, že zadání sedí — a osm otázek k ukázce zabrání tomu, aby schůzka sklouzla k barvám tlačítek místo k tomu, co má nástroj umět. Prototyp ovšem klientovi nikdy neprezentujte jako hotovou věc: vypadá funkčně a je snadné z toho vyvodit, že práce je skoro hotová.
+
+## Fáze 7: kdy artefakt nestačí
+
+Artefakt je skvělý začátek a špatný konec, když nástroj přeroste. Pět signálů, že je čas na skutečnou aplikaci:
+
+- **Data mají přetrvat a sdílet je víc lidí.** Jakmile potřebujete, aby to, co zadal jeden člověk, viděl druhý a zůstalo to tam za měsíc, potřebujete databázi.
+- **Jsou v tom osobní nebo citlivá data.** Klienti, zaměstnanci, zdravotní nebo finanční údaje — tohle patří do systému s řízeným přístupem a jasným zpracovatelem, ne do odkazu, který koluje po firmě.
+- **Potřebujete vědět, kdo co udělal.** Auditní stopa, schvalování, role a oprávnění jsou přesně ta věc, kterou artefakt nemá.
+- **Musí to mluvit s vašimi systémy.** Napojení na sklad, CRM nebo účetnictví je jiná liga — tam vede cesta přes [MCP a konektory](/tipy/mcp-konektory-usb-c-pro-ai) nebo přes vlastní vývoj.
+- **Nástroj se stal kritickým.** Když by výpadek nebo tichá chyba znamenaly reálnou škodu, potřebujete něco, co má vlastníka, testy a zálohu — ne odkaz z konverzace.
+
+Dobrá zpráva: artefakt v takové situaci není zahozená práce, ale nejlepší možné zadání. Máte funkční model toho, co chcete, vyzkoušený lidmi, kteří to budou používat. Z toho se zadání píše jinak než z prázdného papíru.
+
+```text
+Tenhle artefakt používá [počet] lidí a přerostl, co artefakt unese:
+potřebujeme [ukládat data / přihlašování / napojení na systém X].
+
+Napiš zadání pro vývojáře, které z tohohle nástroje vychází:
+1. Co nástroj dělá dnes — funkce po funkci, včetně všech
+   výpočetních pravidel a jejich pořadí
+2. Co je potřeba přidat, aby to fungovalo pro víc lidí
+3. Jaká data se budou ukládat a která z nich jsou osobní údaje
+4. Role a oprávnění: kdo smí co
+5. Otevřené otázky, které musíme rozhodnout my, ne vývojář
+6. Co z dnešního nástroje naopak nepotřebujeme a proč
+
+Piš věcně a bez marketingu. Technologii nenavrhuj,
+to je věc vývojáře.
+```
+
+Vrátí dokument, se kterým jde jít za IT nebo za dodavatelem. Bod 5 si projděte první — rozhodnutí, která zůstanou na vývojáři, se obvykle rozhodnou jinak, než byste chtěli. Když nástroj má žít ve firemním repozitáři a pracovat se soubory, navazuje [Claude Code](/tipy/claude-code-osobni-automatizace); širší obrázek zavádění AI ve firmě je v [kompletním průvodci](/tipy/ai-ve-firme-kompletni-pruvodce).
+
+## Nejčastější chyby
+
+- **Zadat nástroj bez kontrolního příkladu.** Bez čísla, o kterém víte, že je správné, nemáte jak poznat, že kalkulačka počítá špatně — a chyba ve vzorci je tichá.
+- **Poslat první verzi lidem.** První verze je návrh k vyzkoušení. Mezi ní a nástrojem, který tým používá, leží dvacet minut testování okrajových hodnot.
+- **Měnit deset věcí najednou.** Když po dávce úprav něco přestane fungovat, nevíte co. Jedna změna, jedna kontrola, další změna.
+- **Nechat artefakt rozhodovat.** Semafor, doporučení, skóre — všechno je podklad pro člověka. Jakmile nástroj něco odesílá, schvaluje nebo známkuje, překročili jste hranici.
+- **Nahrát do artefaktu osobní údaje.** Sazby a pravidla ano, databáze klientů nebo mzdy ne. Citlivá data patří jen do placeného či firemního účtu se smluvní ochranou dat a i tam jen anonymizovaná.
+- **Zapomenout na datum platnosti.** Nástroj počítá spolehlivě dál i s loňskými sazbami. Datum v patičce a čtvrtletní revize stojí pár minut a šetří trapné situace.
+- **Stavět artefaktem něco, co má být aplikace.** Když potřebujete sdílená data, přihlašování a auditní stopu, artefakt vás donese k lepšímu zadání — ne k cíli.
 
 ## Nejlepší nástroje
 
-- **Artefakty v Claude** — nástroj vzniká rovnou v konverzaci a sdílíte ho odkazem; nic se neinstaluje.
-- **Projekty v Claude** — sem uložte sazby, ceník a pravidla; Claude je zná v každé konverzaci a artefakt z nich vychází.
-- **Claude Code** — když nástroj přeroste jednu stránku a má žít ve firemním repozitáři; pracuje se soubory i s gitem.
-- **Formuláře a tabulky (Google Forms, Sheets)** — poctivá alternativa tam, kde stačí sběr odpovědí a žádná logika navíc.
+- **Artefakty v Claude** — nástroj vzniká přímo v konverzaci, hned se dá vyzkoušet a sdílí se odkazem; nic se neinstaluje ani u vás, ani u kolegů.
+- **Projekty v Claude** — trvalé místo pro ceník, sazby a firemní pravidla; každá další verze nástroje z nich vychází a aktualizace je jedna věta.
+- **Claude Code** — když nástroj přeroste jednu stránku, má žít v repozitáři a pracovat se soubory a gitem.
+- **Konektory a MCP** — cesta k datům z vašich systémů ve chvíli, kdy nástroji nestačí, co do něj člověk zrovna zadal.
+- **Google Forms a Sheets** — poctivá alternativa tam, kde jde jen o sběr odpovědí a žádnou logiku navíc; sbírají data trvale, což artefakt neumí.
 
 ## Co vám to přinese
 
-- **Čas:** nástroj, na který by vývojář potřeboval den, vznikne za hodinu odpoledne. Fronta na IT se zkracuje o věci, které tam nikdy neměly být.
-- **Konzistence:** místo šesti verzí tabulky jeden odkaz, který má každý stejný.
-- **Nezávislost:** nemusíte nikoho prosit ani čekat na kapacitu. Úpravu si uděláte v konverzaci sami.
-- **Lepší zadání:** i když nakonec vznikne pořádná aplikace, artefakt slouží jako prototyp, na kterém si ověříte, co vlastně chcete.
+- **Čas:** nástroj, na který by vývojář potřeboval den, vznikne za odpoledne — a úprava, která by čekala týdny ve frontě, je otázkou jedné věty. U týmu, který si takhle postaví tři až čtyři nástroje ročně, jde střízlivě o desítky ušetřených hodin.
+- **Peníze:** typická úspora není v ušetřeném vývoji, ale v chybách, které nevzniknou: jedna zakázka pod nákladovou cenou za čtvrtletí bývá dražší než všechen čas strávený stavěním kalkulačky.
+- **Klid:** spor o to, čí výpočet je správný, mizí z agendy. Všichni počítají stejně a je dohledatelné podle čeho.
+- **Kvalita zadání:** i když nakonec vznikne pořádná aplikace, přijdete k vývojáři s funkčním modelem vyzkoušeným reálnými uživateli, ne s odstavcem přání.
 
 ## Pro tip
 
-Než nástroj rozešlete, nechte si od Claude vypsat pravidla, podle kterých počítá, a projděte je řádek po řádku. Chyba v pravidle je totiž tichá — nespadne, jen tiše vrací špatné číslo. A držte hranici, která platí u každé automatizace: **artefakt smí počítat a navrhovat, rozhodnutí i odeslání nabídky zůstává na člověku.** Když nástroj používá víc lidí, dopište do něj datum poslední aktualizace sazeb — ušetří vám to nepříjemné zjištění, že tým půl roku počítá s loňským ceníkem.
+Než nástroj rozešlete, nechte si vypsat pravidla, podle kterých počítá, **a zvlášť ty hodnoty, které si model doplnil sám** — je to prompt z fáze 4 a je to jediná kontrola, která odhalí chybu dřív než klient. Pokročilý trik navrch: postavte si „kalkulačku kalkulaček“ — jeden artefakt, ve kterém máte odkazy a jednovětné popisy všech nástrojů, které tým používá, i s datem poslední revize. Jinak se za rok stane, že tři lidé mají tři různé odkazy na tři různé verze téhož a nikdo neví, která platí.
+
+A závěrečné pravidlo, které platí nad vším ostatním: **artefakt počítá, člověk rozhoduje.** V okamžiku, kdy by nástroj měl sám něco odeslat, schválit nebo oznámkovat, přestal být kalkulačkou a stal se automatizací — a ta si zaslouží víc než odpoledne povídání.

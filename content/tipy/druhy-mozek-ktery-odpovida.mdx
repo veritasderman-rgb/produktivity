@@ -1,6 +1,6 @@
 ---
 title: "Druhý mozek, který odpovídá"
-excerpt: "Poznámky jsou k ničemu, když je neumíte najít. Napojte AI na Notion nebo složku s poznámkami a ptejte se jich vlastními slovy — s odkazem na zdroj."
+excerpt: "Kompletní návod s prompty: jak napojit AI na Notion nebo složku s poznámkami, jak se ptát vlastními slovy, jaká minimální hygiena zápisků musí platit, aby vyhledávání fungovalo — a jak si archiv každý týden sám doplňovat."
 category: "ai"
 platform: "vsude"
 audience: ["manazer", "vyvojar", "freelancer"]
@@ -9,37 +9,405 @@ saves: "~už nikdy nehledat půl hodiny"
 date: "2026-08-12"
 ---
 
-Roky si píšete poznámky. Zápisy z jednání, rozhodnutí, nápady, poznámky ke klientům, věci, které jste někde přečetli. A pak přijde otázka „co jsme loni rozhodli o cenách?“ a vy dvacet minut listujete Notionem, zkoušíte tři různá klíčová slova a nakonec se zeptáte kolegy, protože je to rychlejší. Poznámka existuje. Jen ji neumíte najít. **Hodnota poznámek se nerealizuje při zápisu, ale při vybavení — a přesně tam většina systémů selhává.** AI napojená na vaše poznámky ten poslední krok doplní: ptáte se vlastními slovy a odpověď přijde z vašich vlastních textů, s odkazem na to, odkud pochází.
+Roky si píšete poznámky. Zápisy z jednání, rozhodnutí, nápady, poznámky ke klientům, věci, které jste někde přečetli. A pak přijde otázka „co jsme loni rozhodli o cenách?“ a vy dvacet minut listujete Notionem, zkoušíte tři různá klíčová slova a nakonec se zeptáte kolegy, protože je to rychlejší. Poznámka existuje. Jen ji neumíte najít.
+
+**Hodnota poznámek se nerealizuje při zápisu, ale při vybavení — a přesně tam většina systémů selhává.** Celý průmysl kolem „druhého mozku“ vás naučil zapisovat: šablony, tagy, denní poznámky, propojování. Skoro nikdo neřeší druhou půlku, tedy jak se k tomu za dva roky dostat zpátky. Fulltextové hledání je totiž hloupé — najde jen to, co si vzpomenete napsat přesně stejně jako tehdy. A vy si to nepamatujete, protože kdybyste si to pamatovali, nehledali byste.
+
+Tenhle návod řeší tu druhou půlku. Provede vás od úklidu před napojením přes samotné připojení AI k Notionu nebo ke složce s poznámkami až po typy dotazů, které fungují, minimální hygienu zápisků a týdenní rutinu, která archiv sama doplňuje. Každá fáze má prompty k okopírování — stačí doplnit hranaté závorky. Není to projekt na víkend: první tři fáze zvládnete za hodinu a zbytek je návyk, který se usadí za pár týdnů.
 
 ## Vzorová situace
 
-Filip vede tříčlenné studio a osm let si všechno zapisuje, teď do Notionu. Má tam přes dva tisíce stránek a je na to pyšný, jenže používá z nich asi dvacet. Zbytek je archiv, do kterého se nedostane, protože fulltext najde jen to, co si vzpomene napsat přesně stejně jako tehdy.
+Filip vede tříčlenné studio a osm let si všechno zapisuje, poslední čtyři roky do Notionu. Má tam přes dva tisíce stránek a je na to pyšný, jenže reálně používá asi dvacet z nich. Zbytek je archiv, do kterého se nedostane — ne proto, že by tam nic nebylo, ale proto, že se ho neumí zeptat.
 
-Napojí Claude konektorem na Notion a zeptá se: „Co jsme loni rozhodli o cenách hodinovek a proč?“ Odpověď dorazí za půl minuty a odkazuje na dva zápisy z porad — včetně důvodu, na který si už nevzpomínal. Pak zkusí „shrň mi všechny poznámky ke klientovi Nováková“ a dostane přehled ze sedmi stránek napříč třemi lety, což by ručně skládal půl hodiny. A do třetice to, co ho překvapí nejvíc: „našel jsem už někdy řešení problému s exportem faktur?“ — ano, před dvěma lety, popsané ve třech krocích. Nehledal to, protože si nepamatoval, že to kdy řešil.
+Konkrétní čísla z jeho měsíce před změnou: třikrát hledal starší rozhodnutí a pokaždé to trvalo dvacet až čtyřicet minut, dvakrát to vzdal a zeptal se kolegy (který si to pamatoval jinak), jednou znovu vyřešil problém, který už měl popsaný — jenom o tom nevěděl. Dohromady zhruba tři hodiny a jedno špatné rozhodnutí, protože si vybavil jinou verzi ceníku, než jaká platila.
 
-## Jak na to
+Pak napojí Claude konektorem na svůj prostor v Notionu a zeptá se: „Co jsme loni rozhodli o cenách hodinovek a proč?“ Odpověď dorazí za půl minuty a odkazuje na dva zápisy z porad — včetně důvodu, na který si už nevzpomínal. Pak zkusí „shrň mi všechny poznámky ke klientovi Nováková“ a dostane přehled ze sedmi stránek napříč třemi lety, což by ručně skládal půl hodiny. A do třetice to, co ho překvapí nejvíc: „našel jsem už někdy řešení problému s exportem faktur?“ — ano, před dvěma lety, popsané ve třech krocích. Nehledal to, protože si nepamatoval, že to kdy řešil.
 
-1. **Napojte AI na to, kde poznámky máte.** Pro Notion je nejjednodušší cesta konektor: udělíte oprávnění a AI vidí do vašeho prostoru, aniž byste cokoli kopírovali. Jak konektory fungují a co všechno se přes ně dá připojit, popisuje tip [MCP konektory](/tipy/mcp-konektory-usb-c-pro-ai). Máte-li poznámky v Obsidianu nebo jako soubory v počítači, zpřístupníte AI příslušnou složku — Obsidian je jen složka textových souborů, takže se v ní dá číst přímo.
-2. **Zpřístupněte jen to, co má vidět.** Oprávnění dávejte na konkrétní prostor nebo složku, ne na všechno. Osobní deník, zdravotní poznámky, hesla a poznámky s osobními údaji klientů nechte stranou. Citlivé věci navíc čtěte jen přes **placený nebo firemní účet se smluvní ochranou dat**, ne přes volně dostupný chat. Oprávnění udělujete vy a můžete je kdykoli odebrat — jednou za čas se podívejte, co všechno je připojené.
-3. **Ptejte se lidsky, ne klíčovými slovy.** Tady je celý rozdíl. Fulltext hledá řetězce, tohle hledá význam. Fungují otázky typu „co jsme rozhodli o…“, „shrň mi všechno ke klientovi X“, „řešil jsem už někdy…“. Klidně mluvte tak, jak si to pamatujete — nepřesně.
-4. **Vyžadujte odkaz na zdroj.** Do zadání dejte větu: „u každého tvrzení uveď, ze které poznámky pochází, a když to v poznámkách není, řekni to výslovně“. Bez toho hrozí, že AI mezeru vyplní obecnou znalostí a vy si budete myslet, že jde o vaše rozhodnutí. Ověření je jeden klik.
-5. **Pište poznámky tak, aby šly najít.** Vybavení funguje lépe, když má z čeho vycházet: datum, kdo byl u toho, a hlavně **proč** se něco rozhodlo. Vzájemné odkazování pomáhá i tady — v Obsidianu [dvojité závorky](/tipy/obsidian-dvojite-zavorky), v Notionu [propojené pohledy](/tipy/notion-propojene-pohledy).
-6. **Zaveďte to jako první reflex.** Příště, až vás napadne „to už jsme někde řešili“, se nejdřív zeptejte poznámek. Zvyk vzniká za pár týdnů a archiv se promění z hromady na zdroj.
+Za tři měsíce přibyl i jeden zvyk, o kterém původně neuvažoval: v pátek nechá AI vytáhnout z týdenních konverzací rozhodnutí a poznatky a uloží je zpátky do Notionu jako čisté zápisy. Archiv poprvé roste sám od sebe — a ve tvaru, ze kterého se dá odpovídat.
+
+## Fáze 1: úklid před napojením
+
+Nejčastější chyba je připojit AI k celému prostoru a čekat zázrak. Zázrak nepřijde, protože v poznámkách máte tři vrstvy věcí, které se pletou: aktuální pravdu, historii a nedodělky. Když se AI zeptáte na ceník, najde platný ceník, návrh ceníku z roku 2023 a poznámku „ceník asi předělat“ — a všechny tři jsou pro ni stejně důvěryhodné. Hodina přípravy tady ušetří půl roku nedůvěry k odpovědím.
+
+### Co vlastně máte: rychlá inventura
+
+Cílem není uklidit poznámky, ale vědět, co je kde a co má smysl zpřístupnit. Rozdělte obsah do čtyř kategorií: **referenční** (postupy, rozhodnutí, ceníky — věci, na které se budete ptát), **archivní** (zápisy z porad, deníky projektů — historie), **pracovní** (rozepsané nápady, nedodělky — spíš šum) a **soukromá** (deník, zdravotní věci, osobní finance — sem AI nepatří).
+
+Není to hodina třídění stránku po stránce. Ve většině systémů to jde po sekcích: v Notionu podle top-level stránek, v Obsidianu podle složek. Když máte poznámky v jednom chuchvalci bez struktury, udělejte alespoň hrubý řez — složku `soukrome/` a zbytek.
+
+### Zpřístupněte jen to, co má AI vidět
+
+Tohle je krok, který se nedá přeskočit, i když nikoho nebaví. Oprávnění dávejte na konkrétní prostor, sekci nebo složku, ne na všechno, co máte. Osobní deník, zdravotní poznámky, hesla, poznámky s osobními údaji klientů a cokoli, co je pod smlouvou o mlčenlivosti, nechte stranou.
+
+Kde jsou v poznámkách citlivé věci — osobní údaje, zdravotní informace, obchodní tajemství — pracujte s nimi **jen v placeném nebo firemním účtu se smluvní ochranou dat**, ne ve volně dostupném chatu. A i tam platí, že co se nemusí zpřístupnit, se nezpřístupňuje. Oprávnění udělujete vy a můžete je kdykoli odebrat; dejte si do kalendáře jednou za kvartál pět minut na kontrolu, co všechno je připojené.
+
+### Zjistěte, co v archivu vlastně leží
+
+Než začnete vyhledávat, nechte si udělat mapu. Je to jediný prompt, který se pouští jednou, a překvapivě často odhalí, že polovina poznámek je z jedné oblasti a jiná oblast, kterou řešíte denně, není zapsaná vůbec.
+
+```text
+Máš přístup k mým poznámkám v [Notion / složce poznamky/].
+Neodpovídej zatím na žádnou věcnou otázku — udělej mi inventuru.
+
+1. Jaké hlavní tematické okruhy se v poznámkách objevují?
+   U každého odhadni, kolik stránek nebo souborů se ho týká.
+2. Jaké časové rozpětí poznámky pokrývají a kde jsou v čase díry
+   (období, ze kterých skoro nic není).
+3. Které poznámky vypadají jako závazná pravidla nebo rozhodnutí
+   (ceníky, postupy, dohody) a které jsou spíš nápady a nedodělky?
+4. Kde je zjevně víc verzí téhož (několik ceníků, několik verzí
+   postupu) a mohly by se plést?
+5. Co v poznámkách chybí vzhledem k tomu, co podle nich dělám
+   za práci?
+
+U každého bodu uveď konkrétní názvy stránek nebo souborů,
+ze kterých usuzuješ. Nic si nedomýšlej.
+```
+
+Vrátí mapu vašeho archivu — typicky včetně nepříjemného zjištění, že máte čtyři dokumenty, které si říkají ceník. Bod 4 si projděte hned: duplicity a staré verze jsou hlavní důvod, proč AI z poznámek odpovídá špatně. Nemusíte je mazat, stačí je přejmenovat tak, aby z názvu byla vidět platnost, nebo je přesunout do archivní sekce.
+
+## Fáze 2: napojení AI na poznámky
+
+Existují dvě cesty a liší se podle toho, kde poznámky žijí. Obě vedou ke stejnému výsledku: ptáte se normální větou a odpověď vzniká z vašich textů.
+
+### Notion přes konektor
+
+Nejpohodlnější varianta. Konektor je standardizované propojení (Claude je má pro Gmail, Kalendář, Drive, Notion, Slack a další), kde udělíte oprávnění a AI vidí do vašeho prostoru přímo — nic nekopírujete, nic nenahráváte, a když poznámku změníte, další odpověď už pracuje s novou verzí. Jak konektory fungují obecně, rozebírá tip [MCP konektory](/tipy/mcp-konektory-usb-c-pro-ai).
+
+Postup je nudný a to je dobře: v nastavení připojíte Notion, přihlásíte se, vyberete stránky nebo prostor, ke kterým dáváte přístup, a potvrdíte. Vybírejte úzce — v tomhle dialogu se rozhoduje o tom, jestli vám za měsíc AI ukáže někomu zápis z osobní schůzky.
+
+První otázka po napojení má být kontrolní, ne užitečná. Chcete vědět, na co konektor vidí a jestli mu odpovídá, co jste čekali:
+
+```text
+Jsi napojený na můj Notion. Než ti začnu klást otázky, ověř si rozsah:
+
+1. Vypiš top-level stránky nebo databáze, které vidíš.
+2. U tří z nich uveď, kdy byly naposledy upraveny.
+3. Zkus najít stránku, která obsahuje slovo [ceník / postup / smlouva],
+   a napiš její název a cestu.
+4. Napiš výslovně, jestli vidíš i něco, co podle názvu vypadá
+   jako osobní nebo citlivé (deník, mzdy, zdraví, hesla).
+
+Nic neupravuj a nic nezakládej. Jen popiš, co vidíš.
+```
+
+Bod 4 je pojistka. Když v odpovědi uvidíte něco, co tam být nemá, vraťte se do nastavení a rozsah oprávnění zúžte, dřív než položíte první opravdovou otázku.
+
+### Obsidian nebo složka souborů
+
+Obsidian je jen složka textových souborů — žádný proprietární formát, žádná databáze. To znamená, že se v ní dá číst přímo. Zpřístupníte AI příslušnou složku a od té chvíle funguje totéž co u Notionu, jen bez oprávnění po internetu. Pro práci nad složkou se hodí **Claude Cowork** (režim desktopové aplikace, ve kterém model vidí soubory ve složce a pracuje s nimi bez programování) nebo **Claude Code**, pokud chcete i skripty a verzování.
+
+Praktická poznámka ke struktuře: čím plošší, tím lepší. Sedm úrovní vnořených složek nikomu nepomůže, ani vám. Osvědčená kostra vypadá takhle:
+
+```text
+poznamky/
+  denni/          denní poznámky, jedna na den
+  lide/           jeden soubor na člověka nebo klienta
+  projekty/       jeden soubor na projekt
+  rozhodnuti/     jeden soubor na rozhodnutí, v názvu datum
+  reference/      postupy, ceníky, checklisty — aktuální pravda
+  archiv/         staré verze, ukončené projekty
+```
+
+Klíčová je složka `rozhodnuti/` a složka `reference/`. Když AI ví, že v `reference/` je platná verze a v `archiv/` historie, přestane míchat staré ceníky do odpovědí. Do instrukcí projektu nebo do zadání to napište výslovně: „za platné považuj jen obsah složky reference; archiv používej jen tehdy, když se ptám na historii“.
+
+Máte-li obojí — část v Notionu, část v souborech — nevadí. Konektory a přístup ke složce se dají kombinovat v jedné konverzaci; AI pak hledá v obou a v odpovědi rozliší, odkud co má.
+
+### Trvalý kontext přes Projekt
+
+Pokud se do poznámek ptáte často, nezakládejte pokaždé novou konverzaci s vysvětlováním. Založte si **Projekt** — trvalý kontext, ve kterém platí vaše instrukce v každé konverzaci uvnitř. Do instrukcí napíšete, co jsou vaše poznámky zač, jak jsou uspořádané a jak se má odpovídat. Podrobněji v tipu [Projekty a kontext](/tipy/ai-projekty-kontext).
+
+```text
+Instrukce projektu „Moje poznámky":
+
+Jsi můj asistent nad mým osobním archivem poznámek.
+Struktura: reference/ = aktuálně platná pravidla a postupy,
+rozhodnuti/ = jednotlivá rozhodnutí s datem, denni/ = denní poznámky,
+lide/ = poznámky ke klientům a kolegům, archiv/ = neplatné a staré verze.
+
+Pravidla, která platí vždy:
+1. Odpovídej výhradně z mých poznámek. Nepřidávej obecné znalosti.
+2. U každého tvrzení uveď název stránky nebo souboru, ze kterého
+   pochází, a datum poznámky, pokud ho lze zjistit.
+3. Když odpověď v poznámkách není, řekni to výslovně větou
+   „v poznámkách k tomu nic není" a nabídni, kde bych to mohl mít.
+4. Když najdeš víc verzí téhož, vypiš je všechny s daty a označ,
+   která je podle umístění a data nejspíš platná — ale rozhodnutí
+   nech na mně.
+5. Nikdy nic neupravuj, nemaž ani nezakládej, dokud tě o to
+   výslovně nepožádám.
+```
+
+Pravidlo 3 je tam kvůli nejnebezpečnějšímu selhání celého tohohle workflow: model mezeru v poznámkách vyplní obecnou znalostí, která zní rozumně, a vy si budete myslet, že jde o vaše vlastní rozhodnutí. Pravidlo 4 řeší duplicity — místo aby si model vybral jednu verzi, ukáže vám je všechny.
+
+## Fáze 3: jak se ptát, aby to fungovalo
+
+Tady je celý rozdíl oproti fulltextu. Fulltext hledá řetězce, tohle hledá význam. Můžete si vzpomínat nepřesně, můžete si plést slova, můžete se ptát na věc, kterou jste nikdy nepojmenovali — a pořád to najde. Existují čtyři typy dotazů, které pokryjí devadesát procent běžné potřeby.
+
+### Typ 1: co jsme rozhodli a proč
+
+Nejcennější kategorie, protože rozhodnutí jsou to, co se nejrychleji zapomíná a nejdráž se objevuje znovu. Podstatná část dotazu je slovo „proč“ — samotné rozhodnutí si obvykle vybavíte, důvod ne.
+
+```text
+Prohledej moje poznámky a odpověz na otázku:
+[co jsme rozhodli o cenách hodinovek pro nové klienty].
+
+Odpověz v této struktuře:
+1. Rozhodnutí jednou větou, jak zní dnes platné znění.
+2. Kdy bylo přijato a kdo u toho byl, pokud to z poznámek jde zjistit.
+3. Důvody, které jsou v poznámkách uvedené — doslova, ne převyprávěné.
+4. Zvažované alternativy, které se nakonec nepoužily, a proč.
+5. Pozdější změny nebo výjimky, pokud se k tématu poznámky vracejí.
+
+U každého bodu uveď zdrojovou poznámku a její datum.
+Kde v poznámkách informace není, napiš „není v poznámkách" —
+nedomýšlej si, co jsme si asi mysleli.
+```
+
+Vrátí rekonstrukci rozhodnutí i s odůvodněním. Bod 4 bývá největší překvapení: často zjistíte, že alternativa, ke které se zrovna chystáte vrátit, už jednou padla, a víte proč. Zkontrolujte data — když poslední poznámka k tématu je stará dva roky, je odpověď platná jen do té míry, do jaké se od té doby nic nezměnilo, a to model neví.
+
+### Typ 2: shrň mi všechno ke klientovi nebo k projektu
+
+Klasická situace před schůzkou. Poznámky ke klientovi máte rozházené v zápisech z porad, v denních poznámkách, v e-mailech přepsaných do Notionu a v jednom souboru, který se jmenuje jeho jménem. Ručně to skládáte půl hodiny.
+
+```text
+Projdi všechny moje poznámky a sestav profil klienta [jméno].
+Zajímá mě období [poslední 3 roky].
+
+Sestav:
+- časovou osu spolupráce: co, kdy, v jakém rozsahu
+- dohodnuté podmínky, které kdy platily (ceny, termíny, výjimky)
+- co u nich funguje a co ne — z toho, co jsem si zapsal
+- otevřené věci, sliby a nedodělky, které nikde nemají „hotovo"
+- lidi na jejich straně a co o nich vím
+- rizika a citlivá místa, na která jsem si někdy stěžoval
+
+Řaď chronologicky, u každé položky uveď zdrojovou poznámku a datum.
+Rozliš, co je zapsané tvrzení a co je můj tehdejší dojem.
+Na konec dej 5 otázek, které bych si měl před další schůzkou ujasnit.
+```
+
+Vrátí podklad, se kterým jdete na schůzku připravení. Poslední řádek promptu — rozlišení faktu a dojmu — je tam schválně: v poznámkách je obojí promíchané a v shrnutí se z „přišlo mi, že se jim to nelíbí“ snadno stane „nelíbilo se jim to“. Na navazující přípravu se hodí tip [příprava na jednání](/tipy/ai-priprava-na-jednani).
+
+### Typ 3: řešil jsem to už někdy?
+
+Nejpodceňovanější dotaz. Nejde tu o hledání konkrétní věci, ale o otázku, jestli vůbec existuje. Fulltextem ji nepoložíte, protože nevíte, jaké slovo hledat.
+
+```text
+Mám teď před sebou tenhle problém:
+[popiš problém 3–5 větami, klidně nepřesně, tak jak ho vidíš]
+
+Prohledej moje poznámky a zjisti:
+1. Řešil jsem už někdy tenhle nebo velmi podobný problém?
+2. Pokud ano: kdy, v jakém kontextu a jak to dopadlo?
+3. Jaké řešení jsem tehdy použil a fungovalo?
+4. Poznamenal jsem si něco, co bych příště udělal jinak?
+5. Existují v poznámkách věci, které s tímhle problémem souvisejí,
+   i když se ho přímo netýkají?
+
+Hledej i podle významu, ne jen podle slov — tehdy jsem to mohl
+pojmenovat jinak. Pokud nic nenajdeš, řekni to jasně
+a nenabízej obecné rady.
+```
+
+Poslední věta je důležitá. Bez ní model, který nic nenajde, plynule přejde k obecným doporučením, jak se takové problémy řeší — a vy si po půl minutě čtení nevšimnete, že už dávno nečtete svoje poznámky.
+
+### Typ 4: vzorce napříč archivem
+
+Kategorie, kterou fulltext neumí ani teoreticky, protože odpověď není v žádné jednotlivé poznámce — vzniká až z jejich porovnání.
+
+```text
+Projdi moje poznámky za [poslední rok] a najdi vzorce:
+
+1. Která témata se mi vracejí opakovaně, aniž bych je kdy dotáhl?
+   U každého uveď, kolikrát a v jakém rozpětí se objevila.
+2. V čem si napříč poznámkami protiřečím — kde jsem v jednu chvíli
+   tvrdil něco a jindy opak?
+3. Jaké typy problémů se opakují u různých klientů nebo projektů?
+4. Co jsem si slíbil, že změním, a v poznámkách po tom není stopa?
+5. Které moje zapsané předpoklady se v pozdějších poznámkách
+   nepotvrdily?
+
+U každého nálezu uveď minimálně dvě konkrétní poznámky s daty,
+ze kterých to vyvozuješ. Když máš jen jednu, není to vzorec —
+takový nález vynech.
+```
+
+Odpověď bývá nepříjemně přesná a je to nejlepší materiál na čtvrtletní ohlédnutí. Podmínka „minimálně dvě poznámky“ v posledním odstavci brání tomu, aby model z jedné zmínky udělal trend.
+
+### Vždy vyžadujte zdroj
+
+Napříč všemi typy dotazů platí jedno pravidlo: **odpověď bez odkazu na zdroj není odpověď z vašich poznámek, je to odpověď od modelu.** Do zadání (nebo jednou provždy do instrukcí projektu) patří věta „u každého tvrzení uveď, ze které poznámky pochází, a když to v poznámkách není, řekni to výslovně“.
+
+Kontrola je pak jeden klik. Namátkou otevřete jeden až dva zdroje z každé delší odpovědi — hlavně tam, kde vás něco překvapilo. Překvapení je totiž buď to nejcennější, co archiv dal, nebo místo, kde si model domyslel. Rozdíl poznáte za deset vteřin. Obecný postup ověřování popisuje [ověřování faktů s AI](/tipy/ai-overovani-faktu).
+
+### Zaveďte dotaz jako první reflex
+
+Na tomhle to obvykle padne: většina lidí se do vlastního archivu podívá až poté, co si vzpomene, že tam něco mít mohla — a to je pozdě. Ptejte se ve třech situacích pokaždé. **Než něco začnete řešit** („řešil jsem to už?“ trvá patnáct vteřin a občas ušetří odpoledne). **Před schůzkou s někým, koho znáte déle než měsíc** (dvouminutová příprava s nepoměrným efektem). A **když v diskusi padne věta „to jsme přece rozhodli jinak“** — paměť dvou lidí se v takové chvíli rozchází skoro vždycky.
+
+Návyk vzniká rychleji se spouštěčem: připněte si projekt s poznámkami na dvě kliknutí a první týden se ptejte i tam, kde tušíte, že odpověď je ne.
+
+## Fáze 4: hygiena poznámek pro AI
+
+Vyhledávání podle významu je odolné vůči nepořádku mnohem víc než fulltext, ale ne nekonečně. Existuje minimum pravidel, po kterých se kvalita odpovědí zvedne skokově — a je jich málo. Neplatí tu žádný systém se šesti typy tagů; platí čtyři věci, které stojí pár vteřin při zápisu.
+
+### Pravidlo 1: název nese informaci
+
+Poznámka pojmenovaná „Porada“ je pro vyhledávání skoro k ničemu, protože takových máte dvě stě. Název má odpovědět na otázku „o čem to je a kdy“: „2026-03-14 Porada — ceník hodinovek, rozhodnutí o slevách“. Datum na začátku v tvaru rok-měsíc-den řadí samo od sebe a nejde ho splést s americkým zápisem.
+
+### Pravidlo 2: datum a účastníci v textu, ne jen v metadatech
+
+Metadata se při čtení někdy ztratí, text ne. První řádek zápisu ať obsahuje datum, kdo byl u toho a čeho se to týká. Stačí jedna věta: „14. 3. 2026, porada vedení (Filip, Jana, Petr), téma ceník na 2026.“ Tahle věta stojí pět vteřin a je to nejčastější rozdíl mezi odpovědí „rozhodli jste to na poradě“ a „rozhodli jste to 14. 3. 2026 na poradě vedení, byli u toho Filip, Jana a Petr“.
+
+### Pravidlo 3: rozhodnutí zapisujte i s důvodem
+
+Nejcennější věta v archivu začíná slovem „protože“. Rozhodnutí bez důvodu je za rok k ničemu — nevíte, jestli pořád platí, protože nevíte, na čem stálo. Zapisujte ve tvaru: co jsme rozhodli, proč, co jsme zvažovali místo toho a co by muselo nastat, abychom to změnili.
+
+### Pravidlo 4: minimum tagů, zato důsledně
+
+Tagy nemají suplovat vyhledávání — od toho tu je AI. Mají odlišit typ obsahu, a k tomu stačí pět: rozhodnuti, postup, klient, napad, archiv. Víc jich nezvládnete používat konzistentně a nekonzistentní tag je horší než žádný.
+
+Jestli chcete pravidla prosadit i zpětně, nechte si udělat audit. Nemusíte přepisovat všechno — stačí referenční poznámky, na které se ptáte nejčastěji:
+
+```text
+Projdi poznámky ve složce [reference/] (nebo databázi [název])
+a udělej audit dohledatelnosti. U každé poznámky posuď:
+
+1. Je z názvu poznatelné, o čem je a z kdy je? Pokud ne,
+   navrhni lepší název ve tvaru „RRRR-MM-DD Téma — o co jde".
+2. Je v textu datum a kdo byl u toho?
+3. Jde-li o rozhodnutí: je u něj uvedený důvod?
+4. Obsahuje odkazy na související poznámky, nebo stojí osamoceně?
+5. Je někde jinde novější verze téhož?
+
+Výstup jako tabulka: současný název | co chybí | navrhovaný název.
+Nic nepřejmenovávej ani neupravuj — jen navrhni.
+Seřaď od nejhorších případů, ať vím, kde začít.
+```
+
+Vrátí seznam, ze kterého opravíte prvních dvacet položek za dvacet minut a zbytek necháte být. Zákaz úprav v předposledním řádku je záměrný: přejmenování poznámek je nevratná operace nad vaším archivem a spadá pod zásadu **AI navrhuje, člověk schvaluje**.
+
+Vzájemné odkazování pomáhá i tady: propojené poznámky dávají odpovědi kontext, který v jednotlivém souboru není. V Obsidianu na to jsou [dvojité závorky](/tipy/obsidian-dvojite-zavorky), v Notionu [propojené pohledy](/tipy/notion-propojene-pohledy).
+
+## Fáze 5: týdenní destilace konverzací do poznámek
+
+Věc, kterou většina lidí nedělá: **v konverzacích s AI vzniká víc použitelného obsahu než ve vašich poznámkách.** Rozmyslíte si v chatu strategii, vyřešíte problém, projdete argumenty pro a proti — a pak konverzaci zavřete a za tři měsíce si vzpomenete, že „to jsme někde řešili“. Chat ale není archiv: nedá se v něm dobře hledat ani citovat.
+
+Řešení je rutina na dvacet minut týdně. Na konci týdne projdete konverzace, vytáhnete z nich to trvale platné a uložíte jako čisté poznámky do svého systému.
+
+```text
+Projdi moje konverzace z tohoto týdne a připrav destilát
+do poznámek. Zajímá mě jen to, co má hodnotu i za rok.
+
+Rozděl výstup do čtyř skupin:
+1. ROZHODNUTÍ — co jsem se rozhodl udělat, včetně důvodu
+   a zvažovaných alternativ.
+2. POSTUPY — návody a řešení, která jsem si nechal vysvětlit
+   a budu je potřebovat znovu.
+3. FAKTA A ÚDAJE — konkrétní čísla, jména, podmínky, které
+   jsem zjistil, s poznámkou, odkud pocházejí.
+4. OTEVŘENÉ OTÁZKY — co zůstalo nedořešené.
+
+Pro každou položku napiš:
+- návrh názvu poznámky ve tvaru „RRRR-MM-DD Téma — o co jde"
+- text poznámky na 5–10 řádků, hotový k vložení
+- do které složky nebo databáze patří
+- na které moje existující poznámky by měl odkazovat
+
+Vynech všechno, co bylo jednorázové (formulace jednoho e-mailu,
+oprava textu). Nezahrnuj citlivé údaje. Nic sám neukládej,
+jen mi to připrav ke kontrole.
+```
+
+Vrátí sadu hotových poznámek, které projdete, upravíte a vložíte. Klíčové je poslední slovo: **nic neukládá samo.** Automatické zakládání poznámek zní pohodlně, ale rychle vám zaplevelí archiv obsahem, který jste nikdy nečetli — a nedůvěryhodný archiv je horší než žádný. Filtr „vynech jednorázové věci“ je stejně důležitý: bez něj dostanete padesát poznámek týdně a přestanete to dělat.
+
+Podobná rutina se dá postavit i nad zápisy z porad a e-maily; postup popisuje [týdenní přehled s AI](/tipy/ai-tydenni-prehled) a pro pravidelné spouštění se hodí plánované úlohy — AI pustí destilaci sama v pátek odpoledne a vy jen ráno projdete návrh, jak popisuje tip [rutiny nad poštou a kalendářem](/tipy/claude-rutiny-posta-kalendar).
+
+### Zpětné doplnění: co v archivu chybí
+
+Jednou za čtvrt roku se vyplatí otočit směr a zeptat se archivu, co v něm není.
+
+```text
+Na základě mých poznámek za [poslední kvartál] zjisti, co mi
+v archivu chybí:
+
+1. Témata, kterými se podle poznámek hodně zabývám, ale nemám
+   k nim žádný souhrnný nebo referenční zápis.
+2. Rozhodnutí, na která se poznámky odvolávají, ale samotné
+   rozhodnutí nikde zapsané není.
+3. Postupy, které podle poznámek opakuji, ale nemám je popsané
+   jako postup (a měl bych, aby šly předat).
+4. Klienti nebo projekty, ke kterým mám poznámky roztroušené,
+   ale žádný souhrn.
+
+U každé mezery navrhni název poznámky, kterou bych měl založit,
+a tři odrážky, co by v ní mělo být. Řaď podle toho,
+co mi nejvíc chybí.
+```
+
+Bod 2 odhalí nejzajímavější díry: poznámky se často odvolávají na dohodu, která nikdy nebyla nikde zapsaná. Bod 3 je zase přímý vstup do dokumentace procesů — postup, který děláte poosmé a nemáte ho popsaný, je kandidát na [checklist opakovaného procesu](/tipy/checklisty-opakovanych-procesu).
+
+## Fáze 6: NotebookLM jako druhá vrstva
+
+Konektor na Notion a čtení složky řeší vyhledávání v živém archivu. Vedle toho se hodí druhá vrstva pro situace, kdy pracujete s uzavřenou sadou dokumentů a potřebujete jistotu, že odpověď nepřijde odjinud.
+
+**NotebookLM odpovídá jen z toho, co do něj nahrajete**, a u každé odpovědi ukáže citaci do konkrétního zdroje. To je jiná záruka než instrukce „odpovídej jen z poznámek“ — tam se spoléháte na to, že se model instrukce drží, tady je to vlastnost nástroje. Detailně o něm píše tip [NotebookLM a vlastní zdroje](/tipy/notebooklm-vlastni-zdroje).
+
+Kdy se vyplatí kombinace obou vrstev:
+
+- **Uzavřený projekt.** Nahrajete všechny podklady k jedné zakázce (zadání, smlouvu, zápisy, dodané materiály) a ptáte se jen jich.
+- **Předání agendy.** Sada dokumentů plus nástroj, který z nich odpovídá, je lepší předávka než dvouhodinová schůzka.
+- **Jednorázová sada dokumentů**, kterou nemá smysl vkládat do vašeho systému natrvalo.
+- **Poslech místo čtení.** Z nahraných zdrojů umí NotebookLM vygenerovat mluvený přehled — použitelné cestou na schůzku.
+
+```text
+Nahrál jsem do notebooku všechny podklady k projektu [název]:
+zadání, smlouvu, zápisy ze schůzek a průběžné poznámky.
+
+Sestav mi z nich přehled pro předání:
+1. Co je předmětem projektu a v jakém je stavu.
+2. Všechna dohodnutá pravidla a termíny, u každého citaci zdroje.
+3. Rozhodnutí, která během projektu padla, chronologicky.
+4. Otevřené body a rizika.
+5. Kdo je za co odpovědný a na koho se v čem obracet.
+6. Co v podkladech chybí — co by měl nástupce dohledat u lidí.
+
+Vycházej výhradně z nahraných zdrojů. U každého bodu uveď,
+ze kterého dokumentu pochází. Bod 6 ber vážně:
+raději přiznej mezeru, než abys ji vyplnil odhadem.
+```
+
+Bod 6 je důvod, proč tenhle prompt používat i pro sebe, ne jen při předávání. Seznam toho, co v podkladech není, je nejrychlejší způsob, jak zjistit, kde stojí projekt na ústní dohodě.
+
+## Nejčastější chyby
+
+- **Připojit celý prostor včetně soukromých věcí.** Osobní deník, zdravotní poznámky a hesla do dosahu AI nepatří — a citlivé pracovní věci jen do placeného účtu se smluvní ochranou dat. Rozsah oprávnění zúžte hned na začátku, ne až po první nepříjemné odpovědi.
+- **Nevyžadovat odkaz na zdroj.** Bez něj nepoznáte, kde odpověď pochází z vašich poznámek a kde ji model doplnil obecnou znalostí. Věta „u každého tvrzení uveď zdrojovou poznámku“ patří do instrukcí projektu, ne do každého dotazu zvlášť.
+- **Nechat v archivu tři verze téhož bez označení platnosti.** Model nemá jak poznat, který ceník platí. Buď rozdělte reference a archiv, nebo dejte platnost do názvu — jinak dostanete správně vypadající odpověď ze špatného dokumentu.
+- **Ptát se klíčovými slovy.** Zvyk z fulltextu, kvůli kterému přijdete o hlavní výhodu. „Ceník 2025“ najde míň než „co jsme loni rozhodli o cenách a proč jsme to tak udělali“.
+- **Nechat AI zakládat a přepisovat poznámky automaticky.** Archiv se zaplevelí obsahem, který jste nečetli, a přestanete mu věřit. Nechte si poznámky navrhnout a ukládejte je sami.
+- **Věřit, že vyhledávání nahradí zápis.** Když v poznámkách není důvod rozhodnutí, žádný nástroj ho tam nenajde. Pár vteřin navíc při zápisu je jediná investice, kterou tenhle systém opravdu potřebuje.
 
 ## Nejlepší nástroje
 
-- **[Claude](https://claude.ai)** — konektor na Notion a čtení souborů ve zpřístupněné složce; odpovědi s odkazem na konkrétní stránku či soubor.
-- **[Notion](https://notion.com)** — poznámky ve strukturovaných databázích, které se dobře prohledávají i lidsky.
-- **[Obsidian](https://obsidian.md)** — poznámky jako obyčejné textové soubory; volba, pokud chcete data mít fyzicky u sebe.
-- **Claude Cowork** — režim desktopové aplikace pro práci se soubory bez programování; zpřístupníte složku s poznámkami a Claude v ní čte, třídí a skládá přehledy.
+- **[Claude](https://claude.ai)** — konektor na Notion a čtení souborů ve zpřístupněné složce; Projekty pro trvalé instrukce nad archivem a odpovědi s odkazem na konkrétní stránku či soubor.
+- **Claude Cowork** — režim desktopové aplikace pro práci se soubory bez programování; zpřístupníte složku s poznámkami a AI v ní čte, třídí a skládá přehledy.
+- **[Notion](https://notion.com)** — poznámky ve strukturovaných databázích, které se dobře prohledávají lidsky i konektorem; vhodné hlavně pro týmové archivy.
+- **[Obsidian](https://obsidian.md)** — poznámky jako obyčejné textové soubory ve složce; volba, když chcete data fyzicky u sebe a bez závislosti na cizí službě.
+- **[NotebookLM](https://notebooklm.google.com)** — druhá vrstva pro uzavřené sady dokumentů: odpovídá jen z nahraných zdrojů a u každé odpovědi ukáže citaci.
+- **Plánované úlohy (rutiny)** — spuštění týdenní destilace podle rozvrhu, ať se na ni nemusíte pamatovat.
 
 ## Co vám to přinese
 
-- **Čas:** půlhodinové hledání ve vlastním archivu prostě zmizí. Odpověď přijde dřív, než byste otevřeli druhou záložku.
-- **Návratnost:** roky zápisků konečně začnou vydělávat. Dosud to byl náklad, teď je to zdroj.
-- **Kontinuita:** nezapomínáte, proč jste se rozhodli, jak jste se rozhodli — a to je v jednáních s klienty k nezaplacení.
-- **Klid:** psaní poznámek přestane mít příchuť zbytečnosti, protože víte, že se k nim dostanete.
+- **Čas:** půlhodinové hledání ve vlastním archivu prostě zmizí — odpověď přijde dřív, než byste otevřeli druhou záložku. Při třech takových hledáních měsíčně jsou to zhruba dvě hodiny, které jste dosud trávili listováním.
+- **Peníze:** roky zápisků konečně začnou vydělávat. Dosud to byl náklad (čas na psaní bez návratnosti), teď je to zdroj — a k tomu se nepočítá práce, kterou neuděláte podruhé, protože zjistíte, že už ji máte hotovou.
+- **Klid:** psaní poznámek přestane mít příchuť zbytečnosti. Víte, že se k nim dostanete, takže je píšete radši a líp — a nemusíte si v hlavě držet, kde co je.
+- **Kvalita:** nezapomínáte, proč jste se rozhodli, jak jste se rozhodli. V jednáních s klienty a v týmových sporech je doložené rozhodnutí i s datem a důvodem rozdíl mezi dohadem a faktem.
 
 ## Pro tip
 
-Zkuste otázku, kterou fulltextem nejde položit vůbec: **„v čem si v poznámkách za poslední rok protiřečím?“** nebo „která témata se mi vracejí a nikdy jsem je nedotáhl?“. To jsou dotazy na vzorce napříč stovkami stránek a odpověď bývá nepříjemně přesná. A pořád platí zásada webu **AI navrhuje, člověk schvaluje**: nedávejte nástroji právo poznámky přepisovat nebo mazat. Čtení stačí.
+Zkuste otázku, kterou fulltextem nejde položit vůbec: **„v čem si v poznámkách za poslední rok protiřečím?“** nebo „která témata se mi vracejí a nikdy jsem je nedotáhl?“. To jsou dotazy na vzorce napříč stovkami stránek a odpověď bývá nepříjemně přesná — hodí se jednou za čtvrt roku jako osobní retrospektiva, ke které nepotřebujete nikoho dalšího.
+
+Pokročilá varianta: vezměte téma, kterému se roky věnujete, a nechte z celého archivu poskládat, jak se váš pohled na něj vyvíjel a kde jste změnili názor. Vznikne text, který jste nikdy nenapsali, ale celý je váš.
+
+Závěrečné pravidlo, které platí nad vším ostatním: **archiv čte AI, rozhoduje člověk.** Nedávejte nástroji právo poznámky přepisovat nebo mazat a u překvapivé odpovědi vždycky otevřete zdroj. Čtení stačí — a je to přesně ta polovina druhého mozku, která vám dosud chyběla.
