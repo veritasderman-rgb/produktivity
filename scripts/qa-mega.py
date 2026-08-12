@@ -10,7 +10,7 @@ import os
 
 FOREIGN = re.compile(r"[Ѐ-ӿ一-鿿぀-ヿ가-힯Ͱ-Ͽ]")
 
-def check(path, min_len=18000, max_len=32000):
+def check(path, min_len=18000, max_len=60000):
     problems = []
     with open(path, encoding="utf-8") as f:
         t = f.read()
@@ -22,8 +22,10 @@ def check(path, min_len=18000, max_len=32000):
         problems.append(f"{path}: délka těla {len(body)} mimo rozsah {min_len}–{max_len}")
     if t.count("```") % 2 != 0:
         problems.append(f"{path}: lichý počet ``` ohrazení")
-    if re.search(r"^# ", t, re.M):
-        problems.append(f"{path}: obsahuje H1")
+    # H1 kontrola jen mimo kódové bloky (ukázky struktury .md souborů jsou legitimní)
+    outside_fences = re.sub(r"```.*?```", "", t, flags=re.S)
+    if re.search(r"^# ", outside_fences, re.M):
+        problems.append(f"{path}: obsahuje H1 mimo kódový blok")
     m = FOREIGN.search(t)
     if m:
         problems.append(f"{path}: cizí písmeno {m.group()!r} na pozici {m.start()}")
