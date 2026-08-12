@@ -10,6 +10,8 @@ import { NewsletterForm } from "@/components/NewsletterForm";
 import { DataDisclaimer } from "@/components/DataDisclaimer";
 import { TipCard } from "@/components/TipCard";
 import { chapterForTip, relatedTips } from "@/lib/related";
+import { annotateGlossary } from "@/lib/annotate";
+import { Pojem } from "@/components/Pojem";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 
@@ -65,6 +67,7 @@ export async function generateMetadata({
 
 const mdxComponents = {
   kbd: (props: React.HTMLAttributes<HTMLElement>) => <kbd className="key" {...props} />,
+  Pojem,
 };
 
 function heroImage(slug: string): string | null {
@@ -129,7 +132,7 @@ export default async function TipDetail({
         />
       )}
       <div className="prose-a mt-6">
-        <MDXRemote source={tip.body} components={mdxComponents} />
+        <MDXRemote source={annotateGlossary(tip.body, locale)} components={mdxComponents} />
       </div>
       {tip.category === "ai" && <DataDisclaimer locale={locale} />}
       {chapter && (

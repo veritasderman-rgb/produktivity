@@ -12,6 +12,8 @@ import { TipCard } from "@/components/TipCard";
 import { getAllTips } from "@/lib/tips";
 import { tipsForChapter } from "@/lib/related";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { annotateGlossary } from "@/lib/annotate";
+import { Pojem } from "@/components/Pojem";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
 const T = {
@@ -71,6 +73,7 @@ export async function generateMetadata({
 }
 
 const mdxComponents = {
+  Pojem,
   kbd: (props: React.HTMLAttributes<HTMLElement>) => <kbd className="key" {...props} />,
   Stats,
   Timeline,
@@ -133,7 +136,7 @@ export default async function ChapterPage({
       )}
       <div className="prose-a mt-6">
         {/* blockJS: false — obsah je náš vlastní z repa; výrazy v props infografik jsou nutné */}
-        <MDXRemote source={ch.body} components={mdxComponents} options={{ blockJS: false }} />
+        <MDXRemote source={annotateGlossary(ch.body, locale)} components={mdxComponents} options={{ blockJS: false }} />
       </div>
 
       <nav className="mt-14 grid gap-3 border-t-2 border-hairline-strong pt-6 sm:grid-cols-2" aria-label={t.navAria}>

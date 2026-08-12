@@ -7,6 +7,8 @@ import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infogra
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { DataDisclaimer } from "@/components/DataDisclaimer";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { annotateGlossary } from "@/lib/annotate";
+import { Pojem } from "@/components/Pojem";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
 const T = {
@@ -65,6 +67,7 @@ export async function generateMetadata({
 }
 
 const mdxComponents = {
+  Pojem,
   kbd: (props: React.HTMLAttributes<HTMLElement>) => <kbd className="key" {...props} />,
   Stats,
   Timeline,
@@ -104,7 +107,7 @@ export default async function NewsDetail({
       </p>
       <div className="prose-a mt-6">
         {/* blockJS: false — obsah je náš vlastní z repa */}
-        <MDXRemote source={n.body} components={mdxComponents} options={{ blockJS: false }} />
+        <MDXRemote source={annotateGlossary(n.body, locale)} components={mdxComponents} options={{ blockJS: false }} />
       </div>
       <DataDisclaimer locale={locale} />
       {n.source && (

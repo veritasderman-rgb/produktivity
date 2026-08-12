@@ -386,3 +386,51 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   }
   .reveal { opacity: 1; transform: none; }
 }
+
+/* Pojem s tooltipem (slovník pojmů) */
+.pojem {
+  border-bottom: 1.5px dotted var(--accent);
+  cursor: help;
+  position: relative;
+}
+.pojem::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(320px, 82vw);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 13px;
+  font-family: var(--font-schibsted);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.55;
+  letter-spacing: normal;
+  text-transform: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s var(--ease-out, ease);
+  pointer-events: none;
+  z-index: 30;
+}
+.pojem::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--ink);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s var(--ease-out, ease);
+  pointer-events: none;
+  z-index: 30;
+}
+.pojem:hover::after, .pojem:focus::after,
+.pojem:hover::before, .pojem:focus::before {
+  opacity: 1;
+  visibility: visible;
+}
