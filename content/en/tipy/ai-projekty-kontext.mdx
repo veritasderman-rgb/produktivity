@@ -1,49 +1,419 @@
 ---
 title: "Projects in AI: upload context once, not every time"
-excerpt: "Both ChatGPT and Claude support projects with persistent instructions and files. Conversations then start with the full context of your work already loaded."
+excerpt: "A complete guide with prompts: what to upload to a Project, how to write project instructions, when to start a new project instead of overloading one, how to distill lasting context out of conversations, and how to maintain a project so it doesn't lie to you six months in."
 category: "ai"
 platform: "vsude"
 audience: ["freelancer"]
 keys: []
-saves: "~10 min a day"
+saves: "~30 min a day"
 date: "2026-07-03"
 ---
 
-Explaining to AI, over and over, what you do, how you write, and who you work for is a waste of time — and that's exactly what projects are for. Both ChatGPT and Claude support a workspace with persistent instructions and uploaded files that remembers context across conversations, so you don't re-enter it for every new request, even when you come back after a week.
+Most people use AI like a stranger they have to reintroduce themselves to every morning. Who you are, who you work for, how you write, what's off-limits, what format you want. Ten minutes of explaining, only then the actual request — and tomorrow, all over again. Projects end that cycle: **context stops being something you write and becomes something you have.**
+
+A project is a space where persistent instructions, uploaded materials, and every conversation on one topic all live together. Anything you open inside it starts with that knowledge already in place. The difference isn't convenience — it's quality: a model that knows your price list, your samples, and your terminology doesn't give generic answers, because it doesn't have to guess. And a generic answer is exactly why most people give up on AI after two weeks.
+
+This guide moves from an empty project to a working system: phases 2 and 3 are the core (what to upload and how to write instructions that actually get followed), phase 4 offers four ready-made projects to copy, phase 5 covers limits and maintenance, and phase 6 is the advanced trick — how to distill what should stick around out of ordinary conversations. Every phase comes with prompts you just fill in and use.
 
 ## A typical scenario
 
-A freelancer writes a regular newsletter for three clients, and in every new AI conversation has to re-explain the style, tone, and structure each client prefers. Without projects: ten minutes copying old samples and explaining context before he even gets to the actual writing, and it triples for three clients. With a project set up for each client, he opens a conversation inside the “Newsletter — Client X” project, and AI already knows the style, the pricing, and the rules without him having to describe them again — writing can start right at the first sentence.
+Petra is a freelance copywriter who writes for three regular clients: a software company, a sporting-goods e-shop, and a nonprofit. Each has a different tone, different terminology, and different taboos — the software company can't stand the word “solution,” the e-shop wants an informal voice, and the nonprofit insists on strict formality and no superlatives.
 
-## How to do it
+Without projects, it looked like this: a new conversation, paste two old texts in as a sample, write five bullet points about tone, remind the model the client doesn't want emoji, and only then hand over the actual task. Ten to fifteen minutes of overhead per piece, and with twelve pieces a month that's two to three hours spent re-explaining what she'd already said once. And because she typed it out slightly differently every time, the outputs didn't even match each other.
 
-1. Set up a project with a clear name based on the topic or client — for example, “Newsletter” or “Client X.”
-2. Upload materials you'll need repeatedly: a price list, sample texts in the required style, company guidelines.
-3. Write persistent rules into the project instructions that would otherwise apply to every conversation — tone, output format, what AI should specifically avoid doing.
-4. Start every new conversation on that topic inside the project, not outside it — otherwise the context is missing.
-5. Update the materials in the project from time to time, so AI isn't working from outdated information.
-6. If you work on several distinct projects or clients, set up a separate space for each — mixed context leads to AI confusing one client's rules with another's.
+After setting up projects, she has three spaces, each built with about an hour of one-time work: uploaded samples of approved copy, a terminology glossary of “say it this way, not that way,” a brand manual, a price list, and instructions with the rules. A new conversation inside a project now starts with “Write a newsletter about the spring collection, 400 words” — and the first draft is usable. Overhead dropped from fifteen minutes to zero, output is consistent, and when a colleague covered for her over the summer, Petra didn't hand off context verbally: she gave the colleague access to the project, and the colleague was writing in the right tone from day one. The rest of this guide is a description of exactly what Petra put into those projects and how she keeps them up to date.
+
+## Phase 1: what a Project is and what belongs in it
+
+### Three layers of context
+
+Before you upload anything, it's worth knowing where each piece belongs. Context has three layers, and the most common mistake is writing everything into the middle one.
+
+**Global custom instructions** apply to every conversation regardless of topic. This is where only things that are always true belong: who you are, what language you want answers in, how long, how formal. More on these in the tip on [custom instructions](/tipy/ai-vlastni-instrukce). **A Project** carries the context of one topic, client, or area of your life — instructions plus uploaded files; this is where ninety percent of the value lives. **A single conversation** carries only what applies today: today's task, today's material, today's deadline. None of it has a reason to outlive the conversation.
+
+The rule for deciding is simple: **am I about to say this a third time? Then it belongs one level up.** If you type “don't use the word synergy” three times in one week, move it into the project's instructions. If it's true for every client, it belongs in the global instructions.
+
+### When a project is worth it and when it's overkill
+
+A project pays off when two conditions hold at once: **you'll keep coming back to the topic** (at least weekly, for months) and **there's context that doesn't change** (documents, rules, style). Missing the first makes it needless overhead; missing the second makes the project an empty folder.
+
+Worth it: a regular client, a product you maintain, a subject you're studying for a whole semester, a recurring routine (invoicing, hiring, reporting), your household, a long personal project like a thesis or a move. Not worth it: a one-off search, a single email, “let me just look something up,” brainstorming with no follow-up — open an ordinary conversation for those and let it die.
+
+### Before you set one up: a context audit
+
+The most common reason a project doesn't work isn't a bad instruction — it's a missing document: people upload the three files they had on hand and forget the one document that actually holds everything that matters. This prompt flips the order — list first, uploading second.
+
+```text
+I'm about to set up an AI project for [area: e.g. a regular
+client who does [industry], I write [type of output] for them,
+we've worked together for [how long], volume [how many
+pieces/tasks a month]].
+
+Typical tasks I'll handle in this project:
+- [task 1]
+- [task 2]
+- [task 3]
+
+Give me a list of materials that belong in the project, so the
+model never has to guess. For each item, note:
+1. What it is (a specific document type, not a broad category)
+2. Exactly what the model will use it for given my tasks
+3. How important it is: REQUIRED / USEFUL / LATER
+4. Whether it risks containing sensitive data, and what I
+   should strip out
+
+At the end, add 5 questions you can't answer from my
+description, without which the project will be incomplete.
+```
+
+It returns a shopping list and, more importantly, those five questions at the end — the most valuable part, because they usually land exactly on what you assumed was obvious. Skip the items marked “later” in the first round: an overloaded project on day one is worse than a sparse one.
+
+## Phase 2: what to upload
+
+Uploaded files are what sets a project apart from a cleverly written prompt: instructions describe rules, files carry facts. It's worth building four layers of material, in this order.
+
+### Documents: facts that shouldn't be guessed
+
+This is where everything unambiguous and verifiable belongs: price list, product description, contract terms, technical documentation, notes from key meetings, a list of roles (who approves what), the brand manual.
+
+Two rules. **Upload final versions, not working drafts** — if both the 2025 and 2026 price lists sit in the project, the model will occasionally reach for the older one and you won't find out. And **name files so the name itself says what's inside and from when**: `price-list-2026-effective-march.pdf` is a better artifact than `pricelist_final_v3.pdf`, because the model sees the filename and uses it as a cue.
+
+And a rule about data: **only what your client contract allows goes into the project.** Sensitive material — personal data, health information, salaries, non-public results — belongs only in a paid account with contractual data protection, and even there, anonymized:
+
+```text
+I'm attaching a document I want to upload to an AI project as
+a permanent reference. It's a [document type] and I'll mainly
+need [what for: structure, phrasing, numbers without names,
+a process].
+
+Make an anonymized version:
+- replace people's names with their role in square brackets
+  ([sales director], [client contact])
+- replace company names with [client], [vendor A], [vendor B]
+- remove phone numbers, addresses, emails, national ID
+  numbers, contract numbers, and bank details
+- keep amounts only where they're needed for the meaning
+- keep the structure, phrasing, and terminology unchanged
+
+At the end, attach a list of everything you replaced. Don't
+infer anything.
+```
+
+It returns a version you can upload without worry. Check it with your own eyes anyway — models sometimes miss a detail in a table, a footer, or an image caption, which is exactly where a signature and phone number tend to hide. Documents that can't leave your device at all don't belong in a cloud project in the first place.
+
+### Style: samples instead of adjectives
+
+Describing style in words barely works: “friendly but professional” means something different to every person, and to every model. What works reliably is **samples** — three to five finished pieces you've approved (see [show AI a sample](/tipy/ai-ukazky-formatu)). Even better is turning the samples into a style sheet and uploading both:
+
+```text
+I'm attaching [4] pieces I wrote that I consider a sample of
+my style. They're [type: newsletters, proposals, meeting
+notes].
+
+Pull a style sheet out of them that I'll upload to the project
+as a permanent reference. Structure:
+
+1. VOICE: form of address, first person singular or plural,
+   degree of formality
+2. SENTENCES: average length, whether I use long compound
+   sentences or short, clipped ones
+3. STRUCTURE: how I open, how I close, headings, bullets,
+   paragraphs
+4. VOCABULARY: words and phrases that recur (list specifics)
+5. WHAT NEVER SHOWS UP IN MY WRITING: clichés, superlatives,
+   phrasing I clearly avoid
+6. THREE SENTENCES that are typical of my style — quote them
+   verbatim
+
+Work only from the attached texts, don't generalize from how
+such texts are usually written. Where the sample is too small,
+say so instead of making a claim.
+```
+
+It returns a description that's surprisingly accurate — and useful to you too. Points 5 and 6 are the most valuable: a prohibition is a stronger signal for the model than a recommendation, and verbatim quotes act as an anchor. Read through the style sheet and fix anything that doesn't fit — the model sometimes turns a sample-size fluke into a stated rule.
+
+### Terminology: a “say this, not that” glossary
+
+This is the material almost nobody has, and it has the best ratio of payoff to effort. Every field, company, and client has words it stakes its identity on, and words that are forbidden. The model can't guess either from nothing.
+
+```text
+I'm attaching materials from client [name] — [website, brand
+manual, old copy, meeting notes].
+
+Build a terminology glossary from them for the project. A
+table with columns: CORRECT | WRONG | WHY.
+
+Include:
+- product and service names in their exact form, including
+  capitalization
+- terms of art the client uses differently from the industry
+  at large
+- abbreviations and their spelled-out form on first use
+- how the client addresses its audience (how it does and
+  doesn't refer to them)
+
+Work exclusively from the attached materials. Where you're not
+sure whether something is intentional or a coincidence, put it
+in a separate TO VERIFY section instead of the glossary.
+```
+
+It returns a glossary skeleton you can send to the client to fill in — and that's the main side benefit. You settle the “to verify” section with one email, and you end up with a document that sharpens your own work too.
+
+### Templates: ready-made skeletons for output
+
+The last layer is format samples. If the project repeatedly produces the same kind of output — a proposal, meeting notes, a monthly report — upload one blank template with annotations. Then the model doesn't have to invent a structure, and you don't have to describe what goes where in every single request.
+
+You can build one from three approved documents: instruct “keep the sections and their order as they recur across all three, replace the specific content with bracketed placeholders that say what belongs there (not [text], but [the client's main benefit, 1 sentence]), add a note on each section's purpose and length, and finish with a checklist to run before sending.” Watch the placeholders in particular — if they're too generic, the model will pad them with filler when it writes. Templates pair well with a [prompt library](/tipy/ai-knihovna-promptu): the template solves the output format, a saved prompt solves the request.
+
+## Phase 3: project instructions versus global instructions
+
+### What goes where
+
+The split is simpler than it looks, and yet most people still mix it up. **Global instructions = you.** They don't change with the topic: language, response length, your profession, what you never want (emoji, apologetic openers, offers of further help tacked onto the end). **Project instructions = this work.** The role the model should play, the domain's rules, the output format, the sources it should draw on, and prohibitions specific to this context. Never copy global rules into a project a second time — duplication isn't a safety net, it's a source of conflict.
+
+### The anatomy of a good project instruction
+
+A working instruction has six parts and fits on half a page: **who I am and what we're doing here** (two sentences of context), **the model's role** (editor, analyst, opponent — not “be a helpful assistant”), **sources of truth** (what to draw on and what to do when the answer isn't in the materials — the single most important line in the whole instruction), **output format**, **explicit prohibitions**, and **when to ask instead of guessing**. A longer text gets diluted by the model; a shorter one leaves too much room.
+
+You can write it yourself, or generate it faster from a description:
+
+```text
+I'm writing instructions for an AI project. Context:
+
+- Who I am: [role, field]
+- What I handle in the project: [task types]
+- What's uploaded in the project: [list of materials]
+- Who receives the output: [client, boss, the public, myself]
+- What's bothered me about answers so far: [specifically —
+  too long, too generic, makes up numbers, adds unnecessary
+  offers]
+
+Write me project instructions in six parts: who I am and what
+we're doing here / the model's role / sources of truth and
+what to do when the answer isn't in the materials / default
+output format / explicit prohibitions / when to ask instead
+of guessing.
+
+Requirements: 300 words maximum, rules as short imperatives,
+no phrases like “be helpful.” Every rule has to be one where
+I can tell whether it was broken.
+```
+
+It returns a draft you can drop straight in. The last sentence of the prompt is the part that matters: a rule whose violation you can't detect isn't a rule, it's a wish.
+
+### The most important line: what to do when the answer isn't in the materials
+
+Projects invite the assumption that the model only answers from uploaded files. It doesn't — it blends them with general knowledge, and the boundary is invisible. If it should stick to the materials, you have to write that down, and even then you check. A tool that genuinely answers only from uploaded sources is [NotebookLM](/tipy/notebooklm-vlastni-zdroje). This phrasing has proven itself in project instructions:
+
+```text
+SOURCES OF TRUTH
+
+Take facts about the client, product, prices, deadlines, and
+processes exclusively from the materials uploaded in this
+project.
+
+When the answer isn't in the materials:
+- don't estimate or fill in from general knowledge
+- write on its own line: MISSING MATERIAL: [exactly what I
+  need to know]
+- finish the rest of the answer normally
+
+When the materials contradict each other (say, two versions
+of the price list), flag the contradiction and ask which one
+applies. Don't pick for me.
+
+For every claim that comes from the materials, cite the
+filename in parentheses.
+```
+
+Paste this block into the instructions verbatim, just adjust what counts as “facts” for your case. You'll notice the effect right away: instead of confidently-sounding made-up numbers, you start getting notes that say “missing material” — good news, not a malfunction.
+
+### Tuning instructions when the model works around the rules
+
+Instructions never fit on the first try. The process is always the same: collect three to five concrete cases where an answer missed the mark, paste them in along with the current instructions, and for each one have it determine whether a rule is missing, present but easy to skirt, contradicted by another rule, or whether the problem isn't the instructions at all but an underspecified request. Only then have it propose a revised version with an “added / changed / removed” list.
+
+Take that last option seriously: a large share of problems that look like instruction failures are actually unfinished requests. And add a length cap to your requests (say, 350 words) with the condition that adding something means dropping something else — instructions tend to bloat until the rules start drowning each other out.
+
+## Phase 4: four projects worth setting up
+
+Four concrete projects with the material that belongs in them — pick the one that fits and set it up today.
+
+### Client X
+
+The most typical case and the fastest payback. Inside: a brand manual or at least a tone description, three to five approved texts, a terminology glossary, the price list and scope of work, the approval process (who comments, who signs off), sensitive topics, and an archive of what's already gone out. Instructions: the role of the client's editor, tone per the style sheet, a ban on words from the glossary, format per the template, mandatory “missing material” flags on facts.
+
+A check-in prompt to run before you trust a new project with real work:
+
+```text
+Before I give you a first task, I want to check what you
+actually know from the materials. Answer only from the
+uploaded files, don't guess anything.
+
+1. Who's the client and what do they do — 3 sentences.
+2. Who's the target audience and how do the materials say we
+   address them.
+3. List 5 words or phrases I must never use in copy for this
+   client, and what to use instead.
+4. What does the structure of [output type] look like per the
+   template.
+5. What's the current price for [service], and which file did
+   you get it from.
+6. What's missing from the materials for you to be confident
+   writing [output type]?
+
+Cite the filename you're drawing on for every answer.
+```
+
+The best-spent minute in the whole setup. Points 3 and 5 reveal whether the model actually reads the materials, point 6 tells you what else to upload. A fact with no filename attached is a warning sign: it came from general knowledge.
+
+### Product Y
+
+For anyone who maintains one product, service, or internal system long-term. Inside: a description of the product and its versions, documentation, the price list and licensing model, the most common customer questions with answers, a list of known limitations, a competitive overview, copy that's already been published about the product.
+
+The project then answers questions that would otherwise live in one person's head. The most valuable use runs in the opposite direction: have it review a draft text and list out claims promising a feature that isn't in the documentation, contradictions against the materials, and phrasing that matches an older version — with the condition “don't rewrite anything, just flag it, and cite the file for every finding.” It catches exactly the mistakes that later turn into apology emails.
+
+### Study Subject Z
+
+One project per subject or per thesis, not one project for the whole semester. Inside: the syllabus and exam requirements, course materials and slides, your own lecture notes, assignment prompts, a reading list, past exam questions if they exist.
+
+Study instructions have one specialty: **the model must not do the work for you — it should quiz you.** Without that, the project turns into a machine that dispenses answers you won't remember.
+
+```text
+You're my examiner for [subject name]. Work exclusively from
+the materials uploaded in this project — the syllabus, course
+materials, and my notes.
+
+Quiz me on [topic] like this:
+1. Ask me one question and wait for my answer. Don't ask
+   about several things at once.
+2. Then tell me what was right, what was missing, and what
+   was wrong — with a reference to the specific passage in
+   the materials.
+3. Choose the next question based on my answer: if I did well,
+   go deeper; if I did poorly, go back to basics.
+4. Never give me the full answer up front. If I don't know,
+   give a hint, not the solution.
+
+After ten questions, write a summary: what I know, what's
+weak, and what I should study first.
+```
+
+It returns a quiz that adapts as you go. Point 4 is essential — without it, the model slides into lecturing. And check disputed points against the actual course materials; a model can retell even your own note in a way that reinforces an error in it.
+
+### Household and family logistics
+
+A project nobody expects, and one with a surprisingly big payoff. Inside: meal habits and allergies, a list of recurring purchases, the apartment's dimensions and technical specs, manuals and warranty cards for appliances, contacts for tradespeople, a schedule of recurring dates (inspections, car service, insurance). Use looks like this: “write a shopping list for the week based on the meal plan and what we already have at home,” “summarize what the dishwasher manual says about error E4,” “prepare questions for the plumber.” And one rule applies here twice as much: exact addresses, alarm codes, document numbers, and kids' health data don't belong in the project — anonymize the same way you would for clients.
+
+## Phase 5: limits, overload, and maintenance
+
+### When to start a new project instead of overloading the current one
+
+The most common mistake among advanced users is a single giant “Work” project that accumulates forty files from five clients over a year. The result isn't an error message — it's something worse: answers that blend contexts. The model picks up the tone from one client and the price list from another, and you don't notice until after you've sent it.
+
+Split the project when at least one of these is true:
+
+- **The contexts contradict each other.** Two clients have mutually exclusive rules (formal versus informal, different names for the same thing). The strongest reason on its own — it's sufficient by itself.
+- **The instructions would need conditionals.** The moment you write “if it's for client A, then…”, you've crossed the line; conditional instructions get followed poorly.
+- **The materials overlap by name, not content.** Two files called “price list” or “proposal template” — the model picks between them and won't tell you on what basis.
+- **You've lost track of what's inside**, or you've hit a materials size limit where answers get noticeably flatter.
+
+On the other hand, don't split a project by time (“newsletter 2025,” “newsletter 2026”) or by individual task — that produces dozens of dead spaces nobody can find anything in.
+
+If you're unsure, list out the files, current instructions, and typical requests for the model and have it propose a split: how many projects, what to name them, which file belongs where (each assigned exactly once), and what's common to all of them — and therefore belongs in your global custom instructions. Add one last point: “tell me what I lose by splitting this up.” Sometimes it's genuinely better to keep two closely related contexts together than to pay the daily cost of switching between them.
+
+### Limits worth knowing about
+
+The exact numbers differ between tools and change over time, so check them in the app itself. But three general rules hold. **Material size has a ceiling**, and it's higher on paid accounts; as you approach it, the project doesn't crash — it just starts working from a smaller slice of the material without announcing it. **More material doesn't mean better answers** — past a certain volume, quality drops because the relevant passage gets lost in the clutter. And **file format matters**: text formats and PDFs with a text layer read best, scanned documents and slide decks full of images read worse, and scans carry an extra risk of misreading digits. Where numbers matter, upload a machine-readable version too.
+
+### Quarterly maintenance
+
+The most dangerous state isn't an empty project — it's a project with a year-old price list you believe is current. Put a quarterly fifteen-minute check on your calendar:
+
+```text
+Let's run maintenance on this project. Go through every
+uploaded document and every instruction, and return an audit:
+
+1. OUTDATED — materials with a date, version, or figure older
+   than [date]; note what's time-sensitive in each.
+2. CONTRADICTIONS — places where two materials disagree with
+   each other. Cite both versions and the files.
+3. DUPLICATES — files that cover the same ground.
+4. UNUSED — materials that don't relate to my typical tasks
+   ([list the tasks]).
+5. GAPS — information you'd need for my typical tasks that
+   isn't in the project.
+6. INSTRUCTIONS — rules that reference a file that no longer
+   exists, or that contradict each other.
+
+For each point, propose a specific action: delete / replace /
+add / keep.
+```
+
+It returns fifteen minutes' worth of tasks. Point 5 is the reason to run the audit at all — gaps show up quietly, as slightly worse answers.
+
+## Phase 6: distilling conversations and sharing
+
+### From a conversation into lasting context
+
+The best material doesn't come from setting up a project — it comes from ordinary work: mid-conversation you refine a rule, explain an exception, correct the model a third time on the same thing. Then you close the conversation and the knowledge disappears with it. Get in the habit of asking one extra question at the end of a longer conversation — this is the single most useful prompt in this whole guide:
+
+```text
+This conversation is ending. Go through the whole thing and
+pull out what should stick around permanently — so I don't
+have to explain it again next time.
+
+Split the output into four parts:
+
+1. FOR PROJECT INSTRUCTIONS — rules, preferences, and
+   prohibitions I stated during this conversation that also
+   apply to future tasks. Phrase them as short imperatives.
+2. FOR MATERIALS — facts, numbers, definitions, and lists I
+   gave you that will be useful repeatedly. Organize them into
+   a document I can save and upload right away.
+3. FOR SAVED PROMPTS — requests that worked well in this
+   conversation and that I'll repeat.
+4. NONE OF THIS — things that only applied today and have no
+   reason to survive. Just list them briefly so I can see what
+   you dropped.
+
+Distinguish between what I said (that's binding) and what you
+proposed and I never confirmed (mark that UNCONFIRMED).
+```
+
+It returns four blocks, and you can use the first three right away. The last paragraph of the prompt matters — without it, the model promotes its own unconfirmed suggestion to a permanent rule just because you didn't push back on it. Use this regularly, and the project reaches a state where new requests need almost no explaining at all.
+
+### Handing off to someone else, and connectors
+
+A project is also the best onboarding material you'll ever have — unlike an internal wiki, it stays current simply because it's in use. When a colleague or a temp steps into the work, don't hand off context verbally — give them access to the project; there's a dedicated tip on this: [onboarding a new hire through a Project](/tipy/onboarding-novacka-ai-projekt).
+
+And one last layer: uploaded files are static. For context that keeps changing, a live connection works better — connectors (Gmail, Calendar, Drive, Notion, Slack, and others) let the model reach for the current document exactly when it needs it. **Upload what's stable** to the project (brand manual, style sheet, glossary, templates), and **handle what changes through a connector** (the current proposal in Drive, the latest notes, today's calendar).
+
+## Common mistakes
+
+- **Starting conversations outside the project.** The quietest mistake: the project is set up, but you open a new chat from the home screen and the model knows nothing. The result is mediocre, and you blame the tool.
+- **Uploading everything “just in case.”** Fifty documents make answers worse — the relevant passage gets lost in the noise. Curate as if you were handing material to a new colleague on their first day, not building an archive.
+- **Describing style with adjectives instead of samples.** “Friendly but professional” means nothing; three approved texts and a style sheet built from them do ten times more.
+- **Mixing clients and topics into one project.** The moment instructions would need conditionals — “different for client A than for B” — it belongs in two projects. Mixed context breeds mistakes you only notice after you've hit send.
+- **Forgetting maintenance.** An old price list in the materials is worse than none at all, because the model will cite it with total confidence. A quarterly audit is fifteen minutes.
+- **Trusting that the model only answers from the materials.** It doesn't have to. Without the “missing material” rule, it fills the gap with general knowledge, and you won't be able to tell — it sounds just as confident as a fact from a file. And an uploaded file stays uploaded: sensitive data only into a paid account with contractual data protection, anonymized, and within whatever scope your contract lets you share.
 
 ## The best tools
 
-Any of these work on the same principle — context you set up once, which then automatically attaches to every new conversation.
-
-- **Projects in ChatGPT** — a built-in feature with persistent instructions and uploaded files.
-- **Projects in Claude** — a similar feature, which can additionally handle larger sets of documents at once.
-- **A custom GPT with saved instructions** — for a repeated, narrow purpose, such as just reviewing contracts.
-- **A shared folder of materials** (Google Drive, Notion) as the source you pull from and update the project's materials with.
-
-The difference between a project and an ordinary conversation is mainly that you come back to it repeatedly, not just once.
+- **Projects in Claude** — persistent instructions plus uploaded materials; handles larger document sets at once, which suits contexts with a lot of material (client archives, documentation, study materials).
+- **Projects in ChatGPT** — the same principle, custom instructions and files at the project level; pick whichever you're already working in.
+- **Custom GPTs** — for one narrow purpose shared with other people (say, reviewing contracts against company rules), not for a broad, ongoing agenda.
+- **NotebookLM** — when you need certainty that an answer comes exclusively from uploaded sources, with a reference to the passage; a complement to projects, not a replacement.
+- **Connectors to Drive, Notion, or Gmail** — for the part of the context that changes; the project holds the rules, the connector brings current data.
 
 ## What you get out of it
 
-- **Time:** no more re-explaining context — the conversation starts right at the request, not at the explanation.
-- **Consistency:** output for the same client or project keeps the same tone and format regardless of who's running the conversation or when.
-- **Sanity:** you don't have to remember what you told AI when — the rules are stored once and apply permanently.
-- **Scalability:** a new team member gets up to speed on how to work with a client faster, because the rules are written into the project, not just in one person's head.
-
-It's worth going through the project every so often to check that the instructions and materials still match how you currently work.
+- **Time:** the ten to fifteen minutes of explaining context at the start of every conversation disappears. At two requests a day, that's roughly half an hour a day — two to three days per quarter.
+- **Money:** fewer rounds of revisions. A text that lands the right tone the first time saves one round-trip with the client — across twelve pieces a month, that adds up.
+- **Peace of mind:** you stop having to remember the rules for each client. What's written into the project doesn't have to live in your head.
+- **Quality:** consistency across output and fewer mistakes from missing context. The “missing material” rule also changes what checking looks like: instead of hunting for made-up figures, you read a list of what the model itself flagged as unsupported.
 
 ## Pro tip
 
-Don't upload more sensitive data into a project's materials than strictly necessary — for client projects, consider anonymized samples instead of real contracts or personal data. An uploaded file stays in the project permanently, so decide up front what actually belongs there, and remove older materials you no longer need from the project.
+Set up one extra project — a meta-project for managing the others. Upload copies of every project's instructions into it, and once a quarter ask: “compare my instructions across projects, find rules that repeat in three or more of them, and propose what to move into my global custom instructions.” Within two rounds, the instructions shrink by a third, and the global settings finally hold what's actually always true.
+
+And the rule that stands above the whole guide: **a project is memory, not authority.** However good the materials, the model is still only proposing — you're the one approving. Sending, signing, paying, quoting a client a price, or any claim that goes out under your name passes through a human. A project saves you the writing of context, not the responsibility for the result.
