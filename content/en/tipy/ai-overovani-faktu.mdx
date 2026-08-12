@@ -1,6 +1,6 @@
 ---
 title: "AI makes things up with total confidence. Verify it"
-excerpt: "Language models occasionally hallucinate — numbers, citations, legal clauses. The rule: anything that leaves the company or feeds into a decision gets checked."
+excerpt: "A complete guide with prompts: why models hallucinate, which types of claims fail most often, three verification methods, the two-source rule, and a ready-made workflow for content that leaves the company."
 category: "ai"
 platform: "vsude"
 audience: []
@@ -9,36 +9,443 @@ saves: "reputation"
 date: "2026-07-06"
 ---
 
-The biggest risk with AI isn't that it can't do something. It's that it can't reliably say “I don't know” — and it states an error with exactly the same confidence as the truth, smoothly and without hesitation. Language models occasionally hallucinate: they invent a citation, mix up a section of law, or cite a number that appears nowhere in the source material, and the whole answer still sounds completely credible. The more the output matters, the more important it is to verify it before sending it on.
+The biggest risk with AI isn't that it can't do something. It's that it can't reliably say "I don't know" — and it states an error with exactly the same confidence as the truth, smoothly and without hesitation. A language model will invent a citation, mix up a section of law, or cite a number that appears nowhere in the source material, and the whole answer still sounds completely credible.
+
+The fundamental shift in thinking is this: **a model doesn't generate truth, it generates a probable continuation of text.** It isn't a database you pull facts out of. It's a machine that strings words together so they make sense — and a convincing-sounding piece of nonsense is, from its point of view, just as good a continuation as a fact. Hallucination isn't a bug you can patch with an update. It's a property of how these tools work, and you have to work around it.
+
+This guide isn't about scaring you off. It's about building a routine that protects you without slowing you down: which types of claims are risky and which almost never are, how to get a source out of a model and verify it, when one source is enough and when you need two, and — most importantly — where the line sits between "I can trust this outright" and "this never goes out the door without a check." At the end there's a ready-made workflow for content that leaves your screen. The prompts are ready to copy; just fill in the brackets.
 
 ## A typical scenario
 
-An assistant has AI summarize an amendment to a law and gets back a reference to a specific section that sounds credible and fits the context. Without verification: the section cited turns out to be numbered differently or was repealed long ago, and the mistake only surfaces later, damaging the credibility of the whole document, not just that one line. With a habit of verifying, she looks up the reference in the original text of the law before sending it on — and catches the mistake before it ever leaves her screen, when it still only costs a few minutes to fix.
+Marek is writing an article for the company website about changes in an area he's responsible for. He wrote the source material himself, but used AI for three things: adding context, tracking down numbers, and polishing the text.
 
-## How to do it
+Without a verification routine, this is how it plays out. The article ends up with a statistic the model attributed to "a 2024 study" — the study exists, but the number in it actually refers to a different region. Then there's a reference to a section of law that's since been renumbered. And a quote from an expert that sounds exactly like something that person would say — except they never said it. The article goes live, a reader flags it in a comment three weeks later, the fix gets made in a rush and it's ugly — and the question "what else in here isn't true" lands on the whole site.
 
-1. Recognize the high-risk categories — specific numbers, citations, legal references, people's names, prices. This is exactly where AI hallucinates most often, with complete confidence.
-2. For important output, always ask for sources: “Where does that number or claim come from?” — and actually open and check the sources.
-3. Calibrate how much you verify based on the stakes — an internal brainstorm can tolerate a small inaccuracy, an email to a client or a legal document can't.
-4. For numeric output, ask to see the calculation, not just the result — it's easier to spot where a mistake crept in.
-5. Treat hedging language as a warning sign — if AI writes “approximately” or “usually,” that's an estimate, not a verified fact.
-6. For facts you use repeatedly (price lists, contacts, internal figures), maintain one verified source and always point AI to it, rather than relying on its general memory.
+With a routine, it looks different and costs forty extra minutes. After finishing the draft, Marek has every verifiable claim in the text pulled out into a table. There are nineteen of them. Nine are his own sentences about his own company — he doesn't verify those, he knows where they came from. He verifies seven by opening the source: two check out, four check out with a caveat (different year, different percentage base), and one source doesn't exist at all. Three key claims the article hinges on get the two-source rule, and for one of them he finds that the second source says the opposite — so he rewrites the paragraph. He drops the expert quote entirely, because he can't find it anywhere. The article goes live a day later than planned, and it's true.
+
+## Phase 1: why models do this
+
+Verifying without understanding the mechanism means verifying everything the same way, and nobody keeps that up for long. Once you know **why** and **where** it breaks, you can verify with precision.
+
+### Text, not truth
+
+A language model trained on an enormous amount of text, and its job is to guess what word comes next. It doesn't have a stored list of facts to consult. It has a statistical sense of what text on a given topic tends to look like.
+
+Ask it something it saw thousands of times in training, always in the same form, and it answers correctly. Ask it something it rarely saw, or saw in conflicting versions, and it generates the **shape** of an answer typical for that kind of question — and fills that shape with content that fits. That's how citations get invented: the model knows what a bibliographic entry looks like, knows who publishes in the field, knows what the journal names sound like — and assembles an entry with all the right features that simply doesn't exist.
+
+Practical consequence: **the more specific and precise the figure you're asking for, the higher the risk.** "Explain how compound interest works" is a safe question. "What percentage of Czech companies adopted X in 2025" is a dangerous question, because the model most likely doesn't know that exact number — and can convincingly manufacture one that looks right.
+
+### Confidence isn't a signal
+
+The model has no internal "I'm not sure about this" indicator that shows up in the tone of the answer. A verified fact and a guess read identically on the page — smooth, without hesitation, with the same sentence structure. A human speaker would hesitate, look away, say "I think." A model doesn't.
+
+That's why the intuition you use on people doesn't transfer. With a colleague, you can tell when they're making something up. With a model, you can't — and that's exactly the skill people convince themselves they still have.
+
+You can ask directly, though, and it helps more than you'd expect:
+
+```text
+Here's the answer you just gave me:
+
+[paste the answer]
+
+Go through it again and sort every factual claim into three
+groups:
+
+A) I KNOW THIS FOR SURE — well-established, repeatedly
+   documented, low risk of error
+B) I'M NOT SURE — plausible, but I might have pieced this
+   together; note specifically what could be wrong (a number,
+   a year, a name, a range)
+C) I DON'T KNOW / I GENERATED A LIKELY SHAPE — mainly specific
+   numbers, citations, study titles, section numbers
+
+Be strict with yourself. If you're not sure, it belongs in B
+or C, not A. For every item in group A, write why you're sure.
+```
+
+You'll get back a sorting that's surprisingly useful — group C is often exactly what you'd otherwise have missed. But watch the limits of what this prompt can do: **a model isn't aware of its own gaps any more than a person is.** When it's confidently wrong, it files that under A. Treat the result as a pre-filter, not a guarantee.
+
+### Where the risk is highest
+
+Hallucinations aren't evenly distributed. The risk is highest where several conditions line up at once: the figure is specific and precise, the topic is narrow or local, the information is newer than the model's training, and the answer needs to take a form the model knows well (a citation, a table, a list of legal sections). The risk is lowest for general principles and for transforming text you handed the model yourself.
+
+## Phase 2: a risk taxonomy — what to always verify
+
+This is the core of the routine. Once you remember the five categories where things break, verification stops being a chore, because you know exactly what to check.
+
+### Numbers and statistics
+
+The most common and most treacherous category. The model produces a number that's roughly right and plausible-sounding — which is exactly why nobody questions it. Typical errors: the right number for the wrong year, the right number for the wrong region or population, a percentage calculated from a different base, an "approximately" rounded so far it's no longer true.
+
+A special sub-category is numbers the model **calculated**. It isn't a calculator — it generates addition and percentages as text and gets them wrong. When you need a calculation done over data, have it write a script you can run, not a chat answer.
+
+### Citations and source references
+
+The most dangerous category in terms of consequences. A citation that doesn't exist isn't just an error — it's provable evidence you never read the source, and in academic and journalistic contexts that has serious consequences.
+
+Typical forms: an article with a credible title attributed to a real author who never wrote it; the right journal but a made-up volume and page range; a DOI that leads nowhere; a reference to a "study from University X" that doesn't exist. The risk is highest exactly where you ask for citations yourself — when you say "add sources," the model adds sources, because that's what you asked for.
+
+### Names, titles, and authorship
+
+Who said what, who wrote what, who holds what position. This is where models mix things up: they attach the right quote to the wrong person, cite a title someone held five years ago, or manufacture a quote that "sounds like" something a person would say. With living people, this is doubly sensitive — a false statement attributed to a specific person can be a legal problem, not just an accuracy one.
+
+### Dates, years, and deadlines
+
+This looks harmless but causes real trouble: a wrong effective date, the wrong length of a deadline, events in the wrong order. Models confuse nearby years and, for more recent events, work with incomplete information, because their knowledge has a cutoff.
+
+### Legal, tax, and other expert/normative claims
+
+The worst combination of error probability and impact. Section numbers change with amendments, provisions get repealed and renumbered, interpretation evolves over time. The model doesn't track any of this — it works from what it saw during training and has no reliable way to know something has changed since.
+
+A rule with no exceptions: **never publish or act on legal, tax, health, or safety claims without verifying them against a current primary source or a qualified person.** AI is good for exactly one thing here — preparing the questions to bring to an expert, so you don't spend an hour explaining context once you're there.
+
+### A prompt for sorting claims by risk
+
+Before you start verifying, you need a list of what to verify. Manually pulling that list out is work a model does well, because it isn't drawing on knowledge, just on the text in front of it.
+
+```text
+Go through the attached text and list ALL factual claims that
+can be checked against an independent source, in a table.
+
+Columns:
+claim (verbatim quote from the text) | where in the text
+(paragraph/section) | type (number / citation / name / date /
+legal claim / general) | risk (high / medium / low) | how to
+verify it (specific type of source)
+
+Rules for the risk column:
+- high = a specific number, citation, section reference, a
+  named person with a quote, or anything newer than your
+  training data
+- medium = generally accepted, but a specific figure
+- low = a general principle, a definition, or my own content
+
+DON'T judge whether the claim is true. Just list what needs
+verifying. Don't skip a claim because it seems obvious to you.
+At the end, add any claims worded so vaguely they can't be
+verified at all — those need to be rewritten.
+```
+
+You'll get back a checklist that's the foundation of the whole workflow. For longer texts, this usually runs twenty to fifty items; most fall into the low-risk bucket and you won't verify those at all. The last paragraph of the prompt is a bonus: vague claims ("experts agree," "studies show") are worse than wrong ones, because they can't even be disproven.
+
+## Phase 3: three verification methods
+
+Verification doesn't have one shape. The right method depends on the type of claim — and it's fastest to start with the cheapest one.
+
+### Method 1: search with citations
+
+Models with web access can track down a current source and cite it. That turns generation into search, which is a fundamentally different and safer operation — the model isn't inventing content, it's pointing at an existing page.
+
+```text
+I need to verify this specific claim:
+
+"[verbatim wording of the claim]"
+
+Search the web for it and return:
+1. Verdict: CONFIRMED / DEBUNKED / PARTIALLY TRUE / NOT FOUND
+2. For each source found: name, publisher, publication date,
+   link, and the verbatim passage that supports it
+3. If sources disagree with each other, show both versions
+4. The original source of the figure — who published it first;
+   if every article you found just picked it up from one
+   source, say so
+5. The date the figure applies to, and whether a newer version
+   exists
+
+If you can't find it on the web, write NOT FOUND. Don't fill
+it in from your own knowledge, and don't try to find something
+similar instead.
+```
+
+You'll get back a sourced verification. Point 4 is the important one — a large share of "widely cited" figures trace back to a single press release that twenty sites picked up. Twenty links then look like twenty sources, but it's one. And point 5 protects against the most common mistake: the figure is true, but out of date.
+
+One non-negotiable discipline: **actually open the links.** A model will sometimes cite a page where the claim isn't there at all, or is worded differently. Clicking through three links takes two minutes, and it's the one part of this whole process nobody can do for you. More on searching with citations is in the tip on [search with citations](/tipy/ai-vyhledavani-citace); for larger research projects, see [deep research](/tipy/deep-research-reserse-trhu).
+
+### Method 2: asking the model where it got it
+
+The fastest test, taking fifteen seconds: ask where it's from. But the wording matters — "where did you get that?" pushes the model to generate a plausible-sounding source. You need to ask in a way where admitting it doesn't know is an acceptable answer.
+
+```text
+In your previous answer, you stated: "[specific claim]".
+
+Answer me honestly, and "I don't know" is a perfectly fine
+answer here:
+
+1. Is this something you actually know from a specific source,
+   or is it a shape of answer that fits this kind of question?
+2. If you know the source, what's its exact name, who published
+   it, and when?
+3. How confident are you in this figure on a scale of 1-5, and
+   why that number specifically?
+4. What specifically could be wrong with this figure — the
+   year, the unit, the population it refers to, the order of
+   magnitude?
+5. Where should I verify this to get a primary source, not
+   something secondhand?
+
+Don't search the web right now. I want to know what you know
+and what you don't.
+```
+
+You'll get back a self-assessment that works as a filter. When the model says at point 1 that it's really a shape of an answer, you've saved yourself time — either drop the claim or run it through Method 1. Point 4 is useful even for claims that turn out correct: it tells you what to look at when you verify. Don't count on the model admitting uncertainty every time, though; it does so more often when you give it room to, but not always.
+
+### Method 3: cross-checking with a second model
+
+The third method is useful when there's no easily traceable primary source, or as a fast second check on text that's about to go out. The principle: give the claim to **a different model that didn't see how it originated** and let it answer independently.
+
+The condition the whole thing rests on: **you must not reveal what the original answer was.** If you show the model a claim and ask "is this correct?", you'll get confirmation, because agreeing is a more probable continuation of the text than disagreeing.
+
+```text
+Please answer this question in your own words, regardless of
+what anyone else might think:
+
+[ask the original question again, exactly as it was worded
+the first time]
+
+I'm interested in:
+- the specific answer, including numbers and units where
+  relevant
+- how you know this, and how confident you are
+- what's disputed or commonly confused about this question
+
+If you don't know the answer, say so. I don't need a guess.
+```
+
+Then compare the two answers yourself. When they agree on every specific detail, the risk drops considerably — not to zero (both models trained on similar data and may share the same mistake), but noticeably. When they diverge, you now know exactly which spot needs verifying against a source. Disagreement is more valuable than agreement — it shows you where to look.
+
+If you want direct criticism from the second model, hand it the text and ask it to play devil's advocate, per the tip on [AI as a reviewer](/tipy/ai-oponent). Just don't tell it the text was written with AI — it grades more leniently when it thinks it wasn't.
+
+### Method 4: verifying against your own source material
+
+The most reliable option of all, when you can use it: the model isn't working from memory, only from the document you gave it. The risk of hallucination drops the most here, because the model doesn't have to fill in anything.
+
+```text
+I'm attaching the document [name], which is the only valid
+source for this task. Here's the text I wrote:
+
+[paste the text]
+
+Check every factual claim in my text against the document and
+return a table:
+claim | page/section of the document | verdict | exact quote
+from the document
+
+Use these verdicts:
+- HOLDS = the document states this the same way
+- SHIFTED = the document states this, but more weakly, with
+  a condition, or in a different scope; explain the difference
+- NOT IN DOCUMENT = I can't find this claim in the document
+- CONTRADICTS = the document states something different
+
+Don't use anything outside the attached document, not even
+general knowledge. Where you're not sure where in the document
+something is, say so.
+```
+
+You'll get back a check that mainly surfaces the SHIFTED verdict — a quiet strengthening of a claim is the most common way untruth gets into a text without anyone actually lying. For work over a stable set of sources, [NotebookLM](/tipy/notebooklm-vlastni-zdroje) is a good fit — it answers only from uploaded documents and shows a citation with every answer.
+
+## Phase 4: the two-source rule
+
+Nobody keeps up verifying everything twice. Verifying everything once isn't enough for claims something rests on. The solution is a rule journalists developed long before AI existed:
+
+**A key claim needs two independent sources. Everything else needs one.**
+
+A key claim is one the conclusion of the text rests on, one that ends up in the headline or the abstract, one that leads to a decision about money or people, or one that would be embarrassing if wrong. There are usually three to five of these in a piece of text, not thirty.
+
+The word **independent** is doing all the work here. Two articles that both picked up the same press release are one source. Wikipedia and an article that draws from it are one source. Two websites citing the same study are one source — and that source is the study itself, which is what you should open. Independence means the figure arose through two paths that don't know about each other.
+
+The source hierarchy, from best to worst, is simple and worth memorizing. Best is a **primary source**: the study itself, official statistics from the institution that collects the data, the full text of a regulation, a company's annual report. Below that is a **quality secondary source**, one that cites the primary source and lets you trace back to it. Worst is **reused content with no attribution** — and unfortunately, that's exactly what search turns up most easily, because there's more of it than anything else.
+
+```text
+I have this key claim that my whole piece rests on:
+
+"[claim]"
+
+I need TWO independent sources for it. Independent means one
+doesn't just pick it up from the other.
+
+Do this:
+1. Find the primary source — who originally published this
+   figure (institution, study, annual report) and a link to
+   the full text
+2. Find a second source that arrived at the same figure
+   independently, not by copying the first one
+3. For both, give: who, when, what method or data collection,
+   and the verbatim passage with the figure
+4. Compare them: do they agree on numbers, period, and
+   definition?
+5. If a second independent source doesn't exist, SAY SO —
+   don't substitute another article that just picked it up
+   from the first one
+
+At the end, tell me how strongly the claim is supported and
+what specifically I should phrase more cautiously in the text.
+```
+
+You'll get back either two solid supports, or — equally valuable — the information that a second independent source doesn't exist. When it doesn't, you have three options: drop the claim from the text, soften it ("according to one study from year X"), or leave it in with the single source cited explicitly. What you shouldn't do: present it as a generally established fact.
+
+## Phase 5: when to trust it and when never to
+
+This is the most practical part of the guide, because a verification routine that slows down everything gets abandoned within a month. Split tasks into three zones and behave differently in each one.
+
+### Green zone: no need to verify
+
+The common thread: **the model is working with content you gave it, or isn't generating facts at all.**
+
+This covers rephrasing your own text, changing tone, shortening, converting format, fixing grammar and style. Also structuring your own thoughts into an outline, brainstorming options you'll pick from yourself, generating questions about a topic, suggesting headlines. And writing code you'll run and see whether it works — there, verification is built into the work itself.
+
+Watch for one trap even here: **when transforming your own text, the model sometimes adds a claim you never wrote.** Typically in the conclusion — it adds a nice-sounding wrap-up sentence that contains an extra fact. Or it strengthens a phrasing. A quick check: read the output and ask yourself "was this in my input?" For longer texts, do it with a prompt.
+
+```text
+Here's my original text, and here's the version you made from it:
+
+ORIGINAL:
+[paste]
+
+YOUR VERSION:
+[paste]
+
+Compare them and list ONLY substantive differences, not
+stylistic ones:
+1. Claims that are in your version but weren't in the original
+2. Claims from the original that are missing from your version
+3. Places where a claim is worded more strongly or more weakly
+   than in the original — quote both versions side by side
+4. Numbers, names, or dates that differ
+
+If the substantive content matches, say so. Don't comment on
+stylistic changes.
+```
+
+### Orange zone: verify selectively
+
+Most everyday work falls here: explaining a general principle, an overview of options, a proposed process, a summary of someone else's document, prepping briefing materials. The model is working from general knowledge, which tends to be fine, but details break down.
+
+The rule for the orange zone: **verify specific figures, not the whole answer.** When you get an overview of five options with descriptions, you don't need to check every sentence — but you do need to check the specific numbers, names, and links inside that overview. For summaries of someone else's document, the best check is the reverse check against the document, covered in the tip on [summarizing long documents](/tipy/ai-shrnuti-dokumentu).
+
+### Red zone: never without verification
+
+There's no "just this once, it's urgent" exception here. This includes:
+
+**Anything that leaves the company or goes into a publication.** An article, a press release, a client presentation, a proposal, a social post, an email to a customer. A mistake caught outside is incomparably more expensive than one caught internally.
+
+**Legal, tax, health, and safety claims.** Always a current primary source or a qualified person.
+
+**Numbers a decision rests on.** Investment, budget, capacity, deadlines. It doesn't matter whether the number is going public — what matters is that a decision is being made based on it.
+
+**Citations and source references, always.** Open and verify them without exception, including the ones that look perfectly standard.
+
+**Anything concerning specific living people.** Statements, titles, authorship, biographical details.
+
+And across every zone, one principle applies, which also happens to be the simplest safeguard: **AI proposes, a human approves.** Sending, publishing, paying, deleting — that last step always belongs to a person who's accountable for it.
+
+## Phase 6: a workflow for publishing content
+
+When you write content that goes out regularly, you need a routine, not case-by-case judgment calls. This process has four steps and takes thirty to fifty minutes for a typical article.
+
+### Step 1: extracting claims
+
+After finishing the text (and before any copyediting), have every verifiable claim pulled out using the prompt from Phase 2. Copy the result into a table and add columns: **verified by whom, when, source link, verdict.** This table is the entire point of the workflow — it's a record you can return to when someone asks a year from now, "where did you get this?"
+
+### Step 2: sorting and verifying
+
+Go through the list and split it:
+
+- **Your own claims** (about your company, your experience, your data) — don't verify these, just flag them so you recognize them.
+- **Low risk** — general principles, definitions. A spot check is enough.
+- **Medium risk** — one source, open it, verify it, record the link.
+- **High risk and key claims** — the two-source rule from Phase 4.
+
+Verify from the top, highest risk first. If you run out of time, you want the important ones already done.
+
+### Step 3: revising the text based on findings
+
+Verification almost never comes back binary. The most common result isn't "true/false," it's "close" — and that's exactly where the text gets fixed.
+
+For every finding, decide: **holds** (keep it, record the source), **holds with a caveat** (adjust the wording — add the year, the population, narrow the scope), **doesn't hold** (correct it per the source), or **not found** (drop it, or rephrase so it's no longer a factual claim). That last option matters: a claim you can't support doesn't have to disappear from the text entirely — sometimes it's enough to turn it from a fact into your own experience ("in our projects, we see that...").
+
+```text
+Here's a paragraph from my text and the results of verifying
+its claims:
+
+PARAGRAPH:
+[paste]
+
+FINDINGS:
+[paste what the verification found — e.g. the number is true
+for 2023, not 2025; the source refers to a different region;
+a second source wasn't found]
+
+Rewrite the paragraph so it's accurate given the findings:
+- for numbers, add the year, source, and population they refer
+  to
+- for claims with only one source, word them more cautiously
+  and cite the source directly in the text
+- drop claims that didn't hold up — don't replace them with
+  similar ones you'd have to make up
+- keep my style and paragraph length, don't add new claims
+
+At the end, list exactly what you changed and why.
+```
+
+You'll get back a corrected paragraph and a list of changes. Read the list — it's the last place you'll catch the model sneaking in something new while fixing things.
+
+### Step 4: a final check before sending
+
+The last pass, ideally with a different model or on a different day. The goal isn't to find more facts, it's to catch what slipped through.
+
+```text
+You're an editor checking a text before publication. Don't
+touch style, you only care about factual reliability.
+
+Go through the attached text and return four lists:
+
+1. Claims presented as fact that have no source in the text
+   and need one
+2. Numbers without context — missing year, unit, population,
+   or the base a percentage is calculated from
+3. Vague attributions ("studies show," "experts agree,"
+   "it's generally understood") that can't be verified
+4. Phrasing stronger than what the text actually supports —
+   especially correlation dressed up as causation, and
+   generalizing from one case to the whole
+
+For each finding, quote the spot in the text and suggest a
+defensible way to phrase it. Don't fix the text yourself.
+```
+
+You'll get back a list of remaining weak points. Point 4 catches something nobody sees in their own read-through — we understand our own text the way we meant it, not the way it's actually written.
+
+And the very last step is human and can't be delegated: **read the text and, for every number, recall where you verified it.** If you can't remember, it wasn't actually verified.
+
+## Common mistakes
+
+- **Asking "is this correct?"** Agreement is a more probable continuation than disagreement. When you want a check, ask the question again, independently, and compare the answers yourself.
+- **Trusting a link you didn't open.** A link looks like proof, but it often leads to a page where the claim isn't there, or is worded differently. Clicking through takes twenty seconds.
+- **Confusing the number of links with the number of sources.** Twenty articles reusing one press release are one source. Independence means the figure arose through two paths that don't know about each other.
+- **Asking for "sources added" to a finished text.** When you ask for citations, you get them — including invented ones. Sources get collected while writing, not bolted on afterward.
+- **Verifying everything the same way.** A routine that slows down rephrasing your own email stops getting used. Verify by zone: green with no check, orange selectively, red always.
+- **Letting the model do the math.** The model generates addition and percentages as text and gets them wrong. Calculations over data belong in a script you can rerun.
+- **Counting on the model to admit uncertainty on its own.** It admits it more often when asked, but never when it's confidently wrong. Self-assessment is a pre-filter, not a guarantee.
 
 ## The best tools
 
-- **Checking the source directly** (the law, an official document, a website) — the most reliable option, and free, it just takes time.
-- **AI with web access and citations** (ChatGPT with browsing, Gemini, Perplexity) — makes it easier to track down a current source for a claim.
-- **A second round in the same or a different conversation for cross-checking** — “check this claim and tell me if it holds up.”
-- **A colleague or an expert as a last line of defense** — for legal, financial, and health-related topics, human review is irreplaceable.
-- **Your own verified materials uploaded to AI** — if AI is only working from your document, the risk of hallucination drops, because it doesn't have to guess at anything.
+- **The primary source** (the full text of a regulation, the study itself, official statistics, an annual report) — the most reliable option and free, it just costs time and one extra click.
+- **Claude with search** — tracks down a current source for a claim and cites it in the answer, so you're not starting verification from zero; for bigger topics, deep research with citations.
+- **NotebookLM** — answers only from uploaded sources and shows a citation with every answer; ideal when you're checking text against your own source material.
+- **A second model as an independent answer** — a different tool you don't tell about the first answer; a disagreement between the two is the best signal of where to look.
+- **Your own table of verified claims** — for figures you use repeatedly (price lists, capacities, internal data), keep one verified source and always point AI to it instead of relying on its general memory.
+- **A colleague or an expert** — the last, irreplaceable safeguard for legal, tax, health, and safety topics.
 
 ## What you get out of it
 
-- **Reputation:** a mistake caught by you, not by a client or leadership, is cheap; a mistake caught out in the open is expensive and hard to walk back.
-- **Peace of mind:** you know what you can trust from AI right away and what always needs checking — less uncertainty working with its output.
-- **Better decisions:** decisions built on verified numbers are more reliable than ones built on confident-sounding but incorrect text.
-- **A habit:** over time you learn which topics AI tends to get wrong more often, and you tighten your checking there automatically, without having to think it through every time.
+- **Reputation:** a mistake caught by you costs ten minutes; a mistake caught by a client costs trust — and you'll get asked "what else in here isn't true" even about the parts that were fine.
+- **Time:** you actually save time, paradoxically. A routine split into zones means you verify nothing for ninety percent of the work and focus on the claims where it matters. Without a routine, you either check everything or check nothing.
+- **Peace of mind:** you know which types of tasks you can trust the model on outright and which you can't. That certainty is more comfortable than either constant suspicion or blind trust.
+- **Quality:** a table of verified claims with sources is a record you can return to a year later. For content you have to defend to leadership or the public, it's the difference between "I think that was from the national statistics office" and an actual citation.
 
 ## Pro tip
 
-A good habit is to ask directly: “Tell me what you're not sure about.” Good models will admit their level of uncertainty — but usually only when asked. Without the question, they'll answer with the same confidence whether it's a verified fact or a guess, and the difference between the two stays hidden.
+An advanced trick that works surprisingly well: **have the model answer the same question twice, in two separate conversations, and compare the answers.** Where the model genuinely knows a fact, both answers will match down to the detail. Where it's generating a probable shape, the numbers, names, and years will diverge between the two attempts — and that divergence is your map of what to verify. It's the cheapest hallucination detector available, and it takes a minute.
+
+And the rule to close on: **decide based on impact, not on how confident it feels.** Ask yourself "what happens if this is wrong?" If the answer is "nothing, I'll just fix it," let it through. If the answer is "embarrassment, cost, a bad decision," open the source. That one question replaces every other rule when you're not sure which zone something belongs in.

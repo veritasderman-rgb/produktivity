@@ -1,47 +1,502 @@
 ---
 title: "A long document? Let AI make an excerpt with page numbers"
-excerpt: "Run a contract, study, or report through AI first: “Summarize the main points and risks, and point to the specific passages.” Then read with purpose."
+excerpt: "A complete guide with prompts: four types of summaries by purpose, working with documents too long for one pass, extracting risks and obligations from contracts, comparing two versions, and checking that nothing essential got lost."
 category: "ai"
 platform: "vsude"
 audience: ["manazer"]
 keys: []
-saves: "~30 min per document"
+saves: "~30-90 min per document"
 date: "2026-07-01"
 ---
 
-Reading forty pages start to finish is often the wrong order — you need the map first, then the terrain. AI can run through a long document in seconds and give you back an overview of the main points, complete with a reference to exactly where in the text to find them, so you know what to focus on when you actually read it, and what you can safely skim.
+Reading forty pages start to finish is often the wrong order — you need the map first, then the terrain. AI can run through a long document in seconds and hand back an overview of the main points, complete with a reference to exactly where in the text to find them. But “summarize this document for me” is the weakest prompt you can write: you'll get a generic paragraph that doesn't tell you what to actually do with it.
+
+There's one key to a good summary: **a summary isn't a shortened document, it's an answer to the question you're reading the document for.** An excerpt for a meeting looks different from a decision brief, which looks different from a research card for a knowledge base, which looks different from a comparison of two contract versions. When you don't state the purpose, the model picks one for you — and it picks the most generic one available.
+
+This guide walks through the whole process: choosing the right type of summary, prompts with a fixed output structure, working with documents too long to fit in a single reply, extracting risks and obligations from contracts, comparing versions, and — the most important step — checking that nothing essential got lost in the excerpt. The prompts are ready to copy; just fill in the brackets, and feel free to jump straight to the phase that matches your document.
 
 ## A typical scenario
 
-A manager gets a thirty-page market study before a meeting and has to comment on it within an hour, but there's realistically no time to read the whole thing. Without this tip, he skims the document diagonally, skips an important passage on page 22, and only speaks superficially in the meeting because the key number slipped past him. With this tip, he uploads the study to AI, has it produce an excerpt of the main points with page references, and reads only the three passages that actually matter for the decision — so in the meeting he speaks specifically, even though he never read the whole document start to finish.
+Petra runs an operations team, and on a Friday afternoon three things land on her desk at once: a sixty-page market study she has to comment on at Monday's leadership meeting, a new version of a framework agreement from a supplier (the old one is signed from last year), and a forty-page annual report from a partner she needs to decide whether to keep working with.
 
-## How to do it
+Without a process, this usually goes badly: she skims the study diagonally and misses a passage on page 41 that changes the conclusion; she eyeballs the contract and doesn't notice the changed notice period; she never opens the annual report at all.
 
-1. Upload the document to AI (ChatGPT, Claude, Gemini) as a file, or paste the text directly into the conversation if it's short.
-2. Give a specific prompt: “Summarize in 10 points. For each, note where in the document it is. List deadlines, amounts, and obligations separately.”
-3. For contracts, ask targeted questions: “What in this contract is nonstandard or works against me?”
-4. Read the key passages AI flags as important in the original — the excerpt is a map, not a substitute for the actual text at the points that matter most.
-5. For long documents, or several at once — like multiple versions of a contract — also ask for a comparison: “What changed between the versions?”
-6. If you're using the excerpt as the basis for a meeting or a decision, verify the most important number or deadline against the original — one click to the cited page saves you an unpleasant surprise.
+With a process, it takes two hours and looks different. She has the study turned into a decision summary — not a retelling, but an answer to “what does this mean for us, and what are the three possible calls we could make.” She has the contract compared clause by clause and gets back a table of six changes, two of which work against her, each with the original and new wording cited. From the annual report she pulls just the financial trend and the commitments. At the end, for each document, she asks the check question “what important thing is missing from this summary” — and for the study, that's exactly what surfaces a methodological footnote that means the numbers can't be compared year over year. She walks into the meeting with three pages of notes and knows the origin of every number she says out loud.
+
+## Phase 1: before you upload anything
+
+The most common mistake isn't in the prompt — it happens a step earlier. Someone uploads a document and starts asking questions without knowing what they actually want out of it. Five minutes of prep saves half an hour of rewriting prompts.
+
+### Determine the purpose: four types of summaries
+
+Before you type a single character, answer one question: **what am I going to do with this excerpt?** The answer determines the type of summary, and everything else follows from it.
+
+An **executive summary** exists so that someone (often you, a week from now) can understand the document's contents in three minutes. It's balanced, covers the whole document, and recommends nothing. Typical use: prep for a meeting where the document will be discussed.
+
+A **decision summary** is something else entirely. You don't care about the whole document — you care about one question: sign or don't sign, invest or don't invest. It's biased in your favor — it pulls out arguments for, against, risks, and what's missing from the document. It ignores ninety percent of the content.
+
+A **research summary** comes up when you're gathering findings across many documents and need a comparable card from each one: who, what they claim, based on what, and how strong the evidence is. It's rarely read in full — its job is to make a pile of documents searchable.
+
+A **comparison summary** takes two or more documents as input and has a single job: show the differences. Two versions of a contract, two proposals, last year's report against this year's.
+
+Practical rule: **write the type of summary into the first line of the prompt.** The difference between “summarize the study” and “make a decision summary of the study for the question of whether to enter market X” is the difference between an unusable output and a usable one.
+
+### Find out what the model actually sees in the document
+
+Before you build anything on top of the excerpt, confirm the model actually read the whole document, and read it correctly. With scanned PDFs, documents full of tables, and very long files, that's not a given: a scan without a text layer reads like an image (and numbers get garbled in it), large tables fall apart, and with an extremely long file the tool may only be working with part of it.
+
+This prompt costs thirty seconds and saves you an unpleasant surprise:
+
+```text
+I uploaded a document called [file name]. Before we summarize it,
+describe what you actually see in it:
+
+1. How many pages does it have and how is it structured — list
+   the names of the main chapters or sections exactly as they
+   appear in the document
+2. What's on the first and last page (quote the first and last
+   sentence verbatim)
+3. How many tables and how many charts are in the document, and
+   where are they
+4. Are there footnotes, appendices, or annexes in the document?
+5. Is the text readable, or are there passages that are hard for
+   you to read (a scan, bad encoding, tables that fell apart)?
+   Give specific page numbers.
+
+Don't summarize anything yet, just describe what you have available.
+```
+
+You'll get back an inventory of the document. Check two things: whether the page count and chapter names match the original (if the model lists five chapters and your table of contents has eight, it's only working with part of the file), and whether it flags reading problems. For scans, also have it transcribe one page with numbers on it verbatim — OCR regularly swaps 3 and 8, or 1 and 7, and you won't catch that inside a table.
+
+### Strip sensitive data before the file goes anywhere
+
+Documents you want summarized tend to be exactly the ones that contain things that shouldn't leave the company: personal data, prices, client names, non-public financial figures. One simple rule applies: **sensitive data only goes into a paid account with a contractual data-protection agreement, and even there, only what's actually necessary for the analysis.**
+
+In practice: strip or redact national ID numbers, addresses, phone numbers, and third-party emails from the file — you don't need them to understand the content. Replace names with roles (“the supplier,” “employee A”). And for documents under confidentiality or an NDA, check first whether you're even allowed to process them with an external tool — for some contracts, the answer is no.
+
+## Phase 2: four types of summaries and their prompts
+
+This is the core of the guide. Each type has its own prompt with a fixed output structure — and that fixed structure is exactly why the prompts work. When you let the model decide on the format, you get flowing prose that's hard to search. When you prescribe the format, you get a document you can actually work from.
+
+### Executive summary: an overview for three minutes
+
+Goal: someone who hasn't read the document knows, after reading the excerpt, what it's about, what matters in it, and where to look for detail.
+
+```text
+Write an executive summary of the attached document [name].
+Reader: [who will read this, e.g. leadership with no background
+on the topic].
+Purpose: [why they're reading it, e.g. to decide whether to
+pursue the topic further].
+
+Output structure, follow it exactly:
+
+1. What the document is about — 3 sentences, no generalities
+2. Ten main points. For each: the claim in one sentence,
+   and in parentheses the page or chapter where it appears
+3. Numbers and figures worth remembering — list them as:
+   value, what it means, page
+4. Deadlines and timelines mentioned in the document, sorted
+   by date
+5. Three passages I should read in the original, and why those
+   specifically
+6. What the document does NOT address, even though you'd expect
+   it to
+
+Write factually, no opening or closing filler phrases. Don't
+evaluate the document, just convey it. Where you're not sure
+of the location in the text, write “location not determined”
+instead of guessing.
+```
+
+You'll get back an excerpt you can walk into a meeting with. Point 6 is usually the most valuable — documents are often better identified by what's missing from them than by what's in them. Watch point 2: when the model writes “location not determined” for most points, it isn't reading the text reliably, and it's time for the part-by-part process from Phase 3.
+
+### Decision summary: input for a single decision
+
+The goal here is different: you don't care about the document, you care about your decision. The model needs to know which decision you're making and what matters to you — without that, it can't tell what's relevant.
+
+```text
+I'm facing a decision: [describe the decision in one sentence,
+e.g. whether to sign a three-year framework agreement with
+the supplier].
+Criteria that matter to me: [price, risk of disruption,
+flexibility, lock-in period — list your own 3-5].
+What I already know and you don't need to repeat: [brief context].
+
+Go through the attached document [name] and produce a decision
+brief:
+
+1. What in the document argues FOR — max 5 points, each with
+   a reference to the text
+2. What argues AGAINST — max 5 points, each with a reference
+   to the text
+3. Risks: what could go wrong, how the document addresses it
+   (or doesn't), and how serious it is
+4. Questions the document doesn't answer that I can't decide
+   without — sorted by importance
+5. What I should request from the other side before deciding
+
+Don't give me a recommendation on how to decide. Give me the
+material I'll use to decide myself. Work only from the document,
+don't fill in business context that isn't in it.
+```
+
+You'll get back a brief, not a verdict — and that's the point. Point 4 usually determines whether the negotiation wraps up today or gets postponed for more material. Watch for a common slip: models like to drift from “the document states” to “I recommend.” When you spot a recommendation in the output, check what it's based on — it's usually built on general knowledge, not your document. For the follow-up meeting, see [meeting prep](/tipy/ai-priprava-na-jednani).
+
+### Research summary: a comparable card for every source
+
+When you're working through ten studies, you need an identically structured card from each one. Otherwise you can't compare them, and the pile stays a pile.
+
+```text
+I'm doing research on [topic] and need a comparable card from
+each source. Here's the source [name].
+
+Fill in this exact template, item by item.
+Where a value isn't in the document, write “not stated” —
+don't fill it in with a guess.
+
+AUTHOR AND YEAR:
+DOCUMENT TYPE: (original research / review / commentary /
+marketing material / official statistics)
+MAIN CLAIM: (2 sentences)
+WHAT IT'S BASED ON: (data, sample, method, collection period)
+KEY FINDINGS: (max 5 bullets, each with a number and page)
+WHAT APPLIES TO [my topic]: (2-3 sentences)
+LIMITATIONS THE AUTHOR ADMITS: (and on which page)
+LIMITATIONS NOT ADMITTED BUT VISIBLE:
+WHO PAID FOR IT / WHO PUBLISHED IT: (and whether it could bias
+the conclusions)
+QUOTABLE PASSAGES: (2 verbatim quotes with page numbers)
+```
+
+You'll get back a card you can drop straight into a table or your notes. Two fields are gold: “what it's based on” identifies marketing material versus real research faster than anything else, and “who published it” flags studies whose conclusion was known before the data was even collected. Verify verbatim quotes against the original — models both soften and sharpen them; see [fact-checking with AI](/tipy/ai-overovani-faktu). For recurring research over a stable set of sources, [NotebookLM](/tipy/notebooklm-vlastni-zdroje) is a better fit — it only answers from the documents you've uploaded.
+
+### Comparison summary: two documents side by side
+
+This isn't just for contracts. Two proposals, two methodologies, two versions of a strategy — in every case, differences are harder to spot than content.
+
+```text
+I'm attaching two documents: [A - name] and [B - name].
+This is about [two proposals for the same job].
+
+Don't summarize them individually. Give me a comparison table
+where the rows are areas and the columns are Document A,
+Document B, and the difference:
+
+Areas to compare: [price and what it includes], [timelines],
+[scope of delivery], [warranties and service], [penalties],
+[termination], [what's included in the price vs. billed extra].
+
+Below the table, add:
+- the three most significant differences and why they matter
+- what's in A but missing from B (and vice versa)
+- places where the documents use the same word for different
+  things
+- what can't be compared because one of the documents doesn't
+  cover it
+
+For each row, note which part of the document the value comes
+from. Where a value is missing, write “not stated” — don't
+estimate or calculate it yourself.
+```
+
+You'll get back a table that shows what actually matters: not how the proposals differ in presentation, but how they differ in substance. The most valuable bullet is “same word for different things” — the most common trap in proposals (“support” means a 24/7 phone line with one vendor and email within five business days with another).
+
+## Phase 3: very long documents
+
+There's a threshold past which “upload it and ask” stops working. It shows up quietly and dangerously: the model won't tell you “this is too long,” it'll just hand back a summary that covers the first third and the ending well, while the middle is mostly guesswork.
+
+### How to tell you're past the limit
+
+There are a few tell-tale signs. The summary gets suspiciously generic in the middle chapters while the intro and conclusion stay detailed. Page references are missing or obviously made up. A check question like “what's in chapter 7” gets a vague answer.
+
+The practical threshold varies by tool and changes over time, so don't memorize it — verify it. The fastest test is a specific question about content from the middle of the document: “Quote the first paragraph of chapter 6 verbatim.” If it can't, it isn't seeing the whole document.
+
+### Split the document by structure, not by page count
+
+The key to splitting: **cut where the document already has seams.** Chapters, sections, contract articles. Splitting every fifty pages regardless of content cuts an argument in half, and both halves end up making no sense.
+
+In practice: split the file by chapter in a PDF reader, or export the text and split it by headings. With tools that can see a folder of files (Claude Cowork, Claude Code), have it split the document directly and save the parts as separate files — that way the intermediate results stay on disk.
+
+### Summarizing one part: a fixed template for all of them
+
+For the synthesis step to work, every part needs the same format. Use the same prompt for every part, changing only the name of the part.
+
+```text
+This is part [number] of [total count] of the document [document
+name], specifically [chapter / articles X-Y].
+The whole document is about [topic] and what I need from it is
+[purpose].
+
+Process ONLY this part, don't speculate about the rest of the
+document. Output exactly in this structure:
+
+A) What this part is about — 2 sentences
+B) Key claims — max 8 bullets, each with a page reference
+C) All numbers, amounts, deadlines and dates from this part,
+   as: value | what it means | page
+D) Definitions of terms this part introduces
+E) Cross-references: places where this part refers to another
+   part of the document, an appendix, or an external regulation
+F) Loose ends: things this part mentions but doesn't explain
+
+Don't comment or evaluate anything. Where text is unreadable
+or ambiguous, say so instead of guessing.
+```
+
+You'll get back a building block for the synthesis. Point E is the reason the part-by-part process pays off even for documents that could technically fit in one pass: the web of internal cross-references (“unless Article 12 states otherwise”) is exactly what gets lost in a fast read and is exactly what decides contracts. Save the part summaries into a single file, one after another — that file is the input for the next step.
+
+### Synthesis: one picture out of many parts
+
+```text
+Here are the summaries of all [count] parts of the document
+[name], each processed with the same template:
+
+[paste all the part summaries, one after another]
+
+Don't work with the original document now, work only with these
+summaries. Build an overall picture out of them:
+
+1. The document's main thread — how the parts connect, what
+   the main argument or main structure is
+2. The ten most important points from the whole document, each
+   with a note on which part it comes from
+3. All numbers and deadlines from the C sections merged into
+   a single overview, sorted by date / size
+4. Contradictions: places where parts of the document conflict
+   with each other or where the same term is used differently —
+   quote both versions
+5. Unresolved cross-references: things one part points to
+   elsewhere, but the referenced spot doesn't address it
+6. What's missing from the document as a whole
+
+Where the inputs are incomplete, say so — don't fill in the
+missing content.
+```
+
+You'll get back a summary of the whole that's, somewhat paradoxically, more accurate than one made from the document in a single pass — the model actually saw the whole of what it worked with at every step. Points 4 and 5 are usually where the real findings show up in long contracts and methodologies: contradictions between parts happen because a document was written by more than one person and nobody read the whole thing.
+
+## Phase 4: contracts — obligations, deadlines, risks
+
+A contract is a special kind of document: you don't care “what it's about,” you care **what you have to do, by when, and what happens if you don't.** A generic summary is nearly useless for a contract. The topic is covered in more depth in the tip on [a contract before you sign it](/tipy/smlouva-pred-podpisem-ai); here the focus is extraction, which is just as useful for contracts you've already signed.
+
+One thing up front: **AI is not a legal advisor, and this process doesn't replace a lawyer.** What it's good at is preparing the groundwork — pulling out what's written in the contract and flagging places worth a closer look. Assessing legal compliance belongs to someone with the right qualifications.
+
+### Extracting obligations: who, what, by when
+
+```text
+I'm attaching the contract [name]. I am the party [designation,
+e.g. the client].
+
+Pull out ALL obligations from the contract and return them as
+a table with columns: who | what they must do | by when / how
+often | contract article | what happens if not fulfilled.
+
+Rules:
+- split the table into two parts: my obligations first, then
+  the other party's obligations
+- transcribe deadlines exactly as they appear in the contract,
+  including what they're counted from (from signing, from
+  delivery, from notice)
+- distinguish one-time obligations from recurring ones
+- list separately any obligations that survive after the
+  contract ends (confidentiality, record-keeping, non-compete)
+- where an obligation is worded vaguely (“without undue delay,”
+  “within a reasonable time”), flag it and quote the exact
+  wording
+
+Don't interpret anything, just extract. Where you're not sure,
+quote the text and say what's ambiguous about it.
+```
+
+You'll get back a list you can transfer straight into a calendar — and that's the real value of this extraction. Most contract problems don't happen because there was a trap hidden in the text; they happen because nobody moved the deadline from Article 14 into a calendar.
+
+### Risks and nonstandard clauses
+
+```text
+Go through the attached contract [name] like an experienced
+person reviewing contracts on behalf of the party [client /
+supplier / employee / tenant].
+
+Contract type: [framework services agreement].
+Subject: [briefly]. Value: [rough figure].
+
+Return three lists:
+
+A) Clauses that are unbalanced against me — for each: exact
+   wording quoted, article, what makes it unbalanced, and what
+   a more balanced version would look like
+B) Clauses that are unusual for this type of contract — quote,
+   article, how it differs from standard practice
+C) What's missing from the contract that you'd expect for this
+   type
+
+Sort each list from most to least serious.
+For each item, estimate the impact: high / medium / low,
+and explain why.
+
+Don't assess legal validity or compliance — I'll leave that to
+a lawyer. Work only from the text of the contract.
+```
+
+You'll get back a structured finding you can bring to the other side or to a lawyer — either way, you'll save time because you'll show up with specific articles, not a vague feeling. List C is usually the most useful: a missing termination clause, missing IP ownership terms, or a missing dispute-escalation clause can't be “glossed over,” because they simply aren't there.
+
+Watch for one systematic pattern: models like to flag perfectly ordinary clauses as risky, because it sounds cautious. Treat the list as things to check, not a verdict — and for each item, open the cited article in the context of the full paragraph.
+
+## Phase 5: comparing two versions of a document
+
+A supplier sends a “slightly revised” version of the contract. A colleague sends back a strategy doc “with just a few notes.” In every case you need the same thing: a list of changes and an assessment of which ones actually matter.
+
+If you have both versions in Word, start with the document-comparison feature — it finds changes more reliably than a model, because it doesn't search for them, it computes them. AI comes in at the second step: explaining what the changes mean. When the versions aren't comparable (different formats, renumbered articles, PDFs), AI does the whole job.
+
+```text
+I'm attaching two versions of the same document:
+[OLD - name, date] and [NEW - name, date].
+I am the party [designation] and this is a [document type].
+
+Compare them by clause, not by page — articles may have been
+renumbered or moved.
+
+Give me a table of changes with columns:
+article (old / new) | old wording (quote) | new wording (quote) |
+what actually changed | who the change favors | severity
+
+Below the table, add:
+1. Changes that alter the substance of the relationship — and why
+2. Changes that look cosmetic but have a real-world impact
+   (a change from “may” to “must,” a deadline shifted by a few
+   days, swapping “without undue delay” for a specific number
+   of days, or the other way around)
+3. What was in the old version and is entirely missing from
+   the new one
+4. What's newly added in the new version and wasn't in the old one
+5. Changes that really are just wording
+
+Quote exact wording so I can double-check. Don't rely on your
+memory of what a typical version of this kind of contract
+looks like.
+```
+
+You'll get back an overview of the changes. Point 2 is the whole point of this prompt — the most dangerous changes aren't the long ones, they're the one-word ones: swapping a single verb turns an obligation into an option. And point 3 is the other half of that: what's disappeared from the document is fundamentally invisible when you're just reading the new version, because there's nothing there to see.
+
+For contracts that really matter, run a check in the opposite direction as well:
+
+```text
+Based on your comparison, I found these changes: [list what
+you found].
+
+Now go through both versions one more time and answer just one
+question: is there a change this list doesn't capture?
+
+Focus especially on:
+- numeric figures (amounts, percentages, day counts, deadlines)
+- references to other articles and appendices (article number
+  changes)
+- term definitions at the start of the document
+- appendices and their content
+- negation: an inserted or removed “not,” “without,” “except for”
+
+If you don't find any further changes, say so. Don't invent
+changes just to have something to report.
+```
+
+That last sentence is there on purpose. Models have a strong tendency to answer “yes” to “did you find anything else?” even when there's nothing there. When it reports another change, open both versions to the location it names and read them yourself.
+
+## Phase 6: checking that nothing essential got lost
+
+This is the phase almost nobody does, and it's the most valuable one. A summary is always a loss of information — the question isn't whether, it's what. And that's something you can ask about.
+
+### A reverse check against the document
+
+The principle: give the model your summary and the original document, and have it hunt for what's missing from the summary. It's the opposite direction from summarizing, and it surfaces different things.
+
+```text
+I'm attaching the document [name] and the summary that was made
+from it:
+
+[paste the summary]
+
+Your task is NOT to summarize. Your task is to find what got
+lost in the summary. Go through the document and list:
+
+1. Substantial claims from the document that aren't in the
+   summary at all — for each, give the page and why you think
+   it matters
+2. Numbers, deadlines, or amounts from the document missing
+   from the summary
+3. Conditions and exceptions: places where the document says
+   “this applies if / unless / except when” and the summary
+   states it without the condition
+4. Places where the summary claims something more strongly than
+   the document does (the document says “suggests,” the summary
+   says “proves”)
+5. Places where the summary claims something that isn't in the
+   document at all
+
+Sort by severity. For each point, quote the relevant place in
+the document so I can verify it.
+```
+
+You'll get back a list of losses. Points 3 and 4 are the reason to do this step at all: **summaries systematically lose conditions and strengthen conclusions.** A sentence like “respondents over 45 showed a slight increase, which wasn't statistically significant” tends to compress into “an increase was found among older respondents” in the summary — and that's a different claim. Point 5 is a built-in detector for the summary's own hallucinations.
+
+More reliable still: run this check with **a different model than the one that made the summary.** The model that wrote the text grades it generously and misses exactly what it missed the first time.
+
+### The question test
+
+The second check is faster and works well right before a meeting or negotiation: have it generate the questions you might get asked, and try to answer them using only the summary.
+
+```text
+Here's the summary of the document [name] that I'm bringing to
+[a leadership meeting / a supplier negotiation].
+
+[paste the summary]
+
+Generate 12 questions I might get asked about this document —
+ones that ask about a detail, a number, a condition, or a
+consequence. Split them into:
+A) questions my summary already answers
+B) questions the summary doesn't answer — and where in the
+   document I should look for them
+
+Don't help me with the answers. Just the questions.
+```
+
+Group B is your reading list for the original — the difference between “I'd have to look that up” and having a specific answer ready. If you're turning the summary into a presentation, the next step is covered in [from document to presentation](/tipy/z-dokumentu-prezentace-ai).
+
+### Verifying numbers against the original
+
+The last step is boring and irreplaceable: **open the original for every number a decision hinges on.** Not all of them — just the key ones. The model gave you a page, so go to it and compare the value, the unit, and what it actually refers to.
+
+The most common mistakes aren't made-up numbers, they're shifted context: a single region's figure presented as the total, a percentage calculated from a different base, last year's number passed off as current. The rule: **every number you say out loud in a meeting or write into a document that goes out the door, you need to be able to show in the original.** If you can't, it doesn't belong in the output.
+
+## Common mistakes
+
+- **The prompt “summarize this document for me.”** Without a stated purpose, reader, and structure, you get a generic paragraph. The type of summary and the output format belong in the first line of the prompt.
+- **Trusting page references without checking them.** A page reference looks like proof the model knows where a claim lives — but with long documents, page numbers often get estimated. Spot-check two or three before you start trusting them.
+- **Deciding based on the summary without reading the original.** An excerpt is a map, not the terrain. Read the passages a decision rests on in their original wording — for a contract, always read the whole article, not just the quoted sentence.
+- **Uploading a scan without checking what the model actually read from it.** OCR confuses digits and breaks up tables. Have it transcribe one page with numbers on it verbatim and compare it to the original.
+- **Running a long document through in one pass and trusting the result.** The model won't announce that it missed half of it — it'll hand back a smooth summary that's partly invented in the middle. Verify with a question about a specific passage from the halfway point.
+- **Skipping the check for what's missing from the summary.** Summaries systematically lose conditions and exceptions and strengthen conclusions. The reverse check against the document takes five minutes and catches exactly that kind of drift.
+- **Uploading a document with personal data into a free account.** Sensitive data only belongs in a paid account with a contractual data-protection agreement, and anything you don't need for the analysis should be stripped out beforehand.
 
 ## The best tools
 
-Match the tool to the type of document — a one-off contract fits fine in an ordinary chat, while sources you use repeatedly are better suited to a specialized tool.
-
-- **ChatGPT / Claude / Gemini with file upload** — a built-in feature, handles PDF, Word, and scanned documents.
-- **Google's NotebookLM** — specialized for working with your own sources, sticks strictly to the uploaded document and cites passages.
-- **Adobe Acrobat with an AI assistant** — if you already work with PDFs in Acrobat, summaries and questions happen right in the document viewer.
-- **Your own notes alongside the AI excerpt** — even with an AI summary, it's worth writing the key points in your own words; you'll remember them better.
-
-This approach works for anything long — annual reports, legal analyses, scientific studies, and internal policies alike.
+- **Claude with file upload** — long PDFs, Word files, and scans including handwriting; best suited for structured extraction where you prescribe the output format.
+- **Claude Cowork** — a mode that works over a folder of files: it splits a document into parts, saves the part summaries as files, and does the synthesis on top of them, so intermediate results don't vanish when the chat ends.
+- **NotebookLM** — answers only from uploaded sources and shows a citation with every answer; the best choice for research summaries over a stable set of documents.
+- **Word's document comparison** — for two versions of the same file, it finds changes more reliably than a model, because it doesn't search for them, it computes them; AI then explains the impact.
+- **Adobe Acrobat with an AI assistant** — if you're already reading the PDF in Acrobat anyway, summaries and questions happen right on top of the open document.
+- **Projects in Claude** — persistent context for a recurring document type: you save your summary structure there once and don't have to write it out again every time.
 
 ## What you get out of it
 
-- **Time:** an hour of reading shrinks to ten minutes of focused reading on the key passages.
-- **Better prep:** you speak specifically, not superficially, in a meeting or negotiation, because you know the key points and where to find them in the text.
-- **Sanity:** less stress from a pile of unread documents waiting for a meeting.
-- **Catching risks:** for contracts, AI flags nonstandard clauses that a quick read might have missed.
+- **Time:** a sixty-page document takes twenty to thirty minutes to process instead of two hours, including focused reading of the key passages in the original.
+- **Money:** obligations and deadlines moved from a contract into a calendar are cheaper than one missed notice period. With version comparisons, even one caught clause pays for the whole process.
+- **Peace of mind:** in a meeting, you know the origin of every number you say — and you know exactly what the summary doesn't answer, which beats a vague feeling that you “sort of read” the document.
+- **Quality:** the reverse check against the document catches drift that nobody catches in a normal read, mainly lost conditions and strengthened conclusions.
 
 ## Pro tip
 
-For contracts, ask targeted questions: “What in this contract is nonstandard or works against me?” — that one question often reveals more than a general summary. If the document contains third-party personal data that isn't needed for the content analysis, like national ID numbers or addresses, consider redacting or removing it before uploading it to AI.
+An advanced trick for documents you come back to often: **build your own summary template and save it into a project.** It's not a prompt, it's a format — which fields you want in the excerpt and in what order. When the template stays the same, excerpts from different documents become comparable with each other, and after a year you have a knowledge base instead of a pile of chats. One template for contracts, one for studies, one for internal materials is usually enough.
+
+And the rule that sits above the whole guide: **a summary is a tool for reading smarter, not for not reading.** When a decision, a signature, or a number that's going out the door rests on the document, open that passage in the original. The model will tell you where — and that's exactly the work you want it doing.
