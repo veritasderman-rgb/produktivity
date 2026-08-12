@@ -1,0 +1,498 @@
+---
+title: "Reporting upward: turning data into a story for leadership"
+excerpt: "A complete guide with prompts: how to turn operational numbers into an executive summary with the conclusion on the first line, which charts leadership can read in ten seconds, how to pull a board deck out of a report, how to prepare for tough questions in advance, and how to turn the whole reporting process into a monthly routine."
+category: "ai"
+platform: "vsude"
+audience: ["manazer"]
+keys: []
+saves: "~half a day a month"
+date: "2026-08-12"
+---
+
+Most reports to leadership fail before they reach the other side. Not because the numbers are wrong — they're usually fine. They fail because nobody can tell from them what's supposed to happen next. Twelve slides of charts, a table with fifteen rows, and at the end the sentence “we're continuing to monitor the situation.” The director skims it, asks a single question (“so what do we do about it?”), and you realize six hours of work should have been three paragraphs.
+
+**A report to leadership isn't a data overview — it's the basis for a decision.** That's the one idea this entire guide rests on. Data is evidence, not content. The content is the conclusion that follows from it, and the thing you want from leadership — money, a hire, a priority, or just a green light to keep going. If a report doesn't contain a sentence like that, you've written a status update, not a report.
+
+This guide will walk you through the whole path: from raw operational numbers, through an executive summary and a structure leadership reads on its own, all the way to charts, a board deck, preparing for tough questions, and turning the whole thing into a monthly routine. Every phase comes with prompts you can copy — just fill in the brackets. One rule sits above all of it: **AI proposes, a human approves.** A model can sort numbers, spot a trend, write a draft, and pick apart your argument. What it must never do is decide what conclusion you draw from the data or what you send to leadership. There's a named human behind every report — and that's you.
+
+## A typical scenario
+
+Petra runs customer support, fourteen people, and reports to the leadership meeting every month. Her old process: export the data from the helpdesk on Tuesday morning, dump it into Excel, spend two hours building pivot tables, another two making charts, and the last hour writing commentary. The result was eleven slides with headings like “Ticket Volume Trend” and a final slide titled “Summary” with three bullet points that repeated what was already on the charts.
+
+The meeting always went the same way. Leadership would spend twenty minutes asking about details (“why the spike in May?”), Petra would improvise, and the one thing she actually needed — approval for two new hires on the night shift — never made it onto the table.
+
+Her new process looks different. A script that runs on the first business day of every month crunches the numbers. From the raw figures, she has three versions of an executive summary generated and picks one. The report has four blocks and fits on a single page: what happened, why it happened, what we're doing about it, what I need from you. There are three charts, and each one answers exactly one question. Before she sends the report, she runs it past a simulated CFO who tears it apart — which means she hears nine out of ten uncomfortable questions a day early, not in the meeting. Preparation now takes her about an hour and a half. She got the two night-shift hires on the first try.
+
+## Phase 1: before you write the first sentence
+
+The most expensive reporting mistake happens before you start writing. You sit down with the data and start describing what's in it. That alone guarantees you'll end up with an overview. A report starts the other way around: from the decision you want to get made.
+
+### Three questions to answer up front
+
+**Who am I writing for?** An operations director cares about capacity and bottlenecks, a CFO about cost per unit and variance from plan, a CEO about whether you're on the agreed trajectory. If you write for all three, you write for no one — pick a primary audience and serve the rest with an appendix.
+
+**What do I want to happen?** A report can end in one of three ways: you want a decision (approve / reject), you want a resource (a person, a budget, a priority), or you just want it acknowledged. Decide before you write your first number — a report without this point is the one that gets the question “so what do we do about it?”
+
+**What does the reader already know?** Leadership doesn't need a reminder of what your department is or how the helpdesk works. Dose context only where a number wouldn't make sense without it.
+
+The rest of this phase can be handled by a prompt that turns scattered numbers into a report brief:
+
+```text
+I'm preparing a monthly report for leadership. Help me frame it
+before I start writing.
+
+My area: [customer support / sales / manufacturing / IT]
+Primary reader: [CEO / CFO / COO]
+What I think they care about most: [cost / capacity / customer satisfaction]
+Period: [July 2026]
+Key numbers for the period:
+[paste 10-15 numbers, with the prior period and plan if you have them]
+What happened that was out of the ordinary: [a system outage, two departures…]
+
+Give me:
+1. Three candidate headline messages for the report — each one
+   sentence, each from a different angle (performance / risk /
+   opportunity).
+2. For each candidate: which numbers support it and which
+   contradict it.
+3. One decision or ask that logically follows from each candidate —
+   what I'd want from leadership if I went with that angle.
+4. What's missing from my numbers to actually back up the claim.
+
+Don't write any report text yet.
+```
+
+You'll get back three different angles on the same data, and for each one, the uncomfortable part too — the numbers that contradict it. Point 2 is exactly why this prompt is worth using: it forces you to pick the message the data can actually carry, not the one you like. Point 4 often reveals that you're missing a comparison against plan or against last year.
+
+### Where the numbers come from
+
+The same rule applies here as with any analysis: **the model doesn't calculate, the model writes.** If you paste a thousand-row table into a chat window and ask for an average, you'll get a number that looks plausible — and is occasionally even correct. A number like that has no business in a report to leadership. This is covered in depth in the tip on [data analysis with AI](/tipy/ai-analyza-dat); for reporting, the rule to remember is **a script does the aggregation, the model does the interpretation.** Export the raw data to CSV, show the model only the header and a few rows, and have it write a script.
+
+```text
+Here's the header from my export out of [the helpdesk], the first
+5 rows, semicolon-delimited, UTF-8 encoding, comma as decimal
+separator:
+
+[paste 5 rows including column names]
+
+Write a Python script (pandas) that computes this monthly reporting
+set from the file:
+1. total case count and count by category, compared to last month
+   in absolute numbers and percent,
+2. median and 90th-percentile resolution time (median, not mean —
+   I want a number a few outliers can't drag around),
+3. share of cases resolved within [24 hours] by week,
+4. the five categories with the largest month-over-month increase,
+5. a variance-from-plan table, plan loaded from [plan.csv].
+
+Save the results to output.csv and also print a readable summary
+to the console. Comment each step explaining why it's computed
+that way. The script needs to handle empty cells and cases with
+no closing date.
+```
+
+You'll get a script that produces the same numbers every time — and that's the main win. When leadership says a week after the report “show me that again without one location,” you change a filter and everything recalculates in ten seconds. Paste in a real header (exports from local systems often use a semicolon delimiter and comma decimals, and a wrong guess breaks the load), and keep the choice between mean and median in your own hands — for resolution times, the mean is almost always misleading.
+
+## Phase 2: the conclusion on the first line
+
+The acronym BLUF stands for “bottom line up front” — the main point first. In reporting, it's the single most effective change you can make, and it costs nothing: instead of making leadership read to the end, you put the conclusion on the first line and let the rest of the document prove it.
+
+### What a good executive summary looks like
+
+Three to five sentences that make sense on their own — if the reader stopped there, they'd know what they need to know. A structure that works:
+
+1. **State it in one sentence.** “Resolution time has been getting worse for the third month running — July's median is 31 hours against a 24-hour target.”
+2. **Cause in one sentence.** “The main driver is a jump in cases from the new app, which landed on the team with no change in capacity.”
+3. **What we're doing about it.** “We've reshuffled shifts and cut resolution time on priority cases; that's not enough for routine ones yet.”
+4. **What I need from you.** “I'm requesting approval for two night-shift positions starting in September, or we won't hit the 24-hour target by year end.”
+
+Notice what isn't in there: no “the situation is complex,” no “we continue to monitor,” no description of methodology. That belongs further down.
+
+```text
+Here are my department's results for [period] and brief context:
+
+[paste the computed numbers, compared with the prior period and plan]
+Context: [what happened during the period — team changes, campaigns, outages]
+Reader: [role]
+What I want from leadership: [decision / resource / acknowledgment]
+
+Write three versions of an executive summary using the BLUF
+principle — conclusion on the first line, then evidence. Each
+version max 5 sentences and must include: status, cause, what
+we're doing about it, what I need from leadership.
+
+Vary the versions by level of urgency:
+A) matter-of-fact, no emotion
+B) more forceful, with the cost of inaction quantified
+C) as short as possible — 3 sentences, for a reader on their phone
+
+Use the actual numbers from the brief. Don't write anything that
+isn't in the brief, and don't use words like “significant,”
+“critical,” or “substantial” without a number next to them.
+```
+
+You'll get three summaries, and you pick one and tweak it. Version C is often surprisingly the best — when the message fits into three sentences, that usually means you've finally found it. Check whether the model amplified the wording beyond what the data supports: “a slight increase” has a way of turning into “a dramatic drop” in a draft.
+
+### Checking for over-interpretation
+
+The most dangerous sentence in a report is the one that sounds like a conclusion but is really an impression. “The decline was caused by two colleagues leaving” is a causal claim — and unless you have data that rules out other explanations, it's a hypothesis. Leadership usually doesn't notice right away; they notice three months later, once it turns out the real cause was something else.
+
+```text
+Here's the draft of my executive summary and the numbers it's
+based on:
+
+Summary: [paste]
+Underlying numbers: [paste]
+
+Go through the summary sentence by sentence and sort the claims
+into three groups:
+1. SUPPORTED — follows directly from the numbers; say which ones.
+2. HYPOTHESIS — reads like a fact but is really an interpretation;
+   note what other explanations are equally plausible and what
+   data would settle it.
+3. UNSUPPORTED — the numbers give it no backing at all.
+
+For group 2, suggest a rewording that doesn't kill the claim but
+signals the right level of confidence (for example, “the most
+likely explanation is…”). Don't rewrite the whole thing — just
+flag and propose a replacement for the sentence in question.
+```
+
+You'll get a list of the places where you claimed more than the data can support. Group 2 usually doesn't get deleted — just reworded. The difference between “caused by two colleagues leaving” and “the timing lines up with two colleagues leaving; we haven't found another explanation” is enormous for the report's credibility, and it costs you five words.
+
+## Phase 3: a structure leadership actually reads
+
+Once you have the summary, the rest of the report is its supporting evidence. A structure that holds up across industries has four blocks, always in the same order.
+
+### What happened
+
+Facts, numbers, comparisons. No judgment, no excuses. This block should be neutral enough that even someone who dislikes the result would sign off on it. Format: a short paragraph plus a table of key metrics with three columns — **actual / plan / prior period**. A number without a comparison is worthless — “we resolved 1,240 cases” says nothing; “1,240 cases against a plan of 1,100 and 980 last year” says everything.
+
+### Why
+
+This is where a report separates itself from a status update. Leadership doesn't care that a number went down — they care whether it's seasonal, a one-off event, or a trend that will keep going. Every meaningful variance needs one sentence of cause and an honest admission of how confident you are.
+
+### What we're doing about it
+
+Things already underway, or things you're launching without needing anyone else's sign-off. Short bullets with a deadline and an owner's name. This block is also the reason leadership trusts you: it shows you're not just escalating the problem, you're handling it.
+
+### What I need
+
+A clear ask, one to three items, each with an impact and a deadline. “I need two night-shift positions starting in September. Without them, median resolution time won't drop below 28 hours by year end. I need a decision by August 20 so I can start hiring in time.”
+
+```text
+I have an executive summary and the underlying numbers. Write the
+body of a leadership report in these four blocks, in this order:
+
+1. What happened — facts and comparisons, no judgment. Key metrics
+   in a table with columns: metric, actual, plan, prior period,
+   percent change.
+2. Why — for every variance over [10] percent, one sentence of
+   cause. Where you don't know the cause from the brief, write
+   “cause not determined” — don't make one up.
+3. What we're doing about it — only actions that are in the brief;
+   each with an owner and a deadline. Where those are missing,
+   write TODO: fill in.
+4. What I need — asks for leadership, each with the impact of not
+   approving it and a decision deadline.
+
+Summary: [paste]
+Numbers: [paste]
+Actions already underway: [paste]
+What I want from leadership: [paste]
+
+Max [500] words total, excluding the table. Plain, direct
+language, no phrases like “continuing to monitor” or “the
+situation is complex.” Use short sentences. Don't add an intro
+or a closing summary.
+```
+
+You'll get a complete report body — all you have left to do is fill in whatever the model marked as TODO. Watch for two things: that block 2 doesn't invent causes you never gave it (typically “due to seasonality”), and that the actions in block 3 actually match what's really happening — a report describing an action the team doesn't know about is worse than no action at all.
+
+A report to leadership is one page. Everything else is an appendix: detailed tables, methodology, a breakdown by location. Nobody reads the appendix, and that's fine — it's there for the one person who asks. If your report doesn't fit on a page, it usually contains more than one message; split it.
+
+## Phase 4: charts that read in ten seconds
+
+The average leadership team member spends a few seconds on any given chart in a report. In that time, they either grasp the message or skip the chart. That's the entire difference between a chart that works and a chart that only proves you did the work.
+
+### Rules that always apply
+
+**One chart, one message.** If a chart answers two questions, it answers neither. Two simple charts beat one clever one.
+
+**The chart title is the conclusion, not a description.** Not “Resolution Time Trend,” but “Resolution time has grown for three straight months — we've missed the 24-hour target since May.” This is the single change that gets people to actually read your charts — the title does the work for them, and the chart just backs it up.
+
+**Target and comparison live directly in the image.** A horizontal line for the target, last year's curve faintly in the background. Without them, the reader has no idea whether forty is high or low.
+
+**Few colors.** Gray for context, one strong color for the thing you're talking about. A rainbow of twelve colors is unreadable even to the person who made it.
+
+**No pie charts with more than three slices, no 3D, no dual axes, and bar charts start the Y-axis at zero.** A dual axis or a truncated axis can suggest a correlation or a difference that isn't actually in the data — and it's the first thing an experienced reader checks for.
+
+```text
+I have these numbers for [period] and want a maximum of three
+charts for the leadership report.
+
+Numbers: [paste]
+Main message of the report: [paste, one sentence]
+
+Propose three charts. For each one, tell me:
+1. what single question the chart answers for leadership,
+2. what chart type (bar, line, waterfall, scatter) and why that
+   one,
+3. what's on the X axis and what's on the Y axis, including units,
+4. a chart title phrased as a conclusion, not a description,
+5. what comparison needs to be visible in the image (target, plan,
+   last year),
+6. what will deliberately be left out of the chart so it can be
+   read in ten seconds.
+
+At the end, tell me which of the three matters most and why, and
+which of my numbers shouldn't go into a chart at all.
+```
+
+You'll get a proposal for the visual section, including title wording — usually the hardest part. The last point is more valuable than it sounds: models tend to propose a chart for every number, and forcing a pick weeds out the ones that only decorate.
+
+Once the proposal looks right, have a script written for it. Code-generated charts look the same every time and redraw themselves whenever the data changes.
+
+```text
+Write a Python script (pandas, matplotlib) that produces these
+three charts from output.csv: [description of the charts from the
+previous step].
+
+Consistent company style, set in one place at the top of the
+script:
+- sans-serif font, labels at least 12 points,
+- axis labels with units,
+- chart title as a conclusion sentence, passed in as a parameter,
+- base color gray, one accent color [shade] used only for the
+  metric being tracked,
+- a horizontal dashed line for the target value, labeled “target,”
+- no gridlines, no border, no 3D, no legend wherever a label right
+  on the line will do,
+- the value at the last point on each line printed as a number,
+- export to a charts/ folder as PNG, 200 dpi, white background,
+  plus SVG for dropping into a presentation.
+
+Add a code comment on each chart noting what message it carries.
+```
+
+You'll get a script that produces the same charts from the same data every month. Actually open the first output and check the labels for typos or dropped characters — special characters occasionally vanish because of a font issue, and in a leadership report that looks worse than a missing chart.
+
+### Table or chart?
+
+A simple rule: **a table for exact numbers someone will need to copy down. A chart for shape** — a trend, a difference, a share. The most common mistake is a chart with four data points (that belongs in a sentence) and a forty-row table (that belongs in the appendix).
+
+## Phase 5: turning a report into a board deck
+
+A report and a board presentation aren't the same thing. A report gets read; a presentation gets projected — which means less text, bigger type, and a different pace. But if your report was written per phase 3, a deck comes out of it in twenty minutes, because the structure already exists. The general method is covered in [from document to presentation](/tipy/z-dokumentu-prezentace-ai); for reporting upward, one well-built prompt is enough.
+
+```text
+Here's my report for leadership. Turn it into an outline for a
+presentation to [the board / the leadership meeting]; I have
+[10] minutes.
+
+Report: [paste]
+
+Rules:
+- max [8] slides plus one backup block,
+- the first slide is the conclusion and the ask, not an agenda and
+  not an introduction,
+- each slide has one heading phrased as a claim and at most 3
+  bullets of 8 words each,
+- for each slide, separately write what I'll say out loud
+  (3-4 sentences) and what's on screen — the on-screen text and
+  the spoken word must not duplicate each other,
+- for each slide, note which chart or table from the report
+  belongs there,
+- the last slide is a specific ask with a deadline,
+- backup slides: 4 slides of supporting material for the questions
+  most likely to come up.
+
+Don't add anything beyond what's in the report. Where a slide
+needs a figure the report doesn't have, write TODO and what to
+add.
+```
+
+You'll get an outline, including talking points and backup slides. Underrate the backup block at your own risk — it's the part that keeps you from saying “I'll have to look that up” in the meeting. And the talking points are meant to be spoken, not projected: the fastest way to lose the room is to dump paragraphs onto the screen.
+
+## Phase 6: tough questions, in advance
+
+This is the phase most people skip, and it has the best ratio of time to payoff. Ten minutes before you send it, have your work torn apart. It stings, and that's the point — the questions you hear now are the ones you'd otherwise hear in the meeting, where you don't have time to think.
+
+### A simulated CFO
+
+```text
+You're the CFO of a mid-size company. You're direct, allergic to
+fluff, and you don't like being sold impressions as facts. You've
+just received this report from the head of [department] and have
+ten minutes for it.
+
+Report: [paste the full text including numbers]
+
+Tear it apart:
+1. The five toughest questions you'd ask — starting with the
+   worst one. Ask about specific numbers in the report, not the
+   field in general.
+2. Where in the report are claims that aren't backed by numbers?
+   Quote the specific sentences.
+3. Where could the same data be read differently, and worse, for
+   the author?
+4. What's missing from the report to actually decide on the ask
+   at the end?
+5. If you had to decide right now, would you approve the ask?
+   Answer yes/no and say why — and what specifically would
+   convince you.
+
+No pleasantries, no praise. Get straight to it.
+```
+
+You'll get a review that makes you want to rewrite the report — which is the correct reaction. Point 3 is the most valuable: it shows you your own data through the eyes of someone with no reason to root for you. The model occasionally criticizes something that's actually in the report and it just missed it, so verify findings against the text.
+
+It's worth repeating the exercise with a different role, since each one asks differently — an operations director probes capacity and risk, a sales director probes customer impact. The general technique is described in the tip on [AI as your opponent](/tipy/ai-oponent).
+
+### Rehearsing the answers
+
+The questions are half the work. The other half is an answer with a shape — four sentences and done, not a two-minute improvisation.
+
+```text
+Here are five questions I might get asked about my report, and my
+numbers:
+
+Questions: [paste]
+Underlying numbers and context: [paste]
+
+For each question, write:
+1. The skeleton of a good answer in three points — the first point
+   is the direct answer, not a windup.
+2. Which specific number to use in the answer and where I have it
+   in the brief.
+3. What an evasive answer to this question sounds like, so I can
+   recognize it in myself and avoid it.
+4. When the right answer is “I don't know, I'll find out by
+   [date]” — and how to say it so it doesn't sound like an excuse.
+
+Keep the answers short, under 4 sentences. No pleasantries.
+```
+
+You'll get prepared answers, including warnings about your own evasive tendencies. Point 4 matters more than it seems: admitting you don't know something and giving a deadline is stronger than an improvised half-answer. Read the answers out loud — the difference between “I could explain that” and actually explaining it only shows up once you have to turn it into sentences.
+
+### Checking the tone: defense, or decision?
+
+The most common flaw in reports from experienced managers isn't a data error — it's tone. A report written in self-defense explains more than it states: every variance gets three reasons, bad numbers are wrapped in context, and the ask at the end is missing because requesting resources in the middle of a weak month feels uncomfortable. Leadership reads that as an alibi — and you lose trust faster than if you'd just written “this didn't work, here's why, and here's what we're doing about it.”
+
+```text
+Read this report through leadership's eyes and judge its tone.
+Don't rewrite it.
+
+Report: [paste]
+
+1. Is this a report written for a decision, or in defense of the
+   author? Answer clearly and back it up with specific sentences.
+2. List every sentence that explains or excuses without carrying
+   information — for each one, note what happens if I cut it.
+3. List passive constructions that obscure who did what (“a
+   decision was made,” “there was a delay”).
+4. Is it clear from the report what I want from leadership, and is
+   it in one place?
+5. Where, on the other hand, is a real problem stated plainly —
+   leave that alone and flag it for me so I don't soften it.
+
+Finish with one sentence: what impression does the report leave
+about the author?
+```
+
+Point 5 is there on purpose. When you have a report “polished,” the plain sentences about problems are exactly what tends to disappear — and with them, the credibility of the whole thing. The last question tends to be unforgiving and useful.
+
+## Phase 7: reporting as a routine
+
+A report that's different every time can't be read quickly. A report with a consistent structure gets read by leadership in a third of the time, because they know where to look for what. Consistency matters here more than individual polish — and it's exactly the part that's automatable.
+
+### One template, then just data
+
+Set up a report template as a file: four blocks, a fixed metrics table, a fixed chart order. If you use Projects (persistent context in a chat), drop the template, a metric definition sheet, and your last three reports into the project — the model then writes in your shape and your terminology without you having to explain it every time.
+
+Write down your metric definitions word for word. It's a boring half hour that saves a quarterly argument over whether resolution time counts time spent waiting on the customer.
+
+```text
+Build me a metric definition sheet for the monthly [department]
+report. For each metric in this list: [list the metrics]
+
+For each one, fill in:
+- an exact one-sentence definition,
+- what counts toward the number and what's excluded (make it
+  explicit),
+- data source and the column name in the export,
+- unit and how many decimal places it's rounded to,
+- target value and who set it,
+- common misunderstanding: how people mix it up.
+
+Where you're missing something, write the question I need to
+answer instead of inventing a definition. Output as a table.
+```
+
+You'll get a skeleton definition sheet plus a list of questions for you. Don't skip the questions — they usually point straight at the places where each department computes the metric differently.
+
+### Connectors to source data
+
+When data lives in systems AI can reach directly, half the export work disappears. Connectors (MCP) link a chat tool to Gmail, Calendar, Drive, Notion, Slack, and other services — and, through a custom MCP server, to an internal system if you have one. The principle and setup are covered in [connectors as USB-C for AI](/tipy/mcp-konektory-usb-c-pro-ai).
+
+For a monthly report, that means the brief gets pulled from a spreadsheet on Drive, context on unusual events comes from a Slack channel, deadlines come from Calendar. Two rules apply here with no exceptions. **A script always does the number-crunching**, never the model reading the data. And **sensitive data belongs only in a paid account with contractual data protection** — customer personal data, payroll figures, and non-public financial results have no business in a free chat tool.
+
+### A scheduled task that prepares the draft
+
+The last step is letting the whole prep run on a schedule. Scheduled tasks (routines) can fire off a brief at a set time and leave a result ready for you. Practical setup is described in [routines over mail and calendar](/tipy/claude-rutiny-posta-kalendar).
+
+```text
+Set up a recurring task for the first business day of the month at
+7:00 AM.
+
+Instructions for every run:
+1. Load the output.csv file from [path] — it's the output of my
+   analysis script for the past month.
+2. Compare the metrics against the definition sheet in [file] and
+   against last month's values and the plan.
+3. List variances over [10] percent and sort them by size of
+   impact.
+4. Using my report template, prepare a DRAFT: fill in the “what
+   happened” block and the metrics table. Leave the “why,” “what
+   we're doing about it,” and “what I need” blocks empty with just
+   the headings — I fill those in myself.
+5. At the end, attach a list of questions I need to answer before I
+   send the report.
+
+Never send anything. Save the output as a draft to [path/file] and
+let me know it's ready.
+```
+
+The sentence “never send anything” is in the prompt on purpose, and it belongs there every time. **Sending is a human decision** — doubly so for a report to leadership, since its content is your judgment of the situation, not a tool's output. The routine saves you the collection and formatting; you write the conclusion, the cause, and the ask.
+
+Pick your cadence by altitude: monthly report to leadership, weekly summary to your direct manager, quarterly view on trends. Reporting too often too high up is a mistake — a weekly report to the board is noise that buries the real problem inside it.
+
+## Common mistakes
+
+- **A report written in self-defense instead of for a decision.** The most common and most costly flaw. The document explains more than it states, bad numbers are wrapped in context, and the ask at the end is missing because the author's afraid to say what they need. Leadership reads it as an alibi. A plain sentence — “this didn't work, here's why, here's what we're doing about it” — builds trust faster than three paragraphs of circumstance.
+- **The conclusion buried at the end.** When the reader has to make it to the last slide to figure out what's going on, most won't. The conclusion belongs on the first line; the rest is evidence.
+- **Numbers computed in the chat.** A model doesn't generate a calculation, it generates text — and out of a long table, it only sees a slice. The only numbers allowed into a report are ones from a script or a spreadsheet you can recompute.
+- **Charts that describe instead of state something.** A title like “Ticket Volume Trend” leaves the reader to draw their own conclusion — and they won't. The title should be the claim, the chart its proof. The same goes for a number with no comparison to plan, target, or the prior period: leadership will benchmark it anyway, just against whatever wrong reference number happens to be in their head.
+- **A report for three different roles at once.** Trying to serve the CEO, the CFO, and the COO with one document ends with everyone hunting for their part and nobody finding it. Pick a primary reader and serve the rest with an appendix.
+- **Undefined metrics.** When every department computes “resolution time” differently, comparison is fiction. A definition sheet is half an hour of work, and it heads off a whole quarter's worth of arguing about whose number is right.
+
+## The best tools
+
+- **Claude (claude.ai)** — drafting the executive summary, a simulated CFO acting as devil's advocate, and a tone check; with Projects it remembers your template and terminology between months.
+- **Claude Code or Cowork** — working directly over a folder of data: writing and running the analysis script, generating charts, and assembling a report draft from files.
+- **Python (pandas, matplotlib)** — aggregating numbers and producing charts in a consistent style; a script gives the same result every time and redraws itself when the data changes.
+- **Connectors (MCP)** — direct access to Drive, Notion, Slack, or an internal system, so the brief pulls itself instead of a manual export.
+- **Scheduled tasks (routines)** — preparing the report on a schedule; the draft is ready before you sit down, and you only add the interpretation and the ask.
+
+## What you get out of it
+
+- **Time:** prepping a monthly report drops roughly from half a day to an hour or two, because a script and a routine handle collection and formatting. The freed-up time goes into the interpretation — the one part you actually have to do yourself.
+- **Money:** resource requests go through more often and on the first try, because they're backed by evidence and come with a quantified cost of inaction. One approved position, one month earlier, outweighs the entire time saving.
+- **Peace of mind:** you hear the tough questions a day early from a simulated opponent, not in the meeting. With backup slides and rehearsed answers, the reporting meeting stops being the thing you replay in your head over the weekend.
+- **Quality:** a consistent structure and defined metrics mean reports can be compared across months and departments — and the argument over whose number is correct stops happening.
+
+## Pro tip
+
+Keep an archive of your reports, and once a quarter, run the whole thing through a model with this instruction: “go through my last three reports, find claims about causes and actions with deadlines, and tell me what actually held up and what I quietly let drop.” You'll get back the best judgment training available — it shows you exactly where you systematically overestimate and where you're slow to admit a problem. Leadership keeps that list in their head anyway; better to have it before they do.
+
+And one closing rule to come back to whenever you're not sure what belongs in a report: **if a document doesn't make clear what decision needs to happen and who's supposed to make it, it isn't finished.** No amount of charts, tables, or four pages of context will save it.

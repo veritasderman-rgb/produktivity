@@ -1,0 +1,422 @@
+---
+title: "Tests and quizzes with AI: creation, versions, grading"
+excerpt: "A complete guide with prompts: a test generated only from the material you actually covered, four question types and what each measures, equivalent A/B/C versions, a scoring key with criteria, grading scanned tests including handwriting, and a class-wide error analysis. AI proposes the points, the teacher assigns the grade."
+category: "ai"
+platform: "vsude"
+audience: []
+keys: []
+saves: "~4 hrs per test"
+date: "2026-08-12"
+---
+
+A test costs a teacher four to six hours, and maybe one of those hours is actual pedagogy. The rest is copying questions out of the textbook in a different order, building a second version so students can't copy off each other, tallying points, adding up columns, and writing the same comment under the twentieth paper. The worst part is that the single most valuable piece of information — what exactly the class didn't understand — usually gets lost in that pile, because by the third hour of grading you're just adding numbers.
+
+**AI can handle the whole mechanical side: drafting questions from your own materials, producing equivalent versions, assembling a scoring key, reading scanned tests including handwriting, and proposing points with a rationale.** What it can't and shouldn't do is one thing, and it's the thing that matters: **the teacher assigns the grade.** A proposed score is input to a decision, not the decision itself — the same way a lab report isn't a diagnosis and a bookkeeping ledger isn't a tax return.
+
+The guide follows the phases of one test: prepping source materials, generating a test from what you actually covered, question types, equivalent versions, a scoring key, grading scans, and finally a class-wide error analysis — the part tests actually exist for. Every phase has prompts ready to copy — just fill in the brackets.
+
+## A typical scenario
+
+Petr teaches high school math, four classes, each testing roughly once every three weeks. Until now it looked like this: an hour on Sunday writing questions, a second hour building version B (usually just by swapping numbers, which students figured out), then three evenings of grading — rethinking, for every single paper, how many points to give for correct reasoning with a wrong final answer. The resulting grades were about as fair as how rested he was by the end of the week.
+
+Now it looks different. He uploads his class notes and the textbook pages the material came from, and has twenty questions drafted — all strictly from what he actually covered in class. He picks eight, rewrites two. He has three equivalent versions generated along with a scoring key that spells out how many points go to method versus final answer. He scans the graded papers with his phone and has points proposed against the key; for every question he gets a rationale showing exactly why the proposed score looks the way it does. He hand-checks eight papers at random, start to finish. He enters the grades himself.
+
+One last step remains that he never used to do at all: he has a class-wide error analysis run. He finds that seventeen out of twenty-eight students make the same mistake simplifying an equation with a fraction — and spends twenty minutes on it next lesson instead of moving on according to plan. That's the whole point of giving the test, and he used to never get there.
+
+## Phase 1: before you write the first question
+
+### A test is built from source material, not from the model's memory
+
+The most common mistake is asking for "a test on quadratic equations for eleventh grade" and getting back a test that looks great and includes three questions on material the class never covered. The model doesn't know your sequence, your textbook, or that you introduced the discriminant only after Vieta's formulas. It generates the average of how the topic is taught everywhere.
+
+**The rule that governs this whole guide: a test may only contain what's in your own source material.** There are three sources: class notes (photographed off the board or from your own notebook, either works), the textbook pages the material came from, and the homework you actually assigned. Upload them, and in every prompt, explicitly forbid anything beyond that.
+
+Collect source material continuously, not the night before a test. The simplest habit: photograph the board after every lesson and save the scan into the subject folder. In three weeks you have a complete set of material for the test without spending an extra minute on it — use a scanning app for this, see [scan paper with your phone](/tipy/skenujte-telefonem). And if you're already using the process from [teaching with AI: lesson prep](/tipy/ucitel-priprava-hodin-ai), your source material is already at hand.
+
+### Anonymizing and using a school account
+
+There's a sentence here that can't be skipped: **student work is personal data.** A scanned test contains a name, handwriting, and information about a specific child's academic performance. Before you upload anything, two conditions apply.
+
+First: **anonymize.** Cover or trim the name off the header and replace it with a number. The simplest technique, and it costs no extra time: before handing out tests, pre-print numbers 1 through 28 at the top and keep a "number-to-name" list on your own desk. You then scan papers that carry no name at all. Handwriting by itself doesn't make identification any easier for anyone but you.
+
+Second: use a **paid school account with a contractual data-protection agreement** — never a personal account, never a free-form chat. Which tool and which account type the school uses is a decision for administration and the school's data-protection officer, not an individual teacher. Get that question answered before you start scanning papers — it's a five-minute question that saves you from a problem nobody wants to deal with.
+
+And one last detail people forget: what you upload to a chat doesn't have to stay there. Once grading is done, delete the conversation and the uploaded files, and keep scans only wherever the school is supposed to keep them.
+
+### What the test should actually measure
+
+Before you write the first question, decide what you're testing for. A test that's all recall gives high grades to whoever memorized it the night before. A test that's all application penalizes even students who know the material. A reasonable split for an ordinary test is roughly a third on knowledge and comprehension, half on applying a known method, and the rest on transferring it to a new situation.
+
+```text
+I'm preparing a test on [topic] for [11th grade], [45] minutes long.
+Attached are my class notes and the textbook pages we learned from.
+
+First, list out from the source material everything we actually
+covered — a list of concrete skills phrased as "the student can...".
+Sort them into:
+1. must-have for anyone to pass
+2. standard expectation
+3. stretch goal for the strongest students
+
+For each skill, note which source material it comes from (file,
+page). Don't include anything that isn't in the source material,
+even if it belongs to the topic.
+At the end, list anything you'd expect to see for this topic that
+isn't in my source material, so I know what I may have skipped.
+```
+
+You'll get back a map of the material that doubles as a check on your own teaching. The closing list is a useful trick: "I'd expect this but you don't have it" shows you whether you accidentally skipped something — but it doesn't belong on the test until you've actually covered it.
+
+## Phase 2: generating a test from what was covered
+
+### Four question types and what each measures
+
+A good test mixes question types, because each one measures something different and each has a different weakness.
+
+- **Multiple choice.** Fast to grade and covers a lot of material in little time. Weakness: guessable, and you never see how the student reasoned. Best for facts, terms, and distinctions. Always four options, and distractors have to be plausible — an option nobody picks is just filler.
+- **Fill-in-the-blank and short answer.** A middle ground between grading speed and insight. Good for definitions, formulas, dates, word forms. Weakness: you need to know in advance which phrasings you'll accept, or you end up grading by mood.
+- **Open-ended.** The only type that shows you the thinking. Weakness: slow to grade and inconsistent to score without criteria. This is exactly where the scoring key from Phase 4 earns its keep.
+- **Application question.** A new situation, a known method — this is what separates understanding from memorizing. Weakness: hardest to phrase well, because "new situation" must not smuggle in a new difficulty outside the topic. Watch text length on word problems; a student who can't parse the wording never gets a chance to show they know the material.
+
+### A prompt for a question set
+
+Don't generate the test outright. Have a wide pool drafted and pick from it — using eight out of twenty is the right ratio.
+
+```text
+From the attached source material, draft 20 questions for a test on
+[topic], [45] minutes, [11th grade].
+
+Type breakdown:
+- 6 multiple-choice questions with 4 options (facts, terms,
+  distinctions)
+- 5 fill-in-the-blank or short-answer questions
+- 5 open-ended questions where reasoning is graded
+- 4 application questions — a known method in a new situation
+
+For EACH question, give:
+1. exact wording for students
+2. what it specifically measures (which skill from the list)
+3. estimated difficulty: easy / medium / hard
+4. estimated time in minutes
+5. the correct answer or solution
+6. for multiple-choice: why each distractor is plausible — i.e.
+   what specific reasoning error leads to it
+
+Rules:
+- strictly from the uploaded source material, nothing extra
+- short sentences, one question = one thing being asked
+- no trick questions, no ambiguous wording
+- word problems no longer than [3] sentences
+```
+
+You'll get a pool to choose from. Read point 6 carefully — it's the fastest way to spot a bad multiple-choice question: if the model can't explain what reasoning leads to a wrong option, that option is just padding and the question measures less than it looks like it does. Add up point 4; models systematically underestimate time, so if the total comes to 45 minutes, plan for it to really take an hour.
+
+### Checking the wording before it goes to print
+
+Before you print the test, run it through the model one more time — this time as a proofreader hunting for holes.
+
+```text
+Here's my finished test. Don't evaluate difficulty — look for flaws:
+
+1. Ambiguous wording — where a question could be read two ways
+2. Questions where the answer is contained in, or implied by,
+   another question
+3. Questions answerable without knowing the material (by
+   elimination, from the phrasing, from common sense)
+4. Missing information — what has to be in the question for it to
+   be solvable
+5. Language harder than the material itself (long sentences, an
+   extra technical term, unnecessary jargon)
+6. Factual errors in the questions or in the solutions
+
+For each finding, say where it is, why it's a problem, and how to
+fix it with a single edit. Don't rewrite the whole test.
+
+[paste the test]
+```
+
+This prompt turns up two or three issues in every test, and it's the cheapest quality check available to you. Point 3 tends to be the surprising one: questions solvable by common sense alone are common in tests, and you can't see them in your own writing because you already know the right answer.
+
+## Phase 3: equally difficult A, B, and C versions
+
+### Why swapping numbers isn't enough
+
+The classic "version B" — same wording with different numbers — has two problems. Students spot it in a minute and start whispering answers by method. And more importantly, different numbers often mean different difficulty. An equation that comes out to a whole number is easier than the same equation with a fraction, and that's a difference nobody accounts for when grading.
+
+Equivalent versions need **the same difficulty structure, question by question**: question 3 in version A and question 3 in version B measure the same skill, are equally hard, and are worth the same points — but can't be solved by copying.
+
+```text
+Here's my finished version A, including solutions and points.
+Produce versions B and C that are genuinely equivalent.
+
+Rules for every question N:
+- measures the same skill across all three versions
+- has the same difficulty — not just different numbers, but
+  comparable computational load (watch for one version landing on
+  a clean number while another lands on a fraction)
+- worth the same points
+- can't be solved by copying off a neighbor with a different version
+
+Don't reuse the same names, numbers, or contexts. For word problems,
+change the scenario itself, not just the values.
+
+Give solutions for each version. At the end, build a comparison
+table: rows = questions, columns = versions, cells showing question
+type, skill, points, and your difficulty estimate — so I can see
+whether the versions are actually comparable.
+```
+
+The comparison table at the end is the reason to phrase the prompt this way: it lets you see at a glance if difficulty drifted somewhere. And do one thing yourself, always: **work through every version by hand.** Not out of distrust, but because a mistake in version C's solution only shows up once seven students are standing in front of you saying it doesn't work out.
+
+### How many versions, and how to hand them out
+
+Three versions is the ceiling that makes sense — more than that means more grading work than it saves in prevented copying. Hand them out across rows, not by desk — neighbors sitting side by side should have different versions, same as neighbors across the aisle.
+
+If you want a calm room, say out loud that the versions are equivalent and that you checked. It saves ten minutes of arguing afterward about whether "version A was harder."
+
+## Phase 4: a scoring key with criteria
+
+### Write the key before grading, not during it
+
+Inconsistent grading doesn't come from unfairness — it comes from fatigue. The first papers get graded generously, the twentieth strictly, the last ones fast. The only defense is a scoring key written in advance — a document that states how many points go to what, before you've seen a single answer.
+
+For multiple-choice, the key is trivial. For open-ended questions, this is the work that decides the quality of the whole test:
+
+```text
+Write a scoring key for every open-ended and application question
+in this test. The test is worth [40] points total; point
+distribution across questions is [paste or propose].
+
+For each question, give:
+1. A model solution, step by step
+2. A point breakdown: how many for correct method, how many for
+   the correct final answer, how many for notation and units
+3. What counts as an acceptable alternative solution — a different
+   method that reaches the same result
+4. Typical partially-correct answers and how many points each gets
+   (e.g. correct method, arithmetic slip = how many points)
+5. What NOT to accept, and why — the line past which an answer
+   is simply wrong
+6. Carried-forward errors: if a student makes a mistake in the
+   first step but computes correctly from there on, how many points
+   do they get
+
+Write it so that anyone grading from it would arrive at the same
+score.
+```
+
+Point 6 is the one that's missing most often in practice, and it decides roughly half of all borderline grading calls. Check point 3 against your own memory — the model doesn't know every method you taught in class, and an alternative solution you don't list will come back to bite you on the twelfth paper.
+
+### Grading scale and cutoffs
+
+Converting points to a grade is your decision and your school's decision, not something you hand to a model. What's worth having calculated for you is the impact: how a given scale would land on your actual distribution of points.
+
+```text
+Here's the point distribution in my class for a test worth [40]
+points: [paste the points, one per line, no names — just numbers].
+
+Calculate:
+- basic statistics: count, mean, median, min, max
+- a histogram in 5-point bins
+- how the grade distribution would look under this scale [paste
+  cutoffs]
+- how it would look under an alternative scale [paste second set
+  of cutoffs]
+- how many papers land within 1 point of the cutoff for each grade
+
+Don't recommend a scale. Just show me the numbers — the decision is
+mine.
+```
+
+That last line is there on purpose. The most interesting part is the last bullet: papers sitting one point under a cutoff deserve a second, manual look — that's exactly where human judgment matters and a machine's suggestion has no business deciding. When you're working with data at scale on a regular basis, [analyzing data with a script](/tipy/ai-analyza-dat) is the more reliable path — a model in a chat window doesn't add up numbers reliably.
+
+## Phase 5: grading scanned tests
+
+This is the biggest time saver in the whole guide, and also the place that demands the most discipline.
+
+### The iron rule
+
+**AI proposes points, the teacher assigns the grade.** That's not a formality and it's not just caution — it's a description of how the tool actually works. When reading handwriting, a model will sometimes read a 6 as an 8, miss a minus sign, fail to spot a crossed-out line, or not notice that a student continued on the back of the page. A proposed score is source material you write the final result against.
+
+In practice that means three things you can't skip:
+
+- **Ask for a rationale on every question.** Not "3 points," but "3 points — the method is correct, but there's a sign error in step two." Without a rationale, there's nothing to check.
+- **Spot-check by hand.** Take at least five papers from the class and grade them yourself, in full, without looking at the proposal first. Then compare. If they match, go through the rest faster; if they diverge, grade by hand and treat the proposal only as a flag.
+- **Always grade by hand where it matters most.** Papers near a grade cutoff, papers where the model flagged "uncertain" or "illegible," and papers from students where you're expecting an appeal or handling accommodations.
+
+The same principle applies to college-level assignments and exams, where the paper counts are even higher — more on that in [a PhD student's AI workflow](/tipy/doktorand-s-ai-workflow).
+
+### A scan that can actually be read
+
+Input quality decides everything downstream. Scan with an app, not a plain camera: straight edges, contrast, and shadow removal turn a photo into a document. One paper = one file, pages in the right order, filename with a number instead of a name.
+
+Before you start grading, confirm the model can actually read the text:
+
+```text
+Attached is a scan of one test (paper number [12]). Don't grade
+anything yet.
+
+Transcribe exactly what's written on the scan, question by
+question, including work shown and crossed-out parts. Where you
+can't read something, write [ILLEGIBLE] and don't guess. Where
+you're unsure of a digit or sign, write [UNCERTAIN: 6 or 8].
+
+At the end, say how readable the scan was overall and what I should
+do differently for the next batch of scans.
+```
+
+This step takes a minute and decides whether it's worth continuing at all. Handwriting varies; for some students you'll get back a precise transcript, for others nothing but uncertainty flags — and that itself is the signal that this particular paper needs to be graded by hand.
+
+### Proposing points against the key
+
+```text
+Attached are the scoring key and a scan of paper number [12].
+Propose points. Don't write a grade.
+
+For each question, return:
+1. what the student wrote (briefly, in your own words)
+2. proposed points per the key
+3. rationale — which part of the key you're basing it on
+4. confidence: confident / uncertain — and for uncertain, say why
+   (illegible, unusual method, key doesn't cover it)
+
+At the end:
+- total points
+- a list of questions I need to judge myself (everything marked
+  uncertain)
+- one sentence on whether there's anything in the paper the key
+  doesn't cover
+
+Rules:
+- stick strictly to the key, don't grade by your own judgment
+- if the student used a valid method not covered by the key, DON'T
+  score it — mark it uncertain, I'll decide
+- don't add or subtract points for neatness, handwriting, or
+  spelling unless the key mentions it
+```
+
+You'll get a structured proposal that shows you where every point came from. The list of uncertain questions is the most valuable part of the output — in practice it's usually two or three questions per paper, and those are exactly the ones that actually need a teacher. The rest is arithmetic.
+
+Check the total yourself. Models can add up a small set of numbers, but relying on it for a figure that goes into a gradebook isn't worth it — rechecking ten line items takes five seconds.
+
+### Consistency across the whole set
+
+Once you have proposed points for every paper, there's a check nobody does by hand, because it would mean holding all twenty-eight papers in your head at once.
+
+```text
+Here are the proposed scores for all [28] papers from this test,
+with a rationale for every question.
+
+Check for consistency:
+1. Where two similar answers got different point totals — list the
+   pairs and how the scoring differs
+2. Where the rationale for the same question relies on different
+   parts of the key from paper to paper
+3. Questions where the rationale is most often marked uncertain —
+   meaning the key is inadequate at that point
+4. Papers within 1 point of a grade cutoff [paste cutoffs]
+
+Don't fix anything, just list what I need to review.
+
+[paste the proposals]
+```
+
+Points 1 and 3 are the reason this step exists. Whatever inconsistency it finds is yours to resolve — and a finding like "half the rationales for question 5 are marked uncertain" means the key had a hole there, and next time you'll write it tighter.
+
+### Feedback students will actually read
+
+A note that just says "calculation error" doesn't move anyone forward. A specific sentence does — and writing twenty-eight specific sentences is work nobody has time for.
+
+```text
+For each paper, write brief feedback for the student, max 4
+sentences:
+1. what they specifically did well (name it, don't just say "good
+   effort")
+2. their biggest weakness — one, not a list
+3. one concrete thing to do before next time (not "practice more,"
+   but "work through problems 12-18 on page 44")
+
+Write it plainly, with no comment on the student as a person, no
+sarcasm, and no empty encouragement. Address the student directly.
+Don't mention the grade or the point total.
+
+[paste the scoring proposals with rationales]
+```
+
+Read the texts before handing them out, especially for papers that didn't go well. A sentence that reads as matter-of-fact on screen can land differently on paper under a failing grade, and that's a judgment call nobody else can make for you. And if there are three or four papers where something more personal needs saying, write that part yourself.
+
+## Phase 6: class-wide error analysis
+
+This is the part tests exist for, and also the part that usually never happens for lack of time. And yet it's the cheapest step in the whole guide: the source material is already sitting there from Phase 5.
+
+```text
+Here are the graded results for the whole class — points per
+question for each paper, with a rationale for what went wrong.
+
+Give me an analysis as the teacher:
+1. Success rate by question: what percentage of the class got each
+   one right, ranked worst to best
+2. Error patterns that repeat across more than [5] students — for
+   each one, describe the underlying misunderstanding, not just how
+   it showed up
+3. Errors only a few students made — and whether that's a gap in
+   understanding or just carelessness
+4. Which skills from the list the class handled well and which it
+   didn't
+5. A recommendation: what to reteach and how, so it actually lands
+   — with a time estimate in minutes for each
+
+Don't work with names, just paper numbers.
+```
+
+Point 2 is the whole point of this exercise: the difference between "makes mistakes with fractions" and "half the class cross-cancels numerator and denominator across a sum because they don't understand what simplifying actually means" is the difference between review that's a waste of time and review that isn't. Treat point 5 as a suggestion — how to reteach it differently, you already know, because you were there for the first explanation.
+
+The result has a second use: it's the basis for reviewing the test with the class. Instead of going question by question in order, take the three mistakes the most students made and give them the whole lesson. Hand the rest back on paper.
+
+```text
+From the error analysis, build a fifteen-minute block on fixing the
+most common mistake — [describe the mistake].
+
+I want:
+- one sentence naming the mistake without singling anyone out
+- a counterexample that shows why that method doesn't work
+- an explanation of the correct method in 3 steps
+- 4 short practice problems, easiest first, with solutions
+- one check-in question at the end that tells me whether it landed
+  this time
+
+Students have a [45]-minute period and this is the first third of it.
+```
+
+Keep the block on paper and hold onto it for next year — the mistakes this class makes, next year's class will make too, and a growing collection of these blocks is some of the most valuable material a teacher can build up.
+
+## Common mistakes
+
+- **Generating a test with no source material.** The model produces a textbook-correct test on material you may never have covered. A test is built from your own notes and your own textbook — nothing else belongs in the prompt.
+- **Building version B by swapping numbers.** Students spot it and difficulty drifts. Equivalent versions have the same structure question by question, different contexts, and checked, comparable difficulty.
+- **Grading without a key written in advance.** Without a breakdown of points for method, result, and partial credit, you grade the first paper differently from the twentieth — and have nothing to check the AI's proposal against.
+- **Treating proposed points as the grade.** The model misreads digits in handwriting, misses crossed-out work, and doesn't recognize an unusual method. **The teacher assigns the grade,** and a spot-check of at least five papers by hand isn't optional.
+- **Uploading un-anonymized papers.** A name on a scan is personal data. Pre-printed numbers on the header and a list on your own desk cost two minutes and solve the whole problem — and it has to happen inside a school account with a contractual data-protection agreement.
+- **Stopping at the grades.** Class-wide error analysis is the only part of a test that actually improves your teaching. Skip it and you gave the test purely to produce a number in the gradebook.
+
+## The best tools
+
+- **Reading scans and handwriting** — transcribing and grading handwritten work against a key; works best the straighter and higher-contrast the scan is.
+- **Claude Projects** — one project per subject with class notes, the textbook, and scoring keys from past tests loaded in; context doesn't need repeating.
+- **Claude Cowork** — working across a folder of scans for a whole class: the model works through the files one by one and saves results into a single summary.
+- **Phone scanning apps** — a straight, high-contrast scan with a number instead of a name; input quality decides the quality of everything downstream.
+- **Artifacts** — turn an error analysis directly into a simple practice quiz in chat, ready to project or send as a link.
+- **A spreadsheet for points** — the point ledger and grading scale belong in a spreadsheet you own, not in a chat; numbers only add up reliably where a machine built for adding is doing it.
+
+## What you get out of it
+
+- **Time:** a test, from writing it to entering final grades, drops roughly from five hours to one. For a teacher with four classes testing once every three weeks, that's several evenings back every term.
+- **Fairness:** a key written in advance, plus a consistency check across the whole set, closes the gap between how you grade the first paper and how you grade the twentieth.
+- **Quality of the test itself:** checking for ambiguity and weak distractors before printing catches two or three flaws in every test that you'd otherwise only discover while grading.
+- **Value from the test:** class-wide error analysis tells you what to reteach — which is the entire reason tests exist in the first place.
+
+## Pro tip
+
+Build yourself an **archive of tests as a project**: questions, scoring keys, error analyses, and reteaching blocks for the most common mistakes, all in one place, year after year. After two years it becomes something worth the effort — the next time you prep the same material, you can ask "which mistakes have my classes made on this topic, year after year, and what does that mean for how I teach it." An answer built on your own data is something no teaching guide will ever give you.
+
+And a closing rule that governs everything else: **the machine proposes the points, the human signs the grade.** Not because it's required, but because a grade is a decision about a child — and decisions about children don't get delegated. Before handing back a paper, pause on each one for at least three seconds and ask whether that number matches what you actually know about that student. When it doesn't, the teacher is right.
