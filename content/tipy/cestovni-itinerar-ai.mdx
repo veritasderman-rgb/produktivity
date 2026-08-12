@@ -1,6 +1,6 @@
 ---
 title: "Cestovní itinerář na míru: den po dni, bez hodin plánování"
-excerpt: "Zadejte termín, rozpočet, tempo a zájmy — a dostanete plán den po dni včetně časů přesunů, tipů na jídlo a záložní varianty pro déšť. Zbyde vám jen ověřit otvíračky."
+excerpt: "Kompletní návod s prompty k okopírování: od zadání s omezeními přes itinerář den po dni s časy přesunů a plán B na déšť až po rezervační checklist, ověření otvíracích dob u zdroje a sdílení plánu rodině."
 category: "ai"
 platform: "vsude"
 audience: ["student"]
@@ -9,37 +9,563 @@ saves: "~celé odpoledne plánování"
 date: "2026-08-12"
 ---
 
-Plánování cesty je zábavné asi dvacet minut. Pak přijde patnáct otevřených záložek, tři blogy s protichůdnými doporučeními, mapa, ve které si nedokážete představit, jak daleko od sebe ty body vlastně jsou — a po dvou hodinách máte seznam míst, ale pořád ne plán. **AI tuhle část zvládne za pár minut: udělá kostru rozvrženou po dnech, ve které dávají přesuny geografický smysl.** Kostra není jízdní řád a nesmí se s ním plést, ale je to přesně ta část práce, kterou nikdo nedělá rád.
+Plánování cesty je zábavné asi dvacet minut. Pak přijde patnáct otevřených záložek, tři blogy s protichůdnými doporučeními, mapa, ve které si nedokážete představit, jak daleko od sebe ty body vlastně jsou — a po dvou hodinách máte seznam míst, ale pořád ne plán. Seznam míst je to, co umí vygenerovat kdokoli. Plán je něco jiného: je v něm pořadí, jsou v něm přesuny a hlavně je v něm to, co se do dne nevejde.
+
+**AI tuhle část zvládne za pár minut: udělá kostru rozvrženou po dnech, ve které dávají přesuny geografický smysl a ve které je vidět, kdy vám den přeteče.** Kostra ale není jízdní řád a nesmí se s ním plést. Otvírací doby, ceny vstupenek, spoje a rezervace jsou údaje, které se mění a které si model občas domyslí — proto má tenhle návod celou jednu fázi věnovanou tomu, co si musíte ověřit u zdroje. Zbytek je práce, kterou nikdo nedělá rád a kterou už dělat nemusíte.
+
+Návod je stavěný tak, abyste ho procházeli v pořadí, ve kterém se cesta plánuje: nejdřív zadání s omezeními, pak kostra, pak zálohy a rezervace, pak ověřování a nakonec věci na cestě. Každá fáze má prompty k okopírování — stačí doplnit hranaté závorky. Poslední dvě fáze se vyplatí přečíst i tehdy, když plán už máte: rozdíl mezi itinerářem v konverzaci a itinerářem v mobilu bez signálu je na místě zásadní.
 
 ## Vzorová situace
 
-Tereza je studentka, jede v září na pět dní do Lisabonu se spolužačkou a má rozpočet zhruba 12 000 Kč na místní útratu. Chce vidět město, ne ho odškrtat: raději jedno muzeum a hodinu v kavárně než tři památky za den. Dva večery si už předplánovala, zbytek visel ve vzduchu.
+Tereza je studentka, jede v září na pět dní do Lisabonu se spolužačkou a má rozpočet zhruba 12 000 Kč na místní útratu — tedy asi 2 400 Kč na den na jídlo, vstupy a dopravu dohromady. Chce vidět město, ne ho odškrtat: raději jedno muzeum a hodinu v kavárně než tři památky za den. Dva večery si už předplánovala, zbytek visel ve vzduchu. Předchozí cestu plánovala tři odpoledne a stejně skončila u toho, že v Kodani chodila každý den zbytečně přes celé město.
 
-Zadá termín, ubytování v Alfamě, tempo „pohodové, maximálně dvě větší věci denně“, zájmy (architektura, jídlo, výhledy) a rozpočet. Za dvě minuty má pět dní rozepsaných po půldnech, u každého přesunu odhad, jak dlouho trvá a čím se jede, a u každého dne dvě doporučení na jídlo v cenové hladině, kterou zadala. První verze má třetí den narvaný jako výlet do Sintry a půl Belému k tomu, tak napíše „třetí den je moc nabitý, uber to na polovinu a Belém přesuň na pátý den“. Druhá verze sedí. Čtvrtek pak strávila ověřováním otvíracích dob a rezervací — a to byla jediná hodina, kterou tomu skutečně věnovala.
+Tentokrát začne zadáním, ve kterém není jen destinace. Napíše termín, adresu ubytování v Alfamě, tempo „pohodové, maximálně dvě větší věci denně, ráno nikam před devátou", zájmy (architektura, jídlo, výhledy), rozpočet na den a jednu tvrdou podmínku: čtvrtý den má v šest večer koncert, kolem kterého se musí plán postavit. Za dvě minuty má pět dní rozepsaných po půldnech, u každého přesunu odhad, jak dlouho trvá a čím se jede, a u každého dne dvě doporučení na jídlo v cenové hladině, kterou zadala.
 
-## Jak na to
+První verze má třetí den narvaný jako výlet do Sintry a půl Belému k tomu, tak napíše „třetí den je moc nabitý, uber to na polovinu a Belém přesuň na pátý den". Druhá verze sedí. Pak si nechá dopsat tři věci, které by ji samotnou nenapadly: ke každému venkovnímu bloku vnitřní alternativu ve stejné čtvrti pro případ deště, seznam všeho, co je potřeba rezervovat, a jak dlouho dopředu, a balicí seznam odvozený z toho, co v plánu je. Ověřování otvíracích dob a samotné rezervace jí zabraly hodinu — a to byla jediná hodina, kterou plánování skutečně věnovala. Itinerář nakonec sdílela jako jednu stránku, kterou má v mobilu i bez signálu a na kterou se dívala i její máma doma.
 
-1. **Zadejte pět věcí, ne jednu větu.** „Naplánuj mi Lisabon“ vrátí ten samý seznam, který najdete v každém článku. Napište: termín a počet dní, kdo jede (dva dospělí, nebo dvě děti pod deset let), rozpočet na den, tempo a zájmy. Přidejte, kde bydlíte — bez toho vám plán pošle každý den přes celé město.
-2. **Vyžádejte si konkrétní formát výstupu.** Chcete den po dni, rozdělený na dopoledne, odpoledne a večer, u každého bloku odhad času přesunu a čím se jede. A výslovně řekněte, že chcete u každého dne jeden nepovinný bod navíc pro případ, že vám něco vyjde rychleji.
-3. **Iterujte, nezačínejte znovu.** První verze je surovina. „Druhý den je moc nabitý, uber to“, „přidej víc jídla a míň muzeí“, „vyhoď všechno, co stojí přes 300 Kč vstup“ — každá věta plán posune. Konverzace je rychlejší než hledání dokonalého zadání napoprvé, viz [s AI se konverzuje, ne střílí naslepo](/tipy/ai-iterace).
-4. **Nechte dopsat plán B na špatné počasí.** Ke každému venkovnímu dni si vyžádejte vnitřní alternativu ve stejné čtvrti. Tohle je bod, který si sami nikdy nenaplánujete a v dešti pak stojíte pod markýzou a hledáte v mobilu.
-5. **Ověřte otvírací doby, ceny a rezervace u zdroje.** Tohle je jediný povinný krok celého postupu. Jazykové modely uvádějí nepřesnosti se stejnou jistotou jako fakta a otvírací doby patří mezi údaje, které se mění nejčastěji. Projděte weby konkrétních míst, rezervace udělejte sami. **AI navrhuje, člověk ověřuje a rezervuje** — [ověřování výstupů](/tipy/ai-overovani-faktu) má u cestování hmatatelné důsledky, protože zavřené muzeum vám sežere půl dne.
-6. **Uložte si plán offline.** Nechte si výsledek přepsat do jednoduché stránky nebo poznámky, kterou máte v mobilu i bez signálu. V zahraničí je to rozdíl mezi plánem a hezkým souborem, ke kterému se nedostanete.
+## Fáze 1: zadání s omezeními
+
+Devadesát procent rozdílu mezi použitelným a k ničemu nepoužitelným itinerářem je v zadání. „Naplánuj mi Lisabon" vrátí ten samý seznam, který najdete v každém článku — protože nic jiného modelu neřeknete a on nemá jak vědět, že jedete se sedmiletým dítětem, že máte kolena po operaci nebo že vám je jedno muzeum, ale nedáte dopustit na trhy.
+
+Plán vzniká z omezení, ne ze zájmů. Zájmy říkají, co by se vám líbilo; omezení říkají, co se do dne vejde. A právě omezení lidé zapomínají napsat.
+
+### Sedm věcí, které musí být v zadání
+
+**Termín a délka.** Nejen „pět dní", ale konkrétní data — sezona rozhoduje o otvíračkách, počasí i tom, jestli se dá večer sedět venku. Připočtěte, kdy reálně přiletíte a odletíte: den s letadlem v šest ráno není celý den.
+
+**Kdo jede.** Počet lidí, věk dětí, pohyblivost, únava. „Dva dospělí" a „dva dospělí a osmdesátiletá babička" jsou dvě různé cesty přes stejné město. U dětí napište věk v letech, ne „malé děti" — plán pro tříleté a pro devítileté nemá skoro nic společného.
+
+**Kde bydlíte.** Adresa nebo aspoň čtvrť. Bez toho vám plán pošle každý den přes celé město a vy to poznáte až na místě.
+
+**Rozpočet a v čem.** Částka na den na osobu, a hlavně co se z ní platí: jen jídlo a vstupy, nebo i doprava a ubytování? Rozpočet zadaný předem drží plán v hladině, ve které chcete být.
+
+**Tempo.** Kolik „větších věcí" denně, jestli chcete odpolední pauzu, kdy vstáváte, jestli je v pořádku plánovat na večer program. Tohle je jediná věc, kterou o vás cestovatelské články nevědí a kvůli které jsou k ničemu.
+
+**Zájmy — a antizájmy.** Napište i to, co nechcete. „Žádné kostely", „bez nákupních center", „nechci nic, kde se stojí fronta déle než dvacet minut" ušetří půlku iterací.
+
+**Pevné body.** Koncert, svatba, schůzka, návštěva u příbuzných, rezervovaná restaurace, čas příletu a odletu. Kolem těch se plán staví, ne naopak.
+
+```text
+Naplánuj mi cestu do [destinace] na [počet] dní, termín [datum
+od—do]. Nedávej mi seznam památek, chci plán rozvržený po dnech.
+
+Kdo jede: [např. 2 dospělí (32 a 34) a děti 5 a 9 let]
+Kde bydlíme: [čtvrť / adresa / název ubytování]
+Doprava na místě: [MHD / auto / pěšky, kolik jsme ochotní ujít denně]
+Rozpočet: [částka] na den na osobu, platí se z toho [jídlo, vstupy,
+místní doprava]
+Tempo: [max. 2 větší věci denně, odpoledne pauza 13—15, ráno nikam
+před 9, večer maximálně večeře]
+Zájmy: [architektura, jídlo, výhledy, trhy]
+Co nechceme: [dlouhé fronty, nákupní centra, nic, kde se nesmí
+s kočárkem]
+Pevné body: [4. den v 18:00 koncert v centru; přílet 1. den v 14:00,
+odlet poslední den v 11:00]
+
+Než začneš plánovat, udělej dvě věci:
+1. Zopakuj mi mými slovy, jaká omezení jsi pochopil.
+2. Napiš 5 otázek, jejichž zodpovězení by plán nejvíc zpřesnilo.
+
+Teprve pak, až ti odpovím, navrhni plán.
+```
+
+Vrátí shrnutí omezení a otázky — a právě to je smysl. Typicky se ptá na věci, které jste nezvážili: jestli má být poslední den volný na balení, jestli chcete jeden den mimo město, jestli má počítat s časem na oběd nebo že budete jíst po cestě. Když v shrnutí omezení něco nesedí, opravte to hned; z nepochopeného zadání vznikne plán, který budete přepisovat celý.
+
+### Kolik se toho reálně vejde do dne
+
+Většina domácích plánů je přeplněná, protože se počítá čas na místech a ne mezi nimi. Užitečná pomůcka: den ve městě unese zhruba šest až osm hodin aktivního programu, ale z toho jedna až dvě hodiny padnou na přesuny a čekání, a s dětmi nebo seniory je to podstatně méně. Než plán přijmete, nechte si ho spočítat.
+
+```text
+Tady je můj plán na [den X]:
+
+[vlož plán dne]
+
+Spočítej mi ho realisticky:
+- kolik hodin zabere samotný program (bez přesunů)
+- kolik hodin přesuny mezi body, u každého napiš čím a jak dlouho
+- kolik času zbývá na jídlo, pauzy a nečekané zdržení
+- v kolik hodin bych podle tohohle plánu byl večer zpátky
+  na ubytování
+
+Pak napiš verdikt: je den realistický pro [kdo jede a v jakém tempu]?
+Když ne, řekni, co konkrétně vyhodit, aby zůstal smysl dne zachovaný.
+Neuváděj to jako doporučení, ale jako škrtnutí: co jde pryč.
+```
+
+Vrátí rozpočet dne v hodinách a nejčastěji verdikt „nevejde se". Odhady časů přesunů berte jako orientační — u MHD a pěších tras bývají blízko, u aut ve špičce a u jízdních řádů vlaků a trajektů se na ně spolehnout nedá; ty ověřujte u dopravce, viz fáze 5.
+
+## Fáze 2: itinerář den po dni
+
+Teď teprve vzniká plán. Klíč je vyžádat si konkrétní formát: bez něj dostanete odstavcový text, ve kterém se špatně škrtá a který se nedá vzít do mobilu.
+
+### Kostra po půldnech s časy přesunů
+
+```text
+Na základě zadání a odpovědí výš udělej itinerář den po dni.
+
+Formát pro každý den:
+### Den [číslo] — [datum], [téma dne jednou větou]
+- Dopoledne: [co, kde, kolik času]
+- Přesun: [odkud kam, čím, kolik minut]
+- Odpoledne: [co, kde, kolik času]
+- Přesun: [odkud kam, čím, kolik minut]
+- Večer: [co, kde]
+- Jídlo: 2 tipy v naší cenové hladině, u každého čtvrť a co je zač
+- Bonus, když zbyde čas: [1 věc poblíž]
+- Odhad útraty za den: [částka na osobu, rozepsaná na vstupy /
+  jídlo / dopravu]
+
+Pravidla:
+- Body v jednom dni musí být blízko sebe. Nikdy neposílej z jednoho
+  konce města na druhý a zpátky.
+- Respektuj pevné body, kolem nich stav zbytek dne.
+- Do každého dne nech aspoň 90 minut nezaplánovaných.
+- U každého bodu napiš, jestli je vhodný za deště (vnitřní /
+  venkovní / smíšený).
+- Nic si nevymýšlej. Když si nejsi jistý, že místo existuje nebo že
+  je otevřené, napiš to místo toho.
+
+Na konci dej seznam všeho, co je potřeba ověřit nebo rezervovat.
+```
+
+Vrátí strukturovaný plán, se kterým se dá pracovat. Dvě věci hlídejte hned: značka „vnitřní/venkovní" u každého bodu je základ pro plán B ve fázi 3 a odhady útraty jsou hrubé — model nezná aktuální ceny, takže je berte jako řádovou představu a klíčové položky ověřte na webu daného místa.
+
+### Geografická kontrola: kde plán zbytečně cestuje
+
+Nejčastější chyba v generovaných itinerářích je „zábavný, ale roztahaný" den. Jednoduchý test: nechte body přeskupit podle čtvrtí a porovnejte, co z toho vyjde.
+
+```text
+Vezmi celý můj itinerář a přeskupit ho čistě geograficky:
+1. Rozděl všechna místa do shluků podle čtvrti nebo oblasti.
+2. U každého shluku napiš, kolik času by zabralo projít ho celý.
+3. Ukaž mi, které body jsou teď v jiném dni, než by geograficky
+   měly být — a kolik minut denně mě to stojí navíc.
+4. Navrhni přeskupenou verzi, kde každý den = jeden nebo dva
+   sousedící shluky, a zachovej moje pevné body.
+
+Napiš porovnání: kolik minut přesunů má původní a kolik nová verze.
+```
+
+Vrátí verzi, která často ušetří hodinu denně. Nepřebírejte ji ale mechanicky — plán, kde jsou dny „efektivní", může být nudný a některé přesuny stojí za to (výhled, cesta tramvají, čtvrť, kterou chcete vidět jen projít). Rozhodujete vy.
+
+### Iterace: opravujte, nezačínejte znovu
+
+První verze je surovina. Většina lidí udělá tu chybu, že když se jim plán nelíbí, napíšou nový dlouhý prompt od začátku — a přijdou o všechen kontext. Rychlejší je konverzovat, viz [s AI se konverzuje, ne střílí naslepo](/tipy/ai-iterace).
+
+```text
+Uprav plán, ostatní dny nech beze změny:
+- Den 3 je moc nabitý — nech maximálně dvě věci a ať se stihne
+  oběd v klidu.
+- [Místo] vyhoď úplně, nechceme tam.
+- Přidej jeden půlden mimo město, ideálně vlakem do 60 minut.
+- Večery 2 a 4 nech úplně volné, dovolenou nechceme mít rozvrženou
+  do noci.
+- Snižte útratu: nic, kde je vstupné vyšší než [částka] na osobu,
+  místo toho navrhni levnější alternativu se stejným smyslem.
+
+Vrať celý itinerář znovu ve stejném formátu a nad ním krátký seznam,
+co přesně jsi změnil.
+```
+
+Seznam změn na konci je důležitější, než vypadá — bez něj se u páté iterace ztratíte v tom, která verze je platná. Když se plán rozjede do nesmyslů, vraťte se k poslední dobré verzi tím, že ji vložíte znovu jako výchozí bod.
+
+### Rozpočtová kontrola celé cesty
+
+```text
+Tady je celý itinerář:
+
+[vlož itinerář]
+
+Sestav rozpočet cesty pro [počet osob]:
+- rozepiš po dnech: vstupy, jídlo, místní doprava, ostatní
+- zvlášť vypiš jednorázové položky (letiště, přenosy, celodenní
+  jízdenky, výlety mimo město)
+- spočítej součet a porovnej ho s mým limitem [částka]
+- když překračuju, navrhni 5 konkrétních škrtů seřazených od
+  toho, který nejmíň bolí
+
+U každé ceny napiš, jestli ji odhaduješ, nebo jestli ji mám ověřit.
+Nic nevydávej za aktuální cenu — ceny se mění a ty je neznáš.
+```
+
+Vrátí rozpočet, který je použitelný jako kostra, ne jako kalkulace. Poslední odstavec promptu je tam schválně: modely s klidem uvedou konkrétní částku vstupného, která je dva roky stará. Klíčové položky si ověřte — pár nejdražších vstupů a celodenní jízdenky rozhodnou o rozpočtu víc než všechno ostatní dohromady.
+
+## Fáze 3: plán B na počasí a nečekané výpadky
+
+Tohle je fáze, kterou si při plánování nikdo nenapíše — a která na místě rozhoduje o tom, jestli deštivý den znamená improvizaci pod markýzou, nebo prostě jiný, taky hezký den. Trvá pět minut a používá informaci, kterou jste si vyžádali už v kostře: značku „vnitřní / venkovní" u každého bodu.
+
+### Vnitřní alternativa ke každému venkovnímu bloku
+
+```text
+Ke každému venkovnímu bodu v mém itineráři doplň záložní variantu
+pro případ deště nebo extrémního vedra.
+
+Podmínky pro alternativu:
+- musí být ve stejné čtvrti nebo maximálně 15 minut od původního bodu
+- musí být vnitřní a otevřená v den, kdy tam mám být
+- musí zabrat zhruba stejně času jako původní bod
+- cenově ve stejné hladině
+
+Formát: den | původní bod | náhrada | jak se tam z původního místa
+dostanu | proč tato náhrada dává smysl.
+
+Nakonec napiš, které dny jsou na počasí nejcitlivější a které bych
+při špatné předpovědi měl mezi sebou prohodit.
+```
+
+Poslední odstavec je ten cenný. Když víte, že třetí den je celý venku a pátý celý uvnitř, stačí se den předem podívat na předpověď a dny prohodit — a máte dovolenou, do které déšť skoro nezasáhl.
+
+### Co dělat, když něco padne
+
+Nejde jen o počasí. Zavřené muzeum kvůli státnímu svátku, stávka dopravců, nemocné dítě, zpožděný vlak. Připravit se dá na to všechno jedním promptem předem, ale ještě lepší je mít ho po ruce na cestě.
+
+```text
+Jsem v [místo], je [čas] a [co se stalo: muzeum má zavřeno /
+prší / nejede metro / je nám špatně z vedra].
+
+Můj plán na zbytek dne byl:
+[vlož zbytek dne]
+
+Navrhni 3 varianty, co udělat místo toho:
+A) něco podobného poblíž, aby den zůstal ve stejném duchu
+B) klidná varianta — kavárna, park, něco bez chození
+C) přesun programu: co z dalších dní jde vzít dopředu, aby mi
+   zbytek cesty nezkolaboval
+
+U každé varianty uveď, jak daleko to je odsud a čím se tam dostanu.
+Pak mi řekni, co bych měl teď hned ověřit, než tam vyrazím.
+```
+
+Berte to jako nouzový prompt do mobilu, ne jako přípravu — smysl má ve chvíli, kdy stojíte před zavřenými dveřmi. Poslední řádek je důležitý: než se přesunete přes město, ověřte si, že cíl je skutečně otevřený, nejlépe telefonem.
+
+## Fáze 4: rezervační checklist s termíny
+
+Nejdražší chyby na cestě nejsou špatná rozhodnutí, ale zmeškané termíny. Vstupenky na oblíbenou památku vyprodané tři týdny dopředu, restaurace, která bere rezervace jen telefonicky, vlak, kde se místenka kupuje předem, vstup s časovým slotem, který se nedá koupit na místě. Všechno jsou to věci, které se dají zjistit předem — a nedají se dohnat.
+
+### Seznam všeho, co vyžaduje zařízení předem
+
+```text
+Tady je můj hotový itinerář:
+
+[vlož itinerář]
+
+Cestuju [datum od—do], [počet] osob.
+
+Vypiš mi checklist všeho, co je potřeba zařídit před odjezdem.
+Tabulka se sloupci:
+co zařídit | proč | jak dlouho dopředu | kde se to dělá (web /
+telefon / na místě) | do kdy to musím mít hotové (konkrétní datum) |
+hotovo
+
+Zahrň:
+- vstupenky s časovým slotem a věci s omezenou kapacitou
+- rezervace restaurací, kde to bývá potřeba
+- jízdenky a místenky na vlaky, trajekty a dálkové autobusy
+- celodenní nebo vícedenní dopravní karty — vyplatí se, nebo ne
+- pojištění, dokumenty, platnost pasu, vízum, případné registrace
+- pronájem auta, parkování v centru, dálniční poplatky
+- cokoli, co má na mém plánu pevný čas
+
+Seřaď podle data, do kdy to musí být hotové, od nejnaléhavějšího.
+U každé položky napiš, jak poznám, že to platí i pro můj termín —
+tyhle údaje si musím ověřit na oficiálním webu.
+```
+
+Vrátí seznam, který je typicky delší, než čekáte, a obsahuje dvě až tři věci, na které byste zapomněli. Zásadní upozornění: lhůty a podmínky jsou modelův odhad, ne fakt. Použijte checklist jako seznam otázek, které si zodpovíte na oficiálních webech — sloupec „jak dlouho dopředu" je vodítko, ne závazek. Termíny si pak přeneste do kalendáře jako události s upomínkou — v konverzaci se na ně zapomene.
+
+### Dokumenty a co si vytisknout
+
+```text
+Jedu [datum] do [země], [počet osob, z toho děti ve věku].
+Cestuju [letadlem / autem].
+
+Sestav mi seznam dokumentů a věcí k zařízení:
+- co potřebuju u sebe (doklady, potvrzení, karty)
+- co má smysl mít vytištěné i v mobilu a proč
+- co si mám poslat sám sobě e-mailem jako zálohu
+- co mám nafotit pro případ ztráty
+
+Napiš to jako checklist k odškrtání. U položek, kde platí konkrétní
+pravidla podle země nebo dopravce, mi místo tvrzení napiš, kde přesně
+to mám ověřit — nechci od tebe závazné informace o vízech,
+platnosti dokladů ani podmínkách přepravy.
+```
+
+Pravidla o dokladech, vízech a přepravě jsou přesně ten typ informace, kde nesmíte věřit modelu: mění se, liší se podle občanství a mýlka stojí cestu. Vyžádejte si seznam otázek, odpovědi hledejte na stránkách ministerstva zahraničí a dopravce. Víc o tom, proč a jak ověřovat, je v tipu [ověřování faktů s AI](/tipy/ai-overovani-faktu).
+
+## Fáze 5: ověření u zdroje
+
+Tohle je jediný povinný krok celého postupu a jediné místo, kde nesmíte šetřit časem. Jazykové modely uvádějí nepřesnosti se stejnou jistotou jako fakta a otvírací doby patří mezi údaje, které se mění nejčastěji — sezonní režim, den zavíracího dne, státní svátek, rekonstrukce, poslední vstup hodinu před zavírací dobou. Zavřené muzeum vám sežere půl dne.
+
+Zásada zní: **AI navrhuje, člověk ověřuje a rezervuje.** Rezervaci ani platbu nedělá nástroj za vás — ani tehdy, když by technicky mohl.
+
+### Co ověřovat vždycky a co stačí namátkou
+
+Ověřujte **vždy**: otvírací dobu a poslední vstup u každého místa, kam jedete cíleně; existenci a termín rezervace; jízdní řády vlaků, trajektů a dálkových autobusů; ceny, na kterých stojí rozpočet; a všechno, co má pevný čas.
+
+**Namátkou stačí** u věcí, kde je chyba levná: kavárna, park, vyhlídka, čtvrť na procházku. Když bude zavřená kavárna, najdete jinou.
+
+**Nikdy neověřujte přes model to, co ověřuje web místa.** Otázka „má tohle muzeum v pondělí otevřeno?" položená v chatu vrátí odpověď, která zní stejně jistě, ať je pravdivá, nebo ne.
+
+```text
+Tady je můj itinerář:
+
+[vlož itinerář]
+
+Vyrob mi ověřovací seznam. Pro každé místo, kam mám podle plánu jít
+cíleně, jeden řádek:
+
+název místa | den a čas, kdy tam mám být | co konkrétně mám ověřit
+(otvírací doba, poslední vstup, potřeba rezervace, cena) | kde to
+ověřím (oficiální web, telefon, dopravce)
+
+Seřaď podle dne. Na začátek dej 5 míst, kde je chyba nejdražší —
+tedy tam, kde bych kvůli zavřeno přišel o půl dne nebo o výlet.
+
+Neuváděj otvírací doby ani ceny sám. Chci seznam k ověření,
+ne odpovědi.
+```
+
+Poslední věta promptu je celý trik: model má tendenci vám otvírací doby rovnou napsat a vy je pak podvědomě přijmete. Když si vyžádáte seznam otázek místo odpovědí, ověřování zabere hodinu a je to hodina, po které plánu můžete věřit.
+
+### Jízdní řády patří dopravci
+
+Vlaky, trajekty, lodě, dálkové autobusy a sezonní spoje jsou nejrizikovější položka celého itineráře, protože kolem nich stojí celý den. Model o nich mluví plynule, ale čísla spojů a časy odjezdů si domýšlí. Ověřte je vždy u dopravce nebo v oficiálním vyhledávači spojení — a udělejte to znovu den předem, protože sezonní řády a výluky se mění.
+
+Když ověřování děláte přes AI vyhledávač, chtějte u každého tvrzení zdroj a odkaz proklikněte; postup je v tipu [rešerše s ověřitelnými zdroji](/tipy/ai-vyhledavani-citace). Odkaz na oficiální stránku je informace, tvrzení bez odkazu není.
+
+### Po ověření: zapište, co se změnilo
+
+Ověřovací kolo skoro vždy něco změní — muzeum má v úterý zavřeno, poslední vstup je dřív, než jste čekali, vlak jede jen ráno. Ty změny musí zpátky do plánu, jinak máte dva itineráře a řídíte se tím špatným.
+
+```text
+Ověřil jsem otvírací doby a spoje a tohle nesedí:
+
+- [Místo A] má [den] zavřeno.
+- U [místo B] je poslední vstup v [čas], ne kdy jsem počítal.
+- Vlak do [místo C] jede jen v [časy], ne průběžně.
+- [Další zjištění.]
+
+Přepracuj itinerář tak, aby tyhle skutečnosti platily. Zbytek plánu
+měň co nejmíň — chci vidět, co všechno se kvůli tomu posunulo.
+Vrať celý itinerář a nad ním seznam změn.
+```
+
+## Fáze 6: tři typy cest, tři různé plány
+
+Stejný postup, jiné priority. Rozdíl mezi rodinnou dovolenou, městským víkendem a roadtripem není v destinaci, ale v tom, co plán musí unést.
+
+### Rodinná dovolená s dětmi
+
+U dětí rozhoduje rytmus, ne počet zážitků. Plán musí počítat s tím, že se ráno vyráží později, že odpoledne přijde únava a že jedna nepovedená hodina zkazí celý den. Věk napište přesně.
+
+```text
+Plánuju [počet] dní v [destinace] s dětmi [věk a věk] a [počet]
+dospělými. Bydlíme [kde]. Rozpočet [částka] na den celkem.
+
+Sestav itinerář, který respektuje dětský rytmus:
+- vyrážíme nejdřív v [čas], odpoledne potřebujeme pauzu [časy]
+- maximálně jedna „velká" věc denně, zbytek volnější
+- ke každému dni napiš, kde je poblíž hřiště, park nebo místo, kde
+  se dá jen tak sedět, a kde jsou veřejné toalety
+- u každého bodu uveď, jestli se tam dá s [kočárkem / unaveným
+  pětiletým], a jak dlouho to zhruba děti vydrží
+- jídlo: místa, kde se najedí i děti, a co dělat, když nechtějí
+  jíst v restauraci
+- ke každému dni jednu vnitřní variantu pro déšť
+
+Na konec napiš 5 věcí, které s dětmi v [destinace] nedělat, a proč.
+```
+
+Poslední bod bývá nejužitečnější. Odpovědi o vhodnosti pro kočárek berte s rezervou — terén, schody a dlažba jsou přesně ty detaily, které model nezná; ověřte je u konkrétních míst nebo v recenzích od rodičů. Podobná logika platí i pro cestu se seniory: napište místo věku dětí pohyblivost, kolik kilometrů denně je únosných a jestli je potřeba počítat s výtahem a častými pauzami.
+
+### Městský víkend
+
+Dva dny a chuť vidět hodně. Tady se hraje o minuty a o pořadí, protože každý zbytečný přesun ukousne z toho mála, co máte.
+
+```text
+Mám na [město] jen [2] dny — přijedu [den, čas], odjíždím
+[den, čas]. Bydlím [kde]. Jsme [kdo]. Nevadí nám svižné tempo.
+
+Postav plán, který maximálně využije čas:
+- začni od pevných bodů (příjezd, odjezd) a řekni, kolik hodin
+  reálně mám
+- rozděl město na 2 oblasti, jednu na den, ať se nepřejíždí
+- do plánu dej 3 věci, které bych si vyčítal, kdybych je nestihl,
+  a označ je jako priority
+- u každého bodu napiš, kolik minut tam stačí strávit, aby to mělo
+  smysl, a co je z toho vidět zvenku zdarma
+- kde bývají fronty, napiš, v kolik hodin je nejmenší nápor
+- večerní program obou dnů poblíž ubytování
+
+Na konci napiš, co jsem vzhledem k času musel obětovat a co by se
+vešlo, kdybych zůstal o den déle.
+```
+
+Označení priorit je důvod, proč to funguje: když se den rozjede, víte, co obětovat a co ne. Informace o frontách jsou orientační — ověřte, jestli místo prodává vstupenky s časovým slotem, protože ten frontu často řeší celou.
+
+### Roadtrip
+
+U cesty autem je hlavní veličinou čas za volantem. Plán, který vypadá krásně na mapě, může znamenat pět hodin denně v autě.
+
+```text
+Plánuju roadtrip: [start] — [cíl / okruh], [počet] dní, autem,
+[kdo jede]. Ubytování chceme [řešit předem / za pochodu].
+Maximálně [3] hodiny řízení denně, s dětmi potřebujeme zastávku
+každých [90] minut.
+
+Rozvrhni cestu na etapy:
+- každý den: odkud kam, kolik kilometrů, kolik hodin čisté jízdy
+- zastávky po cestě: co, kde, kolik času, proč to stojí za zastavení
+- kde přespat každou noc a proč zrovna tam
+- u každé etapy napiš, kde je poslední rozumné místo na tankování,
+  jídlo a přestávku
+- kolik nocí je na jednom místě — dej přednost delším zastávkám
+  před přejížděním každý den
+
+Zvlášť napiš:
+- co si mám ověřit ohledně parkování v jednotlivých městech
+- kde plán nejvíc trpí, když se zdržím o hodinu
+
+Časy jízdy jsou tvůj odhad — napiš, které úseky si mám ověřit
+v mapě, protože tam odhad může být hodně mimo.
+```
+
+Odhady jízdních dob ověřte v mapě pro konkrétní den a čas; horské průsmyky, trajekty, sezonní uzavírky a špička ve městě dokážou přidat hodiny. A pravidla o dálničních známkách, mýtu a nízkoemisních zónách hledejte na oficiálních webech, ne v chatu.
+
+## Fáze 7: itinerář na cestě
+
+Plán, ke kterému se na místě nedostanete, není plán. Poslední fáze je o tom, jak ho dostat z konverzace do mobilu, do rukou spolucestujících a do formy, která funguje bez signálu.
+
+### Jedna stránka, kterou máte i offline
+
+Nejjednodušší cesta: nechte si itinerář přepsat do jedné samostatné stránky. V Claude to zvládne [artefakt](/tipy/claude-artefakty-miniappky) — mini-aplikace přímo v chatu, kterou si otevřete v mobilu a pošlete odkazem.
+
+```text
+Převeď můj hotový itinerář do jedné přehledné stránky, kterou
+si otevřu v mobilu.
+
+Požadavky:
+- nahoře shrnutí cesty: termín, ubytování s adresou, nouzové
+  kontakty, čísla rezervací (nechám prázdné, doplním si sám)
+- pak dny za sebou, každý den sbalitelný
+- u každého bodu: název, čas, adresa, jak se tam dostat
+- u venkovních bodů viditelně označená varianta pro déšť
+- checkboxy u věcí, které se odškrtávají (rezervace, vstupenky)
+- velké písmo, dobře čitelné na slunci, funguje na mobilu
+- žádné odkazy ven, musí to fungovat i bez připojení
+
+Text nech přesně tak, jak je v itineráři, nic nepřidávej.
+```
+
+Vrátí stránku, kterou si uložíte do mobilu. Než odjedete, otevřete ji v režimu letadlo a ověřte, že se opravdu zobrazí — to je jediná zkouška, která platí. Kdo dává přednost poznámkám, nechá si itinerář přepsat do formátu pro svůj poznámkový nástroj a stáhne si ho ke čtení offline.
+
+### Sdílení rodině a spolucestujícím
+
+Itinerář má obvykle dvě publika: ty, kdo jedou s vámi, a ty, kdo zůstávají doma a chtějí vědět, kde jste. Každý potřebuje jinou verzi.
+
+```text
+Z mého itineráře udělej dvě zkrácené verze:
+
+1. Pro spolucestující: co si mají vzít, kde a v kolik se kdy
+   scházíme, co je kdy potřeba mít u sebe (vstupenky, doklady),
+   a čísla na sebe navzájem. Bez popisů památek.
+
+2. Pro rodinu, která zůstává doma: kde budeme kterou noc, adresa
+   a telefon ubytování, přibližný denní program jednou větou,
+   časy odletu a příletu, a kdy budeme nejspíš bez signálu.
+
+Obě verze co nejstručněji, ať se vejdou do jedné zprávy.
+Do verze pro rodinu nedávej čísla rezervací ani nic, co by
+nemělo být ve zprávě.
+```
+
+Poslední řádek stojí za zdůraznění. Cestovní plán je citlivý dokument: prozrazuje, kdy nejste doma, s kým jedete a čísla letů. Sdílejte ho lidem, kterým věříte, a čísla rezervací, kódy a doklady posílejte jinak než ve skupinovém chatu.
+
+### Balení podle předpovědi a plánu
+
+Balicí seznam odvozený z toho, co v itineráři je, funguje lépe než univerzální seznam z internetu — protože ví o celodenním výšlapu i o jednom večeru v restauraci s dress code.
+
+```text
+Tady je můj itinerář a tady předpověď počasí pro [destinace]
+na [termín], kterou jsem si našel:
+
+[vlož itinerář]
+[vlož předpověď: teploty přes den a v noci, srážky]
+
+Sestav balicí seznam pro [kdo jede], na [počet] dní.
+
+Rozděl na: oblečení | obuv | elektronika | hygiena a lékárnička |
+dokumenty | do příručního zavazadla | co koupit až na místě.
+
+Pravidla:
+- vycházej z toho, co v plánu skutečně je: kde se hodně chodí,
+  kde je potřeba slušnější oblečení, kde se bude sedět venku večer
+- u každé položky napiš, proč tam je (kvůli kterému dni nebo počasí)
+- označ, co se dá v případě nouze koupit na místě a co ne
+- počítej s [ruční zavazadlo do 8 kg / kufr]
+- nepiš univerzální rady, jen věci vázané na můj plán
+
+Na konec dej 5 věcí, na které se u tohohle typu cesty
+nejčastěji zapomíná.
+```
+
+Předpověď vkládejte ručně z meteorologického webu — model počasí nezná a odhad podle sezony není předpověď. Seznam si projděte a škrtejte; balicí seznamy mají tendenci nafouknout se do velikosti, kterou neunesete.
+
+### Fráze v místním jazyce
+
+Deset frází, které skutečně použijete, je lepší než aplikace, kterou na místě nezapnete.
+
+```text
+Jedu do [země] a neumím [jazyk]. Připrav mi kartičku s frázemi,
+které reálně použiju podle mého programu — v plánu mám hlavně
+[restaurace, MHD, trhy, muzea].
+
+Pro každou frázi:
+- česky, co říkám
+- jak se to píše v [jazyk]
+- jak to vyslovit, přepsané tak, jak by to četl Čech
+
+Zahrň:
+- pozdravy, prosím, děkuji, promiňte
+- objednání v restauraci, účet, alergie na [co]
+- nákup jízdenky a otázka na spoj
+- „nerozumím", „mluvíte anglicky?", „potřebuju pomoc"
+- 3 fráze, které se v [země] hodí a cizinci je neznají
+
+Maximálně 20 frází, seřazené podle toho, jak často je použiju.
+Bez tabulky, jednoduchý seznam pod sebou, ať se to vejde do mobilu.
+```
+
+Výslovnostní přepis je hrubý pomocník, ne kurz; u jazyků s tóny nebo netriviální fonetikou počítejte s tím, že vás podle přepisu nemusí pochopit. U alergií a zdravotních informací nespoléhejte na překlad z chatu — nechte si klíčovou větu ověřit z důvěryhodného zdroje, protože záměna slova u alergie má reálné následky.
+
+## Nejčastější chyby
+
+- **Zadání bez omezení.** „Naplánuj mi Řím" vrátí obsah z prvního článku na internetu. Bez tempa, rozpočtu, ubytování a informace, kdo jede, nemá model z čeho plán postavit — a vy pak přepisujete něco, co se přepsat nedá.
+- **Přebrat otvírací doby a ceny z chatu.** Nejdražší chyba celého postupu. Model tvrdí otvírací dobu se stejnou jistotou jako název ulice; sezonní režim, zavírací den a poslední vstup patří na oficiální web, ne do konverzace.
+- **Nechat plán bez rezerv.** Den zaplněný od devíti do devíti se rozsype při prvním zpoždění. Devadesát minut nezaplánovaného času denně není lenost, je to konstrukční prvek.
+- **Ignorovat geografii.** Plán může být obsahově skvělý a přitom vás každý den poslat přes celé město a zpátky. Kontrola shluků zabere pět minut a ušetří hodinu denně.
+- **Zapomenout na rezervační lhůty.** Vstupenka s časovým slotem vyprodaná měsíc dopředu se nedá dohnat na místě. Checklist s termíny patří do kalendáře, ne do konverzace.
+- **Nechat itinerář v chatu.** Konverzace se v zahraničí bez dat neotevře a scrollovat v ní na ulici je utrpení. Plán musí skončit na jedné stránce nebo v poznámce, kterou máte offline.
 
 ## Nejlepší nástroje
 
-- **[Claude](https://claude.ai)** — zvládne plán rovnou jako artefakt, tedy klikací stránku s dny, kterou si otevřete v mobilu a pošlete odkazem spolucestujícím.
-- **AI vyhledávače s citacemi** — na ověřovací kolo, kde u každého tvrzení vidíte zdroj; viz [rešerše s ověřitelnými zdroji](/tipy/ai-vyhledavani-citace).
-- **Mapy s vlastními vrstvami** — vložte si body z itineráře do vlastní mapy. Když je uvidíte pohromadě, okamžitě poznáte, který den má nesmyslné přesuny.
-- **[Notion](https://notion.com)** — pokud jedete ve větší skupině: jedna stránka s plánem, checklist na balení a odkazy na rezervace na jednom místě.
+- **[Claude](https://claude.ai)** — celý postup v jedné konverzaci, včetně čtení vloženého inzerátu ubytování nebo fotky jízdního řádu; plán zvládne rovnou jako artefakt, tedy klikací stránku s dny, kterou si otevřete v mobilu a pošlete odkazem spolucestujícím.
+- **AI vyhledávače s citacemi** — na ověřovací kolo, kde u každého tvrzení vidíte zdroj a odkaz si prokliknete.
+- **Mapy s vlastními vrstvami** — vložte si body z itineráře do vlastní mapy a stáhněte si oblast offline. Když je uvidíte pohromadě, okamžitě poznáte, který den má nesmyslné přesuny.
+- **Oficiální weby míst a dopravců** — jediný platný zdroj otvíracích dob, cen a jízdních řádů. Vše ostatní je odhad.
+- **[Notion](https://notion.com)** — pokud jedete ve větší skupině: jedna stránka s plánem, checklist na balení a odkazy na rezervace na jednom místě, dostupná všem.
+- **Foťák v mobilu** — vyfoťte jízdní řád, ceník nebo mapu na zastávce a nechte si je přečíst a přepsat do plánu; čtení fotek a skenů zvládají modely dobře i u ručně psaných cedulí.
 
 ## Co vám to přinese
 
-- **Čas:** celé odpoledne prohledávání se smrskne na dvacet minut zadávání a hodinu ověřování.
-- **Realističnost:** tempo zadáváte vy. Plán „s dvěma dětmi“ vypadá jinak než plán „chceme toho vidět co nejvíc“ — a právě tohle rozlišení běžné cestovatelské články neumí.
-- **Klid:** záložní plán na déšť a jeden bod navíc pro každý den znamenají, že se výlet nerozsype, když něco nevyjde.
-- **Peníze:** rozpočet zadaný předem drží plán v hladině, ve které chcete být, místo abyste ho zjistili až na místě.
+- **Čas:** celé odpoledne prohledávání se smrskne zhruba na dvacet minut zadávání, deset minut iterací a hodinu ověřování. U delší cesty s více zastávkami je úspora ještě větší, protože nejvíc práce je právě v rozvržení etap.
+- **Peníze:** rozpočet zadaný předem drží plán v hladině, ve které chcete být, místo abyste ho zjistili až na místě. Rezervační checklist navíc chytí věci, které se na poslední chvíli kupují dráž — nebo vůbec.
+- **Klid:** záložní plán na déšť, devadesát minut rezervy denně a jeden bonusový bod na každý den znamenají, že se výlet nerozsype, když něco nevyjde. A když přece, máte nouzový prompt v mobilu.
+- **Kvalita:** tempo zadáváte vy. Plán „se dvěma dětmi, odpoledne pauza" vypadá jinak než plán „chceme toho vidět co nejvíc" — a právě tohle rozlišení běžné cestovatelské články neumí. Výsledkem je cesta, která odpovídá tomu, jak reálně cestujete.
 
 ## Pro tip
 
-Než odjedete, nechte si z itineráře vygenerovat dvě věci navíc: **seznam věcí k zařízení předem** (co vyžaduje rezervaci a jak dlouho dopředu) a **seznam na balení odvozený z plánu** — když je v itineráři celodenní výšlap a jeden večer v restauraci s dress code, mělo by se to v kufru projevit. A hlídejte data: cestovní plán prozrazuje, kdy nejste doma, s kým jedete a čísla letů. Používejte **placený účet se smluvní ochranou dat, ne free chat**, a naskenované pasy, palubní lístky ani čísla platebních karet do konverzace nevkládejte vůbec.
+Uložte si zadání jako šablonu, ne itinerář. Plány jsou jednorázové, ale ten odstavec s omezeními — kdo jede, jakým tempem, co nechceme, kolik denně ujdeme — platí několik let. Nechte si ho jednou pořádně sepsat, uložte do [projektu s trvalým kontextem](/tipy/ai-projekty-kontext) a u další cesty už jen dopíšete destinaci a termín. Druhá cesta bude naplánovaná za deset minut a bude lepší než ta první, protože do šablony postupně doplníte i to, co vám minule nevyšlo („nikdy nic před desátou", „jeden den v týdnu úplně volný").
+
+A hlídejte data: cestovní plán prozrazuje, kdy nejste doma, s kým jedete a čísla letů. Používejte **placený účet se smluvní ochranou dat, ne free chat**, a naskenované pasy, palubní lístky ani čísla platebních karet do konverzace nevkládejte vůbec. Závěrečné pravidlo celého návodu je jednoduché: **kostru dělá stroj, ověřuje a rezervuje člověk.** Všechno, co má pevný čas nebo stojí peníze, musí projít vaším okem a oficiálním webem — teprve pak je to plán, a ne hezky vypadající text.

@@ -1,52 +1,449 @@
 ---
 title: "Artifacts: mini-apps without coding"
-excerpt: "Describe what you need, and Claude builds it right in the chat — a working calculator, quiz, or tracker. Share it with a link, nothing to install."
+excerpt: "A complete guide with prompts: how a description in plain words turns into a working calculator, quiz, tracker, or prototype, how to refine it through iteration, test it, share it with a link — and when an artifact stops being enough and it's time for a real application."
 category: "ai"
 platform: "vsude"
 audience: ["manazer", "student", "freelancer"]
 keys: []
-saves: "~1 day of development"
+saves: "~1 day of development per tool"
 date: "2026-08-12"
 ---
 
-The same scene keeps repeating in companies: someone needs a simple tool — a calculator, a form, a spreadsheet that computes something — and the answer is “a developer would have to build that, put it on the backlog.” Three months later everyone's forgotten about it, and people keep calculating things in Excel, each with a different version. Artifacts skip that queue entirely. **Claude can build a working mini-app or page right inside the chat, and you share it with a link — no installation, no developer, no waiting.** An hour of conversation instead of a day of coding. Where this way of working fits among the other levels of using AI is covered in [the chapter on AI and automation](/prirucka/ai-a-automatizace).
+The same scene keeps repeating in companies: someone needs a simple tool — a calculator, a form, an overview that computes something — and the answer is “a developer would have to build that, put it on the backlog.” Three months later everyone's forgotten about it, and people keep calculating things in Excel, each with a different version. Artifacts skip that queue entirely. **Claude can build a working mini-app right inside the conversation, and you share it with a link — no installation, no developer, no waiting.** An afternoon of conversation instead of a day of coding.
+
+This guide is entirely about turning “I could really use something that…” into a tool your team actually uses. We'll cover the prompt that produces a usable first version, iterating in conversation, testing before you send it out, sharing and maintenance, four ready-made scenarios by role, and finally the line beyond which an artifact stops being enough. Every phase has prompts you can copy — just fill in the brackets. You don't have to read it all at once; you'll build your first tool from Phases 1 through 3, and the rest is about making it last.
+
+Two rules apply across this whole guide. First: **an artifact may calculate and suggest — the decision stays with a human.** A tool that sends a quote, processes a payment, or grades someone on its own isn't a simplification; it's handing off responsibility to something that has no way to apologize. Second: **don't put sensitive data into an artifact.** Work with rates, rules, and formulas — not a client database, payroll, or health records. When you genuinely need to work with sensitive data, do it only on a paid or business account with contractual data protection, and anonymize everything that can be anonymized. Where this way of working fits among the other levels of using AI is covered in [the chapter on AI and automation](/prirucka/ai-a-automatizace).
 
 ## A typical scenario
 
-Tomáš, a sales director, has six salespeople and one persistent problem: everyone calculates a quote price their own way. Base rate, express surcharge, volume discount, shipping. The result is three different prices for the same job and roughly two complaints a month along the lines of “but my colleague quoted me a different amount.” Tomáš had wanted an internal calculator for two years; IT estimated a week of work and it never made it up the queue.
+Tomáš, a sales director, has six salespeople and one persistent problem: everyone calculates a quote price their own way. Base rate per unit, express surcharge, volume discount, shipping by distance, and for long-term clients, individual agreements on top of that. The rules are written down across three documents and one presentation from two years ago. The result: three different prices for the same job, roughly two complaints a month along the lines of “but my colleague quoted me a different amount,” and one job a quarter that goes out below cost because two discounts got stacked that were never supposed to stack.
 
-He spends an afternoon with Claude. He describes the rates, the discount rules, and what the output should contain. In ten minutes he has a first version of the calculator right in the chat — enter the parameters, out comes the price. He spends the next half hour refining it: adds a shipping field, disables discounts above twenty percent, adds a summary he can paste straight into a quote. Then he sends the salespeople a link. From Monday on, the whole team calculates the same way, and the pricing disputes disappear from the agenda.
+Tomáš had wanted an internal calculator for two years. IT estimated a week of work, and since a week of engineering time never frees up for sales, it never made it up the queue.
 
-## How to do it
+He spends an afternoon with Claude. He dictates the rates, the discount rules, and what the output should contain, and adds three real quotes from the past month along with their final prices — those show right away whether the tool calculates correctly. Ten minutes in, he has a first version of the calculator right in the chat: enter the parameters, out comes the price. He spends the next hour refining it: adds a shipping field, disallows stacking two discounts above twenty percent, adds a summary that copies into an email with one click, and puts the price list's effective date in the footer. Then he sends the salespeople a link.
 
-1. **Describe the tool in words, not a developer spec.** Say what it's for, what the user enters, and what should come out. “I want a quote calculator: I enter the quantity, product type, and deadline, it calculates the price according to these rules, and writes a summary I can paste into an email.”
-2. **Supply real rules and one example.** Rates, discount thresholds, exceptions — and one sample calculation with its result. Claude uses it to check its math is right, and you'll spot a mistake immediately.
-3. **Iterate in conversation.** The first version won't be final, and it isn't meant to be. Give feedback the normal way: “add a shipping field,” “don't let the quantity go negative,” “round the result to whole dollars.” Each tweak is one sentence, and the new version is ready to try right away.
-4. **Test the edges.** Enter zero, an enormous number, a nonsensical combination. Nobody will use a tool that breaks on the first typo.
-5. **Share it with a link.** Send colleagues the finished artifact as a link. Nothing to install — it opens in a browser, on a phone too.
-6. **Mind your data.** Don't put personal, financial, or health information into the artifact — work with rates and rules, not a client database. When you do need to work with sensitive data, do it only on a paid or business account with contractual data protection, and anonymize everything that can be anonymized.
+A month later, the tally looks like this: pricing disputes disappeared from the meeting agenda, no job went out below cost, and preparing a quote takes three minutes instead of twenty. A bonus Tomáš hadn't counted on: when the price list changed in April, the update took five minutes and everyone had it instantly — instead of a new spreadsheet circulating that half the team never bothers to save.
 
-## Where this comes in handy most often
+## Phase 1: what an artifact is and when it makes sense
 
-- **An internal calculator** — quote prices, margins, return on investment. The whole team calculates the same way.
-- **An onboarding quiz** — ten questions on policy or the product lineup, with results at the end.
-- **A simple tracker** — an overview of process steps, a pre-launch checklist for a campaign, a habit counter.
-- **An interactive explainer** — a page where the viewer moves a parameter themselves and watches the result change; invaluable for training sessions and for defending a proposal.
+Before you start building, it's worth ten minutes to understand what you're working with. The most common disappointment with artifacts isn't that they don't work — it's that someone asked them to do something they were never meant for.
+
+### What it looks like
+
+You write what you need. Claude replies with ordinary text, and a panel opens next to the conversation running the finished thing — a calculator with fields, a quiz with questions, a chart you can move around in. It isn't a description of a tool or instructions for building one: it's the tool itself, running, ready to try immediately. When you write “add a shipping field,” the panel redraws with the new version in moments. The original version doesn't disappear — you can go back to it.
+
+Once the tool is done, you share it with a link. Whoever gets it opens it in a browser, on a computer or a phone, installs nothing, and doesn't need their own account or any idea how the tool came to be. They just see the app.
+
+### What an artifact handles well
+
+- **Calculators and models.** Quote pricing, margins, return on investment, a payment schedule, material-consumption math. Anything that's “a formula plus rules plus exceptions.”
+- **Interactive tools.** A configurator, a decision-making wizard (“answer five questions and we'll tell you which process to use”), a template-based text generator, a converter.
+- **Quizzes and practice.** Questions with scoring, concept review, a policy knowledge check after onboarding.
+- **Trackers and checklists.** A process walkthrough, a pre-launch checklist for a campaign, a habit counter, a weekly planner.
+- **Prototypes.** A clickable mockup of a screen or a form that lets you and a client or team confirm what you actually want before anyone builds it for real.
+- **Visualizations.** A chart from your own numbers that you can interact with — move a parameter and watch the result change. Invaluable in training sessions and when defending numbers.
+
+### What not to expect from an artifact
+
+An artifact is a page that runs for whoever opened it. Count on it having **no memory shared between people**: what one person enters, another won't see, and it usually disappears once the window closes. That's a non-issue for a calculator; for tracking attendance across a whole team, it's a fundamental blocker. In the same way, it doesn't reach into your company systems on its own, and it has no login, no roles, and no audit trail of who changed what and when.
+
+That's not a shortcoming — it's a trade-off: this exact simplicity is what lets a tool come together in an afternoon. But the moment you need data that persists and is shared by several people, you're in a different category — and that's what Phase 7 covers.
+
+### A quick test for whether an artifact is the right answer
+
+Answer three questions. **Does the tool's logic fit on one page of description?** If not, split it into several smaller tools. **Is it enough for the tool to calculate from what the person just entered?** If it needs to know history or other people's data, an artifact can't carry that. **Does the person who uses the result own the responsibility for it?** If the tool is supposed to decide or send something on its own, that's not an artifact — that's automation, and automation belongs elsewhere; see [routines over mail and calendar](/tipy/claude-rutiny-posta-kalendar).
+
+Three yeses mean you'll be building the tool today.
+
+## Phase 2: a prompt that produces a usable first version
+
+The quality of the first version comes almost entirely from the prompt. The difference between “build me a quote calculator” and the prompt below is two hours of tweaking.
+
+### Six things your prompt must include
+
+**What it's for and who'll use it.** A tool for six salespeople on their phones looks different from a tool for you on a large monitor. **What the user enters** — list the fields, with type and range. **What rules apply** — rates, thresholds, exceptions, what can't be combined. **What should come out** — not just a number, but the shape of the output. **A worked example with its result** — this is the single most valuable item: without it, you have no way to tell the tool is calculating wrong. And **constraints** — what the tool should not do.
+
+### A complete calculator prompt
+
+```text
+Build me an internal quote-pricing calculator as an artifact.
+Salespeople will use it, often on a phone in front of a client.
+
+Inputs:
+- product type: [A / B / C]
+- quantity: whole number 1 to 10,000
+- delivery time: standard / express
+- shipping distance in km: 0 to 500
+- client type: new / returning
+
+Rules:
+- base price per unit: A = [1,200] Kč, B = [1,850] Kč, C = [2,400] Kč
+- volume discount: [5]% from [50] units, [10]% from [200] units,
+  [15]% from [500] units
+- express: [20]% surcharge on the goods price; express can't be
+  selected on orders over [500] units
+- shipping: [25] Kč per km, free above [300] km
+- returning client: [3]% discount, but the total discount may never
+  exceed [20]%
+
+Output:
+- line-item breakdown (goods, discounts, shipping) and total price
+  excluding and including [21]% VAT
+- a text summary of the quote ready to paste into an email
+- a red warning if the per-unit price would fall below [900] Kč
+
+Test case: product B, 250 units, express, 120 km, returning client
+= [fill in the correct result you calculated by hand].
+Show me first how your calculator handles this case.
+```
+
+You'll get a working calculator and, right alongside it, the result of the test case. If the result doesn't match your own hand calculation, don't fix the code yourself — say which number is wrong and what it should be, and let the rule get corrected. Watch out for discount order: if your prompt doesn't say whether the discount is calculated on the price before or after shipping, the model picks one on its own, and you might never notice.
+
+### When you're not sure what to ask for
+
+Sometimes you don't know exactly what you want until you see it. In that case, it's worth flipping the process and letting yourself be interviewed.
+
+```text
+I want to build a tool that [one-sentence description of what it's for].
+I haven't worked out the details yet.
+
+Don't build anything yet. First ask me the 6 things you need to know
+to build a usable first version — one question at a time, wait for my
+answer, then ask the next. Ask about specific numbers and rules,
+not general impressions.
+
+Once you have the answers, summarize the brief as bullet points and
+ask me if that's correct. Only build the artifact after I confirm it.
+```
+
+You'll get questions that force you to decide things you'd otherwise only stumble onto by version five. Insist on one question at a time — if six arrive at once, you'll rush through half the answers.
+
+### Rules you already have written down
+
+When rates and rules are already written down in documents, don't retype them into a prompt by hand. Upload them and let the tool be built from them.
+
+```text
+I'm attaching [a price list / policy / methodology] and want to build
+an artifact from it that calculates according to it.
+
+Work like this:
+1. List every rule from the documents that affects the calculation —
+   as a numbered list, with a reference to which part of the document
+   each one comes from.
+2. Separately, list anything that's ambiguous or contradicts itself,
+   and ask me how it actually works in practice.
+3. Once I confirm that, build the calculator according to item 1.
+
+Don't guess anything. Where a value is missing from the document,
+say so instead of estimating it.
+```
+
+Item 2 is the reason to phrase the prompt this way. Company price lists routinely contradict themselves and nobody notices, because they're always read by someone who “knows what it actually means.” A tool doesn't have that leeway — and this prompt surfaces the contradictions before they get baked into a tool six people are using. The permanent home for rates and rules is [a project with its own context](/tipy/ai-projekty-kontext): store them there once, and every later version of the tool builds on them.
+
+## Phase 3: iteration — turning the first version into something usable
+
+The first version isn't final, and it's not meant to be. The interesting work starts here: the tool is right in front of you, you click through it, and you immediately see what's missing. It's exactly this loop — try it, say a sentence, try again — that makes artifacts what they are.
+
+### How to phrase changes
+
+Three habits apply. **One change, one sentence.** “Add a shipping field” works; “add shipping, change the colors, fix the rounding, and add an export” leads to a version where one of those things is broken and you don't know which. **Describe behavior, not a solution.** Instead of “add validation,” write “when I enter zero units, show a message that the quantity must be at least one instead of a price.” And **say what shouldn't change** — for bigger edits, the sentence “leave everything else exactly as is” saves half an hour of hunting for what broke along the way.
+
+### A batch of edits after the first test
+
+Once you've clicked through the tool and have more than one note, you can send them all at once — but structured, with a clear boundary on what's fair game and what isn't.
+
+```text
+I tried the calculator and have these notes. Change only this,
+leave everything else exactly as is:
+
+1. The “quantity” field shouldn't accept negative numbers or letters.
+2. Round the price to whole units, but only at the very end — don't
+   round intermediate calculations.
+3. Below the total price, add a line for “price per unit after
+   discounts.”
+4. Make the email summary copyable with one button.
+5. The fields are too small on mobile — make them full-width.
+
+After making the changes, tell me exactly what you changed, and
+recalculate the test case from my original brief so I can see the
+result hasn't changed.
+```
+
+That last paragraph is insurance against silent regressions: the most common way a calculator breaks is an edit that changes something alongside the thing you actually asked for. If you have the test case recalculated after every batch of edits, you'll catch it immediately.
+
+### Look and usability
+
+People don't use a tool that looks unfinished — even if it calculates correctly. Ten minutes spent on appearance pays for itself.
+
+```text
+Leave the calculations exactly as they are and change only the
+look and usability:
+
+- make the result the largest element on the page, visible without
+  scrolling right after the fields are filled in
+- group the fields into blocks: what the order contains / where it
+  ships / who the client is
+- add a short explanation next to the “product type” field of what
+  each type means
+- use simple, calm colors; red only for warnings
+- make it easy to read on a phone and on a large monitor
+- add the tool's name and one sentence about what it does at the top
+
+Don't add any new features or fields.
+```
+
+You'll get a version ready to send to people. The ban on new features is deliberate — without it, the model tends to “take the opportunity” to add things you never asked for.
+
+### Reverting and branching
+
+When a new version doesn't work out, you don't have to describe your way back in words. The artifact panel keeps older versions, so you can return to one that worked and continue from there. This pays off especially when you're trying something bolder: just say up front, “this is an experiment — if it doesn't work out, we'll go back to the previous version,” and experiment without worry. And when a tool works and you just want a variant for another team, don't start over — have a copy made with different rates.
+
+## Phase 4: testing — before you send it to people
+
+A mistake in a calculator is silent. It doesn't crash, it doesn't print a warning — it just returns the wrong number, and that number looks perfectly normal. Before you send the tool out, run through three checks. They take twenty minutes and are the best-invested minutes in the whole process.
+
+### Rule check: have it explain how it calculates
+
+```text
+Leave the tool unchanged and list, in plain language, the rules it
+calculates by. For each rule:
+- what it does (one sentence, no jargon)
+- in what order it applies relative to the others
+- where that value came from — was it in my brief, or did you fill
+  it in yourself?
+
+Separately list:
+- every value I never gave you that you chose on your own
+- every place where my brief was ambiguous and you picked one
+  interpretation
+
+Don't fix anything, just describe it.
+```
+
+This is the single most important prompt in the whole guide. The list of “values you filled in yourself” tends to be longer than you expect — the VAT rate, the rounding method, discount order, what happens on an empty field. Go through it line by line and fix whatever's wrong. Leave the rest, and keep it written down: a year from now, when someone asks why the tool calculates it that way, you'll know.
+
+### Test cases, including edge cases
+
+```text
+Generate a table of 12 test cases for this calculator:
+
+- 4 ordinary cases, the kind that come up most often in practice
+- 4 edge cases: zero units, maximum units, exactly at a discount
+  threshold ([50] units, [200] units), zero distance
+- 4 nonsensical cases: a negative number, text instead of a number,
+  an empty field, a combination that the rules shouldn't allow
+  (express on an order over [500] units)
+
+Columns: inputs | what the tool should do | what it actually did.
+Leave the third column blank — I'll fill it in myself while testing.
+```
+
+You'll get a table you can print out or keep beside you and click through. Always test discount thresholds with a set of three values — one below, exactly at, and one above. A bug like “the discount applies from 51 units instead of 50” otherwise goes undetected, and in practice it usually turns into a dispute with a client.
+
+### A reality check
+
+The last check is the simplest and nobody does it: take three real cases from the past month where you know the correct result, and run them through the tool. If they match, you're done. If they don't, either there's a bug in the tool, or — which happens surprisingly often — it turns out the actual practice differs from what the official rule says. Both are valuable findings, and both should be resolved before six people get their hands on the tool.
+
+## Phase 5: sharing, operation, and maintenance
+
+A tool only its own author uses isn't a tool — it's a notebook. Sending the link out takes a minute; keeping the tool in shape is a few minutes of work every quarter, which of course is exactly what gets forgotten.
+
+### Sending it out
+
+You share the finished artifact with a link. Whoever gets it opens it in a browser, nothing to install. Before you send the link, check three things: whether the tool opens on a phone too, whether it's clear from the first screen what it's for, and whether any test data from your own trial run is still sitting in it.
+
+Along with the link, write three sentences: what it is, when to use it, and what to do if the result looks wrong (the answer should be “tell me, don't edit it by hand”). Without that, you get the worst possible outcome — people use the tool, quietly correct the result their own way, and nobody knows something's off.
+
+### Version and owner right in the tool
+
+```text
+Add a discreet line in the tool's footer with:
+- the tool's name and version
+- the date the rates are effective as of: [date]
+- the name of the person discrepancies should be reported to: [name]
+
+And add a collapsible “How this calculates” section, written in
+plain language, describing which rules are in use — so a
+salesperson can read it, not just a developer.
+
+Leave the calculations unchanged.
+```
+
+The “How this calculates” section does two things at once: the user can verify why they got the result they got, and you end up with documentation without having written it separately. The rates' effective date protects against the most typical silent failure — the team calculates with last year's price list for six months and nobody notices.
+
+### Maintenance
+
+Put a quarterly fifteen-minute review on your calendar: are the rates still current? Is anyone using it? Did someone send feedback that got lost? Retire tools nobody opens — a collection of twenty links where only three actually work destroys trust faster than having no tool at all.
+
+When rates change regularly, don't keep them in your head — keep them in a project. Then an update looks like this:
+
+```text
+The project has an updated price list effective [date].
+Take my existing tool [name] and update the rates in it to match
+the new price list.
+
+- change only the numbers; the logic and appearance stay the same
+- list every change in the form: what it was → what it is now
+- update the effective date in the footer
+- show me the old and new results side by side for the test
+  case [description]
+```
+
+The side-by-side comparison of the old and new result is the final check before sending it out: if the price changed differently than you expected, something got rewritten wrong.
+
+## Phase 6: four ready-made scenarios by role
+
+The following four prompts are ready to use right away — swap out the brackets and you have a tool.
+
+### Sales: what to do after the calculator
+
+A quote calculator is the first step. The natural next move is a tool that helps a salesperson decide, not just calculate: a check on whether a deal is even worth taking.
+
+```text
+Build an artifact called “deal checker” for salespeople.
+
+The user enters: the deal's price, direct costs, an estimate of our
+team's hours, payment terms in days, and risk (low/medium/high).
+
+The tool calculates and shows:
+- margin in Kč and percent
+- hourly profitability (margin divided by hours) compared against
+  our target of [X] Kč/hour
+- a simple traffic light: green = take it, yellow = discuss with a
+  manager, red = don't take it, with thresholds of [fill in]
+- for yellow and red, list exactly what's wrong and by how much the
+  price would need to rise or the hours would need to drop for it
+  to turn green
+
+The traffic light is a recommendation, not a decision — say that
+visibly right in the tool.
+```
+
+That last sentence isn't cosmetic. Once a tool has a color, people tend to treat it as a verdict — and it's exactly the borderline deals where a human is needed.
+
+### HR: an onboarding quiz
+
+```text
+Build an artifact: an onboarding quiz for new colleagues.
+The source material is the attached [policy / handbook] — write
+questions strictly from it, don't add anything from general
+knowledge.
+
+- 12 questions, each with 4 options and exactly one correct answer
+- phrase questions as situations (“what would you do if…”), not
+  as verbatim wording from the policy
+- right after each answer, show whether it was correct and explain
+  why, with a reference to the relevant part of the document
+- at the end, show a score, a list of topics the person got wrong,
+  and a recommendation of which sections to reread
+- let the quiz be restarted with the questions in a different order
+
+The result isn't sent anywhere and isn't stored anywhere — say that
+in the quiz's introduction so the new hire knows it.
+```
+
+That last paragraph matters not just technically but humanly: a quiz a new hire thinks HR is grading gets filled out differently from a quiz meant purely for self-check. And because the artifact doesn't send data anywhere, it's also the truth.
+
+### Teacher: practice tool tailored to the material
+
+```text
+Build a practice artifact for [grade level] students on the topic
+of [topic].
+
+- generates problems of the type [description, e.g. one-variable
+  equations with a whole-number solution], always new, never the
+  same ones repeated
+- three difficulty levels, switchable
+- after each answer, shows whether it's correct, and for a wrong
+  answer, shows the step-by-step solution — not just the result
+- a counter of how many the student has gotten right in a row
+- a “next problem” button and a “show me the worked solution” button
+
+Age-appropriate language, no unnecessary jargon.
+No grading and no sending results anywhere.
+```
+
+You'll get a practice tool you can project on a board or send to students as a link. Before you turn it loose on a class, generate twenty problems and go through them: generators occasionally produce a problem with no clean solution or ambiguous phrasing. And the rule about grades holds without exception — **practice, yes; grading is the teacher's job.**
+
+### Freelancer: a prototype for the client instead of back-and-forth
+
+```text
+Build a clickable prototype of [screen description, e.g. a booking
+form for a hair salon] as an artifact.
+
+- works by clicking: lets someone walk the whole flow from start to
+  finish and see what happens at each step
+- use fictional but realistic data
+- no connections to anything, nothing gets sent anywhere
+- a short note on each screen explaining what will happen behind
+  the scenes in the real version
+
+The goal is to agree with the client on the flow and scope, not the
+final look. Write me 8 questions to ask the client during the demo.
+```
+
+This is the cheapest way to find out the client had something different in mind. You trade an hour of work for certainty that the brief is right — and the eight demo questions keep the meeting from sliding into button colors instead of what the tool actually needs to do. Just never present the prototype to a client as a finished thing: it looks functional, and it's easy for them to conclude the work is nearly done.
+
+## Phase 7: when an artifact isn't enough
+
+An artifact is a great start and a bad ending once a tool outgrows it. Five signs it's time for a real application:
+
+- **The data needs to persist and be shared by several people.** The moment you need what one person enters to be visible to another and still be there a month later, you need a database.
+- **Personal or sensitive data is involved.** Clients, employees, health or financial records — that belongs in a system with controlled access and a clear data processor, not a link circulating around the company.
+- **You need to know who did what.** An audit trail, approvals, roles, and permissions are exactly what an artifact doesn't have.
+- **It has to talk to your systems.** Connecting to inventory, a CRM, or accounting is a different league — that path runs through [MCP and connectors](/tipy/mcp-konektory-usb-c-pro-ai) or custom development.
+- **The tool has become critical.** When an outage or a silent bug would cause real damage, you need something with an owner, tests, and backups — not a link from a conversation.
+
+The good news: in that situation, an artifact isn't wasted work — it's the best possible spec. You have a working model of what you want, tested by the people who'll actually use it. Writing a spec from that is a different thing entirely from starting with a blank page.
+
+```text
+This artifact is used by [number] people and has outgrown what an
+artifact can carry: we need [data storage / login / integration
+with system X].
+
+Write a spec for a developer based on this tool:
+1. What the tool does today — feature by feature, including every
+   calculation rule and the order they apply in
+2. What needs to be added for it to work for more people
+3. What data will be stored and which of it is personal data
+4. Roles and permissions: who's allowed to do what
+5. Open questions that we need to decide, not the developer
+6. What from today's tool we specifically don't need, and why
+
+Write it factually, no marketing. Don't propose the technology —
+that's the developer's call.
+```
+
+You'll get a document you can take to IT or a vendor. Go through item 5 first — decisions left to the developer usually get decided differently than you'd want. If the tool needs to live in a company repository and work with files, [Claude Code](/tipy/claude-code-osobni-automatizace) is the natural next step; the bigger picture of rolling out AI at a company is in [the complete guide](/tipy/ai-ve-firme-kompletni-pruvodce).
+
+## Common mistakes
+
+- **Requesting a tool without a test case.** Without a number you know is correct, you have no way to tell a calculator is computing wrong — and a bug in a formula is silent.
+- **Sending the first version to people.** The first version is a draft to try out. Between it and a tool your team actually uses lies twenty minutes of testing edge cases.
+- **Changing ten things at once.** When something breaks after a batch of edits, you won't know what caused it. One change, one check, next change.
+- **Letting the artifact decide.** A traffic light, a recommendation, a score — all of it is input for a human. The moment a tool sends, approves, or grades something, you've crossed the line.
+- **Uploading personal data into an artifact.** Rates and rules, yes; a client database or payroll, no. Sensitive data belongs only on a paid or business account with contractual data protection, and even there only anonymized.
+- **Forgetting the effective date.** A tool keeps calculating reliably even with last year's rates. A date in the footer and a quarterly review cost a few minutes and save awkward situations.
+- **Building something with an artifact that should be an application.** When you need shared data, login, and an audit trail, an artifact gets you to a better spec — not to the destination.
 
 ## The best tools
 
-- **Artifacts in Claude** — the tool is built right in the conversation and shared with a link; nothing to install.
-- **Projects in Claude** — save rates, price lists, and rules here; Claude knows them in every conversation, and the artifact is built on top of them.
-- **Claude Code** — once the tool outgrows a single page and needs to live in a company repository; it works with files and git.
-- **Forms and spreadsheets (Google Forms, Sheets)** — an honest alternative wherever collecting responses is all you need, with no extra logic.
+- **Artifacts in Claude** — the tool is built right in the conversation, ready to try immediately, and shared with a link; nothing to install, for you or your colleagues.
+- **Projects in Claude** — a permanent home for a price list, rates, and company rules; every later version of the tool builds on them, and an update is one sentence.
+- **Claude Code** — once a tool outgrows a single page, it belongs in a repository, working with files and git.
+- **Connectors and MCP** — the path to data from your own systems, for when what a person types in isn't enough anymore.
+- **Google Forms and Sheets** — an honest alternative wherever it's just about collecting responses with no extra logic; they store data permanently, which an artifact can't do.
 
 ## What you get out of it
 
-- **Time:** a tool that would take a developer a day comes together in an afternoon hour. The IT queue gets shorter by everything that never should have been on it.
-- **Consistency:** instead of six versions of a spreadsheet, one link that everyone shares.
-- **Independence:** you don't have to ask anyone or wait for capacity to free up. You make the tweak yourself, in the conversation.
-- **Better specs:** even when a proper app gets built eventually, the artifact serves as a prototype that shows you what you actually want.
+- **Time:** a tool that would take a developer a day comes together in an afternoon — and an edit that would otherwise wait weeks in a queue is a matter of one sentence. For a team that builds three or four tools like this a year, that's conservatively dozens of hours saved.
+- **Money:** the real savings aren't in development costs avoided but in mistakes that never happen: one job that goes out below cost per quarter usually costs more than all the time spent building the calculator.
+- **Peace of mind:** disputes over whose calculation is right disappear from the agenda. Everyone calculates the same way, and it's traceable how.
+- **Better specs:** even when a proper application eventually gets built, you arrive at the developer with a working model tested by real users, not a paragraph of wishes.
 
 ## Pro tip
 
-Before you send the tool out, have Claude list the rules it's calculating by and go through them line by line. A mistake in a rule is silent — it doesn't crash, it just quietly returns the wrong number. And hold the line that applies to every automation: **an artifact may calculate and suggest; the decision and sending the quote stay with a human.** When more than one person uses the tool, add the date rates were last updated — it'll save you the unpleasant discovery that the team's been calculating with last year's price list for six months.
+Before you send a tool out, have it list the rules it calculates by, **and especially the values the model filled in on its own** — it's the prompt from Phase 4, and it's the one check that catches a mistake before a client does. An advanced trick on top: build a “calculator of calculators” — one artifact holding links and one-sentence descriptions of every tool your team uses, along with the date of its last review. Otherwise, a year from now, three people end up with three different links to three different versions of the same thing, and nobody knows which one is current.
+
+And the closing rule that overrides everything else: **an artifact calculates, a human decides.** The moment a tool would send, approve, or grade something on its own, it's stopped being a calculator and become automation — and automation deserves more than an afternoon of conversation.
