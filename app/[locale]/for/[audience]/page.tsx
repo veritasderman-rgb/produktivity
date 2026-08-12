@@ -5,9 +5,8 @@ import { audiences, getAudience, getAudienceByAnySlug, audiencePath } from "@/li
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 
 /** Landing pages profesí v angličtině: /for/<slug>. Čeština má vlastní segment /pro/<slug>. */
-export function generateStaticParams({ params }: { params: { locale: string } }) {
-  if (params.locale !== "en") return [];
-  return audiences.map((a) => ({ audience: a.slug.en }));
+export function generateStaticParams() {
+  return audiences.map((a) => ({ locale: "en", audience: a.slug.en }));
 }
 
 export async function generateMetadata({
