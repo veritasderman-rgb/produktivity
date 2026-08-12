@@ -1,6 +1,6 @@
 ---
 title: "The follow-up watchdog: AI remembers who never replied"
-excerpt: "An automation tracks sent emails that got no reply and drafts a polite reminder after a set delay. You still hit send — you just never forget again."
+excerpt: "A complete walkthrough with prompts: how to set up a routine that finds threads without a reply, tracks the deadline by message type, drafts a reminder pitched at the right level of politeness, and once a week lists every open loop. AI drafts it, you always send it."
 category: "ai"
 platform: "vsude"
 audience: ["freelancer", "manazer"]
@@ -9,38 +9,439 @@ saves: "~20 min a day"
 date: "2026-08-11"
 ---
 
-Most lost deals and stalled projects didn't end on “no.” They ended on silence. You wrote, the other side put it off for later, later never came — and you either forgot to follow up or felt awkward chasing it. A follow-up watchdog solves this mechanically: it tracks who you wrote to and who hasn't replied, and after a set delay, it hands you a ready-made, polite reminder.
+Most lost deals and stalled projects didn't end on “no.” They ended on silence. You wrote, the other side put it off for later, later never came — and you either forgot about it or felt too awkward to follow up. It's not a memory problem: your inbox isn't a to-do list, and Sent Mail can't answer the one question you actually care about — “what's still waiting on someone?”
+
+**The useful unit isn't the email, it's the open loop: a thread where someone is waiting on someone else.** Either you're waiting, or someone's waiting on you. As long as the loop is open, nothing moves forward, and the longer it stays open, the more it costs to close — every reminder needs a bigger apology than the last one. A follow-up watchdog is a routine that runs these loops for you: it checks them every day, drafts a polite reminder for the ones that have gone stale, and once a week hands you the complete list.
+
+This guide goes from zero to a working watchdog: recognizing loops, deadlines and tone escalation, connecting your inbox, the complete routine brief, business operations, the weekly review, and finally tuning and boundaries. Phases 1 through 4 build the watchdog; the rest makes it useful. One rule governs everything: **the routine may draft anything; only a human may send it.** A reminder is a social act, not a technical operation.
 
 ## A typical scenario
 
-Eva, a consultant, sends out five proposals in a week. Two get replies on their own, three go quiet. Eva doesn't set a reminder because “I'll remember,” and three weeks later only one of them comes to mind. She follows up late and with an apology. One proposal falls through the cracks entirely — the client picks someone who reached out on time.
+Eva, a consultant, sends out five proposals in a week and two documents for approval. Two proposals get replies on their own, three go quiet. Eva doesn't write herself a reminder because “I'll remember that,” and three weeks later only one of them comes to mind. She follows up late, with an apology, feeling like she's being a nuisance. One proposal falls through the cracks entirely — the client picks someone who reached out on time in the meantime. An overdue invoice sits unpaid for nineteen days because Eva “doesn't want to make a scene.”
 
-With a watchdog in place, it looks like this: on the fifth day with no reply, a short message appears in the Drafts folder, following up on the original thread, in the same tone, with a summary of what it was about. Eva reads it, shelves it for one client, sends it for two others. It takes two minutes. Silence stopped being an accident and became a process.
+After setting up the watchdog, her week looks different. On the fifth business day after a proposal goes unanswered, a short message appears in the Drafts folder, following up on the original thread: a one-sentence recap, one question, an offer of a next step. Eva reads it, shelves it for one client (she knows he's traveling), and sends it for two others. It takes two minutes. Friday morning she gets a summary of sixteen open loops, split into “I'm waiting” and “someone's waiting on me” — and closes four of them right there with a single sentence. After two months, her average time to a first reminder dropped from seventeen days to five, and the number of threads that vanished without a reply fell from four a month to one. None of it was sent by AI — Eva sent all of it, she just stopped having to hold it in her head.
 
-## How to do it
+## Phase 1: what an open loop is and how to spot one
 
-1. **Decide what actually gets watched.** Not everything. Typically, sent emails containing a question or a proposal. The simplest approach is to tag such messages when you send them — or send them from a specific folder the automation monitors.
-2. **Pick a delay based on the type.** A proposal: three to five business days. A routine question to a colleague: two days. A long negotiation: a week. One universal deadline usually fits nothing.
-3. **Let the automation check for replies.** The condition is simple: is there a newer message from the other side in this thread? If yes, the watchdog stays quiet. If not, it starts preparing a reminder.
-4. **Give AI a tone, not just a task.** A prompt like “write a short, polite reminder, follow up on the original message, restate what it's about in one sentence, offer help, don't push and don't guilt-trip.” Two to three sentences are enough — a longer reminder lowers the odds of a reply.
-5. **Save it as a draft in the same thread.** Never as a sent message, and never as a new email — following up in the original thread reminds the other side of the context.
-6. **Set up a daily two-minute pass.** Go through the drafts at once, say after lunch. Send some, hold some, delete some, because you know things the automation can't.
-7. **Set a cap.** No more than two reminders per thread. A third one isn't a follow-up anymore — it's pestering.
+A watchdog that treats every sent email as a loop will hand you forty reminders tomorrow, and you'll turn it off. A watchdog that only tracks genuine waiting will hand you three, and you'll send all three.
+
+### Three states instead of two folders
+
+- **I'm waiting.** The last word was yours, and it contained a request: a question, an offer, a request for approval, an ask for materials. Nobody responded.
+- **I owe a reply.** The last word was theirs, and they're waiting on you. Nobody tracks this state, yet for every reminder you send, you'll receive one back.
+- **Done.** The matter closed or stopped being relevant. Doesn't belong in the watch list.
+
+Sent Mail doesn't distinguish between these states: it holds meeting confirmations, thank-you notes, and a two-hundred-thousand-crown offer, and they all look the same. So the first thing to ask AI for isn't a reminder — it's an inventory.
+
+```text
+Go through my mail from the last [90 days] and take an inventory
+of open loops. Don't save, label, or send anything — this
+run is read-only.
+
+Split threads into two lists:
+A) I'M WAITING — the last message is mine and contains a question,
+   an offer, a request for approval, or an ask for materials,
+   and the other side hasn't replied since.
+B) I OWE A REPLY — the last message is from the other side, they
+   want something from me, and I haven't sent anything in that
+   thread since.
+
+For each item, give: the other party (name, not address) | subject
+| how many days it's been open | what it's about (one sentence) |
+what happens if it never gets resolved. Sort by age, oldest first.
+
+At the end, write how many threads you went through in total and
+over what period, which ones you weren't sure how to classify and
+why, and what types of messages you excluded as "nothing is being
+waited on."
+```
+
+You'll get back a list that typically has twice as many items as you expected; the closing notes about uncertainty are the seed of your rules. Watch out: the model guesses whether a message “wants something” from its phrasing, and it trips on polite hedges — a line like “let me know if anything comes up” can be a real request or just filler. Whatever doesn't belong on the list, cross it out right away, before it turns into a rule.
+
+### The signals that flag actual waiting
+
+For the watchdog to stop guessing, it needs a description of what your requests actually look like. The best source is your own sent mail — so follow up the inventory with a second prompt:
+
+```text
+Take the threads from list A and turn them into rules for
+recognizing, in my sent messages, that I'm waiting on a reply:
+1. Real phrasing I use to ask for something — exact sentences
+   from my emails, not categories. Split them into: question,
+   request for approval, offer, ask for materials, proposed date.
+2. Phrasing that looks like a request but isn't (polite filler,
+   closing pleasantries). For each, note what signals that nothing
+   is actually being waited on.
+3. Five signs of an email where no reply is expected at all.
+4. A three-line decision rule that turns those signs into a
+   yes/no/uncertain answer.
+
+Write the output as finished rules, in the imperative.
+```
+
+Point 2 is the valuable one: a false positive is worse than a miss, because a reminder about something you never actually asked for looks confused. And insist on an “uncertain” category — a watchdog that always has to decide will decide wrong, and you won't know it. The most reliable detection is still your own: tag messages that matter when you send them (`Waiting`, `Proposal`, `Needs approval`); the routine then watches those first and treats the rest of the inbox as a second layer. For an easy way to set up that tagging with filters, see the tip on [Gmail search operators](/tipy/gmail-vyhledavaci-operatory).
+
+## Phase 2: deadlines, tone escalation, and exceptions
+
+A watchdog without deadlines is an alarm clock with no time set. And one universal deadline doesn't fit anything: a colleague who needs to approve a sentence isn't a client deciding on a six-month contract.
+
+### Deadline by thread type
+
+- **A question to a colleague or internal approval:** 2 business days. Internal matters rot fastest, because nobody treats them as important.
+- **A proposal or quote:** 3 to 5 business days. Any sooner and you look impatient; any later and the client is already talking to competitors.
+- **Materials awaiting approval:** 3 business days; 5 for multi-stage approvals.
+- **A long-running negotiation or partnership:** 7 to 10 business days.
+- **An overdue invoice:** 3 business days past the due date, then according to your company's process.
+- **A government office or large organization:** 10 business days, then pick up the phone instead.
+
+Business days matter more than they seem to: “five days” spanning a holiday week means a reminder lands when the recipient wasn't even at work. Refine these defaults after a month using your own history — one sentence (“go through the last six months of mail and calculate the median time to a first reply, separately for colleagues, clients, prospects, vendors, and government offices”) gets you a calibration tailored to your own traffic. But a group with four threads doesn't support any real median, and the model will happily compute one anyway; make it say it doesn't have enough cases instead.
+
+### Three tiers: the first reminder isn't the third
+
+The most common mistake isn't a tone that's too soft or too hard — it's that the messages stay the same: the second repeats the first, and the third repeats the second. The recipient has no reason to answer on the third try if they didn't answer on the first. **Escalation isn't about a harder tone — it's about changing what you're asking for in each round.**
+
+**First reminder (service).** Assumes good faith: the message got buried, it happens to everyone. Light tone, no reproach. A one-sentence recap and one clear question, ideally with a small new piece of value — an added document, a clarified date. Under five sentences.
+
+**Second reminder (decision).** Assumes it's not forgetfulness but priority. Simplifies the reply to a minimum: two concrete options, two dates, or a one-word answer. States the consequence, plainly, without pressure (“I can hold the June slot until Friday”). Under four sentences.
+
+**Third, final message (closing).** Doesn't force a reply, but closes the matter and leaves the door open: “it looks like this isn't a priority right now, so I won't keep bothering you — if that changes, I'd be happy to pick it back up.” Counterintuitively, this one often gets the best response rate, because it removes the recipient's obligation to answer well. And it's the last one: a fourth message isn't a follow-up anymore, it's harassment.
+
+```text
+Here are 10 of my real emails, so you can see how I write:
+[paste emails, names anonymized]
+
+Put together a three-tier reminder card for my routine that
+watches threads without a reply. For each tier (1st reminder,
+2nd reminder, final message), write:
+- the purpose in one sentence: what I want from the other side
+  in this round
+- three style rules (length, formality, what can't be missing)
+- a sample message for the situation "I sent a proposal and
+  nobody got back to me" — in my voice, based on the attached
+  emails
+- one sentence that must NEVER appear at this tier, and why
+
+Banned everywhere: guilt-tripping ("as I mentioned last time"),
+false urgency, passive aggression, apologizing for writing,
+and the phrases "just a gentle reminder" and "don't hesitate
+to reach out."
+
+At the end, add a table: tier | what changes from the previous one.
+```
+
+Put the card into persistent context, and the routine will draw on it. Read the samples out loud, and rewrite anything you'd never actually say — those exact sentences are what the watchdog will keep writing. Check the “what changes” column the hardest: if only the polite wrapping changes between tiers and not the actual ask, the escalation isn't doing its job.
+
+### Exceptions: who never gets a nudge
+
+A reminder sent into the wrong situation costs more than you'll gain from ten correct ones.
+
+```text
+Add an "exceptions" section to my follow-up watchdog rules.
+Context: [role, industry, company type]. The routine watches
+threads without a reply and drafts reminders that I approve
+by hand.
+
+Suggest situations and recipients where the routine must NOT
+draft a reminder, and should only list the thread in the
+summary with a note explaining why. Start from these categories
+and add more:
+- people where a reminder would damage the relationship more
+  than silence would (a manager, a key client, the other side
+  in a negotiation)
+- sensitive content: legal matters, complaints, grievances,
+  HR and health-related issues
+- condolences, personal messages, illness, family reasons
+- recipients with an automatic out-of-office reply
+- threads where another channel is already handling it (a call,
+  a meeting, someone else on the team leading it)
+- tenders and RFPs with a fixed deadline
+- recipients on my "always handle manually" list
+
+For each item, write: how to recognize it (based on what,
+exactly), what the routine should do instead of drafting a
+reminder, and one false-positive situation — when it looks
+like an exception but is actually a normal thread.
+```
+
+Trim the list down to what's actually true in your work — twenty exceptions are as useless as none. Read the false-positive section carefully: too broad an exception (“anything with the word contract in it”) will silence the watchdog entirely. Add two exceptions yourself: an **out-of-office reply** (the deadline only starts counting from the return date), and **threads that got resolved somewhere else** — a phone call closes the loop even if there's no trace of it in the inbox afterward.
+
+## Phase 3: connecting your inbox and a dry run
+
+The goal is for AI to see your inbox directly — a watchdog you have to copy emails into by hand is just a more complicated way of forgetting.
+
+### What the connector will see, and what to allow it
+
+Connectors (built on the MCP protocol) are a standardized way to link AI to everyday tools: email, calendar, files, notes. The model can then search your inbox, read threads, and save drafts — within whatever scope you allow. The tip on [connectors as USB-C for AI](/tipy/mcp-konektory-usb-c-pro-ai) covers the concept.
+
+You need **email**, and a **calendar** helps: without it, the routine might draft a reminder right when you have a meeting with that person in two hours. Check three things before you turn anything on. **Which account this runs on:** work email belongs on a work account with contractual data protections, not a personal chat. **What the connector sees:** usually the whole inbox, not one folder — you handle scoping through instructions in the brief, so the exceptions from Phase 2 need to actually be written there. **What it's allowed to write:** saving drafts and labels is enough; the watchdog doesn't need to send, delete, or archive anything.
+
+Put the rules from Phases 1 and 2 into the instructions of a **Project** (persistent context) named something like “Follow-up watchdog.” The routine then doesn't need them re-supplied every time, and you edit them in one place.
+
+### Dry run: two days of read-only
+
+Before the watchdog starts writing drafts, let it run read-only for two days: use the brief from Phase 4, but replace points 5 and 6 with the instruction “don't save, label, or create any draft; instead return a table of threads with columns: state, days since the last message, deadline, ready yes/no/uncertain, which tier, and which exception,” and add a question asking how many reminders the routine would draft today if it were live.
+
+The “uncertain” column is a goldmine — every row in it is a missing sentence in your rules. And that last number is your brake: if the routine would draft thirty reminders on day one, don't go live — something's wrong with either the deadlines or the detection.
+
+## Phase 4: the complete routine brief
+
+The watchdog's brief has seven parts: **scope**, **detection**, **deadlines**, **exceptions**, **writing**, **saving**, and **summary**. The last point matters most: a watchdog with no summary is a black box — you can't tell whether it drafted nothing today because there was nothing to draft, or because the connector disconnected.
+
+```text
+Every business day in the morning, go through my work email and
+draft reminders for threads that are waiting on a reply. Follow
+the rules in this Project (signals, deadlines, the three-tier
+card, exceptions).
+
+1. SCOPE
+Go through threads from the last [60 days] in Inbox and Sent.
+Ignore Spam, Promotions, and the [HR, Legal] folders. Skip
+threads tagged [No follow-up].
+
+2. DETECTION
+Determine the state of each thread:
+a) I'M WAITING — the last message is mine and contains a
+   request per my signals; the other side hasn't replied since
+b) I OWE A REPLY — the last message is from the other side,
+   they want something from me, and I haven't sent anything
+   since
+c) DONE — the loop is closed
+d) UNCERTAIN — you can't decide
+Ignore threads in state c). For d), just list them in the summary.
+
+3. DEADLINE
+For state a), determine the thread type and count BUSINESS days
+since my last message; don't count public holidays. A thread is
+ready once it's past the deadline for its type. After an
+out-of-office autoreply, only start counting from the return date.
+
+4. EXCEPTIONS
+Check the exceptions in the rules; a thread under an exception
+should only be listed in the summary, with which exception it
+falls under. Check the calendar: if I have a meeting with that
+person within [3 days], don't draft a reminder.
+
+5. WRITING
+Work out which reminder number this is (how many of my
+unanswered messages are in a row in this thread), and write a
+message at the matching tier from the card:
+- 1st reminder — service tone, one-sentence recap, one question,
+  no reproach
+- 2nd reminder — offer two options or two dates, so it can be
+  answered in one word
+- final message — close the loop and leave the door open; don't
+  draft anything further after it
+For all tiers:
+- follow up in the original thread, don't start a new one
+- no more than [5] sentences, plus a recap of what the original
+  message was about, so the other side doesn't have to scroll
+- never promise a price, discount, deadline, or contract term;
+  write [FILL IN: what] instead
+- no guilt-tripping, no false urgency, no apologizing for
+  writing, and sign off with [signature]
+For state b), don't draft anything — just list the thread in
+the summary.
+
+6. SAVING
+Save the draft as a reply within the correct thread, in the
+Drafts folder. NEVER send anything. Don't delete, archive, or
+edit any message.
+
+7. SUMMARY
+- how many threads you went through and over what period
+- DRAFTED: other party, topic, which reminder number, one
+  sentence on what the draft says, and whether it contains
+  [FILL IN]
+- NOT DRAFTED: ready threads with no draft, and why (exception,
+  a meeting on the calendar, the cap)
+- I OWE A REPLY: threads where someone's waiting on me, by age
+- UNCERTAIN, and what was missing from the rules
+Sort by urgency, most pressing first.
+```
+
+Four places where the brief most often breaks: **counting business days** (otherwise reminders arrive Monday for a weekend), **working out which reminder number it is** — check by hand the first week —, the `[FILL IN]` marker, which you should verify the routine actually uses instead of filling in a plausible-looking number, and the **ban on sending**, which belongs in the brief even when the connector can't send at all. The setup this watchdog fits into is described in the tip on [a morning routine of draft replies](/tipy/rutina-ai-drafty-mailu).
+
+### A daily two-minute pass
+
+Read the **summary** first, then go through **Drafts top to bottom, without skipping.** For each one you have four options: **send**, **edit** (a sentence, not a rewrite), **hold** (you know something the routine can't), and **delete**, because the loop is actually closed. The one hard check, every time: **scan the draft for a `[` character.** A sent reminder that says “[FILL IN: price]” is remembered far longer than a whole proposal would be.
+
+Run the routine **in the morning before you start work**, **business days only**, and **once a day**. For the first live week, narrow the scope to one category — say, just the `Proposal` tag: three meaningful drafts a day build trust; thirty drafts on day one destroy it.
+
+## Phase 5: business operations — proposals, invoices, debts on your side
+
+Watching loops pays off fastest where money is involved.
+
+### The sequence after a proposal
+
+A proposal isn't one message, it's a small process: most deals don't close on the first contact, and after three attempts, further messages don't add much. Prepare the whole sequence in advance, and the watchdog just reaches for what's already there.
+
+```text
+Put together a follow-up sequence for after I send a proposal.
+Context: industry [industry], typical client [description],
+proposal value [rough range], decision process takes [estimate].
+You know my style from the tone card in this Project.
+
+Suggest three messages to send if nobody gets back to me.
+For each, give:
+- how many business days after the previous message to send it
+- purpose: what I need to find out or move forward in this round
+- the full text (no more than 5 sentences, in my voice)
+- what it adds that's new — it can't just be the same thing in
+  different words
+- how I'll know NOT to send this message
+
+The second message must offer a one-word answer. The third is
+the last one and closes things out without pressure, leaving
+the door open. No false urgency ("this offer's only good
+until…") unless it's true, no guilt-tripping, no apologizing
+for writing.
+```
+
+Watch the “what's new” point — if the second and third messages are just politer versions of the first, the sequence isn't working; have it rewritten. And double-check any claim about the offer's validity: the model likes to fill in a deadline you never actually stated, and a false claim about validity will come back to bite you.
+
+### Overdue invoices
+
+The most sensitive category, and also the one with the fastest payback. A stricter version of the base rule applies here: **for money, AI drafts the text; a human verifies the facts and figures and sends it.** The model must never claim, on its own, that a payment didn't arrive — that's verified in your bank or accounting system, not guessed from email. And it must never threaten a penalty or legal action on its own — a sentence like that has consequences and belongs to a person who knows the contract.
+
+```text
+Draft a reminder for an overdue invoice.
+Inputs: invoice number [number], amount [amount], due date
+[date], client [company], which reminder number [1st/2nd/3rd],
+prior communication [brief summary / none].
+
+By tier:
+1st reminder — assume an administrative oversight. Businesslike,
+   no accusation, with the invoice number, amount, and due date.
+2nd reminder — ask for a specific payment date and the name of
+   the person who approves payments.
+3rd reminder — recap the communication so far and ask for a
+   response by a specific date.
+
+For all tiers:
+- no more than 6 sentences, businesslike and polite, no emotion
+- don't state as fact that the payment hasn't arrived — write
+  "according to our records," I'll verify the actual status
+- no threats, penalties, late fees, or collections language;
+  where a sentence like that would belong, write [FILL IN:
+  contractual procedure] and leave it to me
+- don't calculate or infer any amount, invoice number, or date
+  from other messages in the thread — use only the inputs given
+- save as a draft, don't send
+
+At the end, attach a checklist of what I should verify before
+sending.
+```
+
+The most common failure is small and expensive: the model pulls an amount or invoice number from another message in the thread, and you send a reminder for something that's already been paid. That's why the no-pulling rule and the checklist are there. If your company has an approved dunning procedure, paste it into the Project verbatim.
+
+### Loops where you're the one who owes a reply
+
+A watchdog that only tracks your own waiting is half a watchdog — and socially, the worse half.
+
+```text
+Take the threads in state I OWE A REPLY from the summary and
+split them into:
+A) I'll answer right now, in one sentence
+B) needs real work — I have to set aside time for it
+C) it's moot now, it just needs a polite close
+
+For each, write what they're actually asking for (the request,
+not a recap of the message) and how many days it's been sitting.
+For group A, draft a reply (max 3 sentences, per my tone card);
+for group C, a draft that closes the matter politely; for group
+B, just an estimate of the time it'll take.
+```
+
+Group A tends to be the biggest and the most satisfying: five threads that sat for two weeks close in ten minutes. Don't underestimate group C — an unanswered request is worse for the other side than a rejection.
+
+## Phase 6: weekly review of open loops
+
+The daily watchdog handles individual items. Once a week, it's worth stepping back and looking at the whole picture — to decide what's still alive and what's time to let go.
+
+```text
+Do a weekly review of open loops. Go through mail from the
+last [90 days] and pull every thread where someone is waiting
+on someone into one overview:
+
+1. ON FIRE — loops where concrete damage is at risk (a deadline
+   lapses, the client goes elsewhere, a contractual deadline
+   is approaching). For each, write what happens if nothing
+   moves this week.
+2. I'M WAITING — by age. For each: the other party, what it's
+   about, how many days, which reminder has gone out, the
+   logical next step.
+3. I OWE A REPLY — where I'm the blocker.
+4. EXPIRED — loops older than [45 days] where every reminder
+   went out and nothing came back. For each, suggest whether
+   to close it or move it to a different channel.
+5. NUMBERS: how many loops are open, how many opened this week,
+   how many closed, what's the average age.
+
+Don't summarize every email — write what it means for me. Where
+you're not sure of a state, say so instead of guessing.
+```
+
+Point 5 is the most valuable: the average age of an open loop is the one number that actually says something about your communication, and if it climbs three weeks running, the problem isn't the watchdog, it's your capacity. Read point 4 skeptically — the model has no way of knowing the client from March will reach out on their own in September. Fold the review into the same ritual as [the weekly AI review](/tipy/ai-tydenni-prehled), so it doesn't become another slot in the week.
+
+The hardest part of watching loops isn't the reminding — it's deciding to stop. Set a firm rule: **after the final message in the sequence, the thread either moves to a different channel or gets marked closed.** The third state (“I'll keep an eye on it”) is the one loops die in while still taking up space.
+
+## Phase 7: tuning and boundaries
+
+A watchdog set up on day one is roughly three-quarters right. You tune the rest over two weeks, and the principle is trivial: **write down every edit you make to a draft, and every draft you delete, in one sentence.** Not “this one was weird,” but “I extended the deadline for Jane Smith, because she only ever replies on Fridays.”
+
+```text
+Run a retrospective on my follow-up watchdog for this week.
+You have access to both my drafts and my sent mail, so compare
+what you drafted with what I actually sent.
+
+1. NUMBERS: how many reminders you drafted, how many I sent
+   unchanged, how many with edits, how many I deleted, how many
+   I held.
+2. PATTERNS IN MY EDITS: what do I change most often? Split
+   into tone, length, content, and escalation tier, with two
+   "your version / my version" examples for each.
+3. DELETED: why didn't I use them, and should you have drafted
+   them at all?
+4. MISSED: where did I follow up by hand and you didn't draft
+   anything — why?
+5. EFFECTIVENESS: what share of sent reminders got a reply,
+   and how long it took, broken down by tier.
+6. SUGGESTION: three changes to the rules or deadlines that
+   would save me the most work next week.
+
+Be critical of your own work. I don't want to hear that it went
+well — I want to know where it's breaking down.
+```
+
+Point 5 pays off even once things are running smoothly: you'll learn which tier actually works for your people. A common finding is that the first reminder gets a lower response rate than the final message — and that changes the whole sequence. Treat the numbers in point 1 as directional. The tip on [an evening review of commitments](/tipy/rutina-vecerni-shrnuti-slibu) covers a similar feedback loop over promises.
+
+Three boundaries don't move, though. **A cap of two to three messages**, written explicitly into the brief; it's the rule that gets lost first during edits. **Sensitive threads stay out** — exclude legal, complaints, HR, and health matters by an actual folder or tag, not by a rule that says “be careful.” And **data on the right account:** live operation belongs on a work account with contractual data protections; anonymize any material you hand the routine by hand.
+
+## Common mistakes
+
+- **Watching everything you send.** Without the detection signals from Phase 1, the routine will flag thank-you notes and meeting confirmations as waiting too. Thirty drafts on day one means you turn the watchdog off on day two.
+- **One universal deadline.** Seven days for everything means you nudge internal matters too late and long negotiations too soon. The deadline belongs to the thread type.
+- **The same message in every round.** When the second reminder just politely repeats the first, the recipient has no reason to answer. Escalation means changing the ask — from a question, to a choice between two options, to closing the matter.
+- **Forgetting what you owe.** A watchdog that only tracks your own waiting turns you into someone who chases others but never replies themselves. The “I owe a reply” state has to be in the summary, always.
+- **Letting AI state facts about money.** The model must never write, on its own, that a payment didn't arrive, or threaten a penalty. Account status gets verified with the bank; legal steps belong to someone who knows the contract.
+- **Not closing expired loops.** A thread where every reminder went out and nothing came back isn't an opportunity — it's an open tab in your head. Close it on purpose.
 
 ## The best tools
 
-- **Built-in email features** — Gmail can nudge you about older unanswered messages and bump a thread back into your inbox; Outlook offers snooze and reminders. The cheapest first step, and no data leaves your mailbox.
-- **Gemini in Workspace and Copilot in Microsoft 365** — help you word the reminder right inside the environment your company has approved.
-- **Zapier, Make, or n8n** — build out the whole chain: tracking the deadline, checking for a reply, preparing the draft; n8n if you want the data to stay on your own infrastructure.
-- **A CRM (such as HubSpot)** — for sales conversations; tracking activity and reminders is one of its core features, and you get the history in one place.
+- **Claude with an email and calendar connector** — describe the loop-watching, deadlines, and escalation tiers in plain sentences; a scheduled task runs it every morning and saves drafts straight into the thread; the rules live in a Project, so you edit them in one place.
+- **Projects (persistent context)** — the home for your signals, deadlines, three-tier card, proposal sequence, and exceptions; the routine doesn't need them re-supplied with every run.
+- **Built-in email features and labels** — Gmail can snooze a thread back into your inbox and nudge you about older unanswered messages; Outlook offers snooze and flags. A watchdog that also gets a clean input via a `Waiting` or `Proposal` tag makes far fewer mistakes than one guessing from the whole inbox.
+- **Zapier, Make, or n8n** — for building the chain of email → check for a reply → draft yourself out of steps; n8n runs on your own server when the content of your mail shouldn't leave the company.
+- **A CRM (such as HubSpot)** — once it's a sales conversation, activity tracking belongs where the deal history already lives; the inbox watchdog then handles everything outside the CRM.
 
 ## What you get out of it
 
-- **Time:** 15–20 minutes a day that would otherwise go into scrolling through sent mail and wondering “did they ever get back to me?”
-- **Money:** a timely reminder is the cheapest sales tool you have. Deals rarely fall through because of price — they fall through because of silence.
+- **Time:** a conservative 15–20 minutes a day that would otherwise go into scrolling sent mail and wondering “did they ever get back to me?” On top of that, you skip the cold start — the hardest part of a reminder is the first sentence, and it's already written.
+- **Money:** a timely reminder is the cheapest sales tool you have. Proposals rarely fall through because of price — they fall through because of silence — and for invoices, systematic follow-up shortens collection time by days to weeks.
 - **Peace of mind:** you stop carrying a mental list of people who owe you a reply.
-- **A better impression:** a short, to-the-point reminder after five days looks professional. A reproachful email after three weeks doesn't.
+- **Better relationships:** a short, businesslike reminder after five days reads as professional; a reproachful email after three weeks doesn't. And because the watchdog also surfaces what you owe, how the other side perceives you improves too.
 
 ## Pro tip
 
-Add a rule to the prompt that the reminder should always include an offer of a next step — say, two specific time slots, or a line like “just reply yes and I'll send the materials over.” Everyone will type “yes”; almost nobody replies to “I need to think it over.” And guard the boundary: the automation may prepare a draft, never send it — a single reminder that goes out automatically at the wrong moment can damage a relationship more than the silence itself. Run this routine through a company account with contractual data protections, and exclude threads with sensitive content from monitoring.
+Advanced move: for threads where it's unsure of the tone, have the watchdog draft **two versions** — one short and businesslike, one warmer — labeled A and B in the subject line. Choosing between two finished versions is more accurate than editing one; after two weeks, you'll also notice which one you pick most often, and that's a rule you can add straight to the tone card.
+
+And the rule that sits above everything else: **the watchdog manages a list, not relationships.** It may remember what you forgot, gather context, and write the first sentence. It may not decide who to reach out to, and it may never send anything on its own — that one badly timed reminder is remembered longer than a hundred good ones.
