@@ -5,6 +5,8 @@ import { Schibsted_Grotesk, Lora, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { Keycap } from "@/components/Keycap";
 import { LangSwitch } from "@/components/LangSwitch";
+import { NavAi, NavAiChips } from "@/components/NavAi";
+import { audienceBase, audienceHref, audiences } from "@/lib/audiences";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 import { JsonLd, websiteJsonLd } from "@/components/JsonLd";
 import "../globals.css";
@@ -59,11 +61,21 @@ export default async function RootLayout({
   const nav = [
     { href: p("/prirucka"), label: t.nav.handbook },
     { href: p("/tipy"), label: t.nav.tips },
-    { href: p("/ai"), label: t.nav.ai },
+    { href: p("/ai"), label: t.nav.ai, dropdown: true },
     { href: p("/prompty"), label: t.nav.prompts },
     { href: p("/gadgety"), label: t.nav.gadgets },
     { href: p("/hledat"), label: t.nav.search },
   ];
+
+  // Podmenu profesí: v desktopové navigaci pod položkou „AI“, na mobilu pruh chipů.
+  const proMenu = audiences.map((a) => ({
+    href: audienceHref(a, locale),
+    label: `${t.pro.forPrefix} ${a.forWhom[locale]}`,
+  }));
+  const proChips = audiences.map((a) => ({
+    href: audienceHref(a, locale),
+    label: a.name[locale],
+  }));
 
   return (
     <html lang={locale} className={`${schibsted.variable} ${lora.variable} ${jetbrainsMono.variable}`}>
@@ -79,15 +91,27 @@ export default async function RootLayout({
               </span>
             </Link>
             <nav className="flex items-center gap-1 max-sm:hidden" aria-label="Main navigation">
-              {nav.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="draw-link px-2.5 py-2 text-[14px] font-semibold"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {nav.map((item) =>
+                item.dropdown ? (
+                  <NavAi
+                    key={item.href}
+                    label={item.label}
+                    menuLabel={t.nav.aiMenu}
+                    overview={{ href: item.href, label: t.nav.aiOverview }}
+                    groupLabel={t.nav.forProfession}
+                    items={proMenu}
+                    footer={{ href: p(audienceBase(locale)), label: t.pro.allProfessions }}
+                  />
+                ) : (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="draw-link px-2.5 py-2 text-[14px] font-semibold"
+                  >
+                    {item.label}
+                  </Link>
+                ),
+              )}
               <LangSwitch locale={locale} />
               <Link
                 href={p("/newsletter")}
@@ -110,6 +134,7 @@ export default async function RootLayout({
               </Link>
             ))}
           </nav>
+          <NavAiChips label={t.nav.forProfession} items={proChips} />
         </header>
 
         <main>{children}</main>

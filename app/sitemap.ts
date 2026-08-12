@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { audienceBase, audiencePath, audiences } from "@/lib/audiences";
 import { getAllTips } from "@/lib/tips";
 import { getAllChapters } from "@/lib/chapters";
 import { getAllNews } from "@/lib/news";
@@ -35,6 +36,41 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: p === "" ? 0.9 : 0.7,
     },
   ]);
+
+  // Profesní landing pages: segment i slug jsou lokalizované (cs /pro/*, en /for/*).
+  const proHub: MetadataRoute.Sitemap = [
+    {
+      url: `${BASE}${audienceBase("cs")}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+      alternates: {
+        languages: { cs: `${BASE}${audienceBase("cs")}`, en: `${EN_BASE}${audienceBase("en")}` },
+      },
+    },
+    {
+      url: `${EN_BASE}${audienceBase("en")}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    },
+  ];
+
+  const proPages = audiences.flatMap((a) => {
+    const csUrl = `${BASE}${audiencePath(a, "cs")}`;
+    const enUrl = `${EN_BASE}${audiencePath(a, "en")}`;
+    return [
+      {
+        url: csUrl,
+        changeFrequency: "weekly" as const,
+        priority: 0.8,
+        alternates: { languages: { cs: csUrl, en: enUrl } },
+      },
+      {
+        url: enUrl,
+        changeFrequency: "weekly" as const,
+        priority: 0.7,
+      },
+    ];
+  });
 
   const tips = getAllTips().flatMap((t) => {
     const csPath = `/tipy/${t.slug}`;
@@ -80,5 +116,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return entries;
   });
 
-  return [...staticRoutes, ...chapters, ...tips, ...news];
+  return [...staticRoutes, ...proHub, ...proPages, ...chapters, ...tips, ...news];
 }

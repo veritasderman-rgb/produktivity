@@ -76,22 +76,36 @@ function FilterRow({
   );
 }
 
-export function TipBrowser({ tips, locale = "cs" }: { tips: Tip[]; locale?: Locale }) {
+export function TipBrowser({
+  tips,
+  locale = "cs",
+  lockedAudience,
+  basePath = "/tipy",
+}: {
+  tips: Tip[];
+  locale?: Locale;
+  /** Landing page profese: skupina je daná, filtr „pro koho“ se schová. */
+  lockedAudience?: string;
+  /** Cesta (bez prefixu jazyka), na kterou se zapisuje stav filtrů. */
+  basePath?: string;
+}) {
   const L = ui[locale];
   const dict = getDict(locale).tipCard;
   const router = useRouter();
   const params = useSearchParams();
   const [category, setCategory] = useState<string | null>(params.get("kategorie"));
   const [platform, setPlatform] = useState<string | null>(params.get("platforma"));
-  const [audience, setAudience] = useState<string | null>(params.get("pro"));
+  const [audience, setAudience] = useState<string | null>(
+    lockedAudience ?? params.get("pro"),
+  );
   const [query, setQuery] = useState("");
 
   function sync(cat: string | null, plat: string | null, aud: string | null) {
     const p = new URLSearchParams();
     if (cat) p.set("kategorie", cat);
     if (plat) p.set("platforma", plat);
-    if (aud) p.set("pro", aud);
-    router.replace(`${localePath(locale, "/tipy")}${p.size ? `?${p}` : ""}`, { scroll: false });
+    if (aud && !lockedAudience) p.set("pro", aud);
+    router.replace(`${localePath(locale, basePath)}${p.size ? `?${p}` : ""}`, { scroll: false });
   }
 
   const filtered = useMemo(() => {
@@ -136,14 +150,16 @@ export function TipBrowser({ tips, locale = "cs" }: { tips: Tip[]; locale?: Loca
           counts={count((t) => t.platform)}
           onPick={(v) => { setPlatform(v); sync(category, v, audience); }}
         />
-        <FilterRow
-          label={L.who}
-          allLabel={L.all}
-          options={dict.audiences}
-          active={audience}
-          counts={count((t) => t.audience)}
-          onPick={(v) => { setAudience(v); sync(category, platform, v); }}
-        />
+        {!lockedAudience && (
+          <FilterRow
+            label={L.who}
+            allLabel={L.all}
+            options={dict.audiences}
+            active={audience}
+            counts={count((t) => t.audience)}
+            onPick={(v) => { setAudience(v); sync(category, platform, v); }}
+          />
+        )}
         <div className="flex flex-wrap items-center gap-3">
           <input
             type="search"
@@ -156,10 +172,16 @@ export function TipBrowser({ tips, locale = "cs" }: { tips: Tip[]; locale?: Loca
           <span className="eyebrow text-faint">
             {filtered.length} {L.of} {tips.length} {L.tips}
           </span>
-          {(category || platform || audience || query) && (
+          {(category || platform || (audience && !lockedAudience) || query) && (
             <button
               type="button"
-              onClick={() => { setCategory(null); setPlatform(null); setAudience(null); setQuery(""); sync(null, null, null); }}
+              onClick={() => {
+                setCategory(null);
+                setPlatform(null);
+                setAudience(lockedAudience ?? null);
+                setQuery("");
+                sync(null, null, lockedAudience ?? null);
+              }}
               className="draw-link text-[13px] font-bold"
             >
               {L.clear}
