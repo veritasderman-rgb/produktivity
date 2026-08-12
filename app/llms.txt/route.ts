@@ -1,6 +1,7 @@
 import { getAllTips } from "@/lib/tips";
 import { getAllChapters } from "@/lib/chapters";
 import { getAllNews } from "@/lib/news";
+import { getAllPrompts } from "@/lib/prompts";
 
 export const revalidate = 3600;
 
@@ -12,6 +13,7 @@ export async function GET() {
   const news = getAllNews();
   const enChapters = getAllChapters("en");
   const enTips = getAllTips("en");
+  const prompts = getAllPrompts();
 
   const lines: string[] = [
     "# Produktivní.cz",
@@ -20,6 +22,10 @@ export async function GET() {
       `${tips.length} praktických tipů s návody a AI novinky přeložené do praxe. Obsah je psaný česky, průběžně aktualizovaný člověkem i AI. Anglická verze: https://productive.tips`,
     "",
     "Kurátorovaný výběr vybavení pro produktivitu: https://produktivni.cz/gadgety",
+    "",
+    `Databáze promptů — ${prompts.length} hotových promptů pro ChatGPT, Claude a Gemini, vytažených z článků a připravených ke zkopírování: https://produktivni.cz/prompty (anglicky: https://productive.tips/prompty)`,
+    "",
+    "E-mailový kurz zdarma „AI za týden“ — sedm dní, sedm krátkých e-mailů, každý den jedna dovednost a jeden prompt k vyzkoušení: https://produktivni.cz/kurz (anglicky: https://productive.tips/kurz)",
     "",
     "## Příručka (kapitoly)",
     "",
