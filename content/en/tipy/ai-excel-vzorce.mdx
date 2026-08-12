@@ -1,43 +1,466 @@
 ---
-title: "Can't remember a formula? Describe it to AI in plain words"
-excerpt: "“I need to sum column B, but only the rows where column A says ‘Prague’” — AI returns the exact formula plus an explanation."
+title: "Excel and Sheets with AI: Formulas, Errors, Structure, and Macros"
+excerpt: "A complete guide with prompts: how to describe a formula in plain English and get a working solution on the first try, how to have an inherited formula explained, how to debug #REF! and #N/A, how to design a table that won't fall apart, and when to reach for a macro instead of a formula."
 category: "ai"
 platform: "vsude"
-audience: ["manazer"]
+audience: ["manazer", "freelancer"]
 keys: []
-saves: "~15 min a week"
+saves: "~2 hrs a week"
 date: "2026-07-03"
 ---
 
-An hour of googling SUMIFS syntax versus one plain-English sentence — that's no longer a fair fight. Excel and Google Sheets have dozens of functions, and their exact syntax, argument count, and condition order are hard to remember even for people who work with spreadsheets every day. But describing what you want to calculate in ordinary words is enough — AI builds the formula for you, complete with an explanation of why it works and what would happen if you changed part of it.
+Spreadsheets have a strange property: you can spend an hour fighting one formula and nobody thinks that's odd. And yet function syntax is exactly the kind of knowledge nobody should have to memorize — the argument order in SUMIFS, whether the range comes first or second, where the quotes go and where the commas go.
+
+**AI removes that whole layer: you describe the result you want in plain words and get back a formula plus an explanation of why it works.** What's left for you is the part a machine can't do — deciding what should actually be calculated, and verifying that the number that comes back is correct. The second half of this guide is dedicated to exactly that, because a formula that returns a number isn't yet a formula that returns the **right** number.
+
+We'll walk through the whole cycle of working with a spreadsheet: how to phrase a request so the formula works the first time, how to have an inherited formula explained, how to debug error messages, how to design a workbook structure that won't collapse in six months, how to have a pivot table walked through for you, and when to reach for a macro instead of a formula. Every section comes with a copy-paste prompt — just fill in the brackets.
 
 ## A typical scenario
 
-A team lead needs to sum revenue for just the Prague branch in a report, but with hundreds of rows and half-built filters, they lose track of how to combine SUMIFS with two conditions. Without this tip: fifteen minutes searching a forum and copying someone else's formula that half-fits their columns, because the names and order are different. With this tip, they write AI one sentence with the actual column names and get back a working formula built exactly for their spreadsheet — plus an explanation of why that particular combination of functions does what they need.
+Petr runs five branch locations and assembles a monthly report once a month: revenue, costs, customer counts, comparison against plan. The data arrives as five exports with slightly different headers. Putting it together takes half a day, even though the actual thinking involved is maybe fifteen minutes — the rest is looking up “how does that go again,” fixing formulas that show #REF! after a column gets added, and lookups that return #N/A on three branches because one file has a trailing space after the branch name.
 
-## How to do it
+With AI it looks different. Petr describes the task in plain language, including the actual column names, and gets back a formula plus an explanation. He has the lookup written with error handling and whitespace trimming built in from the start. When something's off, he pastes in the error message and a data sample and gets a cause, not generic advice. Then he has the workbook structure redesigned so that next month all he has to do is paste in the new data and everything recalculates on its own.
 
-1. Describe what you want to calculate in plain, specific terms — including exact column names or letters, e.g., “column B is revenue, column A is branch.”
-2. Say which program you're working in — Excel or Google Sheets; the syntax differs in places.
-3. Ask for an explanation too: “Explain what the formula does, so I can write it myself next time.” It helps you gradually learn formulas instead of just copying them.
-4. Paste the formula into the cell and check the result against a row you can calculate by hand — it's the fastest way to catch a formula that's computing something other than what you wanted.
-5. When a formula doesn't work, paste the exact error message (#N/A, #VALUE!) along with the cell it appears in — AI will use that to diagnose and fix it.
-6. For more complex workbooks, have the formula commented directly in the cell or an adjacent column, so a month from now you know why it's there and what it calculates.
+The payoff isn't that Petr became an Excel expert. It's that half a day became an hour — and more importantly, that he understands every formula in his report well enough to defend it, and fix it, himself.
+
+## Phase 1: how to phrase a request so the formula works the first time
+
+### Five things every request needs
+
+The difference between “it returned nonsense” and “it worked the first time” isn't how smart the model is — it's what you told it. Five things belong in the request:
+
+- **Program and version.** Excel and Google Sheets differ in the details; older Excel versions don't even have XLOOKUP or dynamic arrays.
+- **Where the data lives.** Exact column names, or the letters and the row where the data starts. “Column B is revenue, column A is branch, data starts at row 2.”
+- **A data sample.** Three to five rows. From it, the model can tell that a date is stored as text, or that amounts use a space as a thousands separator.
+- **What the result should be.** Concrete, ideally with an example: “For Prague, year 2026, the result should be $16,480.”
+- **The language of the formula.** A localized version of Excel has localized function names (IF becomes KDYŽ in Czech, VLOOKUP becomes SVYHLEDAT) and a semicolon as the argument separator instead of a comma. State which version you want — otherwise you'll get the English one and have to translate it by hand.
+
+```text
+I'm working in [Excel 365 / Excel 2016 / Google Sheets], the
+interface language is [English / other — name it].
+
+My data is on the sheet [Sales], the header is on row 1, data
+starts at row 2:
+A = branch (text), B = date (date format), C = revenue (number),
+D = category (text)
+
+Sample rows:
+[paste 4 rows]
+
+I need a formula that calculates: [sum revenue for the branch
+named in cell F2, but only for this year].
+
+I want:
+1. the finished formula, ready to paste into cell [G2], in
+   exactly my language/locale version,
+2. a piece-by-piece explanation of what each function does,
+3. what happens if a column or row gets added to the data,
+4. which row I should use to check the result by hand.
+
+Don't use functions my version doesn't have — if you're not sure
+a function is available, offer a fallback for older versions too.
+```
+
+It comes back with a formula ready to paste in, plus an explanation. Point 3 is worth paying attention to: the answer will tell you whether the formula is written defensively (references to whole columns or a table) or whether it'll break the moment the data is touched.
+
+### Ask for more than one solution
+
+The same calculation can usually be done several different ways in a spreadsheet, and they differ in how robust they are. Before you commit to the first suggestion, ask for a comparison:
+
+```text
+I need to solve this in [Excel 365]: [describe the task and the
+columns].
+
+Offer three different solutions:
+1. the simplest possible formula, even at the cost of being less
+   robust,
+2. a robust solution that survives an added column and typos in
+   the data (extra spaces, capitalization),
+3. a solution using more modern functions (XLOOKUP, FILTER, LET),
+   if they make sense here.
+
+For each one, note: when to use it, what breaks it, how it
+behaves on an empty cell and a not-found value. At the end,
+recommend one and justify why — keeping in mind that I'll update
+this table monthly and hand it off to a colleague.
+```
+
+It comes back with three options side by side. The most common finding: the simplest formula is the one that breaks a month from now. And if your data lives in a plain range of cells, consider converting it to a table (Ctrl+T) — formulas then reference column names, and new rows get pulled into the calculation automatically.
+
+## Phase 2: an inherited formula you don't understand
+
+### Taking it apart from the inside out
+
+An inherited workbook with a two-hundred-character formula is a classic. Leaving it alone is comfortable — until it starts returning nonsense. Have it taken apart before you need to fix it.
+
+```text
+I inherited this formula in [Excel] and don't understand it:
+
+[paste the formula]
+
+Context: it's in cell [G2] on the sheet [Report], the data is in
+[Sales!A:D], header in row 1. Sample data:
+[paste 4 rows]
+
+Explain it step by step, from the inside out:
+1. break it into its nested parts, and for each one say what it
+   returns (a concrete value on my sample data),
+2. what the formula does as a whole, in one plain sentence,
+3. what assumptions it makes about the data — what has to be
+   true for it to work,
+4. under what circumstances it returns a wrong value without
+   showing an error,
+5. how I'd write it more simply with the same result.
+
+Don't change anything in my workbook yet, just explain.
+```
+
+Point 4 is the one that makes this prompt worth using. Silent errors are more dangerous in spreadsheets than error messages: an approximate-match lookup returns the nearest lower value, summing a range that's one row short returns a number that still looks perfectly normal.
+
+### Simplify, but always with a side-by-side comparison
+
+Once you decide to rewrite a formula, one rule applies: **the old and the new have to run side by side for a while.** Put the new one in an adjacent column, compare every row, and only then delete the old one.
+
+```text
+Rewrite this formula into a more readable form for [Excel 365]:
+
+[paste the formula]
+
+Requirements:
+- the result must be identical in every case, including empty
+  cells, zeros, and not-found values,
+- if you use LET or helper columns, explain what each part does,
+- write out how I can verify the new formula gives the same
+  results as the old one (a check column, a count of mismatches),
+- flag any cases where the new and old formula could actually
+  differ.
+
+Finally, suggest a cell comment that explains to a colleague what
+the formula calculates.
+```
+
+It comes back with the rewrite and a verification procedure. Don't skip the last point: a comment in the cell, or a short description on a separate sheet, is the difference between a workbook that survives your vacation and one nobody dares to touch.
+
+## Phase 3: debugging errors
+
+### What each error message means
+
+Error messages are actually good news — the spreadsheet is telling you something doesn't add up. The most common causes:
+
+- **#N/A** — the looked-up value wasn't found. Nine times out of ten it's an extra space, different capitalization, a number stored as text, or a lookup pointed at the wrong column.
+- **#REF!** — a reference to a cell that no longer exists: someone deleted a column or a sheet. It doesn't fix itself; the formula needs to be rewritten.
+- **#VALUE!** — mismatched types, typically text where a number is expected. Common with amounts copied from a website or a PDF.
+- **#DIV/0!** — dividing by zero or by an empty cell; typical when calculating a ratio and the denominator isn't filled in yet.
+- **#NAME?** — a typo in a function name, or a function your version doesn't recognize (an English function name pasted into a localized version, or vice versa).
+- **#NUM!** — a nonsensical numeric argument, like a square root of a negative number.
+- **A row of pound signs instead of a number** — just a column that's too narrow, not an error.
+- **A circular reference** — a formula that refers to itself, directly or through a chain of cells.
+
+```text
+My formula is returning an error. Here's everything I know about it:
+
+Formula: [paste the formula]
+It's in cell: [G2], sheet [Report]
+Error message: [#N/A]
+It shows up: [only on some rows / on all rows]
+Program: [Excel 365, language/locale]
+
+Sample data where it fails (include a row that works):
+[paste 5 rows]
+
+Do three things:
+1. name the most likely cause and explain why that one,
+2. give me 2 other possible causes to rule out, and how to test
+   them quickly,
+3. write the corrected formula.
+
+Don't hide the error with IFERROR until we know why it's happening.
+```
+
+That last sentence is the key one. Wrapping a formula in error handling is the fastest way to tuck a problem out of sight while also preserving it forever — the total then quietly excludes three branches and nobody notices.
+
+### When error handling is the right call
+
+Handling an error makes sense when you know why it's happening and it's legitimate: empty cells in a form that's still being filled out, or an item that genuinely doesn't need to exist in a lookup table.
+
+```text
+I know why my formula returns [#N/A]: [reason, e.g. the item
+isn't in the lookup table yet]. I want to handle it so the report
+looks presentable, but I still want to know about the problem.
+
+Formula: [paste the formula]
+
+Suggest a solution that:
+- shows [blank / the text “not found” / zero] instead of the
+  error, whichever makes sense for the totals that follow,
+- doesn't mask any error type other than the one I'm expecting,
+- lets me also calculate how many rows fell into the handled case
+  (a count cell),
+
+Explain how the handled value behaves in sums and averages.
+```
+
+The count cell tracking how many rows got handled is the whole trick: the error is hidden in the table, but its volume is visible. If that number jumps overnight, you know something happened to the source data.
+
+### The formula calculates, but wrong
+
+The trickiest case of all. No error anywhere, just a result that doesn't match reality. The procedure is always the same: take one row you can calculate by hand and compare.
+
+```text
+My formula isn't returning an error, but the result is wrong.
+
+Formula: [paste the formula]
+What it returns: [$16,480]
+What it should be: [$15,580]
+How I got the correct value: [manually summed March from these
+rows]
+
+Sample data: [paste 8 rows including the disputed ones]
+
+Find the discrepancy: which rows the formula counted extra or
+left out, and why. Check in particular:
+- ranges that are the wrong size or start one row off,
+- numbers stored as text and spaces in text values,
+- dates compared as text instead of as dates,
+- absolute vs. relative references when the formula is copied
+  down,
+- hidden or filtered rows.
+
+Write out how I'll verify the fix on two more rows.
+```
+
+The point about absolute references solves the single most common silent bug of all: a formula works on the first row, and after being copied down the range shifts, so every subsequent row calculates from a different range entirely.
+
+## Phase 4: a table structure that holds up
+
+### Three principles
+
+Most “broken formulas” are actually the consequence of a badly built table. Three principles fix that:
+
+**Separate inputs, calculations, and output.** Ideally onto separate sheets: a sheet where data gets pasted in, a sheet with the calculations, and a sheet that gets printed or sent out. When everything's on one sheet, every touch to the data disturbs the formatting of the output.
+
+**One row equals one record.** No subtotals buried inside the data, no merged cells, no values hidden in a cell's color — no formula can read color. If you need a flag, make it a column.
+
+**Give data a type.** A date as a date, a number as a number. An amount typed as “$16,480” is text and won't sum. A dropdown list on category fields stops “Prague,” “prague ,” and “PRAGUE” from becoming three different values.
+
+```text
+I'll describe what I need to track in a spreadsheet, and you
+design the workbook structure.
+
+What I'm tracking: [e.g. monthly revenue and costs for five
+branches, comparison against plan, year-over-year comparison]
+Who will enter data: [me and the branch managers]
+How often: [monthly, data pasted in from an export]
+What has to come out of it: [a one-page summary for leadership
+and a trend chart]
+
+Suggest:
+1. what sheets the workbook should have and what's on each one,
+2. for the data sheet, exact columns: name, type, example value,
+   whether it's filled in manually or by formula,
+3. where to use data validation (dropdown lists) and why,
+4. which calculations should be formulas and which should be a
+   pivot table,
+5. three mistakes I'll avoid with this structure.
+
+Also point out what's missing from my request that you need to
+ask me about.
+```
+
+It comes back with a proposal worth discussing before you start filling in data. That last line of the prompt matters — models love to design a structure around what they assumed instead of what you actually need.
+
+### Cleaning up a table you inherited
+
+```text
+I have a table that's grown over the years and is a mess.
+Structure and sample:
+
+[paste the header and 10 rows]
+
+Problems I've noticed: [merged cells, subtotals sitting inside
+the data, dates stored as text, three variant spellings of the
+same branch name]
+
+Write me a cleanup plan:
+1. what to fix and in what order, so nothing breaks along the way,
+2. for each step, the concrete procedure in [Excel] — which
+   function or built-in tool to use,
+3. how I'll verify before each step that the totals haven't
+   changed (a control total before and after),
+4. what to do so the same mess doesn't happen again.
+
+Assume I'm working on a copy of the file.
+```
+
+It comes back with a step-by-step procedure. That last sentence should always hold: **clean up on a copy** and keep the original until the control totals check out. Excel's own built-in tools — like remove duplicates or text-to-columns — are also handy for unifying variant spellings.
+
+## Phase 5: summaries and pivot tables with instructions
+
+When the question is “how much in total, by branch and month,” the real question is whether to write formulas or build a [pivot table](/tipy/excel-kontingencni-tabulka). Rough rule: a one-off summary or exploring the data belongs in a pivot table; a recurring calculation that has a fixed place in a report belongs in formulas.
+
+```text
+I have this data in [Excel 365]:
+columns [A branch, B date, C category, D revenue, E cost],
+[3,200] rows, data starts at row 2.
+
+I want a summary: [revenue and margin by branch and month, plus
+each category's share].
+
+Write me:
+1. step-by-step pivot table instructions — where to click, what
+   to drag into rows, columns, values, and filters,
+2. how to set the date to group by month,
+3. how to add a calculated field for margin,
+4. how to format the table so it's readable (numbers, percentages,
+   remove any grand totals that don't make sense),
+5. what I do when new data comes in — how it gets refreshed.
+
+Then write how I'd get the same result with formulas, and tell
+me which approach is better for a monthly recurring report, and why.
+```
+
+It comes back with instructions you can follow with Excel open in front of you. Point 5 is where most pivot tables die: when the data isn't in a table (Ctrl+T) or a named range, new data never makes it into the summary, and nobody notices.
+
+For lookups across sheets, it's worth learning one function really well — [XLOOKUP](/tipy/excel-xlookup) replaces most of the situations where people used to combine VLOOKUP with a manually counted column index.
+
+```text
+I need to pull [product name and margin] from the sheet [Price
+List] into every row of the sheet [Report], keyed on [product code].
+
+Data:
+Report: A = product code, B = quantity, data starts at row 2
+Price List: A = code, B = name, C = cost price, D = sale price
+
+Write a formula for [Excel 365] that:
+- finds the value by code regardless of extra spaces or
+  capitalization,
+- returns a readable message when the code isn't in the price
+  list,
+- can be copied down without the reference to the price list
+  shifting,
+- keeps working after a column gets added to the price list.
+
+Explain why you chose that particular function, and how I'll
+verify that every row matched correctly.
+```
+
+That last sentence is a check you'd otherwise skip: just count how many rows returned a not-found message and compare it against the total row count.
+
+## Phase 6: when to use a formula, when a macro, and when a script
+
+### The decision rule
+
+- **A formula** — calculates over data that lives in the workbook and recalculates on its own. Most tasks.
+- **A macro (VBA) or Apps Script** — repeated manipulation of the workbook itself: formatting twenty sheets, merging five files, monthly archiving, distribution. Anywhere you'd otherwise be doing the same clicking every month.
+- **An external script (Python)** — large data volumes, repeated processing outside the workbook, combining multiple sources. More detail in the tips [small scripts without programming](/tipy/ai-skripty-pro-nevyvojare) and [data analysis with AI](/tipy/ai-analyza-dat).
+
+Macros are powerful and dangerous at the same time: unlike a formula, they modify files, and some steps can't be undone. That's why a hard rule applies — **a macro gets tested on a copy of the data, never on the original**, and a backup is made before a live run.
+
+```text
+Write me a macro (VBA) for Excel that does this:
+[combine the data from every sheet in the workbook into one
+sheet called “Summary”, add a column with the source sheet's
+name, and sort by date]
+
+Sheet structure: [header on row 1, same columns A-E, row count
+varies, sheets are named after branches]
+
+Safety requirements:
+- the macro must not delete or overwrite the original sheets,
+- it writes the result to a new sheet; if it already exists,
+  ask before overwriting rather than overwriting silently,
+- at the start, verify every sheet has the expected header, and
+  stop with a message if not,
+- at the end, print how many rows from how many sheets it processed.
+
+Add a comment on every block. Then write instructions for how I
+paste the macro in and run it, and how I test it on a copy of
+the file.
+```
+
+It comes back with a macro and instructions for installing it. Before you run it on the live file, check the count from the last point: how many rows it processed. If the number doesn't match what you expected, don't run the macro again — find out why first.
+
+In Google Sheets, Apps Script is the equivalent. It's most useful for recurring routines, but the same caution applies — plus the principle **AI proposes, a human approves**: anything that sends emails or deletes data has to be signed off by a person.
+
+```text
+Write an Apps Script for Google Sheets that, once a month,
+[copies the sheet “Current” into an archive sheet named after
+the month, and clears the input fields for the new month].
+
+Requirements:
+- never overwrite an archive sheet; if it already exists, append
+  a sequence number to the name,
+- only clear cells [B2:B20], leave formulas and headers alone,
+- ask for confirmation in a dialog before deleting anything,
+- write a row to a “Log” sheet with the date, who ran the script,
+  and how many cells were cleared,
+- don't send anything by email, just prepare the text in a cell.
+
+Write instructions for how I install the script, run it manually
+the first time, and schedule it afterward. Point out what I
+should back up before the first live run.
+```
+
+That last requirement is deliberate. Leave sending mail to a human: the script prepares the text, a person clicks send. An automated process that emails leadership a spreadsheet on its own is convenient right up until the day it sends the wrong numbers.
+
+## Phase 7: checking and handing off
+
+### Habits that catch a mistake before your boss does
+
+Three checks that take a minute and catch most problems. **A manual recalculation of one row** — take a case you can compute in your head and compare. **A control total** — the sum of the parts must equal the whole; if it doesn't, something is being counted twice or not at all. **Stepping through the formula** — Excel's Evaluate Formula tool shows intermediate results piece by piece, so you can see exactly where it breaks.
+
+```text
+I'm about to hand this workbook off to a colleague and I want to
+make sure they can't do any damage. Description of the workbook:
+
+Sheets: [list and what's on each one]
+Key formulas: [paste 3-5 formulas and where they are]
+What changes every month: [new data gets pasted into the Data
+sheet]
+
+Prepare for me:
+1. text for a “How this works” sheet — briefly: where the data
+   comes from, what's calculated where, what happens every
+   month, what not to touch,
+2. a list of places this workbook is most likely to break if
+   someone interferes with it (adding a column, sorting, inserting
+   a row),
+3. a suggestion for which cells to lock, and why,
+4. three checks a new user should run after every data update,
+   to catch it if something's wrong.
+
+Write for someone who uses Excel regularly but doesn't write
+formulas.
+```
+
+It comes back with documentation you paste in as a sheet in the workbook. It's ten minutes of work that saves phone calls while you're on vacation.
+
+## Common mistakes
+
+- **Copying a formula without checking it against a known row.** A formula that returns a number hasn't yet proven it returns the right one — verify it against a case you can calculate by hand.
+- **Not stating the version and language.** English function names in a localized version return #NAME?; modern functions simply don't exist in an older version.
+- **Hiding an error with error handling before you know why it's happening.** Missing values turn into a silent gap in the totals.
+- **Running a macro on the original file.** File manipulation can't always be undone; test on a copy, with a backup.
+- **Uploading a workbook with personal or sensitive business data into a chat.** Deriving a formula only needs the structure and sample data; replace the real values, and use a paid account with contractual data protection.
+- **Letting an unexplained formula get “improved.”** If you can't explain what it does, you also won't be able to tell the moment it starts doing something else.
 
 ## The best tools
 
-- **ChatGPT / Claude / Gemini** — describe the task in plain language, get a formula plus an explanation, works the same for Excel and Sheets.
-- **Microsoft Copilot in Excel** — if you have Microsoft 365, you can ask right inside the spreadsheet and Copilot will drop the formula into the right place itself.
-- **The built-in function help in the program itself** — for a quick check of what arguments a function expects, when you're not sure what AI gave you.
-- **A forum or community around Excel/Sheets** — as a second safety net for truly unusual requests where an experienced person's eye would help.
+- **ChatGPT, Claude, or Gemini** — describe the task in plain language, get a formula plus an explanation; handles both Excel and Sheets, explains an inherited formula, and can design a workbook structure.
+- **Microsoft Copilot in Excel** — with Microsoft 365, you ask right inside the data without copying anything, and the formula gets inserted directly.
+- **Gemini in Google Sheets** — the same, for Workspace, including generating Apps Script.
+- **Evaluate Formula and the Watch Window in Excel** — built-in debugging tools; they show intermediate results when a formula returns nonsense.
+- **The built-in function help in the program itself** — the fastest way to check what arguments a function expects in your version.
 
 ## What you get out of it
 
-- **Time:** fifteen minutes of searching and tweaking a formula shrinks to a minute of describing and checking.
-- **Sanity:** no more frustration over forgotten syntax, missing semicolons, and wrongly calculated ranges.
-- **Fewer errors:** a finished formula with an explanation is easier to verify than one copied from elsewhere without understanding why it actually works.
-- **Extra knowledge:** you gradually learn, because AI explains the task instead of just solving it — next time you'll build a similar formula yourself.
+- **Time:** a formula you'd have hunted for on a forum for fifteen minutes now takes a minute — and a monthly report goes from half a day to an hour once the workbook has real structure.
+- **Money:** mistakes in reports have a cost; a silent error in a lookup can throw off an entire monthly summary.
+- **Peace of mind:** an error message stops being a mystery — you know what it means and what to do about it.
+- **Skills:** because you keep asking for explanations, after a few months you'll write a similar formula yourself and only reach for AI on the genuinely hard ones.
 
 ## Pro tip
 
-The same approach works just as well for debugging existing formulas — paste a broken formula with the question “why does it return #N/A?” and add a sample of the data it fails on. If the spreadsheet contains sensitive company numbers, replace the actual values with sample ones that keep the same structure — deriving a formula usually only requires knowing how the data is arranged, not its real content.
+Set up a **Formulas** sheet in the workbook and, for every non-trivial formula, save three things there: the formula itself, one plain sentence describing what it calculates, and the row you verified it on. It feels like unnecessary work at the moment you're writing the formula — and it's priceless six months later, when the report stops matching accounting and you're hunting for which number is lying.
+
+And one closing rule: **no formula you can't explain in one sentence gets into a workbook you hand to someone else.** If you can't, have it taken apart with the prompt from Phase 2 — or replace it with three simpler steps in helper columns. A spreadsheet you understand always beats a spreadsheet that's merely elegant.
