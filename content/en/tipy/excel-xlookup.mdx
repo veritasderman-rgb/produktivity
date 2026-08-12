@@ -1,0 +1,46 @@
+---
+title: "XLOOKUP: Lookups Without VLOOKUP's Weaknesses"
+excerpt: "The newer replacement for VLOOKUP searches in either direction, doesn't break when a column gets inserted, and has a built-in “not found” fallback."
+category: "aplikace"
+platform: "vsude"
+audience: ["manazer"]
+keys: []
+saves: "~15 min a week"
+date: "2026-06-22"
+---
+
+If you're still writing VLOOKUP, this is an upgrade you can learn in five minutes and never go back from. XLOOKUP is the newer function that fixes its predecessor's three biggest annoyances at once — and it's also written more clearly. Once you've experienced a formula that keeps working after you insert a column, VLOOKUP starts to feel like an unnecessary risk.
+
+## A typical scenario
+
+Manager Tomáš has a price list with hundreds of items and regularly adds new columns to it — say, a discount or a supplier. Every time he inserts a column somewhere in the middle, all his VLOOKUP formulas break, because they counted the column position as a fixed number, and that position shifted when the column was inserted. He then has to fix them one by one.
+
+With XLOOKUP, that doesn't happen — the function doesn't ask “which numbered column,” it asks directly which column to look the result up in. An inserted column doesn't concern the formula at all. Tomáš can expand and rearrange the price list freely without having to go through dozens of formulas after every change and fix them one at a time.
+
+## How to do it
+
+1. Basic syntax: `=XLOOKUP(what, where_to_look, what_to_return)` — for example, `=XLOOKUP(A2, PriceList[Code], PriceList[Price])` looks up the code from cell A2 in the Code column and returns the matching price.
+2. A fourth, optional argument handles what happens when the lookup value isn't found: `=XLOOKUP(A2, PriceList[Code], PriceList[Price], "missing")` returns the text “missing” instead of an error message.
+3. Unlike VLOOKUP, the results column can be to the **left** of the column you're searching in — VLOOKUP could only search to the right.
+4. Inserting or moving a column afterward doesn't break the formula, because it refers to column names or ranges, not their position.
+5. XLOOKUP is available in Excel 365 and Excel 2021 and newer; you won't find it in older versions, where you'll need to stick with INDEX/MATCH or VLOOKUP.
+6. If you're working with a formatted table, use the table's column names (PriceList[Code]) directly instead of fixed cell references (A2:A100) — the formula then stays functional even after rows are added or removed.
+7. XLOOKUP can also search from the bottom of the table (last match instead of first) using another optional argument — useful when you're looking for the most recent record in the data, not just the first one the formula happens to hit.
+
+## The best tools
+
+- **XLOOKUP right in Excel** — a built-in function, nothing to install, works on formatted tables too.
+- **Google Sheets** — has a similar function with the same logic, useful for shared workbooks.
+- **INDEX/MATCH** — the older two-function combo with the same flexibility as XLOOKUP; a useful fallback in versions of Excel where XLOOKUP is missing.
+- **Power Query** — for more advanced joining of multiple tables at once, where repeated lookup formulas would be slow or hard to follow.
+
+## What you get out of it
+
+- **Time:** in a workbook with hundreds of formulas, you save the repeated fixing after every structural change — easily tens of minutes a week.
+- **Reliability:** formulas don't break when someone (say, a coworker) inserts a new column.
+- **Readability:** the syntax `=XLOOKUP(what, where, what_to_return)` is clearer than VLOOKUP, where you have to look up the column position every time.
+- **Lower risk of report errors:** the built-in handling of a missing value means you won't get a confusing error message in your sheet instead of a clear indication that the value is missing.
+
+## Pro tip
+
+XLOOKUP's fifth argument can also do an approximate match, say for looking up price brackets — if you don't know it yet, just leave it blank and use exact matching, which covers ninety percent of everyday cases.
