@@ -1,47 +1,542 @@
 ---
 title: "Small scripts without coding: AI writes them for you"
-excerpt: "Rename 200 files, merge PDFs, download data — AI writes the script and tells you how to run it."
+excerpt: "A complete guide with prompts: how to describe a task, get a script written and explained in plain language, run it safely on a copy of your data, fix an error message, and build your own library of ready-made tools. Without writing a single line of code yourself."
 category: "ai"
 platform: "vsude"
 audience: []
 keys: []
-saves: "~1 hr a week"
+saves: "~hours of manual work a month"
 date: "2026-07-03"
 ---
 
-The line between “I can code” and “I can't code” has shifted. It used to be that without knowing the syntax, you couldn't even write a simple file-renaming script; today, you just need to describe what you want in plain words, and AI writes the code plus instructions for running it — even for someone who has never programmed and has no interest in learning.
+The line between “I can code” and “I can't code” has moved. It used to be that without knowing the syntax, you couldn't write even a simple file-renaming script. Today, all you need is to **describe what you want in plain words** — and AI writes the code, explains what it does, and tells you exactly where to paste it and how to run it. You don't need to learn to program. You need to learn to give instructions and check the results.
+
+This guide is about that second part. Writing a script is trivial these days; the risky moment is when you run it on your actual files. So here we'll walk through the whole cycle: how to recognize a task that's a good fit for a script, how to describe it so you get a usable tool on the first try, how to have it explained to you in plain language, how to run it so nothing can go irreversibly wrong, what to do when it crashes, and how to turn one-off scripts into a library you can simply pull a ready-made solution from next time.
+
+One rule sits above all the others, and we'll come back to it more than once: **never run a script you don't understand at least in outline.** You don't need to know the syntax. You need to be able to say, in one sentence, what the script will do to the files on your disk — and have a backup in case you're wrong.
 
 ## A typical scenario
 
-A bookkeeper has two hundred invoices in PDF format in a folder, inconsistently named, and needs to rename them by date in a uniform format so they can be searched. Without this tip, that's hours of renaming them one by one by hand, or hunting for a paid tool that can do it and then having to learn how to use it. With this tip, she describes what she needs to AI, gets a short script and exact instructions on where to paste it and how to run it — and renames the whole folder in a few minutes, without writing a single line of code herself.
+Jana, a bookkeeper, has five hundred PDF invoices in a folder, named exactly as they arrived: “faktura_final(2).pdf”, “scan0093.pdf”, “FA 2026 dodavatel.pdf”. She needs to rename them to a uniform format, `2026-03-15_supplier_amount.pdf`, so they're searchable and can be sorted by date. Done by hand, that's roughly eight hours of clicking, during which she makes a few typos and twice overwrites a file by accident.
 
-## How to do it
+Instead, Jana describes the task in a chat, attaches a list of the first twenty filenames, and gets a script back. First she has it explained to her step by step in plain language — and right at the second point she notices that the script would silently skip files where it can't find a date. She doesn't want that; she wants them listed. She adds that requirement. Then she runs the script in preview mode, where it only prints what it would rename, and reads through the first thirty lines. Two invoices would get the due date instead of the issue date, because both numbers appear in them; she adds a rule to handle that. Only then does she copy the folder and run the script for real.
 
-1. Describe the task specifically: “I have a folder of PDF invoices. I need to rename them by the date in the filename, to the format YYYY-MM.”
-2. State your operating system and experience level: “I'm on Windows and I don't code — tell me exactly where to paste the script and how to run it.”
-3. Have it explain what the script does step by step, rather than just copying the code blindly — it'll help you catch if it's about to do something other than what you want.
-4. Before running the script on real data, try it on a copy of the folder — for bulk operations, like renaming or deleting, a mistake is easy to make and hard to undo.
-5. If the script fails with an error message, paste it into AI exactly as it appeared — it can usually spot and fix the issue from that.
-6. Save a finished, working script along with a short note on what it's for — next time you'll only need a small tweak instead of writing it from scratch.
+All in all, an hour and a half, forty minutes of which is checking. She saves the script in a `scripts/` folder with a note on what it's for. A month later the same task comes up for a folder of delivery notes — Jana pulls up the script, changes two sentences in the request, and is done in ten minutes. That's the whole point of this guide: **the first task costs an hour, every one after that costs ten minutes.**
+
+## Phase 1: what a script is and when it pays off
+
+### A script, in plain terms
+
+A script is **a written procedure that a computer carries out on command** — like a recipe, except a machine executes it instead of you. You don't install it, and it isn't a program with windows and buttons; it's a text file with instructions like “go through every file in this folder, check its date, and rename it according to a template”.
+
+Three qualities make it worth doing:
+
+- **Repeatability.** A script handles the five-hundredth file exactly the same way as the first. A person clicking through by hand for two hours doesn't.
+- **Speed on repeat.** Writing it takes tens of minutes; running it takes seconds. The second time you do the task, the cost is zero.
+- **Traceability.** You can see exactly what rule produced the result, and you can redo it. With manual renaming, a month later you won't remember why three files ended up different.
+
+Most often you'll see **Python** (general-purpose, readable even for a layperson, runs everywhere), **PowerShell** on Windows, or a **shell script** on macOS and Linux (for simpler file operations, nothing to install). If you have no preference, ask for Python — it's the easiest to follow when you have it explained to you afterward.
+
+### When a script makes sense, and when it doesn't
+
+A script pays off when at least two of these three things are true: the task is **bulk** (more than a few dozen items), **mechanical** (the rule can be described in a sentence and doesn't require judgment on every item), and **will repeat**. Don't reach for a script to rename five files once. But even a one-off task is worth scripting when it's so large that a manual pass means fatigue-driven mistakes — five hundred invoices is exactly that case.
+
+Where a script is the wrong answer: **tasks where a human decides on every single item** (approvals, quality assessments, customer replies), things a built-in feature of a program you already have can do (bulk renaming is something [Finder on macOS](/tipy/mac-hromadne-prejmenovani) can already handle, splitting text into columns is an Excel feature), and processes meant to run permanently in the background and connect services — that's a job for [automation platforms](/tipy/n8n-zapier-ai-automatizace) instead.
+
+Before you dive into writing one, have this question put to you from the outside:
+
+```text
+I'll describe a task, and I want your advice on whether a script is
+even the right fit for it.
+
+Task: [description, e.g. every month I download an order export in
+CSV from my online store, manually delete cancellations, total up
+revenue by region, and copy the result into a spreadsheet]
+How often I do this: [once a month]
+How many items: [roughly 2000 rows]
+What I use: [Windows 11, Excel, Google Drive]
+Programming experience: none
+
+Answer in three blocks:
+1. Can something I already have handle this? (an Excel feature, a
+   built-in system tool, an app feature) — if so, describe the steps
+   and we're done.
+2. If not, why a script is worth it and roughly how much work it'll be.
+3. What's risky about this task — where a badly written script could
+   irreversibly damage the data.
+
+Don't recommend a script by default. If there's a simpler path, name it.
+```
+
+You'll get an honest verdict, and fairly often you'll find the task is solved by a feature you've had installed for years. Watch point 1: models tend to offer a script even where two clicks would do, which is why the ban in the last line matters — without it, you'll get code every time.
+
+## Phase 2: typical tasks a script can handle
+
+This phase is a catalog. These aren't theoretical examples — they're the tasks people most often handle by hand, and each one comes with a ready-made prompt.
+
+### Bulk renaming files
+
+The single most common task. The key is to describe **the pattern that's already in the filenames** and **the pattern you want**, using real examples.
+
+```text
+I have a folder with [500] PDF files. I need to bulk-rename them.
+
+Here are 15 real current filenames:
+[paste the list of names, feel free to copy them straight from your
+file manager]
+
+Target filename format: [YYYY-MM-DD_supplier_invoicenumber.pdf]
+The date is [inside the file / in the filename / in the file's
+creation date].
+
+Write me a script in Python that:
+1. only goes through .pdf files in the given folder, doesn't touch
+   subfolders,
+2. pulls the needed values out of each filename per the rules above,
+3. FIRST prints a table of "original name → new name" and changes
+   nothing,
+4. only renames the files after I confirm with a keypress,
+5. doesn't silently skip files where it can't find the data — it
+   lists them at the end under "not processed, I'll handle manually",
+6. if a new name would collide with an existing file, doesn't
+   overwrite it — adds a sequence number and reports it.
+
+Put a single variable with the folder path at the top of the script,
+and add a comment saying where I should type the path in. Add a
+comment in English to each block.
+```
+
+You'll get a script that shows what it would do first — and that's the entire difference between a safe and an unsafe version of this task. Pay special attention to point 6: name collisions are the most common way a bulk rename irreversibly deletes a file.
+
+### Merging many CSVs or Excel files into one
+
+A month-end classic: twelve exports, one per branch, and you're stitching them together by copy-pasting. A script does it in a second and, more importantly, checks that the columns actually match.
+
+```text
+I have [12] CSV files in a folder — monthly exports from [system],
+one per branch. I need them merged into a single file.
+
+Header and first two rows of one of them (delimiter [semicolon],
+encoding [UTF-8], decimal [comma]):
+[paste 3 rows]
+
+Write me a script in Python (pandas) that:
+1. loads all the .csv files from the folder,
+2. checks that they all have the same columns — if they differ,
+   PRINTS the difference and stops, doesn't force-merge them,
+3. adds a "source" column with the filename each row came from,
+4. merges them into a single file, all.csv,
+5. at the end prints a checksum: how many rows each CSV had and how
+   many the result has, so I can see nothing was lost,
+6. doesn't delete duplicates — just prints how many fully identical
+   rows it found.
+
+The script must not overwrite any of the input files.
+```
+
+Point 5 is the most important one — the checksum is the only thing that tells you, when merging data, that the result actually adds up. When the counts don't match, it's usually the encoding or a wrong delimiter in one file, not a bug in the script. For follow-up calculations on the merged data, [AI data analysis](/tipy/ai-analyza-dat) is a good fit.
+
+### Sorting photos by the date they were taken
+
+Ten thousand photos in a single folder is a state almost everyone recognizes. Photos carry the date they were taken inside them, so sorting them into folders by year and month is a purely mechanical task.
+
+```text
+I have a folder with [several thousand] photos from my phone and
+camera (JPG, HEIC, a few MP4s). I want to sort them into folders by
+the date they were taken, in the format [YYYY/YYYY-MM].
+
+Write me a script in Python that:
+1. reads the capture date from each file's metadata (EXIF),
+2. when EXIF is missing (typically for downloaded images and
+   videos), falls back to the file's modification date, but lists
+   those files separately so I know where the date is only a guess,
+3. COPIES files into the target structure, leaves the originals
+   alone,
+4. never overwrites on a name collision — adds a sequence number,
+5. at the end prints stats: how many files, how many into which
+   folder, how many without EXIF, how many skipped and why.
+
+First write me a version that only prints the sorting plan and
+copies nothing. Once I approve the plan, add a version that actually
+copies the files.
+```
+
+Point 3 is deliberate: photos get copied, not moved. If the script disappoints, you still have the original folder. Watch out for iPhone HEIC files — EXIF-reading libraries don't always handle them, and the script can crash on those files; have it handled so it keeps running and just lists the file instead.
+
+### Batch format conversion
+
+A hundred images into JPG at a reasonable size, PDF to text, docx to PDF, WAV to MP3. It's all the same task: go through the folder, run the conversion on each file, save the result alongside.
+
+```text
+I need to bulk-convert files: from [format A] to [format B].
+Input: a folder with [count] files. System: [Windows 11 / macOS].
+I don't want to install anything heavy, ideally just a Python library.
+
+Write a script that:
+1. goes through the input folder and finds files with extension
+   [extension],
+2. converts each one to [target format] with these settings [max
+   width 2000 px, quality 85, keep aspect ratio],
+3. saves results into a converted/ subfolder, leaves the inputs
+   alone,
+4. skips a file that's already been converted (the output already
+   exists) and says why,
+5. for a file that fails to convert, prints the name and reason and
+   moves on — a single failure must not stop the whole run,
+6. at the end summarizes: converted X, skipped Y, failed Z.
+
+Also tell me exactly what I need to install and with which command.
+```
+
+Point 5 is the one batch conversions typically stumble on: a single corrupted file in the middle of the folder brings down the whole run, and you don't know where it stopped. And watch the last paragraph — installing the library is the one step where you'll need the command line, so have the AI write it out verbatim.
+
+### Extracting attachments and data from a pile of files
+
+Downloaded email attachments, bank statements, invoices — the task of “go through the files and pull the values into a table” is by far the most useful one, because the alternative is hours of manual copying.
+
+```text
+I have a folder with [80] PDF invoices from various suppliers. I
+need a table from them: file, supplier, tax ID, invoice number,
+issue date, due date, amount excluding VAT, amount including VAT.
+
+Write me a script in Python that:
+1. reads the text layer from each PDF,
+2. tries to find the listed values using patterns (e.g. the tax ID
+   is eight digits after "Tax ID" or "VAT ID"; the amount is next to
+   the word "Total"),
+3. writes the results into a table, results.csv,
+4. leaves a value blank when it can't find it, and does NOT estimate
+   anything,
+5. adds a "confidence" column: complete record / incomplete /
+   unreadable PDF,
+6. at the end lists the files that are probably just a scanned image
+   with no text layer, which will need to be read a different way.
+
+Write the pattern rules into comments in English, so I can adjust
+them once I run into a supplier with a different invoice layout.
+```
+
+Point 4 is non-negotiable: a script that “estimates” a missing amount will put numbers into your books that exist nowhere else. Expect the first run to correctly pull maybe two-thirds of the files, and you'll add a few more patterns — for invoices from five suppliers, that's still faster than copying by hand. Scans without a text layer are covered in phase 6.
+
+### Cleaning up and auditing folders
+
+The last category: finding duplicates by content (not by name), listing the fifty largest files, finding what nobody has opened in two years, spotting empty folders. The request is written the same way as the ones above, plus one extra rule you should write into the prompt verbatim: **the script must not contain any delete or move command** — it saves its findings into an overview table with a “suggestion” column, and a human decides. **AI proposes, a human approves** applies here, and doubly so when it comes to deleting data.
+
+## Phase 3: how to describe a task so the script works the first time
+
+The difference between “write me a script to rename files” and the prompt from the previous phase is an hour of your own time. A good request has six parts, and it's worth checking them off before you hit send.
+
+**Context about you.** Operating system, whether you code (no), what you have installed. Without this you'll get a Linux script and instructions that don't work on Windows.
+
+**A real sample of the input.** Not a description — a sample. Fifteen filenames, three rows of a CSV including the header, a chunk of text from a PDF. Models guess at data structure, and they guess wrong; exports with a semicolon delimiter and a comma decimal separator are a classic trap.
+
+**A precisely described goal.** What the result should look like. Best again shown with an example: “`scan0093.pdf` should become `2026-03-15_ACME_2026041.pdf`”.
+
+**Edge cases.** What should happen when a value is missing, when a name is a duplicate, when a file is corrupted. This is the part people skip, and it's the part that decides whether the script is actually usable.
+
+**Safety boundaries.** What the script must never do: overwrite inputs, delete anything, touch subfolders, run without confirmation.
+
+**Output format.** Comments in your own language, the folder path as a single variable at the top, progress printed as it runs so you can see it's working.
+
+When you're not sure, have your request checked first:
+
+```text
+I want you to write a script for this task:
+[paste your request]
+
+Don't write it yet. First ask me about everything you're missing to
+write it correctly the first time — especially the structure of the
+input data, what should happen in unusual cases, and what must never
+happen under any circumstances.
+
+Ask one question at a time, eight questions at most, so I can
+realistically answer them. Once you have a clear picture, summarize
+the requirements as bullet points and have me confirm them. Only
+then write the code.
+```
+
+You'll get a conversation instead of code, and it's the best-invested minute in the whole process — the questions usually surface two or three things you hadn't considered at all. If the model dives straight into code anyway, repeat that you want questions first; the step-by-step approach is covered in the tip on [iterating with AI](/tipy/ai-iterace).
+
+### Sensitive data doesn't belong in the request
+
+Writing a script only requires **the structure of the data, not its content.** When you need to show what a client table looks like, rewrite the names as “John Smith”, “Jane Doe”, and replace account numbers and personal ID numbers with made-up values of the same shape. The script can't tell the difference, because it works with columns, not people.
+
+```text
+Here's a sample of my data, which contains real values:
+[paste 3 rows]
+
+Don't write any script yet. Instead, create me a made-up sample of
+10 rows with the SAME structure: the same column names and order,
+the same value format (number of digits, date shape, delimiters),
+but completely invented content — names, addresses, numbers, and
+identifiers.
+
+I don't want any value from the original sample except the header.
+```
+
+You'll get a sample you can keep using without sending real values anywhere. And as a general rule on this site: **personal and company data belongs only in a paid account with contractual data protection**, not in a free chat — and even there, preferably anonymized. You then run the script itself locally, where the data never leaves your machine.
+
+## Phase 4: have the script explained before you run it
+
+This is the step most people skip, and it's precisely the step that gives this guide its name. **You don't need to be able to write the code. You need to be able to say what it does.**
+
+### A prompt for a plain-language explanation
+
+```text
+Explain this script to me as if I'd never seen a line of code.
+
+For each block, write:
+- what happens in it, in plain language, in one or two sentences,
+- why that step is needed,
+- what happens if it runs into something unexpected in the data.
+
+Then answer these questions separately:
+1. Which files or folders does the script READ?
+2. Which files does it CREATE, OVERWRITE, or DELETE? List them by
+   name.
+3. Does it send anything over the internet? Where, and what?
+4. What happens if I run it twice in a row?
+5. What's the worst thing that could happen if there's a bug in it?
+
+Finally, write in one sentence what the script does — in a way I
+could repeat to a coworker.
+
+[paste the script here]
+```
+
+Questions 2 and 5 are the core of this. If you see anything unexpected in the answer to the second one — say, that on top of renaming, the script also deletes “empty” files — you have your answer on whether to run it. Read the answer to the last question out loud: if you don't understand it, don't run the script yet; keep asking.
+
+For scripts that touch a lot of files or company data, add a second round — ideally **in a different tool from the one that wrote the script.** An author is lenient toward their own work, and that goes for models too. A short request is enough: “go through this script like a strict reviewer; write down what it could irreversibly damage, what safeguards it's missing, and what stays broken if I interrupt it mid-run.” That last point is usually the most valuable — a script that renamed half a folder and then crashed leaves you in a state that's harder to untangle than the original mess.
+
+### Preview mode: a script that talks before it acts
+
+The golden rule of bulk operations: **the first version of a script changes nothing — it only prints what it would do.** In programmer jargon, this is called a dry run.
+
+```text
+Modify this script so it has a PREVIEW = True/False switch at the
+top.
+
+When PREVIEW = True:
+- the script makes no changes on disk,
+- instead it prints a clear table of everything it would do: action,
+  original path, target path,
+- at the end it summarizes: would rename X, skip Y, Z collisions,
+- for the first 20 items it also prints the reason for that
+  particular decision.
+
+When PREVIEW = False, it performs the changes for real, but first
+asks "Really perform X changes? Type YES" and stops if the answer
+isn't YES.
+
+Keep the switch right at the top, with a comment saying the default
+value shouldn't be changed until the person has reviewed the
+preview.
+
+[paste the script here]
+```
+
+You'll get a version you can run without worry — and those twenty printed reasons are the fastest way to catch that the script understands the data differently than you do. Actually read through the preview; skipping it and flipping straight to `False` is the single most common mistake in this whole process.
+
+## Phase 5: running it safely
+
+### A backup, always
+
+Before you run anything that changes files: **copy the whole folder.** Not move it, not “I have it in the cloud” — make a copy the script can't see, ideally on a different disk, or at least in a different folder outside the path the script works on.
+
+Cloud sync is not a backup. If a script renames five hundred files, the cloud dutifully renames five hundred files there too. Version history in OneDrive or Google Drive might help you, but restoring five hundred files one at a time is worse than the original manual work would have been.
+
+### Where to run the script
+
+Three paths, ranked by how sensitive the data you're processing is:
+
+- **Locally, on your own machine.** You install Python (once, a few minutes), save the script as a file, and run it with a command. **The data never leaves your machine** — for anything personal or company-related, this is the only correct choice.
+- **An online environment in your browser** (Google Colab, for instance). You install nothing, but you have to upload your files there — so this is only for data that's allowed to leave your computer.
+- **An analysis tool right inside the chat.** You upload a file, the model writes and runs the code, and returns the result. Fastest for a one-off calculation on harmless data, impractical for five hundred files.
+
+If you're not sure how to handle the technical side, ask for step-by-step instructions tailored to you: “I'm on Windows 11 and I've never run anything from the command line — walk me through what to install, where to save the file, how to open the terminal, exactly what command to type, how I'll know the script finished correctly, and what to do if the window closes immediately and I can't see anything.” Handle that last point right away; a closing window is the most common reason people end up feeling “it doesn't work” even though the script ran fine.
+
+### A procedure nothing can go wrong with
+
+1. **A copy of the folder**, set aside, out of the script's reach.
+2. **Preview mode** — read the first twenty lines of output and check they're correct.
+3. **A test sample**: create a folder with ten files that also cover the weird cases, and run the script for real there.
+4. **Check the result** manually, one by one, for all ten.
+5. **The live run**, on a copy of the whole folder.
+6. **Check after the run**: does the file count add up? Open five at random — are they really the ones that should have that name?
+7. Only then replace the original folder.
+
+It sounds tedious; the whole thing takes twenty minutes, and it's the entire difference between “the script saved me a day” and “the script renamed my archive and now I don't know what's what”.
+
+## Phase 6: when it crashes
+
+A script that ends in red error text isn't a problem. It's the most normal part of the process, and it's fixed with a single prompt.
+
+### An error message is information, not failure
+
+The key rule: **copy the whole message, exactly as it appeared.** Not the description “it threw some error”, not a screenshot of half the window — the full text, including the lines that look incomprehensible. That's exactly where it says which line failed and why.
+
+```text
+The script you wrote me crashed. Here's the situation:
+
+What I did: [ran it with command X in folder Y]
+What I expected: [it to print the renaming plan]
+What happened: [it printed 12 lines and then this]
+
+Full error message:
+[paste the entire output verbatim, including every line]
+
+Context: system [Windows 11], the folder has [500] items, the script
+ran for [about 3 seconds] and managed to [nothing / rename 12 files].
+
+Write me:
+1. what that message means in plain language,
+2. whether the script managed to change anything and whether
+   anything is left in a broken state,
+3. a fixed version of the whole script (not just the one line, the
+   whole file),
+4. what I should have done differently so this doesn't happen next
+   time.
+```
+
+You'll usually get the correct fix on the first try. But point 2 is the reason it's worth phrasing the prompt this way: before you move on to the fix, you need to know whether the first run left the folder in a half-finished state. When you're not sure about the fix, go back to your copy and start over — it's cheaper than untangling the mess.
+
+### When the result isn't an error, but nonsense
+
+A worse case: the script runs without any error and does something other than what you wanted. Here an error message won't help — what will is five concrete cases in the form “input → what it produced → what it should have produced”, plus a note that the remaining four hundred eighty files came out correctly and you don't want that broken. Always ask for a way to verify the fix hasn't broken the cases that worked — with script edits it's common for a fix to one group to damage another, and without checking you won't notice until the thousandth file.
+
+### Scanned PDFs and other cases where a script alone isn't enough
+
+When a script reports that it found no text in a PDF, that's usually not a bug in the script: the document is just an image of a page with no text layer. A script can only read text, not recognize it.
+
+There are two ways out. Either add text recognition (OCR) to the script, which means an extra install and, for documents in languages with accented characters, a bit of tuning. Or — faster for a smaller number of files — have the scans read directly by AI, which **can read images and scans, including handwriting**, and process the result further with a script. For numbers read this way, always spot-check a few values against the original; recognition mixes up digits and regularly gets handwritten amounts wrong.
+
+## Phase 7: Claude Code — when the script just runs
+
+Everything up to this point assumes you copy the script from a chat into a file and run it yourself. There's a shorter path, though: **Claude Code is a tool that works directly with the files on your computer** — it writes the code, runs it, sees the result or the error, and fixes it right away. **Claude Cowork** works similarly — a desktop mode built around a folder of files, where you hand it tasks over whatever's inside.
+
+The difference is decisive mainly for data that's “messy” — inconsistent names, a few corrupted files, three different date formats in one column. In a chat, you'd go through five rounds of “it crashed, here's the message”. Here the tool runs that loop itself, and you watch what's happening.
+
+The price of that convenience: the tool genuinely touches your files. **So the same rules don't get relaxed — they get stricter** — a copy of the data, a preview before any change, confirming each step.
+
+```text
+Work inside this project's folder.
+
+The invoices/ folder has [500] PDFs with inconsistent names. I want
+to rename them to the format [YYYY-MM-DD_supplier_number.pdf].
+
+Follow these steps and wait for my approval after each one:
+1. Go through the first 20 files and tell me what naming patterns
+   you see, and where the date and supplier can be reliably pulled
+   from.
+2. Propose conversion rules and show them to me on those 20 examples
+   as "original → new".
+3. Create a copy of the folder as invoices-backup/ and verify that
+   every file was copied (compare the counts).
+4. Run the rename on just the first 20 files and show me the result.
+5. Only after my approval, process the rest.
+
+Don't delete anything. Leave files you're not sure about unchanged
+and list them for me at the end as a to-do for manual handling.
+```
+
+You'll get a process broken into steps where the tool checks in with you — which is exactly the point. Without an explicit “wait for approval”, agentic tools tend to do the whole task in one go; with five hundred files, you want to see twenty, not five hundred. More on this kind of work in the tip on [personal automation with Claude Code](/tipy/claude-code-osobni-automatizace).
+
+When a task repeats on a regular schedule (process an export every Friday, tidy up a folder every month), you can hook it up to **scheduled tasks and routines** that run a request on a timetable. The rule stays the same: a routine can prepare and list things, but decisions and irreversible steps stay with a human.
+
+## Phase 8: your own script library
+
+The first script costs an hour. A second, similar one should cost ten minutes — but only if you can find it and understand it. Without any record-keeping, three months from now you'll be writing the same thing again, because you won't remember what that `script2_final.py` file on your desktop actually did.
+
+### Setting up a library
+
+One folder, `scripts/`, say, with a subfolder for each script holding three things: the script itself, a short description, and a sample of input data to test it on. Give the names in your own language, descriptively: `rename-invoices-by-date`, not `script7`.
+
+```text
+Here's a script I've fine-tuned and that works for me. Write me
+documentation for it in a README.md file — one I'll understand three
+months from now, when I won't remember anything about it.
+
+Contents:
+1. In one sentence: what the script does.
+2. When to use it, and when not to.
+3. What needs to be ready before I run it (data format,
+   installation).
+4. Exactly what I need to change in the script — list every
+   variable that needs editing and what belongs in it.
+5. How to run it, the literal command.
+6. How I'll know it went well.
+7. Known limitations: what it can't do, what it crashes on, what
+   I've had to handle manually.
+8. The date, and in one sentence, what I originally wrote it for.
+
+Write it for someone with no programming background, plainly and
+briefly.
+
+[paste the script here]
+```
+
+You'll get a description that, three months from now, is more valuable than the code itself. Fill in point 7 by hand with what you've learned from actually using it — the model has no idea the script chokes on files from one particular supplier.
+
+### Recycling: turning a finished script into a new one
+
+Most follow-up tasks are variations. Don't start from scratch.
+
+```text
+Here's a script that works for me for [renaming invoices by the
+date in the filename]:
+
+[paste the script]
+
+I now need almost the same thing, but for a different task:
+[delivery notes, where the date is inside the PDF, not in the
+filename, and the target format is different: [description]].
+
+Adjust it so that:
+- the structure and every safeguard already in it stay intact
+  (preview mode, overwrite protection, the list of unprocessed
+  files),
+- only the parts needed for the new task change,
+- comments mark what you changed compared to the original version.
+
+At the end, give me a bullet list of the changes, so I know what to
+double-check.
+```
+
+You'll get a new version where you know exactly what's new — and that's all you need to check. This is precisely why it's worth writing the first script properly, with safeguards: they carry over into every one that follows.
+
+### When to clear out the library
+
+Delete a script you haven't used in six months and whose description no longer makes sense. The library should be ten things you actually use, not an archive of forty attempts. Once a year, go through the folder and keep only what you've actually run in the past year.
+
+## Common mistakes
+
+- **Running a script you don't understand even in outline.** You don't need to know the syntax, but you need to be able to answer which files the script reads, which it changes, and what happens on error. If you don't know that, it isn't ready to run.
+- **Skipping preview mode and the backup.** Bulk operations don't have an undo button. Copying a folder costs ten seconds; restoring five hundred files costs a day.
+- **Describing the task vaguely and hoping for the best.** “Rename my files nicely” gets you a script built for a different data structure than the one you actually have. Fifteen real filenames and one sample result save three rounds of fixes.
+- **Letting the script guess at missing values.** When an amount isn't in a PDF, it should stay blank. An estimated value looks just as credible as a real one, and it only gets caught once it's in your books.
+- **Sending real personal or company data into a free chat.** Writing code only requires the structure, not the content — a made-up sample with the same shape of values works just as well. Sensitive data belongs only in a paid account with contractual data protection; the run itself then happens locally.
+- **Scripting something a program you already have can do.** Before you write code for bulk renaming or splitting text into columns, check whether your file manager or spreadsheet app already has it built in.
+- **Letting a script get “improved” into something you no longer understand.** Every round of edits means a new round of explanation. A script that's grown to three screens' worth of code, and you no longer know why, is due for a rewrite from a simpler starting point.
 
 ## The best tools
 
-For the vast majority of one-off tasks, the first two items on this list are enough, with nothing extra to install.
-
-- **ChatGPT / Claude / Gemini** — write a script in Python or as a batch file matching your operating system, complete with instructions for running it.
-- **The built-in terminal or PowerShell** — where you paste and run the script, no extra install needed.
-- **Google Colab or a similar online environment** — if you don't want to install anything locally, you can run the script right in your browser.
-- **A more experienced colleague or your IT department, as a safety net** — for scripts that touch company systems or sensitive data, a second pair of eyes is warranted.
-
-The same approach works for small automations beyond files too — sorting emails, bulk text edits, or simple calculations.
+- **Claude, ChatGPT, or Gemini in the browser** — write both the script and the instructions for running it, and, most importantly, explain it to you in plain language; this is also where a risk-review round before the first run belongs.
+- **Claude Code** — when you want AI to run the script directly against your files, see the error, and fix it; the fastest path for messy data, but it demands stricter boundaries in the request.
+- **Claude Cowork** — a desktop mode built around a folder of files, where you assign tasks over whatever's in it, without copying data into a chat.
+- **Python with the pandas library** — a general-purpose foundation for working with files and tables; you don't need to know how to write it, just understand it enough to know what the script will do.
+- **Terminal or PowerShell** — where the script actually runs; nothing extra to install, and you can have the first-run instructions written specifically for your system.
+- **An online environment in your browser** (Google Colab and similar) — when you don't want to install anything, but only for data that's allowed to leave your computer.
+- **A more experienced colleague or IT** — for scripts that touch company systems or shared drives, have the proposal reviewed before you run it.
 
 ## What you get out of it
 
-- **Time:** hours of manual, repetitive work shrink to minutes of running a script.
-- **Accuracy:** a script processes a hundred files exactly the same way, without fatigue or the typos that creep into manual work.
-- **Sanity:** the end of tedious routines like renaming, sorting, or merging files one at a time.
-- **Reach:** tasks that used to require hiring a developer or buying a specialized tool, you can now handle yourself.
+- **Time:** bulk tasks that used to take half a day (renaming hundreds of files, merging exports, sorting photos) shrink to minutes of running time plus twenty minutes of checking. For repeated tasks, the cost on the second use drops to practically zero.
+- **Money:** you skip buying single-purpose programs “for renaming” or “for converting formats”, five of which you'd need and each of which works differently. For recurring tasks, you also skip hiring an outside developer.
+- **Peace of mind:** the end of a routine that has anyone losing focus after two hours — and the end of worrying that a typo is hiding somewhere among hundreds of files, ready to surface six months from now.
+- **Quality:** a script processes the five-hundredth file exactly like the first, and it can show you the exact rule it followed. A manual pass has neither property, and its mistakes can't be traced.
 
 ## Pro tip
 
-Before running the script on real data, try it on a copy of the folder. And if AI needs to see a sample of your data to build the script, such as a file's structure, use a made-up sample with the same structure instead of real sensitive data — writing the code usually only requires knowing what shape the data is in, not its actual content.
+An advanced trick that looks unnecessary and saves the most: **have a verification script written for every script.** When the first one renames files, the second one then goes through the folder and confirms that every name matches the expected format, that the file count hasn't changed, and that nothing ended up empty. It costs one extra prompt and replaces an hour of manual checking — and above all, it gives you an answer you otherwise don't have for bulk operations: is it actually done, or does it just look done?
+
+And the closing rule, which still holds after your fiftieth script: **AI proposes, a human approves.** A machine may write the code, but the decision to run it on your data is yours — and with it, the responsibility to have a backup and to understand, in at least one sentence, what's about to happen.
