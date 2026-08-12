@@ -1,44 +1,841 @@
 ---
-title: "A bachelor's thesis with AI: an honest workflow from sources to defense"
-excerpt: "Nobody's going to stop you from using AI tools while writing your thesis — the question is whether you use them as a crutch or as scaffolding. A workflow where the thinking stays yours: sources, data, text, and citations all under your control."
+title: "A Bachelor's Thesis with AI: The Complete Honest Workflow from Assignment to Defense"
+excerpt: "A comprehensive guide with 30+ concrete prompts: from the research question through literature review in NotebookLM and data analysis with Python scripts to typesetting, a simulated opponent, and a pre-submission checklist. The thinking stays yours — AI handles the mechanics."
 category: "ai"
 platform: "vsude"
 audience: ["student"]
 keys: []
-saves: "~weeks of mechanical work"
+saves: "~months of mechanical work"
 date: "2026-08-12"
 ---
 
-The reality is simple: the tools exist, and students use them. The line between cheating and craft isn't whether you turn AI on — it's **who owns the thinking**. Cheating is letting AI write a thesis you can't defend. Craft is letting it handle the mechanics — sorting sources, scaffolding scripts, typesetting — while the arguments, the analysis, and the conclusions are yours. This workflow is the second path.
+The reality is simple: the tools exist, and students use them. The difference between cheating and craft isn't whether you turn AI on — it's **who owns the thinking**. Cheating is letting AI write a thesis you can't defend. Craft is letting it handle the mechanics — sorting sources, scaffolding scripts, typesetting — while the research question, the arguments, and the conclusions are yours. This guide is the second path, spelled out down to the last prompt.
+
+This is the longest piece on this site, and that's on purpose: it walks you through the whole thesis phase by phase, from your first narrowing of the topic to the questions at your defense. Every phase comes with concrete prompts you can copy — just fill in the brackets. You don't have to read it in one sitting; come back to whichever phase you're currently in.
+
+Two rules sit above the whole guide. First: **check your university's AI policy before anything else.** Every school has (or is right now writing) rules for using AI — what's allowed, what has to be disclosed, what gets you disqualified. Read it before you open your first chat, and disclose your AI use exactly as it requires. Second: **nothing goes into the thesis that you can't defend without AI in the room.** The committee won't be questioning the tool — they'll be questioning you.
 
 ## A typical scenario
 
 Tom is writing his bachelor's thesis on consumer behavior. He has forty sources: scanned PDFs, websites, three of his own datasets from a survey. The classic approach would mean a month of reading and note-taking, a week fighting with Excel, and a week wrestling a Word template.
 
-Instead, he uploads the sources into a tool that only answers from them. By the end of one evening he has a map of the literature: who claims what, where the authors disagree, what his topic already covers, and where the gap is that he can fill. He doesn't run the survey analysis in a chat window — he has a script written that crunches the numbers from his CSV. He writes the text himself, chapter by chapter, in a single file with citations. Before submitting, he has a simulated opponent tear the thesis apart — and at the defense he's calm, because he can explain every sentence.
+Instead, he uploads the sources into a tool that answers only from them, and by the end of one evening he has a map of the literature: who claims what, where the authors disagree, and where the gap is that he can fill. He doesn't run the survey analysis in a chat window — he has a script written that crunches the numbers from his CSV. He writes the text himself, chapter by chapter, in a single file with citations. Before submitting, he has a simulated opponent tear the thesis apart — and at the defense he's calm, because he can explain every sentence. Exactly what each of those steps looks like is the rest of this guide.
 
-## How to do it
+## Phase 0: topic, research question, and plan
 
-1. **Rules first, tools second.** Every university has (or is right now writing) a policy on AI: what's allowed, what has to be disclosed, what gets you disqualified. Read it, and disclose your AI use exactly as it requires. This step can't be skipped — everything else rests on it.
-2. **Sources into NotebookLM.** Upload everything: scans, PDFs, web pages, notes, the assignment brief. The tool's strength is that it answers **only from your sources** and shows where each answer came from. Have it produce summaries of individual sources, comparisons across authors, and a map of themes — that's weeks of literature review compressed into an evening.
-3. **Keep the outline and prep in a single .md file.** In Claude Cowork, have it draft a structure from your material and keep the whole text in one markdown file, citations included next to every claim. One file, one source of truth: your text and your citations never drift out of sync.
-4. **AI never does the math in chat — a script does.** A language model isn't a calculator: looking at a long table, it only sees a slice of its context window and estimates numbers "by eye." The right move is to have it **write a Python script** that runs the analysis on your CSV — the results are exact, reproducible, and every step can be shown. Have the script export the charts straight to PNG, too.
-5. **Typesetting comes last.** Move the finished markdown into whatever tool you're formatting in (Affinity, Word, LaTeX) — parts of the conversion can be automated, and Affinity can even be driven through a Claude Cowork connection. Then comes the manual work that turns a draft into your thesis: rewrite it in your own voice, strip out AI-sounding phrasing, and **check every citation against the original** — language models invent sources, and one citation that doesn't exist hurts more at your defense than a weak chapter.
-6. **A simulated opponent before you submit.** Hand the finished text to a different AI than the one you wrote with, and give it a role: "you're a strict thesis advisor — find the weak points in the methodology, the argument, and the structure." Fix, repeat. Then you walk into the real defense with a thesis that's already survived one round of opposition.
+Most weak bachelor's theses aren't weak because of the writing — they're weak because they never had a question. “Something about social media marketing” isn't a topic, it's a field. Phase 0 takes one or two evenings and decides the rest of the semester: you turn a vague assignment into a question that can be answered with data you can actually get your hands on.
+
+AI is good for exactly one thing here: churning out more variants than you'd have thought of on your own, and mercilessly asking “and where are you getting the data for that?” Which one you pick is your decision — and your thesis advisor signs off on it.
+
+### Narrowing the topic: turning a field into a question
+
+An assignment like “the impact of artificial intelligence on the labor market” is unworkable in fifty pages. Narrowing works along three axes: **who** (population, field, region), **what exactly** (one variable, not five), and **when** (the period you actually have data for). Generate several variants at once and compare them side by side — it's only in the comparison that you can see which one is actually doable.
+
+```text
+I'm a [field] student writing a bachelor's thesis on [topic]. The
+required length is [40–50] standard pages, I have [5] months, and
+I'm in [country].
+
+Propose 5 different ways to narrow this topic. For each one, give:
+1. A concrete research question (one sentence, not a vague statement)
+2. What data would be needed and where to get it (public database,
+   my own survey, interviews, content analysis, existing dataset)
+3. An estimate of how long data collection would take
+4. The main risk — why this variant could fail
+5. What the conclusion would look like if the result turned out to
+   be "nothing interesting"
+
+The variants must differ in approach, not just in wording. At least
+one should be qualitative and at least one quantitative. Skip the
+intro and summary, go straight to the five blocks.
+```
+
+You'll get back five comparable cards where it's easy to tell a romantic notion from five months of real work. Watch point 2 — if the AI writes something vague like “publicly available statistics” for the data source, follow up and ask for the specific database name, then verify it actually exists and actually holds data for the period you need. Models will happily invent registries that don't exist.
+
+### Research question and hypotheses
+
+A good research question can be answered “yes / no / like this,” and it makes clear what you'd need to measure. Hypotheses grow out of the question — statements that can be falsified. If no conceivable result could disprove your hypothesis, it isn't a hypothesis, it's an opinion.
+
+```text
+My research question is: [question].
+Field: [field]. Method I'm considering: [survey / interviews /
+data analysis / content analysis]. Sample I can realistically
+reach: [description, e.g. 120 students at one faculty].
+
+Do three things:
+1. Rephrase the question into a form that is unambiguously
+   answerable, and explain what you changed and why.
+2. Derive 2–4 testable hypotheses from it. For each one, state
+   which variable is being measured, how it's operationalized, and
+   what result would disprove it.
+3. Be critical: point out where this question is only apparently
+   answerable — what data I'd need to answer it honestly, and which
+   of that I probably won't be able to get.
+
+Don't hold back on point 3, I want to hear the uncomfortable part
+too.
+```
+
+Point 3 is why the prompt pays off. It typically reveals that your question was aiming at causation (“does X lead to Y?”) while your data can only support correlation (“is X associated with Y?”) — and that's a distinction half the defense discussion hangs on. Then rewrite the question and hypotheses in your own words; don't put a formulation into the thesis unless you understand it down to the last word.
+
+### Schedule: a week-by-week plan with slack built in
+
+A semester doesn't collapse because something took a long time — it collapses because data collection started too late. Have a plan built backward from the submission deadline, and insist on slack — without it, a schedule is fiction.
+
+```text
+I'm writing a bachelor's thesis on [topic], method [method].
+I received the assignment on [date], submission is on [date],
+defense is on [date]. I realistically have [10] hours a week for
+the thesis, except during [exam period from—to], when I have zero.
+
+Build a week-by-week schedule from today to submission. For each
+week:
+- what exactly I should do (an activity, not a phase)
+- what should be done by the end of the week (a checkable output)
+
+Separately list 5 milestones I can't miss, and for each one write
+what happens if it slips by two weeks.
+Leave the last 3 weeks before submission free as slack for
+proofreading, typesetting, and unexpected problems — don't schedule
+any writing there.
+Output as a table: week, date, activity, output.
+```
+
+You'll get a schedule you can drop straight into your calendar. Check two things by hand: whether data collection starts early enough (a survey collected in December gets filled out worse than one collected in October), and whether the plan accounts for meetings with your thesis advisor — those get booked in advance and aren't entirely up to you.
+
+### Meeting with your thesis advisor
+
+AI will never approve your topic. Your thesis advisor will — and they're the only person whose opinion on the thesis's direction actually carries weight. What AI can do for you is prepare the meeting so that twenty minutes produces decisions instead of small talk.
+
+```text
+Tomorrow I have my first meeting with my thesis advisor about my
+bachelor's thesis. Topic: [topic]. My current research question:
+[question]. Method I'm considering: [method]. What I have so far:
+[status].
+
+Prepare briefing notes for the meeting:
+1. A 5-sentence summary of my plan I can read aloud at the start
+2. 8 questions for my advisor, ranked by importance — ones where
+   their answer will change what I do next (not questions I could
+   answer myself by looking them up)
+3. 3 decisions I need them to sign off on
+4. What I should write down from the meeting so I don't have to
+   solve it again in a month
+
+Be concise, it should fit on one page.
+```
+
+After the meeting, fill in the notes with the answers and save them — this is the seed of your methodology chapter. And the basic rule applies: **AI proposes, the human approves.** When AI's suggestion conflicts with what your thesis advisor says, your thesis advisor wins. They defend the thesis with you; the model won't be at the defense.
+
+## Phase 1: literature review — a library that answers
+
+The literature review is the phase where you save the most time — and where it's easiest to cheat yourself. The classic approach — forty PDFs, notes in a notebook, and a month later you can't remember who claimed what — can be replaced with something better: a library you can ask questions of, one that shows exactly which source and which page it pulled each answer from. There's only one condition: **only what you personally found and downloaded goes into the library.** Never let a model “fill in relevant literature” — it will invent titles that sound convincing and don't exist.
+
+### Gathering sources: where to look and how to keep records
+
+Start where full texts live, not where links to them live. **Google Scholar** for a quick overview and citation trail (the “cited by” feature shows who built on a given article — that's how you find newer work). **University access to subject databases** is something most students never use: through your school's library you can usually get into EBSCO, ProQuest, ScienceDirect, JSTOR, or Web of Science — articles that are paywalled from outside. Log in through remote access, not from your home network. **Library catalogs** (your national library, your faculty's catalog) for monographs, and **thesis repositories** for other students' theses — you don't cite those as authorities, but their reference lists are a gold mine.
+
+Keep records from day one in a single spreadsheet: author, year, title, source type, where the file is stored, what it relates to, and — crucially — a column for “read / skimmed / not opened.” Without it, you'll spend April hunting for which PDF had that one definition.
+
+For an initial map of the field, [deep research](/tipy/deep-research-reserse-trhu) is useful — a mode that searches the web on its own and returns a report with links:
+
+```text
+Map the academic literature on [topic], focus [narrowing]. I'm
+interested in the period [last 10 years] and the context
+[country / EU / global].
+
+I want:
+- the main schools of thought and key authors, who's cited in this
+  field
+- 15 concrete sources (journal articles, monographs, research
+  reports) with a full citation and a link to where the text can be
+  found
+- one sentence per source on why it's relevant to my topic
+- which ones are freely available and which are only behind paid
+  databases
+- 5 search terms I can use to keep searching
+
+Cite a source for every claim. If you're not sure a source exists,
+say so instead of guessing and filling it in.
+```
+
+What comes back is a signpost, not a literature review. Treat it as a list of leads to check: find and open every source before you log it. Anything you can't find doesn't exist — and has no business in your reference list. More on verification in [fact-checking with AI](/tipy/ai-overovani-faktu).
+
+### NotebookLM step by step
+
+NotebookLM is a tool that answers **only from what you upload into it**, and shows a citation to a specific source for every answer. For a literature review, that's a crucial difference: it never confuses your sources with whatever it has in memory.
+
+The process: set up one notebook for the whole thesis (one notebook = one thesis, not one chapter). Upload everything — article PDFs, scanned book chapters, links to web pages, interview transcripts, the assignment brief, and your faculty's formal requirements. Upload the assignment brief too: it lets you check right away whether your sources cover what the school actually wants. The number of sources per notebook is limited (in the tens; more on a paid plan), so if you have too much material, split it into topic-based notebooks and only upload what genuinely belongs to that topic — a hundred sources “just in case” makes the answers worse, not better.
+
+Then start asking. Four prompts that cover most of the literature review:
+
+```text
+Take the source [file name] and produce a structured summary:
+- the author's main thesis in 5 sentences
+- method and sample used (if it's a research study)
+- 5 most important findings, with a page reference for each
+- 3 directly quotable passages in exact wording, with page numbers
+- what's missing or weak in the text
+
+Base this exclusively on this source. Where a page number can't be
+found, say so instead of guessing.
+```
+
+```text
+Go through all the uploaded sources and build a literature map for
+the question [research question]:
+1. What main positions appear in the sources — who holds which one
+2. Where the authors agree (across sources)
+3. Where they directly disagree — for each dispute, give both sides
+   and the source each comes from
+4. Which sources are original research and which just draw on
+   others' work
+5. Chronology: how the view on this topic has evolved over time
+
+Don't add anything that isn't in the uploaded sources.
+```
+
+```text
+My research question is [question] and I want to study it using
+[method] on the sample [sample].
+
+Based on the uploaded sources, do a gap analysis:
+- what's already established and well covered on my topic
+- where the findings are contradictory or insufficient
+- what, specifically, none of the uploaded sources address
+- which of these gaps my thesis can realistically fill, and which
+  is too big for a bachelor's thesis
+
+For each gap, cite the sources that lead you to conclude it exists.
+```
+
+```text
+List how the term [term] is defined across the uploaded sources.
+For each source: the exact wording of the definition, author, year,
+page. Then compare: where the definitions differ, which ones are
+mutually incompatible, and which is most widely used in the field.
+Finally, suggest which definition I should adopt in my thesis and
+how to justify it.
+
+Do the same for the terms: [term 2], [term 3].
+```
+
+That last prompt takes care of the definitions chapter, which tends to be the most tedious and most often phoned in. Always click through the result to the citations in the side panel, though — NotebookLM shows exactly where it pulled each claim from, and that's the only check that actually matters.
+
+### Scanned PDFs: watch what the machine actually read
+
+Older literature is often just a scan — an image of the page with no text layer. Both NotebookLM and Claude can read scanned PDFs, but on old, crooked, or faintly printed scans, OCR makes mistakes: it confuses digits (3/8, 1/7), mangles accented characters, and on two-column layouts mixes paragraphs between columns. This is especially dangerous with numbers and years.
+
+The defense: for every passage you'll quote directly, or take a number from, open the original page and compare the wording. On a new scan, first have the model transcribe exactly what it sees (“transcribe page 47 of the source [name] word for word”) — within five minutes you'll know whether it's legible, or whether it's faster to get a better copy from the library.
+
+### Managing citations: formatting is the machine's job, existence is yours
+
+Save the full citation **the moment you first open a source**, not while writing. Digging up a journal's volume and issue number three months later is the most pointlessly wasted evening of the semester. Tool of choice: **Zotero** (free, a browser extension that saves a citation with one click and can export to your required citation style — APA, Chicago, ISO 690, whatever your program uses). Whatever you pick, keep it all in one place.
+
+Standardizing the format is work AI does well:
+
+```text
+Here's a raw list of sources I've noted down in different formats —
+some copied from the web, some transcribed from a book:
+
+[paste list]
+
+Convert them into a single consistent format following [my required
+citation style, e.g. APA / Chicago / ISO 690], sort alphabetically
+by author's last name, and split into: monographs, journal articles,
+theses and dissertations, web sources.
+
+Where a field needed for the citation is missing from what I gave
+you (year, publisher, pages, DOI), do NOT fill it in — write
+[MISSING: year] instead, and add a list at the end of everything I
+need to track down.
+```
+
+The last paragraph of the prompt is the important part. **AI is allowed to format citations; a human has to verify each source's existence and content.** Models fill in missing fields with guesses that look completely plausible — they'll invent a publication year, page numbers, even a DOI. Before submitting, go through the reference list item by item and find every single one in a catalog or database. One citation that doesn't exist will call the whole thesis into question at your defense more than a weak chapter would.
+
+### Reading strategy: what to read in full and what to skim
+
+Nobody reads forty sources cover to cover, and nobody should. Split them up: a few key texts in depth, the rest at the level of the abstract and conclusion, some not at all. What decides is relevance to **your** question, not how famous the article is.
+
+```text
+Here are summaries of 15 sources I have for my bachelor's thesis:
+
+[paste summaries — for each: author, year, title, 3–5 sentences on
+content]
+
+My research question: [question]. Method: [method].
+
+Rank the sources by relevance to my question and split them into
+three groups:
+A) must-read in full — sources I can't write the thesis without
+B) abstract and conclusion are enough — context, one claim, filler
+C) skip — why, specifically
+
+For group A, note what I should focus on while reading and which
+part of the thesis it'll cover. For group C, justify the exclusion
+in one sentence. Finally: is there a type of source you think I'm
+missing?
+```
+
+You'll get a reading plan for the next few weeks. Don't delete group C — keep it in your records along with the reason for exclusion. When someone at your defense asks “and why didn't you use this one?”, there's a real difference between “I didn't know about it” and “I knew about it, I excluded it because it studies a different sample.”
+
+## Phase 2: outline and a single source of truth
+
+The literature review gave you a map of the field. Now you need to turn it into a plan, and into a place where the thesis actually gets written. Both take one evening, and both decide whether you'll spend the month before submission gluing fourteen documents together, or just finishing one.
+
+### Outline: have a skeleton proposed, but choose it yourself
+
+A model that has your source summaries and your research question will propose a structure that would take you two evenings to work out yourself — and, more importantly, show you which sources fit where. That's the most tedious part of planning: remembering that the article on methodology belongs in chapter three, not the theoretical section.
+
+```text
+You're an experienced bachelor's thesis advisor in [field]. Below
+you'll find summaries of the sources I've studied and my research
+question.
+
+Research question: [question]
+Required length per assignment: [e.g. 40–50 standard pages]
+Type of thesis: [theoretical / empirical with original data
+collection / literature review]
+
+Source summaries:
+[paste summaries from the literature review phase]
+
+Propose an outline for the thesis:
+- chapters and subchapters in a logical sequence,
+- 3–5 bullet points per chapter on exactly what it should cover,
+- an estimated length in pages for each chapter,
+- for each chapter, list which of my sources fit there and why.
+At the end, note what's missing from my sources to tighten up the
+outline.
+```
+
+You'll get back a complete proposed structure with a page budget and sources assigned to each chapter — and that last paragraph about missing material is often more valuable than the outline itself. Don't adopt the proposal mechanically: models write outlines “textbook-style” (history of the concept, definitions, scope), while your department may want a different structure.
+
+Discuss it with your thesis advisor as soon as possible, and show up with an outline you can justify: why methodology is its own chapter, why the theoretical section is twenty pages and not thirty, why you left out a topic that seemed obvious. If you can't answer one of those questions, you haven't actually made that part of the outline your own yet.
+
+### One .md file: why markdown
+
+The most common organizational disaster with theses isn't sources — it's versions. The text in a Google Doc, citations in Zotero, notes in Notion, a chunk of chapter three sitting in a Word file on the desktop. Three days before submission, nobody knows which one is the real one.
+
+The solution is boring and it works: the whole thesis lives in **one markdown file**. Markdown is plain text, so it opens anywhere and never gets corrupted. It's diffable — two versions of the file can be compared line by line, which you can't do with a .docx. It's portable to whatever you'll eventually typeset in, whether that's Word, LaTeX, or Affinity. And AI tools work with it without losing formatting, because it's the format they write in natively.
+
+The file's structure might look like this:
+
+```markdown
+# The Impact of Social Media on Consumer Behavior
+
+## 2. Theoretical Background
+
+### 2.1 Defining Consumer Behavior
+
+Consumer behavior is typically defined as the set of decision-making
+processes that precede a purchase [Smith 2023, p. 45]. More recent
+approaches add a post-purchase phase as well [Brown and King 2024,
+p. 112-118].
+
+<!-- TODO: add critique of the classic model, check Taylor -->
+<!-- TODO: verify Smith's pagination against the print edition -->
+
+### 2.2 The Role of Social Media
+
+![Share of influenced respondents by age](charts/fig1.png)
+
+<!-- chart source: script analyze.py, data from survey.csv -->
+```
+
+Three habits worth building in from the start. **Write citations right next to the claim**, in brackets, page number included; they get converted to your final bibliographic style at the end, in one pass. **Put notes to yourself in comments** `<!-- ... -->` — they disappear on export, but while you're writing, they show you exactly where the gaps are. And **reference charts, don't embed them**: the image lives in a subfolder, the text only holds a link, so when the script recalculates the chart, the text doesn't change.
+
+### Working over a folder in Claude Cowork
+
+It pays to work on the text folder-by-folder rather than by copy-pasting into a chat window. Claude Cowork is a desktop app mode where the model sees a folder of files and works with them directly. A structure that works well:
+
+```text
+thesis/
+  sources/     PDFs and scanned articles
+  notes/       your notes and summaries from the literature review
+  data/        CSV from the survey, exports
+  charts/      PNGs generated by the script
+  text.md      the thesis itself
+  analyze.py   script that computes the numbers
+```
+
+Then you can write paragraph by paragraph, with your material at hand:
+
+```text
+Work within this project's folder.
+Go through the sources/ folder and my notes in the notes/ folder.
+In chapter 2, in the file text.md, after the paragraph about
+[concept] add one paragraph (max 200 words) summarizing how the
+authors in my material approach this concept.
+
+Rules:
+- draw exclusively on what's in the sources and notes,
+- don't invent or add anything from general knowledge,
+- cite every claim in the form [Last name year, p. X],
+- where your source material is missing something, write a TODO
+  comment instead of a claim,
+- match my style from the surrounding text, no new headings.
+```
+
+You'll get a paragraph inserted in the right place, with citations from your own files and TODO notes wherever a claim has no support. Those TODOs are exactly why the prompt is worded this way: without them, the model fills the gap with a plausible-sounding but unsupported sentence. And **AI proposes, the human approves** still applies — rewrite every added paragraph in your own words and verify the citations against the original, see [fact-checking with AI](/tipy/ai-overovani-faktu).
+
+### Version control: at least copies, ideally Git
+
+A single file has one downside — if you break it, you've broken everything. The minimum protection takes ten seconds a day: at the end of a work session, copy `text.md` into a `backups/` folder with the date in the filename (`text-2026-08-12.md`).
+
+The bolder move is Git. It sounds like a programmer's tool, but it fits text well: it remembers every version, shows exactly what changed between any two versions, and never overwrites anything. It only takes a few commands — the prompt “explain how to set up a Git repository for my thesis folder, I've never done this” returns a five-minute walkthrough. Bonus at the defense: your commit history is proof the thesis was written gradually, by your own hand.
+
+## Phase 3: data and analysis — AI doesn't calculate, AI writes the script
+
+This is the most important part of the guide. Most theses don't get sent back for rewriting because of style — they get sent back because of numbers, specifically because the student had them calculated in a chat window.
+
+### Why a language model must not do your math
+
+There are two reasons for this, and both need to be understood, not just accepted.
+
+**The context window.** A model only sees a limited slice of text — in a long conversation, much smaller than it looks. A table with eight hundred respondents and forty columns won't fit into it whole, so the model works with just a portion of it. You don't get an error message — you get a result, calculated from whatever it happened to see.
+
+**And most importantly: a model doesn't generate a calculation, it generates text.** It's a machine for predicting the likely continuation of text — ask it for an average and it doesn't run a calculator, it writes down a number that looks like the right answer in context. Sometimes it even is correct. And that's exactly what makes it dangerous: numbers estimated “by eye” look completely normal — the mean falls in a plausible range, the standard deviation looks believable, the percentages add up to a hundred. You only find out at the defense, when someone recalculates a single table.
+
+The rule is therefore strict: **no number that was generated as text in a chat window goes into the thesis.** Every value in a table and every value in a chart has to come from a script you can run again.
+
+### The right approach: CSV plus a script
+
+The process has three steps: your data lives in a CSV, you show the model only the header and a few rows (not the whole file), the model writes a script, and the script computes the numbers.
+
+```text
+Here's the header of my CSV (first 5 rows, semicolon-separated,
+UTF-8 encoding, decimal comma):
+
+[paste 5 rows including column names]
+
+Write me a Python script (pandas, matplotlib) that:
+1. loads this file as data/survey.csv,
+2. cleans the data: [drop incomplete responses, standardize how
+   regions are written, flag ages outside the 15-99 range as
+   missing],
+3. computes descriptive statistics (n, mean, median, SD) for the
+   variable [variable] broken down by [group],
+4. tests the hypothesis [hypothesis] with an appropriate statistical
+   test, and writes a comment explaining why that particular test is
+   appropriate and what assumptions the data must meet,
+5. saves the numeric results to results.csv,
+6. saves the charts to the charts/ folder as PNGs at 300 dpi.
+
+For each step, write a comment explaining WHY it's done.
+The script must run even when there are empty cells in the data.
+```
+
+You'll get a finished script with comments that are just as valuable to you as the code — the justification for the test choice is exactly what gets asked at the defense. Watch two things: paste the real header (encoding and separator vary between exports and a wrong guess breaks the load), and get the choice of test confirmed by your thesis advisor, not by the model.
+
+### What the output looks like
+
+When the script runs, you'll see something like this:
+
+```text
+Loaded 812 rows, 41 columns.
+Removed 47 incomplete responses, 765 remain.
+
+Descriptive statistics: time_online by age_group
+                    n    mean  median      sd
+age_group
+18-24             213    4.82    4.50    1.91
+25-34             241    3.47    3.20    1.64
+35-44             186    2.91    2.75    1.38
+45+               125    2.14    2.00    1.22
+
+Kruskal-Wallis: H = 118.42, p < 0.001
+Results saved: results.csv
+Chart saved: charts/fig1.png (300 dpi)
+```
+
+This is a number that's allowed into the thesis: you know where it came from, how many cases went into it, and how to reproduce it.
+
+### Running it: you don't need to know how to code, you need to understand the script
+
+There are three ways to run the script. In **Claude Code**, directly on your project folder — the model writes the script, runs it, sees any error, and fixes it, which is the fastest route when you expect the data to be messy. In an **analysis tool built into the chat**, where you upload the CSV and the model runs the code in a sandboxed environment. Or **locally, on your own machine**: install Python, `pip install pandas matplotlib`, `python analyze.py` — and the data never leaves your computer, which for sensitive survey data outweighs the convenience.
+
+Not knowing Python isn't a problem. Not understanding what the script does is — at the defense, they ask about the method, not the syntax.
+
+```text
+Explain this script to me line by line, as if I were a first-year
+student who's never seen Python before.
+
+For each block, write:
+- what it does, in plain English,
+- why this step is necessary,
+- what would happen if I left it out.
+For every statistical test, also explain why this particular test
+was chosen, what assumptions it makes, and what I'd have to replace
+it with if the data didn't meet those assumptions.
+At the end, give me 5 questions a reviewer might ask me about this
+analysis, and how to answer them.
+
+[paste script here]
+```
+
+You'll get a clear explanation and a set of prepared reviewer questions. Treat this as a mandatory step: until you can explain why the thesis uses a Kruskal-Wallis test and not ANOVA, that analysis isn't yours. For tougher practice, see [the simulated opponent](/tipy/ai-oponent).
+
+### Charts: a consistent style
+
+Charts made with matplotlib's default settings are instantly recognizable, and they look cheap in a printed thesis. Standardize them with one prompt, then just keep generating.
+
+```text
+Update the charting part of the script so all charts share a single
+style suitable for a printed bachelor's thesis:
+- sans-serif font, labels at least 11 pt,
+- axis labels in [my language] including units, e.g. "Time online
+  (hours/day)",
+- chart titles in [my language], numbered as "Figure 1: ...",
+- no unnecessary color: shades of gray, color only where it
+  distinguishes groups, and still legible when printed in black and
+  white,
+- no background grid, no 3D effects,
+- add n (sample size) to each chart's caption,
+- export to charts/ as PNG, 300 dpi, white background.
+Put all the settings in one place at the top of the script.
+```
+
+You'll get back an updated script with the style settings in one place. Watch out for special characters in labels — accented characters sometimes drop out because of the font, so actually open the first chart and check that everything renders correctly.
+
+### Anonymization: before you upload anything
+
+Survey data is personal data. Before you upload the file anywhere, **delete columns with names, contact details, the name of a specific school or company, and any open-ended answers where people identify themselves**. Replace respondents with a sequential ID number; if you need to link back to the original record, keep the key in a file on your own machine that you never upload anywhere.
+
+And the site's general rule applies here: sensitive data belongs **only in a paid account with contractual data protection**, never in a free chat. If your informed consent form promised respondents that you'd process the data yourself, the cleanest route is a local script — the model writes the code, you run the numbers on your own machine.
+
+### Reproducibility as a bonus at your defense
+
+When the analysis runs as a script, your appendix has something most theses don't: **a complete, re-runnable calculation**. Put the script and instructions for running it in the appendix, and add a note in the text along the lines of “all calculations were performed by the script provided in Appendix C; the analysis can be repeated on the attached data.”
+
+The payoff is twofold. If your thesis advisor says a week before submission that one age group should be excluded, you change a filter and every number and chart recalculates in ten seconds — instead of two days of clicking through Excel. And at the defense, the sentence “the calculation is in the appendix and can be rerun” carries a weight that a table pasted from a chat window never will.
+
+## Phase 4: writing — AI as a sparring partner, not a ghostwriter
+
+This is where it's decided whether you submit your thesis or someone else's text with your name on the cover. The line isn't thin at all: **it's the difference between “write me chapter 2” and “help me write chapter 2 from these notes of mine.”**
+
+### Why “write me a chapter” doesn't work
+
+A chapter generated out of nothing looks finished and is unusable. It's **foreign** — it never passed through your head, so you can't develop it or defend it. It's **empty** — without sources, a model generates generic truisms like “this is a complex issue requiring an interdisciplinary approach.” And it's **unsupported** — claims that didn't come from your sources have no citation, and when the model adds one anyway, it often just invents it (see Phase 5).
+
+There are plenty of useful roles for it, though: **structuring** (turning a chaos of notes into an outline), **pushing back** (finding the weak spot in an argument you're writing), **condensing** (four rambling paragraphs into one), and **turning your notes into continuous prose that you then rewrite in your own words**. That last point is the key: a draft built from your own notes is a legitimate intermediate product, not a final text.
+
+### A theory chapter from your own notes
+
+The most useful prompt in this whole phase. It assumes you have notes from your sources — meaning you've actually read them.
+
+```text
+Here are my notes for chapter 2 [chapter title], including a
+citation with every note. Assemble them into a continuous draft
+covering these topics in this order: [topic A], [topic B],
+[topic C].
+
+Rules:
+- use ONLY claims from the notes; don't add anything from your own
+  general knowledge, even if it's common knowledge
+- keep the citation for every claim in the exact form it appears in
+  the notes
+- where the notes aren't enough for a smooth transition, or where
+  support is missing, write TODO: [what to look up] on its own
+  line — don't invent filler
+- don't reconcile conflicting notes, flag the contradiction instead
+- academic [my language], no superlatives
+
+At the end, list all the TODOs.
+```
+
+You'll get a draft built only from what you've read, plus a list of the gaps. Spot-check a few paragraphs against your notes: models love to “upgrade” a claim into a stronger form than the original had (“suggests” quietly becomes “proves”).
+
+### Methodology
+
+The methodology chapter has to be precise, boring, and complete — which is why it works well to write it from an outline of what you actually did.
+
+```text
+Write the methodology chapter based on this outline of my approach:
+
+Design: [e.g. survey study, quantitative, cross-sectional]
+Sample: [who, how many, how selected, where and when collected]
+Instrument: [survey with X questions, scales, where the items were
+adapted from]
+Data collection: [how distributed, response rate, excluded
+responses and why]
+Processing: [software, tests, significance level]
+Ethics: [informed consent, anonymization]
+Limitations: [what I know is a weakness]
+
+Requirements: academic style, past tense, descriptive, no
+superlatives and no evaluation of the quality of my own approach.
+Describe every decision so that someone else could replicate it.
+Where the outline is missing something, write TODO: [what to add].
+```
+
+You'll get a chapter where all that's left is filling in the numbers. Watch two things: that the model doesn't add steps you didn't actually take (a common one: “normality of the data was tested”), and that the description matches what your analysis script actually does.
+
+### Interpreting the results
+
+Interpretation is thinking work you don't delegate. Here the model is a sparring partner: it offers readings, you choose and justify.
+
+```text
+Here are the results of my analysis from [results.csv] and the
+chart descriptions [file names]. Hypothesis H1 was: [wording of H1].
+
+Don't write chapter text. Answer in three blocks:
+1) What the data literally say about H1 — no interpretive
+   overreach.
+2) What alternative explanations exist (confounding variables,
+   sampling bias, sample size, chance)?
+3) What I CANNOT claim from this data, even if it sounds tempting —
+   especially anywhere it would mean mistaking correlation for
+   causation, or generalizing beyond the sample.
+
+For each point, state which number or chart you're basing it on.
+```
+
+You'll get material to think with, not finished text — block 3 tends to be the most valuable, because it protects you in advance from a sentence you won't be able to defend at your defense. If the model reaches for a number you can't see in your output, ask it to show you where it got it.
+
+### Rewriting in your own voice
+
+A technique that takes an hour per chapter and saves the thesis: **read the draft, close it, and write the chapter again in your own words.** Don't edit sentences — write from memory, with the draft sitting next to you as an outline. Whatever you don't remember well enough to write yourself, you either don't understand or it doesn't belong there.
+
+Then comes the “AI perfume” check:
+
+```text
+Go through this text and flag passages that sound like generic AI
+prose:
+- filler and padding ("in today's world", "plays a key role")
+- unsupported superlatives ("crucial", "groundbreaking")
+- empty summary sentences that add nothing
+- strings of three synonyms instead of one precise word
+- throat-clearing openers at the start of paragraphs
+
+Just FLAG them, and for each one briefly explain why it's
+suspicious. Don't rewrite anything and don't suggest replacements —
+I'll rewrite it myself.
+```
+
+The ban on rewriting is there on purpose: if you let the model “fix” the text, you'd just be swapping one set of generic phrases for another.
+
+### Academic style and terminology consistency
+
+The last style check before a chapter goes to your advisor.
+
+```text
+Proofread this text as an academic-style editor in [field]. Don't
+rewrite it, just list your findings with a quote of the affected
+passage:
+
+1. Person and voice: am I consistently using [first person /
+   editorial "we" / passive voice]? Flag places where it breaks.
+2. Terminology: terms I refer to with different words (sometimes
+   "respondent," sometimes "participant") — suggest which term to
+   standardize on.
+3. Tense: theory in present tense, my own procedure in past tense —
+   flag deviations.
+4. Abbreviations: is each one defined on first use?
+5. Colloquial or journalistic phrasing.
+```
+
+The human eye stops noticing terminology inconsistencies after about page twenty — this is a place where the machine wins. Adapt point 1 to your field's conventions: technical faculties usually want passive voice, while humanities fields increasingly allow first person.
+
+## Phase 5: citations and fact-checking
+
+### Why you can't trust AI's citations
+
+Models generate text that **looks** correct — and a citation is exactly the format where that's easy to pull off. The result is an article with a plausible title, a real author, a believable year, and a DOI that leads somewhere else or nowhere at all. From a committee's point of view, a citation that doesn't exist is worse than a weak chapter: it's documented proof you never read the source.
+
+A rule with no exceptions: **verify every citation against the original.** Open the DOI, find the book in a catalog, the article in a database — even for citations you wrote yourself.
+
+### Cross-checking the text against the reference list
+
+This, on the other hand, is a task where AI is reliable: it's comparing two lists, not working from its own knowledge.
+
+```text
+Here's the text of my thesis [filename.md] and the reference list
+[references.md]. Do a cross-check and return four lists:
+
+1. Citations that appear in the text but are missing from the
+   reference list.
+2. Entries in the reference list that the text never cites.
+3. Mismatches in the details of the same source (different year,
+   different last name, different author order between the text and
+   the list).
+4. Direct quotes in quotation marks that are missing a page number.
+
+For each finding, give the chapter and passage. Don't fix anything.
+```
+
+You'll get a list of inconsistencies — typically ten to twenty of them — that would take half a day to find by hand. Run it on the final version, or you're checking something that's already out of date.
+
+### Formatting your citation style
+
+You can apply the style with a prompt, but the result **must** be checked by hand.
+
+```text
+Format this list of sources according to [my required citation
+style, e.g. APA / Chicago / ISO 690], style [numeric reference /
+author-date] per the conventions of [my university].
+
+The sources are of different types: monograph, book chapter,
+journal article, thesis, web page, legal statute.
+
+- don't fill in details that aren't in what I gave you; mark missing
+  fields as [MISSING: year] etc.
+- don't change titles, names, or years
+- sort alphabetically by first author's last name
+- append a list of entries with missing fields at the end
+```
+
+The ban on filling things in is the most important line in the prompt — without it, the model will invent missing publishers and years “to make it fit.” Check the punctuation on two or three entries of each type; citation styles are strict on the details, and models get them wrong.
+
+### Checking claims and numbers
+
+The other half of the work is the facts in the text. The process is the same as in [fact-checking with AI](/tipy/ai-overovani-faktu): have the checkable claims listed out and track down the primary source.
+
+```text
+Go through this chapter and list every checkable factual claim in a
+table: numbers, proportions, years, names, references to other
+people's research.
+
+Columns: claim | where in the text | cited source | type
+(number/date/name) | how hard it is to verify.
+
+Don't claim whether it's true — just list what needs to be verified
+against the source.
+```
+
+For key numbers — the ones an argument rests on, or that end up in the abstract — always go to the source, not to a retelling of it. A statistic copied from an article that copied it from a report tends to change by the third relay.
+
+## Phase 6: typesetting and the final document
+
+### From markdown to the final format
+
+Your text lives in a single .md file with citations. The path out depends on what your faculty requires:
+
+- **Word.** Fastest with Pandoc: it converts markdown to .docx and, with a reference template, maps your headings onto your faculty's styles. Without Pandoc, copy-pasting into a blank template and applying styles by hand works too. The key is to format with styles, not “manually bold” — otherwise the table of contents and numbering fall apart.
+- **LaTeX.** Most technical faculties have their own document class; the prompt below handles converting a chapter.
+- **Affinity Publisher.** For anyone who wants typographic control: it can be driven from Claude Cowork through MCP, so you give typesetting instructions as text and check the result by eye.
+
+```text
+Convert this chapter from markdown to LaTeX for our faculty's
+template. I'm attaching the preamble and a sample chapter from the
+template — follow its conventions, don't add new packages.
+
+- headings to section/subsection by level
+- images into a figure environment with \label and \caption, leave
+  the captions as they are
+- tables into whatever environment the template uses
+- convert citations to \cite with keys from the attached .bib file
+- properly escape special characters (%, &, _, quotation marks)
+- where you're not sure about the mapping, leave a % TODO comment
+  and the original text
+```
+
+You'll get a .tex chapter you can try compiling. Escaping and citation keys are the two places the conversion most often breaks — check those first.
+
+### Pre-flight check of formal requirements
+
+Formal requirements are the most pointless reason to have a thesis sent back — and also the easiest to check.
+
+```text
+Here's the structure of my thesis (table of contents + first
+paragraph of each section) and here are our faculty's requirements:
+
+[paste the exact wording of the policy: required sections, length,
+order, appendices, how AI use must be disclosed, abstract format,
+number of keywords]
+
+Go through the requirements one by one and mark each: MET / NOT MET
+/ CANNOT VERIFY FROM STRUCTURE. For anything not met, say what's
+missing and where it belongs. At the end, list what I still need to
+check by hand in the typeset version.
+```
+
+Paste the policy verbatim — paraphrasing it from memory is exactly where the sentence about disclosing AI use gets lost.
+
+### Generated lists
+
+AI can build a list of abbreviations, figures, and tables from the text in a minute. Have it generate them, but **check them**: whether each abbreviation is defined on first use, and whether the captions match what's actually shown in the figure. In LaTeX, the template generates these automatically, and AI is more useful for checking that nothing is missing.
+
+## Phase 7: the simulated opponent and the defense
+
+### The review round
+
+Run the finished text through **a different model than the one you wrote with** — a co-author judges leniently, and fresh eyes find what it overlooks. The process is in [AI as a reviewer](/tipy/ai-oponent); for a bachelor's thesis it looks like this:
+
+```text
+You're a strict reviewer of bachelor's theses in [field]. Read the
+attached thesis and write the report you would actually submit —
+skip the polite preamble and any praise that doesn't say anything
+concrete.
+
+1. Three weakest points in the methodology (what specifically, and
+   why it matters).
+2. Three holes in the argument — claims that don't follow from what
+   precedes them, or that aren't backed by data or a citation.
+3. Five questions I would ask at the defense, starting with the
+   nastiest.
+4. For each question, describe what a good answer would look like —
+   and what answer you'd consider evasive.
+
+Base this only on the text of the thesis, don't guess at what I
+probably did.
+```
+
+You'll get a review that stings, and that's the point. The model sometimes criticizes something that's actually already in the thesis and it just missed — check its findings against the text.
+
+### Iteration
+
+One round isn't enough. Fix what you can, and have it reviewed again — **two to three rounds**, until the review comes back with minor notes instead of structural objections. Between rounds, write down what you didn't fix and why: that list is ammunition for the defense, because the committee cares whether you're aware of the thesis's limitations.
+
+### Preparing for the defense
+
+```text
+Prepare me for the defense. From the attached thesis, generate:
+- 15 questions the committee might ask, split into: methodology,
+  interpretation of results, positioning within the literature,
+  practical implications, "why didn't you do it differently"
+- for each one, a skeleton of a good answer in three points
+- three questions my thesis doesn't have a good answer to, and a
+  suggestion for how to admit that honestly
+
+Ask about my numbers and my decisions, not the field in general.
+```
+
+Then **say the answers out loud.** The difference between “I could explain that” and actually explaining it only shows up once you have to put it into sentences. Pull your presentation out of the thesis text using the approach from [turning a document into a presentation](/tipy/z-dokumentu-prezentace-ai) — ten slides: problem, method, results, conclusion.
+
+### Pre-submission checklist
+
+- Your university's AI policy is satisfied and AI use is disclosed exactly as required.
+- Every citation verified against the original (DOI opened, book found in a catalog).
+- Every claim defensible without AI in the room — and without reading from your own text.
+- Analysis reproducible by script: the script is saved and running it produces the same numbers that are in the thesis.
+- The text went through your own rewrite, not just editing an AI draft.
+- A review round happened, with a different model, and the findings are either addressed or knowingly left as-is.
+- Formal requirements checked against the exact wording of the policy, including appendices and the abstract.
+
+## The most common mistakes
+
+- **Letting AI write a whole chapter and submitting it.** The fastest route to a text you won't survive defending.
+- **Trusting citations without verification.** Models generate convincing-looking sources that don't exist; one such citation calls the entire reference list into question.
+- **Running statistics in a chat window.** A language model isn't a calculator — it sees a slice of a long table and estimates the numbers by eye. Let a script do the analysis.
+- **Uploading un-anonymized respondent data to a free chat.** Personal data belongs only in a paid account with contractual data protection, and even there without names or identifying combinations.
+- **Ignoring your university's AI policy.** Rules differ from school to school and change every year; undisclosed AI use is a problem even in an honestly written thesis.
+- **Letting your text get “improved” into phrasing you don't understand.** A sentence you can't translate into your own words is a foreign object in your thesis — cut it, even if it sounds smart.
 
 ## The best tools
 
-- **[NotebookLM](https://notebooklm.google.com)** — research anchored to your own sources: it answers only from the documents you upload and cites where it got each answer.
-- **Claude Cowork** — drafts content from a folder of source material, writes analysis scripts, and, through MCP, can drive other apps during typesetting.
+- **[NotebookLM](https://notebooklm.google.com)** — a literature review anchored in your own sources: it answers only from the documents you upload and cites where it got each answer.
+- **Claude Cowork** — drafting content over a folder of source material, writing and explaining analysis scripts, and, through MCP, driving other apps during typesetting.
 - **Python (pandas, matplotlib)** — scripts for analyzing CSVs and exporting charts; you don't need to be able to write them, but you need to understand them well enough to defend them.
-- **A second model as opponent** — ChatGPT or another AI you didn't write with: fresh eyes catch what a "co-author" tends to miss.
+- **Zotero** — citation management from the moment you first read a source; AI is allowed to help with formatting, but you verify each source's existence.
+- **A second model as reviewer** — ChatGPT or another AI you didn't write with: fresh eyes catch what a “co-author” overlooks.
 
 ## What you get out of it
 
 - **Time to think:** weeks of mechanics (note-taking, retyping, formatting) shrink to days — and the time you get back goes into the argument that actually makes the thesis good.
-- **Confidence in your data:** analysis run by a script on your CSV is exact and reproducible — no numbers eyeballed in a chat window.
-- **Calm at the defense:** the workflow forces you to own every claim; a simulated opposition means you've already heard the hardest questions once.
+- **Confidence in your data:** analysis run by a script on a CSV is exact and reproducible — no numbers eyeballed in a chat window.
+- **Calm at the defense:** the workflow forces you to own every claim; a simulated review means you've already heard the hardest questions once.
 
 ## Pro tip
 
-One rule sits above every tool: **nothing goes into the thesis that you can't defend without AI in the room.** Learning by doing still matters — for the parts you're supposed to learn from, do them by hand even when the tool could do them faster. And watch your data: anonymize survey data with personal information, and only put it into AI through a paid account with contractual data protection, never through a free chat.
+Learning by doing still matters: for the parts you're supposed to learn from, do them by hand even when a tool could handle them faster — that's exactly why the academic process exists. And watch your data: anonymize survey data with personal information, and only put it into AI through a paid account with contractual data protection, never through a free chat. Writing a dissertation instead of a bachelor's thesis? This workflow scales — round it out with [routines for PhD students](/tipy/doktorand-s-ai-workflow).
