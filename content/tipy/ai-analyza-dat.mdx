@@ -42,19 +42,17 @@ kódování UTF-8, desetinná čárka):
 [vlož 20 řádků včetně názvů sloupců]
 
 Nedělej zatím žádné výpočty. Udělej datový audit:
-1. U každého sloupce urči typ (text, číslo, datum, kategorie) a napiš,
-   co podle názvu a hodnot pravděpodobně znamená.
-2. Označ sloupce, které vypadají problematicky: smíšené formáty,
-   datum jako text, čísla s jednotkou v buňce, kategorie psané
-   různě („Praha“, „praha“, „PRAHA “).
-3. Vypiš, na co se tě musím zeptat, než začnu počítat — typicky
-   jestli jsou ceny s DPH, co znamenají stavy objednávek a jestli
-   se mají storna vyřadit.
-4. Navrhni, co je v těchto datech jedno pozorování a jestli jsou
-   řádky na stejné úrovni.
+1. U každého sloupce urči typ (text, číslo, datum, kategorie)
+   a co podle názvu a hodnot pravděpodobně znamená.
+2. Označ problematické sloupce: smíšené formáty, datum jako text,
+   čísla s jednotkou v buňce, kategorie psané různě („Praha“,
+   „praha“, „PRAHA “).
+3. Vypiš, na co se mě musíš zeptat, než začnu počítat — typicky
+   jestli jsou ceny s DPH a jestli se mají storna vyřadit.
+4. Napiš, co je v těchto datech jedno pozorování.
 
-Odpověz strukturovaně po bodech, nic nedomýšlej — kde nemáš
-z ukázky jistotu, napiš to jako otázku pro mě.
+Nic nedomýšlej — kde nemáš z ukázky jistotu, napiš to jako
+otázku pro mě.
 ```
 
 Vrátí seznam nejasností, které byste jinak objevili až v grafu. Bod 3 je ten důležitý: většina chyb v analýzách nejsou chyby ve výpočtu, ale v tom, že se sečetlo něco jiného, než si člověk myslel. A pozor — model občas s klidem prohlásí, že sloupec „cena_celkem" je s DPH. Neví to. Ověřte si to v systému, ze kterého export pochází.
@@ -66,27 +64,20 @@ Objednávky, mzdy, dotazníky i výpisy z banky obsahují osobní údaje. Než s
 Platí zásada webu: **citlivá data patří jen do placeného účtu se smluvní ochranou dat**, ne do volného chatu, a i tam bez identifikátorů. U citlivých firemních čísel se navíc ptejte, jestli musíte nahrávat celou tabulku — na většinu otázek stačí agregovaný výřez. Nejčistší varianta je nechat si napsat skript a spustit ho u sebe; data pak nikam neodcházejí.
 
 ```text
-Napiš mi Python skript, který připraví anonymizovanou kopii
-mého CSV před analýzou. Struktura sloupců:
-
-[vlož jen názvy sloupců, bez dat]
+Napiš Python skript, který připraví anonymizovanou kopii mého CSV.
+Struktura sloupců: [vlož jen názvy sloupců, bez dat]
 
 Skript má:
-1. úplně odstranit sloupce: [jméno, e-mail, telefon, adresa],
-2. sloupec [zakaznik_id] nahradit pořadovým číslem 1..n a uložit
-   převodní tabulku do souboru klic.csv, který zůstane u mě,
-3. v textovém sloupci [poznámka] označit řádky, kde se vyskytuje
-   e-mail, telefonní číslo nebo slovo s velkým písmenem uprostřed
-   věty (možné jméno), a vypsat je ke kontrole — nemazat je
-   automaticky, jen ohlásit,
-4. uložit výsledek jako data_anonym.csv se stejným oddělovačem
-   a kódováním,
-5. na konci vypsat, kolik řádků a sloupců zůstalo.
-
-Ke každému kroku napiš český komentář, co dělá.
+1. odstranit sloupce [jméno, e-mail, telefon, adresa],
+2. [zakaznik_id] nahradit pořadovým číslem a převodní tabulku
+   uložit do klic.csv, který zůstane u mě,
+3. v textovém sloupci [poznámka] jen OZNAČIT řádky s e-mailem,
+   telefonem nebo možným jménem a vypsat je ke kontrole,
+4. uložit data_anonym.csv se stejným oddělovačem a kódováním
+   a vypsat, kolik řádků a sloupců zůstalo.
 ```
 
-Vrátí skript, který spustíte jednou a máte bezpečnou kopii. Bod 3 nedávejte na automatiku schválně — o tom, co je v poznámce osobní údaj, rozhoduje člověk. Je to jedna z podob pravidla **AI navrhuje, člověk schvaluje**, které platí v celém tomhle workflow: mazání, odesílání i zveřejnění čísel schvalujete vy.
+Vrátí skript, který spustíte jednou a máte bezpečnou kopii. Bod 3 nedávejte na automatiku schválně — o tom, co je v poznámce osobní údaj, rozhoduje člověk. Je to podoba pravidla **AI navrhuje, člověk schvaluje**: mazání i zveřejnění čísel schvalujete vy.
 
 ## Fáze 2: AI nepočítá v chatu, AI píše skript
 
@@ -113,21 +104,18 @@ Tři místa, kde kód reálně běží:
 Do každé analytické konverzace se vyplatí dát rámcovou instrukci, která zakáže odhadování:
 
 ```text
-Pracujeme nad mým datovým souborem. Platí tahle pravidla pro
-celou konverzaci:
+Pracujeme nad mým datovým souborem. Pro celou konverzaci platí:
 
-1. Žádné číslo neuvádíš z hlavy ani z odhadu. Každou hodnotu
+1. Žádné číslo neuvádíš z hlavy ani z odhadu — každou hodnotu
    spočítej kódem a ukaž mi kód i jeho výstup.
 2. Když na výpočet nemáš data nebo nástroj, napiš „tohle
    nespočítám“ místo přibližné odpovědi.
-3. U každého výsledku uveď, z kolika řádků vznikl a kolik řádků
+3. U každého výsledku uveď, z kolika řádků vznikl a kolik jich
    bylo vyřazeno a proč.
-4. Když je v datech nejednoznačnost (chybějící hodnoty, duplicity,
-   podezřelé kategorie), zeptej se mě, nerozhoduj sám.
-5. Na konci každé odpovědi napiš jednou větou, co by mohlo
-   výsledek zkreslit.
-
-Potvrď, že rozumíš, a čekej na první otázku.
+4. Při nejednoznačnosti (chybějící hodnoty, duplicity, podezřelé
+   kategorie) se zeptej, nerozhoduj sám.
+5. Na konci každé odpovědi napiš větou, co by mohlo výsledek
+   zkreslit.
 ```
 
 Vypadá to formálně a je to účelné: bez bodu 1 a 2 model tiše přejde do režimu „napíšu, co se hodí". Bod 3 je pojistka proti tichému zahození řádků — kdykoli se počet záznamů mezi kroky změní, chcete vědět proč.
@@ -158,23 +146,20 @@ Napiš Python skript (pandas, matplotlib), který:
 1. načte soubor jako data/objednavky.csv a ošetří české kódování
    i desetinnou čárku,
 2. vyčistí data: vyřadí řádky se stavem [storno, nezaplaceno],
-   sjednotí psaní kategorií (mezery, velká písmena), převede
-   [datum] na datový typ,
+   sjednotí psaní kategorií, převede [datum] na datový typ,
 3. vypíše, kolik řádků načetl, kolik vyřadil a z jakého důvodu,
-4. spočítá tržby a počet objednávek po měsících a k tomu
-   průměrnou hodnotu objednávky,
-5. udělá totéž v rozpadu podle [kategorie] a [zdroj návštěvy],
-6. uloží číselné výsledky do results.csv,
-7. uloží grafy do složky grafy/ jako PNG.
+4. spočítá tržby, počet objednávek a průměrnou objednávku
+   po měsících a totéž v rozpadu podle [kategorie] a [zdroj],
+5. uloží čísla do results.csv a grafy do složky grafy/ jako PNG.
 
 Požadavky:
 - ke každému kroku český komentář, PROČ se dělá,
 - skript musí projít i s prázdnými buňkami,
-- nikde nepoužívej natvrdo zapsaná čísla — vše počítej z dat,
-- na konci vypiš kontrolní součet: celkové tržby za celé období.
+- žádná natvrdo zapsaná čísla, vše počítej z dat,
+- na konci vypiš kontrolní součet: tržby za celé období.
 ```
 
-Vrátí hotový skript i s komentáři, které jsou stejně cenné jako kód. Hlavičku vkládejte **skutečnou**, ne přepsanou z hlavy — na špatně odhadnutém oddělovači padne načtení. A kontrolní součet z bodu 7 porovnejte s číslem, které znáte odjinud (z účetnictví, z administrace e-shopu). Když se rozchází, něco se vyřadilo navíc — lepší to zjistit teď než na poradě.
+Vrátí hotový skript i s komentáři, které jsou stejně cenné jako kód. Hlavičku vkládejte **skutečnou**, ne přepsanou z hlavy — na špatně odhadnutém oddělovači padne načtení. A kontrolní součet porovnejte s číslem, které znáte odjinud (z účetnictví, z administrace e-shopu). Když se rozchází, něco se vyřadilo navíc — lepší to zjistit teď než na poradě.
 
 ### Jak vypadá výstup, kterému se dá věřit
 
@@ -182,12 +167,6 @@ Vrátí hotový skript i s komentáři, které jsou stejně cenné jako kód. Hl
 Načteno 14 203 řádků, 18 sloupců.
 Vyřazeno 612 storen a 87 nezaplacených, zbývá 13 504.
 Chybějící hodnoty: kategorie 41 řádků (ponechány jako „neuvedeno“).
-
-Tržby po měsících (2026):
-mesic    objednavky   trzby_kc   prum_objednavka
-2026-04        1 341  1 795 100             1 339
-2026-05        1 402  1 861 400             1 328
-2026-06        1 097  1 452 900             1 324
 
 Rozpad června podle kategorie (proti květnu):
 kategorie        kveten     cerven    zmena
@@ -200,7 +179,7 @@ Kontrolní součet za období: 21 480 300 Kč
 Výsledky uloženy: results.csv, grafy/trzby-mesice.png
 ```
 
-Tohle je číslo, které smí do prezentace: víte, kolik řádků do něj vstoupilo, co se vyřadilo a jak vznikne znovu. A hlavně je z něj hned vidět, že „červnový propad" je propad jedné kategorie.
+Tohle je číslo, které smí do prezentace: víte, kolik řádků do něj vstoupilo, co se vyřadilo a jak vznikne znovu. A hned je vidět, že „červnový propad" je propad jedné kategorie.
 
 ### Rozumět skriptu, i když ho neumíte napsat
 
@@ -214,14 +193,12 @@ U každého bloku napiš:
 - co se v něm děje běžnou češtinou,
 - jaké rozhodnutí o mých datech v sobě skrývá (co vyřazuje,
   co doplňuje, co zaokrouhluje),
-- co by se stalo, kdybych ten krok vynechal.
+- co by se stalo, kdybych ho vynechal.
 
-Pak zvlášť vypiš:
-- všechna místa, kde skript může tiše vrátit špatné číslo,
-  aniž by spadl (chybějící hodnoty, duplicity, dělení nulou,
-  špatně načtený datum),
-- 5 otázek, které mi k téhle analýze může položit šéf nebo
-  klient, a jak na ně odpovědět.
+Pak zvlášť vypiš místa, kde skript může tiše vrátit špatné číslo,
+aniž by spadl (chybějící hodnoty, duplicity, dělení nulou, špatně
+načtený datum), a 5 otázek, které mi k téhle analýze může položit
+šéf nebo klient, i s odpověďmi.
 
 [vlož skript]
 ```
@@ -235,22 +212,21 @@ Někdy nemáte otázku, jen soubor, který vám někdo poslal. Postup má dva kr
 ### Profil dat jako povinný první krok
 
 ```text
-Napiš Python skript, který mi udělá profil datasetu — chci
-vědět, s čím pracuju, než začnu počítat. Skript ať vypíše:
+Napiš Python skript, který udělá profil datasetu — chci vědět,
+s čím pracuju, než začnu počítat. Ať vypíše:
 
-1. rozměry: počet řádků a sloupců,
-2. pro každý sloupec: typ, počet chybějících hodnot a jejich
-   podíl, počet unikátních hodnot,
-3. u číselných sloupců: minimum, maximum, průměr, medián,
-   1. a 99. percentil,
-4. u textových a kategorických: 10 nejčastějších hodnot
-   s četností a upozornění na podezřele podobné dvojice
-   (stejné až na mezery a velká písmena),
-5. u datových sloupců: nejstarší a nejnovější datum a chybějící
-   období (dny nebo měsíce bez jediného záznamu),
-6. počet úplných duplicit a počet duplicit podle [klíčový sloupec],
-7. seznam řádků s nesmyslnými hodnotami: záporné ceny, věk mimo
-   rozsah 0-120, datum v budoucnosti.
+1. počet řádků a sloupců,
+2. u každého sloupce: typ, podíl chybějících hodnot, počet
+   unikátních hodnot,
+3. u číselných: minimum, maximum, průměr, medián, 1. a 99. percentil,
+4. u textových: 10 nejčastějších hodnot s četností a upozornění
+   na podezřele podobné dvojice (stejné až na mezery a velikost
+   písmen),
+5. u datových: nejstarší a nejnovější datum a chybějící období
+   (dny nebo měsíce bez jediného záznamu),
+6. počet duplicit celkem i podle [klíčový sloupec],
+7. řádky s nesmyslnými hodnotami: záporné ceny, věk mimo rozsah
+   0-120, datum v budoucnosti.
 
 Výstup ať je čitelný v terminálu, nic neopravuj — jen ohlas.
 ```
@@ -298,17 +274,15 @@ Skript má:
 1. agregovat hodnotu po dnech, týdnech a měsících,
 2. dopočítat klouzavý průměr přes 7 a 30 dní,
 3. spočítat meziroční srovnání (stejný měsíc loni) v procentech,
-4. normalizovat měsíční hodnoty na počet pracovních dní v měsíci
-   a ukázat, jak moc se tím obraz změní,
-5. najít dny, kdy se hodnota liší od klouzavého průměru o víc
-   než 2 směrodatné odchylky, a vypsat je jako tabulku
-   (datum, hodnota, očekávaná hodnota, odchylka),
+4. normalizovat měsíční hodnoty na počet pracovních dní a ukázat,
+   jak moc se tím obraz změní,
+5. vypsat tabulku dní, kdy se hodnota liší od klouzavého průměru
+   o víc než 2 směrodatné odchylky,
 6. vykreslit graf: denní hodnoty světle, klouzavý průměr silně,
    odchylky zvýrazněné.
 
-Do komentářů napiš, jaké předpoklady ta metoda má a kdy
-by mě mohla splést (krátká řada, chybějící dny, změna
-metodiky sběru).
+Do komentářů napiš, jaké předpoklady metoda má a kdy by mě mohla
+splést (krátká řada, chybějící dny, změna metodiky sběru).
 ```
 
 Vrátí skript a hlavně tabulku odchylek — konkrétní dny, kterým stojí za to se podívat na zoubek. Bod 4 často překvapí: „propad" se po přepočtu na pracovní dny scvrkne na dvě procenta a řešit se nemá co. Skript není detektor příčin, je to detektor **míst, kam se podívat**.
