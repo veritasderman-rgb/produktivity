@@ -1,6 +1,6 @@
 ---
 title: "Schůzky, které se zapisují samy — až po úkoly v úkolovníku"
-excerpt: "Přepis schůzky je dnes komodita. Hodnota je v tom, co následuje: AI vytáhne rozhodnutí a úkoly kdo-co-dokdy a založí je ke schválení."
+excerpt: "Kompletní návod s prompty na plně automatický řetěz: nahrávání a přepis, extrakce úkolů kdo-co-dokdy, jejich založení v úkolovníku přes konektor, prohledávatelný archiv rozhodnutí a pravidla, bez kterých to nezapínejte."
 category: "ai"
 platform: "vsude"
 audience: ["manazer"]
@@ -11,36 +11,406 @@ date: "2026-08-11"
 
 Zapisovat na schůzce znamená nebýt na schůzce. Kdo píše, ten nepřemýšlí — a stejně mu polovina věcí uteče. Přepis mluveného slova přitom dnes zvládne skoro každý nástroj, takže ruční zapisování ztratilo smysl. Skutečný zisk ale nepřijde z přepisu samotného: přijde z toho, co se stane **automaticky po** schůzce, když z přepisu vypadnou rozhodnutí a úkoly a rovnou doputují do úkolovníku.
 
+Tenhle návod staví celý řetěz: nahrávání a přepis, extrakce úkolů ve formátu kdo-co-dokdy, jejich založení v úkolovníku konektorem, rozeslání zápisu a archiv, kterého se dá za půl roku zeptat „co jsme rozhodli o X v květnu?“. Není to zrychlená verze ručního postupu — je to jiný způsob práce. Ruční variantu, kde vy vkládáte přepis a vy tvoříte zápis, rozebírá tip [z nahrávky porady zápis s úkoly](/tipy/ai-zapis-z-porady); začněte tam, pokud tohle děláte poprvé. **Automatizovat má smysl až postup, který vám ručně spolehlivě funguje** — jinak jen zrychlíte výrobu nepořádku.
+
+Nad celým řetězem stojí dvě pravidla, která nejsou volitelná. **Nahrává se jen se souhlasem účastníků** a u opakovaného automatického nahrávání to znamená napsané firemní pravidlo, ne větu na začátku hovoru. A **AI navrhuje, člověk schvaluje**: úkoly se zakládají jako návrhy, zápis odchází až po přečtení člověkem. Automatizace, která rozesílá bez kontroly, je jen rychlejší způsob, jak se splést před celým týmem.
+
 ## Vzorová situace
 
-Projektová schůzka o hodinu a půl, sedm lidí. Vedoucí týmu Jana píše poznámky do bloku, takže do diskuse zasáhne třikrát místo desetkrát. Večer poznámky přepisuje do zápisu, dvě věci si nepamatuje přesně, a tak je formuluje vágně. Za týden se řeší klasika: „To si měl vzít kdo?“ Nikdo neví, úkol se nestal.
+Projektová schůzka o hodinu a půl, sedm lidí. Vedoucí týmu Jana píše poznámky do bloku, takže do diskuse zasáhne třikrát místo desetkrát. Večer poznámky přepisuje do zápisu, dvě věci si nepamatuje přesně, a tak je formuluje vágně. Za týden se řeší klasika: „To si měl vzít kdo?“ Nikdo neví, úkol se nestal. Napříč patnácti schůzkami měsíčně to dělá zhruba šest hodin přepisování a několik ztracených úkolů, o kterých se dozví, až když někde chybí.
 
-S automatickou pipelinou má Jana během schůzky ruce volné. Do deseti minut po jejím konci má strukturovaný podklad: čtyři rozhodnutí, šest úkolů s odpovědnou osobou a termínem, dvě otevřené otázky. Úkoly už čekají v úkolovníku jako návrhy ke schválení. Jana je projde, dva přeformuluje, jeden smaže — a teprve pak zápis rozešle. Celé to trvá pět minut.
+S nastaveným řetězem má Jana během schůzky ruce volné. Zapisovač běží od začátku, po skončení se přepis sám odešle do rutiny, která ho zpracuje. Do deseti minut po konci má strukturovaný podklad: čtyři rozhodnutí, šest úkolů s odpovědnou osobou a termínem, dvě otevřené otázky. Úkoly už čekají v úkolovníku v projektu „Ke schválení“ jako návrhy. Jana je projde, dva přeformuluje, jeden smaže, jednomu opraví termín — a teprve pak zápis rozešle a úkoly přesune do ostrého projektu. Celé to trvá pět minut.
 
-## Jak na to
+Zásadní rozdíl přijde po čtvrt roce. Když se v listopadu někdo zeptá, proč se v květnu zvolil dodavatel B, Jana se nemusí probírat mailem: zeptá se archivu zápisů a dostane odpověď s odkazem na konkrétní zápis a datum. To je hodnota, kterou jednotlivý zápis nikdy nedá — vzniká až z toho, že zápisy vznikají všechny, ve stejném formátu a na jednom místě.
 
-1. **Vyřešte souhlas dřív než techniku.** Nahrávání a přepis schůzky vyžaduje, aby o něm účastníci věděli a souhlasili s ním. Řekněte to na začátku nahlas, u externích schůzek raději i mailem předem. Bez souhlasu nenahrávejte.
-2. **Zapněte přepis.** Nejjednodušší je vestavěný přepis v Teams nebo Google Meet. Když jednáte napříč platformami nebo i naživo, sáhněte po samostatném zapisovači (Granola, Fireflies, tl;dv).
-3. **Nechte AI vytáhnout strukturu.** Přepis je surovina, ne výstup. Prompt zadejte jako šablonu: rozhodnutí, úkoly ve formátu kdo-co-dokdy, otevřené otázky, termín dalšího kroku. A výslovně: „Co v přepisu nezaznělo, nedoplňuj.“
-4. **Propojte to s úkolovníkem.** Automatizační platforma (Zapier, Make, n8n) vezme seznam úkolů a založí je v Todoistu nebo Notionu — vždy se štítkem „ke schválení“ nebo do samostatného projektu, aby se nemíchaly s potvrzenou prací týmu.
-5. **Zaveďte kontrolní krok.** Zápis se rozesílá teprve po tom, co ho člověk přečte. AI umí přeslechnout ironii, špatně přiřadit jméno nebo z „asi bychom mohli“ udělat závazek.
-6. **Uložte zápis k projektu.** Sdílená složka nebo stránka projektu, ne jen mail. Zápis, který se nedá najít, je jako by nebyl.
+## Fáze 1: pravidla dřív než technika
+
+Tohle je jediná fáze, kterou nemůžete přeskočit. Automatický zapisovač, který se připojuje ke schůzkám sám, je zásadně jiná situace než jednorázové nahrání se souhlasem — a jestli si to nevyjasníte předem, poznáte to ve chvíli, kdy se to už nedá vzít zpět.
+
+### Souhlas u opakovaného nahrávání
+
+U jednorázového nahrání stačí zeptat se na začátku. U řetězu, který běží každý týden, potřebujete tři věci navíc.
+
+**Napsané pravidlo, které lidé znají dopředu.** Co se nahrává (které typy schůzek), co se s nahrávkou a přepisem děje, jak dlouho se skladují a kdo k nim má přístup. Jedna stránka stačí; důležité je, aby existovala a aby ji lidé viděli dřív, než se do schůzky připojí robot se jménem.
+
+**Viditelné označení v každé schůzce.** Nástroj to obvykle umí sám (ikona nahrávání, oznámení v chatu), ale ověřte si, že to skutečně dělá — a doplňte to větou v pozvánce. U externích jednání s klienty, dodavateli nebo uchazeči o práci to napište předem vždy; souhlas vyslovený pod tlakem na začátku hovoru není souhlas.
+
+**Fungující vypínač.** Musí být snadné říct „tuhle schůzku nenahráváme“ a musí to jít udělat jedním kliknutím, jinak to nikdo neudělá a lidé místo toho přestanou mluvit. Personální věci, hodnocení lidí, právní jednání, zdravotní údaje a jednání o obchodním tajemství jsou standardně mimo — a když si nejste jistí, nenahrávejte.
+
+Poslední vrstva je datová: **přepis citlivé schůzky patří jen do nástroje, který má vaše firma schválený a smluvně ošetřené zpracování dat.** Automatizace to zhoršuje tím, že data posílá dál, než byste čekali — jeden nepromyšlený krok v rutině dokáže poslat celý přepis do služby, o které nikdo nerozhodl.
+
+### Než něco zapnete: nakreslete si tok dat
+
+Pět minut nad tužkou ušetří pozdější nepříjemné vysvětlování. Napište si, kudy záznam poteče a kde všude se po cestě uloží.
+
+```text
+Chystám se zavést automatické zápisy ze schůzek a chci si předem
+projít rizika. Řetěz vypadá takhle:
+
+Nahrávání: [nástroj]
+Přepis vzniká: [kde, kým]
+Zpracování textu: [nástroj / model, placený firemní účet ano-ne]
+Založení úkolů: [úkolovník, přes konektor / automatizaci]
+Uložení zápisu: [místo]
+Typy schůzek: [interní projektové / s klienty / personální / …]
+
+Napiš mi:
+1. V kterých krocích řetězu vzniká kopie záznamu nebo přepisu
+   a kde všude tedy data leží.
+2. Které typy schůzek bych do tohohle řetězu pouštět neměl
+   a proč, seřazené podle rizika.
+3. Co má obsahovat interní pravidlo pro nahrávání schůzek —
+   osnovu v bodech, kterou dám kolegům na jednu stránku.
+4. Pět otázek, které mám položit IT nebo právnímu oddělení
+   dřív, než to zapnu.
+5. Co udělat, když někdo se záznamem nesouhlasí — konkrétní
+   postup pro obsluhu schůzky.
+
+Piš prakticky, žádné obecné fráze o důležitosti ochrany dat.
+```
+
+Vrátí přehled, ze kterého uděláte firemní pravidlo za odpoledne. Bod 1 je ten nejdůležitější a nejčastěji opomíjený: typicky se ukáže, že přepis existuje na třech místech současně a maže se jen na jednom. Odpovědi neberte jako právní stanovisko — jsou to otázky pro člověka, který za tohle ve firmě odpovídá.
+
+## Fáze 2: nahrávání a přepis, který nevyžaduje obsluhu
+
+### Tři varianty podle toho, kde se schůzky dějí
+
+**Vestavěný přepis v Teams nebo Google Meet.** Nejčistší varianta: běží pod firemním účtem, nic se neinstaluje a data neopouštějí prostředí, které už máte schválené. Nevýhoda je, že funguje jen v té jedné platformě a výstup je surový přepis, se kterým musí něco dalšího pracovat.
+
+**Samostatný zapisovač** (Granola, Fireflies, tl;dv a podobné). Připojí se ke schůzce napříč platformami, udělá přepis i první shrnutí a drží archiv s vyhledáváním. Za to platíte tím, že se do hovoru připojuje třetí strana — což je přesně to místo, kde potřebujete odsouhlasený seznam, u jakých schůzek to smí.
+
+**Diktafon a přepis až potom.** Pro jednání naživo v jedné místnosti. Telefon doprostřed stolu, po skončení se nahrávka nahraje do AI nástroje, který ji přepíše. Kvalita bude horší, hlavně u jmen a čísel, ale řetěz od té chvíle běží stejně jako u online schůzek. Když nahrávat nesmíte, funguje i diktovaný souhrn hned po jednání — tři minuty mluvení do telefonu obsahují víc než tři věty psané večer.
+
+### Slovník, který srazí počet chyb v přepisu
+
+Přepisy komolí přesně to, co v zápise nejvíc vadí: příjmení, názvy produktů a interní zkratky. Většina zapisovačů umí vlastní slovník. Když ho nemají, vyřešíte to jedním krokem v rutině.
+
+```text
+Tady je surový přepis schůzky. Oprav v něm systematické chyby
+přepisu podle tohohle slovníku a nic jiného neměň.
+
+Jména účastníků a jejich role:
+[jméno — role, jméno — role, …]
+
+Názvy, které se v našem prostředí komolí:
+[správný tvar = jak to přepis obvykle slyší]
+například: Havelka = Havlíčka, Havelku; Orion = Oreon, O-Rion
+
+Zkratky a co znamenají:
+[zkratka — význam]
+
+Pravidla:
+- oprav jen výskyty, u kterých je z kontextu zřejmé, o co jde
+- kde si nejsi jistý, nech původní znění a označ ho [?]
+- nesluč mluvčí, neshrnuj, nezkracuj — jde jen o opravu jmen
+  a názvů
+- vrať celý přepis, ne výtah
+
+Přepis:
+[vložit přepis]
+```
+
+Vrátí přepis, ve kterém sedí jména — a to je předpoklad všeho dalšího, protože podle jména se přiřazuje úkol. Značky [?] projděte: obvykle jich je pár a ukazují přesně na místa, kde by automat přiřadil úkol špatnému člověku.
+
+## Fáze 3: extrakce úkolů — formát, který se dá strojově zpracovat
+
+Rozdíl mezi ručním a automatickým zápisem je tady. U ručního postupu si výstup přečtete a přepíšete do úkolovníku. U automatického musí být výstup **předvídatelný do posledního řádku**, aby ho další krok uměl zpracovat bez lidského výkladu.
+
+### Hlavní extrakční prompt
+
+```text
+Jsi zapisovatel schůzky. Z přepisu vytáhni strukturovaný výstup.
+Vycházej výhradně z přepisu — nic nedoplňuj a nedomýšlej.
+
+Kontext:
+Schůzka: [název]. Datum: [datum]. Projekt: [projekt].
+Účastníci a role: [jméno — role, …]
+Dnešní datum pro převod termínů: [datum]
+
+Vrať přesně čtyři sekce s těmito nadpisy a v tomto pořadí:
+
+## ROZHODNUTI
+Odrážky. U každého: co bylo rozhodnuto (oznamovací věta),
+kdo rozhodl, jaké varianty se zvažovaly.
+Jen to, co bylo skutečně uzavřeno. Když padl jen návrh,
+patří to do OTEVRENE.
+
+## UKOLY
+Každý úkol na jednom řádku, přesně v tomto tvaru:
+UKOL | vlastník | akce od slovesa | termín DD.MM.RRRR | priorita
+Pravidla:
+- vlastník je jedno jméno ze seznamu účastníků, nikdy „tým“
+- relativní termíny převeď na datum podle dnešního data
+- když termín nezazněl, napiš NEURCENO
+- když není jasné, kdo si úkol vzal, napiš NEURCENO u vlastníka
+- priorita je vysoka / stredni / nizka podle toho, jak naléhavě
+  to na schůzce znělo
+- žádné složené úkoly, každou akci na vlastní řádek
+
+## OTEVRENE
+Co se probíralo a neuzavřelo: čeho se to týká, co brání
+rozhodnutí, kdo to má dotáhnout, do kdy se to musí rozhodnout.
+
+## KONTEXT
+Tři až pět vět, o čem schůzka byla — pro někoho, kdo na ní nebyl.
+Bez jmen, bez detailů z diskuse.
+
+Nepiš žádný úvod ani závěr, žádné vysvětlování formátu.
+Když je některá sekce prázdná, napiš pod nadpis „nic“.
+
+Přepis:
+[vložit přepis]
+```
+
+Vrátí výstup, který jde předat dál bez ručního zásahu, protože řádky s úkoly mají pevný tvar. Dvě věci hlídejte při zavádění. **Řádek UKOL musí sedět znakově** — když model přidá odrážku nebo změní pořadí polí, další krok to nerozebere; při prvních deseti schůzkách výstup kontrolujte, než rutinu pustíte naostro. A **hodnota NEURCENO je funkce, ne chyba:** je to signál, že se má někdo zeptat, a je nekonečně lepší než vymyšlený termín. Nadpisy sekcí jsou schválně bez diakritiky — u strojového zpracování je to o starost méně.
+
+### Kontrolní průchod, než úkoly odejdou do systému
+
+Před založením se vyplatí jeden levný krok navíc: nechte model zkontrolovat vlastní výstup proti přepisu.
+
+```text
+Zkontroluj tenhle seznam úkolů proti přepisu schůzky.
+Nic neopravuj, jen vypiš nálezy jako seznam.
+
+Pro každý úkol posuď:
+1. Zazněl v přepisu skutečně jako závazek, nebo jen jako nápad
+   či podmíněná věta („kdybychom měli čas, mohli bychom“)?
+   U pochybných uveď doslovnou větu z přepisu.
+2. Souhlasí vlastník s tím, kdo úkol v přepisu přijal?
+   Pozor na místa, kde se mluvčí střídají.
+3. Je termín v přepisu skutečně řečen, nebo byl odvozen?
+4. Nechybí v seznamu úkol, který v přepisu zazněl?
+
+Na konec napiš seznam řádků, které bych neměl zakládat
+automaticky, a u každého jednou větou proč.
+
+Úkoly:
+[vložit seznam]
+
+Přepis:
+[vložit přepis]
+```
+
+Vrátí krátký seznam podezřelých položek — typicky jednu až tři na schůzku. Bod 1 chytá nejčastější tichou chybu automatizace: z „asi bych se na to mohl podívat“ se stane úkol se jménem a termínem, a člověk se o svém závazku dozví z notifikace.
+
+## Fáze 4: zakládání úkolů konektorem
+
+Teď z textu udělejte položky v úkolovníku. Dvě cesty vedou k cíli a liší se tím, kolik toho musíte postavit.
+
+### Cesta A: konektor přímo v AI
+
+Nejjednodušší varianta nepotřebuje žádnou automatizační platformu. Připojíte úkolovník jako konektor (Todoist, Notion, Asana a další podle nabídky v adresáři konektorů, případně vlastní MCP server pro interní systém) a model úkoly založí sám. Jak konektory fungují a co si u nich pohlídat, rozebírá tip [konektory jako USB-C pro AI](/tipy/mcp-konektory-usb-c-pro-ai).
+
+```text
+Máš připojený konektor na [úkolovník].
+
+Z tohohle seznamu úkolů založ položky. Pravidla jsou závazná:
+
+- všechno zakládej do projektu „[Ke schválení]“, nikdy do ostrých
+  projektů týmu
+- název úkolu = akce začínající slovesem, maximálně 80 znaků
+- do popisu úkolu dej: název schůzky, datum, doslovnou pasáž
+  z přepisu, ze které úkol vychází, a odkaz na zápis
+- vlastníka nastav jen tam, kde je jméno jednoznačné; jinak
+  nech úkol bez přiřazení a přidej štítek „bez-vlastnika“
+- termín nastav jen tam, kde je konkrétní datum; u NEURCENO
+  žádný termín nenastavuj a přidej štítek „bez-terminu“
+- duplicity: než něco založíš, projdi otevřené úkoly v projektu
+  a když najdeš stejný úkol se stejným vlastníkem, nezakládej ho
+  znovu, jen to vypiš
+
+Nic nemaž a nic neupravuj u existujících úkolů.
+Na konec vypiš přehled: co jsi založil, co jsi přeskočil a proč.
+```
+
+Vrátí založené úkoly a soupis. Tři řádky jsou tam schválně jako pojistka. **Samostatný projekt ke schválení** znamená, že návrhy se nikdy nemíchají s potvrzenou prací týmu. **Zákaz mazání a úprav** chrání před tím, aby automat sáhl na něco, co už někdo rozpracoval. A **doslovná pasáž v popisu** je to, co spor ukončí za deset vteřin: vlastník úkolu vidí, z čeho vznikl, a nemusí věřit na slovo.
+
+### Cesta B: automatizační platforma
+
+Když chcete řetěz spustit bez otevřeného chatu, nebo když má výstup mířit do systému, na který konektor není, přijde na řadu Zapier, Make nebo n8n — n8n zvolte, když má vše zůstat na vlastní infrastruktuře. Princip je stejný, jen kroky staví platforma: spouštěč (nový přepis v úložišti), krok s AI (extrakční prompt z fáze 3), rozdělení výstupu na řádky, založení úkolů, uložení zápisu, oznámení. Stavbu takových řetězů rozebírá tip [automatizace bez programování](/tipy/n8n-zapier-ai-automatizace).
+
+Dvě věci si u téhle cesty pohlídejte. **Filtr na vstupu:** rutina se musí spustit jen u schůzek, které do řetězu patří — podle názvu, kalendáře nebo štítku, nikdy „na všechno“. A **chování při chybě:** když model vrátí výstup ve špatném tvaru, ať to skončí zprávou vám, ne polovinou založených úkolů.
+
+### Rutina, která to spustí sama
+
+Když všechno běží ručně dobře, poslední krok je zbavit se spouštění. Plánovaná úloha (rutina) umí řetěz rozjet podle rozvrhu — a jak takové rutiny nastavit nad poštou a kalendářem, ukazuje tip [rutiny nad poštou a kalendářem](/tipy/claude-rutiny-posta-kalendar).
+
+```text
+Zadání pro plánovanou úlohu. Spouštěj každý pracovní den
+v [17:30].
+
+Krok 1: Projdi složku [cesta / úložiště] a najdi přepisy schůzek
+vzniklé dnes, které ještě nemají hotový zápis (chybí soubor
+se stejným datem a názvem ve složce [zápisy]).
+
+Krok 2: Pro každý takový přepis vytvoř zápis podle šablony
+uložené v [místo] — čtyři sekce: ROZHODNUTI, UKOLY, OTEVRENE,
+KONTEXT. Formát řádku úkolu a pravidla pro NEURCENO drž přesně
+podle šablony.
+
+Krok 3: Zápis ulož jako [RRRR-MM-DD]-[nazev-schuzky].md
+do složky [zápisy].
+
+Krok 4: Úkoly založ v [úkolovník] v projektu „Ke schválení“
+podle pravidel v šabloně. Nic neposílej účastníkům.
+
+Krok 5: Pošli mi souhrn: kolik schůzek jsi zpracoval, kolik
+úkolů založil, které řádky měly NEURCENO a co vyžaduje moji
+kontrolu. Když se něco nepovedlo, napiš co a u kterého souboru.
+
+Nikdy nerozesílej zápis, neupravuj existující úkoly a nic nemaž.
+Když si nejsi jistý, přeruš a napiš mi to.
+```
+
+Vrátí každý večer jeden souhrn místo hromady oznámení. Poslední odstavec je páteř celé automatizace: **rozeslání zápisu a schválení úkolů zůstává na člověku.** Rutinu první dva týdny sledujte — teprve když souhrn dva týdny po sobě nepřinese překvapení, je zaběhnutá.
+
+## Fáze 5: kontrola a rozeslání
+
+Automatický řetěz vám nekoupí právo neposlouchat. Vykoupí vám ale to, že kontrola trvá pět minut a má vždycky stejnou podobu.
+
+Projděte návrhy úkolů v projektu „Ke schválení“ a u každého se ptejte na tři věci: je vlastník správný, je termín reálný a je z formulace jasné, co je hotový výsledek? Co projde, přesuňte do ostrého projektu. Co neprojde, opravte nebo smažte. Štítky „bez-vlastnika“ a „bez-terminu“ jsou váš seznam otázek na účastníky.
+
+Pak teprve jde zápis ven — a vyplatí se ho rozeslat ve verzích podle publika.
+
+```text
+Z tohohle zápisu udělej tři výstupy k rozeslání.
+
+1. PRO ÚČASTNÍKY: plný zápis, na začátku tři odrážky
+   „co se změnilo od minule“ oproti zápisu z [datum minulé schůzky].
+
+2. PRO KAŽDÉHO VLASTNÍKA ÚKOLU: krátký osobní blok —
+   jeho úkoly s termíny, u každého jedna věta kontextu,
+   a zvlášť seznam „na co čekáš ty“ a „na co čekají ostatní na tobě“.
+
+3. PRO PROJEKTOVOU STRÁNKU: verze do archivu — nadpis
+   [datum] [název schůzky], seznam rozhodnutí, seznam úkolů,
+   otevřené body. Bez oslovení, bez zdvořilostí, aby to
+   za rok dávalo smysl bez kontextu.
+
+Nic nepřidávej, co v zápise není. Věcně, česky.
+```
+
+Vrátí tři hotové texty. Verze 3 je ta, na které stojí celá další fáze: archiv je jen tak dobrý, jak jednotné jsou zápisy v něm.
+
+## Fáze 6: archiv, kterého se dá ptát
+
+Tady se investice vrátí. Jednotlivý zápis ušetří půl hodiny. Archiv sto zápisů odpoví na otázku, kterou byste jinak nezodpověděli vůbec.
+
+### Jak archiv postavit, aby fungoval
+
+Tři pravidla stačí. **Jedno místo** — jedna složka nebo jedna databáze, nikoli mail plus disk plus tři kanály. **Jednotný název souboru** začínající datem ve tvaru, který se řadí sám: `2026-05-14-projektova-schuzka-orion.md`. **Stejná struktura uvnitř** — čtyři sekce z fáze 3, vždy stejné nadpisy. Poslední bod je ten, který rozhoduje: model, který ví, že rozhodnutí jsou vždy pod nadpisem ROZHODNUTI, najde odpověď spolehlivě. V hromadě různě formátovaných textů hádá.
+
+Pokud používáte Notion nebo podobnou databázi, přidejte ke každému zápisu pár vlastností: datum, projekt, účastníci, typ schůzky. Filtrování pak zúží hledání dřív, než se do toho pustí AI.
+
+### Ptaní se archivu
+
+```text
+Máš přístup k archivu zápisů ze schůzek ve složce [cesta]
+(soubory pojmenované RRRR-MM-DD-nazev.md, čtyři sekce:
+ROZHODNUTI, UKOLY, OTEVRENE, KONTEXT).
+
+Otázka: co jsme rozhodli o [téma] v období [květen 2026]?
+
+Odpověz takhle:
+1. Chronologicky seřazený seznam rozhodnutí k tématu —
+   u každého datum, název schůzky, znění rozhodnutí a kdo rozhodl
+2. Jak se pohled na téma v čase vyvíjel; kde se dřívější
+   rozhodnutí změnilo, ukaž obě verze
+3. Úkoly, které z těch rozhodnutí vzešly, a v jakém stavu
+   je zápisy naposledy zmiňují
+4. Co k tématu zůstalo v sekcích OTEVRENE a nikdy se nedořešilo
+
+U každého tvrzení uveď název souboru, ze kterého ho máš.
+Když v archivu odpověď není, napiš to — nic nedovozuj
+z obecných znalostí.
+```
+
+Vrátí odpověď s odkazy na konkrétní zápisy, takže se dá ověřit za minutu. Poslední odstavec je nutný: bez něj model mezeru v archivu vyplní pravděpodobně znějící větou. A pořád platí zásada — **fakta z archivu si u důležitých věcí otevřete v původním zápise**, hlavně čísla a jména. Jak z vlastních dokumentů udělat knihovnu, které jde klást otázky, rozvádí tip [druhý mozek, který odpovídá](/tipy/druhy-mozek-ktery-odpovida).
+
+### Čtvrtletní pohled na sérii schůzek
+
+```text
+Projdi zápisy ze schůzek [název série] za období [období]
+ve složce [cesta] a udělej rozbor.
+
+Napiš:
+1. Témata, která se objevila ve třech a více zápisech, aniž by
+   se uzavřela — u každého kolikrát a v kterých datech
+2. Úkoly, jejichž termín se v zápisech posunul víckrát než jednou
+3. Rozdělení úkolů mezi lidi — kdo dostal kolik za období
+4. Rozhodnutí, která byla později změněna, a jak dlouho vydržela
+5. Body, které se opakovaně nestíhají probrat
+
+Na konec tři konkrétní návrhy, co ve vedení téhle série změnit,
+každý opřený o čísla z bodů výše.
+
+Pracuj jen s obsahem zápisů. Kde na tvrzení nemáš podklad,
+napiš to místo odhadu.
+```
+
+Vrátí zrcadlo, které bývá nepříjemné a užitečné zároveň — obvykle ukáže jedno téma, které se vrací půl roku, a jednoho člověka, který má polovinu všech úkolů. Než závěry přijmete, ověřte namátkou dvě tři čísla proti zápisům; při počítání napříč desítkami souborů se modely v součtech pletou.
+
+## Fáze 7: co dělat, když to začne selhávat
+
+Automatizace neselhává hlučně. Selhává tiše: úkoly se pořád zakládají, jen jsou k ničemu. Tři příznaky stojí za sledování a všechny mají stejné řešení — vrátit se o krok zpět, ne přidat další krok.
+
+**Úkolů přibývá a nikdo je nezavírá.** Znamená to, že extrakce bere jako závazek i nápady. Zpřísněte prompt (vyžadujte doslovnou citaci závazku) a snižte počet: lepších pět úkolů než patnáct.
+
+**Vlastníci jsou často špatně.** Chyba je v přepisu, ne v modelu. Doplňte slovník jmen z fáze 2 a zkontrolujte, jestli nástroj skutečně rozlišuje mluvčí.
+
+**Zápisy nikdo nečte.** Obvykle jsou moc dlouhé. Zkraťte sekci KONTEXT a rozhodnutí formulujte jednou větou; zápis, který se přečte za dvě minuty, se přečte.
+
+```text
+Tady je posledních [10] zápisů, které mi řetěz vyrobil,
+a moje poznámky k tomu, co jsem u nich musel ručně opravovat:
+
+[vložit poznámky: co bylo špatně, u kterého zápisu]
+
+Najdi v opravách vzorec:
+1. Které chyby se opakují a v kterém kroku řetězu vznikají
+   (přepis / extrakce / zakládání úkolů)?
+2. Jaká konkrétní změna promptu by tu chybu odstranila —
+   napiš přesné znění řádku, který mám do promptu přidat
+3. Které z mých oprav naopak nejsou chyba řetězu, ale moje
+   měnící se preference — ty patří do šablony, ne do promptu
+4. Co bych měl přestat automatizovat, protože to vyžaduje
+   rozhodnutí, které stroj udělat nemůže
+
+Buď konkrétní, žádná obecná doporučení.
+```
+
+Vrátí seznam změn, které jdou rovnou aplikovat. Bod 4 berte vážně: části řetězu, které opravujete pokaždé, se nevyplatí ladit donekonečna — vyplatí se je vrátit člověku.
+
+## Nejčastější chyby
+
+- **Zapnout automat dřív, než ruční postup funguje.** Automatizace nezlepšuje kvalitu, jen zvyšuje objem. Nejdřív si ověřte ruční variantu podle tipu [z nahrávky porady zápis s úkoly](/tipy/ai-zapis-z-porady), pak teprve stavějte řetěz.
+- **Nechat robota připojovat se ke všem schůzkám.** Bez filtru na vstupu skončí v archivu personální jednání i hovor s uchazečem. Seznam typů schůzek, které do řetězu patří, musí být napsaný a musí jít snadno vypnout.
+- **Zakládat úkoly rovnou do ostrých projektů.** Návrhy patří do samostatného projektu „Ke schválení“. Jinak tým přestane úkolovníku věřit už po druhém vymyšleném úkolu.
+- **Nechat AI dopočítat chybějící termín nebo vlastníka.** Hodnota NEURCENO je správná odpověď. Vymyšlený termín vypadá stejně jako skutečný a nikdo ho nepozná.
+- **Poslat citlivý přepis do neschváleného nástroje.** Řetěz posílá data dál, než čekáte; projděte si tok dat dřív, než ho spustíte, a citlivé schůzky nechte úplně mimo.
+- **Neudržovat formát zápisů.** Když se struktura po půl roce rozjede, archiv přestane odpovídat spolehlivě — a to byla hlavní odměna celého snažení.
+- **Nechat řetěz běžet bez kontroly.** Automat, který rozesílá bez čtení člověkem, jednou rozešle chybu všem. Rozeslání zůstává lidský krok.
 
 ## Nejlepší nástroje
 
-- **Vestavěný přepis v Teams a Google Meet** — nic neinstalujete, běží pod firemním účtem, což je z pohledu ochrany dat nejčistší varianta.
-- **Granola** — zapisovač, který pracuje i s vašimi vlastními poznámkami; hodí se, když chcete zápis vést, ne jen dostat.
-- **Fireflies a tl;dv** — zapisovači napříč platformami s vyhledáváním v archivu schůzek a napojením na další nástroje.
-- **Zapier, Make nebo n8n** — spojka mezi zápisem a úkolovníkem; n8n zvolte, když má vše zůstat na vlastní infrastruktuře.
-- **Claude s konektorem na úkolovník** — z přepisu vytáhne úkoly ve formátu kdo-co-dokdy a rovnou je založí v Todoistu nebo Notionu, bez mezikroku přes automatizační platformu.
+- **Vestavěný přepis v Teams a Google Meet** — základ řetězu tam, kde chcete data držet pod firemním účtem; nic se neinstaluje.
+- **Granola, Fireflies, tl;dv** — samostatní zapisovači napříč platformami s archivem a vyhledáváním; použijte jen na typy schůzek, které máte odsouhlasené.
+- **Claude s konektorem na úkolovník** — z přepisu vytáhne úkoly kdo-co-dokdy a rovnou je založí v Todoistu nebo Notionu, bez mezikroku přes automatizační platformu.
+- **Plánované úlohy (rutiny)** — spouštějí zpracování podle rozvrhu, takže večerní dávka proběhne bez vás a ráno máte souhrn.
+- **Zapier, Make nebo n8n** — spojka mezi zápisem a systémy, na které konektor není; n8n zvolte, když má vše zůstat na vlastní infrastruktuře.
+- **Vlastní MCP server** — cesta k internímu systému, který veřejné konektory neumějí; postavíte ho jednou a řetěz do něj bude zakládat úkoly stejně jako do Todoistu.
+- **Sdílená složka nebo databáze zápisů** — archiv s jednotným pojmenováním a strukturou; bez něj poslední dvě fáze nefungují.
 
 ## Co vám to přinese
 
-- **Čas:** 20–30 minut po každé schůzce, které padnou na přepisování poznámek. Při třech schůzkách týdně je to hodina a půl.
-- **Pozornost:** na schůzce můžete myslet a mluvit místo psaní. To se do kvality jednání promítne víc než jakákoli úspora minut.
-- **Méně sporů:** rozhodnutí a odpovědnosti jsou černé na bílém a vznikly ze skutečného průběhu, ne z paměti jednoho člověka.
-- **Dohledatelnost:** za půl roku najdete, proč jste se tehdy rozhodli takhle.
+- **Čas:** 20 až 30 minut po každé schůzce, které dřív padly na přepisování poznámek. Při patnácti schůzkách měsíčně je to zhruba šest hodin, z toho polovina večerních.
+- **Peníze:** nepřímo přes úkoly, které se dřív ztrácely. Jeden zachycený závazek, který by jinak vyplaval o tři týdny později, obvykle vydá za všechen čas strávený nastavením řetězu.
+- **Pozornost:** na schůzce můžete myslet a mluvit místo psaní. Do kvality jednání se to promítne víc než jakákoli úspora minut.
+- **Klid:** rozhodnutí a odpovědnosti jsou černé na bílém a vznikly ze skutečného průběhu, ne z paměti jednoho člověka. Spory o to, kdo co slíbil, končí odkazem na doslovnou pasáž.
+- **Kvalita rozhodování:** archiv, kterého se dá ptát, znamená, že se stejná věc nerozhoduje dvakrát a že za rok víte, jaký předpoklad tehdy platil.
 
 ## Pro tip
 
-Nechte AI přidat do zápisu jednu sekci navíc: „O čem se mluvilo, ale nikdo si to nevzal.“ Tenhle seznam je zlatý důl — přesně tam se schovávají věci, které se za měsíc vrátí jako problém. A pohlídejte data: schůzky s citlivým obsahem (personální věci, právní jednání, zdravotní údaje, obchodní tajemství) patří jen do nástrojů, které vaše firma schválila a které mají smluvně ošetřené zpracování dat. Když si nejste jistí, nahrávání pro tu jednu schůzku vypněte — ztráta je menší než únik.
+Nechte řetěz přidat do každého zápisu jednu sekci navíc: „O čem se mluvilo, ale nikdo si to nevzal.“ Do promptu stačí přidat instrukci, ať vypíše maximálně pět věcí, které dávaly smysl, nikdo je nepřijal, a u každé napíše, co se stane, když je nikdo nevezme. Tenhle seznam je zlatý důl — přesně tam se schovávají věci, které se za měsíc vrátí jako problém. Po čtvrt roce navíc dostanete z archivu odpověď na nepříjemně dobrou otázku: kolik z těch nezvednutých věcí se skutečně vrátilo.
+
+A závěrečné pravidlo: **automatizujte přenos, ne rozhodování.** Stroj smí přepsat, roztřídit, založit návrh a uložit. Rozhodnout, co je závazek, komu patří a kdy zápis odejde ven, je práce člověka — a je to přesně ta práce, na kterou vám řetěz uvolnil ruce.

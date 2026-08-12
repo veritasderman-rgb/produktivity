@@ -1,6 +1,6 @@
 ---
 title: "První AI automatizace bez programování: trigger, AI krok, návrh ke schválení"
-excerpt: "Zapier, Make a n8n jsou lepidlo mezi vašimi nástroji a AI. Postavíte v nich řetěz spouštěč → AI → akce, aniž byste napsali řádek kódu."
+excerpt: "Kompletní návod s prompty: kdy stačí rutina v Claude a kdy potřebujete n8n, Zapier nebo Make, jak vypadá anatomie scénáře, tři hotové scénáře krok za krokem, prompt v AI kroku a ošetření chyb."
 category: "ai"
 platform: "vsude"
 audience: ["manazer", "freelancer"]
@@ -9,39 +9,506 @@ saves: "~2 h týdně"
 date: "2026-08-11"
 ---
 
-Chat s AI je ruční práce: vy nosíte data dovnitř a výsledky ven. Automatizační platforma tuhle chůzi zruší — data doputují k AI sama a výsledek skončí tam, kde ho potřebujete. Nemusíte umět programovat; skládáte kroky jako stavebnici. A protože se bavíme o automatu, který sahá na vaši poštu a úkoly, platí od začátku jedno pravidlo: **AI navrhuje, vy schvalujete.**
+Chat s AI je ruční práce: vy nosíte data dovnitř a výsledky ven. Automatizační platforma tuhle chůzi zruší — data doputují k modelu sama a výsledek skončí tam, kde ho potřebujete. Nemusíte umět programovat, skládáte kroky jako stavebnici. **Celý trik je v tom, že AI není celý automat, je to jeden krok uprostřed:** něco ho spustí, model z toho něco vytáhne nebo napíše, a výsledek putuje dál do tabulky, CRM nebo do složky Koncepty.
+
+Tenhle návod je postavený tak, abyste ho mohli číst s otevřeným editorem scénářů. Začíná otázkou, kterou většina lidí přeskočí — jestli vůbec potřebujete platformu, nebo jestli stačí rutina přímo v Claude. Pak rozebere anatomii scénáře, ukáže tři kompletní příklady krok za krokem, rozepíše, jak se píše prompt v AI kroku (jinak než v chatu), a skončí u toho nejméně zábavného a nejdůležitějšího: co dělat, když se scénář rozbije, a kdy je správná odpověď neautomatizovat vůbec.
+
+A protože se bavíme o automatu, který sahá na vaši poštu, faktury a klientská data, platí od první minuty jedno pravidlo: **AI navrhuje, člověk schvaluje.** Odeslání, platba, smazání, podpis — vždycky člověk. Všechny scénáře v tomhle návodu končí návrhem, konceptem nebo řádkem ke kontrole, nikdy hotovým činem.
 
 ## Vzorová situace
 
-Freelancerka Klára dostává poptávky z webového formuláře. Každou ručně přečte, přepíše do tabulky, založí si úkol „ozvat se“ a napíše úvodní odpověď. Deset poptávek týdně znamená dvě hodiny přepisování — práce, u které nikdy nemusela nic rozhodnout, jen přenášet.
+Freelancerka Klára dostává poptávky z webového formuláře, průměrně deset týdně. U každé udělá tentýž rituál: přečte, přepíše jméno, firmu, typ zakázky a rozpočet do tabulky, založí si úkol „ozvat se“, podívá se, jestli o firmě něco ví, a napíše úvodní odpověď. Zabere jí to zhruba dvanáct minut na poptávku, tedy dvě hodiny týdně — a ani jednou při tom nemusela nic rozhodnout, jen přenášet. Horší než čas je rozptýlení: formulář chodí v náhodných chvílích a Klára ho otevírá hned, takže se jí den tříští.
 
-Po postavení jednoho scénáře je to jinak. Nová poptávka spustí automat: AI z textu vytáhne jméno, typ zakázky, rozpočtový rámec a termín, zapíše řádek do tabulky, založí úkol v úkolovníku se štítkem „ke schválení“ a připraví koncept odpovědi ve schránce. Klára ráno projde koncepty, dva upraví, jeden smaže. Odesílá pořád ona — jen už netráví čas přepisováním.
+Po postavení jednoho scénáře je to jinak. Nová poptávka spustí automat: model z textu vytáhne jméno, firmu, typ zakázky, rozpočtový rámec a termín, sám si k firmě dohledá tři věty kontextu, přiřadí poptávce známku od A do C podle toho, jak sedí na Klářino zaměření, zapíše řádek do tabulky, založí úkol se štítkem „ke schválení“ a připraví koncept odpovědi ve schránce. Klára otevře poštu dvakrát denně, projde koncepty, dva upraví, jeden smaže, jeden nechá být, protože poptávka je mimo obor.
 
-## Jak na to
+Po měsíci: z dvou hodin týdně zbylo dvacet minut, tři poptávky odešly rychleji než dřív (což jednu z nich pravděpodobně rozhodlo), a hlavně přestal formulář rozbíjet den. Odesílá pořád Klára — jen už netráví čas přepisováním.
 
-1. **Vyberte jednu bolest, ne pět.** Nejlepší první scénář je něco, co děláte alespoň třikrát týdně, je to nudné a má to jasný začátek a konec. Poptávky, faktury, zápisy, nové úkoly z formuláře.
-2. **Rozkreslete si tři kroky na papír.** Co to spustí (spouštěč), co má AI udělat (krok s modelem), kam má výsledek jít (akce). Když se to nevejde do tří kroků, je scénář na první pokus moc velký.
-3. **Zvolte platformu.** Zapier je nejjednodušší na start, Make nabízí přehlednější práci s větvením, n8n si můžete provozovat na vlastním serveru. Rozhodujte podle toho, kam smějí vaše data.
-4. **Napište prompt jako zadání pro brigádníka.** Co dostane na vstupu, co má vrátit, v jakém formátu, a co dělat, když si není jistý. Přidejte větu „Když údaj v textu není, napiš neuvedeno“ — tím omezíte domýšlení.
-5. **Výstupem ať je vždy návrh.** Koncept místo odeslaného mailu, úkol se štítkem „ke schválení“ místo úkolu v ostrém projektu, řádek v tabulce ke kontrole. Automat nesmí mít právo odesílat ani mazat.
-6. **Otestujte na deseti reálných případech.** Pusťte scénář ručně nad starými daty a porovnejte, co vypadlo. Teprve pak ho zapněte natrvalo.
-7. **Nechte si poslat hlášku, když něco selže.** Scénář, který se tiše rozbil, je horší než žádný — zvyknete si na něj spoléhat.
+## Kdy stačí rutina v Claude a kdy potřebujete platformu
+
+Tohle je nejdražší chyba začátečníků: postavit scénář na sedm kroků tam, kde stačila jedna věta v rutině. A stejně tak druhá strana — snažit se do rutiny nacpat něco, co potřebuje reagovat na událost v cizím systému.
+
+### Rutina v Claude stačí, když…
+
+- Spouštěčem je **čas**: každé ráno v 6:30, každý pátek v 15:00. Rozvrh rutina umí.
+- Data jsou v místech, na která existuje **konektor**: pošta, kalendář, Drive, Notion. Připojíte a hotovo, viz [konektory vysvětlené](/tipy/mcp-konektory-usb-c-pro-ai).
+- Zadání se **často mění** a je vágní. Rutinu upravíte přepsáním jedné věty, scénář v platformě znamená přemapovat pole.
+- Výstupem je **text pro člověka**: koncept, přehled, seznam ke schválení.
+
+Typický zástupce téhle kategorie je sada rutin nad poštou a kalendářem — celý postup je v tipu [rutiny v Claude](/tipy/claude-rutiny-posta-kalendar). Pokud to, co chcete, sedí do všech čtyř bodů, postavte to jako rutinu a tenhle článek zavřete. Ušetříte si jednu službu navíc.
+
+### Platformu potřebujete, když…
+
+- Spouštěčem je **událost v jiném systému**: odeslaný formulář, nová faktura, změna stavu v CRM, nový soubor v úložišti, platba. Tohle se nedá naplánovat na čas, tohle se musí nechat zavolat.
+- V řetězu je **víc než dvě aplikace**: formulář → AI → tabulka → CRM → notifikace do týmu. Každý krok jinam.
+- Potřebujete **webhook**: cizí systém umí zavolat adresu ve chvíli, kdy se něco stane, a vy chcete reagovat do vteřin, ne do rána.
+- Potřebujete **spolehlivý opakovaný běh nad objemem**: dvě stě řádků denně, každý stejnou cestou, s logem a s možností opakovat, co spadlo.
+- Data **nesmějí opustit vaši infrastrukturu** — pak přichází na řadu n8n na vlastním serveru.
+
+### Jak se rozhodnout za pět minut
+
+Napište si na papír tři věci: co to spustí, kolik aplikací se toho účastní a jak rychle to musí být hotové. Jedna aplikace plus čas jako spouštěč znamená rutinu. Dvě a víc aplikací nebo událost jako spouštěč znamená platformu. Hraniční případy řešte tím jednodušším — přestavět rutinu na scénář je za odpoledne, opustit rozjetý scénář v platformě bolí.
+
+Než začnete stavět, vyplatí se nechat si vybrat, co má být první scénář. Tenhle prompt pusťte v běžném chatu:
+
+```text
+Popíšu ti svoji opakovanou práci a ty mi z ní vybereš první scénář
+k automatizaci.
+
+Co dělám opakovaně:
+[vypiš 8–12 činností, u každé: jak často, kolik minut zabere,
+odkud data přicházejí a kam je ukládám]
+
+Nástroje, které používám: [vypiš]
+
+Vrať mi:
+1. Pořadí těch činností podle poměru ušetřený čas / náročnost stavby
+2. U tří nejlepších rozkresli scénář: co ho spustí, jaké kroky
+   následují, kde v tom je AI a kam jde výsledek
+3. U každého ze tří napiš, jestli na to stačí naplánovaná rutina
+   v AI asistentovi s konektory, nebo je potřeba automatizační
+   platforma — a proč
+4. Které z těch činností NEautomatizovat a proč (málo opakování,
+   moc výjimek, příliš vysoká cena chyby)
+
+U bodu 4 buď přísný, nechci automatizovat věci, které dělám dvakrát
+za měsíc.
+```
+
+Vrátí seřazený seznam, ve kterém bývá první scénář jiný, než jste čekali — lidé podceňují nudné přepisy a přeceňují viditelné, ale vzácné úkoly. Bod 4 čtěte pozorně: automatizace činnosti, kterou děláte dvakrát měsíčně, se nikdy nezaplatí, i když je technicky snadná.
+
+## Anatomie scénáře: trigger, AI krok, akce
+
+Každý scénář, ať už v Zapieru, Make nebo n8n, má stejnou kostru. Když jí porozumíte jednou, přenesete ji mezi platformami během odpoledne.
+
+### Trigger: co to spustí
+
+Spouštěče jsou tři druhy a rozdíl mezi nimi rozhoduje o rychlosti i o tom, kolik operací spotřebujete.
+
+**Webhook** je adresa, na kterou cizí systém zavolá ve chvíli, kdy se něco stane. Nejrychlejší, nejlevnější a nejspolehlivější varianta — reaguje do vteřin a neplýtvá běhy naprázdno. Podporují ho formuláře, platební brány, CRM i většina moderních aplikací.
+
+**Dotazování (polling)** znamená, že se platforma každých pár minut ptá: přibylo něco nového? Používá se tam, kde služba webhook neumí. Nevýhoda je zpoždění a to, že se spotřebovávají běhy i tehdy, když se nic nestalo.
+
+**Rozvrh** je prostý časovač: každý den v šest ráno projdi tabulku. Tady se sluší zpozornět — pokud je váš spouštěč čas a všechna data jsou dostupná přes konektor, možná nepotřebujete platformu vůbec.
+
+Ať zvolíte cokoli, hned za spouštěč patří **filtr**. Scénář, který se pouští na každý řádek a teprve v AI kroku zjišťuje, že ho nemá zpracovávat, plýtvá operacemi i penězi. Filtrujte co nejdřív: jen poptávky s vyplněným e-mailem, jen faktury nad určitou částku, jen zprávy s daným štítkem.
+
+### AI krok: jeden úkol, jeden výstup
+
+Krok s modelem má tři části: co mu pošlete (data z předchozích kroků), co má udělat (prompt) a v jakém tvaru to má vrátit (formát). Nejčastější začátečnická chyba je poslat mu všechno a chtít po něm všechno naráz. Dva menší AI kroky za sebou jsou skoro vždycky spolehlivější než jeden velký — hlavně proto, že když se něco pokazí, poznáte kde.
+
+Zásadní rozdíl proti chatu: **výstup nečte člověk, výstup čte další krok.** Proto musí být strojově zpracovatelný. Nechte si vracet JSON s pevně danými klíči a v platformě ho rozparsujte do polí. Tvar, který se osvědčil:
+
+```json
+{
+  "jmeno": "Jana Nováková",
+  "firma": "Stavebniny Sever",
+  "typ_zakazky": "web na míru",
+  "rozpocet": "neuvedeno",
+  "termin": "do konce října",
+  "znamka": "B",
+  "zduvodneni_znamky": "obor sedí, rozpočet neznámý",
+  "chybi": ["rozpocet", "telefon"]
+}
+```
+
+Všimněte si dvou detailů, které dělají rozdíl mezi hračkou a provozem. Klíč `chybi` je seznam toho, co v podkladu nebylo — díky němu poznáte neúplnou poptávku, aniž byste ji museli číst. A hodnota `neuvedeno` je povinná náhrada za vymýšlení: bez ní model chybějící rozpočet doplní odhadem, který vypadá jako fakt.
+
+### Akce: výstup vždycky jako návrh
+
+Poslední krok posílá výsledek dál. Tady se rozhoduje, jestli je scénář pomocník, nebo riziko. Pravidla jsou tři a nemají výjimku: **koncept místo odeslaného mailu**, **úkol se štítkem „ke schválení“ místo úkolu v ostrém projektu**, **nový řádek místo přepsání existujícího**. Automat nesmí mít právo odesílat, platit ani mazat — a když mu právo zápisu dáváte, dávejte ho do oddělené tabulky nebo do samostatné složky, ne doprostřed vaší ostré agendy.
+
+Než začnete klikat, nechte si scénář rozkreslit včetně mapování polí. Ušetří to většinu ladění:
+
+```text
+Chci postavit automatizační scénář a potřebuju plán, než začnu klikat.
+
+Co scénář dělá: [popis jednou větou]
+Spouštěč: [nová položka ve formuláři / webhook z CRM / nový soubor…]
+Aplikace v řetězu: [vyjmenuj v pořadí]
+Co má být výsledek: [řádek v tabulce, koncept mailu, úkol…]
+
+Vrať mi:
+1. Seznam kroků scénáře v pořadí, u každého: co dostane na vstupu,
+   co udělá, co pošle dál
+2. Kde přesně patří filtr, aby se scénář nepouštěl zbytečně
+3. Mapování polí: které pole ze spouštěče jde do kterého pole
+   v cílové aplikaci — jako tabulka
+4. Které kroky mohou selhat a co má scénář udělat v každém z těch případů
+5. Jestli se dá počet kroků snížit — a jak
+
+Nepiš návod na konkrétní platformu, chci logiku scénáře.
+```
+
+Vrátí plán, který v editoru jen naklikáte. Bod 3 je ten, kvůli kterému se prompt vyplatí: většina chyb v prvních scénářích nevzniká v AI kroku, ale v přehozeném mapování polí (telefon se zapisuje do sloupce s rozpočtem a nikdo si toho měsíc nevšimne).
+
+## Scénář 1: nový lead → obohacení AI → CRM
+
+První kompletní příklad. Cíl: z každé nové poptávky vznikne strukturovaný záznam se známkou kvality a koncept odpovědi, aniž by se čehokoli dotkla lidská ruka — až do chvíle schválení.
+
+### Kroky scénáře
+
+1. **Trigger:** webhook z webového formuláře (nebo nový řádek v tabulce, kam formulář zapisuje).
+2. **Filtr:** pokračuj jen tehdy, když je vyplněný e-mail a text poptávky má aspoň dvacet znaků. Tím odpadnou spamy a nedokončená odeslání.
+3. **AI krok A — extrakce:** z volného textu udělej strukturovaná data.
+4. **AI krok B — obohacení a známka:** doplň kontext o firmě a přiřaď poptávce známku A/B/C.
+5. **Akce 1:** zapiš řádek do tabulky nebo do CRM jako nový záznam ve stavu „nový, nezpracováno“.
+6. **Akce 2:** založ úkol se štítkem „ke schválení“ a lhůtou do 24 hodin.
+7. **Akce 3:** vytvoř koncept odpovědi v poště. Nikdy neodesílej.
+
+### AI krok A: extrakce
+
+```text
+Jsi extraktor údajů z poptávek. Dostaneš surový text poptávky
+z webového formuláře.
+
+TEXT POPTÁVKY:
+[vstup z formuláře]
+
+Vrať výhradně JSON s těmito klíči, bez komentáře a bez uvozovacího textu:
+jmeno, firma, email, telefon, typ_zakazky, rozpocet, termin,
+strucne_zadani (max 200 znaků), chybi (pole názvů klíčů, které
+v textu nebyly)
+
+Pravidla:
+- Když údaj v textu není, napiš do klíče hodnotu neuvedeno
+  a přidej název klíče do pole chybi.
+- NIC nedomýšlej. Rozpočet neodhaduj z typu zakázky, termín
+  neodvozuj z formulace „co nejdřív“ — to je neuvedeno.
+- typ_zakazky vyber z: [web, e-shop, grafika, konzultace, jiné].
+  Když se to nedá zařadit, napiš jiné.
+- Text neopravuj ani nestylizuj, přebíráš fakta.
+```
+
+Vrátí čistý JSON, který v platformě rozparsujete do polí. Dvě věci hlídejte při testování: jestli model opravdu vrací jen JSON (občas přidá vysvětlující větu před něj, což parser rozbije — pomůže věta „bez komentáře a bez uvozovacího textu“ a v platformě krok, který vezme jen text mezi první a poslední složenou závorkou), a jestli respektuje `neuvedeno` u rozpočtu, protože právě tam je pokušení domýšlet největší.
+
+### AI krok B: obohacení a známka
+
+```text
+Dostaneš strukturovaná data o poptávce a informace o mém podnikání.
+Tvůj úkol je poptávku ohodnotit, ne prodat.
+
+POPTÁVKA:
+[JSON z předchozího kroku]
+
+MOJE ZAMĚŘENÍ:
+Dělám [obor], typická zakázka je [popis], nedělám [co odmítám].
+Nejmenší zakázka, která mi dává smysl: [hranice].
+Ideální klient: [popis].
+
+Vrať JSON s klíči: znamka, zduvodneni, rizika, prvni_otazky.
+- znamka: A (sedí na moje zaměření a je realistická), B (sedí,
+  ale něco chybí nebo je nejasné), C (mimo obor, nereálný termín
+  nebo zjevně mimo rozsah)
+- zduvodneni: dvě věty, konkrétně, žádné fráze
+- rizika: pole 1–3 vět — co může být problém (nejasné zadání,
+  nereálný termín, klient chce něco, co nedělám)
+- prvni_otazky: 3 otázky, které se musím zeptat, než dám cenu
+
+Když jsou data neúplná, hodnoť podle toho, co je — nedomýšlej si,
+jak asi zakázka vypadá.
+```
+
+Vrátí hodnocení, které rozhoduje o pořadí ve frontě. Známky nepoužívejte na automatické odmítání — céčko znamená „podívej se na to jako na poslední“, ne „zahoď“. Model nezná kontext, který máte vy (že ta firma je doporučení od nejlepšího klienta), a právě proto je poslední slovo vaše.
+
+### Akce: koncept odpovědi
+
+Poslední krok skládá odpověď z toho, co předchozí kroky zjistily. Prompt záměrně pracuje s neúplnými daty, protože právě to je běžný stav:
+
+```text
+Napiš koncept první odpovědi na poptávku. Píšu jako [jméno, obor],
+tón: [věcný a přátelský, vykání, bez marketingových frází].
+
+DATA O POPTÁVCE:
+[JSON z kroku A]
+HODNOCENÍ:
+[JSON z kroku B]
+
+Pravidla:
+- Maximálně 150 slov, tři odstavce.
+- Poděkuj, shrň jednou větou, jak jsem zadání pochopil, a polož
+  ty nejdůležitější dvě otázky ze seznamu prvni_otazky.
+- Cenu ani termín NEUVÁDĚJ, ani orientačně.
+- Když je v datech chybi neprázdné, požádej o doplnění právě těch
+  údajů, jmenovitě.
+- Když je známka C, napiš zdvořilou variantu, která nabídne
+  doporučení jinam — ale nikoho neodmítej definitivně, to udělám já.
+- Na konec připoj podpis [podpis].
+
+Vrať jen text mailu, žádné vysvětlování.
+```
+
+Vrátí koncept, který v drtivé většině případů odešlete po jedné úpravě. Nejdůležitější řádek je zákaz uvádět cenu a termín: to je přesně ta informace, kterou model rád doplní přijatelně znějícím odhadem a která vás pak drží v pasti u vyjednávání.
+
+## Scénář 2: formulář → kategorizace → notifikace
+
+Druhý scénář je jednodušší a nejčastěji nasazovaný: příchozí požadavky roztřídit a poslat správnému člověku s tím, co potřebuje vědět. Funguje na interní helpdesk, na reklamace, na požadavky z výroby.
+
+### Kroky scénáře
+
+1. **Trigger:** nová odpověď ve formuláři (webhook nebo nový řádek).
+2. **AI krok:** kategorizace, priorita a shrnutí do dvou vět.
+3. **Větvení podle kategorie:** každá kategorie má svého adresáta.
+4. **Akce 1:** zpráva do týmového kanálu ve tvaru, který jde přečíst na mobilu.
+5. **Akce 2:** zápis do tabulky pro statistiku.
+6. **Akce 3 (jen u priority vysoká):** navíc upozornění služebnímu telefonu.
+
+### AI krok: kategorizace
+
+```text
+Jsi třídič příchozích požadavků. Kategorie jsou pevně dané, žádné
+jiné nevymýšlej.
+
+POŽADAVEK:
+Odesílatel: [jméno a role]
+Text: [text z formuláře]
+Přílohy: [názvy souborů, pokud jsou]
+
+Kategorie: [technický problém, fakturace, reklamace, obchodní dotaz,
+personální, ostatní]
+
+Priority:
+- vysoká: něco nefunguje a blokuje to práci, nebo hrozí zmeškání
+  zákonné či smluvní lhůty
+- střední: potřebuje reakci do dvou pracovních dnů
+- nízká: informativní, snese počkat
+
+Vrať JSON: kategorie, priorita, shrnuti (max 2 věty, věcně,
+bez opisování celého textu), kdo_by_to_mel_resit (odhad role),
+chybejici_informace (co se musí doptat, než se to dá vyřešit),
+citlivost (ano/ne — jestli text obsahuje osobní nebo zdravotní
+údaje, mzdy nebo něco pod mlčenlivostí).
+
+Když si nejsi jistý kategorií, dej ostatní a do shrnuti napiš proč.
+Nikdy neurči vysokou prioritu jen proto, že odesílatel píše
+velkými písmeny nebo použil slovo urgentní.
+```
+
+Vrátí zařazení, které bývá přesnější než ruční třídění unaveného člověka v pátek odpoledne. Dva klíče stojí za pozornost. Poslední odstavec brání eskalaci podle tónu — bez něj se z každé rozčilené zprávy stane vysoká priorita. A klíč `citlivost` používejte jako pojistku: když je `ano`, ať scénář neposílá text do týmového kanálu, ale jen krátkou zprávu „přišel citlivý požadavek, otevři ho v systému“.
+
+### Akce: notifikace, kterou jde přečíst na mobilu
+
+```text
+Ze zařazeného požadavku sestav zprávu do týmového kanálu.
+
+DATA:
+[JSON z předchozího kroku]
+Odkaz na původní požadavek: [odkaz]
+
+Formát:
+První řádek: priorita velkými písmeny, kategorie, od koho
+Druhý řádek: shrnutí, maximálně 20 slov
+Třetí řádek: co je potřeba udělat jako první krok
+Čtvrtý řádek: odkaz
+
+Pravidla:
+- Žádné pozdravy, žádné emotikony, žádné uvozovací věty.
+- Když je v datech citlivost ano, místo shrnutí napiš jen
+  „citlivý obsah — otevři přímo v systému“ a nic z textu necituj.
+- Celé to musí být čitelné na mobilu bez rolování.
+```
+
+Vrátí zprávu, kterou tým skutečně čte, protože je krátká. Zákaz emotikonů a pozdravů tam není z nevrlosti — notifikace, která začíná „Ahoj týme, přišel nám nový požadavek“, se po dvacáté přeskakuje očima.
+
+## Scénář 3: RSS → shrnutí → newsletter draft
+
+Třetí scénář ukazuje jiný vzorec: sběr přes celý týden a jeden souhrnný výstup na konci. Je to zároveň scénář, kde se nejvíc vyplatí rozdělit AI práci na dva kroky v různém čase.
+
+### Kroky scénáře
+
+1. **Trigger A (průběžně):** nová položka v RSS kanálech, které sledujete.
+2. **Filtr:** jen položky, jejichž titulek nebo perex obsahuje vaše klíčová slova. Bez filtru se scénář utopí v objemu.
+3. **AI krok A:** u každé položky krátké shrnutí a rozhodnutí, jestli je relevantní.
+4. **Akce:** zápis do tabulky „kandidáti na newsletter“ s hodnocením.
+5. **Trigger B (čtvrtek 9:00):** rozvrh.
+6. **AI krok B:** z nasbíraných relevantních položek sestav draft newsletteru.
+7. **Akce:** ulož draft jako koncept — do nástroje na rozesílku, do dokumentu nebo do pošty. Nikdy neodesílat.
+
+### AI krok A: shrnutí jedné položky
+
+```text
+Shrň jeden článek pro potřeby mého newsletteru.
+
+Newsletter píšu pro: [cílová skupina] a zajímá je [témata].
+Nezajímá je: [co vynechat].
+
+ČLÁNEK:
+Titulek: [titulek]
+Zdroj a datum: [zdroj, datum]
+Text: [obsah nebo perex]
+
+Vrať JSON: relevance (0–10), shrnuti (3 věty, co se stalo a proč
+to čtenáře zajímá), citace (jedna doslovná věta z článku, která
+stojí za odkaz — když žádná taková není, napiš prázdný řetězec),
+pro_koho (komu z mé cílové skupiny to nejvíc pomůže), zdroj_typ
+(původní zpráva / komentář / přetištěná tisková zpráva / reklama).
+
+Pravidla:
+- Vycházej výhradně z textu článku, nedoplňuj kontext z paměti.
+- Když je článek jen přetištěná tisková zpráva nebo skrytá reklama,
+  dej relevanci maximálně 3 a napiš to do zdroj_typ.
+- Čísla a jména opisuj přesně, nezaokrouhluj.
+```
+
+Vrátí hodnocení, podle kterého tabulka sama seřadí kandidáty. Klíč `zdroj_typ` je tam schválně: bez něj se do newsletteru dostanou tiskové zprávy, protože znějí informativně. A pravidlo o číslech je zásadní — čísla z druhé ruky jsou nejčastější zdroj ostudy v newsletteru, ověřujte je v původním zdroji, viz [ověřování faktů](/tipy/ai-overovani-faktu).
+
+### AI krok B: draft newsletteru
+
+```text
+Sestav draft newsletteru z nasbíraných položek za tento týden.
+
+POLOŽKY (seřazené podle relevance):
+[vlož řádky z tabulky: titulek, shrnutí, odkaz, relevance, pro_koho]
+
+Newsletter má: [jméno], vychází [frekvence], píše se [tón: věcný,
+lehce osobní, bez superlativů], délka [cca 400 slov].
+
+Struktura:
+1. Úvodní odstavec (3 věty) — co bylo tenhle týden hlavní téma
+   napříč položkami. Když žádné společné téma není, napiš to na rovinu.
+2. Tři hlavní položky — u každé nadpis, dvě až tři věty vlastními
+   slovy a odkaz. Nepřepisuj shrnutí doslova, přepiš je do mého tónu.
+3. Krátký blok „také stojí za pohled“ — zbytek jako odrážky
+   s jednou větou.
+4. Závěrečná otázka na čtenáře, jedna věta.
+
+Pravidla:
+- Používej jen položky, které jsem ti dal. Nic nedoplňuj z paměti,
+  žádné „jak známo“.
+- Žádné tvrzení, které není v podkladech, ani kdyby vypadalo samozřejmě.
+- U každé položky nech odkaz přesně tak, jak ti přišel.
+- Na konec připoj seznam KONTROLA: čísla a jména z draftu, která
+  mám ověřit v původních článcích.
+```
+
+Vrátí draft, který přepíšete a doplníte o vlastní komentář — a hlavně seznam KONTROLA na konci, který je při psaní newsletteru nejrychlejší cesta k tomu, aby vám v něm nezůstalo špatné číslo. Text draftu nikdy nerozesílejte bez čtení: newsletter je veřejný projev, jedna vymyšlená věta je vidět víc než deset dobrých.
+
+## Prompt v AI kroku: proč se píše jinak než v chatu
+
+Prompt v automatu má tři vlastnosti, které v chatu neřešíte. **Neuvidíte ho selhat** — když se spletete v chatu, hned to vidíte a opravíte; v automatu se špatný výstup tiše zapíše do tabulky. **Nemůžete se doptat** — model nemá druhé kolo, musí to trefit napoprvé. A **výstup čte stroj**, takže na formátu záleží víc než na eleganci.
+
+Z toho plyne pět pravidel. Za prvé: **jeden krok, jeden úkol.** Extrakce zvlášť, hodnocení zvlášť, formulace zvlášť. Za druhé: **pevný výstupní formát**, ideálně JSON s vyjmenovanými klíči a s poznámkou „vrať výhradně JSON“. Za třetí: **výslovný zákaz domýšlení** — věta „když údaj v textu není, napiš neuvedeno“ ušetří víc problémů než jakákoli jiná. Za čtvrté: **uzavřené číselníky** místo volných kategorií; když necháte model kategorie vymýšlet, dostanete za měsíc čtyřicet variant téhož. A za páté: **ukázka vstupu i výstupu** přímo v promptu, pokud je úloha jen trochu netriviální — jedna dobrá ukázka vydá za odstavec instrukcí, viz [ukázky formátu](/tipy/ai-ukazky-formatu).
+
+Prompty si ukládejte mimo platformu, ve svojí [knihovně promptů](/tipy/ai-knihovna-promptu), a verzujte je datem. Až budete za tři měsíce ladit, budete chtít vědět, co se změnilo.
+
+Ladit prompt naslepo nemá smysl. Postavte si testovací sadu z reálných dat:
+
+```text
+Přikládám prompt, který používám v automatizovaném kroku, a dvacet
+reálných vstupů z minulých měsíců i s tím, jak měl výstup vypadat.
+
+PROMPT:
+[vlož prompt]
+
+VSTUPY A OČEKÁVANÉ VÝSTUPY:
+[vlož 20 dvojic]
+
+Udělej tři věci:
+1. Projdi vstupy a najdi ty, u kterých je prompt nejednoznačný —
+   tedy kde se dá zadání vyložit dvěma způsoby
+2. U každé nejednoznačnosti navrhni konkrétní větu do promptu,
+   která ji odstraní
+3. Vypiš 5 hraničních případů, které v mé sadě chybí a na kterých
+   prompt pravděpodobně selže (prázdný vstup, cizí jazyk, dvě
+   poptávky v jedné zprávě, příloha místo textu, spam)
+
+Nepřepisuj celý prompt, chci cílené úpravy s odůvodněním.
+```
+
+Vrátí seznam děr a hraniční případy, na které byste sami nepřišli. Bod 3 je důvod, proč se to vyplatí: první skutečný pád scénáře v provozu bývá právě „dvě poptávky v jedné zprávě“ nebo „formulář odeslaný prázdný“.
+
+## Testování a ošetření chyb
+
+Scénář, který se tiše rozbil, je horší než žádný — spoléháte na něj a nevíte, že neběží. Tahle sekce je nudná a je to ta, která rozhoduje, jestli automatizaci za dva měsíce vypnete.
+
+### Nejdřív běh naprázdno
+
+Pusťte scénář ručně nad dvaceti starými případy a porovnejte, co vypadlo, s tím, co jste tehdy udělali vy. Teprve pak ho zapněte natrvalo. Během prvního týdne ať všechny akce míří do zkušebních cílů: testovací tabulka, testovací kanál, koncepty v poště. Ostrý CRM přijde na řadu, až budete výstupu věřit.
+
+### Čtyři druhy selhání a co s nimi
+
+**Cizí služba neodpoví.** Nejběžnější a nejnevinnější. Řešení je automatické opakování s odstupem — dva až tři pokusy, mezi nimi minuty, ne vteřiny. Většina platforem to umí zapnout u kroku.
+
+**Model vrátí něco, co se nedá rozparsovat.** Občasný jev, který má tři vrstvy obrany: instrukce „vrať výhradně JSON“, krok, který z odpovědi vytáhne jen část mezi složenými závorkami, a validace — když parsování selže, scénář nezapíše nic a pošle vám položku k ručnímu zpracování.
+
+**Model vrátí platný, ale nesmyslný obsah.** Nejzákeřnější případ, protože scénář proběhne jako úspěšný. Obrana je kontrola rozumnosti přímo ve scénáři: rozpočet mimo očekávaný rozsah, datum v minulosti, kategorie mimo číselník, prázdné povinné pole — cokoli z toho ať vede na ruční frontu, ne do CRM.
+
+**Scénář se zacyklí nebo zpracuje totéž dvakrát.** Vzniká, když akce jednoho scénáře spustí trigger druhého, nebo když se webhook doručí opakovaně. Obrana je značka o zpracování: scénář si u záznamu poznamená, že ho už viděl, a na začátku zkontroluje, jestli tam ta značka není.
+
+Ke každému scénáři patří **cesta pro neúspěch**: samostatná tabulka nebo složka, kam padá všechno, co se nepovedlo, a jedno souhrnné upozornění denně, ne u každé chyby zvlášť. A jednou týdně se do té tabulky podívejte — pokud je prázdná měsíc, buď je scénář výborný, nebo hlášení chyb nefunguje.
+
+```text
+Přikládám popis svého automatizačního scénáře. Chci od tebe návrh
+ošetření chyb, ne pochvalu.
+
+SCÉNÁŘ:
+[vypiš kroky a použité aplikace]
+Co se stane, když výstup bude špatný: [dopad, např. zapíše se
+špatné číslo do CRM a nikdo si toho nevšimne]
+
+Vrať:
+1. Tabulku: krok | jak může selhat | jak to poznám | co má scénář
+   udělat | co mám udělat já
+2. Kontroly rozumnosti, které mám přidat mezi AI krok a zápis
+   (rozsahy hodnot, povinná pole, číselníky)
+3. Návrh, jak zajistit, aby se tentýž vstup nezpracoval dvakrát
+4. Co má obsahovat denní souhrnné hlášení, aby se dalo přečíst
+   za deset vteřin
+5. Jeden test, kterým si jednou měsíčně ověřím, že scénář opravdu běží
+
+Buď konkrétní, obecná doporučení typu „monitorujte“ mi nepomůžou.
+```
+
+Vrátí plán, který naklikáte za hodinu a který vám zachrání den, kdy se něco pokazí. Bod 5 nepřeskakujte — pravidelný umělý test je jediný způsob, jak poznat rozdíl mezi „nic se nestalo“ a „scénář týden neběžel“.
+
+### Oprávnění a data
+
+Před zapnutím si projděte, co scénáři dáváte. Automat s přístupem do celé pošty a právem mazat je nesmyslně velká zbraň na úkol „přepiš poptávku do tabulky“. Dejte mu přístup do jedné složky a pokud možno jen na čtení; zápis omezte na jeden cíl.
+
+Citlivá data (osobní údaje, zdravotní informace, mzdy, obchodní tajemství) posílejte jen do nástrojů schválených vaší firmou a jen na účty se smluvní ochranou dat. Když si nejste jistí, máte dvě čisté cesty: provozovat n8n u sebe, nebo citlivá pole ze scénáře úplně vynechat a nechat v něm jen identifikátor, podle kterého si člověk záznam otevře v systému.
+
+## Kdy neautomatizovat
+
+Ne všechno, co jde zautomatizovat, se má zautomatizovat. Šest situací, kde je správná odpověď „nechte to být“:
+
+**Když to děláte míň než třikrát týdně.** Stavba a údržba scénáře stojí čas navždy, úspora je úměrná četnosti. U vzácných úkolů se to nikdy nevrátí.
+
+**Když je proces nestabilní.** Automatizovat postup, který se každý měsíc mění, znamená přestavovat scénář každý měsíc. Nejdřív proces ustálit, sepsat ho jako [checklist](/tipy/checklisty-opakovanych-procesu), a teprve ustálenou verzi automatizovat.
+
+**Když je cena chyby vysoká a chyba není vidět.** Cokoli, co sahá na peníze, na právní lhůty nebo na zdravotní údaje. Když už, tak jen jako návrh ke schválení s povinnou lidskou kontrolou.
+
+**Když jde o vztah, ne o přenos dat.** Odpověď na stížnost, poděkování za spolupráci, kondolence, vyjednávání ceny. Automatizovaná zdvořilost je horší než žádná — příjemce ji pozná.
+
+**Když je výjimek víc než pravidel.** Když u tří z deseti případů musíte zasáhnout, scénář vám nešetří čas, jen přidal krok kontroly.
+
+**Když by scénář musel dostat práva, která byste nedali ani stážistovi.** Právo odesílat vaším jménem, mazat záznamy, potvrzovat objednávky. Když se rozsah oprávnění nedá zúžit, nestavte to.
+
+## Nejčastější chyby
+
+- **Stavět velký scénář na první pokus.** Sedm kroků, čtyři aplikace, dvě větvení — a při první chybě nevíte, kde hledat. Postavte tři kroky, zprovozněte je, pak přidávejte.
+- **Nechat automat odesílat.** Nejlákavější zkratka a nejdražší. Koncept vás stojí deset vteřin čtení, jeden nešťastný odeslaný mail stojí klienta.
+- **Nechat model vymýšlet kategorie.** Bez uzavřeného číselníku dostanete za měsíc čtyřicet variant téhož a statistika je k ničemu.
+- **Nefiltrovat hned za spouštěčem.** Scénář, který se pouští na každou položku a teprve v AI kroku zjišťuje, že ji nemá zpracovávat, plýtvá operacemi i penězi.
+- **Netestovat na reálných starých datech.** Scénář, který funguje na vymyšleném příkladu, spadne na prvním skutečném vstupu — typicky na prázdném formuláři nebo dvou poptávkách v jedné zprávě.
+- **Zapomenout na hlášení chyb.** Tichý scénář vypadá stejně jako fungující. Rozdíl poznáte až ve chvíli, kdy se někdo ptá, proč jste nereagovali.
 
 ## Nejlepší nástroje
 
-- **Zapier** — nejrozšířenější cloudová platforma s obrovským počtem propojení; nejrychlejší cesta k prvnímu funkčnímu scénáři bez programování.
-- **Make** — vizuální editor scénářů, přehledný u složitějších toků s podmínkami a větvením.
-- **n8n** — otevřená platforma, kterou lze provozovat na vlastním serveru; volba pro firmy, jejichž data nesmějí do cizího cloudu.
+- **Zapier** — nejrychlejší cesta k prvnímu funkčnímu scénáři, obrovský počet propojení; volba, když chcete výsledek dnes a scénář je jednoduchý.
+- **Make** — vizuální editor, ve kterém je vidět tok dat; přehlednější u scénářů s podmínkami, větvením a smyčkami.
+- **n8n** — otevřená platforma, kterou lze provozovat na vlastním serveru; volba pro firmy, jejichž data nesmějí do cizího cloudu, a pro scénáře, kde potřebujete vlastní krok s kódem.
 - **Vestavěné automatizace v nástrojích, které už máte** — pravidla v poště, automatizace v Notionu, Power Automate v Microsoft 365. Když stačí, není důvod přidávat další službu.
-- **Agentní nástroje (Claude s napojením na vaše nástroje)** — místo skládání kroků popíšete rutinu větami; vhodné, když se zadání často mění.
+- **Rutiny v Claude s konektory** — když je spouštěčem čas a výstupem text pro člověka; postup v tipu [rutiny v Claude](/tipy/claude-rutiny-posta-kalendar).
+- **Claude Code nebo vlastní skript** — když scénář potřebuje sáhnout na soubory, přepočítat data nebo běžet u vás; viz [skripty pro nevývojáře](/tipy/ai-skripty-pro-nevyvojare) a [osobní automatizace](/tipy/claude-code-osobni-automatizace).
 
 ## Co vám to přinese
 
-- **Čas:** jeden dobře zvolený scénář ušetří typicky hodinu až dvě týdně. Tři scénáře udělají z automatizace nejvýnosnější investici vašeho měsíce.
-- **Spolehlivost:** automat nezapomene, neodloží to na zítra a neudělá překlep v přepisu čísla.
-- **Klid:** přestanete si pamatovat rutinu. Paměť se dá využít líp.
-- **Kontrola:** protože všechno končí jako návrh, roste vám rychlost, ne riziko.
+- **Čas:** jeden dobře zvolený scénář ušetří typicky hodinu až dvě týdně. Tři scénáře udělají z automatizace nejvýnosnější investici měsíce — ale jen tehdy, když si nepostavíte pátý, který nikdo nekontroluje.
+- **Peníze:** rychlejší reakce na poptávku měřitelně zvyšuje šanci na zakázku; scénář, který zkrátí odpověď z druhého dne na dvě hodiny, se zaplatí na jedné zakázce.
+- **Spolehlivost:** automat nezapomene, neodloží to na zítra a neudělá překlep v přepisu čísla. Zato udělá stejnou chybu stokrát, když ho špatně nastavíte — proto ta kontrolní kolečka.
+- **Klid:** přestanete si pamatovat rutinu a přestane vás rozbíjet den každá příchozí položka. Rozhodujete v dávkách, ne po jedné.
 
 ## Pro tip
 
-Než scénář zapnete, projděte si, jaká oprávnění mu dáváte. Automat s přístupem k celé poště a právem mazat je zbytečně velká zbraň na úkol „přepiš poptávku do tabulky“ — dejte mu přístup jen do jedné složky a jen na čtení. Citlivá data (osobní údaje, zdravotní informace, obchodní tajemství) posílejte výhradně do nástrojů schválených vaší firmou; když si nejste jistí, zvolte n8n u sebe, nebo je z automatizace vynechte. A jednou za čtvrtletí projděte seznam scénářů a vypněte ty, které už nikdo nepoužívá.
+Postavte si **ovládací panel scénářů**: jednu tabulku, ve které je řádek za každý běh — čas, scénář, vstup, výsledek, jestli jste ho schválili beze změny, nebo jste ho museli opravit. Zápis do ní přidejte jako poslední krok každého scénáře. Po měsíci z ní vyčtete tři věci, které jinak nikdy nezjistíte: který scénář vracíte k přepracování nejčastěji (tam upravte prompt), který jste nepoužili ani jednou (vypněte) a kolik času vám to celé opravdu ušetřilo — ne odhadem, ale počtem řádků.
+
+A pravidlo, kterým se to celé dá shrnout: **automat smí připravit cokoli, poslední kliknutí zůstává vaše.** V den, kdy vás napadne udělat výjimku a nechat scénář něco odeslat nebo zaplatit, tu výjimku neudělejte.
