@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getAllChapters, getSectionLabels, type Chapter } from "@/lib/chapters";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 
-const sectionOrder: Chapter["section"][] = ["zaklady", "metody", "nastroje", "situace"];
+const sectionOrder: Chapter["section"][] = ["zaklady", "metody", "nastroje", "situace", "skola", "firma", "freelancing", "uceni", "doma"];
 
 const T = {
   cs: {
@@ -16,6 +16,11 @@ const T = {
     startLink: "Jste tu poprvé? Začněte minimalistickým průvodcem →",
     minutes: "min",
     sectionDesc: {
+      skola: "Seriál pro učitele: proč učitelství vyčerpává jinak, příprava výuky jako systém, hodnocení bez vyhoření, pozornost ve třídě a škola jako organizace.",
+      firma: "Seriál o produktivitě organizace: tým není součet jednotlivců, asynchronní komunikace, znalosti, procesy, vedení lidí a zavádění změny.",
+      freelancing: "Seriál pro práci na sebe: kalkulace času, získávání zakázek, klientský provoz a finanční klid.",
+      uceni: "Seriál o učení: věda o zapamatování, poznámky, zkoušky a učení vedle práce.",
+      doma: "Seriál pro domácnost a rodinu: provoz domácnosti, čas rodičů a digitální hygiena.",
       zaklady:
         "Co produktivita skutečně je (a co ne), jak funguje vaše hlava a tělo — motivace, prokrastinace, flow, spánek, energie.",
       metody:
@@ -39,6 +44,12 @@ const T = {
     startLink: "First time here? Start with the minimalist guide →",
     minutes: "min",
     sectionDesc: {
+      skola: "A series for teachers: why teaching drains differently, lesson prep as a system, grading without burnout, attention in the classroom and school as an organisation.",
+      firma: "A series on organisational productivity: a team is not the sum of individuals, async communication, knowledge, processes, leading people and driving change.",
+      freelancing: "A series for working for yourself: pricing your time, winning work, client operations and financial calm.",
+      uceni: "A series on learning: the science of remembering, notes, exams and learning alongside a job.",
+      doma: "A series for home and family: running a household, parents and time, and digital hygiene.",
+
       zaklady:
         "What productivity actually is (and what it is not), and how your head and body really work — motivation, procrastination, flow, sleep, energy.",
       metody:

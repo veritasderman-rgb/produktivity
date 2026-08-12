@@ -6,7 +6,7 @@ export type Chapter = {
   slug: string;
   title: string;
   excerpt: string;
-  section: "zaklady" | "metody" | "nastroje" | "situace";
+  section: "zaklady" | "metody" | "nastroje" | "situace" | "skola" | "firma" | "freelancing" | "uceni" | "doma";
   order: number;
   minutes: number;
   body: string;
@@ -17,6 +17,11 @@ export const sectionLabels: Record<Chapter["section"], string> = {
   metody: "Metody",
   nastroje: "Nástroje",
   situace: "Situace",
+  skola: "Ve škole",
+  firma: "Ve firmě",
+  freelancing: "Na volné noze",
+  uceni: "Učení",
+  doma: "Doma",
 };
 
 export const sectionLabelsEn: Record<Chapter["section"], string> = {
@@ -24,6 +29,11 @@ export const sectionLabelsEn: Record<Chapter["section"], string> = {
   metody: "Methods",
   nastroje: "Tools",
   situace: "Situations",
+  skola: "At school",
+  firma: "At the company",
+  freelancing: "Freelancing",
+  uceni: "Learning",
+  doma: "At home",
 };
 
 export function getSectionLabels(locale: string = "cs") {
