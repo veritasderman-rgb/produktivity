@@ -1,6 +1,6 @@
 ---
 title: "MCP konektory: USB-C pro AI"
-excerpt: "Jeden otevřený standard, přes který AI uvidí vaše nástroje — poštu, kalendář, Drive, Notion i Slack. Nastavíte jednou a přestanete kopírovat data do chatu."
+excerpt: "Kompletní návod s prompty: co je MCP a proč se mu říká USB-C pro AI, jak připojit poštu, kalendář, Drive, Notion i Slack, jak nastavit oprávnění podle principu nejmenších práv, kdy se vyplatí vlastní MCP server a jak z konektorů udělat základ rutin."
 category: "ai"
 platform: "vsude"
 audience: []
@@ -11,43 +11,406 @@ date: "2026-08-12"
 
 Nejčastější způsob, jak lidé používají AI, je zároveň ten nejpracnější: něco najdou, zkopírují to do chatu, dostanou odpověď a výsledek zkopírují zpátky. Většina času nepadne na přemýšlení, ale na přenášení dat sem a tam. MCP tenhle mezikrok ruší. Je to otevřený standard — Model Context Protocol —, který funguje jako **USB-C pro AI: jednou zapojíte konektor a asistent od té chvíle vidí přímo do nástroje, se kterým pracujete.** Žádné kopírování, žádné exporty, žádné „počkej, pošlu ti to“.
 
-Na claude.ai jde přes konektory připojit mimo jiné Gmail, Google Kalendář, Google Drive, Notion, Slack, Canva nebo správu reklam na sociálních sítích — existuje adresář se stovkami dalších služeb. Kam MCP zapadá v celkovém obrázku, popisuje [kapitola o AI a automatizaci](/prirucka/ai-a-automatizace).
+Tenhle návod jde do hloubky. Nejdřív si vyjasníme, co MCP je a co není — bez toho se dělají špatná rozhodnutí o oprávněních. Pak projdeme první připojení, princip nejmenších práv, přehled hlavních konektorů s hotovými scénáři a prompty, bezpečnostní stránku včetně rizika, o kterém se skoro nemluví, úvahu o vlastním MCP serveru pro firemní systémy a nakonec to, kvůli čemu to celé stojí za to: konektory jsou předpoklad rutin a agentů, které pracují bez vás. Každá fáze má prompty k okopírování; stačí doplnit hranaté závorky.
+
+Dvě zásady platí nad celým návodem. **Konektor je oprávnění číst a připravovat, ne odesílat a platit.** Všechno, co má následek navenek — odeslaný mail, převod, smazaný soubor, zrušená schůzka — schvaluje člověk. A **přes konektor teče obsah vaší pošty a dokumentů**: citlivé věci patří výhradně do placeného nebo firemního účtu se smluvní ochranou dat, ne do volného chatu, a co jde anonymizovat, anonymizujte. Kam MCP zapadá v celkovém obrázku, popisuje [kapitola o AI a automatizaci](/prirucka/ai-a-automatizace).
 
 ## Vzorová situace
 
-Marketingová manažerka Klára připravuje pondělní poradu. Bez konektorů to znamená: otevřít Notion, najít zápis z minulé porady, zkopírovat ho, otevřít rozhraní reklamní platformy, stáhnout čísla za týden, přepsat je do tabulky, pak otevřít kalendář a hledat, kdy má tým společné volno. Šedesát až devadesát minut, z toho většina jen přeskakování mezi okny.
+Marketingová manažerka Klára připravuje pondělní poradu. Bez konektorů to znamená: otevřít Notion, najít zápis z minulé porady, zkopírovat ho do chatu, otevřít rozhraní reklamní platformy, stáhnout čísla za týden, přepsat je do tabulky, projít poštu a vytáhnout, co po ní kdo chce, pak otevřít kalendář a hledat, kdy má tým společné volno. Šedesát až devadesát minut každé pondělí ráno, z toho většina jen přeskakování mezi okny — a výsledek, ve kterém stejně chybí to, na co se zapomnělo.
 
-S připojenými konektory napíše tři věty a má hotovo za deset minut. Nezmizel jí úsudek — pořád rozhoduje, co se na poradě bude řešit. Zmizelo přenášení.
+Nejhorší na tom není ztracený čas, ale to, co se kvůli němu nedělá. Klára už dávno nekontroluje, jestli se nezapomnělo na úkol z předminulé porady, protože to je další čtvrthodina hledání. Věci propadají.
 
-## Tři miniscénáře, které fungují hned
+S připojenými konektory napíše tři věty a má podklad za deset minut: Claude si najde zápis v Notionu, projde otevřené body, vytáhne čísla kampaně, srovná je s minulým týdnem, mrkne do kalendáře na volné termíny a z pošty vytáhne, co přišlo za týden a týká se to týmu. Klára pak dělá to, co dělat má: rozhoduje, co se na poradě bude řešit a co počká.
 
-- **„Najdi v Notionu zápis z minulé porady a pošli mi shrnutí toho, co zůstalo nedodělané.“** Claude si stránku najde sám, projde úkoly a vrátí seznam otevřených bodů s tím, kdo je má na starosti.
-- **„Zkontroluj můj kalendář a kalendář týmu a navrhni tři termíny na hodinovou schůzku příští týden, ideálně dopoledne.“** Místo pěti mailů typu „a co ve středu?“ dostanete rovnou tři reálné volné bloky.
-- **„Připrav report výkonu poslední reklamní kampaně: srovnej ho s předchozím obdobím a napiš tři věty, co z toho plyne.“** Čísla si vytáhne z reklamního účtu, srovnání i komentář dopíše sám.
+Za dva měsíce se změnily tři věci. Pondělní příprava trvá deset minut místo hodiny. Úkoly z porad přestaly propadat, protože kontrola nedodělků je součástí zadání, ne dobrovolná nadstavba. A Klára postupně zjistila, že polovina věcí, které dřív hledala ručně, ji vůbec nemusí zajímat — nechá si je jen shrnout.
 
-## Jak na to
+## Fáze 1: co MCP je a co není
 
-1. **Začněte jedním konektorem, ne všemi.** V nastavení konektorů na claude.ai zapněte ten nástroj, ve kterém trávíte nejvíc času. Většinou je to pošta nebo úložiště dokumentů.
-2. **Přihlaste se a projděte oprávnění.** Připojení běží přes váš účet a přesně vidíte, co konektor smí. Držte se principu nejmenších práv: udělte jen to, co je pro váš scénář nutné, a nic navíc.
-3. **Vyzkoušejte tři čtení, než povolíte zápis.** První týden se ptejte jen na věci, které nic nemění — hledání, shrnutí, srovnání. Až budete mít důvěru, přidejte akce, které něco zakládají.
-4. **Pište zadání jako člověku, ne jako stroji.** Nemusíte znát názvy databází ani struktur. „V Driveu najdi poslední verzi nabídky pro Nováka a shrň mi, co jsme slíbili“ je plnohodnotné zadání.
-5. **Zamyslete se nad daty.** Přes konektor teče obsah vaší pošty a dokumentů. Citlivé věci — osobní údaje, finance, zdravotní informace — patří výhradně do placeného nebo firemního účtu se smluvní ochranou dat, ne do free chatu; co jde anonymizovat, anonymizujte.
-6. **Pro firmy: napište si vlastní server.** MCP je otevřený standard, takže si vývojáři můžou napsat vlastní MCP server nad interním systémem — skladem, CRM, docházkou — a AI s ním pracuje stejně přirozeně jako s Gmailem.
+Většina lidí nastaví konektory podle návodu a nikdy se nezamyslí, co se vlastně stalo. To je v pořádku, dokud jde o vlastní kalendář. Ve chvíli, kdy připojujete firemní poštu nebo interní systém, se pár minut porozumění vyplatí.
+
+### Standard, ne funkce jedné aplikace
+
+MCP je **otevřený protokol** — dohoda o tom, jak spolu mluví AI asistent a nějaký nástroj. Na jedné straně je klient (asistent), na druhé server (nástroj, který nabízí své schopnosti). Server řekne: „umím vyhledat v dokumentech, umím vytvořit stránku, umím přečíst zprávu“. Klient si z nabídky vybere podle toho, co po něm chcete.
+
+Přirovnání k USB-C sedí přesně v tom, co je na standardech cenné. Před USB-C měl každý přístroj vlastní konektor a vlastní kabel. Po USB-C stačí jeden kabel na všechno a výrobce nemusí řešit, co je na druhém konci. U MCP je to stejné: kdo napíše MCP server pro svůj systém, zpřístupní ho tím všem asistentům, které protokol umí — a nemusí kvůli každému psát vlastní napojení.
+
+### Co se děje při vašem dotazu
+
+Když napíšete „najdi mi v Driveu poslední nabídku pro Nováka“, proběhne tohle: asistent si z nabídky konektoru vybere schopnost „hledat v souborech“, zavolá ji s vaším dotazem, dostane zpátky výsledky a teprve z nich píše odpověď. Podstatné je, že **model si nesahá kam chce** — může jen to, co konektor nabízí a co jste povolili. To je zásadní rozdíl oproti představě, že „AI má přístup k mým datům“.
+
+Druhá podstatná věc: konektor běží pod **vaším** účtem a vaším oprávněním. Nevidí víc než vy. Když nemáte přístup do cizí složky, nedostane se do ní ani asistent.
+
+### Co MCP není
+
+**Není to zálohování ani kopírování dat do AI.** Konektor si data vyžádá ve chvíli, kdy je potřebuje k odpovědi; nestahuje si vaši poštu na hromadu dopředu.
+
+**Není to automat.** Připojený konektor sám o sobě nic nedělá. Aby něco běželo bez vás, musíte si to naplánovat jako rutinu — o tom je fáze 7.
+
+**A není to nahrazení vaší hlavy.** Konektor odstraňuje přenášení dat, ne rozhodování. Úsudek zůstává vám; asistent jen přestane být slepý.
+
+## Fáze 2: první připojení a oprávnění
+
+### Postup, který se osvědčil
+
+Zapínat všechno naráz je nejrychlejší cesta ke zmatku — nebudete vědět, co odkud přišlo, a při první divné odpovědi to celé vypnete. Postupujte takhle:
+
+1. **Jeden konektor na začátek.** V nastavení konektorů na claude.ai zapněte ten nástroj, ve kterém trávíte nejvíc času. Většinou je to pošta nebo úložiště dokumentů. Adresář konektorů nabízí připravená napojení na stovky služeb — od pošty a kalendáře přes Notion, Slack a Drive až po nástroje na grafiku nebo správu reklam.
+2. **Přihlaste se a přečtěte si obrazovku s oprávněními.** Tohle je jediné místo, kde se rozhoduje, co asistent smí, a jediné, které lidé odklikávají bez čtení. Přečtěte ji celou.
+3. **Týden jen čtení.** První dny se ptejte výhradně na věci, které nic nemění — hledání, shrnutí, srovnání. Získáte představu, co konektor umí, a hlavně poznáte, jak často se plete.
+4. **Pak teprve zápis.** Vytvoření konceptu, založení stránky, návrh události. I tady platí, že koncept je koncept — odeslání zůstává na vás.
+5. **Přidejte druhý konektor.** Až první používáte samozřejmě. Skutečná síla je v kombinaci, ale ta má smysl teprve tehdy, když každému nástroji zvlášť věříte.
+
+### Princip nejmenších práv
+
+Pravidlo, které v IT platí desítky let a u konektorů se na něj zapomíná: **udělte přesně to, co je pro váš scénář nutné, a nic navíc.** Ne proto, že by se něco chystalo zneužít, ale proto, že práva, která nikdo nedal, nejdou pokazit.
+
+Prakticky to znamená čtyři věci. **Čtení místo zápisu**, kdykoli to stačí — na shrnutí týdenní pošty nepotřebuje asistent právo mazat. **Užší rozsah místo širšího**: jedna sdílená složka, ne celý disk; jeden pracovní prostor, ne celá firma. **Pracovní účet pro pracovní věci**, soukromý pro soukromé — smíchané konektory jsou nejrychlejší cesta k tomu, aby se firemní data objevila v soukromém shrnutí. A **žádné oprávnění „pro jistotu“**: když ho zapnete, protože „třeba se bude hodit“, nebude ho hlídat nikdo, protože nikdo neví, že existuje.
+
+Než konektor povolíte, projděte si scénář nahlas: co po asistentovi budu skutečně chtít? Když je odpověď „hledat a shrnovat“, právo zapisovat nepotřebujete.
+
+### Kontrola, co vlastně smí
+
+První prompt po připojení má být tenhle. Vypadá banálně a šetří spoustu nedorozumění.
+
+```text
+Vypiš mi, co všechno s připojenými konektory umíš:
+
+- které konektory jsou aktivní
+- u každého: jaké konkrétní akce s ním můžeš provést
+- rozděl je na akce, které jen čtou, a akce, které něco mění
+  nebo zakládají
+- u každé měnící akce napiš, co přesně by se stalo, kdybych
+  ti to zadal
+
+Na konci mi napiš 3 věci, které bych mohl čekat, že umíš,
+ale ve skutečnosti neumíš.
+```
+
+Poslední bod je nejcennější. Většina zklamání z konektorů pramení z očekávání, které nikdo nevyslovil — člověk předpokládá, že asistent uvidí i archivované složky nebo cizí kalendáře, a když odpověď nesedí, ztratí důvěru. Odpověď si uložte; za dva měsíce se hodí.
+
+## Fáze 3: hlavní konektory a co s nimi hned zítra
+
+Následující scénáře jsou k okamžitému použití. Vyzkoušejte je v tomhle pořadí — jsou seřazené podle toho, jak rychle se vrátí investovaný čas.
+
+### Pošta: hledání, které nedělá inbox
+
+Konektor k poště je návratnostně nejsilnější, protože pošta je místo, kde se přenášení dat děje nejčastěji. Nejde přitom o „napiš mi odpověď“ — to zvládne i chat bez konektorů. Jde o věci, které jsou v poště ručně nedohledatelné.
+
+```text
+Projdi moji poštu za posledních [7] dní a vrať mi tři seznamy:
+
+1. Co po mně někdo chce a ještě jsem neodpověděl — u každého
+   odesílatel, o co jde jednou větou, a jak je to staré.
+2. Co jsem slíbil já — najdi věty typu „pošlu“, „připravím“,
+   „ozvu se“ v mých odeslaných zprávách a vypiš, co z toho
+   nemá viditelné pokračování.
+3. Co vypadá jako blížící se termín — data, deadliny, splatnosti.
+
+Seřaď podle naléhavosti, ne podle data. Nic neodesílej
+a na nic neodpovídej, jen mi to vypiš.
+```
+
+Vrátí přehled, který v poště ručně nesestavíte ani za hodinu — hlavně bod 2, tedy vlastní sliby, které jsou obvykle rozeseté po odeslané poště a nikdo je nesleduje. Pozor na dvě věci: automatické zprávy a newslettery se sem občas propašují (doplňte „ignoruj hromadné a automatické zprávy“) a u zpráv ve vláknech si model občas splete, kdo co slíbil — u důležitých položek si vlákno otevřete.
+
+### Kalendář: hledání času místo mailů
+
+```text
+Podívej se do mého kalendáře a do kalendáře [jméno kolegy]
+na příští dva týdny a navrhni tři termíny na hodinovou schůzku.
+
+Podmínky:
+- nejdřív pozítří, ať mám čas se připravit
+- ideálně dopoledne mezi 9 a 12
+- ne v pondělí (mám poradu) a ne v den, kdy už mám tři
+  a víc schůzek
+- nech aspoň 30 minut mezery před i po
+
+U každého termínu napiš, proč zrovna tenhle, a co bych kvůli
+němu musel případně přesunout. Nic nezakládej — vyberu si
+a pozvánku pošlu sám.
+```
+
+Místo pěti mailů typu „a co ve středu?“ dostanete tři reálné volné bloky. Poslední věta je záměrná: pozvánka je akce s následkem u druhého člověka, tu posílá člověk. Vyplatí se doplnit i časové pásmo, pokud pracujete s někým v zahraničí — tady vzniká nejvíc chyb.
+
+### Úložiště dokumentů: firemní paměť, která odpovídá
+
+Drive nebo jiné firemní úložiště je typicky místo, kde odpověď existuje, ale nikdo ji nenajde. Konektor z toho dělá vyhledávání podle významu, ne podle názvu souboru.
+
+```text
+V našem sdíleném úložišti najdi všechno, co se týká
+[klient / projekt / téma].
+
+Pak mi napiš:
+- které dokumenty jsou k tomu relevantní, seřazené od
+  nejnovějšího, u každého jednou větou, co obsahuje
+- co jsme klientovi slíbili a v jakém dokumentu to je
+- kde si dokumenty navzájem odporují (jiná čísla, jiné
+  termíny, jiný rozsah)
+- co k tématu podle tebe chybí
+
+U každého tvrzení uveď, ze kterého souboru ho máš.
+Netvrz nic, co v dokumentech není.
+```
+
+Bod o rozporech je ten, kvůli kterému se prompt vyplatí: v dokumentech ke staršímu projektu se rozpory najdou skoro vždycky a vždycky je lepší je najít dřív než klient. Ověřte si namátkou dva tři odkazy na zdroj — u velkého množství podobných dokumentů se občas připíše tvrzení k jinému souboru.
+
+### Notion a firemní wiki: konec archeologie v zápisech
+
+```text
+V Notionu najdi zápis z poslední porady týmu [název]
+a udělej mi přípravu na tu příští:
+
+1. Úkoly z minula: co bylo zadané, komu, s jakým termínem
+   a co z toho má viditelné dokončení
+2. Body, které se odložily „na příště“ — a kolikrát už
+   se odložily
+3. Rozhodnutí, která padla a je dobré je připomenout
+4. Návrh agendy na 45 minut, seřazený tak, aby se nejdřív
+   řešilo, co blokuje ostatní
+
+Nic v Notionu neměň. Výstup mi napiš do chatu,
+projdu si ho a založím zápis sám.
+```
+
+Bod 2 je malá zlomyslnost, která funguje: když se u odloženého bodu objeví „odloženo popáté“, porada s ním konečně něco udělá. Pro pravidelné porady se tenhle prompt hodí uložit jako opakované zadání — viz fáze 7.
+
+### Slack a týmová komunikace
+
+```text
+Projdi kanály [#kanal1, #kanal2] za posledních [5] dní
+a napiš mi shrnutí pro někoho, kdo byl týden pryč:
+
+- o čem se rozhodlo a kdo to rozhodl
+- otevřené otázky, na které nikdo neodpověděl
+- kde jsem byl zmíněný já a co se ode mě čeká
+- vlákna, která mají víc než [15] zpráv — u každého
+  jedna věta, o co jde a jak to dopadlo
+
+Ať se to dá přečíst za dvě minuty. Do Slacku nic nepiš.
+```
+
+Návrat z dovolené se z půldne čtení smrskne na deset minut. Jedno upozornění: shrnutí komunikace je citlivá věc — sarkasmus, vtipy a náznaky se v shrnutí ztratí a zbyde holé tvrzení, které může znít mnohem tvrději, než bylo myšleno. Než shrnutí přepošlete dál, přečtěte si ho tímhle pohledem.
+
+### Kombinace: tam je skutečná hodnota
+
+Jeden konektor šetří minuty. Dva a víc dohromady dělají věci, které ručně neděláte vůbec.
+
+```text
+Připrav mi podklad na pondělní poradu. Použij k tomu
+poštu, kalendář a Notion:
+
+1. Z Notionu: nedodělané úkoly z minulé porady s tím,
+   kdo je má na starosti
+2. Z pošty za poslední týden: co přišlo nového a týká se
+   to témat z bodu 1 — u každého odesílatel a datum
+3. Z kalendáře: co má tým tenhle týden za termíny
+   a kde se to tluče
+4. Návrh agendy na [45] minut s odhadem času u každého bodu
+5. Tři otázky, které bych měl na poradě položit,
+   ať se věci pohnou
+
+Vše, co tvrdíš, podlož zdrojem (odkaz nebo název dokumentu).
+Kde si nejsi jistý, napiš to místo odhadu.
+```
+
+Tohle je ta hodina týdně, o které mluví úvod. Poslední dva řádky nechte v promptu vždycky: napříč třemi zdroji je snadné, aby se do souhrnu vloudilo tvrzení, které nikde není, a bez požadavku na zdroj si toho nevšimnete. Nástavbou je stálý pracovní kontext — o tom, jak si vybudovat [druhý mozek, který odpovídá](/tipy/druhy-mozek-ktery-odpovida).
+
+## Fáze 4: jak psát zadání pro práci s konektory
+
+Zadání pro asistenta s konektory se píše trochu jinak než běžný dotaz. Čtyři návyky dělají většinu rozdílu.
+
+**Nemusíte znát strukturu.** Nepopisujte, ve které složce co je. „V Driveu najdi poslední verzi nabídky pro Nováka a shrň mi, co jsme slíbili“ je plnohodnotné zadání — hledání je práce asistenta.
+
+**Ohraničte rozsah.** Řekněte období, kanál, projekt. Bez ohraničení se prohledává zbytečně mnoho a odpověď je mlhavější.
+
+**Řekněte, co se nesmí.** „Nic neodesílej“, „nic neměň“, „jen mi to vypiš“. U konektorů se zápisem je to nejlevnější pojistka na světě.
+
+**Chtějte zdroje.** Ke každému tvrzení odkaz nebo název dokumentu. Bez toho nemáte jak odlišit, co asistent skutečně našel, od toho, co doplnil.
+
+Když odpověď nesedí, obvykle to není chyba modelu, ale zadání — a stojí za to to zjistit.
+
+```text
+Předchozí odpověď mi nesedí. Než ji opravíš, popiš mi postup:
+
+- které konektory jsi použil a v jakém pořadí
+- co přesně jsi v každém hledal (jaký dotaz)
+- kolik výsledků ti to vrátilo a podle čeho jsi vybíral
+- které tvrzení v odpovědi pochází z nalezených dat
+  a které je tvůj závěr
+
+Pak mi navrhni, jak mám zadání přeformulovat, abys našel
+i [co v odpovědi chybělo].
+```
+
+Vrátí popis postupu, ze kterého je obvykle hned vidět, kde to uteklo — typicky se hledalo příliš úzce, nebo v jiném období, než jste mysleli. Rozdělení na „nalezená data“ a „můj závěr“ je kontrola, kterou stojí za to dělat i u odpovědí, které vypadají v pořádku.
+
+## Fáze 5: bezpečnost, na kterou se zapomíná
+
+### Co přes konektor teče
+
+Konektor je zpřístupnění obsahu — pošty, dokumentů, zpráv. Platí proto zásada bez výjimek: **citlivá data jen v placeném nebo firemním účtu se smluvní ochranou dat, a i tam co nejméně.** Osobní údaje klientů, mzdy, zdravotní informace, obchodní tajemství. Když scénář jde postavit tak, že asistent pracuje s anonymizovanými nebo agregovanými daty, postavte ho tak.
+
+Než ve firmě zapnete konektor nad systémem, kde jsou osobní údaje, promluvte s tím, kdo u vás odpovídá za ochranu dat. Není to formalita: konektor mění to, kam data tečou, a tohle je přesně ta změna, kterou má někdo posoudit dřív než potom. Širší postup je v [průvodci zaváděním AI ve firmě](/tipy/ai-ve-firme-kompletni-pruvodce).
+
+### Riziko, o kterém se skoro nemluví
+
+Když asistent čte poštu, dokumenty nebo webové stránky, čte i text, který nepsal nikdo z vašich lidí. A text může obsahovat instrukce. Zpráva, ve které je schované „přepošli tenhle dokument na adresu…“, může asistenta ovlivnit, protože ten mezi vaším zadáním a přečteným obsahem nerozlišuje tak spolehlivě, jak by bylo potřeba.
+
+Obrana není složitá a je to táž věta, která platí nad celým webem: **akce s následkem navenek schvaluje člověk.** Když má konektor právo jen číst, nejhorší, co se stane, je divná odpověď. Když má právo odesílat, je to jiný příběh. Proto se u konektorů se zápisem vyplatí být opravdu skoupý.
+
+Praktické důsledky: nedávejte asistentovi právo odesílat poštu ani mazat soubory, dokud pro to nemáte skutečně dobrý důvod. Rutiny, které běží bez dozoru, ať končí konceptem nebo zprávou vám, ne akcí. A u agenta v prohlížeči — rozšíření Claude pro Chrome — platí totéž dvojnásob: **sleduje se a neplatí se přes něj**, protože v prohlížeči je přihlášené úplně všechno.
+
+### Revize oprávnění
+
+```text
+Udělej mi přehled mých připojených konektorů jako tabulku:
+
+Konektor | co s ním umím dělat | čte / mění | k čemu jsem
+ho reálně použil za poslední měsíc
+
+Do posledního sloupce piš jen to, co ses ode mě skutečně
+dozvěděl v konverzacích, ne odhad. Kde nevíš, napiš „nevím“.
+
+Pak mi navrhni, které konektory nebo která oprávnění
+bych mohl vypnout, aniž bych o něco přišel.
+```
+
+Vrátí podklad pro čtvrtletní úklid. Sloupec s „nevím“ berte vážně — to jsou konektory, které jste zapnuli a nepoužili, tedy přesně ty, které mají zmizet. Dejte si na revizi opakující se připomínku do kalendáře; bez ní se sbírka oprávnění jen nabaluje.
+
+## Fáze 6: vlastní MCP server pro firmu
+
+Adresář konektorů pokrývá běžné nástroje. Nepokrývá váš skladový systém, interní CRM, docházku ani databázi zakázek — a přitom právě tam je ta nejcennější informace. Protože je MCP otevřený standard, může firma nechat napsat vlastní MCP server nad svým systémem a asistent s ním pak pracuje stejně přirozeně jako s poštou.
+
+### Kdy to dává smysl
+
+Vlastní server je práce pro vývojáře a stojí čas. Vyplatí se, když platí aspoň tři z těchto věcí:
+
+- **Data jsou v systému, který nemá hotový konektor**, a lidé z něj pravidelně kopírují do jiných nástrojů.
+- **Ptá se na ně hodně lidí a opakovaně.** Typicky „v jakém stavu je zakázka“, „máme to skladem“, „kdy to bylo naposled fakturováno“ — otázky, které dnes někdo odpovídá ručně.
+- **Odpověď se dá ze systému získat spolehlivě.** Když jsou data v systému nekonzistentní, konektor to nespraví — jen zrychlí šíření nepořádku.
+- **Šetří to víc než pár minut denně.** Napojení, které ušetří pět minut týdně, se nezaplatí.
+- **Existuje vlastník.** Někdo, kdo bude server udržovat, když se změní systém pod ním. Bez toho vzniká věc, která za rok tiše přestane fungovat.
+
+### Co to obnáší
+
+Bez technických podrobností vypadá projekt takhle. Někdo popíše, **jaké otázky má asistent umět zodpovědět** — a to je práce pro lidi z provozu, ne pro IT. Z toho vznikne seznam schopností, které server nabídne: „najdi zakázku podle čísla“, „vrať stav skladu pro produkt“, „vypiš faktury klienta za období“. Každá schopnost má jasně dané, co dostane na vstupu a co vrátí.
+
+Pak se rozhodne **o právech**: co smí server jen číst, co smí zakládat, a hlavně kdo se přes něj k čemu dostane. Tady je klíčové rozhodnutí, jestli se práva odvozují od přihlášeného člověka — což je skoro vždy správná odpověď — nebo jestli server jede pod jedním technickým účtem, který vidí všechno. Druhá varianta je jednodušší a je to nejčastější chyba v návrhu.
+
+Následuje **nasazení a provoz**: kde server běží, jak se hlídá, co se loguje. A **údržba**, protože systém pod tím se bude měnit.
+
+Nejnáročnější část přitom není programování, ale první krok — sepsat, co se má vlastně ptát. Na to se hodí schůzka s lidmi, kteří systém denně používají, a tenhle prompt jako příprava:
+
+```text
+Chceme zpřístupnit náš [interní systém — např. skladový,
+CRM, evidence zakázek] AI asistentovi přes vlastní MCP server.
+Zatím sbíráme, co by měl umět.
+
+Přikládám [popis systému / seznam sestav / ukázku dat].
+
+Připrav mi podklad na schůzku s uživateli systému:
+1. 15 otázek, na které lidé podle tebe potřebují odpovědi
+   z tohohle systému nejčastěji — formulované tak, jak by je
+   položil člověk, ne jako dotazy do databáze
+2. U každé: jde o čtení, nebo by to znamenalo něco měnit?
+3. Které z nich by se daly zodpovědět jednou schopností
+   a které potřebují kombinaci víc věcí
+4. 8 otázek, kterými mám na schůzce zjistit, co jsem
+   nezachytil
+5. Rizika: kde by se přes takové napojení mohla dostat ven
+   data, která by neměla
+
+Nenavrhuj technické řešení, to je věc vývojáře.
+```
+
+Vrátí podklad, se kterým jde jít mezi lidi. Bod 5 čtěte pozorně a proberte ho s tím, kdo u vás odpovídá za ochranu dat — u interních systémů bývají osobní údaje na místech, kde je nikdo nečeká.
+
+Když je jasné, co se má ptát, vzniká zadání pro vývojáře:
+
+```text
+Na základě téhle sbírky otázek [vlož výstup z předchozího kroku]
+napiš zadání pro vývojáře na vlastní MCP server.
+
+Struktura:
+1. Účel: co má server umožnit a komu
+2. Seznam schopností — u každé: název, co dělá, co potřebuje
+   na vstupu, co vrací, jestli jen čte nebo mění
+3. Oprávnění: práva se odvozují od přihlášeného uživatele,
+   popiš, co to znamená pro každou schopnost
+4. Co server vědomě neumí a proč (hranice rozsahu)
+5. Otevřená rozhodnutí, která musíme udělat my, ne vývojář
+6. Jak poznáme za tři měsíce, že se to vyplatilo — konkrétní
+   měřitelné znaky
+
+Věcně, bez marketingu, technologii nenavrhuj.
+```
+
+Bod 4 bývá nejužitečnější: rozsah, který se nevymezí, se rozroste, a z projektu na tři týdny je projekt na půl roku. Bod 6 si schovejte — za čtvrt roku podle něj poznáte, jestli má smysl přidávat další schopnosti, nebo to celé utlumit.
+
+## Fáze 7: konektory jako základ rutin a agentů
+
+Konektory samy o sobě zrychlují práci, kterou stejně děláte. Skutečný skok přijde, až přestanete být tím, kdo je spouští.
+
+### Od dotazu k rutině
+
+Když nějaký prompt používáte každý týden stejně, je to kandidát na **plánovanou úlohu** — rutinu, která se spustí podle rozvrhu a výsledek vám dodá hotový. Pondělní podklad na poradu z fáze 3 nemusíte psát každé pondělí; může na vás v pondělí ráno čekat. Podrobně to rozebírá tip o [rutinách nad poštou a kalendářem](/tipy/claude-rutiny-posta-kalendar).
+
+Pravidlo pro rutiny je jednoduché a nesmlouvavé: **rutina končí podkladem nebo konceptem, ne akcí.** Připraví shrnutí, napíše koncept odpovědi, upozorní na blížící se termín. Odeslání, potvrzení a platbu dělá člověk — u věci, která běží bez dozoru, to platí ještě víc než u konverzace, kterou máte před očima.
+
+```text
+Chci si tenhle postup nastavit jako pravidelnou rutinu:
+[vlož prompt, který funguje].
+
+Než ho použiju jako rutinu, uprav ho:
+- doplň, aby výstup měl vždycky stejnou strukturu
+  (nadpisy, pořadí sekcí), ať se dá porovnávat týden po týdnu
+- doplň větu, co má udělat, když nic zajímavého nenajde
+  (ať mi nechodí vymyšlený obsah)
+- odstraň všechno, co by mohlo něco odeslat nebo změnit
+- na konec přidej sekci „Co si mám ověřit sám“
+
+Pak mi napiš, jaký rozvrh dává smysl a proč.
+```
+
+Vrátí prompt připravený na opakované spouštění. Nejdůležitější je druhý bod: rutina, která má za úkol něco najít, má tendenci něco najít vždycky — i v týdnu, kdy se nic nestalo. Když jí výslovně dovolíte napsat „tenhle týden nic“, výstupu se dá věřit.
+
+### Od rutiny k agentovi
+
+Poslední patro: asistent, který dostane cíl, sám si rozmyslí postup a použije k tomu konektory, které má. „Připrav podklady ke všem zakázkám, které se tenhle týden uzavírají“ znamená projít systém, dohledat dokumenty, zkontrolovat poštu a sestavit z toho balík. Bez konektorů je taková věta jen přáním; s nimi je to zadání.
+
+Právě proto stojí za to konektory nastavit pořádně teď, i když je zatím používáte jen na hledání. Kvalita napojení a rozumně nastavená práva jsou předpoklad všeho, co přijde potom — a špatně nastavená práva jsou u agenta, který jedná sám, mnohem dražší chyba než u dotazu, na který se díváte.
+
+## Nejčastější chyby
+
+- **Zapnout všechny konektory naráz.** Ztratíte přehled, co odkud přišlo, a při první divné odpovědi vypnete všechno. Jeden konektor, týden, pak další.
+- **Odklikat obrazovku s oprávněními.** Je to jediné místo, kde se rozhoduje, co asistent smí. Přečíst ji trvá minutu.
+- **Dát právo zápisu, když stačí čtení.** Nejlevnější bezpečnostní opatření na světě je oprávnění, které jste nedali.
+- **Nechat rutinu odesílat.** Cokoli, co běží bez dozoru, má končit konceptem. Odeslaný mail nejde vzít zpátky a u obsahu, který asistent přečetl odjinud, nikdy nevíte, co v něm bylo schované.
+- **Míchat pracovní a soukromé účty.** Firemní data v soukromém shrnutí jsou nepříjemnost, kterou zjistíte pozdě.
+- **Nahrát citlivá data do volného chatu.** Osobní údaje, mzdy a zdravotní informace patří jen do placeného či firemního účtu se smluvní ochranou dat — a i tam v nejmenším nutném rozsahu.
+- **Nikdy oprávnění nezrevidovat.** Sbírka konektorů se jen nabaluje. Čtvrtletní patnáctiminutovka to řeší.
+- **Věřit odpovědi bez zdrojů.** Když u tvrzení není odkaz na dokument nebo zprávu, nemáte jak poznat, jestli asistent našel, nebo doplnil.
 
 ## Nejlepší nástroje
 
-- **Adresář konektorů na claude.ai** — připravená napojení na stovky služeb, zapnutí je otázka dvou kliknutí.
-- **Gmail a Google Kalendář** — nejrychlejší návratnost; pošta a termíny jsou to, kde se přenášení dat děje nejčastěji.
-- **Notion, Google Drive a Slack** — firemní paměť; hodí se všude, kde odpověď existuje, ale nikdo ji nenajde.
-- **Vlastní MCP server** — pro firemní interní systémy, ke kterým hotový konektor neexistuje.
+- **Adresář konektorů na claude.ai** — připravená napojení na stovky služeb; zapnutí je otázka dvou kliknutí a je to místo, kde konektory i vypínáte.
+- **Pošta a kalendář** — nejrychlejší návratnost, protože právě tam se přenášení dat děje nejčastěji; začněte tady.
+- **Notion, Drive a Slack** — firemní paměť. Hodí se všude, kde odpověď existuje, ale nikdo ji nenajde.
+- **Plánované úlohy (rutiny)** — způsob, jak z konektorů přestat žít ručně; podklad je hotový dřív, než si o něj řeknete.
+- **Vlastní MCP server** — pro interní systémy, ke kterým hotový konektor neexistuje; má smysl tam, kde se stejné otázky opakují napříč firmou.
+- **Rozšíření Claude pro Chrome** — nouzová cesta tam, kde konektor není a věc jde jen přes web; jen pod dohledem a bez placení.
 
 ## Co vám to přinese
 
-- **Čas:** střízlivě 2–4 hodiny týdně u člověka, který denně přeskakuje mezi poštou, dokumenty a kalendářem.
-- **Přesnost:** AI pracuje s aktuálními daty ze zdroje, ne s tím, co jste stihli zkopírovat.
-- **Menší tření:** odpadá rozhodování „vyplatí se to vůbec kopírovat?“, kvůli kterému spousta lidí AI nakonec nepoužije.
-- **Kontrola:** oprávnění udělujete vy a můžete je kdykoli odebrat. Napojení není nevratné rozhodnutí.
+- **Čas:** střízlivě 2–4 hodiny týdně u člověka, který denně přeskakuje mezi poštou, dokumenty a kalendářem. U pravidelných podkladů, jako je příprava porady, jde o desítky minut na jedno spuštění.
+- **Peníze:** úspora není v ušetřeném softwaru, ale v tom, co nepropadne — nedodělaný úkol z porady, zapomenutá odpověď klientovi, termín, který si nikdo nehlídal.
+- **Přesnost:** asistent pracuje s aktuálními daty ze zdroje, ne s tím, co jste stihli zkopírovat. Odpadá i tichá chyba typu „kopíroval jsem starší verzi“.
+- **Menší tření:** mizí rozhodování „vyplatí se to vůbec kopírovat?“, kvůli kterému spousta lidí AI nakonec nepoužije. To je změna, která se neměří v hodinách, ale je nejvíc cítit.
+- **Kontrola:** oprávnění udělujete vy a můžete je kdykoli odebrat. Napojení není nevratné rozhodnutí a to je dobré vědět, když s tím začínáte.
 
 ## Pro tip
 
-Nespoléhejte na to, že si po půl roce vzpomenete, co všechno má asistent povolené. Dejte si do kalendáře čtvrtletní připomínku „revize konektorů“ a při ní vypněte všechno, co jste v posledních třech měsících nepoužili. A pamatujte na zásadu, která platí napříč celým webem: **konektor je oprávnění číst a připravovat, ne odesílat a platit.** Akce, které mají následek navenek, schvaluje člověk.
+Pokročilý trik: napište si **jednostránkový popis vaší práce** — jak se jmenují vaše projekty, kdo je kdo, kde co bývá uložené, jak vypadá váš týden — a uložte ho do trvalého kontextu, se kterým asistent pracuje. Konektory pak přestanou hledat naslepo: „shrň mi, co je nového u Nováka“ najednou znamená správnou složku, správný kanál i správné lidi. Rozdíl v kvalitě odpovědí bývá větší než rozdíl mezi jedním a třemi konektory.
+
+A závěrečné pravidlo, které si zapamatujte, i kdybyste zapomněli všechno ostatní: **konektor je oprávnění číst a připravovat, ne odesílat a platit.** Dejte si do kalendáře čtvrtletní připomínku „revize konektorů“ a při ní vypněte všechno, co jste tři měsíce nepoužili. Práva, která nemáte, se nedají zneužít.
