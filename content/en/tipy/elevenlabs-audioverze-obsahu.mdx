@@ -1,6 +1,6 @@
 ---
 title: "Give your content a voice: audio versions of articles and newsletters"
-excerpt: "AI voices don't sound like 2010-era GPS navigation anymore. Turn a finished text into an MP3 in under a minute, and people can listen on their commute."
+excerpt: "A complete guide with prompts: turning finished text into something listenable — preparing text for the ear, choosing a voice, a manual and an automated API workflow, and hard rules around voice cloning."
 category: "ai"
 platform: "vsude"
 audience: ["freelancer", "manazer", "student"]
@@ -9,37 +9,434 @@ saves: "~extra content, no extra work"
 date: "2026-08-12"
 ---
 
-Text-to-speech had one long-standing flaw: it sounded like a robot. That's changed over the last couple of years. New models read naturally, hold intonation, and sound convincing enough that a listener stops noticing it isn't a person after about thirty seconds. And that has a practical consequence: **content you've already written, you can now offer as audio for free or nearly free** — and reach people who never have time to read but do have an hour in the car.
+Text-to-speech had one long-standing flaw: it sounded like a robot. Especially so for languages other than English — a wrong stress, choppy sentences, numbers read out digit by digit. That's changed over the last two years. New models read naturally, hold intonation, and are convincing enough that a listener stops noticing it isn't a person after about thirty seconds. And that has a practical consequence: **content you've already written can now be offered as audio too** — reaching people who never have time to read but do have an hour in the car.
+
+This guide moves from your first attempt to a routine. First we'll clarify what today's voices can do and where their limits sit, then walk through five situations where an audio version pays off. Then comes the core of it — preparing the text, because **text written for the eye and text written for the ear are not the same thing**, and ninety percent of bad audio versions fail right there. After that: choosing a voice, the manual process, automating it through an API, and finally the part you can't skip — voice cloning and its legal and ethical limits.
+
+One rule governs the whole text: **the machine generates, a human publishes it after listening.** One badly read name or number ruins the impression of an entire recording, and unlike a typo in text, nobody corrects it in their head.
 
 ## A typical scenario
 
-Tomáš, a consultant, writes a newsletter twice a month for two hundred clients. Open rates are decent, but click-throughs on longer pieces are miserable — people “save them for later” and never come back to them. He tried recording one himself once: twenty minutes of recording, forty minutes of cutting out stumbles, a result he'd only ever use once. He didn't try again.
+Tomáš, a consultant, writes a newsletter twice a month for two hundred clients. Open rates are decent, but click-throughs on the longer pieces are miserable — people “save them for later” and never come back to them. He tried recording one himself once: twenty minutes of recording, forty minutes of cutting out stumbles, a result he'd only ever use once. He didn't try again — an extra hour of work on every issue is a price nobody sustains.
 
-Now his process looks different: he pastes the finished text into a voice generator, has an MP3 in two minutes, and attaches it to the email and embeds it as a player on the site. It costs him less than an hour a month. After three months he notices roughly one in five readers reaches for the audio version — and they tend to be his busiest readers, the clients he cares about most. Eliška, a student, uses the same trick for her course notes: she converts them to audio and listens while running.
+Now his process looks different. The finished text goes through a prompt that turns it into an ear-ready version — it spells out abbreviations, drops the bullet points, adds one introductory sentence. That version goes into a voice generator, and two minutes later there's an MP3 he attaches to the email and embeds as a player on the site. The whole thing takes a quarter hour a month. After three months he sees that roughly one in five readers reaches for the audio — and they tend to be his busiest ones, the clients he cares about most.
 
-## How to do it
+Eliška, a student, uses the same trick on her course notes: she converts them to audio and listens while running. And a small company where one of Tomáš's clients works makes audio versions of internal memos — not because people can't read them, but because they play them on the way to a job site, where they wouldn't pull out a phone anyway.
 
-1. **Pick a voice and spend a little time with it.** Services offer dozens of voices; quality varies more than you'd expect depending on the language and accent. Try the same paragraph across five voices and pick the one that sounds like you or like your content. You only make this choice once.
-2. **Prepare the text for the ear, not the eye.** Remove bullet points nobody can follow without seeing them, spell out abbreviations, numbers, and units. A short extra intro helps too: “This is the audio version of an article about…” The edit takes a few minutes and it shows in the result.
-3. **Generate it and listen to the whole thing.** Really, the whole thing. Ninety percent of the output is usually fine, but one badly read name or number can ruin the impression. Problem words can simply be rewritten phonetically in the input.
-4. **Put the audio wherever the content already lives.** As a player alongside the article, as a link to the file in the newsletter (most email clients won't play audio inline), as an attachment on company storage for an internal memo.
-5. **If you do this regularly, automate it.** These services have APIs, so you can build a chain: new article → text goes to the generator → the MP3 gets saved alongside the article. If that feels out of reach, the steps are in [the chapter on AI and automation](/prirucka/ai-a-automatizace) — this is exactly the level where a chat habit turns into a routine.
-6. **Check whether anyone's actually listening.** If it's zero after three months, save yourself the work. If it's not, add audio versions of your older articles too.
+## Phase 1: what today's voices can do, and where the limit sits
+
+### Naturalness isn't the problem anymore, and neither is the language
+
+The difference between the generation of voices from the era of GPS navigation devices and today isn't that they speak more clearly. It's that **they hold sentence melody** — they know where to rise, where to breathe, where to leave a pause. Over a longer listen, that's the entire difference between “I turned it off after a minute” and “I listened to the whole thing.”
+
+Many languages used to work poorly with this. Today, multilingual models handle them at a level usable for reading articles aloud. That doesn't mean flawless — it means errors are rare and can be fixed by adjusting the input.
+
+### Where it still fails
+
+Let's be specific, because these are exactly the things you'll be listening for in a finished recording.
+
+**Proper names.** Foreign surnames, company and product names are the most common source of stumbles. The model has no idea whether “Wiener” is from Vienna or from Ohio.
+
+**Abbreviations and units.** Sometimes the model spells them out correctly, sometimes it reads them letter by letter, sometimes it picks the wrong expansion. Abbreviations that mean several different things are a lottery.
+
+**Numbers in a more complex form.** Ranges, decimals, percentages, dates written as digits, phone numbers — anywhere there, expect the model to read it differently than you would say it.
+
+**Things that can be read two ways.** Homographs, words where meaning depends on context, and above all **stress in long, complex sentences**, where the model can misjudge what's an aside.
+
+**Visual structure.** Bullet points, tables, headings, footnotes, text in parentheses — all of that is visible but not audible. The model reads it literally, and the listener loses the thread.
+
+That last point is essential, and it's why Phase 3 gets its own chapter. The rest is solved by adjusting the input, not by hunting for a better tool.
+
+## Phase 2: where an audio version pays off
+
+Not everywhere. It pays off where someone has **free ears and busy eyes and hands.** Five situations that fit the bill.
+
+### Audio versions of articles and blog posts
+
+The most direct use. A longer piece gets a player next to it, and the reader chooses. It works for text that can be listened to linearly — essays, guides without images, interviews. It doesn't work for text that's half table or code; there, audio is worse than nothing, because it promises content it can't deliver.
+
+### A newsletter for the ears
+
+The best ratio of value to effort. A newsletter is short, gets written on a regular schedule, and its readers are typically people who open it and set it aside. An audio version as a link in the email has one extra advantage: it plays on a phone with a single tap, while the article itself would need the web page to load first.
+
+### Internal memos and company communication
+
+An underrated category. When a company has people out in the field, in production, or behind the wheel, an audio version of a memo is more practical than an email — they can play it on the way. Two rules apply here though: **sensitive personal data** (HR, health, payroll) must never go into a generator except through a paid or business account with contractual data protection, and anonymize whatever you can beforehand. And second: an audio message from leadership must clearly state that it's generated — otherwise people will think they actually heard the boss.
+
+### Study notes for the road
+
+The strongest use case for students. Your own notes, converted to audio, get listened to while walking, running, on the train. The effect is double: you review material during time that would otherwise be wasted, and — crucially — **you hear what you don't understand** — a passage your eyes would skip past on the page will stop you when you're listening. It pairs well with the technique of [active recall](/tipy/student-aktivni-vybavovani).
+
+### Voiceover for video
+
+When you're making short videos, spoken narration tends to be the biggest bottleneck: recording, stumbles, editing. A generated voiceover from a prepared script can be produced in minutes, and best of all **it can be fixed with one sentence** — with your own recording you'd have to re-record the whole block. For videos where you yourself appear on camera, though, this is a trust decision; more on that in Phase 7.
+
+## Phase 3: preparing text for listening
+
+This is the core of the whole guide. The quality of an audio version is decided here, not in which tool you pick.
+
+### Everything that has to change
+
+Text written for the eye uses things the ear has no way to catch. **Bullet points and numbered lists** aren't visible to a listener, so three bullets in a row blur into one long sentence. **Parentheses** are unintelligible when heard, because you can't hear where the aside ends. **Headings** separate sections visually, but audio needs a spoken transition instead. **Links** aren't worth reading aloud. **Abbreviations** need to be spelled out. And **long, complex sentences**, which read fine on the page, get lost when heard, because a listener can't glance back up a line.
+
+### A prompt that prepares the text
+
+```text
+Prepare this text as a source for text-to-speech narration (an
+audio version of an article). Don't shorten the content, don't
+leave anything out — just convert it from eye-form to ear-form.
+
+Do this:
+1. Turn bullet points and numbered lists into flowing sentences
+   with natural connectors (“first,” “on top of that,” “last but
+   not least”).
+2. Spell out every abbreviation and unit the way a person would
+   say it aloud.
+3. Remove parentheses — fold the content into the sentence, or
+   drop it if it's just a visual aside.
+4. Write numbers, percentages, ranges, and dates the way they're
+   spoken.
+5. Split long, complex sentences. Target sentence length is under
+   twenty words.
+6. After each heading, add a spoken transition so the listener
+   knows a new section is starting. Drop the headings themselves.
+7. Drop links and footnotes; where it matters, say it in words
+   (“you'll find the link in the article”).
+8. Add one introductory sentence at the start: what this is and
+   how long it runs. Add one closing sentence at the end.
+
+Keep my style and vocabulary. Don't add anything that isn't in the
+text.
+At the end, give me a separate list of words and names at risk of
+being mispronounced by the voice.
+
+[paste the text]
+```
+
+It returns text ready to drop straight into a generator, and — the valuable part — a list of risky words. Check two things: whether the bullet-point conversion lost any information (the model sometimes merges three points into two) and whether the intro sentence sounds like an ad. Save this prompt into your prompt library — you'll use it on every piece of text.
+
+### A pronunciation dictionary
+
+Risky words can be headed off with a phonetic respelling right in the input. It's worth keeping your own running list, since the same names keep coming back.
+
+```text
+Here's a list of names, brands, and technical terms that recur in
+my writing:
+
+[paste the list]
+
+For each one, suggest a phonetic respelling I can drop in place of
+the original word in a text-to-speech source — that is, how it
+should be pronounced, spelled out in plain English so a reader
+would say it right.
+
+Format: original spelling | respelling for narration | note
+
+For foreign names, say which language you're basing the
+pronunciation on and whether more than one accepted pronunciation
+exists. Where you're not sure, say so instead of guessing — I'll
+verify it at the source.
+```
+
+It returns a table you'll gradually build into your own dictionary. That last paragraph matters: models are happy to invent a plausible-sounding but wrong pronunciation for names, so for real people's and companies' names, verify how it's actually said — ideally with the people themselves.
+
+### Adjusting by format
+
+A newsletter, an internal memo, and study notes each need slightly different handling. A newsletter can take a more personal address and should end with a clear call to action. A memo should be matter-of-fact, stating who's speaking and what it concerns.
+
+```text
+Prepare this newsletter as an audio version for my subscribers.
+
+Context: I send it [twice a month], subscribers are [description].
+Target listening length is [5-7] minutes.
+
+Beyond the usual listening prep (bullets into sentences,
+abbreviations spelled out, parentheses removed, short sentences):
+- open with a greeting and one sentence on what's in this issue
+- state the most important thing up front, so even someone who
+  only listens for a minute hears it
+- put a clear spoken transition between topics
+- close with one thing you want the listener to do
+- no “as I wrote above” or similar references to the written text
+
+Don't cut any content, only visual crutches.
+
+[paste the newsletter]
+```
+
+It returns a version that can play without the listener having to hold the structure in their head. The point about the most important thing coming first is deliberate — people abandon a listen much sooner than a read.
+
+And study material calls for yet another adjustment:
+
+```text
+Convert my notes into audio meant for review while [walking/running].
+
+[paste the notes]
+
+Rules:
+- split it into segments of roughly [3] minutes of listening each,
+  starting each with the sentence “topic number X: [name]”
+- after each segment, add one check-in question, mark a pause with
+  the phrase “try to answer this,” then state the correct answer
+- repeat definitions and key terms twice, the second time in
+  different words
+- say formulas and numbers the way they're pronounced
+- don't add anything from your own knowledge — stick to my notes;
+  where the notes are unclear, say so instead of making something up
+
+At the end, summarize the whole material in ten sentences.
+```
+
+It returns material for listening with built-in check-in questions, which is far more effective than passive narration. The rule against adding anything is essential — study material must never pick up a claim that wasn't in the notes, because that's exactly what you'd end up remembering wrong.
+
+## Phase 4: choosing a voice
+
+### Test on your own text, not on a sample
+
+Voices get picked from a library at each service, and every one sounds good on its demo. The only real way to decide is on your own text — one that contains your typical words, names, and sentence lengths.
+
+```text
+Write me a test paragraph for comparing voices to narrate my
+content. Topic: [the topic of my writing].
+
+The paragraph should run about 45 seconds of listening and must
+contain:
+- two long, complex sentences and two short sentences in a row
+- one foreign surname and one company name
+- two numbers in different forms (a percentage and a range)
+- one question and one sentence with an inserted aside
+- one word that's commonly mispronounced
+
+Write it in my own style, not neutrally. Below the paragraph, list
+what I should focus on for each voice and what counts as a
+disqualifying mistake.
+```
+
+It returns a test text that exposes weak spots. Run five voices through it, listen to them back to back, and decide by a single question: **would I listen to this for half an hour?** Not “does this sound nice,” but “could I stand it.”
+
+### What to look for when choosing
+
+**Pace.** Most voices read faster than is comfortable for listening on the street. A slower setting is almost always the better choice.
+
+**Timbre and apparent age.** It has to fit the content. A young, energetic voice on a piece about retirement savings feels off, and vice versa.
+
+**Stability across length.** Some voices are great for three paragraphs and start sounding monotonous after ten minutes. Test on a longer sample, not a couple of sentences.
+
+**How it handles your typical vocabulary.** If you write in a field full of foreign terms, the voice that reads them correctly wins, even if it sounds a bit less polished otherwise.
+
+You make this choice once and then stick with it. A voice is part of your content's identity, same as a typeface — change it every issue and the listener loses the habit.
+
+## Phase 5: the manual workflow
+
+Before you automate anything, run through it three times by hand. You'll find out where your content causes problems, and only then does it make sense to wire it up.
+
+The process has five steps and takes about a quarter hour.
+
+**1. Run the text through the preparation prompt.** Read the output with your own eyes before sending it further. This is where you fix merged bullet points and awkward transitions.
+
+**2. Replace risky words with phonetic respellings.** Using the list the prompt returned, and your own dictionary.
+
+**3. Generate the audio.** Drop the text into the generator, pick your voice, set the pace. For longer texts, generate in chunks — shorter segments are easier to fix, and one mistake doesn't force you to regenerate everything.
+
+**4. Listen to the whole thing.** The whole thing, not the first thirty seconds. Ninety percent of the output is usually fine, and the mistake is almost always hiding in the remaining ten.
+
+**5. Fix the input and regenerate the problem section.** A mistake doesn't get fixed in the audio — it gets fixed in the text.
+
+That fourth step deserves a helper, because listening with a pen in hand is a hassle:
+
+```text
+I'm listening to the audio version of this text and found these
+problems:
+
+[list what you heard: a mispronounced word, an odd pause, a
+sentence that's too long, a confusing transition]
+
+Adjust the source text so this doesn't happen on the next
+generation:
+- for mispronounced words, suggest a phonetic respelling
+- for odd pauses, adjust the punctuation or split the sentence
+- for confusing spots, rephrase while keeping the meaning
+
+Give me just the edited passages with their location in the text,
+not the whole text again. For each edit, write one sentence on why.
+
+[paste the source text]
+```
+
+It returns targeted fixes you can drop into the source. Log those same fixes into your own dictionary too — after three issues, the list of problems is nearly empty, because the same words keep recurring.
+
+## Phase 6: automating it through an API
+
+Once the manual process is settled and stable, it's worth automating. The target state is simple: **a new article means new audio, without you having to be there.**
+
+### What the chain should do
+
+A typical chain has four steps: take a new text, run it through the preparation prompt, send it to the voice API, and save the resulting file where the website or the mail tool expects it. Add two safeguards: a notification that the audio was made, and the rule that it **doesn't publish itself** until someone has listened to it.
+
+```text
+Write me a script that turns a given text file into an audio
+version through the voice API of [the service I use]. I don't
+know how to program, so along with the code write me a guide on
+what to install and how to run it on [macOS / Windows].
+
+The script should:
+1. load the article file (markdown) and strip the frontmatter
+2. split the text into chunks of roughly [2500] characters, on
+   paragraph boundaries, not mid-sentence
+3. send each chunk to the API with the same voice and settings
+4. merge the results into a single MP3 and save it as [slug].mp3
+5. save the exact text the audio was generated from into a
+   companion file, so I know what was read
+6. print the resulting recording length and file size
+
+Requirements:
+- load the API key from an environment variable, never from the
+  code
+- on error, retry the chunk twice, then stop with a clear plain-
+  English message, and don't delete anything already finished
+- save the file to a folder, do NOT upload it anywhere on its own
+- comment every step in plain English explaining why it's done
+
+At the end, tell me everything that could go wrong and how I'd
+notice.
+```
+
+It returns a script and an install guide. Point 5 looks minor, but it's the only way to figure out a month later why a recording says something different from the published text. And the point about not uploading to the site is deliberate — more below. How to have a script written for you when you can't read code is covered in the tip on [scripts for non-developers](/tipy/ai-skripty-pro-nevyvojare).
+
+### Wiring it into a chain
+
+You still have to run the script yourself. The last step is connecting it to the moment a new piece of text is created.
+
+```text
+I want to connect the creation of a new article to producing its
+audio version.
+
+My process today looks like this: [describe it — e.g. I write an
+article as markdown into a folder, then publish it through …].
+
+Suggest three automation variants, from simplest:
+1. a “manually run command” variant — exactly what I'll type
+2. a “folder watcher or scheduled job” variant — what runs on its
+   own and how often
+3. a “connected through an automation tool” variant — which steps
+   go where
+
+For each one, state: what needs to be set up, where it can break,
+how much upkeep it needs, and how I'd notice if it didn't run.
+
+Don't include automatic publishing in any variant — the audio
+should be saved and I should get a notification; I confirm
+publishing myself.
+```
+
+It returns three paths depending on how far you want to go. Start with the first, move to the second once it gets old. The third makes sense mainly once you're already using an automation tool for other things — a comparison is in the tip on [n8n and Zapier with AI](/tipy/n8n-zapier-ai-automatizace), and ready-made scheduled routines are described in [routines over email and calendar](/tipy/claude-rutiny-posta-kalendar).
+
+### The last step belongs to a human
+
+The last paragraph of the previous prompt is a hard rule, not just caution. **Audio must not publish itself.** The reason is simple: a mistake in audio is worse than a mistake in text. A reader skims past a typo; a client's name mispronounced in a recording sticks in memory. And unlike an article, which you fix and it's done, someone may already have downloaded the recording by the time you catch it.
+
+The practical compromise: the chain runs automatically, the finished audio gets saved, and a notification arrives. You play it at your first opportunity and approve it with one click. That's a minute of work that separates useful automation from the kind that eventually embarrasses you.
+
+### A video script ready to be narrated
+
+A special case where an API is particularly useful, because the script changes and re-recording it by hand is a hassle.
+
+```text
+Here's the script for my video, broken into scenes:
+
+[paste the script, with a label and text for each scene]
+
+Adjust it for voice narration:
+- for each scene, state a target length in seconds and estimate
+  whether the text fits at a normal reading pace
+- where the text runs longer than the scene, suggest a shorter
+  version with the same content
+- spell out abbreviations, numbers, and units the way they're
+  spoken
+- leave room to breathe at the start and end of each scene
+- no references to what's visible on screen (“as you can see
+  here”) unless it still makes sense without the visual
+
+Output as a table: scene | text to narrate | estimated length.
+```
+
+It returns a script ready to be narrated, including timing estimates — work that would otherwise happen by trial and error. Check the estimates against the first scene; the pace of the voice you're using will differ from the average.
+
+## Phase 7: voice cloning, law, and licensing
+
+Most services can clone a voice from a few minutes of recording. It's tempting, technically easy, and it's where the most damage can be done.
+
+### The rule with no exceptions
+
+**Only clone your own voice, or the voice of a person who gave documented, verifiable consent.** Verifiable means written, specific, and revocable — not “they said they were fine with it.”
+
+Imitating a colleague's, a client's, a competitor's, or a public figure's voice isn't a joke, it's a legal and ethical problem. A voice is personal data and a form of personal expression; using it without consent infringes on that person's rights. And practically speaking: a cloned voice is today a standard tool for fraud — fake “boss” phone calls instructing someone to wire money are a real thing companies deal with. Every cloned voice that leaves your hands is a potential weapon.
+
+### What to sort out even for your own voice
+
+Even when you're cloning yourself, three things are worth thinking through. **Where the voice model lives and who has access to it** — is it on an account shared by a team? Then anyone on the team can use it. **What happens if you cancel the account**, and whether the model can be deleted. And **whether you want people to know it's generated** — for your own content, it's honest to say so, because otherwise a listener assumes you actually recorded it yourself.
+
+The practical minimum: for generated recordings, state in one sentence that it's an artificial voice. It doesn't diminish the value — if anything, people appreciate being dealt with straight.
+
+### Consent, when it's someone else's voice
+
+When you genuinely need another person's voice (a colleague as a company voice, professional narration), get consent that holds up.
+
+```text
+Draft me an outline for written consent to clone someone's voice.
+
+Situation: [e.g. a colleague records sample audio, and we want to
+build a voice model from it for internal company videos].
+
+The outline should cover:
+- exactly what the voice may be used for, and what it may not
+- where and for how long the model will be stored, and who has
+  access
+- how consent gets revoked and what happens to the model then
+- whether and how it will be disclosed that it's a generated voice
+- what happens if the person leaves the company
+
+Write it as a clear discussion document, not a finished contract.
+At the end, give me a list of questions the two of us need to
+answer, and a note on which points I should bring to a lawyer —
+this isn't legal advice, and I want to know where I need one.
+```
+
+It returns an outline to discuss and — most importantly — a list of places where you need an actual lawyer. Treat it this way: **the prompt helps you prepare, it doesn't replace legal review.** For anything that leaves the company or involves a publicly known person, always go to a lawyer.
+
+### Commercial-use license terms
+
+The second thing people skip and then have to deal with. Having generated the audio doesn't mean you can do anything you want with it.
+
+Check four things with your service: **whether you may use the output commercially** (some tiers restrict this), **whether you must credit the source**, **what applies to library voices** (they're real people's voices, and using them usually comes with its own rules), and **what happens to your rights to already-produced recordings if you cancel your subscription**. Look for the answers in the service's current terms on its own website, not in a model's answer — they change, and the model's answer can be out of date. And if you're uploading content to a platform with its own rules for generated audio, read those too.
+
+## Common mistakes
+
+- **Sending the generator text exactly as it appears on the web.** A listener has no way to decode bullet points, parentheses, and abbreviations. Preparing the text is the most important step, not a formality.
+- **Not listening to the whole thing.** The mistake never hides in the first thirty seconds. Ninety percent is fine, and it's exactly the rest that ruins the impression.
+- **Fixing a mistake in the audio instead of the input.** A mispronounced name is fixed with a phonetic respelling in the source text and by regenerating the section.
+- **Letting the chain publish on its own.** Automation should end with a saved file and a notification, not an upload to the site. The last step belongs to a human.
+- **Cloning someone else's voice without documented consent.** A legal and ethical line with no exceptions — and in practice a standard tool for fraud.
+- **Not checking commercial-use license terms.** Before you build a channel or a product on a generated voice, read what the service says about it.
+- **Sending sensitive text to a generator on a free account.** HR, health, and financial data belong only on a paid or business account with contractual data protection — and even then only after anonymizing it.
 
 ## The best tools
 
-- **[ElevenLabs](https://elevenlabs.io)** — the most natural results across many languages, with a simple web interface and an API for automation.
-- **Google Cloud Text-to-Speech and Azure Speech** — reliable enterprise options with clear contractual terms; a good fit when the audio comes from internal documents.
-- **NotebookLM** — turns your source material straight into a two-voice spoken discussion; a different genre from straight narration, but very strong for study material.
+- **[ElevenLabs](https://elevenlabs.io)** — the most natural results, including for languages that used to sound robotic, with a simple web interface and an API for automation; voice cloning only with documented consent.
+- **Google Cloud Text-to-Speech and Azure Speech** — reliable enterprise options with clear contractual terms; a good fit when audio comes from internal documents.
+- **NotebookLM** — turns your source material straight into a two-voice spoken discussion; a different genre from plain narration, but very strong for study material, since it only answers from the uploaded sources. More in the tip on [NotebookLM over your own sources](/tipy/notebooklm-vlastni-zdroje).
 - **Your phone's built-in read-aloud feature** — try it before generating anything at all; for personal use it's often enough, and it costs nothing.
+- **Your own pronunciation dictionary** — an ordinary table of names and their phonetic respellings. After a few issues, it's the tool that saves the most regenerating.
 
 ## What you get out of it
 
-- **Reach:** the same content now reaches people in the car, on a walk, or doing the dishes. For a lot of readers, that's the only time they can actually take you in.
-- **Time:** minutes instead of an hour of recording and editing. An audio version stops being a project and becomes a routine part of publishing.
-- **Accessibility:** people with visual impairments or dyslexia can get to your content without workarounds.
-- **Quality:** listening to your own text catches awkward sentences better than any proofread. Whatever sounds wrong was usually written wrong.
+- **Reach:** the same content now reaches people in the car, on a walk, or doing the dishes. For a lot of readers, that's the only time they can actually take you in — and they tend to be the busiest ones.
+- **Time:** a quarter hour instead of an hour of recording and editing, minutes once automated. An audio version stops being a project and becomes a routine part of publishing.
+- **Accessibility:** people with visual impairments or dyslexia can get to your content without workarounds. For company and public communication, that's not a bonus — it's a matter of basic decency.
+- **Quality:** listening to your own text catches awkward sentences better than any proofread. Whatever sounds wrong was usually written wrong — and you'll fix it in the written version too.
 
 ## Pro tip
 
-Most services can clone a voice from a few minutes of recording. It's tempting, and it's legitimate for your own voice — your brand, your sound, your consent. But hold a hard line: **only clone your own voice, or the voice of someone who has given clearly documented consent.** Imitating a colleague's, a client's, or a public figure's voice is a legal and ethical problem, not a joke — a voice is personal data, and misusing it is now a standard tool for fraud. And more broadly: send texts with sensitive information (HR, health, financial) to a generator only on a paid or business account with contractual data protection, never the free tier, and anonymize whatever can be anonymized beforehand.
+An advanced trick: **don't turn every article into audio.** Pick a format that listens well and do that one consistently — even if it's just the newsletter, but every single issue. A listener remembers regularity, not randomness. And once you're doing it, add the same intro sentence in the same voice at the start of every recording; after three issues it works like a jingle, and people recognize it's you from that alone.
+
+And the closing rule: **a machine produces the voice, a human publishes it after listening — and cloning happens only with consent.** Both are simple to follow, and both are unpleasant to explain once you fail to.
