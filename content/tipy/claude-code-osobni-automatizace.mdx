@@ -1,6 +1,6 @@
 ---
 title: "Claude Code: osobní automatizační motor, ne jen pro vývojáře"
-excerpt: "Nástroj s přístupem k vašim souborům umí to, co chat neumí: přejmenovat pět set dokumentů, vytáhnout čísla z hromady PDF a poskládat z nich report. Bez programování."
+excerpt: "Kompletní návod s prompty: instalace, první půlhodina, pět typových úloh (úklid složek, hromadné přejmenování, extrakce z PDF, reporty, správa webu), CLAUDE.md jako trvalé instrukce a bezpečnostní pravidla. Case study: takhle vzniká tenhle web."
 category: "ai"
 platform: "vsude"
 audience: ["vyvojar", "freelancer", "manazer"]
@@ -9,39 +9,383 @@ saves: "~1 den měsíčně"
 date: "2026-08-12"
 ---
 
-Většina lidí zná AI jako okénko v prohlížeči: něco tam vložíte, něco vám vypadne, zbytek doděláte rukama. Claude Code je jiná kategorie nástroje — běží u vás, **vidí vaše soubory a smí s nimi skutečně pracovat**: číst je, přejmenovávat, třídit do složek, napsat a spustit skript, otevřít padesát dokumentů a udělat z nich jednu tabulku. Název svádí k tomu považovat ho za nástroj pro programátory. Ve skutečnosti je to obecný vykonavatel vícekrokových úloh, u kterých dnes ztrácíte celé dny.
+Většina lidí zná AI jako okénko v prohlížeči: něco tam vložíte, něco vám vypadne, zbytek doděláte rukama. Claude Code je jiná kategorie nástroje — běží u vás na počítači, **vidí vaše soubory a smí s nimi skutečně pracovat**: číst je, přejmenovávat, třídit do složek, napsat a spustit skript, otevřít padesát dokumentů a udělat z nich jednu tabulku. Název svádí k tomu považovat ho za nástroj pro programátory. Ve skutečnosti je to obecný vykonavatel vícekrokových úloh, u kterých dnes ztrácíte celé dny.
+
+Tenhle návod je psaný pro netechnika. Nepředpokládá, že umíte programovat, ani že jste někdy otevřeli terminál — předpokládá jen, že máte na disku složku, ve které je nepořádek, a chuť ho jednou provždy vyřešit. Provede vás instalací, první půlhodinou, pěti typovými úlohami s hotovými zadáními k okopírování, souborem trvalých instrukcí a nakonec bezpečnostními pravidly, která chrání vaše data i vaše soubory.
+
+Čtěte ho postupně a nepřeskakujte fázi 2 — je nudná, ale bez ní zbytek nedává smysl. Nad celým návodem platí jedno pravidlo: **AI navrhuje, člověk schvaluje.** Nástroj smí připravit cokoli; mazat, odesílat, platit a publikovat schvalujete vy.
 
 ## Vzorová situace
 
-Účetní Hana dostává od klientů faktury e-mailem. Za měsíc se jí v jedné složce sejde přes čtyři sta PDF s názvy typu „scan_0042.pdf“. Než je zaúčtuje, musí každou otevřít, přepsat dodavatele, částku a datum splatnosti do tabulky a soubor přejmenovat, aby se dal někdy později najít. Dva dny každý měsíc, dokola.
+Účetní Hana dostává od klientů faktury e-mailem. Za měsíc se jí v jedné složce sejde přes čtyři sta PDF s názvy typu „scan_0042.pdf". Než je zaúčtuje, musí každou otevřít, přepsat dodavatele, částku a datum splatnosti do tabulky a soubor přejmenovat, aby se dal někdy později najít. Dva dny každý měsíc, dokola. Nejde o těžkou práci — jde o práci, po které je v šest večer prázdná hlava a nic hotového.
 
-Napodruhé to popíše jedním odstavcem: z každého PDF vytáhnout dodavatele, částku a datum, soubor přejmenovat podle vzoru `2026-08-dodavatel-castka.pdf`, roztřídit do složek po měsících a vedle toho vygenerovat jedno CSV se všemi údaji. Claude Code si napíše skript, pustí ho nejdřív na deseti souborech a ukáže výsledek. Hana opraví jedno pravidlo (u dvou dodavatelů se pletlo datum vystavení s datem splatnosti) a nechá dojet zbytek. Kontrola a dokončení: necelá hodina. Příští měsíc už jen zopakuje stejné zadání.
+Napodruhé to popíše jedním odstavcem: z každého PDF vytáhnout dodavatele, částku bez DPH, částku s DPH, datum vystavení a datum splatnosti, soubor přejmenovat podle vzoru `2026-08-dodavatel-castka.pdf`, roztřídit do složek po měsících a vedle toho vygenerovat jedno CSV se všemi údaji. Claude Code si napíše skript, pustí ho nejdřív na deseti souborech a ukáže výsledek v tabulce. Hana opraví jedno pravidlo — u dvou dodavatelů se pletlo datum vystavení s datem splatnosti — a nechá dojet zbytek.
 
-Případová studie z domácí kuchyně: tenhle web takhle vzniká. Texty, překlady do angličtiny i nasazení nové verze jdou přes Claude Code — autor zadává a schvaluje, nástroj vykonává. Je to přesně pátá úroveň z [kapitoly o AI a automatizaci](/prirucka/ai-a-automatizace): agent, který dostane cíl a dojde k němu přes několik kroků, ne chatbot, kterému nosíte data v náručí.
+Výsledek: kontrola a dokončení necelou hodinu místo dvou dnů. Devět faktur skript označí jako nejisté (ručně psané, špatný sken) a ty Hana přepíše sama. Příští měsíc už jen napíše „udělej to jako minule" — pravidla jsou uložená ve složce projektu. Za rok jí to vrátí zhruba dvacet pracovních dnů, a to nepočítáme faktury, které se dřív nenašly, protože se jmenovaly scan_0042.
 
-## Jak na to
+## Fáze 1: co Claude Code je a co s ním jde dělat
 
-1. **Vyberte úlohu, kterou děláte ručně a opakovaně.** Nejlepší kandidát má tři znaky: hodně souborů, jasně popsatelné pravidlo a nulovou tvůrčí hodnotu. Třídění fotek, přejmenování exportů, sběr čísel z výkazů, hromadná konverze formátů.
-2. **Pusťte nástroj ve složce s daty.** Claude Code se ovládá z příkazové řádky a existuje i webová verze. Kontext si vezme z toho, co ve složce najde — nemusíte nic nahrávat po jednom.
-3. **Zadání pište jako pro nového kolegu.** Co je vstup, co má vzniknout, jak se to má jmenovat a co dělat s výjimkami. Nejčastější příčina špatného výsledku není hloupá AI, ale zadání, ve kterém chybí třetina informací.
-4. **Nejdřív vzorek, pak celek.** Věta „zkus to na deseti souborech a ukaž mi výsledek“ je ta nejlevnější pojistka, jakou máte. Chyba na deseti kusech stojí minutu, chyba na pěti stech stojí večer.
-5. **Nechte si pravidla uložit do souboru.** U opakovaných úloh požádejte o poznámku s postupem přímo ve složce projektu. Příště stačí říct „udělej to jako minule“ a nemusíte si vzpomínat, jak přesně to bylo zadané.
-6. **Před hromadnou změnou zálohujte.** Kopie složky stačí. Kdo pracuje s texty nebo kódem, ať použije git — pak jde každý krok vrátit jedním příkazem.
+### Rozdíl proti chatu v prohlížeči
+
+Chat na claude.ai je konverzace: vy něco vložíte, model odpoví textem. Všechno mezi tím — stáhnout soubor, otevřít ho, uložit výsledek, spustit to znovu na dalších čtyřiceti — děláte vy. U jednorázových věcí je to v pořádku. U opakované práce se stáváte přenašečem dat mezi diskem a oknem prohlížeče.
+
+Claude Code je oproti tomu **vykonavatel**. Spustíte ho ve složce a on v ní může:
+
+- **číst soubory** — textové dokumenty, tabulky, PDF, obrázky a skeny včetně rukopisu,
+- **zapisovat a upravovat soubory** — vytvořit nový, přepsat existující, doplnit řádek,
+- **přesouvat, kopírovat a přejmenovávat** — hromadně, podle pravidla,
+- **napsat skript a hned ho spustit** — vidí chybu, opraví ji a pustí znovu,
+- **pracovat s gitem** — verzovat změny, ukázat rozdíly, vrátit se zpátky,
+- **hledat na webu** a doplnit, co ve složce není.
+
+Klíčová věta zní: model nejen navrhne postup, ale rovnou ho provede a ukáže vám výsledek. To je ten rozdíl mezi radou a hotovou prací.
+
+### Co to znamená prakticky
+
+Vhodná úloha pro Claude Code má tři znaky, a když má všechny tři, ušetří vám den:
+
+1. **Hodně položek.** Padesát souborů, tři sta řádků, dvanáct měsíčních výpisů. U tří položek se to nevyplatí ani zadávat.
+2. **Popsatelné pravidlo.** Umíte kolegovi vysvětlit, co se má stát, i kdyby to bylo na deset vět a pět výjimek.
+3. **Nulová tvůrčí hodnota.** Nikdo vám nepoděkuje za to, že jste to dělali ručně. Je to jen práce, která musí být hotová.
+
+Typičtí kandidáti: fotky z dovolené roztřídit podle data a místa, exporty z e-shopu sjednotit do jednoho CSV, tři roky bankovních výpisů převést do přehledu podle kategorií, dvě stě naskenovaných smluv projít proti seznamu kritérií, složka „Stažené" s osmi sty soubory vrátit do stavu, kdy se v ní dá něco najít.
+
+Naopak se nehodí: rozhodnutí, u kterých záleží na vkusu, cokoli s nejasným zadáním („uklid mi to nějak rozumně") a věci, kde je špatný výsledek nevratný a drahý.
+
+## Fáze 2: instalace a první půlhodina
+
+### Co potřebujete
+
+Claude Code běží v příkazové řádce — na Macu je to aplikace Terminál, na Windows PowerShell nebo Terminál. Zní to hrozivě; ve skutečnosti do něj napíšete jednu větu česky a čtete, co odpovídá. Existuje i webová verze, kterou spustíte v prohlížeči bez instalace, a ta se hodí na první seznámení.
+
+Potřebujete účet u Claude a nainstalovaný nástroj podle oficiálního návodu. Instalace je jeden příkaz a trvá pár minut. Nebudu ji tady opisovat, protože se mění — a je to přesně situace, kdy se vyplatí nechat si poradit přímo od nástroje, se kterým už mluvit umíte. Otevřete claude.ai a zeptejte se:
+
+```text
+Chci si na [macOS / Windows 11] nainstalovat Claude Code.
+Nikdy jsem nepracoval v terminálu a nemám nainstalovaný Node.js
+ani nic podobného.
+
+Napiš mi návod krok za krokem:
+1. jak otevřu terminál na svém systému
+2. co přesně mám napsat, řádek po řádku
+3. jak poznám, že každý krok dopadl dobře (co se má vypsat)
+4. co udělám, když se objeví chyba o oprávnění
+5. jak si ověřím na závěr, že nástroj běží
+
+U každého příkazu napiš jednou větou, co dělá. Nepředpokládej
+žádné předchozí znalosti a nepoužívej pojmy, které nevysvětlíš.
+```
+
+Vrátí návod na deset minut. Pozor na jednu věc: instalační kroky se v čase mění, takže výsledek porovnejte s oficiální dokumentací Claude Code — když se rozcházejí, platí dokumentace. A nikdy nespouštějte příkaz, kterému vůbec nerozumíte; zeptejte se doplňujícím dotazem „co přesně tenhle řádek udělá s mým počítačem".
+
+### První spuštění: bezpečné hřiště
+
+Nezačínejte v ostrých datech. Vyrobte si cvičnou složku — zkopírujte do ní dvacet libovolných souborů, klidně staré fotky nebo PDF, na kterých nezáleží. Přejděte do ní v terminálu a spusťte Claude Code. Pak napište úplně první zadání:
+
+```text
+Jsi v cvičné složce, kde si zkouším, co umíš. Nic nemaž.
+
+1. Projdi tuhle složku a všechny podsložky a napiš mi přehled:
+   kolik je tu souborů, jakých typů, jak jsou velké a jak staré.
+2. Ukaž mi 10 nejstarších a 10 největších souborů.
+3. Najdi soubory, které vypadají jako duplikáty (stejný obsah
+   nebo skoro stejný název), a vypiš je do dvojic.
+4. Navrhni, jak by se dala složka rozumně roztřídit — ale
+   zatím nic nepřesouvej, jen mi napiš plán.
+
+Odpovídej česky a stručně, výsledky dej do tabulky.
+```
+
+Tohle je nejdůležitější prompt celého návodu, i když nic nedělá. Ukáže vám, že nástroj vidí to, co čekáte, a naučí vás rytmus práce: **nejdřív přehled, pak plán, teprve potom akce.** Když se v přehledu objeví soubory, o kterých jste nevěděli, je to signál, že jste ho pustili o složku výš, než jste chtěli.
+
+### Rytmus práce: zadání, plán, vzorek, celek
+
+Osvědčený postup má čtyři kroky a vyplatí se ho držet i po roce používání:
+
+1. **Zadání** — popíšete, co chcete, jako novému kolegovi. Vstup, výstup, pravidla, výjimky.
+2. **Plán** — necháte si popsat, co nástroj hodlá udělat, ještě než to udělá. Přečtete si to.
+3. **Vzorek** — necháte to provést na deseti kusech a výsledek zkontrolujete.
+4. **Celek** — teprve teď pustíte zbytek.
+
+Věta „zkus to na deseti souborech a ukaž mi výsledek" je nejlevnější pojistka, jakou máte. Chyba na deseti kusech stojí minutu, chyba na pěti stech stojí večer.
+
+## Fáze 3: pět úloh, které se vyplatí hned
+
+### Úloha 1: úklid složky, ve které se nedá nic najít
+
+Klasika: složka „Dokumenty" nebo „Stažené" s tisícem položek z posledních pěti let. Ruční úklid nikdo nedokončí, protože po dvaceti minutách ztratí trpělivost. Stroj má trpělivosti dost — potřebuje jen jasné pravidlo, kam co patří.
+
+```text
+Ve složce [cesta] je [asi 900] souborů z posledních let.
+Chci ji uklidit, ale opatrně.
+
+Postup:
+1. Nejdřív mi udělej přehled: typy souborů, počty, celková
+   velikost, nejstarší a nejnovější.
+2. Navrhni strukturu složek podle typu a roku, například
+   dokumenty/2024, faktury/2025, obrazky/2023. Ukaž mi
+   navrhovaný strom a kolik souborů půjde do které složky.
+3. Vypiš zvlášť soubory, u kterých si nejsi jistý zařazením,
+   a soubory, které vypadají jako duplikáty.
+4. NIC zatím nepřesouvej. Počkej, až plán schválím.
+
+Pravidla: nemaž nikdy nic, ani duplikáty. Zachovej původní
+data vytvoření. Když má soubor název bez přípony nebo je
+poškozený, dej ho do složky kontrola/ a napiš mi seznam.
+```
+
+Vrátí strom složek a soupis nejistých případů. Zkontrolujte hlavně bod 3 — právě tam bývá to, co jste hledali roky. Až plán schválíte, řekněte „přesuň to podle plánu, ale nejdřív udělej kopii složky do zaloha/". Duplikáty nechte na sebe: rozhodnutí, která kopie je ta pravá, patří člověku.
+
+### Úloha 2: hromadné přejmenování podle obsahu
+
+Přejmenovat pět set souborů umí i systémové nástroje — ale jen podle pořadí. Claude Code umí něco jiného: přejmenovat soubor podle toho, **co je uvnitř**. To je rozdíl mezi `foto_0231.jpg` a `2025-06-14-svatba-babicka.jpg`.
+
+```text
+Ve složce [cesta] je [420] naskenovaných dokumentů s názvy
+jako scan_0042.pdf. Chci je přejmenovat podle obsahu.
+
+Vzor názvu: RRRR-MM-DD_typ-dokumentu_protistrana.pdf
+Například: 2025-03-14_faktura_alfa-servis.pdf
+
+Pravidla:
+- typ dokumentu poznej z obsahu: faktura, smlouva, výpis,
+  potvrzení, ostatní
+- datum ber z dokumentu, ne z data souboru; když v dokumentu
+  žádné datum není, použij datum souboru a přidej na konec
+  názvu příznak _bezdata
+- protistranu piš malými písmeny bez diakritiky, mezery
+  nahraď pomlčkou, zkrať na 3 slova
+- když si obsahem nejsi jistý na 90 %, soubor NEPŘEJMENUJ
+  a zapiš ho do souboru kontrola.txt s důvodem
+
+Nejdřív to udělej na 10 souborech a ukaž mi tabulku
+starý název → nový název → co jsi z dokumentu přečetl.
+```
+
+Poslední odstavec je to nejdůležitější. Tabulka „starý → nový → přečteno" vám ukáže nejen výsledek, ale i cestu k němu, takže poznáte systematickou chybu (například že model bere datum splatnosti místo vystavení). Hlídejte i délku názvů a diakritiku — na některých systémech dělá háčky v názvech potíže při zálohování.
+
+### Úloha 3: extrakce údajů z hromady PDF
+
+Tohle je úloha, kde se ušetří nejvíc. Čtyřicet faktur, šedesát smluv, dvě stě dodacích listů — z každého potřebujete pět čísel a chcete je mít v jedné tabulce.
+
+```text
+Ve složce [cesta] je [180] faktur v PDF. Vytvoř z nich
+jeden CSV soubor faktury.csv.
+
+Sloupce v tomto pořadí:
+soubor, dodavatel, IČO, číslo faktury, datum vystavení,
+datum splatnosti, částka bez DPH, sazba DPH, částka s DPH,
+variabilní symbol, jistota
+
+Pravidla:
+- oddělovač středník, kódování UTF-8, desetinná čárka
+- data ve formátu RRRR-MM-DD
+- částky jako číslo bez měny a bez mezer v tisících
+- když údaj v dokumentu není, nech buňku prázdnou;
+  NIC nedomýšlej a nedopočítávej
+- do sloupce jistota napiš vysoká / střední / nízká podle
+  toho, jak čitelný dokument je
+- u skenů s ručním písmem dej vždy nízkou jistotu
+
+Nejdřív zpracuj 10 souborů, ukaž mi výsledek a počkej.
+Na konci napiš, u kolika faktur nesedí částka bez DPH
+plus DPH na částku s DPH.
+```
+
+Vrátí CSV, které jde otevřít v Excelu, a kontrolní součet na konci. Sloupec „jistota" je ta část, kterou lidé vynechávají a pak toho litují: říká vám, kterých patnáct řádků máte projít okem a kterých sto šedesát pět můžete pustit dál. Kontrola součtu DPH je druhá pojistka — chytí většinu chyb ve čtení čísel.
+
+Než pustíte celek, myslete na data. Faktury a smlouvy obsahují údaje o lidech a firmách. Používejte placený nebo firemní účet se smluvní ochranou dat, ne volný chat, a co jde anonymizovat, anonymizujte předem. Podrobněji v tipu [analýza dat s AI](/tipy/ai-analyza-dat).
+
+### Úloha 4: měsíční report, který se generuje sám
+
+Když máte data v CSV nebo v tabulce, je report jen otázka jednoho skriptu. Důležité je nenechat si čísla „spočítat v chatu" — jazykový model generuje text, ne výpočet. **Do reportu smí jen číslo, které vzniklo skriptem a jde spočítat znovu.**
+
+```text
+Mám soubor [data.csv] s [prodeji za poslední rok]. Hlavička
+a první tři řádky vypadají takhle:
+
+[sem vlož 4 řádky včetně názvů sloupců]
+
+Napiš Python skript report.py, který:
+1. načte soubor (oddělovač středník, UTF-8, desetinná čárka)
+2. vyčistí data: zahoď řádky bez [klíčový sloupec], sjednoť
+   psaní názvů [sloupec] a datumy převeď na skutečné datum
+3. spočítá souhrn po měsících: počet, součet, průměr, medián
+4. spočítá top 10 [kategorie] podle [metrika] a jejich podíl
+5. porovná poslední měsíc s předchozím a se stejným měsícem
+   loni, v procentech
+6. uloží čísla do vysledky.csv a tři grafy do grafy/ jako PNG
+7. na konci vypíše shrnutí v češtině: co vyskočilo nahoru,
+   co spadlo, kde jsou podezřelá data
+
+Ke každému kroku napiš komentář česky, PROČ se dělá.
+Skript musí projít i s prázdnými buňkami. Pak ho spusť
+a ukaž mi výstup.
+```
+
+Vrátí skript, spustí ho a ukáže čísla. Zkontrolujte dvě věci: jestli počet načtených řádků odpovídá tomu, co čekáte (typický problém je špatný oddělovač, po kterém se načte jeden sloupec místo dvanácti), a jestli sedí součty na to, co víte z jiného zdroje. Příští měsíc stačí nahradit data.csv a skript spustit znovu — report se přepočítá za pár vteřin.
+
+Když se u čísel chcete ptát dál, navazuje na to tip o [analýze dat](/tipy/ai-analyza-dat); na měsíční rytmus se pak hodí [rutiny](/tipy/claude-rutiny-posta-kalendar), které úlohu spouštějí podle rozvrhu.
+
+### Úloha 5: správa webu a dalších textových projektů
+
+Poslední typová úloha je nejméně očekávaná: Claude Code je výborný na správu čehokoli, co je uložené jako text. Web, dokumentace, knihovna šablon, sbírka poznámek. Textové soubory umí číst, hromadně upravovat, kontrolovat proti pravidlům a verzovat gitem, takže se každý krok dá vrátit.
+
+```text
+V téhle složce je [web / dokumentace] složená z [markdown]
+souborů ve složce [content/].
+
+Udělej mi kontrolu konzistence a vrať jeden přehled:
+1. soubory, kde chybí povinné pole v hlavičce
+   (povinná pole: [titulek, popis, datum, kategorie])
+2. odkazy uvnitř projektu, které míří na neexistující soubor
+3. duplicitní nebo velmi podobné titulky
+4. texty kratší než [1500] znaků a delší než [30000]
+5. místa, kde se používají anglické uvozovky místo českých
+6. překlepy v opakovaných termínech (vypiš varianty téhož
+   pojmu, které se v projektu vyskytují)
+
+Nic neopravuj, jen vypiš nálezy s cestou k souboru a číslem
+řádku. Seřaď je podle závažnosti.
+```
+
+Vrátí seznam, který by ručně vznikal půl dne. Až ho projdete, můžete zadat opravu po skupinách — nikdy ne všechno najednou. A předtím se ujistěte, že je projekt v gitu: pak je i špatná hromadná náhrada otázka jednoho příkazu zpět.
+
+## Fáze 4: CLAUDE.md — trvalé instrukce projektu
+
+### K čemu to je
+
+Když pracujete ve stejné složce opakovaně, začne vás štvát, že musíte pokaždé znovu vysvětlovat totéž: jak se ta složka jmenuje, kam se ukládají výstupy, jaký formát data používáte, co se nikdy nesmí smazat. Řešení je soubor `CLAUDE.md` v kořeni projektu. Claude Code si ho přečte automaticky při každém spuštění a bere ho jako trvalé instrukce.
+
+Je to obdoba [vlastních instrukcí](/tipy/ai-vlastni-instrukce) v chatu, jen vázaná na konkrétní složku. Rozdíl je zásadní: instrukce nepatří vám, patří projektu. Když složku předáte kolegovi, dostane i pravidla.
+
+### Co do něj napsat
+
+Dobrý CLAUDE.md má čtyři části: k čemu složka je, jak je uspořádaná, jak se dělají typické úlohy a co se nesmí. Nejrychleji ho napíšete tak, že si ho necháte navrhnout a pak ho upravíte.
+
+```text
+Chci si v téhle složce založit soubor CLAUDE.md s trvalými
+instrukcemi, aby ses při každém dalším spuštění choval stejně.
+
+Nejdřív se rozhlédni po složce a pak napiš návrh, který
+obsahuje:
+1. K čemu složka slouží (napíšu ti to: [popis])
+2. Strukturu složek a co kam patří
+3. Konvence: názvy souborů, formát dat, kódování, jazyk
+4. Postupy pro tři opakované úlohy, které tu dělám:
+   [úloha A], [úloha B], [úloha C] — u každé kroky a výstup
+5. Tvrdá pravidla: co nikdy nemazat, co nikdy neodesílat,
+   kdy se máš zeptat místo rozhodnutí
+6. Kam ukládat výstupy a zálohy
+
+Piš stručně, v odrážkách, česky. Formuluj to jako pokyny pro
+tebe, ne jako popis pro člověka. Kde si nejsi jistý, co v téhle
+složce platí, napiš otázku a nech na mě, ať doplním.
+```
+
+Vrátí návrh, ve kterém bude část správně a část vymyšlená z toho, co ve složce vidí. Projděte ho řádek po řádku — tenhle soubor bude ovlivňovat všechno, co se ve složce stane, takže se vyplatí strávit nad ním dvacet minut. Bod 5 dopište vždycky sami; zákazy nedelegujte.
+
+### Jak ho udržovat
+
+CLAUDE.md není dokument, který napíšete jednou. Pokaždé, když musíte v konverzaci něco vysvětlovat podruhé, patří to do souboru. Osvědčený návyk: na konci větší úlohy zadejte jednu větu.
+
+```text
+Právě jsme dokončili [úloha]. Projdi náš dnešní postup
+a navrhni, co z něj doplnit do CLAUDE.md, abych to příště
+nemusel vysvětlovat znovu.
+
+Vypiš jen konkrétní věty k doplnění, u každé napiš, do které
+sekce patří a proč. Nic zatím nezapisuj — chci to schválit.
+Vynech věci, které platily jen dnes, a věci, kde jsem si sám
+nebyl jistý, jak je chci mít.
+```
+
+Tímhle způsobem soubor za pár týdnů dozraje do stavu, kdy stačí napsat „udělej měsíční uzávěrku" a nemusíte dodávat nic dalšího. Pravidla se stanou majetkem složky, ne vaší paměti.
+
+## Fáze 5: případová studie — jak vzniká tenhle web
+
+Nejlepší doklad, že to funguje mimo programování, je web, který právě čtete. Produktivní.cz je textový projekt: každý tip je jeden soubor, každá kapitola příručky taky, k tomu anglická jazyková verze. Obsah, překlady i nasazení nové verze řídí autor přes Claude Code.
+
+Praktický průběh vypadá takhle. **Zadání**: autor popíše, co má vzniknout — nový tip na dané téma, revize kategorie, doplnění chybějících anglických verzí. **Vykonání**: nástroj napíše soubory, zkontroluje je proti pravidlům projektu a ukáže, co změnil. **Schválení**: autor si výstup přečte, opraví, co se mu nelíbí, a teprve pak jde změna ven. Publikace není nikdy automatická — to je hranice, která se neposouvá.
+
+Tři věci na tom stojí a jdou přenést do jakéhokoli jiného projektu.
+
+**Pravidla žijí v souboru, ne v hlavě.** Projekt má CLAUDE.md s tvrdými pravidly: jak vypadá struktura tipu, jaký je tón, co se v textech nesmí objevit, jak se píší uvozovky. Bez toho by každý nový text vypadal jinak.
+
+**Kontrola je skript, ne čtení.** Na hlídání formálních věcí — délka, struktura, poškozené odkazy, nekonzistentní pojmy — existuje kontrolní skript. Projde všechny soubory za pár vteřin a vrátí seznam nálezů. Člověk pak čte jen to, co skript označil, a hlavně obsah, který skript posoudit neumí.
+
+**Git je záchranná síť.** Každá změna je zaznamenaná a vratná. Díky tomu je možné pouštět i odvážné hromadné úpravy: když dopadnou špatně, vrátíte je jedním příkazem. Bez verzování by se hromadné změny dělat nedaly, nebo aspoň ne bez svírání žaludku.
+
+Co z toho plyne pro vás: netechnický projekt s velkým počtem textových souborů — firemní dokumentace, knihovna nabídek, sbírka smluvních vzorů, blog — se dá řídit stejným způsobem. Nepotřebujete umět programovat. Potřebujete umět popsat, jak má výsledek vypadat, a být ochotný ho zkontrolovat. Když úloha přeroste jednoho agenta, navazuje na to postup se [subagenty](/tipy/claude-subagenti-nechte-ai-ridit-ai).
+
+## Fáze 6: bezpečnost — co smí a co nesmí
+
+### Co nástroj skutečně může
+
+Buďme konkrétní, protože strach z neznáma je tady na místě a mlžení nepomáhá. Claude Code má přístup k tomu, co je ve složce, ve které ho spustíte, a k příkazům, které mu dovolíte spustit. To znamená, že v principu umí soubory číst, měnit, přesouvat i mazat a umí spouštět programy na vašem počítači.
+
+Proto platí první pravidlo: **spouštějte ho ve složce projektu, ne v kořeni disku a ne v domovské složce.** Rozsah přístupu je vaše hlavní bezpečnostní páka a je zdarma.
+
+### Sedm pravidel, která se vyplatí dodržovat
+
+1. **Pracujte v kopii.** U první hromadné úlohy nad daty, na kterých záleží, si složku zkopírujte a pusťte to na kopii. Když výsledek sedí, pustíte to na originál — nebo prostě kopii použijete.
+2. **Zálohujte před hromadnou změnou.** Kopie složky stačí. Kdo pracuje s texty, ať použije git; pak jde vrátit každý krok.
+3. **Mazání si nechte na sebe.** Do instrukcí projektu napište, že nástroj nikdy nic nemaže — jen přesouvá do složky `k-smazani/`. Rozhodnutí o smazání dělá člověk.
+4. **Čtěte, co se chystá spustit.** Když nástroj navrhne příkaz, kterému nerozumíte, zeptejte se „co přesně tenhle příkaz udělá a co se stane, když ho pustím na špatné složce". Odpověď dostanete okamžitě.
+5. **Odesílání, platby a publikace vždy schvaluje člověk.** Připravit e-mail, fakturu nebo příspěvek smí nástroj. Odeslat je smíte vy. Tohle pravidlo neporušujte ani u úloh, které děláte posté.
+6. **Citlivá data jen do placeného účtu se smluvní ochranou dat.** Osobní údaje klientů, zdravotní dokumentace, mzdy, neveřejné smlouvy. Co jde anonymizovat, anonymizujte předem — jména nahraďte pořadovým číslem a klíč si nechte u sebe.
+7. **Jednou za čtvrtletí zkontrolujte oprávnění.** K jakým složkám a službám má vaše automatizace přístup? Oprávnění se tiše hromadí a nikdo je za vás neuklidí.
+
+### Když si nejste jistí, zeptejte se na plán
+
+Nejjednodušší obrana proti nepříjemnému překvapení je jedna věta navíc v zadání: nedělej to, jen mi popiš, co bys udělal. Pro velké nebo nevratné úlohy se hodí tenhle prompt:
+
+```text
+Chci [popis úlohy] ve složce [cesta].
+
+Zatím nic nedělej. Napiš mi:
+1. přesný plán kroků v pořadí, ve kterém bys je provedl
+2. u každého kroku, které soubory se změní, přesunou nebo
+   vytvoří — a kolik jich zhruba bude
+3. co je na tom nevratné a co jde vrátit zpět
+4. co se stane, když v datech narazíš na něco nečekaného
+5. jak bych po dokončení ověřil, že je výsledek správný
+6. co bys na mém místě zálohoval, než to spustíme
+
+Pak počkej. Nespouštěj nic, dokud plán neschválím.
+```
+
+Bod 3 je ten, kvůli kterému prompt existuje. Rozdíl mezi „přejmenuje se čtyři sta souborů" (vratné, když máte kopii) a „přepíše se zdrojová tabulka" (nevratné) rozhoduje o tom, jestli si napřed uděláte zálohu, nebo si ušetříte minutu a pak litujete. Bod 5 si schovejte — je to váš kontrolní postup po dokončení.
+
+## Nejčastější chyby
+
+- **Spustit nástroj v domovské složce nebo v kořeni disku.** Dostane přístup ke všemu, včetně věcí, na které jste zapomněli. Vždycky konkrétní projektová složka, a když má vidět víc, řekněte mu to výslovně.
+- **Pustit hromadnou úlohu bez vzorku.** Deset souborů napřed odhalí devadesát procent chyb v zadání. Kdo přeskočí vzorek, kontroluje pak pět set výsledků a obvykle je dělá znovu.
+- **Nezálohovat před nevratnou operací.** Kopie složky zabere půl minuty. Rekonstrukce přepsaných dat zabere večer a někdy nejde vůbec.
+- **Nechat si spočítat čísla „v chatu" místo skriptem.** Jazykový model generuje pravděpodobný text, ne výpočet — u dlouhé tabulky vidí jen výřez a zbytek dopočítá odhadem. Do reportu smí jen číslo ze skriptu, který jde spustit znovu.
+- **Zadat úlohu na tři věty a čekat zázrak.** „Ukliď mi to" není zadání. Vstup, výstup, pravidlo, výjimky, formát — pět vět navíc ušetří tři kola oprav.
+- **Nechat nástroj rovnou odesílat, mazat nebo publikovat.** I když už úloha dvacetkrát vyšla. Jednadvacáté kolo je to, ve kterém přijde neobvyklý vstup — a člověk je jediná pojistka, která to chytí.
+- **Nepsat si pravidla do CLAUDE.md.** Když totéž vysvětlujete potřetí, ztrácíte přesně ten čas, kvůli kterému jste nástroj nasadili.
 
 ## Nejlepší nástroje
 
 - **Claude Code** — práce se soubory, spouštění skriptů a ovládání gitu; volba pro všechno, co má běžet na vašem disku a mít víc než jeden krok.
-- **claude.ai** — chat, projekty s trvalým kontextem a artefakty (funkční mini-aplikace rovnou v okně); pro jednorázové věci bez instalace čehokoli.
-- **Git** — záchranná síť pro hromadné změny; ne pro každého, ale kdo ho má, spí klidněji.
+- **claude.ai** — chat, projekty s trvalým kontextem a artefakty (funkční mini-aplikace rovnou v okně); pro jednorázové věci bez instalace čehokoli a pro doptávání se během práce.
+- **Claude Cowork** — desktopový režim nad složkou souborů; pohodlnější vstup pro toho, kdo se terminálu vyhýbá, ale chce práci nad vlastními podklady.
+- **Git** — záchranná síť pro hromadné změny; ne pro každého, ale kdo ho má, spí klidněji. Základy vysvětlí Claude Code sám za pět minut.
+- **Python (pandas)** — jazyk, ve kterém vzniknou skripty na data; nemusíte ho umět psát, ale vyplatí se rozumět tomu, co skript dělá.
 - **Zapier, Make nebo n8n** — když se úloha odehrává v cloudu mezi službami, ne v souborech; podrobněji v tipu [první AI automatizace bez programování](/tipy/n8n-zapier-ai-automatizace).
 
 ## Co vám to přinese
 
-- **Čas:** u lidí, kteří pravidelně přerovnávají soubory a přepisují data z dokumentů, střízlivě jeden pracovní den měsíčně.
+- **Čas:** u lidí, kteří pravidelně přerovnávají soubory a přepisují data z dokumentů, střízlivě jeden pracovní den měsíčně. U účetní z úvodu, která zpracovává stovky faktur, spíš dva.
+- **Peníze:** práce, kterou jste zvažovali zadat brigádníkovi nebo externí službě, se vejde do hodiny vaší kontroly. U opakované měsíční agendy je to rozdíl v řádu jednoho pracovního dne měsíčně, který můžete strávit placenou prací.
 - **Klid:** nudná práce přestane viset nad hlavou jako hrozba víkendu. Zbyde rozhodování, které za vás stejně nikdo neudělá.
-- **Kvalita:** stroj neudělá překlep v padesátém řádku proto, že už je unavený. Pravidlo aplikuje na první i poslední soubor stejně.
-- **Rozsah:** úlohy, které jste dřív ani nezačali („projít tři roky výpisů“), se najednou vejdou do jednoho večera.
+- **Kvalita:** stroj neudělá překlep v padesátém řádku proto, že už je unavený. Pravidlo aplikuje na první i poslední soubor stejně — a sloupec „jistota" vám poctivě řekne, kterých patnáct případů máte projít okem.
+- **Rozsah:** úlohy, které jste dřív ani nezačali („projít tři roky výpisů"), se najednou vejdou do jednoho večera.
 
 ## Pro tip
 
-Dejte nástroji přesně tolik prostoru, kolik potřebuje — a ani metr navíc. Pracujte v kopii složky, ne v originále, a mazání souborů si nechte na sebe. Platí tu stejné pravidlo jako všude na tomhle webu: **AI navrhuje, člověk schvaluje.** A hlídejte data: citlivé věci (osobní údaje klientů, finance, zdravotní dokumentace) posílejte jen do placeného nebo firemního účtu se smluvní ochranou dat, nikdy do free chatu, a co jde anonymizovat, anonymizujte předem. Jednou za čtvrtletí se podívejte, k jakým složkám a službám má vaše automatizace vlastně přístup — oprávnění se tiše hromadí.
+Pokročilý trik, který mění pořadí práce: nechte si napsat **kontrolní skript dřív než samotnou automatizaci.** Když víte, jak poznáte, že je výsledek správný — kolik má být řádků, jaké součty musí sedět, které kombinace jsou nemožné — můžete pak pouštět i odvážné hromadné úpravy, protože kontrola trvá vteřinu. Bez kontrolního skriptu je každá velká změna sázka a vy ji buď nepustíte, nebo pustíte a nevyspíte se.
+
+A závěrečné pravidlo, které přebíjí všechna ostatní: **dejte nástroji přesně tolik prostoru, kolik potřebuje, a ani metr navíc.** Konkrétní složka místo celého disku, kopie místo originálu, přesun místo mazání, schválení místo odeslání. Platí tu stejné pravidlo jako všude na tomhle webu — AI navrhuje, člověk schvaluje. Citlivé věci posílejte jen do placeného nebo firemního účtu se smluvní ochranou dat, nikdy do free chatu, a co jde anonymizovat, anonymizujte předem.
