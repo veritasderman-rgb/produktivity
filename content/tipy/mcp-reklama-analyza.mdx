@@ -1,0 +1,705 @@
+---
+title: "Reklama a návštěvnost přes MCP: Meta Ads a Google Analytics bez exportů"
+excerpt: "Kompletní návod s dvaceti prompty: oficiální Meta Ads konektor přes přihlášení k Meta Business, oficiální lokální MCP server od týmu Google Analytics, otázky nad kampaněmi i návštěvností, spojení obou stran do jednoho obrázku a limity, které patří na platformu, ne do promptu."
+category: "ai"
+platform: "vsude"
+audience: ["marketer", "manazer", "freelancer"]
+keys: []
+saves: "~4 h měsíčně"
+date: "2026-08-13"
+updated: "2026-08-13"
+---
+
+Existuje jedna otázka, kterou si každý, kdo utrácí za reklamu, položí aspoň jednou týdně: „co se to tam vlastně děje?" A existuje jedna odpověď, kterou byste od chatbota nikdy neměli přijmout: cokoli, co si domyslel. Reklamní účet a webová analytika jsou přesně ten druh dat, kde odhad nemá cenu ani korunu — buď model vidí skutečná čísla za skutečné období, nebo mlčí.
+
+Přesně proto tady konektory dávají smysl jako málokde jinde. **Nejde o to, aby vám AI radila o reklamě z toho, co se kdysi naučila. Jde o to, aby si vaše čísla sama vytáhla — aktuální, ve správné struktuře, za období, které jste zadali — a teprve nad nimi přemýšlela.** Rozdíl je stejný jako mezi konzultantem, který mluví obecně o oboru, a konzultantem, který se před poradou podíval do vašeho účtu.
+
+Tenhle návod je o dvou konkrétních konektorech, které oficiálně existují a nemusíte kvůli nim nic programovat. První je od Mety a napojí vás na reklamní účet. Druhý vydává přímo tým Google Analytics a napojí vás na návštěvnost webu. Projdeme, co každý z nich umí, jak se zapíná, na co se ho reálně ptát, co se dá zjistit, až když máte obě strany — a hlavně, kde jsou hranice, které se nevyplatí překračovat. Prompty jsou k okopírování, stačí doplnit hranaté závorky.
+
+Nad celým textem platí jedno pravidlo, které v reklamě stojí opravdové peníze: **AI navrhuje, člověk schvaluje.** Model smí číst, počítat a psát doporučení. Zvednout rozpočet, zapnout kampaň nebo cokoli vypnout smí jedině člověk. Obecný úvod do konektorů najdete v [přehledu MCP konektorů a nástrojů](/tipy/mcp-konektory-nastroje); tady jdeme rovnou do reklamy a analytiky.
+
+## Vzorová situace
+
+Marek dělá marketing pro e-shop se sportovním vybavením. Rozpočet má nízký na to, aby si najal agenturu, a vysoký na to, aby ho mohl nechat běžet bez dohledu. Jeho měsíční rutina vypadala léta stejně: otevřít správce reklam, přepnout na správné období, poskládat sloupce, exportovat do CSV, otevřít Analytics, exportovat druhé CSV, slepit to v tabulce a půl dne se dívat na čísla, ze kterých mu nakonec vyšla věta „vypadá to podobně jako minule". Když se ho majitel v pondělí zeptal, proč jsme minulý týden utratili o třicet procent víc, odpověď měl ve středu.
+
+Teď má připojené dvě věci. Reklamní účet přes oficiální konektor Mety a návštěvnost přes lokální MCP server od Google Analytics, který mu běží na notebooku. Otázka „porovnej posledních třicet dní s předchozími třiceti, vypiš sestavy, kde vzrostla cena za výsledek o víc než pětinu, a k tomu, kolik lidí z nich reálně došlo na stránku produktu" je jeden odstavec textu a odpověď má za dvě minuty.
+
+Změnilo se přitom něco jiného než rychlost. Marek se přestal ptát na to, co se stalo, a začal se ptát na to, proč. Číslo je hotové dřív, než ho stihne přestat zajímat — a zbytek hodiny padne na rozhodnutí místo na skládání tabulky. Za měsíc přišel na to, že jedna sestava držela hezké CTR a nulové objednávky, protože vedla na stránku, která se na mobilu načítala pomalu. To by z exportu nevyčetl, protože ten problém byl vidět jen na obou stranách naráz.
+
+## Meta Ads: co to je a jak to zapnout
+
+Meta pro tohle má vlastní zastřešující název: **Ads AI Connectors**. Jsou to dvě rozhraní ke stejné věci — hostovaný **MCP server** a k němu **CLI**, tedy nástroj do příkazové řádky, který se instaluje přes npm. Spuštěno to bylo koncem dubna 2026 a od té doby to postupně roste.
+
+Pro drtivou většinu čtenářů tohohle webu je zajímavý ten první. MCP server běží u Mety, vy se k němu jen připojíte adresou **`mcp.facebook.com/ads`** ve svém AI klientovi. V Claude se to dělá v nastavení konektorů přes „Add custom connector" a vložení té adresy, v Claude Code příkazem `claude mcp add`, v jiných klientech obdobně — je to standardní vzdálený MCP server, takže funguje všude, kde MCP funguje.
+
+### Přihlášení bez vývojářské aplikace
+
+Tohle je ta část, kvůli které to má smysl zmiňovat i lidem, kteří nikdy nesáhli na Marketing API. Historicky platilo, že jakýkoli programový přístup k reklamnímu účtu znamenal založit vývojářskou aplikaci, vygenerovat token, projít schvalováním a starat se o to, aby přístup nevypršel. To odradilo každého, kdo neměl vývojáře po ruce.
+
+U MCP serveru se přihlašujete **přes svůj běžný účet Meta Business**, obyčejným přihlašovacím oknem, jaké znáte odkudkoli jinde. **Nezakládáte vývojářskou aplikaci a neprocházíte App Review.** Odsouhlasíte, k jakému reklamnímu účtu má napojený nástroj přístup, a od té chvíle jsou vaše kampaně vidět. Když přístup chcete ukončit, odeberete konektor a odvoláte oprávnění v nastavení Business účtu — stejně jako u kterékoli jiné připojené aplikace.
+
+Jedna poznámka pro firmy: kdo přístup uděluje, má tím pádem váhu. Pokud spravujete cizí účty přes Business Manager, projděte si napřed, kdo u vás smí připojovat nástroje k reklamním účtům klientů. Není to technický problém, je to organizační — a řeší se dřív, než ho někdo vyrobí.
+
+### Pět oblastí, které konektor pokrývá
+
+Inventář je poměrně široký, řádově kolem třiceti nástrojů, a dělí se do několika oblastí. Pro praktické použití stačí rozumět těmhle pěti:
+
+<Flow title="Co Meta konektor umí, seřazeno podle toho, jak často to použijete" steps={[
+  {title: "Reporting a insights", desc: "Výkon kampaní, sestav a inzerátů za období, srovnání, trendy, benchmarky. Tady strávíte devadesát procent času."},
+  {title: "Správa kampaní", desc: "Vytvoření a úpravy kampaní, sestav, inzerátů, kreativ a publik. Používejte opatrně a vždy s potvrzením."},
+  {title: "Katalogy", desc: "Produktové katalogy, feedy, sady produktů a diagnostika, proč se položky nezobrazují."},
+  {title: "Diagnostika účtu", desc: "Chyby, upozornění, log aktivity — kdo co kdy v účtu změnil."},
+  {title: "Datasety a signály", desc: "Kvalita měřených událostí: co se posílá, co chybí, kde je díra v měření."},
+]} />
+
+Kromě toho jsou v inventáři i nástroje na A/B testy a studie zvýšení konverzí a na procházení knihovny reklam. Nejde o to znát názvy jednotlivých nástrojů zpaměti — model si je vybere sám. Jde o to vědět, na co se má smysl ptát a co už je za hranou.
+
+### Kdy MCP a kdy raději CLI
+
+Meta sama doporučuje dělení, které dává smysl i bez technického vysvětlení: **MCP na analýzu a ad-hoc reporting, CLI na deterministické a hromadné operace.** Přeloženo do češtiny:
+
+**MCP je pro otázky.** Ptáte se lidsky, model si sám vybere, jaká data vytáhne a jak je poskládá. Je to skvělé pro věci typu „jak si vedeme" a „co se změnilo" — tedy pro všechno, kde předem nevíte, jaký řez daty budete chtít vidět. Nevýhoda je druhá strana téže mince: pokaždé to může udělat trochu jinak. Když stejnou otázku položíte za týden znovu, může vám model vytáhnout jiné sloupce nebo použít jiné období, aniž byste si toho všimli.
+
+**CLI je pro příkazy.** Napíšete přesně, co se má stát, a stane se to pokaždé stejně. Když potřebujete založit padesát sestav podle tabulky, přejmenovat inzeráty podle jednotného klíče nebo každý čtvrtek stáhnout přesně stejný report se stejnými sloupci, je předvídatelnost důležitější než pohodlí. Hromadné operace se navíc dělají hůř konverzací — po dvacáté odsouhlasené změně přestanete číst, co odsouhlasujete, a to je přesně ta chvíle, kdy vzniká škoda.
+
+Praktické pravidlo: **dokud se ptáte, používejte MCP. Jakmile začnete něco opakovat nebo měnit ve velkém, přesuňte to do skriptu.** Přechod od jednoho k druhému je popsaný dál v sekci o pravidelném reportu.
+
+Úplně první prompt po zapojení konektoru ať je tenhle. Nezní zajímavě, ale ušetří vám dvě hodiny zmatku:
+
+```text
+Připojil jsem konektor k reklamnímu účtu. Než začneme cokoli
+analyzovat, udělej mi inventuru účtu:
+
+1. Které reklamní účty vidíš, jejich názvy, ID a měnu.
+2. U účtu [název nebo ID]: kolik je v něm aktivních kampaní,
+   kolik pozastavených a kdy naposledy v něm proběhla změna.
+3. Jaké cíle kampaní se v účtu používají a kolik kampaní má který.
+4. Které konverzní události se v účtu vyhodnocují a která je
+   nastavená jako hlavní.
+5. Za jaké nejstarší období z účtu ještě dostaneš data.
+
+Zatím nic nehodnoť a nedoporučuj. Chci jen vědět, co vidíš
+a s čím budeme dál pracovat. Kde k něčemu nemáš přístup,
+napiš to výslovně místo odhadu.
+```
+
+Vrátí mapu účtu a hlavně ukáže, jestli konektor vidí to, co si myslíte. Dvě věci zkontrolujte: měnu (u víc účtů se snadno stane, že porovnáváte koruny s eury) a poslední bod. Když model tvrdí, že vidí data tři roky zpátky, ale účet je půl roku starý, něco si domýšlí a je lepší to zjistit teď než u čtvrtletního reportu.
+
+## Na co se reálně ptát
+
+Tohle je jádro. Prompty jsou stavěné tak, aby model musel čísla vytáhnout a ukázat, odkud jsou — ne aby vám napsal esej o marketingu. U každého je napsáno, co dostanete a kde se to nejčastěji láme.
+
+### Výkon kampaní za období
+
+Základní otázka, na kterou v rozhraní klikáte nejčastěji. Rozdíl je, že tady si rovnou řeknete o strukturu.
+
+```text
+Vytáhni z reklamního účtu [název účtu] výkon za období
+[1.—31. července 2026].
+
+Tabulka po kampaních, seřazeno podle útraty sestupně:
+kampaň | cíl | útrata | imprese | prokliky | CTR | CPC |
+počet výsledků (podle cíle kampaně) | cena za výsledek
+
+Pod tabulku napiš:
+- součet za celý účet
+- tři kampaně s nejlepší cenou za výsledek a tři s nejhorší
+- které kampaně mají tak málo výsledků, že jejich cena
+  za výsledek zatím nic neznamená (napiš, od jakého počtu
+  to podle tebe začíná mít vypovídací hodnotu)
+
+Uveď, jaké přesné období jsi použil a v jaké měně jsou částky.
+Nic nedopočítávej odhadem — když nějaká metrika není k dispozici,
+nech buňku prázdnou a napiš proč.
+```
+
+Vrátí přehled, který byste v rozhraní skládali deset minut. Poslední odrážka je tam schválně: nejčastější chyba drobných účtů je vážně brát cenu za konverzi spočítanou ze tří konverzí. A vždy si přečtěte první větu odpovědi — pokud model použil jiné období, než jste chtěli (typicky posunuté o den kvůli časové zóně účtu), zbytek nemá cenu číst.
+
+### Srovnání dvou období
+
+Samotné číslo neříká nic. Číslo proti minulému měsíci říká skoro všechno.
+
+```text
+Porovnej výkon reklamního účtu [účet] za období
+[1.—31. července] proti [1.—30. června].
+
+Tabulka po kampaních: metrika, hodnota v prvním období,
+hodnota ve druhém, absolutní rozdíl, rozdíl v procentech.
+Metriky: útrata, imprese, dosah, prokliky, CTR, CPC,
+počet výsledků, cena za výsledek.
+
+Pak vypiš:
+1. Tři největší zhoršení v absolutních penězích (ne v procentech)
+   — kde nás změna stála nejvíc.
+2. Tři největší zlepšení, taky v penězích.
+3. Kampaně, které v jednom z období neběžely celé — u těch
+   je srovnání zavádějící, označ je.
+4. Změny, které jsou nejspíš jen výkyv, ne trend, a proč
+   si to myslíš.
+
+Nedávej doporučení, jen popis. Doporučení chci až potom.
+```
+
+Bod 1 je důvod, proč tenhle prompt vypadá takhle. Procenta lžou: nárůst ceny za proklik o sto procent u kampaně za tisícovku je poznámka pod čarou, nárůst o deset procent u kampaně za sto tisíc je problém. A bod 3 chrání před klasikou — kampaň spuštěná dvacátého se s celým předchozím měsícem srovnat nedá.
+
+### Které sestavy přepalují rozpočet
+
+Peníze v reklamních účtech obvykle neutíkají velkou dírou, ale deseti malými.
+
+```text
+Projdi reklamní účet [účet] za posledních [30] dní na úrovni
+reklamních sestav a najdi, kde se pálí rozpočet bez výsledku.
+
+Vypiš sestavy, které splňují aspoň jedno:
+- utratily víc než [2000 Kč] a mají nula výsledků
+- mají cenu za výsledek víc než [dvojnásobek] průměru účtu
+- mají CTR pod [polovinou] průměru účtu při útratě nad [1000 Kč]
+
+U každé sestavy uveď: kampaň, název sestavy, útratu, výsledky,
+cenu za výsledek, CTR, jak dlouho běží a která podmínka
+se na ni vztahuje.
+
+Seřaď podle toho, kolik peněz je v ohrožení za měsíc.
+Na konec napiš celkovou částku, která takhle měsíčně odchází.
+
+Nic nevypínej ani nenavrhuj konkrétní změny rozpočtu — jen
+seznam k mému rozhodnutí.
+```
+
+Vrátí seznam, který se dá projít za pět minut a rozhodnout. Prahové hodnoty v hranatých závorkách si nastavte podle svého účtu — u drahého B2B produktu je dva tisíce bez výsledku normální týden, u impulzního e-shopu je to poplach. Poslední věta promptu je tam záměrně a nemažte ji.
+
+### Frekvence: kde se publikum unavuje
+
+Frekvence je počet, kolikrát průměrný člověk vaši reklamu viděl. Když roste a výkon klesá, publikum je vyčerpané a platíte za to, že lidi obtěžujete.
+
+```text
+Vytáhni pro reklamní účet [účet] vývoj frekvence za posledních
+[60] dní, po týdnech, na úrovni reklamních sestav.
+
+Pro každou sestavu: týden, dosah, imprese, frekvence, CTR,
+cena za výsledek.
+
+Pak vyber:
+1. Sestavy, kde frekvence roste tři týdny po sobě.
+2. Z nich ty, kde zároveň klesá CTR nebo roste cena za výsledek
+   — tam je vyčerpání publika pravděpodobné.
+3. Sestavy, kde frekvence naopak klesá při stejné útratě
+   — tam se buď rozšířilo publikum, nebo se zhoršilo doručování.
+
+U každého závěru napiš, na kterých číslech stojí, a odděl,
+co je z dat vidět, od toho, co je tvoje hypotéza.
+```
+
+Vrátí přehled, ve kterém je únava publika vidět dřív, než se projeví v ceně. Poslední věta je nejdůležitější v celém promptu — u frekvence modely rády přeskočí z pozorování rovnou k výkladu („kreativa je vyčerpaná") a ten výklad může být úplně mimo, protože stejná čísla dělá i změna v aukci nebo sezónnost.
+
+### Publika s nejlepším a nejhorším výsledkem
+
+```text
+Pro reklamní účet [účet] a období [posledních 30 dní] porovnej
+výkon podle publik a cílení.
+
+Vypiš všechny reklamní sestavy s jejich typem cílení
+(vlastní publikum, podobné publikum, zájmové cílení, široké
+cílení, remarketing) a k tomu útratu, výsledky, cenu za výsledek
+a dosah.
+
+Seskup je podle typu cílení a spočítej za každou skupinu
+souhrn a průměrnou cenu za výsledek.
+
+Pak odpověz:
+- který typ cílení je u nás nejlevnější a který nejdražší
+- kde je rozdíl tak malý, že to může být náhoda
+- která konkrétní publika stojí za to zkusit rozšířit
+  a která bych měl zvážit vypnout
+
+U posledního bodu ke každému návrhu napiš i protiargument
+— proč by to naopak mohla být chyba.
+```
+
+Ten protiargument na konci je trik, který se vyplatí používat všude. Bez něj dostanete sebejistý seznam doporučení; s ním dostanete i informaci, že remarketing má sice nejlevnější konverze, ale jen proto, že sbírá lidi, kteří by nakoupili tak jako tak.
+
+### Diagnostika účtu: co je rozbité
+
+```text
+Udělej mi diagnostiku reklamního účtu [účet]. Zajímá mě
+technický stav, ne výkon.
+
+1. Aktivní chyby a upozornění v účtu — co konkrétně a čeho
+   se to týká.
+2. Inzeráty nebo sestavy, které jsou zamítnuté, v přezkumu
+   nebo se nedoručují, a důvod.
+3. Kampaně, které mají zapnutý rozpočet, ale nulové imprese
+   za posledních [7] dní.
+4. Stav měřených událostí: které konverzní události chodí,
+   které nechodí vůbec a u kterých je objem podezřele nízký
+   proti proklikům.
+5. Změny v účtu za posledních [14] dní z logu aktivity:
+   kdo, kdy, co změnil.
+
+Seřaď nálezy podle toho, kolik nás každý nejspíš stojí,
+a u každého napiš, jestli to je věc na dvě minuty,
+nebo na půl dne.
+```
+
+Tenhle prompt pouštějte jednou za měsíc a před každým zvýšením rozpočtu. Bod 5 je nedoceněný: většina záhadných propadů výkonu má úplně banální vysvětlení, které je v logu aktivity — někdo něco změnil a zapomněl to říct. A bod 4 je jediná spolehlivá obrana proti tomu, abyste optimalizovali na čísla z rozbitého měření.
+
+### Kontrola katalogu
+
+Pokud prodáváte přes produktový katalog, je tohle místo, kde se ztrácejí peníze nejtišeji. Položka, která se nezobrazuje, nikde nekřičí.
+
+```text
+Zkontroluj produktový katalog [název katalogu] napojený
+na reklamní účet [účet].
+
+1. Kolik položek katalog obsahuje, kolik je jich schválených
+   a kolik se z nějakého důvodu nezobrazuje.
+2. Nejčastější důvody zamítnutí nebo chyb, seřazené podle
+   počtu dotčených položek.
+3. Stav feedu: kdy proběhla poslední aktualizace, jestli
+   proběhla bez chyb a jak často se aktualizuje.
+4. Položky, kterým chybí údaje potřebné pro dynamické
+   reklamy (obrázek, cena, dostupnost, identifikátor).
+5. Sady produktů v katalogu a kolik položek každá obsahuje
+   — najdi sady, které jsou prázdné nebo skoro prázdné.
+
+Na konec napiš tři nejnaléhavější věci k opravě a odhadni,
+jaké části sortimentu se každá týká.
+```
+
+Vrátí seznam, ze kterého většinou vypadne jedna nepříjemná věc: že se nezobrazuje kus sortimentu, o kterém jste si mysleli, že běží. Prázdné sady produktů z bodu 5 jsou druhý klasik — kampaň běží, sada je prázdná, rozpočet se rozpustí jinde.
+
+### Než něco změníte
+
+Poslední prompt téhle sekce je jiný než ostatní. Používá se ve chvíli, kdy už víte, co chcete udělat, a chcete si to nechat rozbít dřív, než to uděláte.
+
+```text
+Chystám se v účtu [účet] udělat tuhle změnu: [popis změny,
+např. zvýšit denní rozpočet kampaně X z 500 na 1500 Kč].
+
+Nedělej nic. Jen mi odpověz:
+1. Z jakých čísel v účtu ta změna vychází a jsou ta čísla
+   dost velká na to, aby něco znamenala?
+2. Co se stane v nejhorším případě — kolik můžu ztratit,
+   než to poznám?
+3. Co konkrétně mám po změně sledovat a za jak dlouho
+   se to dá vyhodnotit?
+4. Existuje levnější způsob, jak stejnou hypotézu ověřit?
+5. Tři důvody, proč je tahle změna špatný nápad.
+
+Bod 5 mysli vážně, i když se ti změna zdá rozumná.
+```
+
+Vrátí něco mezi oponenturou a checklistem. Bod 2 je ten, kvůli kterému to stojí za těch třicet vteřin: skoková změna rozpočtu se u algoritmických kampaní projeví jinak, než člověk čeká, a je dobré vědět předem, kolik je v sázce. Podrobnější rámec na stavbu kampaní najdete v tipu [reklamní kampaně s AI](/tipy/reklamni-kampane-s-ai).
+
+## Google Analytics: ano, oficiální MCP existuje
+
+Tady se lidé často diví, protože kolem Analytics koluje spousta komunitních řešení různé kvality. Oficiální MCP server ale existuje a **vydává ho přímo tým Google Analytics**. Repozitář je `googleanalytics/google-analytics-mcp`, licence Apache 2.0, dokumentace na `developers.google.com/analytics/devguides/MCP`.
+
+Tři vlastnosti je potřeba znát dřív, než ho zapnete, protože všechny tři jsou zároveň jeho omezení i jeho přednost.
+
+**Je označený jako experimentální.** To není marketingová opatrnost — znamená to, že se může měnit a že na něm nemá viset nic, co musí fungovat. Pro měsíční report je to v pohodě, pro automat, na kterém stojí fakturace klientovi, ne.
+
+**Je lokální.** Neběží u Googlu ani nikde v cloudu, běží **na vašem počítači**. K tomu se vrátíme za chvíli, protože je to u analytiky spíš dobrá zpráva.
+
+**Je jen pro čtení.** Sahá do GA4 přes Admin API a Data API a nemůže vám v Analytics nic přenastavit ani smazat. Oprávnění, které mu dáváte, je čtecí — a to je přesně ten typ konektoru, se kterým se dá začít bez nervů.
+
+### Co to konkrétně umí
+
+Nástrojů je necelá desítka a pokrývají to, co v Analytics běžně otevíráte:
+
+<Matrix quadrants={[
+  {title: "Souhrny účtů a detail property", action: "get_account_summaries, get_property_details", examples: "co všechno vidím, jaká property je která, časová zóna a měna"},
+  {title: "Standardní a funnel reporty", action: "run_report, run_funnel_report", examples: "libovolný řez daty přes Data API a analýza kroků cesty"},
+  {title: "Real-time reporty", action: "run_realtime_report", examples: "co se na webu děje teď — kolik lidí, odkud, na čem"},
+  {title: "Vlastní dimenze a napojení", action: "get_custom_dimensions_and_metrics, list_google_ads_links", examples: "co si měříte navíc a jaké účty Google Ads jsou propojené"},
+]} />
+
+Názvy nástrojů znát nemusíte, model si vybere sám. Užitečné je vědět, že **funnel report je samostatná věc** — na otázku „kde nám padá objednávková cesta" existuje přímý nástroj a odpověď je přesnější než dopočítávání z běžných reportů.
+
+### Co znamená „lokální" a proč je to výhoda
+
+U vzdáleného konektoru (jako je ten od Mety) běží server u poskytovatele. Vy do něj pošlete požadavek, on sáhne do dat a pošle výsledek zpátky. U lokálního serveru se **program spustí u vás na počítači** a k datům si sáhne vaším jménem, přes přihlášení, které máte nastavené lokálně.
+
+V praxi to znamená tři věci.
+
+**Instalace je na vás.** Není to klik v nastavení konektorů. Potřebujete povolit příslušná API v projektu Google Cloud, nastavit si přihlašovací údaje na počítači a přidat server do konfigurace svého AI klienta. Repozitář to popisuje krok za krokem a je to práce na půl hodiny, ne na odpoledne — ale je to práce, ne zaškrtnutí. Kdo se do toho nechce pouštět sám, ať si k tomu vezme [Claude Code](/tipy/claude-code-osobni-automatizace); provedení instalace podle README je přesně jeho disciplína.
+
+**Nikomu novému nedáváte přístup k datům.** A tohle je ten důvod, proč je lokálnost u analytiky spíš výhoda. Návštěvnost webu je citlivější, než se zdá — jsou v ní zdroje, kampaně, chování zákazníků, u e-shopů i tržby. Když server běží u vás, nevzniká žádná další strana, která by k tomu měla přístup. Nepřidáváte do řetězu nikoho, komu byste museli věřit; jen svého AI klienta a sebe.
+
+**Platíte jen za model.** Server samotný je open source a zdarma. Co stojí peníze, je AI nástroj, přes který se ptáte — a ten už nejspíš platíte.
+
+Jedna praktická poznámka: protože server běží u vás, funguje jen když máte počítač zapnutý. Pro pravidelný report to není překážka (spustíte ho, když ho potřebujete), ale pro noční automat je to úvaha navíc.
+
+Po zapojení začněte znovu inventurou:
+
+```text
+Připojil jsem MCP server ke Google Analytics. Nejdřív mi
+udělej přehled toho, co vidíš:
+
+1. Které účty a property mám k dispozici — název, ID,
+   časové pásmo a měna u každé.
+2. U property [název]: od kdy jsou v ní data a jestli
+   je v nich nějaké delší období bez měření.
+3. Jaké konverzní události (klíčové události) se v property
+   sledují a jaký mají za posledních 30 dní objem.
+4. Jaké vlastní dimenze a metriky jsou v property nastavené
+   a k čemu podle názvu slouží.
+5. Jestli je property propojená s účtem Google Ads.
+
+Nehodnoť kvalitu měření, jen popiš stav. Kde si nejsi jistý,
+napiš to místo dohadu.
+```
+
+Vrátí základ, bez kterého se dál nedá pracovat. Bod 2 je zásadní: mezera v měření (typicky po předělávce webu nebo výměně souhlasové lišty) znehodnotí každé srovnání období, které přes ni přechází. Bod 1 zkontrolujte kvůli časovému pásmu — když má property jiné pásmo než reklamní účet, „včera" znamená v každém nástroji trochu jiný den.
+
+## Otázky nad návštěvností
+
+### Odkud lidé chodí
+
+```text
+Vytáhni z Google Analytics property [název] za období
+[1.—31. července 2026] přehled zdrojů návštěvnosti.
+
+Tabulka podle kanálu (organické vyhledávání, přímá návštěvnost,
+placené vyhledávání, sociální sítě, odkazy, e-mail):
+uživatelé | nové relace | průměrná doba na stránce |
+míra zapojení | počet klíčových událostí | konverzní poměr
+
+Pak rozepiš tři největší kanály na konkrétní zdroje a média.
+
+Nakonec:
+- který kanál přivádí nejvíc lidí a který nejvíc konverzí
+  (a jestli je to tentýž)
+- kolik návštěvnosti spadá do neurčených nebo nepřiřazených
+  kategorií a co to znamená pro důvěryhodnost zbytku
+
+Uveď použité období a časové pásmo property.
+```
+
+Poslední odrážka je ta, kterou většina reportů vynechá. Když je pětina návštěvnosti nezařazená, není to detail — je to informace o tom, jak přesná jsou všechna ostatní čísla v tabulce.
+
+### Které stránky drží pozornost
+
+```text
+Pro property [název] a období [posledních 30 dní] mi udělej
+přehled obsahu.
+
+Tabulka po stránkách, top 30 podle zobrazení:
+adresa | název stránky | zobrazení | uživatelé |
+průměrná doba na stránce | míra zapojení |
+počet klíčových událostí
+
+Pak vyber a okomentuj:
+1. Pět stránek s nejvyšší návštěvností a nízkým zapojením
+   — lidé přijdou a hned odejdou.
+2. Pět stránek s malou návštěvností a vysokým zapojením
+   — obsah, který funguje, ale nikdo ho nenajde.
+3. Stránky, které mají návštěvnost i zapojení a přitom
+   nevedou k žádné klíčové události.
+
+U každé skupiny napiš, co by se s tím dalo dělat, ale odděl
+to od popisu dat.
+```
+
+Skupina 2 bývá největší překvapení a nejlevnější příležitost — ten článek už je napsaný, chybí mu jen odkazy nebo lepší nadpis. Pozor na stránky s nízkým počtem návštěv: u dvaceti relací je „vysoké zapojení" statistický šum.
+
+### Kde padá konverzní cesta
+
+Tohle je nástroj, na který má server samostatnou funkci, a je to znát na kvalitě odpovědi.
+
+```text
+Postav mi v property [název] funnel report za období
+[posledních 30 dní] pro tuhle cestu:
+
+Krok 1: návštěva libovolné stránky produktu
+Krok 2: zobrazení košíku
+Krok 3: zahájení objednávky
+Krok 4: dokončená objednávka
+
+U každého kroku: počet uživatelů, kolik jich pokračovalo
+do dalšího kroku, procento propadu.
+
+Pak:
+- který krok má největší propad v absolutních číslech
+- jak se propad liší mezi mobilem a počítačem
+- jak se propad liší mezi novými a vracejícími se návštěvníky
+
+Nedomýšlej příčiny propadu z obecné znalosti e-shopů.
+Napiš jen to, co je vidět z dat, a k tomu seznam otázek,
+které bych si měl ověřit jinde.
+```
+
+Poslední odstavec je tam proto, že tady modely nejvíc sklouzávají do obecných rad o zkracování formulářů. Rozdělení na mobil a počítač bývá nejcennější řádek celé odpovědi — velká část propadů má jednoduchou příčinu, kterou uvidíte, teprve když si tu stránku na mobilu otevřete.
+
+### Co se změnilo po vydání článku
+
+```text
+Dne [datum] jsme vydali článek na adrese [URL].
+Vyhodnoť ho v property [název].
+
+1. Vývoj návštěvnosti té stránky po dnech od vydání
+   do dneška: zobrazení, uživatelé, průměrná doba.
+2. Odkud na ni lidé chodí — rozpad podle kanálu, zdroje
+   a média, včetně toho, jak se poměr mění v čase
+   (první týden proti poslednímu).
+3. Kam z ní pokračují — nejčastější další stránky.
+4. Kolik klíčových událostí se u návštěvníků té stránky
+   odehrálo.
+5. Srovnej ji s průměrem podobných stránek na webu
+   za jejich prvních [30] dní.
+
+Napiš, jestli se u ní návštěvnost už ustálila, nebo ještě
+roste, a od jakého data to tvrdíš.
+```
+
+Bod 2 je ten, kvůli kterému se to vyplatí pouštět po měsíci a ne po týdnu: článek, který první dny žije ze sociálních sítí a pak se přepne na vyhledávání, je úplně jiný typ úspěchu než ten, který po vyčerpání sdílení spadne na nulu. Bod 3 zase ukáže, jestli článek jen pobavil, nebo někam vedl.
+
+### Srovnání zdrojů proti sobě
+
+```text
+Pro property [název] porovnej kvalitu návštěvnosti podle
+zdrojů za období [posledních 90 dní].
+
+Nezajímá mě jen objem. Pro každý zdroj a médium
+s aspoň [200] uživateli spočítej:
+- počet uživatelů
+- podíl nových
+- průměrný počet stránek na relaci
+- průměrnou dobu trvání relace
+- míru zapojení
+- konverzní poměr ke klíčové události [název události]
+
+Seřaď podle konverzního poměru a označ zdroje, kde je
+konverzní poměr vysoký, ale objem tak malý, že to nemusí
+nic znamenat.
+
+Pak mi napiš tři zdroje, do kterých má smysl investovat víc,
+a u každého protiargument, proč by to mohla být chyba.
+```
+
+Práh dvou set uživatelů si nastavte podle velikosti webu. Bez něj dostanete jako nejlepší zdroj něco, odkud přišli tři lidé a jeden koupil.
+
+### Živý pohled, když se něco děje
+
+```text
+Ukaž mi v property [název] real-time data:
+kolik uživatelů je na webu teď, na kterých stránkách jsou,
+odkud přišli a z jakých zařízení.
+
+Pak porovnej, jestli to sedí na běžný provoz v tuhle
+denní dobu, nebo jestli se děje něco mimořádného.
+```
+
+Tenhle použijete zřídka a vždycky ve vypjatou chvíli: po spuštění kampaně, po odeslání newsletteru, po nasazení nové verze webu. Real-time reporty mají jiný rozsah dat než standardní, takže je nesrovnávejte přímo s běžnými čísly.
+
+## Spojit reklamu s návštěvností
+
+Tady je ta nejzajímavější část a zároveň místo, kde se nejvíc chybuje. Reklamní účet vám řekne, kolik lidí kliklo a co to stálo. Analytika vám řekne, co ti lidé potom dělali. **Každá strana zvlášť je polovina věty — a většina špatných marketingových rozhodnutí vznikne z toho, že se čte jen jedna.**
+
+### Co se dá zjistit, až když máte obě strany
+
+Kampaň s nejlevnějším proklikem bývá kampaň s nejhorší návštěvností. To je poznatek, který v reklamním účtu prostě není vidět, protože ten končí u kliknutí. Podobně: sestava s výborným CTR a nulovými objednávkami může mít problém v reklamě (slibuje něco jiného, než web nabízí) nebo na webu (vede na stránku, která nefunguje) — a rozeznat to jde jedině z chování lidí po prokliku.
+
+Konkrétně se dá odpovědět na věci jako:
+
+- Která kampaň přivádí lidi, kteří na webu skutečně něco dělají, a která jen nakupuje prokliky.
+- Jestli propad výsledků způsobila reklama, nebo web (v reklamě se nic nezměnilo, na webu ano — nebo naopak).
+- Které vstupní stránky snesou placenou návštěvnost a které ji spolehlivě spálí.
+- Jestli má kampaň smysl i tehdy, když se nedívám na poslední kliknutí — kolik lidí se vrátilo později jiným kanálem.
+
+```text
+Mám připojený reklamní účet [účet] a Google Analytics
+property [property]. Za období [1.—31. července 2026]
+mi z obou stran sestav jeden pohled.
+
+Z reklamního účtu vytáhni po kampaních: útrata, prokliky,
+CPC, výsledky, cena za výsledek.
+Z Analytics vytáhni návštěvnost z placených zdrojů,
+rozpadenou tak, aby ji šlo přiřadit k těmhle kampaním
+(podle zdroje, média a kampaně).
+
+Sestav tabulku, kde je u každé kampaně vedle sebe:
+prokliky z reklamního účtu | relace v Analytics |
+míra zapojení | průměrný počet stránek na relaci |
+klíčové události | konverzní poměr
+
+Přidej sloupec s rozdílem mezi prokliky a relacemi
+v procentech.
+
+Pak napiš, u kterých kampaní se čísla rozcházejí nejvíc,
+a odděl vysvětlení, která jsou vidět z dat, od hypotéz.
+Nesnaž se rozdíly odstranit ani zprůměrovat.
+```
+
+Vrátí obraz, který v žádném z těch dvou rozhraní neuvidíte. Poslední věta je klíčová a hned si vysvětlíme proč.
+
+### Čísla se nepotkají a je to v pořádku
+
+Tohle musí zaznít jasně, protože je to nejčastější zdroj zbytečné frustrace: **údaje z reklamního účtu a z Analytics se nikdy neshodnou přesně a je chyba to po AI chtít.** Když model odpoví, že prokliků bylo 4 210 a relací 3 480, není to rozpor k opravě, je to normální stav. Důvody jsou tři a všechny jsou strukturální.
+
+**Rozdílná atribuce.** Reklamní platforma připisuje výsledek podle vlastních pravidel — započítá i konverze po zhlédnutí reklamy bez kliknutí a měří napříč zařízeními, protože ví, kdo je kdo. Analytika ve výchozím nastavení pracuje jinak a člověka, který klikl na telefonu a koupil na počítači, obvykle rozdělí na dva. Ani jedno není špatně, jen se počítá něco jiného.
+
+**Rozdílná časová okna.** Reklamní účty konverzi typicky připíšou ke dni prokliku, i když nákup přišel o tři dny později; analytika ji zaznamená ke dni nákupu. U kampaně, která běží celý měsíc, se to částečně vyrovná, u kampaně za poslední týden vůbec ne. K tomu se přidává různá časová zóna účtu a property.
+
+**Blokování a souhlasy.** Část lidí nedá souhlas s měřením, část má blokátor, část odejde dřív, než se měřicí kód načte. Tahle ztráta se týká hlavně analytiky, protože reklamní platforma o kliknutí ví bez ohledu na to, co se stane potom. Odtud pramení většina rozdílu mezi prokliky a relacemi.
+
+Praktický důsledek: **v každém nástroji sledujte trend uvnitř toho nástroje a mezi nástroji porovnávejte pořadí, ne hodnoty.** Otázka „kolik nám ta kampaň přinesla" má dvě legitimní odpovědi a hádat se o to, která je pravdivější, je ztráta času. Otázka „která ze tří kampaní přivádí nejlepší návštěvnost" má odpověď jednu a obě strany se na ní většinou shodnou.
+
+```text
+Porovnávám kampaň [název] z reklamního účtu s návštěvností
+z Analytics za [období] a čísla se liší o [X] %.
+
+Nesnaž se ta čísla srovnat. Místo toho mi vysvětli:
+1. Které konkrétní rozdíly v metodice tenhle rozestup
+   nejspíš způsobují — atribuce, časové okno, časová zóna,
+   ztráta měření.
+2. Jestli je rozestup [X] % v mém případě obvyklý,
+   nebo podezřele velký.
+3. Co bych musel zkontrolovat, kdybych chtěl vyloučit
+   technickou chybu (chybějící parametry v odkazech,
+   přesměrování, nefunkční měření na části webu).
+4. Které závěry z těchhle dat udělat MŮŽU i přes ten rozdíl
+   a které rozhodně NE.
+
+U bodu 4 buď konkrétní, ne obecný.
+```
+
+Bod 3 je jediné místo, kde má cenu rozdíl řešit technicky. Nejčastější příčina abnormálně velkého rozestupu jsou chybějící nebo přepisované parametry v odkazech z reklamy — návštěva pak v analytice spadne do přímé návštěvnosti a kampaň vypadá, že nepřivedla nikoho.
+
+### Kdy je vinná reklama a kdy web
+
+```text
+Za posledních [60] dní klesl výkon kampaně [název].
+Pomoz mi rozhodnout, jestli je problém na straně reklamy,
+nebo na straně webu.
+
+Z reklamního účtu vytáhni po týdnech: útrata, imprese, CPM,
+prokliky, CTR, frekvence, výsledky, cena za výsledek.
+Z Analytics vytáhni po týdnech pro návštěvnost z téhle
+kampaně: relace, míra zapojení, stránky na relaci,
+konverzní poměr a chování na vstupní stránce.
+
+Postav to do jedné časové osy a odpověz:
+- Klesá CTR a frekvence roste? (vyčerpání publika)
+- Roste CPM při stejném CTR? (dražší aukce)
+- Zůstávají prokliky stejné, ale klesá zapojení
+  a konverzní poměr? (problém za prokliknutím)
+- Změnilo se něco na vstupní stránce v době propadu?
+
+U každé možnosti napiš, jestli ji data podporují, vyvracejí,
+nebo se k ní nedá vyjádřit. Nevybírej vítěze na sílu.
+```
+
+Tohle je asi nejužitečnější prompt celého článku. Diagnóza „vyčerpaná kreativa" a diagnóza „rozbitá vstupní stránka" vedou k úplně jiným krokům a rozlišit je bez obou stran nejde. Poslední věta chrání před tím, aby model určil viníka, protože se ho ptáte.
+
+## Z jednorázové otázky pravidelný report
+
+Když stejnou otázku pokládáte potřetí, přestala to být otázka a stal se z ní proces. A procesy se nemají ptát pokaždé jinak.
+
+Problém je v tom, o čem byla řeč u srovnání MCP a CLI: konverzace není reprodukovatelná. Model může příště vzít jiné období, jiné metriky, jinak to seskupit — a vy porovnáváte dva reporty, které nejsou srovnatelné, aniž byste to poznali. U měsíčního reportu pro vedení je to horší než žádný report.
+
+Postup, jak z toho ven, je popsaný v tipu [reprodukovatelná analýza dat](/tipy/reprodukovatelna-analyza-dat) a ve zkratce má tři stupně.
+
+**Stupeň jedna: zafixovaný prompt.** Report si napíšete jednou, do posledního detailu — přesná období, přesné metriky, přesné pořadí sekcí, přesný formát tabulek — a pak už ho jen kopírujete a měníte datum. Zabere to hodinu a odstraní to devadesát procent nesrovnatelnosti.
+
+```text
+Tohle je šablona mého měsíčního reportu. Použij ji přesně
+takhle, nic nepřidávej a nic nevynechávej.
+
+Období: [1.—31. srpna 2026], srovnávací období: předchozí měsíc.
+Zdroje: reklamní účet [účet], Analytics property [property].
+
+Sekce 1 — Souhrn: útrata, výsledky, cena za výsledek,
+relace z placených zdrojů, klíčové události. Hodnota, změna,
+změna v procentech. Nic víc.
+Sekce 2 — Kampaně: tabulka podle útraty, stejné sloupce
+jako minule.
+Sekce 3 — Návštěvnost: kanály, top 10 vstupních stránek.
+Sekce 4 — Co se změnilo: pět nejvýznamnějších změn,
+každá jednou větou, seřazené podle dopadu v penězích.
+Sekce 5 — K rozhodnutí: tři věci, které vyžadují moje
+rozhodnutí, s podklady.
+
+Formát: české popisky, částky v [Kč], procenta na jedno
+desetinné místo. Žádný úvod, žádný závěr, žádné rady,
+o které jsem nepožádal. U každé sekce uveď, z jakého
+zdroje a za jaké přesné období data jsou.
+```
+
+Poslední věta je pojistka. Když se v příštím měsíci něco posune, uvidíte to hned v hlavičce sekce místo toho, abyste porovnávali nesrovnatelné.
+
+**Stupeň dvě: report jako skript.** Jakmile víte, jak má report vypadat, nechte si na jeho stažení napsat skript. Čísla pak nevytahuje model, ale kód, který dělá pokaždé totéž — a model dostane hotová data a píše nad nimi komentář. To je zdravé dělení práce: **stroj počítá, model vysvětluje.**
+
+```text
+Pomoz mi udělat z mého měsíčního reportu skript,
+který se dá spustit znovu.
+
+Report vypadá takhle: [vlož zafixovaný prompt výše].
+
+Napiš mi skript, který:
+1. stáhne z reklamního účtu a z Analytics přesně ta data,
+   která report potřebuje, za období zadané parametrem,
+2. uloží je jako CSV do složky data/ s datem v názvu,
+   ať zůstane historie,
+3. spočítá srovnání s předchozím obdobím,
+4. vypíše výsledek jako markdown ve struktuře reportu.
+
+Ke každému kroku napiš komentář česky, co dělá a proč.
+Přihlašovací údaje ber z proměnných prostředí, nikdy
+je nepiš do kódu. Skript musí projít i tehdy, když
+některá metrika za dané období chybí.
+```
+
+Vrátí kostru, kterou pak doladíte. Dvě věci si ohlídejte: aby se přihlašovací údaje opravdu braly z prostředí a neskončily v souboru, který někam pošlete, a aby se stažená CSV ukládala — historie exportů je za rok cennější než samotný report, protože z ní jde dopočítat cokoli, co vás tehdy nenapadlo.
+
+**Stupeň tři: rutina.** Když skript funguje, může ho spouštět plánovaná úloha — prvního v měsíci se stáhnou data, model nad nimi napíše komentář a vy dostanete hotový podklad. Jak se rutiny stavějí, rozebírá kapitola [rutiny a agenti](/prirucka/rutiny-a-agenti). Pozor jen na jednu věc, která z lokálního GA serveru plyne: běží na vašem počítači, takže rutina proběhne, jen když je zapnutý. Kdo tohle potřebuje bez výjimky, musí report postavit nad API přímo, ne nad MCP — a to už je práce, ke které se hodí prostředí popsané v tipu [web postavený v Claude Code a nasazený na Vercel](/tipy/web-claude-code-vercel).
+
+## Co si pohlídat
+
+Reklamní účet je jediný konektor v běžné výbavě, u kterého se špatné rozhodnutí projeví okamžitou ztrátou peněz. Proto pravidla, která jinde stačí doporučit, tady platí bez výjimky.
+
+**Napřed jen čtení.** První měsíc se ptejte a nic neměňte. Naučíte se, kde model odpovídá spolehlivě a kde si domýšlí, a to se nedá zjistit jinak než zkušeností. U Google Analytics je tahle fáze vynucená sama — server umí jen číst. U Mety je to vaše rozhodnutí a stojí za to ho udělat vědomě.
+
+**Změny rozpočtu, pozastavení a spuštění kampaní vždy potvrzuje člověk.** Nikdy nezapínejte režim, ve kterém se změny v reklamním účtu provedou bez ptaní. A potvrzování berte vážně — po dvacátém dialogu člověk odklikává automaticky, a právě proto se hromadné operace mají dělat skriptem, kde je vidět celý seznam najednou, ne konverzací.
+
+**Limity patří na stranu platformy, ne na stranu agenta.** Tohle je nejdůležitější věta téhle sekce. Když napíšete do promptu „nikdy nezvyšuj denní rozpočet nad tisíc korun", není to omezení, je to přání. Skutečný limit je ten, který nastavíte ve správci reklam: strop útraty účtu, limity rozpočtu kampaní, omezení oprávnění uživatele, pod kterým je konektor přihlášený. Model se může splést, může špatně pochopit zadání, může narazit na chybu — a jediné, co v tu chvíli spolehlivě zabrání škodě, je zábrana mimo něj. **Instrukce v promptu je pravidlo, nastavení na platformě je zámek.**
+
+**Práva podle toho, co má nástroj dělat.** Když konektor slouží k reportingu, ať je přihlášený pod účtem, který má v Business Manageru čtecí roli. Nedávejte plná administrátorská práva jen proto, že je to pohodlnější — pravidlo nejmenších práv je u reklamních účtů levné na zavedení a drahé na opomenutí.
+
+**Komunitní MCP servery: jen ověřený autor.** Kolem Meta Ads i Analytics existují komunitní servery, které toho umí víc než ty oficiální. Bývají zajímavé, ale je potřeba si uvědomit, co jim dáváte: **přihlášení k reklamnímu účtu, ve kterém jsou vaše peníze**, a přístup k datům o zákaznících. Než takový server nainstalujete, chtějte vědět, kdo za ním stojí, jestli je kód veřejný, jak dlouho se udržuje a kudy tečou vaše přihlašovací údaje. Když na kteroukoli otázku neznáte odpověď, zůstaňte u oficiálních. Rozdíl mezi „umí o třicet procent víc" a „má přístup k mému rozpočtu" není souměřitelný.
+
+**Data o zákaznících jen v účtu se smluvní ochranou dat.** Přes analytiku i reklamní účet tečou informace o chování lidí. Do volného chatu nepatří a exporty s čímkoli, co jde spojit s konkrétní osobou, anonymizujte dřív, než je někam nahrajete. Širší rámec je v kapitole [AI eticky a bezpečně](/prirucka/ai-eticky-a-bezpecne).
+
+**Nechte si ukázat práci, ne jen výsledek.** U každého čísla, které skončí v reportu pro někoho jiného, se ptejte, za jaké přesné období a z jakého zdroje je. Trvá to vteřinu a je to jediná obrana proti tomu, abyste obhajovali číslo, které vzniklo omylem.
+
+## Nejčastější chyby
+
+- **Nechat model čísla odhadnout místo vytáhnout.** Když se zeptáte obecně a model nemá k datům přístup nebo se k nim z nějakého důvodu nedostane, napíše věrohodně vypadající odpověď stejně. Vždycky vyžadujte, aby uvedl zdroj a období — a když neuvede, ptejte se, odkud to má.
+- **Chtít, aby čísla z Mety a z Analytics seděla.** Nikdy sedět nebudou. Atribuce, časová okna a ztráty v měření se sečtou do rozdílu, který je normální. Kdo se ho snaží odstranit, skončí u čísla, které nesedí ani s jedním zdrojem.
+- **Rozhodovat podle procent místo podle peněz.** Nárůst ceny za konverzi o sto procent u kampaně, která utratí tisícovku, není priorita. Řaďte podle toho, kolik peněz je v sázce.
+- **Vyhodnocovat na příliš malých číslech.** Tři konverze nejsou trend a dvacet relací není chování publika. Ptejte se modelu výslovně, kde jsou čísla moc malá na závěr — sám od sebe to napíše zřídka.
+- **Spoléhat na limity napsané v promptu.** Instrukce „neutrácej víc než" model dodrží obvykle, ne vždy. Skutečné stropy patří do nastavení reklamního účtu.
+- **Instalovat komunitní konektor bez prověření autora.** Přístup k reklamnímu účtu je přístup k penězům. U neznámého autora se výhoda navíc nikdy nevyplatí.
+- **Opakovat měsíční report konverzací.** Bez zafixované šablony nebo skriptu porovnáváte dva různě sestavené reporty a myslíte si, že sledujete vývoj.
+
+## Nejlepší nástroje
+
+- **Meta Ads MCP server (`mcp.facebook.com/ads`)** — oficiální hostovaný konektor od Mety pro analýzu a ad-hoc reporting nad reklamním účtem; přihlášení přes Meta Business, bez zakládání vývojářské aplikace a bez App Review.
+- **Meta Ads CLI** — druhé rozhraní ke stejným datům, instalované přes npm; hodí se všude, kde potřebujete stejný výsledek pokaždé a hromadné operace.
+- **Google Analytics MCP server** — oficiální open source server od týmu Google Analytics pod licencí Apache 2.0; experimentální, lokální a jen pro čtení GA4 přes Admin a Data API.
+- **Claude Code** — instalace lokálního serveru podle README, psaní skriptů na pravidelné stahování dat a práce nad složkou s exporty.
+- **Tabulkový procesor nebo skript nad CSV** — místo, kde se historie exportů kupí a kde se dají spočítat věci, na které se v žádném rozhraní nedá kliknout; postup je v tipu [analýza dat s AI](/tipy/ai-analyza-dat).
+- **Správce reklam a rozhraní Analytics** — pořád je otevřete, jen mnohem míň. Konektor je na otázky, rozhraní na potvrzení toho, co jste zjistili, a na změny.
+
+## Co vám to přinese
+
+- **Čas:** měsíční report, který se skládal půl dne z exportů, se smrskne na desítky minut — a týdenní kontrola účtu na pár minut místo hodiny. U menší firmy jsou to reálně tři až pět hodin měsíčně.
+- **Peníze:** sestavy, které pálí rozpočet bez výsledku, se najdou za pár minut místo za čtvrtletí. Konkrétní úspora závisí na tom, jak je účet zanedbaný — u účtu, do kterého se dlouho nikdo pořádně nepodíval, bývá největší.
+- **Klid:** na otázku „proč jsme minulý týden utratili víc" odpovíte ještě během té otázky. To je rozdíl mezi tím, kdy reklamu řídíte, a tím, kdy ji doháníte.
+- **Kvalita rozhodnutí:** obě strany naráz ukážou věci, které v jednom rozhraní nejsou vidět — hlavně rozdíl mezi kampaní, která nakupuje prokliky, a kampaní, která přivádí lidi.
+
+## Pro tip
+
+Nejcennější věc, kterou z tohohle uspořádání dostanete, není report. Je to **archiv**. Nechte si každý měsíc ukládat surová data do CSV a nikdy je nemažte — reklamní platformy i analytika mají omezenou historii, mění strukturu dat a občas se změní i způsob, jakým něco počítají. Vaše složka s exporty tyhle změny přežije a za dva roky v ní bude ležet odpověď na otázku, která vás dneska nenapadla.
+
+A pravidlo na závěr, které v reklamě platí víc než kdekoli jinde: **konektor je oprávnění se ptát, ne oprávnění utrácet.** Model smí vidět všechno, počítat cokoli a napsat sebejistější doporučení — ale rozpočet zvyšuje člověk, kampaň zapíná člověk a odpovědnost za utracené peníze má taky člověk. Zámek nechte na platformě, rozhodnutí u sebe.

@@ -1,0 +1,486 @@
+---
+title: "Vlastní web s Claude Code, gitem a Vercelem: od nápadu po doménu"
+excerpt: "Kompletní návod s prompty na postavení a vydání webu bez cizího vývojáře: co si rozhodnout na začátku, jak nechat agenta založit projekt, proč je git záchranná síť, jak koupit a napojit doménu, jak nasadit na Vercel a co agentovi nikdy nesvěřit. Doloženo na webu, na kterém to čtete."
+category: "ai"
+platform: "vsude"
+audience: ["freelancer", "vyvojar", "marketer"]
+keys: []
+saves: "~týdny vývoje a čekání na cizí lidi"
+date: "2026-08-13"
+updated: "2026-08-13"
+---
+
+Máte co říct a nemáte kam. Šablonový nástroj vám nabídne cizí design a měsíční platbu za to, že smíte psát do svého vlastního textového pole. Vývojář vám nabídne termín za šest týdnů a cenu, která se vyplatí až u třetího projektu. Mezi tím je dnes třetí cesta: **web napsaný na míru, který spravujete vy, s agentem místo vývojářského týmu.**
+
+Tenhle návod ji popisuje celou — od rozhodnutí, na čem web postavit, přes založení projektu, git, doménu a nasazení, až po každodenní cyklus „chci změnu, za deset minut je venku". Není hypotetický: konkrétním příkladem je web, na kterém to právě čtete. Všechna čísla níž jsem vzal přímo z jeho repozitáře a rostou dál, takže až se na ně podíváte vy, budou vyšší.
+
+A hned na začátku poctivé varování, protože jinak vás to bude mrzet za týden. **Tohle není „web bez práce". Je to „web bez cizího vývojáře".** Rozdíl je zásadní. Práce zůstává: musíte vědět, co chcete, umět rozhodnout, když se vás agent zeptá, přečíst si chybovou hlášku a hlavně napsat ten obsah. Co odpadá, je čekání na někoho jiného, překlad vašich představ do zadání pro cizího člověka a stovky hodin, které byste jinak strávili učením se věcí, jež použijete jednou. Kdo čeká, že řekne „udělej mi web" a půjde na kafe, dostane přesně to, co si zaslouží: něco, co vypadá jako web, dokud to nezkusíte použít.
+
+## Vzorová situace: web, na kterém tohle čtete
+
+Zadání znělo zhruba takto: český web o produktivitě, který nezastará, s příručkou, tipy, novinkami, newsletterem a anglickou mutací. Žádný vývojářský tým, žádné předplatné redakčního systému. Autor obsahu je jeden člověk, který umí psát a rozhodovat, ale nechce trávit večery bojem s pluginy.
+
+Co z toho po několika dnech práce s agentem vzniklo, se dá změřit. Web běží na **Next.js 16.3.0**, Reactu 19.2.8, TypeScriptu a Tailwindu 4. Obsah nežije v žádné databázi — je to **716 souborů ve formátu Markdown a MDX** přímo v repozitáři: 302 tipů česky a 300 anglicky, 48 kapitol příručky v obou jazycích, osm dílů e-mailového kurzu. Aplikační kód k tomu je překvapivě malý: **29 stránkových tras, 22 komponent, 13 modulů** v adresáři `lib/`, které načítají obsah ze souborů, a tři pomocné skripty.
+
+<Stats items={[
+  {value: "235", label: "commitů v repozitáři", sub: "první z 11. srpna 2026 — historie celého webu na pár dní"},
+  {value: "716", label: "souborů s obsahem", sub: "MDX a Markdown v gitu, žádná databáze"},
+  {value: "2", label: "domény, dva jazyky", sub: "produktivni.cz a productive.tips, každá bez prefixu v adrese"},
+]} />
+
+Historie repozitáře je při tom celá pár dní dlouhá: **235 commitů, první z 11. srpna 2026.** To číslo je pro tenhle návod důležitější než všechna ostatní, protože ukazuje styl práce. Ne tři velké „hotovo", ale dvě stě malých kroků, z nichž se každý dá samostatně vrátit zpátky. K tomu patří i to, co v repozitáři není vidět na první pohled: soubor `AGENTS.md` s pravidly pro agenta, `docs/RUTINA.md` s instrukcemi pro každodenní automatizovanou redakční službu a `scripts/qa-mega.py`, který kontroluje dlouhé články dřív, než se dostanou do commitu.
+
+Zbytek návodu je popis toho, jak se k takovému stavu dostanete vy — s tím rozdílem, že vy budete mít jiný obsah a nejspíš jinou strukturu. Postup je stejný.
+
+## Co budete potřebovat
+
+Čtyři věci. Tři z nich zvládnete založit za odpoledne, čtvrtá je rozhodnutí.
+
+**Účet u GitHubu.** Sem se ukládá kód i obsah. GitHub je zároveň místo, odkud si Vercel bere, co má nasadit — bez něj by šlo nasazovat ručně, ale přišli byste o to nejlepší. Bezplatná úroveň pokrývá i soukromé repozitáře, takže nemusíte řešit, že váš rozepsaný text vidí celý internet.
+
+**Účet u Vercelu.** Vercel je hosting, který se dívá do repozitáře a při každé změně sestaví a vydá web. Má bezplatnou úroveň, která na osobní web nebo blog stačí; placené tarify řeší hlavně provoz komerčních projektů a týmové funkce.
+
+**Doména.** Jediná položka, kterou nikde nedostanete zadarmo napořád. Registruje se u registrátora na rok nebo víc a musí se obnovovat. Ceny se liší podle koncovky a registrátora natolik, že jakékoli číslo v článku by vás jen zmátlo — porovnejte si dva tři registrátory přímo.
+
+**Claude Code.** Agent, který pracuje přímo se soubory na vašem disku a spouští příkazy — na rozdíl od chatu v prohlížeči, kde si výsledky kopírujete tam a zpět. Právě tahle schopnost je celý rozdíl: agent projekt založí, napíše soubory, spustí sestavení, přečte chybovou hlášku a opraví ji. Je součástí placeného předplatného. Kdo nechce terminál, může na část práce použít Claude Cowork — desktopový režim nad složkou souborů; git a nasazení se ale dělají líp v Claude Code. Základy obojího jsou v tipu [Claude Code jako osobní automatizační motor](/tipy/claude-code-osobni-automatizace).
+
+Co nepotřebujete: umět programovat. Co potřebujete: umět číst. Když agent napíše „build selhal, chybí export ve `lib/tips.ts`", nemusíte vědět, co je export. Musíte tu větu přečíst a odpovědět „oprav to".
+
+## Rozhodnutí, která si musíte udělat sami
+
+Tohle je jediná část návodu, kterou nemůžete delegovat. Agent vám ochotně postaví cokoli, co mu popíšete — a když mu to nepopíšete, postaví, co ho napadne první. Tři otázky, které si zodpovězte dřív, než napíšete první prompt.
+
+### Na čem web stojí: generované stránky, nebo redakční systém
+
+Klasický redakční systém (WordPress a spol.) je aplikace, která běží na serveru, drží obsah v databázi a stránku sestavuje při každém načtení. Výhoda: administrace pro lidi, kteří nechtějí vidět soubor. Nevýhoda: aktualizace, pluginy, zálohy, bezpečnostní díry a hosting, který to všechno unese.
+
+Druhá cesta je **generovaný web**: stránky se sestaví jednou při nasazení a servírují se jako hotové soubory. Rychlé, levné, prakticky nerozbitné, protože není co hacknout. Nevýhodou je, že obsah se přidává jako soubor, ne přes formulář v prohlížeči — a přesně tuhle nevýhodu agent maže, protože soubor za vás založí a vyplní.
+
+### Kde bydlí obsah: v repozitáři, nebo v databázi
+
+Nejdůležitější rozhodnutí celého projektu, protože se mění nejhůř.
+
+<Matrix quadrants={[
+  {title: "Málo autorů + texty", action: "Soubory v repozitáři (MDX)", examples: "blog, návody, dokumentace, portfolio, firemní web — obsah píše jeden až tři lidé"},
+  {title: "Hodně autorů + texty", action: "Headless redakční systém", examples: "redakce s externisty, kteří nebudou nikdy pracovat s gitem, schvalovací kolečko v administraci"},
+  {title: "Málo autorů + data uživatelů", action: "Databáze (např. Supabase)", examples: "členská sekce, rezervace, e-shop — obsah vzniká akcemi návštěvníků, ne psaním"},
+  {title: "Hodně autorů + data uživatelů", action: "Plná aplikace s administrací", examples: "portál, marketplace, interní systém — tady už to není web, je to software"},
+]} />
+
+U tohohle webu vyhrály **soubory v repozitáři** a důvody jsou přenosné. Autor obsahu je jeden. Obsah je text s obrázky, ne data. Verzování je zadarmo — u každého článku je vidět, kdo, kdy a co v něm změnil, a jde se vrátit. Agent pracuje se soubory nesrovnatelně líp než s administrací v prohlížeči: vidí všech 302 tipů najednou, umí mezi nimi hledat, hromadně opravit a zkontrolovat.
+
+A jedna vlastnost navíc, na kterou přijdete až později: **ze souborů se dají levně dělat věci, které by v databázi byly projekt.** Databáze promptů na tomhle webu není žádná databáze — modul `lib/prompts.ts` při sestavení webu projde všechny články, vytáhne z nich bloky s prompty, doplní jim nadpis, pod kterým stojí, a udělá z nich prohledávatelnou knihovnu. Nikdo je nikam nezadával dvakrát.
+
+Volte databázi jen tehdy, když ji opravdu potřebujete: uživatelské účty, objednávky, obsah, který vzniká akcemi návštěvníků. Na text je to zbytečná složitost.
+
+### Jeden jazyk, nebo víc
+
+Rozhodněte se hned, i kdyby druhý jazyk měl přijít za rok. Dodělat vícejazyčnost do hotového webu znamená projít každou stránku, každý odkaz a každý nadpis. Když se s ní počítá od začátku, je to jen o jednu úroveň struktury navíc.
+
+Konkrétní řešení téhle věci má vlastní sekci níž, protože je na něm nejvíc vidět, co znamená mít web pod kontrolou.
+
+## Založení projektu
+
+Teď teprve přichází agent. Prvních deset minut rozhoduje o tom, jestli budete mít za měsíc projekt, ve kterém se vyznáte, nebo hromadu vygenerovaných souborů, kterou nikdo neudrží. Tři věci si vyžádejte hned a nesmlouvejte o nich. **Design v proměnných**, ne rozsypaný po komponentách — jinak nikdy nezměníte barvu. **Žádný cizí knihovní balík na vzhled**, protože si s ním do projektu pustíte cizí rozhodnutí, cizí aktualizace a vzhled, který má tisíc dalších webů. A **čitelnou strukturu složek**, kde se pozná, kde je obsah, kde kód a kde pomocné skripty.
+
+### Scaffold: první prompt
+
+```text
+Založ nový projekt webu v aktuální složce. Zadání:
+
+Účel: [osobní web o tématu / firemní prezentace / blog s návody].
+Sekce: [rozcestník, seznam článků, detail článku, o mně, kontakt].
+Obsah budou soubory MDX v adresáři content/, ne databáze.
+
+Technicky:
+- Next.js v aktuální verzi, TypeScript, Tailwind
+- žádná knihovna hotových komponent (bez Bootstrapu, bez MUI,
+  bez shadcn) — komponenty píšeme vlastní
+- struktura složek: app/ (stránky), content/ (obsah v MDX),
+  lib/ (načítání obsahu ze souborů), components/ (komponenty),
+  public/ (obrázky), scripts/ (pomocné skripty)
+
+Nejdřív mi napiš, jak to chceš udělat, a počkej na moje odsouhlasení.
+Až to schválím, založ projekt, spusť sestavení a ukaž mi, že projde.
+Nepiš zatím žádný obsah, stačí jedna ukázková stránka a jeden
+ukázkový článek, ať vidím, jak to spolu drží.
+```
+
+To „napiš mi nejdřív, jak to chceš udělat" je nejdůležitější věta promptu. Přečtete si plán, řeknete, co se vám nelíbí, a teprve pak se něco děje. Kontrolujte hlavně dvě věci: jestli agent nepřidal balíky, o které jste nežádali, a jestli obsah opravdu skončil v souborech, ne v poli uvnitř kódu.
+
+### Design systém v proměnných
+
+Vzhled se dělá jednou a mění se pak z jednoho místa. U tohohle webu je celý design systém v souboru `app/globals.css` — proměnné pro papírovou bílou, inkoustovou černou, tlumené šedé a jednu signální červenou, plus písma, šířka textového sloupce a časy animací. Když se ukázalo, že původní odstín červené neprošel kontrastní normou, změnila se jedna hodnota a s ní celý web.
+
+```text
+Postav design systém webu jako sadu proměnných v jednom souboru,
+ať se dá vzhled měnit z jednoho místa.
+
+Charakter: [střízlivý a textový / hravý / technický].
+Barvy: [maximálně tři — podklad, text, jedna signální barva].
+Signální barvu používej jen na interakce: odkazy, hover a jedno
+hlavní tlačítko na stránce. Nikdy jako pozadí velkých ploch.
+Písma: [jedno bezpatkové na rozhraní, jedno patkové na dlouhý text,
+jedno neproporcionální na ukázky kódu].
+
+Definuj proměnné pro barvy, písma, šířku textového sloupce,
+poloměry rohů a časy animací. U každé barvy zkontroluj kontrast
+podle WCAG AA (4.5:1 pro běžný text) a k té hodnotě napiš
+komentář s naměřeným poměrem, ať to za měsíc někdo nezesvětlí.
+
+Pak ukaž jednu stránku, kde jsou vidět všechny stavy: nadpisy,
+odstavec, odkaz, tlačítko, karta, ukázka kódu.
+```
+
+Ta ukázková stránka se všemi stavy je zlatý důl — uvidíte nesrovnalosti dřív, než se rozlezou po webu. Ověřte, že v komponentách nezůstaly natvrdo zapsané barvy: požádejte agenta, ať vyhledá všechny šestimístné barevné kódy mimo soubor s proměnnými, a co najde, ať převede.
+
+### Načítání obsahu ze souborů
+
+Třetí prompt spojí obsah se stránkami. Tohle je místo, kde web získá svou skutečnou strukturu.
+
+```text
+Přidej vrstvu, která načítá obsah ze souborů MDX v content/.
+
+Každý článek má hlavičku s poli: title, excerpt, category,
+date, updated a [další pole podle vašeho webu].
+
+V lib/ udělej modul, který:
+- načte všechny články ze složky a vrátí je jako seznam
+- umí vrátit jeden článek podle slugu (název souboru bez přípony)
+- spočítá odhad doby čtení (200 slov za minutu, bloky kódu se
+  do toho nepočítají)
+- seřadí články od nejnovějšího
+
+Seznam a detail článku ať se sestaví staticky při buildu,
+ne za běhu při každém načtení.
+
+Nakonec vysvětli v pěti větách, co se stane, když do content/
+přidám nový soubor — chci rozumět tomu, co se děje, ne to jen mít.
+```
+
+Ta poslední věta se vyplácí u každého kroku. Když si necháte v pěti větách vysvětlit mechanismus, zjistíte za měsíc sami, proč se nový článek neobjevil (skoro vždycky překlep v hlavičce nebo špatné datum), místo abyste se ptali agenta na něco, co je vidět.
+
+## Git jako záchranná síť
+
+Teď část, kvůli které netechničtí lidé projekt vzdávají. Zbytečně, protože z gitu potřebujete na začátku znát tři věci a všechny jsou jednoduché.
+
+**Commit je uložená verze celého projektu.** Ne jednoho souboru — celého. Má popisek („Přidán článek o doméně") a je z něj vidět, co přesně se od minulého uložení změnilo. Když uděláte deset commitů, máte deset bodů, do kterých se dá kdykoli vrátit. Web na tomhle serveru má takových bodů 235.
+
+**Větev je paralelní čára historie.** Hlavní větev je to, co je venku na webu. Když chcete zkusit něco velkého a nechcete rozbít živý web, uděláte si větev, tam si to rozbijte, jak chcete, a hlavní větev to nepocítí. Když se to povede, větev se do hlavní připojí. Když ne, smaže se a nikdo se nic nedozví.
+
+**Vrátit se k předchozí verzi** znamená říct „chci projekt přesně tak, jak vypadal v tomhle bodě". Tři měsíce práce se tím nezahazují — historie zůstává, jen se posunete zpátky. Právě tohle dělá z gitu záchrannou síť: nejhorší, co se může stát, je ztráta práce od posledního commitu.
+
+Z toho plyne jediné praktické pravidlo, které si odneste: **commitujte po malých krocích.** Ne večer všechno najednou, ale po každé dokončené věci. Když se něco pokazí, potřebujete se vrátit o jeden krok, ne o celý den. A popisek pište tak, aby dával smysl vám za měsíc — „Oprava" je k ničemu, „Oprava překlepů v hlavičkách tipů" je záznam.
+
+```text
+Vysvětli mi stav gitu v tomhle projektu tak, jako bych ho nikdy
+nepoužíval. Konkrétně:
+
+1. Na jaké větvi jsem a co to znamená
+2. Které soubory mám změněné a neuložené
+3. Co přesně se stane, když teď udělám commit
+4. Kolik commitů už v projektu je a kdy byl první
+
+Pak nastav .gitignore tak, aby se do repozitáře nikdy nedostaly:
+soubory s hesly a klíči (.env a varianty), stažené závislosti,
+sestavený výstup a systémové smetí.
+
+Nakonec mi napiš tři příkazy, které si mám zapamatovat, a u každého
+jednou větou, co dělá. Víc nechci.
+```
+
+Vrátí obraz projektu v lidské řeči a rovnou to nejdůležitější bezpečnostní opatření: **soubory s klíči do repozitáře nepatří.** U tohohle webu je v `.gitignore` řádek `.env*`, který vyřadí všechny varianty najednou. Zkontrolujte to hned na začátku, protože klíč, který se jednou dostane do historie, se odtamtud maže bolestivě.
+
+Druhý prompt je ten, kvůli kterému se přestanete bát:
+
+```text
+Něco jsem rozbil a chci se vrátit zpátky.
+
+Nejdřív mi ukaž posledních 10 commitů: popisek, datum a v jedné
+větě, co se v něm změnilo. U každého napiš, jestli podle tebe byl
+web v tu chvíli funkční.
+
+Pak mi vysvětli tři možnosti, které mám:
+1. zahodit jen neuložené změny a zůstat na posledním commitu
+2. vrátit obsah projektu do stavu konkrétního staršího commitu,
+   ale nechat historii nedotčenou
+3. zrušit jednu konkrétní změnu uprostřed historie
+
+U každé napiš, co se stane s mou prací a co je nevratné.
+Nic zatím nedělej. Počkej, až ti řeknu číslo.
+```
+
+To „nic zatím nedělej, počkej na číslo" je v tomhle promptu podstatné. Návrat k předchozí verzi má několik variant a některé přepisují historii — s tou se pracuje jinak a v týmu nadělá zmatek. Chcete si vybrat sami, ne se dozvědět, co se stalo.
+
+## Doména a proč má každý jazyk vlastní
+
+Doména je jméno, pod kterým vás lidé najdou, a jediná část projektu, kterou nejde snadno změnit zpátky. Vybírá se podle tří kritérií: **krátká** (aby se dala napsat bez překlepu), **vyslovitelná do telefonu** (test: řekněte ji nahlas a nechte někoho napsat, co slyšel) a **volná** — což je omezení, které vyhraje nad oběma předchozími.
+
+Obsazenost ověříte u registrátora ve vyhledávacím poli nebo přes veřejný rejstřík dané koncovky; u českých domén je to registr CZ.NIC. Pozor na past: volná doména ještě neznamená použitelná. Než ji koupíte, vyhledejte to jméno na internetu a v rejstříku ochranných známek — kolize s existující značkou se řeší dráž než změna nápadu.
+
+```text
+Hledám doménu pro [popis projektu, cílová skupina, jazyk].
+Značka by měla působit [střízlivě / hravě / odborně].
+
+Navrhni 20 kandidátů. U každého uveď:
+- jak se čte nahlas a kde hrozí překlep při diktování
+- jestli je jméno srozumitelné i bez kontextu
+- riziko záměny s existující značkou, kterou znáš
+
+Rozděl je do tří skupin: popisné (říkají, o co jde),
+značkové (vymyšlené slovo) a spojení dvou slov.
+Vyřaď všechno delší než 12 znaků, se spojovníkem, s čísly
+a všechno, co se špatně diktuje v [češtině].
+
+U pěti nejlepších navrhni i variantu pro anglickou verzi projektu.
+
+Obsazenost neověřuj a nehádej ji — tu si zkontroluju sám
+u registrátora.
+```
+
+To poslední omezení je zásadní. **Model nemá spolehlivý přehled o tom, která doména je zrovna volná**, a když ho k odpovědi dotlačíte, vymyslí si ji. Používejte ho na nápady a jazykový cit, obsazenost si ověřte v registru.
+
+### Napojení domény na Vercel
+
+Koupená doména sama o sobě neukazuje nikam. Napojení má dvě obvyklé varianty a rozdíl je v tom, kdo spravuje DNS záznamy. **Změna nameserverů** předá celou správu domény Vercelu: nastavíte to jednou u registrátora a všechno další řešíte na jednom místě. Nejjednodušší, pokud na doméně nemáte nic jiného. **Záznamy A a CNAME** znamenají, že správu si necháte u registrátora a přidáte tam jen dva záznamy: `A` pro holou doménu a `CNAME` pro `www`. Tuhle cestu zvolte, když na doméně už běží e-mail nebo něco dalšího, co nechcete stěhovat.
+
+Ať zvolíte cokoli, **propagace trvá** — od minut po desítky hodin. Není to zdržení na straně Vercelu ani registrátora: DNS je distribuovaný systém a poskytovatelé si odpovědi drží v paměti po dobu danou hodnotou TTL. Dokud staré záznamy nevyprší, část světa vidí starý stav a část nový. Praktický důsledek: **nechte doménu propagovat den dopředu, ne v den, kdy ji chcete oznámit.**
+
+Certifikát pro zabezpečené připojení se u Vercelu vystaví automaticky, jakmile záznamy sedí. Když se to nepovede, je to skoro vždycky zapomenutý druhý záznam pro `www` nebo zámek domény u registrátora.
+
+### Dvě domény, dva jazyky, žádný prefix
+
+Vícejazyčný web se obvykle dělá tak, že jazyk je součástí adresy: `web.cz/cs/clanek` a `web.cz/en/clanek`. Funguje to a je to nejjednodušší varianta.
+
+Tenhle web to má jinak. **Česká verze žije na produktivni.cz a anglická na productive.tips — a ani jedna nemá v adrese jazykový prefix.** Český čtenář vidí `produktivni.cz/tipy/...`, anglický `productive.tips/tips/...`. Uvnitř je přitom jeden jediný projekt, jeden repozitář a jedno nasazení.
+
+Řeší to soubor `middleware.ts` — kód, který se spustí u každého požadavku dřív, než se začne sestavovat stránka, a rozhodne, co se má stát. Logika je krátká:
+
+<Flow title="Co dělá middleware u každého požadavku" steps={[
+  {title: "Přečte doménu", desc: "Podívá se, jestli požadavek přišel na anglickou, nebo na českou doménu. Obě jsou v proměnných prostředí, ne natvrdo v kódu."},
+  {title: "Anglická doména", desc: "Vnitřně přepíše adresu na anglickou variantu. Návštěvník o tom neví — v adresním řádku zůstává čistá adresa bez prefixu."},
+  {title: "Česká doména", desc: "Totéž s češtinou: vnitřní přepis na českou variantu, adresa zůstává bez prefixu."},
+  {title: "Odkaz s prefixem", desc: "Když někdo přijde na anglickou adresu na české doméně, dostane trvalé přesměrování na správnou doménu. Jedna adresa, jeden obsah."},
+  {title: "První návštěva homepage", desc: "Bez uložené volby se podle jazyka prohlížeče nabídne odpovídající mutace a volba se uloží do cookie. Podruhé už se nikam nepřesměrovává."},
+  {title: "Výjimky", desc: "Obrázky, API, mapa webu a soubory s příponou se přeskakují — middleware do nich nemá co mluvit."},
+]} />
+
+Proč je to lepší než `/cs` a `/en` na jedné doméně? **Pro čtenáře** je adresa kratší a působí jako doma — `productive.tips` je anglický web, ne anglická odbočka z českého. **Pro vyhledávače** je oddělení čitelnější a koncovka domény sama nese signál o cílové zemi. A **pro vás** je to bezpečnější do budoucna: kdyby se jedna jazyková verze měla oddělit nebo přesunout jinam, je to změna nastavení, ne přestavba webu.
+
+Cena za to je jedna: dvě domény a dvě jazykové sady obsahu. Tady jsou to 302 tipy česky a 300 anglicky — to zpoždění není chyba, jen se nový text vždycky nejdřív napíše a teprve pak přeloží.
+
+```text
+Chci vícejazyčný web na dvou doménách, ne na jedné s prefixy:
+[domena.cz] = [čeština], [domain.tips] = [angličtina].
+Na obou doménách má být adresa bez jazykového prefixu.
+
+Nastav middleware tak, aby:
+- podle domény vnitřně přepsal adresu na správnou jazykovou verzi,
+  aniž by se změnila adresa v prohlížeči
+- adresu s prefixem na špatné doméně trvale přesměroval na správnou
+  doménu bez prefixu (ať existuje jen jedna platná adresa)
+- na homepage při první návštěvě bez uložené volby nabídl jazyk
+  podle prohlížeče a tu volbu si zapamatoval
+- vynechal obrázky, API, mapu webu a soubory s příponou
+- obě domény bral z proměnných prostředí, ne natvrdo z kódu,
+  ať to jde otestovat na náhledovém nasazení
+
+Doplň hreflang odkazy a kanonické adresy, aby vyhledávač věděl,
+že jde o dvě jazykové verze téhož obsahu.
+
+Až to bude, vyjmenuj mi deset adres a u každé napiš, co se s ní
+stane — chci to zkontrolovat, než to pustíme ven.
+```
+
+Ten poslední bod dělejte vždycky. Chyba ve směrování se pozná těžko, protože web funguje — jen ne pro všechny. Deset konkrétních adres s popisem chování odhalí smyčku přesměrování dřív, než na ni narazí návštěvník.
+
+## Nasazení na Vercel
+
+Nasazení je nejjednodušší část celého návodu, což lidé nečekají. Připojíte Vercel ke svému GitHub účtu, vyberete repozitář a je hotovo. Od té chvíle platí jednoduché pravidlo: **co je v hlavní větvi, to je na webu.**
+
+Nejcennější věc, kterou tím získáte, se jmenuje **náhledové nasazení**. Každá změna, která se dostane do repozitáře mimo hlavní větev, dostane vlastní dočasnou adresu s celým fungujícím webem. Není to obrázek ani popis, je to skutečný web, který si otevřete na mobilu, pošlete kolegovi a proklikáte. Teprve když sedí, se změna dostane do hlavní větve a tím do produkce.
+
+Tenhle mechanismus je důvod, proč se dá pracovat rychle a přitom bezpečně. Přestanete se rozhodovat naslepo.
+
+### Proměnné prostředí a klíče
+
+Web skoro vždycky potřebuje nějaký klíč: k newsletteru, k analytice, k službě, která za vás něco počítá. Platí jediné pravidlo a nemá výjimku: **klíče se nikdy nedávají do repozitáře.** Důvod není jen ten, že repozitář může být veřejný — i v soukromém je klíč v historii navždycky a projde přes zálohy, klony na cizích noteboocích a všechny nástroje, které si repozitář kdy stáhnou. Jakmile klíč unikne, jediné správné řešení je vygenerovat nový.
+
+Správné místo je nastavení proměnných prostředí u Vercelu, kde se dají nastavit zvlášť pro produkci a pro náhledová nasazení. Lokálně se používá soubor, který je vyloučený v `.gitignore`. U tohohle webu jsou takhle uložené klíče k newsletteru, klíč k obrázkové službě, adresa webu a obě domény pro middleware — v repozitáři je z nich vidět jen jméno proměnné, nikdy hodnota.
+
+```text
+Připrav projekt na nasazení na Vercel.
+
+1. Projdi kód a najdi všechna místa, kde se čte proměnná prostředí.
+   Udělej mi z toho tabulku: název proměnné, k čemu slouží, jestli
+   je povinná a co se stane, když chybí.
+2. Zkontroluj celou historii gitu, jestli se do ní někdy nedostal
+   soubor s klíči nebo klíč zapsaný natvrdo v kódu. Když ano,
+   napiš mi to a poraď, co s tím — sám nic nepřepisuj.
+3. Ověř, že .gitignore vylučuje všechny varianty souborů s klíči.
+4. Napiš mi seznam kroků, které mám udělat ve webovém rozhraní
+   Vercelu, včetně toho, které proměnné nastavit zvlášť pro
+   produkci a které pro náhledová nasazení.
+5. Zkontroluj, že projekt jde sestavit i bez volitelných klíčů
+   a jen se vypne příslušná funkce, místo aby spadl build.
+
+Do samotného Vercelu nic nenastavuj, jen mi připrav podklad.
+```
+
+Bod 5 se podceňuje a mstí se u prvního nasazení: web, který spadne, protože chybí klíč k analytice, je zbytečně křehký. Bod 2 udělejte hned na začátku, dokud je historie krátká.
+
+## Jak vypadá běžná změna
+
+Tohle je cyklus, který od téhle chvíle poběžíte pořád dokola. Vypadá takhle a od zadání po hotovo v produkci trvá při malé změně kolem deseti minut.
+
+<Flow title="Cyklus jedné změny" steps={[
+  {title: "Zadání", desc: "Popíšete agentovi, co chcete — výsledkem, ne technicky. Necháte si napsat plán a odsouhlasíte ho."},
+  {title: "Změna", desc: "Agent upraví soubory. Vy si prohlédnete, co přesně změnil, ne jen že to hlásí hotové."},
+  {title: "Sestavení lokálně", desc: "Build musí projít na vašem počítači. Když spadne tady, ušetříte si nasazení, které by spadlo taky."},
+  {title: "Vlastní kontrola", desc: "Otevřete si web lokálně a podíváte se na to očima. Build kontroluje, že to jde postavit, ne že to dává smysl."},
+  {title: "Commit", desc: "Uložená verze s popiskem, který dává smysl i za měsíc. Malý krok, ne celý den práce najednou."},
+  {title: "Push", desc: "Změna jde na GitHub. Vercel si jí všimne sám a začne stavět."},
+  {title: "Kontrola v produkci", desc: "Za pár desítek sekund je změna venku. Podíváte se, jestli sedí i tam — jiná data, jiná doména, jiný obsah."},
+]} />
+
+### Zadání změny
+
+```text
+Chci na webu tuhle změnu: [popis změny výsledkem, ne technicky —
+například „na kartě článku má být vidět, kdy byl naposledy
+aktualizovaný, a starší než rok ať mají tichou poznámku"].
+
+Než něco uděláš:
+1. Najdi všechna místa v projektu, kterých se to dotkne, a vypiš je
+2. Napiš, jak to chceš udělat, ve třech až pěti větách
+3. Řekni, co se tím může rozbít jinde
+4. Zeptej se na to, co v zadání není jednoznačné — nedomýšlej si
+
+Počkej na moje odsouhlasení. Až to schválím, uprav soubory,
+spusť build a napiš mi seznam změněných souborů s jednou větou
+u každého.
+```
+
+Bod 4 je nejcennější. Dobrý agent se zeptá na to, co byste jinak zjistili až z výsledku — třeba jestli má být poznámka vidět i v seznamu, nebo jen na detailu. Když se neptá nikdy, je to varovný signál, že si domýšlí.
+
+### Kontrola před commitem
+
+```text
+Než tohle uložím, projdi to se mnou.
+
+1. Ukaž mi seznam všech změněných souborů a u každého v jedné větě,
+   co se v něm změnilo a proč
+2. Spusť sestavení projektu a ukaž výstup — chci vidět i varování,
+   nejen chyby
+3. Zkontroluj, jestli mezi změnami není něco, o co jsem nežádal:
+   nový balík v závislostech, změna nastavení, smazaný soubor,
+   upravený obsah, kterého se zadání netýkalo
+4. Zkontroluj, že se do změn nedostal žádný klíč ani heslo
+
+Když je něco z bodu 3 nebo 4, napiš to jako první věc, ne až na konci.
+```
+
+Bod 3 chytí nejnepříjemnější třídu problémů: agent při opravě jedné věci „při té příležitosti" uklidil něco jiného. Většinou dobře míněné, občas ne. U dlouhých textů si sem přidejte i vlastní kontrolu — na tomhle webu tuhle roli plní skript `scripts/qa-mega.py`, který u velkých článků hlídá délku, strukturu a několik chyb, které se dělají opakovaně. Skript umí napsat agent za pět minut a ušetří vám desítky ručních kontrol.
+
+### Commit, push a kontrola venku
+
+```text
+Ulož změnu a pošli ji ven.
+
+1. Napiš mi návrh popisku commitu: jedna věta, česky, konkrétně
+   co se změnilo — ne „úpravy" a ne výčet souborů
+2. Ukaž mi ho a počkej na schválení
+3. Po schválení commitni a pošli na GitHub do větve [název větve]
+4. Napiš mi, co se teď stane na Vercelu a jak dlouho to má trvat
+5. Až bude nasazení hotové, dej mi adresu a seznam pěti konkrétních
+   míst, která si mám v produkci zkontrolovat právě kvůli téhle změně
+
+Do produkční větve netlač bez mého výslovného pokynu.
+```
+
+Bod 5 je ten, který lidé vynechávají a pak se diví. Produkce se od vašeho počítače liší: jiná doména, jiné proměnné prostředí, jiná cache, celý obsah místo ukázky. Většina chyb, které se objeví až venku, se týká právě těchhle rozdílů — nejčastěji odkazů a obrázků.
+
+Poslední řádek promptu je poslední pojistka. Změna do hlavní větve je vydání a to schvaluje člověk.
+
+## Co jde svěřit agentovi a co ne
+
+Agent, který má přístup k vašim souborům, gitu a nasazení, je mocný nástroj a mocný nástroj se používá s pravidly. Rámec je jednoduchý: **AI navrhuje, člověk schvaluje.** Konkrétně to znamená tři různé režimy pro tři různé druhy práce.
+
+**Bez ptaní.** Číst soubory, hledat v projektu, spouštět sestavení, psát a upravovat soubory v pracovním adresáři, navrhovat řešení, vysvětlovat, co dělá existující kód. Tady je nejhorší možný následek nepovedená změna, kterou zahodíte jedním příkazem — pokud máte commit, což je celý smysl předchozích sekcí.
+
+**Jen s odsouhlasením konkrétního kroku.** Instalace nových závislostí (každý balík navíc je cizí kód ve vašem projektu), změny nastavení sestavení, hromadné úpravy napříč desítkami souborů, práce s proměnnými prostředí. Tady chcete napřed vidět seznam, co se stane.
+
+**Nikdy bez výslovného pokynu, každé zvlášť.** Tři věci, u kterých je návrat drahý nebo nemožný:
+
+- **Mazání souborů.** Smazaný soubor, který nikdy nebyl v commitu, je pryč nadobro. Nikdy nepouštějte hromadné mazání „nepoužívaných" souborů — agent nevidí do vaší hlavy a rozepsaný text vypadá zvenku jako smetí.
+- **Přepis historie gitu.** Existují příkazy, které historii přepíšou nebo zahodí neuložené změny. Použité ve správné chvíli jsou užitečné, použité na cizí doporučení ve špatné chvíli spolehlivě smažou půl dne práce. Pravidlo: co přepisuje historii, spouštíte vy a víte proč.
+- **Nasazení do produkce.** Push do hlavní větve je vydání. Automatizovaný agent smí připravit změnu a otevřít ji ke schválení, ale merge dělá člověk. Přesně takhle to má na tomhle webu nastavené redakční rutina popsaná v `docs/RUTINA.md`: každý den prohledá zdroje, připraví návrhy obsahu a otevře je ke schválení — a v instrukcích má natvrdo napsané, že do výchozí větve netlačí nikdy a bez lidského schválení se nepublikuje nic.
+
+Ke stejnému rámci patří pár pravidel, která platí pokaždé, když dáváte agentovi přístup ke svým věcem — ať už jde o soubory, nebo o konektory k dalším službám:
+
+- **Napřed čtení, teprve po zkušenosti zápis.** První týden ať agent jen navrhuje a ukazuje. Právo něco změnit mu dávejte, až uvidíte, jak pracuje.
+- **Publikace, platby a mazání vždy potvrzuje člověk.** Bez výjimky, i když je to zdržení. Zdržení stojí minutu, omyl den.
+- **Limity nastavujte na straně služby, ne na straně agenta.** Instrukci lze přehlédnout, tvrdý limit v nastavení účtu ne. Platí to hlavně u čehokoli, co utrácí — podrobněji v tipu o [MCP konektorech na reklamu a analytiku](/tipy/mcp-reklama-analyza).
+- **Přidávejte jen konektory a nástroje, kterým rozumíte a které mají dohledatelného autora.** Připojením dáváte přístup ke svému účtu. Jak se vybírají a co která služba reálně umí, rozebírá tip o [MCP konektorech pro běžné nástroje](/tipy/mcp-konektory-nastroje).
+- **Citlivá data jen v placeném účtu se smluvní ochranou dat.** A i tam platí, že co nemusí ven, nejde ven.
+
+Nejlepší způsob, jak si tenhle rámec vynutit, je zapsat ho do projektu. Agent si při každém spuštění přečte soubor s pravidly a chová se podle něj — u tohohle webu to jsou `AGENTS.md` a `CLAUDE.md`.
+
+```text
+Založ v projektu soubor s pravidly pro agenta, který si přečteš
+při každém spuštění. Napiš do něj:
+
+- co je tenhle projekt a jak je uspořádaný (stručně, ať se v tom
+  vyzná i někdo, kdo ho vidí poprvé)
+- které příkazy smíš spouštět bez ptaní
+- co vždycky vyžaduje moje výslovné odsouhlasení: mazání souborů,
+  přepis historie gitu, push do hlavní větve, instalace nových
+  závislostí, změny nastavení nasazení
+- pravidlo, že klíče a hesla se nikdy nepíšou do souborů
+  v repozitáři, jen do proměnných prostředí
+- jak má vypadat popisek commitu
+- co se musí spustit před každým commitem
+
+Napiš to jako pravidla, ne jako dokumentaci. Krátké věty,
+rozkazovací způsob. Pak mi to ukaž a nech mě to upravit.
+```
+
+Ten soubor si po měsíci znovu přečtěte a doplňte o věci, na kterých jste se spálili. Je to nejlevnější způsob, jak se stejná chyba nestane podruhé — víc o téhle logice v kapitole [Procesy a automatizace](/prirucka/procesy-a-automatizace) a v tipu o [subagentech v Claude Code](/tipy/claude-subagenti-nechte-ai-ridit-ai).
+
+## Nejčastější chyby
+
+- **Začít vzhledem místo strukturou.** Dva dny laděním odstínů a pak zjistíte, že web má mít ještě kategorie, štítky a druhý jazyk — a půlka práce se dělá znovu. Nejdřív rozhodněte, co web obsahuje a jak se to prokliká, pak jak to vypadá.
+- **Nechat si poradit balík na všechno.** Každá knihovna navíc je cizí kód, cizí aktualizace a jeden další důvod, proč vám za rok spadne build. U webu, který je hlavně text, si vystačíte s překvapivě málo — tenhle má v závislostech šest položek pro běh a osm pro vývoj.
+- **Commitovat jednou denně.** Když se něco pokazí, chcete se vrátit o jeden krok. Při jednom commitu denně se vracíte o den. Malé kroky s popisky nejsou pedanterie, je to pojistka.
+- **Věřit, že „build prošel" znamená „je to dobře".** Sestavení kontroluje, že se web dá postavit. Nekontroluje, že odkaz vede správně, že se text vejde na mobil a že jste nepřehodili dva nadpisy. Očima se dívá člověk.
+- **Napsat klíč do souboru „jen na chvíli".** Ta chvíle přežije váš úmysl. Jakmile je klíč v commitu, je v historii navždycky a musí se vygenerovat nový. Nastavte `.gitignore` dřív, než napíšete první klíč.
+- **Ohlásit doménu ve stejný den, kdy jste ji napojili.** DNS propagace trvá a nejde uspěchat. Den rezervy stojí nic, poloviční publikum u oznámení stojí hodně.
+- **Nechat agenta rozhodovat o obsahu.** Agent umí připravit, přeložit, zkontrolovat a upozornit. Co se na webu objeví a pod jakým jménem, rozhoduje člověk, který za to ručí — víc v kapitole [AI eticky a bezpečně](/prirucka/ai-eticky-a-bezpecne).
+
+## Nejlepší nástroje
+
+- **Claude Code** — agent, který pracuje přímo se soubory, spouští sestavení, čte chybové hlášky a umí git. Jádro celého postupu; bez přímého přístupu k souborům by se všechno kopírovalo tam a zpět.
+- **Git a GitHub** — verzování a záloha v jednom. Historie projektu, možnost vrátit se k libovolnému bodu a zdroj, ze kterého si hosting bere, co má nasadit.
+- **Vercel** — hosting, který se dívá do repozitáře, sám staví a vydává. Náhledová nasazení u každé změny jsou to, co dělá rychlou práci bezpečnou.
+- **Next.js** — rámec, ve kterém vzniká generovaný web ze souborů. Tenhle běží na verzi 16.3.0; podstatné je, že stránky se sestaví při nasazení a servírují se jako hotové.
+- **MDX a gray-matter** — formát obsahu a čtení jeho hlaviček. Text s možností vložit do něj komponentu, plus strojově čitelná metadata nahoře, ze kterých se dělají seznamy, filtry a mapa webu.
+- **Registrátor domény** — jediná pravidelná platba v celém seznamu. Vyberte takového, u kterého snadno najdete správu DNS záznamů a prodloužení, ne toho s nejnižším prvním rokem.
+- **Vlastní kontrolní skript** — pár desítek řádků, které projdou obsah a najdou, co se u vás kazí opakovaně. Na tomhle webu hlídá délku a strukturu dlouhých článků; napsat ho umí agent za pět minut a ušetří ruční kontroly navždycky.
+- **Claude Cowork** — desktopový režim nad složkou souborů pro ty, kdo se terminálu vyhýbají. Na psaní a úpravy obsahu stačí; git a nasazení pak stejně řešíte v Claude Code.
+
+## Co vám to přinese
+
+- **Čas:** od nápadu k živému webu na vlastní doméně je to otázka dnů, ne měsíců. Běžná změna — nový článek, oprava textu, úprava rozložení — je hotová a venku za deset minut, protože nikde nečekáte na cizí kapacitu.
+- **Peníze:** odpadá měsíční platba za redakční systém a hodinová sazba za každou drobnost. Zůstává doména a případně vyšší tarif hostingu, když projekt vyroste. Nejde ale o úsporu na položce, jde o to, že drobné změny přestanou být rozhodnutí, jestli se vyplatí.
+- **Klid:** každá změna má náhled dřív, než je venku, a každý stav projektu se dá vrátit. Nejhorší možný následek chyby je ztráta práce od posledního commitu — a ta je při malých krocích v řádu minut.
+- **Kvalita:** web je váš, takže se dá zlepšovat po malých kouscích donekonečna. Kontrastní poměr barvy, který neprošel normou, se opraví změnou jedné hodnoty. Nová sekce nevyžaduje jednání s nikým. Za pár týdnů máte web, který dělá přesně to, co potřebujete, protože každý jeho detail vznikl jako odpověď na skutečný problém.
+
+## Pro tip
+
+Až budete mít web venku a projedete si cyklus změny několikrát, udělejte krok, který ho promění z projektu v provoz: **nechte agenta pracovat i tehdy, když u toho nesedíte.** Ne tak, že mu dáte klíče od produkce — tak, že dostane přesně vymezenou práci a její výsledek vám předloží ke schválení.
+
+Na tomhle webu tuhle podobu má soubor `docs/RUTINA.md`. Je to instrukce pro každodenní automatizovanou službu: prohledej zdroje, najdi dvě až pět skutečně nových a užitečných věcí, ověř je aspoň jedním důvěryhodným zdrojem, napiš je ve formátu webu, zkontroluj, že projde sestavení, a otevři to ke schválení v samostatné větvi. Do hlavní větve netlač nikdy. Když nic neprojde filtrem, neotvírej nic a napiš proč. Kvalita má přednost před frekvencí.
+
+Všimněte si, co ten soubor ve skutečnosti je: **není to nastavení nástroje, je to popsaný redakční proces.** Kdyby ho měl dělat člověk, dostal by tentýž text. To je obecné pravidlo, které přesahuje weby — dobrá automatizace vzniká tak, že si nejdřív napíšete, jak má práce vypadat, a teprve pak ji předáte. Kdo tenhle krok přeskočí, automatizuje chaos. Podrobněji je to rozebrané v kapitole [Rutiny a agenti](/prirucka/rutiny-a-agenti).
+
+A závěrečné pravidlo nad celým návodem: **agent staví, git chrání, člověk vydává.** Dokud tahle tři místa zůstanou oddělená, je nejhorší scénář nepříjemnost. Jakmile splynou — agent, který sám commituje, sám mergeuje a sám nasazuje —, přestali jste mít web a začali jste mít riziko, o kterém se dozvíte až od návštěvníků.
