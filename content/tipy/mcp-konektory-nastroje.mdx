@@ -12,7 +12,7 @@ updated: "2026-08-13"
 
 Dokud AI nemá konektory, je to chytré textové pole. Umí skvěle přemýšlet nad tím, co jí nasypete, ale nasypat to musíte vy — zkopírovat čísla z analytiky, vyexportovat příspěvky, popsat, jak vypadá vaše šablona. Konektor tenhle mezikrok maže. **Ve chvíli, kdy zapnete konektor, přestane být model komentátorem vaší práce a stane se jejím účastníkem: sáhne si do účtu, přečte skutečná data a připraví skutečný výstup.** Rozdíl v užitečnosti je řádový, a stejně tak rozdíl v tom, co si musíte pohlídat.
 
-Tenhle návod je katalog s návodem k použití. Projdeme přidání konektoru a obrazovku s oprávněními, kterou většina lidí odklikne bez čtení. Pak tři oblasti, kde konektory mění práci nejvíc: sociální sítě a obsah, tvorba grafiky, analytika a data. Nakonec ceny Gemini API a otázku, jak Gemini vůbec zapojit do Claude Coworku, když to není konektor v obvyklém smyslu. Každá sekce má prompty k okopírování.
+Tenhle návod je katalog s návodem k použití. Projdeme přidání konektoru a obrazovku s oprávněními, kterou většina lidí odklikne bez čtení. Pak tři oblasti, kde konektory mění práci nejvíc: sociální sítě a obsah, tvorba grafiky, analytika a data. Nakonec ceny Gemini API a otázku, jak ho zapojit do Claude Coworku, když to není konektor v obvyklém smyslu. Každá sekce má prompty k okopírování.
 
 Jedno rozlišení se vyplatí mít v hlavě po celý text. **Vzdálený konektor** je hostovaný server někde na internetu: připojíte URL, projdete přihlášením přes OAuth a od té chvíle běží u poskytovatele — tak fungují Buffer, Canva, Notion nebo Adobe. **Lokální konektor** běží na vašem počítači a spouští ho váš klient; tak funguje oficiální MCP server pro Google Analytics. Rozdíl není jen technický: u vzdáleného dáváte přístup ke svému účtu službě, u lokálního jen procesu na vlastním stroji. Co je MCP jako standard a jak se nastavují práva, rozebírá tip [MCP konektory: USB-C pro AI](/tipy/mcp-konektory-usb-c-pro-ai).
 
@@ -20,7 +20,7 @@ Jedno rozlišení se vyplatí mít v hlavě po celý text. **Vzdálený konektor
 
 Marek dělá marketing pro tři menší klienty. Jeho týden vypadá takhle: v pondělí stáhne z analytiky čísla a přepíše je do tabulky, v úterý připraví na příští čtrnáct dní příspěvky na sociální sítě, ve středu k nim vyrobí grafiku ve třech rozměrech, ve čtvrtek to nahraje do plánovače a v pátek napíše klientům report. Osm až deset hodin týdně, z toho odhadem sedmdesát procent přenášení dat mezi okny. Nejhorší na tom není čas, ale to, co se kvůli němu nedělá: Marek už půl roku nekontroluje, které příspěvky vlastně fungovaly, protože to znamená exportovat metriky a párovat je s texty.
 
-S konektory se ten týden překlopí. Model si čísla z analytiky přečte sám a napíše, co se změnilo. Z jednoho podkladu vznikne várka příspěvků rovnou v plánovači jako koncepty, včetně metrik z minula, podle kterých se rozhoduje, co opakovat. Grafika: jeden návrh, tři rozměry, jedním zadáním. Report za deset minut místo hodiny. Za dva měsíce klesla příprava z osmi hodin na dvě a půl, přibyla vyhodnocovací smyčka, která tam dřív nebyla vůbec, a Marek vzal čtvrtého klienta, aniž by si přidal den. Co se nezměnilo: publikuje pořád ručně, protože zveřejněný příspěvek je akce, kterou nejde vzít zpátky.
+S konektory se ten týden překlopí. Model si čísla z analytiky přečte sám a napíše, co se změnilo. Z jednoho podkladu vznikne várka příspěvků rovnou v plánovači jako koncepty, včetně metrik z minula. Grafika: jeden návrh, tři rozměry, jedním zadáním. Report za deset minut místo hodiny. Za dva měsíce klesla příprava z osmi hodin na dvě a půl, přibyla vyhodnocovací smyčka, která tam dřív nebyla, a Marek vzal čtvrtého klienta, aniž by si přidal den. Co se nezměnilo: publikuje pořád ručně, protože zveřejněný příspěvek nejde vzít zpátky.
 
 ## Jak konektor přidáte
 
@@ -28,51 +28,50 @@ Přidání konektoru je otázka dvou minut, ale ty dvě minuty rozhodují o tom,
 
 ### Vzdálený konektor z adresáře
 
-Nejjednodušší cesta. V nastavení konektorů na claude.ai najdete adresář hotových napojení, vyberete službu, kliknete na připojení a přesměruje vás to na přihlašovací obrazovku dané služby. Tam se přihlásíte svým běžným účtem a **potvrdíte seznam oprávnění**. Nikde se nezakládá vývojářská aplikace a nevzniká API klíč, který byste museli hlídat: přihlášení běží přes OAuth, tedy služba vydá klientovi časově omezené pověření vázané na váš účet a vámi odsouhlasený rozsah práv. Odebrat ho můžete kdykoli, a to nejen v nastavení konektorů, ale i na straně služby v přehledu připojených aplikací — to druhé místo je jediný seznam, který vidí i konektory, na které jste zapomněli.
+Nejjednodušší cesta. V nastavení konektorů na claude.ai najdete adresář hotových napojení, vyberete službu, kliknete na připojení a přesměruje vás to na přihlašovací obrazovku dané služby. Tam se přihlásíte svým běžným účtem a **potvrdíte seznam oprávnění**. Nikde se nezakládá vývojářská aplikace a nevzniká API klíč: přihlášení běží přes OAuth, tedy služba vydá klientovi časově omezené pověření vázané na váš účet a odsouhlasený rozsah práv. Odebrat ho můžete kdykoli — nejen v nastavení konektorů, ale i na straně služby v přehledu připojených aplikací, což je jediný seznam, který vidí i konektory, na které jste zapomněli.
 
 ### Vlastní konektor přes URL
 
 Když má služba MCP server, který v adresáři není, přidáte si ho ručně: v nastavení konektorů zvolíte „Add custom connector", vložíte URL serveru a projdete stejným přihlášením. Takhle připojujete produkty, které v adresáři zatím nejsou, interní firemní server, nebo komunitní server třetí strany.
 
-U třetí varianty zpomalte. Do řetězce mezi vás a vaše data vstupuje někdo další — a to i tehdy, když je server open source, protože běží na jeho infrastruktuře. Chtějte dohledatelného autora nebo firmu, veřejný repozitář s historií a jasně napsané, kam data tečou a co se loguje. Když aspoň jedna věc chybí, nechte to být.
+U třetí varianty zpomalte. Do řetězce mezi vás a vaše data vstupuje někdo další — i tehdy, když je server open source, protože běží na jeho infrastruktuře. Chtějte dohledatelného autora, veřejný repozitář s historií a jasně napsané, kam data tečou a co se loguje. Když jedna věc chybí, nechte to být.
 
 ### V Claude Code přes příkazovou řádku
 
 V Claude Code se konektory přidávají příkazem `claude mcp add`, a to ve dvou režimech: pro vzdálený server zadáte URL a typ přenosu, pro lokální příkaz, kterým se spouští u vás. Přesný tvar parametrů si nechte vypsat pomocí `claude mcp add --help` — je to rychlejší než hledat v dokumentaci a nemůžete se splést ve verzi.
 
 ```text
-Chci si do Claude Code přidat MCP server [název / URL nebo příkaz
-ke spuštění]. Nikdy jsem to nedělal.
+Chci si do Claude Code přidat MCP server [název / URL nebo
+příkaz ke spuštění]. Nikdy jsem to nedělal. Napiš mi:
 
-Napiš mi:
 1. Přesný příkaz a co každý jeho parametr znamená
-2. Jestli je to vzdálený, nebo lokální server, a co to pro mě
-   prakticky znamená (kam tečou data, co běží u mě)
+2. Jestli je vzdálený, nebo lokální, a co to pro mě prakticky
+   znamená (kam tečou data, co běží u mě)
 3. Co musím mít připravené předem (účet, oprávnění, prostředí)
-4. Konkrétní dotaz, kterým si po instalaci ověřím, že to funguje
+4. Dotaz, kterým si po instalaci ověřím, že to funguje
 5. Jak ho zase odeberu, kdyby se to nepovedlo
 
-Nepředpokládej, že umím programovat. Kde je riziko,
-napiš ho rovnou, ne až na konec.
+Nepředpokládej, že umím programovat. Kde je riziko, napiš
+ho rovnou, ne až na konec.
 ```
 
-Vrátí návod na míru včetně kontrolního dotazu. Bod 5 je tam schválně: instalaci, kterou neumíte vrátit, si nepouštějte. A bod 2 čtěte pozorně — u lokálního serveru se vaše data nedostanou dál než k modelu, zatímco u vzdáleného prochází ještě přes provozovatele.
+Vrátí návod na míru včetně kontrolního dotazu. Bod 5 je tam schválně: instalaci, kterou neumíte vrátit, si nepouštějte. A bod 2 čtěte pozorně — u lokálního serveru se vaše data nedostanou dál než k modelu, u vzdáleného prochází ještě přes provozovatele.
 
 ### Co znamená seznam oprávnění
 
-Obrazovka, na které služba vypisuje, co konektor smí, je jediné místo v celém procesu, kde rozhodujete vy. Všechno ostatní je klikání. Přečtěte ji celou a hledejte tři věci. **Rozsah** — „přístup ke všem vašim návrhům" je něco jiného než „přístup k návrhům ve složce X"; když služba nabízí volbu, zvolte to užší, rozšířit se dá kdykoli. **Směr** — rozlište, co jen čte, a co může zakládat, měnit nebo mazat; u konektorů, které chcete zpočátku jen na analýzu, je právo zápisu zbytečné riziko. A **účet**: u služeb s více pracovními prostory si ohlídejte, který se připojuje. Nejčastější tichá chyba je připojit osobní účet a divit se, že model nevidí firemní data — nebo naopak.
+Obrazovka, na které služba vypisuje, co konektor smí, je jediné místo v celém procesu, kde rozhodujete vy. Všechno ostatní je klikání. Přečtěte ji celou a hledejte tři věci. **Rozsah** — „přístup ke všem vašim návrhům" je něco jiného než „přístup k návrhům ve složce X"; když služba nabízí volbu, zvolte to užší. **Směr** — rozlište, co jen čte, a co může zakládat, měnit nebo mazat. A **účet**: u služeb s více pracovními prostory si ohlídejte, který se připojuje. Nejčastější tichá chyba je připojit osobní účet a divit se, že model nevidí firemní data — nebo naopak.
 
 Postup, který se osvědčuje: **první týden jen čtení.** Sledujte, jak často se model plete a v čem. Teprve pak přidejte právo zakládat koncepty. Publikaci, platbu a mazání nechte na sobě natrvalo.
 
 ## Sociální sítě a obsah
 
-Sociální sítě jsou oblast, kde konektor šetří nejvíc — a zároveň oblast, kde nejvíc bolí, když se něco pošle ven bez kontroly.
+Sociální sítě jsou oblast, kde konektor šetří nejvíc — a zároveň kde nejvíc bolí, když se něco pošle ven bez kontroly.
 
 ### Buffer: plánovač, do kterého model vidí
 
 Buffer je nástroj na plánování příspěvků napříč kanály a jeho MCP konektor pokrývá skoro celý pracovní postup. Model přes něj umí **vypsat připojené kanály**, **projít naplánované i zveřejněné příspěvky**, **založit nový příspěvek s časem publikace**, **upravit nebo smazat existující**, pracovat se **šablonami** a **nápady** a hlavně **vytáhnout souhrnné metriky za období napříč příspěvky**.
 
-Ta poslední schopnost je ta, kvůli které to celé stojí za to. Metriky jsou v každém plánovači, ale nikdo se na ně nedívá, protože porovnat dvacet příspěvků s dvaceti čísly znamená otevřít tabulku. Model to udělá jedním dotazem — a hlavně to udělá i příště. Nejčastější režim práce je ale jiný: máte jeden podklad a potřebujete z něj várku příspěvků pro několik kanálů, každý v jiné délce a jiném tónu, rozloženou do dvou týdnů.
+Ta poslední schopnost je ta, kvůli které to celé stojí za to. Metriky jsou v každém plánovači, ale nikdo se na ně nedívá, protože porovnat dvacet příspěvků s dvaceti čísly znamená otevřít tabulku. Model to udělá jedním dotazem — a hlavně i příště. Nejčastější režim práce je ale jiný: máte jeden podklad a potřebujete z něj várku příspěvků pro několik kanálů, každý v jiné délce a tónu, rozloženou do dvou týdnů.
 
 ```text
 Připrav várku příspěvků z tohohle podkladu:
@@ -115,31 +114,30 @@ pro kanál [kanál] a udělej rozbor:
 3. Totéž pro ty slabé
 4. Které rozdíly jsou skutečný vzorec a které můžou být
    náhoda kvůli malému počtu případů
-5. Tři změny, které mám zkusit příští měsíc, a jak poznám,
-   že zabraly
+5. Tři změny na příští měsíc a jak poznám, že zabraly
 
 U bodu 4 buď opatrný: když máš k nějakému tvrzení míň než
 [10] příspěvků, napiš to výslovně místo závěru.
 Vycházej jen z metrik, které jsi skutečně načetl.
 ```
 
-Vrátí rozbor, který ručně neděláte, protože je otravný. Bod 4 je tam kvůli nejčastější chybě v práci s daty ze sociálních sítí — z pěti příspěvků se vyvozuje pravidlo. Ověřte si u dvou tří příspěvků, že čísla, se kterými model pracuje, odpovídají tomu, co vidíte v rozhraní.
+Vrátí rozbor, který ručně neděláte, protože je otravný. Bod 4 je tam kvůli nejčastější chybě v práci s daty ze sociálních sítí — z pěti příspěvků se vyvozuje pravidlo. Ověřte si u dvou tří příspěvků, že čísla odpovídají tomu, co vidíte v rozhraní.
 
 ### Co agentovi svěřit a co ne
 
-**Svěřte přípravu.** Várka příspěvků z jednoho podkladu, přeformulování do jiného kanálu, vytažení témat z delšího textu, návrh kalendáře na měsíc, vyhodnocení minulého období, sjednocení tónu. Mechanická práce s vysokou návratností a nulovým rizikem — nejhorší, co se stane, je koncept, který smažete.
+**Svěřte přípravu.** Várka příspěvků z jednoho podkladu, přeformulování do jiného kanálu, vytažení témat z delšího textu, návrh kalendáře na měsíc, vyhodnocení minulého období. Mechanická práce s vysokou návratností a nulovým rizikem — nejhorší, co se stane, je koncept, který smažete.
 
-**Nesvěřujte publikaci.** Zveřejněný příspěvek nejde vzít zpátky; screenshot vznikne dřív, než ho stihnete smazat. Platí to i pro reakce na komentáře a zprávy, kde je riziko ještě vyšší, protože jde o odpověď konkrétnímu člověku v kontextu, který model nemusí znát. **AI navrhuje, člověk schvaluje** je u sociálních sítí méně zásada a víc praktické opatření. Jedna věc mezi tím: **automatické publikování naplánovaných konceptů**, které jste sami předem schválili, je legitimní — schválení proběhlo, jen s časovým odstupem. Širší postup rozebírá [obsahová továrna s AI](/tipy/obsahova-tovarna-ai) a [sociální sítě s AI](/tipy/socialni-site-s-ai).
+**Nesvěřujte publikaci.** Zveřejněný příspěvek nejde vzít zpátky; screenshot vznikne dřív, než ho stihnete smazat. Platí to i pro reakce na komentáře a zprávy, kde je riziko ještě vyšší. **AI navrhuje, člověk schvaluje** je u sociálních sítí méně zásada a víc praktické opatření. Jedna věc mezi tím: **automatické publikování naplánovaných konceptů**, které jste sami předem schválili, je legitimní — schválení proběhlo, jen s časovým odstupem. Širší postup rozebírá [obsahová továrna s AI](/tipy/obsahova-tovarna-ai) a [sociální sítě s AI](/tipy/socialni-site-s-ai).
 
 ## Tvorba grafiky
 
-Grafika je oblast, kde konektory překvapí nejvíc lidí — čeká se „AI nakreslí obrázek", a přitom je skutečná hodnota jinde: v ovládání nástroje, ve kterém už vaše grafika žije.
+Grafika je oblast, kde konektory překvapí nejvíc lidí — čeká se „AI nakreslí obrázek", a přitom je skutečná hodnota v ovládání nástroje, ve kterém už vaše grafika žije.
 
 ### Canva: práce s vašimi návrhy, ne generování z ničeho
 
 Canva MCP konektor umí **hledat ve vašich návrzích a složkách**, **přečíst obsah návrhu**, **vytvořit návrh ze značkové šablony** s doplněnými daty, **upravit existující návrh**, **změnit jeho rozměr**, **exportovat do souboru** a pracovat se **značkovými sadami** i s **komentáři**.
 
-Klíčové slovo je značková šablona. Pokud máte v Canvě šablonu s definovanými poli — nadpis, podnadpis, obrázek, logo — vyrobí z ní model deset variant s různým obsahem během chvíle. To je přesně ta práce, která nikoho nebaví: deset citátů do deseti stejných rámečků, patnáct produktových karet, čtyři varianty jednoho oznámení pro čtyři formáty.
+Klíčové slovo je značková šablona. Pokud máte v Canvě šablonu s definovanými poli — nadpis, podnadpis, obrázek, logo — vyrobí z ní model deset variant s různým obsahem během chvíle: deset citátů do deseti stejných rámečků, patnáct produktových karet, čtyři varianty oznámení pro čtyři formáty.
 
 ```text
 V Canvě najdi moji značkovou šablonu [název] a vyrob z ní
@@ -159,17 +157,16 @@ Pravidla:
 Nic nepublikuj a nic nesdílej ven.
 ```
 
-Vrátí sérii návrhů ke kontrole. Bod o nevejde se je tam z praxe: model má tendenci text zkrátit, aby to vypadalo dobře, a vy si toho všimnete až v hotovém materiálu. Zkontrolujte první a poslední kus série — chyby v mapování polí se často projeví až u dalších řádků.
+Vrátí sérii návrhů ke kontrole. Bod o nevejde se je tam z praxe: model má tendenci text zkrátit, aby to vypadalo dobře, a vy si toho všimnete až v hotovém materiálu. Zkontrolujte první a poslední kus série.
 
 ### Adobe: úpravy obrázků, video a Express
 
-Adobe konektor je z téhle trojice nejširší. **Práce s obrázky**: odstranění pozadí, ořez a změna velikosti, generativní rozšíření plátna, výběr objektu podle popisu, vyplnění plochy, vektorizace a dlouhá řada úprav expozice, barev a kontrastu. **Práce s videem**: metadata, rychlé střihy, změna rozměru, vykreslení snímku i celého výstupu, vylepšení řeči v audiu. A **tvorba v Express a Firefly**: sestavení návrhu, export do dalších formátů, práce s písmy a knihovnou materiálů.
+Adobe konektor je z téhle trojice nejširší. **Práce s obrázky**: odstranění pozadí, ořez a změna velikosti, generativní rozšíření plátna, výběr objektu podle popisu, vyplnění plochy, vektorizace a řada úprav expozice, barev a kontrastu. **Práce s videem**: metadata, rychlé střihy, změna rozměru, vykreslení snímku i celého výstupu, vylepšení řeči v audiu. A **tvorba v Express a Firefly**: sestavení návrhu, export do dalších formátů, práce s písmy a knihovnou materiálů.
 
-Prakticky se to hodí hlavně na hromadné úkony. Padesát produktových fotek, ze kterých má zmizet pozadí a mají se srovnat na stejný rozměr, je hodina ruční práce a jedno zadání pro agenta.
+Hodí se to hlavně na hromadné úkony. Padesát produktových fotek, ze kterých má zmizet pozadí a mají se srovnat na stejný rozměr, je hodina ruční práce a jedno zadání pro agenta.
 
 ```text
-Ve složce [cesta / název složky v úložišti] je [50] fotek
-produktů. Zpracuj je takhle:
+Ve složce [cesta] je [50] fotek produktů. Zpracuj je takhle:
 
 1. U každé odstraň pozadí
 2. Ořízni na obsah a doplň jednotný okraj [8] procent
@@ -177,14 +174,13 @@ produktů. Zpracuj je takhle:
 4. Ulož jako [PNG s průhledností] do složky [cíl],
    název zachovej a přidej příponu -clean
 
-Než začneš, udělej první tři kusy a ukaž mi je —
-až je odsouhlasím, pusť zbytek.
-Kde se odstranění pozadí nepovede čistě (vlasy, průhledné
-materiály, tenké detaily), soubor přeskoč a dej ho
-do seznamu k ručnímu dodělání.
+Než začneš, udělej první tři kusy a ukaž mi je — až je
+odsouhlasím, pusť zbytek. Kde se odstranění pozadí nepovede
+čistě (vlasy, průhledné materiály, tenké detaily), soubor
+přeskoč a dej ho do seznamu k ručnímu dodělání.
 ```
 
-Vrátí nejdřív tři vzorky a po schválení zbytek. Zastávka po třech kusech je nejlevnější pojistka v celém článku — u dávkových operací se chyba v nastavení projeví padesátkrát. Seznam k ručnímu dodělání berte vážně: automatické odstranění pozadí selhává na vlasech a průhledných materiálech spolehlivě.
+Vrátí nejdřív tři vzorky a po schválení zbytek. Zastávka po třech kusech je nejlevnější pojistka v celém článku — u dávkových operací se chyba v nastavení projeví padesátkrát. Automatické odstranění pozadí navíc selhává na vlasech a průhledných materiálech spolehlivě.
 
 ### Lucid: diagramy, které se nekreslí ručně
 
@@ -211,13 +207,13 @@ Vrátí diagram a seznam děr. Ten seznam bývá cennější než obrázek — p
 
 ### Kde je AI v grafice silná a kde ne
 
-**Silná je v mechanice.** Varianty téhož ve dvaceti provedeních. Přeformátování jednoho návrhu do pěti rozměrů. Hromadné úpravy podle jednoho pravidla. Doplnění dat do šablony. Ořezy, pozadí, exporty, přejmenování. Úkoly, kde je člověk pomalejší a dělá víc chyb, protože ho to po dvacáté přestane bavit.
+**Silná je v mechanice.** Varianty téhož ve dvaceti provedeních. Přeformátování návrhu do pěti rozměrů. Hromadné úpravy podle jednoho pravidla. Doplnění dat do šablony. Ořezy, pozadí, exporty, přejmenování. Úkoly, kde je člověk pomalejší a dělá víc chyb, protože ho to po dvacáté přestane bavit.
 
 **Slabá je v tom, co dělá grafiku grafikou.** Originalita, nápad, který se nedá odvodit z ničeho existujícího, cit pro to, co se k vaší značce hodí. Model nemá vkus, má statistiku — a statistika vrací průměr. Když mu zadáte „udělej to hezky", dostanete něco, co vypadá jako všechno ostatní. Z toho plyne dělba práce: **rozhodnutí o vzhledu udělá člověk jednou a napíše je do šablony nebo do stylového zadání, model je pak aplikuje donekonečna** — přesně tenhle postup rozebírá tip o [automatickém generování obrázků](/tipy/gemini-api-obrazky-automaticky).
 
 ## Analytika a data
 
-Analytika je oblast, kde jsou konektory nejvíc podceněné, protože práce s daty vypadá jako něco, co potřebuje specialistu. Většinou potřebuje jen někoho, kdo se zeptá.
+Analytika je oblast, kde jsou konektory nejvíc podceněné, protože práce s daty vypadá jako něco pro specialistu. Většinou potřebuje jen někoho, kdo se zeptá.
 
 ### Google Analytics: oficiální, lokální a jen pro čtení
 
@@ -229,17 +225,15 @@ Nabízí zhruba šest nástrojů: **souhrny účtů a properties**, **detail kon
 
 ```text
 Podívej se do mé GA4 property [název nebo ID] a odpověz mi
-na tři věci za období [1.–31. července 2026] oproti
-[předchozímu měsíci]:
+za období [1.–31. července 2026] oproti [předchozímu měsíci]:
 
-1. Co se změnilo v návštěvnosti — celkem, po kanálech
+1. Co se změnilo v návštěvnosti — celkem i po kanálech
    (organic, direct, referral, paid, social), v procentech
    i v absolutních číslech
 2. Které stránky získaly nejvíc a které nejvíc ztratily,
    deset a deset, s čísly
 3. U tří největších změn napiš, jaká vysvětlení připadají
-   v úvahu — a u každého, jak bych ho ověřil dalším dotazem
-   do dat
+   v úvahu a jak bych je ověřil dalším dotazem do dat
 
 Pravidla:
 - neuváděj procentní změnu u čísel pod [100] návštěv,
@@ -248,39 +242,35 @@ Pravidla:
 - kde ti nějaká metrika chybí, napiš to místo odhadu
 ```
 
-Vrátí přehled, který v rozhraní analytiky poskládáte za dvacet minut klikání. Bod o malých číslech je tam proto, že skok z tří na devět návštěv je „nárůst o 200 procent" a v reportu vypadá jako událost. Bod o rozlišení závěru a dat čtěte pozorně — model rád vysvětluje, i když k vysvětlení nemá podklad.
+Vrátí přehled, který v rozhraní analytiky poskládáte za dvacet minut klikání. Bod o malých číslech je tam proto, že skok z tří na devět návštěv je „nárůst o 200 procent" a v reportu vypadá jako událost. A model rád vysvětluje, i když k vysvětlení nemá podklad — proto to rozlišení závěru a dat.
 
-Stejným způsobem se ptá na funnel: „sestav funnel od [vstupní stránka] přes [mezikroky] k [cíl] za posledních 90 dní, porovnej mobil a desktop, porovnej organic a paid a u největšího propadu napiš tři hypotézy a ke každé dotaz do dat, který ji potvrdí nebo vyvrátí." Ověřte si přitom, že mezikroky odpovídají skutečným událostem ve vašem měření — nejčastější chyba není v analýze, ale v tom, že se měří něco jiného, než si myslíte. Navazuje na to tip [analýza dat s AI](/tipy/ai-analyza-dat); co jde v reklamních účtech, rozebírá sesterský článek [MCP pro reklamu a analýzu](/tipy/mcp-reklama-analyza).
+Stejným způsobem se ptá na funnel: „sestav funnel od [vstupní stránka] přes [mezikroky] k [cíl] za posledních 90 dní, porovnej mobil a desktop i organic a paid a u největšího propadu napiš tři hypotézy a ke každé dotaz do dat, který ji potvrdí nebo vyvrátí." Ověřte si přitom, že mezikroky odpovídají skutečným událostem ve vašem měření — nejčastější chyba není v analýze, ale v tom, že se měří něco jiného, než si myslíte. Navazuje na to tip [analýza dat s AI](/tipy/ai-analyza-dat); co jde v reklamních účtech, rozebírá sesterský článek [MCP pro reklamu a analýzu](/tipy/mcp-reklama-analyza).
 
 ### Notion, Drive a Supabase: kde bydlí zbytek odpovědí
 
 Analytika odpoví na „kolik", ne na „proč". To „proč" bývá v poznámkách, dokumentech a databázích.
 
-**Notion konektor** umí vyhledávat napříč pracovním prostorem, číst stránky, zakládat a upravovat je, dotazovat se do databází a pracovat s komentáři. Praktická hodnota není v psaní do Notionu, ale ve čtení z něj: firemní paměť, ve které nikdo nic nenajde, se změní na něco, čemu jde položit otázku. **Google Drive konektor** hledá v souborech podle významu, čte jejich obsah, vrací metadata a oprávnění a umí zakládat nové soubory.
-
-**Supabase konektor** je pro ty, kdo mají vlastní databázi: vypíše tabulky a rozšíření, spustí SQL dotazy, přečte logy, vrátí bezpečnostní a výkonnostní doporučení, vygeneruje typy a spravuje migrace. Pozor: spouštění SQL je mocné a nevratné — dotazy, které něco mění, si nechte na sebe.
+**Notion konektor** umí vyhledávat napříč pracovním prostorem, číst stránky, zakládat a upravovat je, dotazovat se do databází a pracovat s komentáři. Hodnota není v psaní do Notionu, ale ve čtení z něj: firemní paměť, ve které nikdo nic nenajde, se změní na něco, čemu jde položit otázku. **Google Drive konektor** hledá v souborech podle významu, čte obsah, vrací metadata a oprávnění a zakládá nové soubory. **Supabase konektor** je pro ty, kdo mají vlastní databázi: vypíše tabulky a rozšíření, spustí SQL dotazy, přečte logy, vrátí bezpečnostní doporučení, vygeneruje typy a spravuje migrace — pozor, spouštění SQL je mocné a nevratné, takže dotazy, které něco mění, si nechte na sebe.
 
 ```text
-Připrav mi měsíční report pro [klienta / vedení] za [měsíc].
-Použij k tomu analytiku a naše poznámky:
+Připrav mi měsíční report pro [klienta] za [měsíc]:
 
 1. Z GA4 property [název]: návštěvnost celkem a po kanálech,
    deset nejnavštěvovanějších stránek, konverze [událost] —
    všechno oproti minulému měsíci
 2. Z Notionu ze stránky [název]: co jsme tenhle měsíc
    spustili nebo změnili, s daty
-3. Spoj to dohromady: u každé větší změny v číslech napiš,
-   jestli se časově kryje s něčím z bodu 2
+3. U každé větší změny v číslech napiš, jestli se časově
+   kryje s něčím z bodu 2
 
 Formát: dvě strany, nejdřív shrnutí na pět vět, pak čísla,
 pak co z toho plyne pro příští měsíc.
 
-Nezaměňuj časovou shodu za příčinu — kde se něco kryje,
-napiš „kryje se s", ne „způsobilo". U každého čísla uveď,
-odkud je.
+Nezaměňuj časovou shodu za příčinu — kde se něco kryje, napiš
+„kryje se s", ne „způsobilo". U každého čísla uveď, odkud je.
 ```
 
-Vrátí report, který má víc hodnoty než tabulka s čísly, protože propojuje data s tím, co jste dělali. Věta o časové shodě je nejdůležitější řádek promptu — bez ní vznikne report plný kauzalit, které nikdo neověřil, a to je horší než report bez závěrů.
+Vrátí report, který má víc hodnoty než tabulka s čísly, protože propojuje data s tím, co jste dělali. Věta o časové shodě je nejdůležitější řádek promptu — bez ní vznikne report plný neověřených kauzalit.
 
 ## Gemini API: kdy sáhnout vedle Claude
 
@@ -292,7 +282,7 @@ API klíč je řetězec znaků, kterým se váš program prokazuje službě. Nen
 
 ### Ceník k srpnu 2026
 
-Tenhle web ceny služeb běžně neuvádí, protože zastarávají rychleji než texty. U Gemini API dělám výjimku, protože bez čísel se nedá rozhodnout, jestli se dávková úloha vyplatí. **Ceny jsou k srpnu 2026, mění se, a aktuální ceník je vždy na `ai.google.dev/gemini-api/docs/pricing`.** Berte to jako řádovou orientaci, ne jako závazek. A dvě věci k pochopení: **u textových modelů se platí za tokeny, ne za dotazy** — token je zhruba kus slova, takže dlouhý vstup stojí víc než krátký bez ohledu na to, kolikrát se ptáte — zatímco **u obrázků se platí za obrázek** podle rozlišení.
+Tenhle web ceny služeb běžně neuvádí, protože zastarávají rychleji než texty. U Gemini API dělám výjimku, protože bez čísel se nedá rozhodnout, jestli se dávková úloha vyplatí. **Ceny jsou k srpnu 2026, mění se, a aktuální ceník je vždy na `ai.google.dev/gemini-api/docs/pricing`.** Berte je jako řádovou orientaci. A dvě věci k pochopení: **u textových modelů se platí za tokeny, ne za dotazy** — token je zhruba kus slova, takže dlouhý vstup stojí víc než krátký — zatímco **u obrázků se platí za obrázek** podle rozlišení.
 
 Textové modely, cena v dolarech za milion tokenů, standardní tarif:
 
@@ -320,22 +310,21 @@ Obrázky se účtují za kus podle rozlišení:
 
 Modely Flash Image se dají potkat pod přezdívkou Nano Banana 2, silnější Pro Image jako Nano Banana Pro. Sto ilustrací v rozlišení 1K tedy stojí kolem sedmi dolarů u levnější varianty a kolem třinácti u silnější — částka, u které se nevyplatí přemýšlet, ale u tisíce obrázků už ano.
 
-**Video** je jiná liga. Veo 3.1 stojí zhruba 0,40 USD za sekundu výsledného videa v rozlišení 720p i 1080p a 0,60 za 4K; rychlejší varianta začíná kolem 0,10 za sekundu. Osmisekundový klip vyjde na jednotky dolarů, za minutu videa už platíte řádově dvacet dolarů a víc.
+**Video** je jiná liga. Veo 3.1 stojí zhruba 0,40 USD za sekundu videa v rozlišení 720p i 1080p a 0,60 za 4K; rychlejší varianta začíná kolem 0,10 za sekundu. Osmisekundový klip vyjde na jednotky dolarů, za minutu videa už platíte řádově dvacet dolarů a víc.
 
 **Dávkové zpracování** stojí zhruba polovinu. Je to režim, kdy úlohu nepošlete jako otázku s okamžitou odpovědí, ale jako dávku s tím, že výsledek přijde později. Pro cokoli, co nemusí odpovědět hned — hromadné přepisy, klasifikace tisíců záznamů, generování variant textů — je to nejjednodušší způsob, jak snížit účet na polovinu.
 
 ### Jak si pohlídat útratu
 
-Nejčastější nepříjemná zkušenost s API není chybný výstup, ale účet. Vzniká vždycky stejně: skript v cyklu, chyba v podmínce, tisíc volání místo deseti. Obrana má tři vrstvy. **Rozpočtový limit a upozornění v Google Cloud** — v projektu, ke kterému je klíč vázaný, nastavte měsíční rozpočet a upozornění na padesáti, devadesáti a sto procentech; chodí mailem a zastihnou vás, i když skript pustil někdo jiný. **Strop v samotném skriptu** — počítadlo volání s pevným maximem, deset řádků kódu, které zabrání tomu nejhoršímu. A **zkušební běh na malém vzorku**: než pustíte dávku na tisíc položek, pusťte ji na pět, nejen kvůli ceně, ale hlavně proto, že u pěti položek uvidíte, jestli výstup vypadá, jak má.
+Nejčastější nepříjemná zkušenost s API není chybný výstup, ale účet. Vzniká vždycky stejně: skript v cyklu, chyba v podmínce, tisíc volání místo deseti. Obrana má tři vrstvy. **Rozpočtový limit a upozornění v Google Cloud** — v projektu, ke kterému je klíč vázaný, nastavte měsíční rozpočet a upozornění na padesáti, devadesáti a sto procentech; chodí mailem a zastihnou vás, i když skript pustil někdo jiný. **Strop v samotném skriptu** — počítadlo volání s pevným maximem. A **zkušební běh na malém vzorku**: než pustíte dávku na tisíc položek, pusťte ji na pět, hlavně proto, že u pěti položek uvidíte, jestli výstup vypadá, jak má.
 
 ```text
 Chci přes Gemini API zpracovat [popis úlohy — např. vygenerovat
-ilustrace k 200 článkům / přepsat 60 hodin záznamů / roztřídit
-5000 komentářů].
+ilustrace k 200 článkům / roztřídit 5000 komentářů].
 
 Spočítej mi odhad nákladů:
-1. Jaký typ účtování se na tuhle úlohu vztahuje
-   (tokeny / za obrázek / za sekundu videa)
+1. Jaký typ účtování se na úlohu vztahuje (tokeny / za obrázek
+   / za sekundu videa)
 2. Odhad objemu — u textu odhadni počet tokenů na vstupu
    i výstupu a napiš, z čeho odhad vychází
 3. Cenu při standardním zpracování a při dávkovém
@@ -351,23 +340,23 @@ Poslední dva řádky jsou zásadní. Ceny modelů se mění často a model si j
 
 ## Jak Gemini dostat do Coworku
 
-Tady je potřeba být poctivý, protože se to často popisuje nepřesně. **Gemini API není datový zdroj, je to model.** Konektor typu Gmail nebo Notion existuje proto, že za ním jsou vaše data — pošta, stránky, soubory. Za Gemini API žádná vaše data nejsou; je to druhý mozek vedle toho, se kterým už mluvíte. Proto se nedá zapnout jako „konektor na Gemini" v tom smyslu, v jakém zapínáte Drive. Smysl to ale dává ve dvou podobách.
+Tady je potřeba být poctivý, protože se to často popisuje nepřesně. **Gemini API není datový zdroj, je to model.** Konektor typu Gmail nebo Notion existuje proto, že za ním jsou vaše data. Za Gemini API žádná vaše data nejsou; je to druhý mozek vedle toho, se kterým už mluvíte. Proto se nedá zapnout jako „konektor na Gemini" v tom smyslu, v jakém zapínáte Drive. Smysl to dává ve dvou podobách.
 
 ### Cesta A: skript nad API klíčem
 
-Nejčistší a nejpoužívanější varianta. Necháte si napsat krátký skript, který umí jednu věc — zavolat Gemini API s vaším klíčem a uložit výsledek do souboru. Claude Cowork nebo Claude Code pak ten skript spustí jako každý jiný nástroj ve složce. Klíč se bere z proměnné prostředí a modelu se nikdy neukáže. Výhody jsou tři: **klíč zůstává u vás**, **chování je předvídatelné**, protože skript dělá přesně to, co je v něm napsané, a **výsledek je opakovatelný** — stejný vstup, stejné nastavení, stejný výstup i za rok.
+Nejčistší varianta. Necháte si napsat krátký skript, který umí jednu věc — zavolat Gemini API s vaším klíčem a uložit výsledek do souboru. Claude Cowork nebo Claude Code ho pak spustí jako každý jiný nástroj ve složce; klíč se bere z proměnné prostředí a modelu se nikdy neukáže. Výhody jsou tři: **klíč zůstává u vás**, **chování je předvídatelné** a **výsledek je opakovatelný** — stejný vstup, stejné nastavení, stejný výstup i za rok.
 
 Přesně takhle vznikají ilustrace na tomhle webu. V repozitáři je soubor `scripts/generate-images.mjs` a princip se dá popsat v pěti bodech.
 
 **Stylové zadání je konstanta v souboru.** Nahoře ve skriptu je odstavec, který popisuje výtvarný styl webu — kresba perem na bílém pozadí, jediná červená akcentová linka, žádné výplně a stíny, poměr 16:9. Tenhle text se ke každému obrázku připojí doslova, znak po znaku. Konzistence nevzniká v modelu, vzniká tím, že se zadání nemění náhodou.
 
-**Motiv se bere z článku.** Skript projde složku s články, z každého vytáhne titulek a perex z hlavičky a složí z nich větu o předmětu ilustrace. Nikdo motiv nevymýšlí zvlášť.
+**Motiv se bere z článku.** Skript projde složku s články, z každého vytáhne titulek a perex z hlavičky a složí z nich větu o předmětu ilustrace.
 
 **Klíč je v proměnné prostředí.** Skript ho čte z prostředí a když chybí, skončí s chybovou hláškou. V repozitáři není a nikdy nebyl — model, který skript spouští, ho nevidí.
 
 **Volání modelu je jeden požadavek.** Skript pošle na koncový bod Gemini API text a nastavení, že chce zpět obrázek v poměru 16:9. Název modelu jde přebít proměnnou prostředí, takže přechod na novější model je změna jednoho řádku.
 
-**Výstup jde do složky, ne na web.** Obrázek se uloží jako PNG pod názvem odpovídajícím článku; převod do WebP, tedy do formátu, který se servíruje čtenářům, je samostatný krok — schválně, protože mezi generováním a publikací má být místo, kde se člověk podívá a rozhodne. Skript navíc přeskakuje články, které obrázek už mají, takže se dá pustit opakovaně. To je celý bezpečnostní model téhle cesty: **generuje stroj, publikuje člověk.** Podrobněji je postup v tipu [obrázky pro projekt automaticky](/tipy/gemini-api-obrazky-automaticky).
+**Výstup jde do složky, ne na web.** Obrázek se uloží jako PNG pod názvem článku; převod do WebP, tedy do formátu, který se servíruje čtenářům, je samostatný krok — schválně, protože mezi generováním a publikací má být místo, kde se člověk podívá a rozhodne. Skript navíc přeskakuje články, které obrázek už mají, takže se dá pustit opakovaně. To je celý bezpečnostní model téhle cesty: **generuje stroj, publikuje člověk.** Podrobněji v tipu [obrázky pro projekt automaticky](/tipy/gemini-api-obrazky-automaticky).
 
 Takový skript si necháte napsat jedním zadáním:
 
@@ -381,8 +370,7 @@ Požadavky:
   když chybí, skript skončí s jasnou hláškou
 - klíč se nikde nevypisuje do logu ani do výstupu
 - vstupy bere ze složky [cesta], výstupy ukládá do [cesta]
-- položku, která už výstup má, přeskočí — ať se dá skript
-  pustit opakovaně
+- položku, která už výstup má, přeskočí
 - bez argumentů projde všechno, s argumenty jen zadané položky
 - počítadlo volání se stropem [50]; při překročení skončí
 - při chybě u jedné položky pokračuje dál a na konci vypíše
@@ -394,15 +382,13 @@ a co potřebuje nastavené. Kód komentuj česky. Po dopsání mi
 vysvětli, co dělá každá část, jako bych programovat neuměl.
 ```
 
-Vrátí hotový skript s komentáři a vysvětlením. Tři věci zkontrolujte dřív, než ho pustíte na celou dávku: že klíč opravdu není nikde v kódu, že strop na počet volání existuje a funguje, a že se skript dá pustit na jednu položku. Vysvětlení na konci není zdvořilost — skript, kterému nerozumíte, nemáte pouštět na věci, které něco stojí.
-
-Pokud tuhle cestu chcete rozšířit do celého projektu, navazuje na ni sesterský článek [web s Claude Code a Vercelem](/tipy/web-claude-code-vercel).
+Vrátí hotový skript s komentáři a vysvětlením. Tři věci zkontrolujte dřív, než ho pustíte na celou dávku: že klíč opravdu není nikde v kódu, že strop na počet volání funguje, a že se skript dá pustit na jednu položku. Vysvětlení na konci není zdvořilost — skript, kterému nerozumíte, nemáte pouštět na věci, které něco stojí. Rozšíření téhle cesty do celého projektu popisuje sesterský článek [web s Claude Code a Vercelem](/tipy/web-claude-code-vercel).
 
 ### Cesta B: MCP server třetí strany
 
-Druhá varianta je najít MCP server, který Gemini API zabalí do nástroje, a připojit ho jako vlastní konektor přes URL. Existují komunitní i hostované varianty a technicky to funguje: model pak umí „zeptej se Gemini" jako každou jinou schopnost.
+Druhá varianta je najít MCP server, který Gemini API zabalí do nástroje, a připojit ho jako vlastní konektor přes URL. Existují komunitní i hostované varianty a model pak umí „zeptej se Gemini" jako každou jinou schopnost.
 
-Cena za to pohodlí je konkrétní: **dáváte svůj API klíč cizí službě.** Kdo klíč má, může na váš účet utrácet, bez ohledu na to, jak dobré má autor úmysly — stačí, aby měl špatně zabezpečený server. U serveru, který si sami spustíte lokálně ze zdrojového kódu, je riziko menší, protože klíč zůstává u vás; u hostovaného je plné. Minimum opatření: **samostatný klíč** jen pro tenhle účel, **nízký rozpočtový limit**, **dohledatelný autor** a veřejný repozitář a **pravidelná kontrola spotřeby**, protože zneužitý klíč se pozná jedině na účtu.
+Cena za to pohodlí je konkrétní: **dáváte svůj API klíč cizí službě.** Kdo klíč má, může na váš účet utrácet, bez ohledu na to, jak dobré má autor úmysly — stačí, aby měl špatně zabezpečený server. U serveru, který si sami spustíte lokálně ze zdrojového kódu, je riziko menší; u hostovaného je plné. Minimum opatření: **samostatný klíč** jen pro tenhle účel, **nízký rozpočtový limit**, **dohledatelný autor** a **pravidelná kontrola spotřeby**, protože zneužitý klíč se pozná jedině na účtu.
 
 U většiny reálných potřeb je cesta A jednodušší, levnější a bezpečnější. Cesta B dává smysl hlavně tehdy, když chcete Gemini používat konverzačně a průběžně, ne dávkově.
 
@@ -410,19 +396,19 @@ U většiny reálných potřeb je cesta A jednodušší, levnější a bezpečn�
 
 Konektor znamená, že modelu dáváte přístup ke svým datům a v některých případech i právo něco změnit. Pravidla, která z toho plynou, jsou pořád stejná a je jich pět.
 
-**Napřed čtení, teprve po zkušenosti zápis.** První týden s novým konektorem se ptejte výhradně na věci, které nic nemění. Zjistíte, v čem se model plete, a to nejde získat jinak než používáním.
+**Napřed čtení, teprve po zkušenosti zápis.** První týden se ptejte výhradně na věci, které nic nemění. Zjistíte, v čem se model plete, a to nejde získat jinak než používáním.
 
 **Publikace, platby, změny rozpočtu kampaně a mazání vždy potvrzuje člověk.** Zásada „AI navrhuje, člověk schvaluje" není opatrnost, je to dělba práce. Model je dobrý v přípravě a špatný v posouzení následků, protože následky nevidí.
 
 **U reklamních účtů nastavte limity rozpočtu na straně platformy, ne na straně agenta.** Limit v promptu je prosba, limit v nastavení účtu je pravidlo.
 
-**U vlastních a komunitních MCP serverů instalujte jen to, čemu rozumíte a co má dohledatelného autora.** Dáváte jim přihlášení ke svému účtu. Open source neznamená bezpečné — znamená jen, že si to teoreticky můžete přečíst.
+**U vlastních a komunitních MCP serverů instalujte jen to, čemu rozumíte a co má dohledatelného autora.** Dáváte jim přihlášení ke svému účtu. Open source neznamená bezpečné — jen to, že si to teoreticky můžete přečíst.
 
 **Citlivá data jen v placeném účtu se smluvní ochranou dat.** Osobní údaje, zdravotní informace, mzdy, obchodní tajemství — a i tam v nejmenším nutném rozsahu; co jde agregovat nebo anonymizovat, agregujte a anonymizujte. Širší rámec je v kapitole [AI eticky a bezpečně](/prirucka/ai-eticky-a-bezpecne).
 
 ### Když konektor selže nebo vrátí prázdno
 
-Stane se to a v devíti případech z deseti to není porucha. **Prázdná odpověď** obvykle znamená jiný rozsah, než si myslíte — model hledal v jiném období, pracovním prostoru, property nebo složce; nechte si vypsat, co konkrétně hledal. **Chyba oprávnění** znamená, že jste při připojení odsouhlasili užší rozsah, a řeší se odpojením a novým připojením, ne přemlouváním modelu. **Chyba autentizace** znamená vypršené pověření: odpojit, připojit, hotovo.
+Stane se to a v devíti případech z deseti to není porucha. **Prázdná odpověď** obvykle znamená jiný rozsah, než si myslíte — model hledal v jiném období, prostoru, property nebo složce; nechte si vypsat, co konkrétně hledal. **Chyba oprávnění** znamená, že jste při připojení odsouhlasili užší rozsah, a řeší se odpojením a novým připojením. **Chyba autentizace** znamená vypršené pověření: odpojit, připojit, hotovo.
 
 Nejhorší varianta je, **když konektor vrací nesmysly, ale nehlásí chybu**. Poznáte to jedině tak, že si namátkou ověříte dvě tři čísla přímo v rozhraní služby. Tuhle kontrolu dělejte u každého nového konektoru a pak periodicky.
 
@@ -445,31 +431,21 @@ Vrátí popis, ze kterého je obvykle hned vidět, kde to uteklo — typicky šp
 
 - **Zapnout deset konektorů naráz.** Ztratíte přehled, odkud data přišla, a při první divné odpovědi vypnete všechno. Jeden konektor, týden na čtení, pak další.
 - **Odklikat obrazovku s oprávněními.** Je to jediné místo, kde rozhodujete vy. Čtení trvá minutu a rozhoduje o tom, co model smí příští rok.
-- **Nechat agenta publikovat.** Zveřejněný příspěvek nejde vzít zpátky. Fronta konceptů, kterou jste viděli, je bezpečná; přímá publikace není.
+- **Nechat agenta publikovat.** Fronta konceptů, kterou jste viděli, je bezpečná; přímá publikace není.
 - **Vyvozovat pravidla z pěti příspěvků.** Metriky ze sociálních sítí jsou u malých účtů hodně šumu. Když model tvrdí vzorec, ptejte se, na kolika případech stojí.
-- **Počítat s cenami z paměti modelu.** Ceníky se mění a model si pamatuje stav ze svého tréninku. Aktuální ceník mu vždycky vložte do promptu.
+- **Počítat s cenami z paměti modelu.** Ceníky se mění a model si pamatuje stav ze svého tréninku; aktuální ceník mu vždycky vložte do promptu.
 - **Dát API klíč službě, kterou neznáte.** Kdo má klíč, utrácí na váš účet. Když už, tak samostatný klíč s nízkým rozpočtovým limitem — a dávku nikdy nepouštějte bez zkušebního běhu na pár položkách.
-- **Zaměnit časovou shodu za příčinu.** V reportech, kde se spojuje analytika s tím, co jste dělali, vzniká kauzalita sama od sebe. Pište „kryje se s", ne „způsobilo".
-
-## Nejlepší nástroje
-
-- **Buffer** — plánování napříč kanály a hlavně souhrnné metriky za období; to je ta část, kterou ručně nikdo nedělá.
-- **Canva** — hromadné plnění značkových šablon daty a přeformátování jednoho návrhu do dalších rozměrů.
-- **Adobe (Express, Firefly)** — dávkové úpravy obrázků (pozadí, ořezy, rozměry) a práce s videem tam, kde jde o mechaniku, ne o nápad.
-- **Lucid** — převod popsaného procesu do diagramu; nejcennější výstup jsou místa, která popis nedořešil.
-- **Google Analytics MCP server** — oficiální, lokální, jen pro čtení GA4; reporty a funnely dotazem místo klikání.
-- **Notion, Google Drive a Supabase** — kontext k číslům a vlastní data: co jsme kdy spustili a co jsme komu slíbili.
-- **Gemini API** — druhý model vedle hlavního na to, co je masové nebo vizuální; nejlevněji v dávkovém režimu.
+- **Zaměnit časovou shodu za příčinu.** V reportech, kde se spojuje analytika s tím, co jste dělali, vzniká kauzalita sama od sebe.
 
 ## Co vám to přinese
 
-- **Čas:** střízlivě 3–5 hodin týdně u člověka, který dnes přenáší data mezi analytikou, plánovačem a grafickým nástrojem. Největší položka bývá příprava obsahové várky a měsíční report.
-- **Peníze:** úspora není v softwaru, ale v tom, co se začne dělat. Vyhodnocení, které dřív nikdo nedělal, mění, co se příště vydá. U Gemini API navíc platí, že dávkový režim za poloviční cenu zlevní každou velkou úlohu.
+- **Čas:** střízlivě 3–5 hodin týdně u člověka, který dnes přenáší data mezi analytikou, plánovačem a grafickým nástrojem.
+- **Peníze:** úspora není v softwaru, ale v tom, co se začne dělat. Vyhodnocení, které dřív nikdo nedělal, mění, co se příště vydá. U Gemini API navíc dávkový režim za poloviční cenu zlevní každou velkou úlohu.
 - **Klid:** konec pocitu, že někde v datech je odpověď, kterou nikdo nemá čas hledat.
 - **Kvalita:** model pracuje s aktuálními daty ze zdroje, ne s tím, co jste stihli zkopírovat. Mizí tichá chyba typu „přepsal jsem číslo z minulého týdne".
 
 ## Pro tip
 
-Pokročilý trik, který funguje líp než další konektor: **napište si jednostránkový popis vašeho provozu** — jak se jmenují klienti a projekty, které property v analytice patří komu, jak se jmenují kanály v plánovači, kde bydlí šablony — a uložte ho do trvalého kontextu, se kterým model pracuje. Konektory pak přestanou hledat naslepo: věta „udělej report pro Nováka za červenec" najednou znamená správnou property, správnou složku a správný formát. Rozdíl v kvalitě odpovědí bývá větší než rozdíl mezi třemi a osmi konektory.
+Pokročilý trik, který funguje líp než další konektor: **napište si jednostránkový popis vašeho provozu** — jak se jmenují klienti a projekty, které property v analytice patří komu, jak se jmenují kanály v plánovači, kde bydlí šablony — a uložte ho do trvalého kontextu, se kterým model pracuje. Konektory pak přestanou hledat naslepo: věta „udělej report pro Nováka za červenec" najednou znamená správnou property, správnou složku a správný formát.
 
-A závěrečné pravidlo, které si zapamatujte, i kdybyste zapomněli všechno ostatní: **konektor je oprávnění připravovat, ne uzavírat.** Číst, hledat, třídit, navrhovat, zakládat koncepty — ano. Publikovat, platit, mazat — člověk, pokaždé. Dejte si do kalendáře čtvrtletní připomínku „revize konektorů a klíčů" a při ní vypněte všechno, co jste tři měsíce nepoužili. Práva, která nemáte udělená, se nedají zneužít, a klíč, který neexistuje, se nedá ukrást.
+A závěrečné pravidlo: **konektor je oprávnění připravovat, ne uzavírat.** Číst, hledat, třídit, navrhovat, zakládat koncepty — ano. Publikovat, platit, mazat — člověk, pokaždé. Dejte si do kalendáře čtvrtletní připomínku „revize konektorů a klíčů" a při ní vypněte všechno, co jste tři měsíce nepoužili. Práva, která nemáte udělená, se nedají zneužít, a klíč, který neexistuje, se nedá ukrást.
