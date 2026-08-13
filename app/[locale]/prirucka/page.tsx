@@ -29,6 +29,10 @@ const T = {
         "Druhý mozek, výběr aplikací podle kategorií, pokročilé triky — a digitální minimalismus, aby vás nástroje nezavalily.",
       situace: "Produktivita v konkrétním kontextu: doma, v týmu, v e-mailu i ve škole.",
     } as Record<Chapter["section"], string>,
+    quizEyebrow: "Nevíte, kde začít?",
+    quizTitle: "Zjistěte za dvě minuty, který systém vám sedne",
+    quizDesc: "Deset otázek na to, jak vypadá váš den. Výsledek vás pošle rovnou na kapitolu, která má pro vás největší smysl.",
+    quizCta: "Spustit kvíz →",
     trainingPre: "Nechcete číst? To podstatné z příručky učím osobně —",
     trainingLink: "školení pro firmy",
     empty:
@@ -58,6 +62,10 @@ const T = {
         "A second brain, choosing apps by category, advanced tricks — plus the digital minimalism that keeps the tools from burying you.",
       situace: "Productivity in context: at home, on a team, in your inbox and at school.",
     } as Record<Chapter["section"], string>,
+    quizEyebrow: "Not sure where to start?",
+    quizTitle: "Find out in two minutes which system fits you",
+    quizDesc: "Ten questions about what your day looks like. The result sends you straight to the chapter that will do you the most good.",
+    quizCta: "Take the quiz →",
     trainingPre: "Would rather not read? I teach the essentials in person —",
     trainingLink: "corporate training",
     empty:
@@ -108,6 +116,15 @@ export default async function HandbookPage({
           {t.startLink}
         </Link>
       </p>
+      <Link
+        href={p("/nastroje/kviz")}
+        className="mt-8 block border border-hairline-strong bg-surface p-6 no-underline transition-colors hover:border-accent"
+      >
+        <p className="eyebrow mb-2 text-accent">{t.quizEyebrow}</p>
+        <p className="display text-[clamp(19px,2.6vw,24px)]">{t.quizTitle}</p>
+        <p className="mt-2 max-w-[56ch] text-[15px] leading-relaxed text-muted">{t.quizDesc}</p>
+        <p className="mt-4 text-[14px] font-bold">{t.quizCta}</p>
+      </Link>
       {chapters.length > 0 ? (
         <div className="mt-10 grid gap-5 md:grid-cols-2">
           {sectionOrder.map((sec, si) => {
