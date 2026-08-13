@@ -19,6 +19,7 @@ import { ReadingProgress } from "@/components/ReadingProgress";
 import { Pomohlo } from "@/components/Pomohlo";
 import { extractHeadings, flatText, slugify } from "@/lib/toc";
 import { formatReviewed, reviewedLabel } from "@/lib/reviewed";
+import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
 
 const T = {
   cs: {
@@ -95,6 +96,12 @@ function makeMdxComponents(locale: Locale) {
         {children}
       </h2>
     ),
+    Stats,
+    Timeline,
+    Bars,
+    Matrix,
+    Flow,
+    Donut,
   };
 }
 
@@ -181,7 +188,8 @@ export default async function TipDetail({
         </details>
       )}
       <div className="prose-a mt-6">
-        <MDXRemote source={annotateGlossary(tip.body, locale)} components={makeMdxComponents(locale)} />
+        {/* blockJS: false — obsah je náš vlastní z repa; výrazy v props infografik jsou nutné */}
+        <MDXRemote source={annotateGlossary(tip.body, locale)} components={makeMdxComponents(locale)} options={{ blockJS: false }} />
       </div>
       {tip.category === "ai" && <DataDisclaimer locale={locale} />}
       {chapter && (
