@@ -74,15 +74,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const tips = getAllTips().flatMap((t) => {
     const csPath = `/tipy/${t.slug}`;
+    // Datum poslední revize obsahu; fallback na datum vydání.
+    const lastModified = t.updated ?? t.date;
     const entries: MetadataRoute.Sitemap = [{
       url: `${BASE}${csPath}`,
-      lastModified: t.date,
+      lastModified,
       changeFrequency: "monthly" as const,
       priority: 0.6,
       ...withAlternates(csPath, enTips.has(t.slug)),
     }];
     if (enTips.has(t.slug)) {
-      entries.push({ url: `${EN_BASE}${csPath}`, lastModified: t.date, changeFrequency: "monthly", priority: 0.5 });
+      entries.push({ url: `${EN_BASE}${csPath}`, lastModified, changeFrequency: "monthly", priority: 0.5 });
     }
     return entries;
   });

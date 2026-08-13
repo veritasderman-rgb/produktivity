@@ -12,6 +12,8 @@ export type Tip = {
   keys: string[][];
   saves: string;
   date: string;
+  /** Datum poslední revize obsahu (ISO). Když ve frontmatteru chybí, použije se `date`. */
+  updated?: string;
   body: string;
   /** Odhad čtení: 200 slov za minutu, kódové bloky se nepočítají. */
   minutes: number;
@@ -51,6 +53,7 @@ export function getAllTips(locale: string = "cs"): Tip[] {
       keys: (data.keys ?? []) as string[][],
       saves: data.saves as string,
       date: data.date as string,
+      updated: (data.updated ?? data.date) as string | undefined,
       body: content,
       minutes: readingMinutes(content),
       isMega: content.length >= MEGA_CHARS,

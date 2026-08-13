@@ -11,7 +11,11 @@ export function TipCard({ tip, index, locale = "cs" }: { tip: Tip; index: number
         <span className="eyebrow text-faint">
           {t.categories[tip.category] ?? tip.category} · {t.platforms[tip.platform] ?? tip.platform}
         </span>
-        <span className="tipcard-no tabular">{String(index).padStart(3, "0")}</span>
+        {/* Pořadové číslo je čistá dekorace (barva --hairline, kontrast 1,2:1) —
+            pro odečítače i pro kontrastní audit ho schováváme. */}
+        <span className="tipcard-no tabular" aria-hidden="true">
+          {String(index).padStart(3, "0")}
+        </span>
       </div>
       {tip.isMega && (
         <p className="mb-2.5">

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CopyPre } from "@/components/CopyPre";
-import { getAllPrompts, groupByArticle, type PromptArticle } from "@/lib/prompts";
+import { getPromptArticles, type PromptArticle } from "@/lib/prompts";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 
 const T = {
@@ -17,9 +16,7 @@ const T = {
     promptsCount: (n: number) => (n === 1 ? "1 prompt" : n < 5 ? `${n} prompty` : `${n} promptů`),
     articlesCount: (n: number) =>
       n === 1 ? "1 návod" : n < 5 ? `${n} návody` : `${n} návodů`,
-    full: "celý návod →",
-    copy: { copy: "Zkopírovat", copied: "Zkopírováno ✓" },
-    open: "Rozbalte návod a uvidíte jeho prompty.",
+    open: "Vyberte návod a otevřete si jeho prompty.",
   },
   en: {
     title: "Prompt library",
@@ -32,9 +29,7 @@ const T = {
     navLabel: "Categories",
     promptsCount: (n: number) => (n === 1 ? "1 prompt" : `${n} prompts`),
     articlesCount: (n: number) => (n === 1 ? "1 guide" : `${n} guides`),
-    full: "full guide →",
-    copy: { copy: "Copy", copied: "Copied ✓" },
-    open: "Open a guide to see its prompts.",
+    open: "Pick a guide to open its prompts.",
   },
 };
 
@@ -69,8 +64,8 @@ export default async function PromptsPage({
   const dict = getDict(locale);
   const p = (path: string) => localePath(locale, path);
 
-  const prompts = getAllPrompts(locale);
-  const articles = groupByArticle(prompts);
+  const articles = getPromptArticles(locale);
+  const promptCount = articles.reduce((n, a) => n + a.prompts.length, 0);
 
   const groups: { category: string; label: string; articles: PromptArticle[] }[] = [];
   for (const article of articles) {
@@ -91,7 +86,7 @@ export default async function PromptsPage({
       <p className="eyebrow mb-2 text-faint">{t.eyebrow}</p>
       <h1 className="display text-[clamp(30px,5vw,48px)]">{t.heading}</h1>
       <p className="mt-4 max-w-[62ch] text-[16px] leading-relaxed text-muted">
-        {t.lead(prompts.length, articles.length)}
+        {t.lead(promptCount, articles.length)}
       </p>
 
       <nav aria-label={t.navLabel} className="mt-8 flex flex-wrap items-center gap-2">
@@ -118,45 +113,26 @@ export default async function PromptsPage({
           </div>
           <p className="mt-3 text-[13.5px] text-faint">{t.open}</p>
 
-          <div className="mt-2">
+          <ul className="mt-2">
             {g.articles.map((article) => (
-              <details key={article.slug} id={`p-${article.slug}`} className="group scroll-mt-24 border-b border-hairline">
-                <summary className="flex cursor-pointer list-none items-baseline gap-3 py-4 [&::-webkit-details-marker]:hidden">
-                  <span
-                    aria-hidden="true"
-                    className="mt-0.5 font-mono text-[15px] leading-none text-accent transition-transform group-open:rotate-45"
-                  >
-                    +
+              <li key={article.slug} className="border-b border-hairline">
+                <Link
+                  href={p(`/prompty/${article.slug}`)}
+                  className="linkblock flex items-baseline gap-3 py-4"
+                >
+                  <span aria-hidden="true" className="font-mono text-[15px] leading-none text-accent">
+                    →
                   </span>
-                  <span className="flex-1 text-[16px] font-bold leading-snug">{article.title}</span>
+                  <span className="draw-link flex-1 text-[16px] font-bold leading-snug">
+                    {article.title}
+                  </span>
                   <span className="eyebrow shrink-0 text-faint">
                     {t.promptsCount(article.prompts.length)}
                   </span>
-                </summary>
-
-                <div className="pb-8 pl-0 sm:pl-7">
-                  {article.prompts.map((prompt) => (
-                    <div key={prompt.id} id={prompt.id} className="mt-6 scroll-mt-24 first:mt-2">
-                      <h3 className="text-[14px] font-bold leading-snug">{prompt.label}</h3>
-                      <CopyPre label={t.copy}>
-                        <pre className="mt-2 overflow-x-auto border border-hairline bg-surface p-4 pr-24 font-mono text-[12.5px] leading-relaxed whitespace-pre-wrap text-ink">
-                          {prompt.text}
-                        </pre>
-                      </CopyPre>
-                      <div className="mt-1.5 text-right">
-                        <Link
-                          href={p(`/tipy/${prompt.slug}`)}
-                          className="draw-link text-[12.5px] font-semibold text-muted"
-                        >
-                          {t.full}
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </details>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
       ))}
     </div>

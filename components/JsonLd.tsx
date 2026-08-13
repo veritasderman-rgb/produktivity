@@ -52,6 +52,7 @@ export function articleJsonLd(opts: {
   title: string;
   description: string;
   datePublished?: string;
+  dateModified?: string;
   section?: string;
 }) {
   const url = `${opts.locale === "en" ? EN_BASE : BASE}${opts.path}`;
@@ -64,6 +65,7 @@ export function articleJsonLd(opts: {
     url,
     mainEntityOfPage: url,
     ...(opts.datePublished ? { datePublished: opts.datePublished } : {}),
+    ...(opts.dateModified ? { dateModified: opts.dateModified } : {}),
     ...(opts.section ? { articleSection: opts.section } : {}),
     author: personJsonLd,
     publisher: personJsonLd,

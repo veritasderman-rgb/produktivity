@@ -18,6 +18,7 @@ import { CopyPre } from "@/components/CopyPre";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { Pomohlo } from "@/components/Pomohlo";
 import { extractHeadings, flatText, slugify } from "@/lib/toc";
+import { formatReviewed, reviewedLabel } from "@/lib/reviewed";
 
 const T = {
   cs: {
@@ -121,11 +122,13 @@ export default async function TipDetail({
   const related = relatedTips(tip, allTips);
   const hero = heroImage(tip.slug);
   const headings = extractHeadings(tip.body);
+  const reviewedIso = tip.updated ?? tip.date;
+  const reviewed = formatReviewed(reviewedIso, locale);
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">
       <ReadingProgress />
-      <JsonLd data={articleJsonLd({ locale, path: `/tipy/${tip.slug}`, title: tip.title, description: tip.excerpt, datePublished: tip.date, section: tip.category })} />
+      <JsonLd data={articleJsonLd({ locale, path: `/tipy/${tip.slug}`, title: tip.title, description: tip.excerpt, datePublished: tip.date, dateModified: reviewedIso, section: tip.category })} />
       <JsonLd data={breadcrumbJsonLd(locale, [{ name: t.breadcrumb, path: "/tipy" }, { name: tip.title, path: `/tipy/${tip.slug}` }])} />
       <p className="eyebrow mb-4 text-faint">
         <Link href={p("/tipy")} className="hover:underline">{t.breadcrumb}</Link>
@@ -136,6 +139,11 @@ export default async function TipDetail({
       <h1 className="display text-[clamp(26px,4.5vw,42px)] normal-case" style={{ textTransform: "none" }}>
         {tip.title}
       </h1>
+      {reviewed && (
+        <p className="eyebrow mt-3 text-faint">
+          {reviewedLabel[locale]}: <time dateTime={reviewedIso}>{reviewed}</time>
+        </p>
+      )}
       {tip.keys.length > 0 && (
         <p className="mt-6 border-y border-hairline py-4 text-[18px]">
           {tip.keys.map((combo, ci) => (
@@ -153,7 +161,7 @@ export default async function TipDetail({
       {hero && (
         <Image
           src={hero}
-          alt=""
+          alt={locale === "en" ? `Illustration for: ${tip.title}` : `Ilustrace k článku: ${tip.title}`}
           width={1280}
           height={720}
           className="mt-8 w-full border border-hairline-strong"

@@ -93,6 +93,19 @@ export function getAllPrompts(locale: string = "cs"): PromptEntry[] {
   return entries;
 }
 
+/**
+ * Články, které mají aspoň jeden prompt — pro rozcestník /prompty
+ * a pro generateStaticParams detailu /prompty/[slug].
+ */
+export function getPromptArticles(locale: string = "cs"): PromptArticle[] {
+  return groupByArticle(getAllPrompts(locale));
+}
+
+/** Prompty jednoho článku. Null = článek žádné prompty nemá (→ 404). */
+export function getArticlePrompts(slug: string, locale: string = "cs"): PromptArticle | null {
+  return getPromptArticles(locale).find((a) => a.slug === slug) ?? null;
+}
+
 /** Prompty seskupené po mateřských článcích (pořadí článků i promptů zachováno). */
 export function groupByArticle(entries: PromptEntry[]): PromptArticle[] {
   const byslug = new Map<string, PromptArticle>();

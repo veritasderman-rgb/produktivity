@@ -9,6 +9,8 @@ export type Chapter = {
   section: "zaklady" | "metody" | "nastroje" | "situace" | "skola" | "firma" | "freelancing" | "uceni" | "doma";
   order: number;
   minutes: number;
+  /** Datum poslední revize obsahu (ISO). Kapitoly nemají `date`, takže bez frontmatteru zůstává prázdné. */
+  updated?: string;
   body: string;
 };
 
@@ -61,6 +63,7 @@ export function getAllChapters(locale: string = "cs"): Chapter[] {
       section: data.section as Chapter["section"],
       order: Number(data.order),
       minutes: Number(data.minutes ?? Math.max(3, Math.round(content.split(/\s+/).length / 200))),
+      updated: data.updated as string | undefined,
       body: content,
     };
   });

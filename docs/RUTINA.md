@@ -119,7 +119,34 @@ Používej je střídmě a jen když nesou data.
   - **návrhy social postů** pro LinkedIn (profesionální tón) a Instagram/Facebook
     (kratší, živější) ke každé položce — k ručnímu vložení do Bufferu.
 
-### 7. Limity
+### 7. Revize obsahu
+
+Každý tip i kapitola nese ve frontmatteru pole `updated: "YYYY-MM-DD"` — datum
+poslední revize. Zobrazuje se čtenáři pod nadpisem („Naposledy ověřeno") a jde
+do strukturovaných dat (`dateModified`) i do sitemapy (`lastModified`).
+
+**Pravidlo: kdo článek reviduje, přepíše `updated` na dnešní datum.** `date`
+(datum vydání) zůstává beze změny — mění se jen `updated`. Když se v článku
+opraví jen překlep, datum neposouvej; `updated` znamená „obsah byl ověřen",
+ne „soubor byl uložen".
+
+Při revizi se kontroluje:
+
+- **fakta o nástrojích** — existuje funkce pořád, nezměnil se název, nepřesunulo
+  se to jinam v menu, nezměnila se klávesová zkratka;
+- **ceny a plány** — částky, limity zdarma verze, co spadlo za paywall;
+- **odkazy** — vedou pořád tam, kam mají (žádné 404 ani redirect na homepage);
+- **screenshoty a obrázky** — odpovídají aktuálnímu vzhledu aplikace.
+
+Revize běží **kvartálně**: jednou za čtvrtletí projdi nejstarší `updated` a
+články s nejvyšší návštěvností. Prioritu mají tipy v kategoriích `ai`
+a `aplikace` — tam se realita mění nejrychleji.
+
+Hromadné nastavení pole (např. při zavedení nového ročníku revizí) umí
+`python3 scripts/set-updated.py --date YYYY-MM-DD`; skript doplňuje `updated`
+jen tam, kde chybí, a nic jiného v souboru nemění.
+
+### 8. Limity
 
 - Max 5 položek na den, radši 2 kvalitní než 5 slabých.
 - Žádné velké refaktory, žádné změny kódu webu — jen obsah v `content/`.

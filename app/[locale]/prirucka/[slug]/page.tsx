@@ -18,6 +18,7 @@ import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import { CopyPre } from "@/components/CopyPre";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { extractHeadings, flatText, slugify } from "@/lib/toc";
+import { formatReviewed, reviewedLabel } from "@/lib/reviewed";
 
 const T = {
   cs: {
@@ -133,11 +134,12 @@ export default async function ChapterPage({
   const hero = heroImage(ch.slug);
   const related = tipsForChapter(ch.slug, getAllTips(locale));
   const headings = extractHeadings(ch.body);
+  const reviewed = formatReviewed(ch.updated, locale);
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">
       <ReadingProgress />
-      <JsonLd data={articleJsonLd({ locale, path: `/prirucka/${ch.slug}`, title: ch.title, description: ch.excerpt, section: sectionLabels[ch.section] })} />
+      <JsonLd data={articleJsonLd({ locale, path: `/prirucka/${ch.slug}`, title: ch.title, description: ch.excerpt, dateModified: ch.updated, section: sectionLabels[ch.section] })} />
       <JsonLd data={breadcrumbJsonLd(locale, [{ name: t.breadcrumb, path: "/prirucka" }, { name: ch.title, path: `/prirucka/${ch.slug}` }])} />
       <p className="eyebrow mb-4 text-faint">
         <Link href={p("/prirucka")} className="hover:underline">{t.breadcrumb}</Link>
@@ -147,13 +149,18 @@ export default async function ChapterPage({
       <h1 className="display text-[clamp(28px,4.5vw,44px)]" style={{ textTransform: "none" }}>
         {ch.title}
       </h1>
+      {reviewed && (
+        <p className="eyebrow mt-3 text-faint">
+          {reviewedLabel[locale]}: <time dateTime={ch.updated}>{reviewed}</time>
+        </p>
+      )}
       <p className="mt-4 border-b border-hairline pb-6 text-[17px] leading-relaxed text-muted">
         {ch.excerpt}
       </p>
       {hero && (
         <Image
           src={hero}
-          alt=""
+          alt={locale === "en" ? `Illustration for: ${ch.title}` : `Ilustrace ke kapitole: ${ch.title}`}
           width={1280}
           height={720}
           className="mt-8 w-full border border-hairline-strong"

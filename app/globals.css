@@ -10,10 +10,14 @@
   --card: #ffffff;
   --ink: #141414;
   --muted: #494b4c;
-  --faint: #8b8d8e;
+  /* Nejsvětlejší text, jaký ještě projde WCAG AA (4.5:1) na papíru i na --surface.
+     Světlejší odstín (dřív #8b8d8e = 3.3:1) neprošel — nezesvětlovat. */
+  --faint: #6c6e6f;
   --hairline: #e7e7e4;
   --hairline-strong: #141414;
-  --accent: #e03616;
+  /* Signálová červená. Odstín je nejsvětlejší, který dá 4.5:1 jako text na papíru
+     i pro bílý text na červeném CTA (dřív #e03616 = 4.46:1, těsně pod limitem). */
+  --accent: #d63210;
   --accent-hover: #b52a0f;
   --accent-ink: #ffffff;
   --key-shadow: #141414;
@@ -443,17 +447,48 @@ body {
 .ig-donut-label { display: block; font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.3; }
 .ig-donut-sub { display: block; font-size: 13px; color: var(--muted); margin-top: 4px; max-width: 36ch; line-height: 1.5; }
 
-a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+/* ---------- Klávesová navigace ----------
+   Musí být vidět na všem, co jde zaostřit: odkazy, tlačítka, formulářová pole,
+   rozbalovací <summary> (TOC) i .pojem (span s tabindex=0).
+   outline-offset kreslí rámeček mimo prvek, takže je vidět i na tmavých
+   tlačítkách (bg-ink) i na červeném CTA (bg-accent). */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible,
+.pojem:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
+/* Bez :focus-visible (starší prohlížeče) ať aspoň :focus něco ukáže. */
+.pojem:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pojem:focus:not(:focus-visible) { outline: none; }
+
+/* ---------- Omezený pohyb ----------
+   Vypíná animace i přechody včetně jejich prodlev (.reveal-d1…d3 by jinak
+   obsah zdržely) a nechá .reveal rovnou ve výsledném stavu. */
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
   }
-  .reveal { opacity: 1; transform: none; }
+  .reveal, .reveal.is-in { opacity: 1; transform: none; }
+  /* Podtržení odkazu se nekreslí, rovnou je celé */
+  .draw-link:hover::after, .linkblock:hover .draw-link::after { transform: scaleX(1); }
+  .key-pressable:hover { animation: none !important; }
+  /* Karty se nenadzvedávají */
+  .tipcard:hover, .ig-stat:hover, .ig-quad:hover, .ig-flow-step:hover { transform: none; }
+  .ig-tl-row:hover .ig-tl-dot { transform: none; }
+  .ig-bar-row:hover .ig-bar-fill { transform: none; }
 }
 
 /* Pojem s tooltipem (slovník pojmů) */
