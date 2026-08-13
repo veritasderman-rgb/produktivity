@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
 import { getAllTips, getTip } from "@/lib/tips";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { DataDisclaimer } from "@/components/DataDisclaimer";
@@ -86,6 +87,11 @@ function makeMdxComponents(locale: Locale) {
   return {
     kbd: (props: React.HTMLAttributes<HTMLElement>) => <kbd className="key" {...props} />,
     Pojem,
+    table: (props: React.HTMLAttributes<HTMLTableElement>) => (
+      <div className="table-scroll">
+        <table {...props} />
+      </div>
+    ),
     pre: (props: React.HTMLAttributes<HTMLPreElement>) => (
       <CopyPre label={copy}>
         <pre {...props} />
@@ -189,7 +195,7 @@ export default async function TipDetail({
       )}
       <div className="prose-a mt-6">
         {/* blockJS: false — obsah je náš vlastní z repa; výrazy v props infografik jsou nutné */}
-        <MDXRemote source={annotateGlossary(tip.body, locale)} components={makeMdxComponents(locale)} options={{ blockJS: false }} />
+        <MDXRemote source={annotateGlossary(tip.body, locale)} components={makeMdxComponents(locale)} options={{ blockJS: false, mdxOptions: { remarkPlugins: [remarkGfm] } }} />
       </div>
       {tip.category === "ai" && <DataDisclaimer locale={locale} />}
       {chapter && (

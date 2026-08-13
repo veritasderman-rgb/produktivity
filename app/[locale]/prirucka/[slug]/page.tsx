@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
 import { getAllChapters, getChapter, getSectionLabels } from "@/lib/chapters";
 import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
 import { NewsletterForm } from "@/components/NewsletterForm";
@@ -88,6 +89,11 @@ function makeMdxComponents(locale: Locale) {
   const copy = (T[locale] ?? T.cs).copy;
   return {
     Pojem,
+    table: (props: React.HTMLAttributes<HTMLTableElement>) => (
+      <div className="table-scroll">
+        <table {...props} />
+      </div>
+    ),
     kbd: (props: React.HTMLAttributes<HTMLElement>) => <kbd className="key" {...props} />,
     pre: (props: React.HTMLAttributes<HTMLPreElement>) => (
       <CopyPre label={copy}>
@@ -181,7 +187,7 @@ export default async function ChapterPage({
       )}
       <div className="prose-a mt-6">
         {/* blockJS: false — obsah je náš vlastní z repa; výrazy v props infografik jsou nutné */}
-        <MDXRemote source={annotateGlossary(ch.body, locale)} components={makeMdxComponents(locale)} options={{ blockJS: false }} />
+        <MDXRemote source={annotateGlossary(ch.body, locale)} components={makeMdxComponents(locale)} options={{ blockJS: false, mdxOptions: { remarkPlugins: [remarkGfm] } }} />
       </div>
 
       <nav className="mt-14 grid gap-3 border-t-2 border-hairline-strong pt-6 sm:grid-cols-2" aria-label={t.navAria}>
