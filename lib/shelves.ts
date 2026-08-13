@@ -60,6 +60,7 @@ export const shelves: Shelf[] = [
     href: { cs: "/pro/manazery", en: "/for/managers" },
     slugs: [
       "ai-ve-firme-kompletni-pruvodce",
+      "vizitky-do-crm-claude-cowork",
       "mcp-konektory-nastroje",
       "mcp-reklama-analyza",
       "web-claude-code-vercel",
@@ -99,7 +100,6 @@ export const shelves: Shelf[] = [
     slugs: [
       "osobni-rozpocet-z-bankovniho-vypisu",
       "jidelnicek-a-nakupni-seznam-ai",
-      "vizitky-do-crm-claude-cowork",
       "cestovni-itinerar-ai",
       "foto-do-akce-claude-mobil",
     ],
