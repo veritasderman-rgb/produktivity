@@ -98,6 +98,7 @@ export const shelves: Shelf[] = [
     linkLabel: { cs: "Všechno pro rodiče", en: "Everything for parents" },
     href: { cs: "/pro/rodice", en: "/for/parents" },
     slugs: [
+      "ai-v-rodine-vychova-hry-pohadky",
       "osobni-rozpocet-z-bankovniho-vypisu",
       "jidelnicek-a-nakupni-seznam-ai",
       "cestovni-itinerar-ai",
