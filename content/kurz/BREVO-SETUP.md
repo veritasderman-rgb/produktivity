@@ -91,3 +91,37 @@ napsané. Nic dalšího nastavovat nemusíte.
 - Stránka s přihlášením: `app/[locale]/kurz/page.tsx`.
 - Odesílání kontaktu do Brevu a atribut `SOURCE`: `app/api/subscribe/route.ts`.
 - Proměnné prostředí: `BREVO_API_KEY`, `BREVO_LIST_ID`, `BREVO_SENDER_EMAIL`.
+
+## English version
+
+Anglická verze kurzu (`content/kurz/en/day-1.md` … `day-7.md`) je **druhá,
+samostatná automatizace se stejnou logikou** jako výše — jen s anglickými
+texty a anglickými odkazy (`https://productive.tips/tipy/...`). Postup je
+totožný:
+
+1. Sedm šablon v Brevu (Campaigns → Templates), tentokrát z `day-N.md`:
+   předmět a preheader z frontmatteru, tělo pod druhým `---`. Odesílatel
+   může zůstat Josef Pavlovic, jen s adresou / podpisem odpovídajícím
+   anglické verzi webu.
+2. Vlastní automatizace (Automations → Create automation), se stejným
+   triggerem „A contact is added to a list" a stejnou strukturou
+   Send email → Wait 1 day → Send email … pro Day 1 až Day 7.
+
+**Jak rozeznat anglické přihlášení.** Formulář na `/en/kurz` běží přes
+stejnou komponentu (`app/[locale]/kurz/page.tsx`) jako ten český a posílá
+stejně `source="kurz"` — v datech tedy anglický a český přihlášený vypadají
+identicky, atribut `SOURCE` je nerozliší. Pokud chcete, aby si dvě
+automatizace (CS a EN) navzájem nešlapaly na paty a každá spustila jen tu
+svou jazykovou verzi, bude potřeba přidat druhý rozlišující atribut —
+nejjednodušší je odeslat spolu se `source` i `locale` (např. `LOCALE = en`
+vs. `cs`) z `app/api/subscribe/route.ts` a v Brevu podle něj v prvním kroku
+automatizace větvit (Condition → contact attribute `LOCALE` equals `en`).
+Bez téhle úpravy by anglicky přihlášený dostal český kurz (nebo naopak),
+takže než anglickou automatizaci zapnete, `LOCALE` atribut a jeho odesílání
+z formuláře doplňte.
+
+Seznam (list) může být stejný jako pro český kurz, nebo — pokud chcete mít
+anglické odběratele odděleně i pro běžný newsletter po skončení kurzu —
+samostatný `BREVO_LIST_ID` jen pro anglickou verzi. V tom případě přidejte
+novou proměnnou prostředí (např. `BREVO_LIST_ID_EN`) a v `subscribe/route.ts`
+podle `locale` vybírejte správný list.
