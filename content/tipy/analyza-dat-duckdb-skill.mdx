@@ -1,0 +1,556 @@
+---
+title: "Analýza dat obyčejnou řečí: trvalý skill nad DuckDB"
+excerpt: "Kompletní návod s prompty: proč chatbot počítá tiše špatně, jak jedním zadáním nainstalovat DuckDB CLI a založit agentovi trvalý skill, kterým se pak nad libovolným CSV, Excelem, Parquetem nebo JSON ptáte česky — a jak si ověřit, že výsledek sedí."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "freelancer", "vyvojar"]
+keys: []
+saves: "~hodiny nad tabulkami každý měsíc"
+date: "2026-08-13"
+updated: "2026-08-13"
+---
+
+Čím dál víc lidí pouští chatbota na svoje data. Přetáhnou do okna export z e-shopu, docházku, výpis z účtu nebo výsledky dotazníku a zeptají se česky: kolik, kdy, proč. Odpověď přijde vzápětí, hezky naformátovaná, s procenty a se závěrem. Vypadá to jako budoucnost analytiky. Ve skutečnosti je to ten nejtišší způsob, jak se splést.
+
+**Jazykový model je prediktor textu. Sám o sobě neumí počítat — umí napsat číslo, které v dané větě vypadá správně.** Někdy je i správné, a právě v tom je ten problém: nemáte podle čeho poznat, které z těch čísel vzniklo z výpočtu a které z dojmu. Obecně tenhle rozdíl rozebírá tip [analýza dat s AI](/tipy/ai-analyza-dat) — proč model nesmí počítat v chatu a jak poznat nástroj, který kód opravdu spouští. Tenhle návod na něj navazuje jedním konkrétním, hodně praktickým řešením: dát agentovi **trvalý skill nad DuckDB CLI** a pak se ptát obyčejnou řečí.
+
+Cesta vede od diagnózy k nastavení a od nastavení k návykům. Nejdřív si ukážeme, kde přesně se to láme a jak taková tichá chyba vypadá v praxi. Pak porovnáme dvě řešení — poctivé a pragmatické — a řekneme si, kdy se vyplatí které. Následuje jeden prompt, který celé nastavení založí, rozebraný řádek po řádku. A nakonec to podstatné: jak se pak ptáte a jak si ověříte, že odpověď sedí. Prompty jsou k okopírování, stačí doplnit hranaté závorky.
+
+## Vzorová situace
+
+Petra dělá provozní controlling ve firmě s osmdesáti zaměstnanci. Každý měsíc dostane tři exporty: prodeje z pokladního systému (asi čtyřicet tisíc řádků), skladové pohyby a přehled nákladů z účetnictví. Její úkol je jednoduchý na popsání a otravný na provedení — říct, co se v čísle za minulý měsíc změnilo a proč.
+
+Rok to dělala v tabulkovém procesoru: otevřít, počkat, ručně opravit desetinné čárky, postavit kontingenční tabulku, zkopírovat do reportu. Půl dne. Když se šéf zeptal na něco, co v šabloně nebylo („a kolik z toho jsou vratky?"), znamenalo to další hodinu.
+
+Pak zkusila chatbota. První dva měsíce nadšení: nahrála CSV, zeptala se česky, dostala přehled. Třetí měsíc se v reportu objevila tržba, která nesedla účetnictví o sto tisíc. Dohledávání trvalo dva dny a příčina byla banální — v jednom exportu byla částka s desetinnou čárkou a model si polovinu řádků přečetl jako text, takže se prostě nesečetly. Nic nespadlo, žádná chybová hláška. Jen tam bylo o sto tisíc míň.
+
+Dneska má Petra na počítači DuckDB CLI a v agentovi jeden trvalý skill, který říká, jak se s daty zachází: nejdřív prohlédnout soubor, pak napsat dotaz, pak ukázat dotaz i výsledek. Měsíční report jí zabere dvacet minut a na otázku o vratkách odpoví za dvě, protože se zeptá česky a dostane zpátky číslo i SQL dotaz, kterým vzniklo. Rozdíl není v tom, že by AI byla chytřejší. Je v tom, že přestala počítat a začala se ptát databáze.
+
+## Proč to chatbot spočítá špatně
+
+Za tím, proč se analýza v chatu tak často pokazí, nestojí hloupost modelu. Stojí za tím dvě konkrétní vlastnosti, které je potřeba znát jménem — jinak je nepoznáte, až se projeví.
+
+### Háček první: model špatně odhadne, jestli si má napsat skript
+
+Moderní modely nejsou naivní. Vědí, že složitější výpočet mají svěřit kódu — obvykle si napíšou Python, spustí ho a vrátí výsledek běhu. U jednoduchých věcí to neudělají, a je to rozumné: kvůli součtu tří čísel není potřeba startovat interpret.
+
+Problém je hranice. **Model musí odhadnout, jestli je zadání ještě „z hlavy", nebo už „na skript" — a tenhle odhad dělá stejným způsobem, jakým generuje text, tedy pravděpodobnostně.** Součet přes dvacet tisíc řádků vypadá v zadání stejně nevinně jako součet přes dvacet řádků. A hlavně: když se model splete, nedozvíte se to. Nedostanete varování „tohle jsem odhadl", dostanete číslo uvedené stejně sebejistě jako to spočítané.
+
+Typicky se to stane u těchhle tří věcí:
+
+- **Součet nebo průměr přes velký soubor.** Model vidí jen výřez dat, ze zbytku odhadne. Výsledek sedí do rozsahu a nikoho nenapadne ho ověřovat.
+- **Průměr místo mediánu u zešikmených dat.** Zeptáte se na „typickou objednávku" a dostanete průměr, protože o něj se ptá většina lidí. U dat, kde jsou tři objednávky za dva miliony a osm tisíc za šest set korun, je průměr číslo, které nepopisuje žádného skutečného zákazníka.
+- **Počítání „přibližně".** Otázka „kolik procent transakcí je pod tisíc korun" svádí k odhadu z ukázky. U dvaceti řádků správně, u dvaceti tisíc mimo.
+
+### Háček druhý: skript píše pokaždé znovu a jinak
+
+Řekněme, že model odhadne správně a skript si napíše. Vyhráli jste jen napůl. Za měsíc otevřete nový chat, nahrajete stejný export s novými daty, položíte stejnou otázku — a model napíše **jiný skript**. Bude řešit stejnou úlohu, ale trochu jinak: jinak si poradí s prázdnými buňkami, jinak zaokrouhlí, jinak si vyloží sloupec `stav`, možná vyfiltruje storna a možná ne.
+
+Důsledky jsou čtyři:
+
+- **Tokeny a peníze.** Za psaní téhož kódu platíte pokaždé znovu.
+- **Čas.** Generování a ladění skriptu trvá minuty. Nad SQL dotazem trvá odpověď sekundy.
+- **Riziko chyby.** Každé nové psaní je nová příležitost něco přehlédnout; deset generování znamená deset losování.
+- **Konec reprodukovatelnosti.** Nejhorší z těch čtyř. Reprodukovatelnost je základní zásada datové analýzy: **stejná data plus stejný postup musí dát stejné číslo — zítra, za rok, i když to spustí někdo jiný.** Když postup vzniká pokaždé znovu, nemáte postup, ale pokaždé nový experiment se stejným názvem.
+
+Test, jestli se vás to týká: dokážete říct, jak přesně vzniklo číslo, které jste minulý měsíc poslali do reportu? Ne „zeptal jsem se AI", ale kterými řádky, po jakém filtru, s jakým zaokrouhlením.
+
+### Jak taková tichá chyba vypadá v praxi
+
+Nejčastější tichá chyba v českých datech není špatná matematika. Je to špatně přečtený soubor. Vezměte typický český export se středníkem a desetinnou čárkou:
+
+```text
+datum;kategorie;castka
+2026-01-05;Nájem;-12500,00
+2026-01-07;Potraviny;-842,50
+2026-01-09;Potraviny;-1230,00
+2026-02-01;Mzda;48000,00
+2026-02-03;Nájem;-12500,00
+```
+
+Když ho necháte načíst bez ošetření, dopadne to takhle (skutečný výstup, ne ilustrace):
+
+```bash
+duckdb -c "FROM 'vypis.csv' LIMIT 3;"
+
+┌────────────┬───────────┬───────────┐
+│   datum    │ kategorie │  castka   │
+│    date    │  varchar  │  varchar  │
+├────────────┼───────────┼───────────┤
+│ 2026-01-05 │ Nájem     │ -12500,00 │
+│ 2026-01-07 │ Potraviny │ -842,50   │
+│ 2026-01-09 │ Potraviny │ -1230,00  │
+└────────────┴───────────┴───────────┘
+```
+
+Všimněte si druhého řádku hlavičky. `datum` je datum, `kategorie` je text — a `castka` je **taky text**, protože kvůli desetinné čárce ji nešlo přečíst jako číslo. Nástroj to napsal na obrazovku a nic si o tom nemyslí. Zato jakýkoli součet nad takovým sloupcem buď spadne, nebo — v jiných nástrojích — tiše sečte jen ty řádky, které se náhodou přečíst daly.
+
+Tohle je celý mechanismus tiché chyby: nikde se nic nezhroutilo, jen se v jedné buňce sešlo číslo psané po česku a nástroj, který o tom neví. V chatu byste tenhle řádek hlavičky nikdy neviděli — dostali byste rovnou hezky napsaný odstavec s číslem. Oprava je přitom jeden parametr:
+
+```sql
+SELECT * FROM read_csv('vypis.csv', delim = ';', decimal_separator = ',');
+```
+
+Podobných pastí je několik a všechny se chovají stejně nenápadně: **kódování** (starší české systémy dávají CP1250, takže se rozsypou háčky a kategorie „Nájem" a „N?jem" jsou najednou dvě různé), **oddělovač** (středník proti čárce; při špatném odhadu skončí celý řádek v jednom sloupci), **tisícové oddělovače** v číslech, **datum jako text** ve formátu, který nikdo nerozpozná, a **mezisoučtové řádky** uvnitř dat, které se sečtou podruhé.
+
+Poučení není „nepoužívejte AI na data". Poučení je: **než se cokoli spočítá, musí být vidět, co se vlastně načetlo.**
+
+## Dvě cesty, jak to spravit
+
+Cesty jsou dvě a je poctivé říct rovnou, že ta pracnější je lepší.
+
+**Poctivá cesta: napsat skript jednou pořádně, uložit ho a spouštět.** Necháte si (nebo napíšete) skript v Pythonu nebo R, který data načte, vyčistí, spočítá a uloží výsledky. Skript žije v souboru vedle dat, verzujete ho, a když ho příští měsíc pustíte nad novým exportem, dostanete čísla spočítaná úplně stejně jako minule. Rozhodnutí o čištění jsou v něm zapsaná a čitelná. Tohle je reprodukovatelnost v plné síle a podrobně ji rozebírá druhý článek téhle série, [reprodukovatelná analýza dat](/tipy/reprodukovatelna-analyza-dat).
+
+Daň je čas a přemýšlení. První verze skriptu vezme půl dne, každá nová otázka znamená sáhnout do kódu a otestovat, že se nerozbilo něco jiného. U analýzy, ze které se rozhoduje o penězích nebo která poputuje do výroční zprávy, je to daň, kterou zaplatíte rádi. U otázky „a kolik z toho jsou vratky?" v úterý odpoledne je to překážka, kvůli které se ta otázka nikdy nepoloží.
+
+**Pragmatická cesta: dát agentovi trvalý skill nad DuckDB CLI.** Nepíšete skript, píšete zadání česky. Agent si soubor nejdřív prohlédne, pak napíše SQL dotaz, spustí ho přes DuckDB a vrátí vám výsledek i ten dotaz. Výpočet dělá databáze, ne model — žádné odhadování z hlavy. A protože jsou pravidla postupu uložená ve skillu, chová se agent pokaždé stejně.
+
+Reprodukovatelnost je tu ale jen poloviční: **dotaz reprodukovatelný je, cesta k němu ne.** Uložené SQL spustíte kdykoli znovu a dá stejné číslo; když si ho neuložíte, agent příště napíše podobný, ale ne nutně identický.
+
+| | Skript napsaný jednou pořádně | Trvalý skill nad DuckDB |
+| --- | --- | --- |
+| Náklad na start | půl dne až den | patnáct minut |
+| Náklad na novou otázku | úprava kódu a test | jedna věta česky |
+| Reprodukovatelnost | úplná, postup je v souboru | částečná, uložíte-li si dotaz |
+| Kdo počítá | kód, který jste schválili | databáze podle dotazu, který vidíte |
+| Auditní stopa | verzovaný skript a log běhu | SQL dotaz u každé odpovědi |
+| Hodí se na | pravidelný report, čísla do účetnictví, publikované výsledky | průzkum, jednorázová otázka, kontrola před poradou |
+| Nehodí se na | rychlé „a co kdyby" | čísla, která musíte za rok obhájit beze změny |
+
+Rozhodovací pravidlo: **jednorázová otázka a průzkum → skill. Číslo, které se opakuje nebo které někdo bude přepočítávat → skript.** A hezky se to kombinuje: skillem prozkoumáte data a najdete správnou otázku, pak si necháte napsat skript, který na ni bude odpovídat každý měsíc stejně. Průzkum je levný, produkce má být nudná.
+
+## Co je DuckDB a proč zrovna ono
+
+DuckDB je otevřená analytická databáze. „Analytická" znamená, že je stavěná na dotazy typu „sečti, seskup, porovnej, najdi odlehlé hodnoty" nad velkými tabulkami, ne na tisíce drobných zápisů za sekundu jako databáze za e-shopem. Existuje jako knihovna do různých jazyků a — pro nás podstatné — jako **CLI, tedy jeden program, který spustíte v terminálu**. Je zdarma, instalaci najdete na `duckdb.org`.
+
+### Databáze, která nepotřebuje databázi
+
+Tohle je ta vlastnost, kvůli které celý postup dává smysl. Klasická databáze potřebuje instalaci, založení databáze, definici tabulek se sloupci a typy a import dat. Než se dostanete k první otázce, uteče půlden.
+
+DuckDB tenhle krok umí přeskočit: **čte soubor přímo z disku, jako by to byla tabulka.** Cesta k souboru se píše do dotazu na místo, kde by jinak byl název tabulky:
+
+```sql
+FROM 'prodeje.csv' LIMIT 5;
+```
+
+Žádné zakládání, žádný import, nic se nikam nekopíruje. Funguje to na **CSV**, **Parquet**, **JSON**, na komprimované soubory (`.csv.gz` se rozbalí za chodu) a po doinstalování rozšíření pro Excel i na **XLSX**. Zvládne i víc souborů najednou přes hvězdičku v cestě, což je přesně situace „mám dvanáct měsíčních exportů ve složce":
+
+```sql
+FROM read_csv('exporty/*.csv', union_by_name = true, filename = true);
+```
+
+Parametr `union_by_name` spáruje sloupce podle jména, ne podle pořadí — nutné, když jeden z těch dvanácti exportů má sloupce přehozené. A `filename` přidá sloupec s cestou, takže poznáte, ze kterého souboru řádek přišel.
+
+### Dva příkazy, které stojí za celý nástroj
+
+Na začátku každé analýzy jsou dvě otázky: co v tom souboru je a jak to vypadá. DuckDB na ně má dvě odpovědi.
+
+```sql
+SUMMARIZE FROM 'prodeje.csv';
+```
+
+Vrátí jeden řádek za každý sloupec a v něm: název, **typ**, minimum, maximum, přibližný počet unikátních hodnot, průměr, směrodatnou odchylku, kvartily a **podíl prázdných hodnot**. Jedním příkazem tak vidíte, jestli se datum načetlo jako datum, jestli má „částka" mezi minimem a maximem něco nesmyslného, kolik hodnot chybí a jestli má sloupec „region" pět kategorií, nebo pět set (což bývá známka překlepů).
+
+```sql
+FROM 'prodeje.csv' LIMIT 5;
+```
+
+Prvních pár řádků. Vypadá to triviálně a je to nejdůležitější pět sekund celé analýzy — v hlavičce výpisu jsou totiž **typy sloupců**, takže právě tady poznáte, že se z částky s desetinnou čárkou stal text. Nejdřív se dívat, potom počítat: to je pravidlo, které se do skillu vypíše natvrdo.
+
+### Proč ne rovnou tabulkový procesor
+
+Tabulkový procesor má tři vlastnosti, které se u analýzy dat obracejí proti vám. **Nepamatuje si postup** — kontingenční tabulka ukazuje výsledek, ale ne to, co jste před ní ručně smazali. **Mění data pod rukama**: autoformát převede kódy na datumy, ořízne nuly na začátku, sjednotí, co sjednotit nemá. A **na desítkách tisíc řádků je pomalý**, takže se lidi uchylují ke vzorkům a k „to snad bude stačit".
+
+Neznamená to, že ho zahodíte. Naopak — je to nejlepší nástroj na to, aby si člověk ručně prohlédl deset konkrétních řádků a ověřil, že dotaz nelže. Právě na tuhle roli ho tenhle postup přesouvá: z počítadla na kontrolní stanoviště. U menších souborů zůstává [kontingenční tabulka](/tipy/excel-kontingencni-tabulka) i [vzorce s pomocí AI](/tipy/ai-excel-vzorce) skvělá volba.
+
+### Proč ne „ať si AI napíše Python"
+
+Python je mocnější a na složitou statistiku, modelování nebo grafiku nemá SQL šanci. Na běžné otázky typu „sečti po měsících a kategoriích" má ale tři nevýhody.
+
+**Je to hodně kódu na málo výsledku.** Načíst soubor, ošetřit kódování a desetinnou čárku, převést datum, seskupit, seřadit — třicet řádků, ve kterých je třicet příležitostí k chybě. Ekvivalentní SQL dotaz má pět řádků a čte se skoro jako věta.
+
+**Prostředí je věc navíc.** Verze Pythonu, balíčky, virtuální prostředí, chybějící `pandas` — každá z těch věcí umí sežrat čtvrthodinu, aniž se posunete o krok. DuckDB CLI je jeden program bez závislostí.
+
+**A hlavně: kód se hůř kontroluje.** Třicet řádků Pythonu si přečtete se skřípěním zubů, nebo vůbec. V pěti řádcích SQL uvidíte `WHERE stav <> 'storno'` a hned víte, co se vyřadilo. **Kontrolovatelnost je u téhle úlohy důležitější než síla nástroje**, protože kontrola je jediné, co vás dělí od tiché chyby.
+
+Třetí možnost samozřejmě existuje: skript v Pythonu, který si uvnitř volá DuckDB. To je právě ta poctivá cesta, o které je [druhý článek série](/tipy/reprodukovatelna-analyza-dat).
+
+## Nastavení: jeden prompt, který to celé založí
+
+Tohle je jádro návodu. Otevřete agenta, který má přístup k souborům a umí spouštět příkazy — [Claude Code](/tipy/claude-code-osobni-automatizace), Claude Cowork nebo Codex — a pošlete mu tenhle text. Uděláte to **jednou**, ne v každém chatu.
+
+```text
+Nainstaluj mi DuckDB CLI (jen pokud ho ještě nemám; je zdarma,
+návod na duckdb.org) a vytvoř trvalý, opakovaně použitelný skill,
+kterým budu nad libovolným datovým souborem dělat analýzy tak,
+že ti obyčejnou řečí řeknu, co chci.
+
+Skill ať dodržuje tohle:
+- Počítá se přes DuckDB CLI (příkaz duckdb), který čte CSV, Excel,
+  Parquet, JSON i gzip přímo ze souboru, bez zakládání databáze.
+  SQL syntaxi ber z dokumentace:
+  duckdb.org/docs/current/sql/introduction.
+- Než napíšeš dotaz, prohlédni si soubor: schéma a statistiky přes
+  SUMMARIZE FROM 'soubor', prvních pár řádků přes FROM 'soubor'
+  LIMIT 5. Nehádej názvy ani typy sloupců, a když je cokoli
+  nejasného, zeptej se uživatele.
+- U každé odpovědi ukaž SQL dotaz, kterým výsledek vznikl,
+  a počet řádků, které do něj vstoupily.
+- Data neupravuj a nepřepisuj. Když je potřeba něco vyřadit nebo
+  opravit, udělej to v dotazu a napiš, co a proč jsi vyřadil.
+- Skill ulož tak, aby se načítal sám, kdykoli budu mluvit
+  o analýze datového souboru — nemusím ho vyvolávat ručně.
+
+Až to bude hotové, ukaž mi, kam jsi skill uložil a co v něm stojí.
+```
+
+Agent DuckDB nainstaluje (nebo zjistí, že už ho máte), založí skill a ukáže vám ho. Trvá to pár minut. Poslední řádek nevynechávejte — **soubor se skillem si přečtěte**, protože od téhle chvíle řídí každou vaši analýzu.
+
+### Rozbor řádek po řádku
+
+Každý řádek toho promptu tam je proti konkrétnímu selhání. Stojí za to vědět proti kterému — pak si skill umíte upravit.
+
+**„Jen pokud ho ještě nemám."** Agenti poslušně provedou, co jim řeknete, i podruhé. Bez téhle pojistky vám může přeinstalovat něco, co funguje.
+
+**„Trvalý, opakovaně použitelný."** Klíčové slovo celého zadání: rozdíl mezi instrukcí v chatu a skillem je rozdíl mezi „řekl jsem to jednou" a „platí to pořád".
+
+**„Počítá se přes DuckDB CLI."** Bez tohohle řádku má agent na výběr a sáhne po tom, co zná — obvykle po Pythonu. Věta zavírá dveře odhadování z hlavy: výpočet dělá databáze.
+
+**„Čte přímo ze souboru, bez zakládání databáze."** Brání tomu, aby agent začal budovat schéma a importovat data. Zbytečná práce a další místo, kde se něco ztratí.
+
+**„SQL syntaxi ber z dokumentace."** DuckDB má vlastní rozšíření nad standardní SQL (`SUMMARIZE`, `GROUP BY ALL`, dotaz začínající `FROM`). Model, který si vzpomíná na obecné SQL, si funkce vymyslí. **Odkaz na dokumentaci je nejlevnější pojistka proti halucinaci** — agent si ověří tvar zápisu místo hádání.
+
+**„Než napíšeš dotaz, prohlédni si soubor."** Celá metodika ve dvou příkazech. Bez ní agent píše dotaz podle toho, jak si sloupce představuje.
+
+**„Nehádej názvy ani typy sloupců."** Nejčastější příčina špatného výsledku, který nespadne. Agent předpokládá sloupec `datum`, ve skutečnosti se jmenuje `date_created`, dotaz spadne — to je ten lepší případ. Horší je, když existují oba a on si vybere ten nesprávný.
+
+**„Když je cokoli nejasného, zeptej se uživatele."** Nejdůležitější a nejvíc opomíjený řádek. Modely mají zabudovanou snahu odpovědět, ne se ptát. Jenže rozhodnutí typu „mají se storna počítat?", „je cena s DPH?", „co s řádky bez data?" **nejsou technická, jsou věcná — a odpověď zná jenom člověk.** Tenhle řádek je datová podoba pravidla „AI navrhuje, člověk schvaluje".
+
+**„Ukaž SQL dotaz a počet řádků."** Auditní stopa u každé odpovědi. Bez ní se vracíte přesně tam, odkud jste utíkali: k číslu bez původu.
+
+**„Data neupravuj a nepřepisuj."** Agent, který „opraví" překlepy v kategoriích rovnou v souboru, vám zničí možnost cokoli zkontrolovat. Filtrování a čištění patří do dotazu, ne do dat.
+
+### Co je skill a proč zrovna trvalý
+
+Skill je **trvalá instrukce pro agenta, uložená jako soubor**. Má krátký popis, podle kterého se agent rozhodne, kdy ji použít, a delší tělo s pravidly. Když se zeptáte na něco, co popisu odpovídá, tělo se načte a agent podle něj postupuje — nemusíte nic vyvolávat ani nikam nic vkládat.
+
+Na tom „trvalý" stojí celý rozdíl. Když stejná pravidla vkládáte do každého chatu ručně, stane se trojí: časem je zkrátíte, občas na ně zapomenete a v každém chatu jsou trochu jiná — a tím se vrátíte přesně k té nereprodukovatelnosti, kvůli které to celé děláte. **Instrukce, kterou musíte pokaždé napsat znovu, je instrukce, kterou dřív nebo později nenapíšete.**
+
+Kam se skill ukládá, se liší nástroj od nástroje a v čase se to mění, takže je nejlepší nechat to na agentovi — proto to v promptu stojí obecně. V Claude Code je konvence taková, že skill je soubor `SKILL.md` ve složce pojmenované po něm, buď osobní (v domovské složce, platí ve všech projektech), nebo projektový (v repozitáři, sdílí se s týmem). V hlavičce souboru je `name` a `description`; podle popisu se skill sám aktivuje, vyvolat ho jde i ručně lomítkem a jménem. Podrobněji o trvalém kontextu a agentech je kapitola [rutiny a agenti](/prirucka/rutiny-a-agenti).
+
+**Osobní, nebo projektový?** Osobní, když analyzujete různá data z různých míst a pravidla jsou vaše. Projektový, když jde o data konkrétní firmy a chcete, aby všichni počítali stejně — pak se skill dá rozšířit o věci specifické pro vaše data. To je nejlevnější způsob, jak ve firmě sjednotit definice; víc v tipu [AI ve firmě](/tipy/ai-ve-firme-kompletni-pruvodce).
+
+### Kontrola, že to opravdu funguje
+
+Než skill pustíte na ostrá data, ověřte si na malém souboru, že se chová podle pravidel:
+
+```text
+Zkusíme si nový skill nanečisto. Vytvoř mi testovací CSV
+o 200 řádcích, které bude vypadat jako typický český export:
+středník jako oddělovač, desetinná čárka v číslech, sloupce
+datum, kategorie, castka, stav. Do dat schválně přidej:
+- 5 duplicitních řádků,
+- 3 řádky s prázdnou kategorií,
+- kategorii napsanou dvěma způsoby („Praha" a „praha "),
+- jednu částku o dva řády vyšší než ostatní,
+- celý jeden týden bez záznamu.
+
+Pak nad tím souborem postupuj přesně podle skillu: prohlédni si ho,
+napiš mi, co jsi zjistil, a teprve potom navrhni, na co by mělo
+smysl se ptát. Zatím nic nepočítej. U každého nálezu napiš,
+který příkaz ti ho ukázal.
+```
+
+Vrátí popis souboru včetně nastražených chyb — a hlavně vám ukáže, jestli skill funguje tak, jak jste chtěli. Když agent rovnou počítá, aniž by se podíval, nebo si domýšlí význam sloupců, pravidla ve skillu zpřísněte. Deset minut tady ušetří hodinu nedůvěry potom.
+
+## Jak se pak ptáte
+
+Od téhle chvíle se ptáte česky. Skill zařídí, že se agent nejdřív podívá, pak spočítá a pak ukáže dotaz. Následuje osm zadání, která pokryjí většinu běžné práce s daty. Nejsou vázaná na jeden obor — fungují nad prodeji, docházkou, výsledky měření, evidencí objednávek i výpisem z účtu.
+
+### 1. První seznámení s neznámým souborem
+
+Než položíte první skutečnou otázku, potřebujete vědět, co v souboru vlastně je.
+
+```text
+Budeme analyzovat soubor [název souboru].
+
+Zatím nic nepočítej. Prohlédni si ho a napiš mi:
+1. Kolik má řádků a sloupců.
+2. U každého sloupce: jak se jmenuje, jaký typ se načetl, kolik
+   má prázdných hodnot a kolik různých hodnot obsahuje.
+3. Které sloupce se podle tebe načetly ve špatném typu (typicky
+   číslo nebo datum přečtené jako text) a jak by se to opravilo.
+4. Co je v těchto datech jedno pozorování — co znamená jeden řádek.
+5. Na co se mě potřebuješ zeptat, než začneme počítat.
+
+U bodu 5 nešetři. Radši se zeptej na pět věcí, než abys jednu
+odhadl.
+```
+
+Vrátí popis dat a seznam otázek. **Bod 3 je pojistka proti tiché chybě z úvodu** — když se v odpovědi objeví, že „částka se načetla jako text", máte diagnózu dřív, než jste cokoli sečetli. A když agent neumí říct, co je jeden řádek (bod 4), znamená to obvykle, že jsou v datech smíchané úrovně, třeba objednávky a mezisoučty.
+
+### 2. Přehled po obdobích s kategoriemi a skupinou Ostatní
+
+Nejčastější zadání vůbec: vidět, jak se struktura vyvíjí v čase, a netopit se přitom v padesáti kategoriích, ze kterých čtyřicet má po dvou řádcích.
+
+```text
+Budeme analyzovat soubor [název souboru].
+
+Udělej mi přehled po [měsících] podle opakovaných kategorií.
+To, co se pravidelně neopakuje, zařaď do skupiny Ostatní.
+Za opakovanou považuj kategorii, která se objeví aspoň
+[ve třech obdobích] a tvoří aspoň [1 %] celku.
+
+Výstup: tabulka období krát kategorie, v buňkách [součet částky]
+a v závorce počet záznamů. Poslední sloupec součet za kategorii,
+poslední řádek součet za období.
+
+Pod přehledem vypiš všechny anomálie porušující typické vzorce:
+- kategorie, která se objevila poprvé nebo naopak zmizela,
+- hodnota odchýlená od obvyklé úrovně dané kategorie
+  o víc než [dvojnásobek],
+- období, ve kterém chybí kategorie, jež jinak bývá vždy.
+
+U každé anomálie napiš, o který konkrétní řádek nebo řádky jde.
+Nevysvětluj příčiny, jen ukaž, co je nezvyklé.
+```
+
+Vrátí přehled a seznam míst, kam se podívat. Tři věci si pohlídejte. **Co spadlo do Ostatních** — když je to čtyřicet procent celku, jsou prahy nastavené špatně a přehled nic neukazuje. **Žádné vysvětlování příčin**; poslední věta promptu je tam schválně, protože vysvětlení si model vymyslí přesvědčivě a jenom vy víte, že v květnu vypadl dodavatel. A **ověřte, že se nic neztratilo**: součet za období musí sedět s celkovým součtem souboru.
+
+### 3. Porovnání dvou období
+
+Tabulka ukáže, co se stalo. Tohle zadání ukáže, čím to je.
+
+```text
+Porovnej v souboru [název] období [A] proti období [B].
+
+Chci tabulku: [kategorie], hodnota v období A, hodnota v období B,
+absolutní rozdíl, procentní změna a PŘÍSPĚVEK k celkové změně
+v procentních bodech. Seřaď podle příspěvku, největší nahoře.
+
+Pak zvlášť rozlož celkovou změnu na dvě složky: změnu počtu
+záznamů a změnu průměrné hodnoty záznamu.
+
+Nakonec vypiš kategorie, které jsou jen v jednom z období.
+
+Období definuj podle sloupce [datum]. Napiš mi, kolik dní každé
+z období obsahuje — když se liší, upozorni na to.
+```
+
+Vrátí rozpad, ze kterého je vidět, která kategorie za změnu skutečně může. **Rozklad na počet a průměr je nejrychlejší diagnostika, jakou máte** — „přišlo míň záznamů" a „záznamy byly menší" jsou dva různé problémy s jiným řešením. Poslední odstavec je proti nejčastější chybě ve srovnávání: únor má o tři dny míň než leden a samo o sobě to vyrobí „propad" kolem deseti procent.
+
+### 4. Duplicity a nekonzistence
+
+Špinavá data nevypadají špinavě. Poznají se jenom tím, že se zeptáte.
+
+```text
+V souboru [název] chci najít nepořádek. Nic neopravuj, jen vypiš.
+
+1. Úplné duplicity: řádky shodné ve všech sloupcích. Kolik jich je
+   a ukaž tři příklady.
+2. Duplicity podle klíče [sloupec nebo kombinace sloupců]: záznamy,
+   které mají stejný klíč, ale liší se v ostatních sloupcích.
+3. Textové hodnoty, které jsou nejspíš totéž psané jinak: liší se
+   jen velikostí písmen, mezerami na konci, diakritikou nebo
+   překlepem. Ukaž je ve dvojicích s četností obou variant.
+4. Hodnoty mimo očekávaný rozsah: záporná čísla tam, kde nedávají
+   smysl, data v budoucnosti, nulové částky.
+5. Sloupce, kde chybí víc než [5 %] hodnot.
+
+U každého bodu napiš počet zasažených řádků a jaký podíl
+z celku to je.
+```
+
+Vrátí soupis, který byste ručně hledali půl dne. **Bod 3 je nejcennější** — dvě varianty psaní téže kategorie tiše rozdělí čísla na půl a v souhrnu to není vidět. Bod 2 znamená, že buď máte v datech opravné verze, nebo je klíč špatně zvolený; rozhodnout to musíte vy, ne agent.
+
+### 5. Segmentace: kdo nebo co tvoří většinu
+
+Klasický Paretův pohled. Funguje na zákazníky, produkty, dodavatele, zaměstnance, zařízení i chybové kódy.
+
+```text
+V souboru [název] mě zajímá rozložení podle [sloupec, např.
+zákazník / produkt / pobočka].
+
+1. Seřaď segmenty podle [součtu hodnoty] a ukaž top 20:
+   segment, hodnota, podíl na celku, kumulativní podíl.
+2. Napiš, kolik segmentů dělá 50 % a kolik 80 % celku.
+3. U každého segmentu z top 20 přidej počet záznamů a MEDIÁN
+   hodnoty záznamu, ne průměr.
+4. Zvlášť ukaž segmenty s jediným záznamem — kolik jich je
+   a jaký podíl celku tvoří dohromady.
+
+Přidej i řádek „zbytek" se souhrnem všech ostatních segmentů,
+ať tabulka sedí na celek.
+```
+
+Vrátí obrázek, který v souhrnném čísle vidět není. **Medián místo průměru v bodu 3 je tam schválně**: u zešikmených dat popisuje průměr něco, co v datech neexistuje. Když se medián a průměr výrazně liší, táhne segment pár extrémů — a to je informace sama o sobě. Bod 4 bývá překvapení: „dlouhý ocas" jednorázových segmentů často tvoří větší podíl, než kdokoli čekal.
+
+### 6. Spojení dvou souborů přes společný klíč
+
+Ta chvíle, kdy prodeje potřebujete obohatit o číselník produktů, docházku o organizační strukturu nebo objednávky o data ze skladu.
+
+```text
+Mám dva soubory: [soubor A] a [soubor B].
+Chci je propojit přes [společný sloupec].
+
+Nejdřív mi bez počítání napiš:
+- kolik unikátních hodnot klíče je v každém souboru,
+- kolik hodnot z A nemá protějšek v B a naopak — u obou ukaž
+  pět příkladů,
+- jestli je vztah 1:1, nebo se některý klíč v jednom ze souborů
+  opakuje (a kolikrát nejvíc).
+
+Teprve pak je spoj tak, aby se ze souboru A neztratil ani jeden
+řádek, a doplň z B sloupce [výčet].
+Po spojení mi napiš, kolik má výsledek řádků, a porovnej to
+s počtem řádků v A. Když se čísla liší, vysvětli proč.
+```
+
+Vrátí diagnostiku a teprve pak spojení — a **ta předběžná kontrola je celý smysl promptu.** Spojování je nejrychlejší způsob, jak nepozorovaně nafouknout nebo osekat data: když se klíč v druhém souboru opakuje, počet řádků se znásobí a všechny součty jsou rázem vyšší; když chybí, tiše vypadnou řádky. Po spojení musí počet řádků buď sedět, nebo mít vysvětlení.
+
+### 7. Kontrola úplnosti dat
+
+Nejpodceňovanější zadání ze všech. Analýza nad neúplnými daty je horší než žádná, protože vypadá kompletně.
+
+```text
+V souboru [název] chci ověřit, jestli jsou data úplná.
+
+1. Nejstarší a nejnovější [datum] v souboru.
+2. Časová řada počtu záznamů po [dnech / týdnech / měsících] —
+   vypiš ji celou, ať vidím díry.
+3. Období, ve kterých není ani jeden záznam, i když sousední
+   období záznamy mají. Vypiš je jako konkrétní rozsahy.
+4. Období, kde je počet záznamů výrazně nižší nebo vyšší než
+   obvykle (odchylka od mediánu o víc než [50 %]).
+5. Jestli se v čase mění složení dat: kategorie, které se
+   objevují jen v části období, nebo sloupec, který je od
+   určitého data prázdný.
+
+U bodu 5 napiš i to, kdy přesně ke změně došlo.
+```
+
+Vrátí mapu děr. **Bod 5 je ten, kvůli kterému to děláte** — když se v půlce období změnila metodika sběru nebo se přestal plnit jeden sloupec, každé srovnání „letos proti loni" je od té chvíle nesmysl a nikde to není napsané. Chybějící období z bodu 3 mívají nudné vysvětlení (svátky, výpadek systému), ale zjistit to musíte předem, ne až se někdo zeptá.
+
+### 8. Uložení výsledku, ať se nemusí počítat znovu
+
+Poslední krok, na který se zapomíná: dostat výsledek ven z chatu.
+
+```text
+Výsledek posledního dotazu ulož do souboru [nazev.csv]
+se středníkem jako oddělovačem a hlavičkou, ať se otevře
+v tabulkovém procesoru.
+
+Vedle něj ulož textový soubor, ve kterém bude:
+- SQL dotaz, kterým výsledek vznikl, celý a spustitelný,
+- ze kterého zdrojového souboru se počítalo a kolik měl řádků,
+- co všechno bylo vyřazeno a proč,
+- dnešní datum.
+
+Ten dotaz napiš tak, abych ho příští měsíc mohl pustit nad novým
+exportem beze změny — tedy bez natvrdo zapsaných dat a hodnot,
+které se budou lišit.
+```
+
+Vrátí výsledek k dalšímu použití a **poznámku o původu, která z čísla dělá číslo obhajitelné**. Poslední odstavec je most k poctivé cestě: takhle uložený dotaz je zárodek reprodukovatelné analýzy a stačí ho zabalit do skriptu. Po pár měsících máte složku dotazů, které pokrývají většinu opakujících se otázek — a další report je otázka spuštění, ne psaní. Jak z toho udělat pravidelnou rutinu, ukazuje tip [osobní rozpočet z bankovního výpisu](/tipy/osobni-rozpocet-z-bankovniho-vypisu).
+
+## Jak poznáte, že výsledek sedí
+
+Nic z předchozího neznamená, že je výsledek správně. Znamená to, že je **kontrolovatelný** — a kontrola je pořád na vás. Čtyři návyky, každý na pár minut.
+
+### Nechte si vypsat dotaz, který to spočítal
+
+Skill to má nařízené, ale vy si to musíte doopravdy přečíst. Nemusíte umět SQL psát, stačí ho umět zkontrolovat, a to je mnohem snazší. Hledáte čtyři věci: **odkud** se čte (sedí název souboru?), **co se vyřadilo** (`WHERE`), **podle čeho se seskupuje** (`GROUP BY`) a **co se sčítá**. Když v dotazu uvidíte filtr, o kterém jste nevěděli, máte odpověď na to, proč číslo nesedí.
+
+```text
+Ukaž mi dotaz, kterým vzniklo číslo [konkrétní hodnota], a rozeber
+mi ho po částech běžnou češtinou — u každé části napiš, jaké
+rozhodnutí o mých datech v sobě skrývá.
+
+Pak zvlášť vypiš:
+- které řádky dotaz vyřadil a kolik jich bylo,
+- co se stane s řádky, kde je [sloupec] prázdný,
+- kde by dotaz mohl vrátit špatné číslo, aniž by spadl.
+
+Nakonec napiš jednu alternativu: jak by šlo totéž spočítat jinak
+a proč by výsledek mohl vyjít jinak.
+```
+
+Poslední odstavec je nejcennější. **Když dvě rozumné cesty ke stejnému číslu dají různý výsledek, není chyba ve výpočtu — je v zadání.** Typicky se ukáže, že „měsíční tržba" znamená tři různé věci podle toho, jestli se počítá podle data objednávky, zaplacení, nebo vystavení faktury.
+
+### Kontrolní součet proti jinému zdroji
+
+Nejsilnější kontrola, jakou máte, a je triviální: **vezměte jedno číslo, které znáte odjinud, a porovnejte ho.** Celkový obrat z účetnictví, počet zaměstnanců z personálního systému, počet objednávek z administrace. Jedno číslo stačí.
+
+Když sedí, věříte celé cestě od načtení souboru po agregaci. Když nesedí, rozdíl vám obvykle rovnou řekne, kde je problém: chybí zaokrouhlená částka? Nejspíš vypadly řádky s prázdnou hodnotou. Chybí přesně jedna kategorie? Filtr. Je to o dvacet procent míň? Podívejte se na desetinnou čárku a na typ sloupce. Kontrolní číslo si zapište k výsledku — za tři měsíce budete vědět, čím měřit.
+
+### Kolik řádků vypadlo a proč
+
+Každý filtr něco zahazuje a **tichý úbytek řádků je nejčastější příčina špatného čísla, které nikoho neupozorní**. Návyk je jednoduchý: u každého mezikroku znát tři čísla — kolik řádků bylo na začátku, kolik zbylo a kolik z toho udělal který krok. Když součet nesedí, něco vypadlo mimo záznam.
+
+```text
+U poslední analýzy mi udělej bilanci řádků:
+- kolik řádků měl zdrojový soubor,
+- kolik jich postupně ubylo v každém kroku a z jakého důvodu,
+- kolik jich vstoupilo do finálního výsledku,
+- kontrola: sedí součet vyřazených a započítaných na celek?
+
+U každého kroku, který vyřadil víc než [2 %] řádků, ukaž pět
+konkrétních vyřazených řádků, ať vidím, o co jsem přišel.
+
+Pokud nějaké řádky vypadly nechtěně, napiš to natvrdo místo
+toho, abys to vysvětloval.
+```
+
+Vrátí bilanci, kterou si přečtete za minutu. **Ukázka vyřazených řádků je ta část, kde se poznají skutečné problémy** — najednou vidíte, že „vyřazeno 340 řádků bez data" jsou všechno objednávky z jedné pobočky, která datum zapisuje jinak.
+
+### Test na malém vzorku, kde znáte odpověď
+
+Poslední a nejpodceňovanější návyk: **spočítejte totéž ručně na deseti řádcích a porovnejte.** Vezměte jednu kategorii a jeden měsíc, kde je záznamů málo, otevřete data v tabulkovém procesoru, sečtěte to a porovnejte s tím, co vrátil dotaz.
+
+Zabere to pět minut a chytí to celou třídu chyb, kterou žádná jiná kontrola nechytí — protože testujete pochopení zadání, ne správnost výpočtu. Databáze počítá spolehlivě; otázka je, jestli počítá to, co jste chtěli. Když máte data, u kterých znáte odpověď předem (uzavřený loňský měsíc, výsledek, který jste už jednou publikovali), pusťte dotaz nejdřív na ně.
+
+### AI navrhuje, člověk schvaluje — v datové podobě
+
+Zásada, která platí na celém tomhle webu, má u dat konkrétní podobu: **AI smí navrhnout výpočet, ale význam čísla schvaluje člověk.**
+
+Za prvé, **věcná rozhodnutí nedelegujete.** Jestli se počítají storna, jestli je cena s DPH, co se stane s řádky bez kategorie, jestli se vratky odečítají nebo evidují zvlášť — na tyhle otázky nezná odpověď žádný model, protože nejsou v datech. Jsou ve vaší firmě. Proto je ve skillu ten řádek o ptaní se.
+
+Za druhé, **výsledek se ověřuje proti realitě, ne proti dojmu.** Číslo není správné proto, že vypadá rozumně nebo že ho spočítala databáze. Je správné, když sedí na něco nezávislého.
+
+Za třetí, **odpovědnost za číslo v reportu je vaše.** Když se na poradě zeptají „odkud to je?", odpověď „to mi spočítala AI" není odpověď. Odpověď je „ze souboru XY za období Z, po vyřazení storen, sedí to na účetnictví na tisícikoruny".
+
+A jedna věc navíc: **citlivá data.** Velká výhoda tady popsaného postupu je, že **data zůstávají na vašem disku** — DuckDB je počítá lokálně a agent posílá do modelu jen dotazy a agregované výsledky. Přesto platí obvyklé pravidlo: pracujte v placeném účtu se smluvní ochranou dat a osobní údaje z exportu vyhoďte nebo nahraďte pořadovým číslem. Souhrn po kategoriích nikdy nepotřebuje jména.
+
+## Nejčastější chyby
+
+- **Věřit číslu, u kterého jste neviděli dotaz.** Skill má ukazování dotazu nařízené, ale když ho přeskočíte a jen zkopírujete výsledek, jste zpátky na začátku. Nejde o to umět SQL psát, jde o to přečíst si, co se vyřadilo a podle čeho se seskupovalo.
+- **Nechat agenta hádat význam sloupců.** Sloupec `hodnota` může být s DPH i bez, `datum` může být objednávka i expedice, `stav` může mít osm hodnot, z nichž tři znamenají zrušeno. Když se agent nezeptá, vysvětlete mu to sami — a přidejte tu informaci do skillu, ať se neptá pokaždé.
+- **Přehlédnout typ sloupce.** Nejtišší chyba v českých datech: částka s desetinnou čárkou se načte jako text a součty jsou nesmyslné nebo neúplné. Řádek s typy je hned pod hlavičkou výpisu — dívejte se na něj vždycky.
+- **Nechat si vysvětlit příčinu anomálie.** Agent najde, že v květnu vyskočila jedna kategorie. Když ho necháte říct proč, vymyslí si věrohodné vysvětlení. Příčinu znáte vy nebo ji zjistíte dotazem k lidem, ne k modelu. Víc v tipu [ověřování faktů](/tipy/ai-overovani-faktu).
+- **Používat skill i na čísla, která mají být reprodukovatelná.** Podklady pro účetnictví, výroční zprávu nebo publikovaný výsledek patří do uloženého skriptu, ne do konverzace. Skill je na průzkum a rychlé otázky.
+- **Nechat agenta upravovat zdrojová data.** Jakmile se soubor přepíše, ztrácíte možnost cokoli ověřit a porovnat. Čištění patří do dotazu. Zdroj se nechává, jak přišel.
+- **Zapomenout na kontrolní součet.** Jediné číslo z nezávislého zdroje, porovnané na začátku, ušetří dny dohledávání. Vynechává se proto, že vypadá zbytečně — a je zbytečné přesně do chvíle, kdy není.
+
+## Nejlepší nástroje
+
+- **DuckDB CLI** — výpočetní stroj celého postupu: čte CSV, Excel, Parquet, JSON i komprimované soubory přímo z disku bez zakládání databáze a odpovídá SQL dotazem, který je vidět a dá se zkontrolovat.
+- **Claude Code** — agent nad složkou s daty: nainstaluje DuckDB, založí a udržuje skill, píše a spouští dotazy a ukazuje výsledky. Podrobněji v tipu [Claude Code jako osobní automatizační motor](/tipy/claude-code-osobni-automatizace).
+- **Claude Cowork** — stejná práce v desktopovém režimu nad složkou souborů, pro ty, kdo nechtějí terminál.
+- **Skill (trvalá instrukce agenta)** — místo, kde jsou uložená pravidla postupu i znalosti o vašich datech; osobní pro vlastní analýzy, projektový pro tým.
+- **Tabulkový procesor** — kontrolní stanoviště, ne počítadlo: nejlepší nástroj na ruční ověření deseti konkrétních řádků a na rychlý souhrn přes [kontingenční tabulku](/tipy/excel-kontingencni-tabulka).
+- **Python s DuckDB nebo pandas** — pro chvíle, kdy skill nestačí: statistika, modelování, grafy a všechno, co má běžet každý měsíc stejně. Cesta k tomu je v tipu [malé skripty bez programování](/tipy/ai-skripty-pro-nevyvojare).
+
+## Co vám to přinese
+
+- **Čas:** otázka, na kterou se dřív stavěla kontingenční tabulka, je hotová za minutu. Odpoledne nad exportem se scvrkne na půl hodiny a doplňující otázka na poradě přestane být problém na příští týden.
+- **Peníze:** rozhodujete podle rozpadu, ne podle souhrnného čísla, takže řešíte skutečnou příčinu. Jedno nesprávné číslo v podkladu pro rozhodnutí stojí obvykle mnohem víc než večer strávený jeho ověřením.
+- **Klid:** u každého čísla víte, ze kterých řádků vzniklo a jakým dotazem. Otázka „odkud to máš?" přestane být nepříjemná.
+- **Kvalita:** povinné prohlédnutí souboru před výpočtem odhalí duplicity, chybějící období a špatně načtené typy dřív, než se dostanou do reportu. Většina těch nálezů by v ručním souhrnu prošla.
+
+## Pro tip
+
+Až budete mít skill zaběhnutý, udělejte jeden krok navíc: **doplňte do něj znalosti o vašich konkrétních datech.** Ne jen jak se počítá, ale co která věc znamená. Že sloupec `stav` má hodnoty `nova`, `zaplacena`, `storno` a `vratka` a že storna se do obratu nepočítají, zatímco vratky ano, jen se odečítají. Že se od loňského března změnil formát čísla pobočky. Že soubor z pokladny má vždycky středník a CP1250, zatímco export z e-shopu čárku a UTF-8.
+
+Vzniká tím něco cennějšího než návod k nástroji: **zapsaná datová definice vaší firmy.** Znalost, která dosud existovala jen v hlavě jednoho člověka, se stane souborem, který se sdílí, verzuje a opravuje — a všichni díky ní počítají stejně. To je mimochodem nejlevnější řešení sporu „mně to vyšlo jinak", který v každé firmě zabírá víc času než samotná analýza.
+
+A závěrečné pravidlo, které stojí nad celým návodem: **model nesmí být tím, kdo počítá — smí být jen tím, kdo umí položit otázku a napsat dotaz.** Ve chvíli, kdy se číslo objeví v odpovědi bez dotazu, který ho spočítal, nemáte analýzu. Máte text, který má náhodou desetinnou čárku. Na plnou reprodukovatelnost, kde postup žije ve verzovaném skriptu a příští měsíc dá zaručeně stejné číslo, navazuje [reprodukovatelná analýza dat](/tipy/reprodukovatelna-analyza-dat).
