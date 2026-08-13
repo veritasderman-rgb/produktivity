@@ -1,0 +1,481 @@
+---
+title: "Which tools have an MCP connector, and what you can actually do with them"
+excerpt: "A complete guide with prompts: how connectors get added, what Buffer, Canva, Adobe, Lucid, Notion, Supabase, and the official Google Analytics MCP server can really do — plus Gemini API pricing as of August 2026 and two honest ways to bring Gemini into Claude Cowork."
+category: "ai"
+platform: "vsude"
+audience: ["marketer", "freelancer", "vyvojar", "manazer"]
+keys: []
+saves: "~4 hrs a week"
+date: "2026-08-13"
+updated: "2026-08-13"
+---
+
+Until AI has connectors, it's a smart text box. It's great at thinking about whatever you feed it, but you're the one who has to feed it — copy numbers out of analytics, export posts, describe what your template looks like. A connector erases that middle step. **The moment you turn a connector on, the model stops being a commentator on your work and becomes a participant in it: it reaches into the account, reads real data, and produces a real output.** The jump in usefulness is an order of magnitude, and so is the jump in what you need to keep an eye on.
+
+This guide is a catalog with a user manual. We'll walk through adding a connector and the permissions screen that most people click through without reading. Then three areas where connectors change the work the most: social media and content, graphic design, analytics and data. Finally, Gemini API pricing and the question of how to bring it into Claude Cowork, since it isn't a connector in the usual sense. Every section has prompts you can copy.
+
+One distinction is worth keeping in mind for the whole piece. A **remote connector** is a server hosted somewhere on the internet: you connect a URL, go through an OAuth login, and from that point on it runs at the provider's end — that's how Buffer, Canva, Notion, and Adobe work. A **local connector** runs on your own machine and is launched by your client; that's how the official Google Analytics MCP server works. The difference isn't just technical: with a remote connector you're granting a service access to your account, with a local one you're only granting access to a process on your own machine. What MCP is as a standard and how permissions get set up is covered in [MCP connectors: USB-C for AI](/tipy/mcp-konektory-usb-c-pro-ai).
+
+## A typical scenario
+
+Marek does marketing for three small clients. His week looks like this: on Monday he pulls numbers out of analytics and retypes them into a spreadsheet, on Tuesday he writes two weeks' worth of social posts, on Wednesday he produces graphics for them in three sizes, on Thursday he uploads everything to the scheduler, and on Friday he writes a report for the clients. Eight to ten hours a week, an estimated seventy percent of it moving data between windows. The worst part isn't the time — it's what doesn't get done because of it: Marek hasn't checked which posts actually worked in six months, because that means exporting metrics and matching them up with the copy.
+
+With connectors, that week flips. The model reads the analytics numbers itself and writes up what changed. One source document becomes a batch of posts, straight into the scheduler as drafts, complete with metrics from last time. Graphics: one design, three sizes, a single request. A report in ten minutes instead of an hour. Two months in, prep time dropped from eight hours to two and a half, an evaluation loop appeared that wasn't there before, and Marek took on a fourth client without adding a day to his week. What didn't change: he still publishes by hand, because a published post can't be taken back.
+
+## How you add a connector
+
+Adding a connector is a two-minute task, but those two minutes decide what the model is allowed to do next year.
+
+### A remote connector from the directory
+
+The easiest path. In connector settings on claude.ai you'll find a directory of ready-made integrations; you pick the service, click connect, and get redirected to that service's login screen. You sign in with your regular account there and **confirm the list of permissions**. No developer app gets created anywhere and no API key gets generated: the login runs over OAuth, meaning the service issues the client a time-limited credential tied to your account and the scope of rights you agreed to. You can remove it any time — not just in connector settings, but also on the service's side, in its list of connected apps, which is the one place that shows even the connectors you forgot about.
+
+### A custom connector via URL
+
+When a service has an MCP server that isn't in the directory, you add it manually: in connector settings choose "Add custom connector," paste in the server's URL, and go through the same login. This is how you connect products that aren't in the directory yet, an internal company server, or a third-party community server.
+
+Slow down on that third option. Someone else steps into the chain between you and your data — even when the server is open source, because it still runs on their infrastructure. Look for a traceable author, a public repository with a history, and a clear statement of where the data flows and what gets logged. If even one of those is missing, leave it be.
+
+### In Claude Code, from the command line
+
+In Claude Code, connectors are added with the `claude mcp add` command, and it works in two modes: for a remote server you supply the URL and transport type, for a local one the command that launches it on your machine. Have the exact parameter shape printed for you with `claude mcp add --help` — it's faster than digging through docs and you can't get the version wrong.
+
+```text
+I want to add an MCP server to Claude Code [name / URL or
+command to launch it]. I've never done this before. Write me:
+
+1. The exact command and what each of its parameters means
+2. Whether it's remote or local, and what that means for me
+   in practice (where the data flows, what runs on my machine)
+3. What I need to have ready beforehand (account, permissions,
+   environment)
+4. A query I can use after install to confirm it's working
+5. How to remove it again if it doesn't work out
+
+Don't assume I can code. Where there's a risk, say so up
+front, not at the end.
+```
+
+You'll get a tailored walkthrough with a check-in query included. Point 5 is there on purpose: don't run an install you can't undo. And read point 2 carefully — with a local server, data never travels further than the model; with a remote one, it also passes through the operator.
+
+### What the permissions screen actually means
+
+The screen where a service lists what a connector is allowed to do is the one place in the whole process where you're the one making the decision. Everything else is clicking. Read it in full and look for three things. **Scope** — "access to all your designs" is a different thing from "access to designs in folder X"; when the service offers a choice, take the narrower one. **Direction** — distinguish what only reads from what can create, change, or delete. And **account**: for services with multiple workspaces, check which one is connecting. The most common silent mistake is connecting your personal account and then wondering why the model can't see company data — or the reverse.
+
+An approach that works well in practice: **read-only for the first week.** Watch how often the model gets things wrong and in what way. Only then add the right to create drafts. Keep publishing, payment, and deletion for yourself, permanently.
+
+## Social media and content
+
+Social media is the area where a connector saves the most — and also where it hurts the most when something goes out unchecked.
+
+### Buffer: a scheduler the model can see into
+
+Buffer is a tool for scheduling posts across channels, and its MCP connector covers nearly the whole workflow. Through it, the model can **list connected channels**, **go through scheduled and published posts**, **create a new post with a publish time**, **edit or delete an existing one**, work with **templates** and **ideas**, and — most usefully — **pull aggregated metrics across posts for a given period**.
+
+That last capability is the one that makes this worthwhile. Every scheduler has metrics, but nobody looks at them, because comparing twenty posts against twenty sets of numbers means opening a spreadsheet. The model does it in one query — and does it again next time, too. The more common mode of work, though, is different: you have one source piece and need a batch of posts made from it for several channels, each in a different length and tone, spread across two weeks.
+
+```text
+Put together a batch of posts from this source material:
+
+[paste the article text or a link]
+
+Channels: [LinkedIn, Instagram, Facebook page].
+Period: [14] days starting [date]. Frequency: [LinkedIn 3x a
+week, Instagram 2x, Facebook 2x].
+
+For each post, write:
+- copy tailored to that channel (LinkedIn longer and
+  substantive, Instagram shorter with emphasis on the first
+  line, Facebook medium length)
+- a suggestion for what the image should show (description
+  only, don't generate the image)
+- a proposed day and time with a reason
+- one extra opening-line variant so I have something to
+  choose from
+
+It must not be the same text just shortened — each channel
+should get its own angle on the source material. Don't claim
+anything the source material doesn't say.
+
+Don't create anything in Buffer yet, just list it out in the
+chat.
+```
+
+You'll get the whole batch back to review. Keep that last line in the prompt until you're used to the results — it's easier to cross things out in the chat than to delete drafts you've already created. Check whether a number or claim snuck into the copy that isn't in the source material (this happens mostly with superlatives), and whether the suggested times make sense for your audience.
+
+Once the batch looks right, add one more sentence: "create this in Buffer, everything as a draft or in the queue, don't publish anything, and at the end give me a table of channel, date, time, first 60 characters, status." Check that table before you open the scheduler — a mismatch between what the model claims it created and what's actually in the scheduler shows up exactly this way.
+
+### Evaluation: what worked and what just looked good
+
+The prompt that separates content that keeps improving from content that just keeps getting published.
+
+```text
+Pull my post metrics from Buffer for [the last 3 months]
+for channel [channel] and break it down:
+
+1. The ten best-performing and ten worst-performing posts —
+   date, first 80 characters, and key metric for each
+2. What the successful ones have in common: topic, format,
+   length, type of opening line, day and time, presence of
+   an image
+3. The same for the weak ones
+4. Which differences are a real pattern and which could just
+   be noise from a small sample size
+5. Three changes for next month and how I'll know they worked
+
+Be careful with point 4: when a claim is based on fewer than
+[10] posts, say so explicitly instead of drawing a conclusion.
+Work only from metrics you actually pulled.
+```
+
+You'll get an analysis you skip doing by hand because it's tedious. Point 4 is there because of the most common mistake in social media data work — deriving a rule from five posts. Spot-check two or three posts against what you see in the interface yourself.
+
+### What to hand off to the agent and what not to
+
+**Hand off the prep work.** A batch of posts from one source piece, rewriting for a different channel, pulling topics out of a longer text, a month's content calendar, evaluating the last period. Mechanical work with a high return and zero risk — the worst that happens is a draft you delete.
+
+**Don't hand off publishing.** A published post can't be taken back; a screenshot exists before you can delete it. The same goes for replying to comments and messages, where the risk is even higher. "AI proposes, a human approves" is less a principle here and more a practical safeguard. One exception: **auto-publishing scheduled drafts** that you already approved yourself ahead of time is legitimate — the approval already happened, just with a delay. The broader approach is covered in [an AI content factory](/tipy/obsahova-tovarna-ai) and [social media with AI](/tipy/socialni-site-s-ai).
+
+## Graphic design
+
+Design is the area where connectors surprise people the most — everyone expects "AI draws a picture," when the real value is in operating the tool your graphics already live in.
+
+### Canva: working with your designs, not generating from nothing
+
+The Canva MCP connector can **search your designs and folders**, **read a design's content**, **create a design from a brand template** filled in with your data, **edit an existing design**, **resize it**, **export it to a file**, and work with **brand kits** and **comments**.
+
+The key phrase is brand template. If you have a Canva template with defined fields — heading, subheading, image, logo — the model can turn it into ten variants with different content in no time: ten quotes into ten identical frames, fifteen product cards, four announcement variants for four formats.
+
+```text
+Find my brand template [name] in Canva and produce a series
+of designs from it based on this table:
+
+[paste the data — e.g. heading / subheading / name / date
+for each item, one row = one design]
+
+Rules:
+- insert the text verbatim, don't rephrase or shorten
+  anything
+- if text doesn't fit a field, don't create that design and
+  tell me how many characters over it is
+- name the designs following the pattern
+  [project]-[sequence number]
+- save them into folder [folder name]
+- at the end, give me a list with links and status for each
+  one
+
+Don't publish or share anything externally.
+```
+
+You'll get a series of designs to review. The "doesn't fit" clause is there from experience: the model tends to shorten text to make it look good, and you only notice once you're looking at the finished piece. Check the first and last item in the series.
+
+### Adobe: image editing, video, and Express
+
+Of the three, the Adobe connector is the broadest. **Image work**: background removal, cropping and resizing, generative canvas expansion, subject selection from a description, area fill, vectorization, and a range of exposure, color, and contrast adjustments. **Video work**: metadata, quick cuts, resizing, rendering a single frame or the full output, speech enhancement in audio. And **creating in Express and Firefly**: assembling a design, exporting to other formats, working with fonts and the asset library.
+
+This is most useful for batch work. Fifty product photos that need their backgrounds removed and sizes matched is an hour of manual work — or a single request.
+
+```text
+Folder [path] has [50] product photos. Process them like this:
+
+1. Remove the background from each one
+2. Crop to content and add a uniform [8] percent border
+3. Standardize to [1600 x 1600] px, product centered
+4. Save as [PNG with transparency] into folder [destination],
+   keep the filename and add a -clean suffix
+
+Before you start, do the first three and show them to me —
+once I approve those, run the rest. Where background removal
+doesn't come out clean (hair, transparent materials, fine
+detail), skip the file and put it on a list for manual
+finishing.
+```
+
+You'll get the first three samples, then the rest once you approve them. Stopping after three is the cheapest safeguard in this whole article — with batch operations, a setup mistake shows up fifty times over. Automatic background removal also reliably fails on hair and transparent materials.
+
+### Lucid: diagrams you don't draw by hand
+
+The Lucid connector can **create a diagram** from a description, including specialized types — mind maps, org charts, sequence diagrams, data models. It can **add blocks and connectors** to a document, **edit items**, **search**, **export to PNG**, and share.
+
+The most useful scenario isn't drawing a diagram from scratch, but **turning something you've already described into a diagram**: a process described in three paragraphs, or a list of steps from meeting notes.
+
+```text
+Turn this process description into a flowchart in Lucid:
+
+[paste the process description — plain paragraphs are fine,
+however it was originally written]
+
+- each step as a block, decision points as diamonds
+- name the role that does each step in the block, under the
+  step's title
+- label the branches at each decision (yes/no or the specific
+  condition)
+- where the description has a gap — a step that doesn't lead
+  anywhere, or a decision missing a second branch — insert a
+  block that says "UNRESOLVED: [what's missing]" instead of
+  guessing
+- name the diagram [name], save it into folder [folder], and
+  at the end list everything you flagged as unresolved
+```
+
+You'll get the diagram and a list of holes. That list is usually worth more than the picture — a process described in paragraphs almost always has branches that never get spelled out, and a diagram makes that visible instantly.
+
+### Where AI is strong in design, and where it isn't
+
+**It's strong at mechanics.** Twenty variations on the same thing. Reformatting a design into five sizes. Bulk edits following one rule. Filling data into a template. Cropping, backgrounds, exports, renaming. Tasks where a person is slower and makes more mistakes, because they lose patience around the twentieth repetition.
+
+**It's weak at what makes design design.** Originality, an idea that can't be derived from what already exists, a feel for what fits your brand. The model doesn't have taste, it has statistics — and statistics return an average. Tell it "make it nice" and you'll get something that looks like everything else. From that follows a division of labor: **a human makes the visual decisions once and writes them into a template or a style brief, and the model applies them endlessly afterward** — that exact approach is covered in [automatically generating images](/tipy/gemini-api-obrazky-automaticky).
+
+## Analytics and data
+
+Analytics is the area where connectors are most underrated, because working with data looks like something for a specialist. Most of the time, all it takes is someone asking the right question.
+
+### Google Analytics: official, local, and read-only
+
+The Google Analytics team publishes **its own MCP server** — repository `github.com/googleanalytics/google-analytics-mcp`, Apache 2.0 license, documentation at `developers.google.com/analytics/devguides/MCP`. Three properties determine whether you want it.
+
+It's marked **experimental**: it can change, and you shouldn't build anything on it that has to run every day unsupervised. It's **local** — it runs on your machine, not at the provider's end; you sign in with your own Google account with access to GA4, and data travels between your machine and the model, nowhere else. The server itself is free; you only pay for the model. And it's **read-only**: it reaches GA4 through the Admin API and the Data API, but it doesn't change anything in your settings, so an agent can't scramble your measurement configuration.
+
+It offers roughly six tools: **account and property summaries**, **detail for a specific property**, **standard reports**, **funnel reports**, **real-time reports**, and access to **custom dimensions**. It works with any client that speaks MCP — Claude included, along with others.
+
+```text
+Look at my GA4 property [name or ID] and answer this for the
+period [July 1-31, 2026] versus [the previous month]:
+
+1. What changed in traffic — total and by channel (organic,
+   direct, referral, paid, social), both in percentages and
+   absolute numbers
+2. Which pages gained the most and lost the most, ten and
+   ten, with numbers
+3. For the three biggest changes, write which explanations
+   are plausible and how I'd verify them with another query
+   against the data
+
+Rules:
+- don't state a percent change for numbers under [100]
+  visits, give absolute values instead
+- distinguish what's your conclusion from what's directly in
+  the data
+- where a metric is missing, say so instead of estimating
+```
+
+You'll get an overview that would take twenty minutes of clicking to assemble in the analytics interface. The note about small numbers is there because a jump from three visits to nine reads as "a 200 percent increase" and looks like an event in a report. And the model likes to explain things even when it has no basis for the explanation — hence the distinction between conclusion and data.
+
+Ask about a funnel the same way: "build a funnel from [landing page] through [intermediate steps] to [goal] over the last 90 days, compare mobile against desktop and organic against paid, and for the biggest drop-off write three hypotheses and, for each, a query against the data that would confirm or rule it out." While you're at it, check that the intermediate steps actually match real events in your tracking setup — the most common mistake isn't in the analysis, it's measuring something other than what you think you're measuring. This connects to [analyzing data with AI](/tipy/ai-analyza-dat); what's possible in ad accounts is covered in the companion article [MCP for advertising and analytics](/tipy/mcp-reklama-analyza).
+
+### Notion, Drive, and Supabase: where the rest of the answers live
+
+Analytics answers "how much," not "why." The "why" usually lives in notes, documents, and databases.
+
+The **Notion connector** can search across a workspace, read pages, create and edit them, query databases, and work with comments. The value isn't in writing into Notion, it's in reading from it: company memory that nobody can find anything in turns into something you can ask a question. The **Google Drive connector** searches files by meaning, reads content, returns metadata and permissions, and creates new files. The **Supabase connector** is for anyone running their own database: it lists tables and extensions, runs SQL queries, reads logs, returns security advisories, generates types, and manages migrations — note that running SQL is powerful and irreversible, so keep any query that changes something for yourself.
+
+```text
+Put together a monthly report for [client] covering [month]:
+
+1. From GA4 property [name]: total traffic and traffic by
+   channel, the ten most-visited pages, conversions on
+   [event] — all versus last month
+2. From Notion, from page [name]: what we launched or changed
+   this month, with dates
+3. For each significant change in the numbers, note whether
+   it lines up in time with anything from point 2
+
+Format: two pages, a five-sentence summary first, then the
+numbers, then what it means for next month.
+
+Don't mistake a coincidence in timing for a cause — where
+something lines up, write "coincides with," not "caused."
+State where each number comes from.
+```
+
+You'll get a report worth more than a table of numbers, because it connects data with what you actually did. The line about timing coincidences is the single most important line in the prompt — without it, you get a report full of unverified causal claims.
+
+## Gemini API: when to reach for something else
+
+Most of the work in this article gets done by one model with connectors. But there are tasks worth reaching outside for — when you need to produce something at massive scale, when it's images or video, or when the task is simple enough that you don't want to pay full price for it.
+
+### What an API key is and where to get one
+
+An API key is a string of characters your program uses to identify itself to a service. It isn't a user login, it's a program's login — and that means two things: **whoever holds the key can spend on your account**, and **the key never goes into a prompt, a document, or a repository**. You create one in **Google AI Studio**: create a project, generate a key, copy it once (you won't see it again), and store it in an environment variable or a password manager. Billing is tied to the project in Google Cloud — and that's also where you set a budget limit.
+
+### Pricing as of August 2026
+
+This site doesn't usually list service prices, because they go stale faster than the text around them. I'm making an exception for the Gemini API, because you can't decide whether a batch job is worth running without the numbers. **Prices are as of August 2026, they change, and the current price list is always at `ai.google.dev/gemini-api/docs/pricing`.** Treat these as a rough order of magnitude. Two things to understand: **text models are billed per token, not per request** — a token is roughly a chunk of a word, so a long input costs more than a short one — while **images are billed per image**, based on resolution.
+
+Text models, price in US dollars per million tokens, standard tier:
+
+| Model | Input | Output | Free tier |
+| --- | --- | --- | --- |
+| Gemini 3.1 Pro Preview | 2.00 up to 200K tokens, then 4.00 | 12.00, above 200K 18.00 | no |
+| Gemini 3.6 Flash | 1.50 | 7.50 | yes |
+| Gemini 3.5 Flash-Lite | 0.30 | 2.50 | yes |
+| Gemini 3.1 Flash-Lite | 0.25 | 1.50 | yes |
+| Gemini 2.5 Flash | 0.30 | 2.50 | yes |
+
+The table points to a comparison worth making every time: **the gap between the cheapest and most expensive model runs to a factor of ten.** For simple tasks — reformatting, classification, short summaries — the cheapest option is often plenty.
+
+Images are billed per piece, based on resolution:
+
+<Bars title="Price per generated image (USD, as of August 2026)" items={[
+  {label: "Gemini 2.5 Flash Image", value: 39, display: "0.039"},
+  {label: "Gemini 3.1 Flash Image, 0.5K", value: 45, display: "0.045"},
+  {label: "Gemini 3.1 Flash Image, 1K", value: 67, display: "0.067"},
+  {label: "Gemini 3.1 Flash Image, 2K", value: 101, display: "0.101"},
+  {label: "Gemini 3.1 Flash Image, 4K", value: 151, display: "0.151"},
+  {label: "Gemini 3 Pro Image, 1K and 2K", value: 134, display: "0.134"},
+  {label: "Gemini 3 Pro Image, 4K", value: 240, display: "0.240"},
+]} />
+
+The Flash Image models go by the nickname Nano Banana 2, and the stronger Pro Image by Nano Banana Pro. A hundred illustrations at 1K resolution runs around seven dollars on the cheaper option and around thirteen on the stronger one — at a thousand images, it's worth thinking about which you pick.
+
+**Video** is a different league. Veo 3.1 costs roughly $0.40 per second of video at 720p or 1080p, and $0.60 at 4K; the faster variant starts around $0.10 per second. An eight-second clip runs a few dollars, and a minute of video already runs on the order of twenty dollars and up.
+
+**Batch processing** costs roughly half. That's the mode where you don't send a task as a question with an immediate answer, but as a batch, with the result arriving later. For anything that doesn't need an instant answer — bulk transcripts, classifying thousands of records, generating text variants — it's the simplest way to cut a bill in half.
+
+### Keeping an eye on spend
+
+The most common unpleasant surprise with an API isn't a bad output, it's the bill. It happens the same way every time: a script in a loop, a bug in a condition, a thousand calls instead of ten. Defense has three layers. **A budget limit and alerts in Google Cloud** — in the project the key is tied to, set a monthly budget and alerts at fifty, ninety, and a hundred percent; they arrive by email and reach you even if someone else ran the script. **A cap inside the script itself** — a call counter with a hard maximum. And **a trial run on a small sample**: before you run a batch of a thousand items, run it on five, mainly because with five items you can actually tell whether the output looks right.
+
+```text
+I want to process [task description — e.g. generate
+illustrations for 200 articles / classify 5,000 comments]
+through the Gemini API.
+
+Estimate the cost for me:
+1. Which billing type applies to this task (tokens / per
+   image / per second of video)
+2. An estimate of volume — for text, estimate the token count
+   for input and output and say what the estimate is based on
+3. The price under standard processing and under batch
+4. How the price changes if I use a cheaper model, and what
+   I'd actually lose by doing that
+5. Three ways to cut the volume without losing the result
+
+Use the prices from the price list I'm giving you: [paste the
+current price list]. Don't work from prices in your memory —
+they may have changed.
+```
+
+The last two lines are essential. Model prices change often, and the model remembers them as they were at the time it was trained — so it will happily calculate a budget from a price list that's no longer current. Always paste in the price list yourself.
+
+## Getting Gemini into Cowork
+
+This needs to be stated honestly, because it often gets described imprecisely. **The Gemini API isn't a data source, it's a model.** A connector like Gmail or Notion exists because there's your data behind it. There's no data of yours behind the Gemini API; it's a second brain alongside the one you're already talking to. That's why it can't be switched on as "a connector to Gemini" the way you switch on Drive. It makes sense in two forms.
+
+### Route A: a script on top of an API key
+
+The cleanest option. Have a short script written for you that does one thing — call the Gemini API with your key and save the result to a file. Claude Cowork or Claude Code then runs it like any other tool in the folder; the key is read from an environment variable and the model never sees it. Three advantages: **the key stays with you**, **behavior is predictable**, and **the result is reproducible** — same input, same settings, same output even a year from now.
+
+This is exactly how the illustrations on this site get made. The repository has a file called `scripts/generate-images.mjs`, and the principle boils down to five points.
+
+**The style brief is a constant in the file.** Near the top of the script is a paragraph describing the site's visual style — pen drawing on a white background, a single red accent line, no fills or shadows, 16:9 ratio. This text gets attached to every image verbatim, character for character. Consistency doesn't come from the model, it comes from the brief not changing by accident.
+
+**The subject comes from the article.** The script goes through the articles folder, pulls the title and excerpt out of each one's frontmatter, and builds a sentence describing what the illustration should be about.
+
+**The key lives in an environment variable.** The script reads it from the environment and exits with an error message if it's missing. It's not in the repository and never has been — the model that runs the script never sees it.
+
+**Calling the model is a single request.** The script sends the Gemini API endpoint the text and a setting requesting an image back at a 16:9 ratio. The model name can be overridden with an environment variable, so switching to a newer model is a one-line change.
+
+**Output goes to a folder, not to the site.** The image gets saved as a PNG under the article's name; converting it to WebP — the format actually served to readers — is a separate step, deliberately, so there's a point between generation and publishing where a human looks at it and decides. The script also skips articles that already have an image, so it's safe to run repeatedly. That's the entire security model of this route: **the machine generates, a human publishes.** More detail in [automatically generating images for a project](/tipy/gemini-api-obrazky-automaticky).
+
+You can have a script like this written with a single request:
+
+```text
+Work inside this project's folder. I want a script that uses
+the Gemini API to [task description — e.g. generate an
+illustration for every article / transcribe audio files in a
+folder].
+
+Requirements:
+- the API key is read EXCLUSIVELY from environment variable
+  [name]; if it's missing, the script exits with a clear
+  error message
+- the key is never printed to a log or to output
+- inputs come from folder [path], outputs are saved to [path]
+- an item that already has output gets skipped
+- with no arguments it processes everything; with arguments,
+  only the specified items
+- a call counter with a cap of [50]; it stops if that's
+  exceeded
+- if one item fails, it keeps going and prints a summary at
+  the end: how many done, how many skipped, how many failed
+- nothing gets published or sent anywhere — output only goes
+  to the folder
+
+At the top of the file, add a comment explaining how to run
+the script and what it needs configured. Comment the code in
+English. When you're done, explain what each part does as if
+I don't know how to code.
+```
+
+You'll get a finished, commented script with an explanation. Check three things before you run it on a full batch: that the key really isn't anywhere in the code, that the call cap actually works, and that the script can be run on a single item. The explanation at the end isn't a courtesy — don't run a script you don't understand on anything that costs money. Extending this route to a whole project is covered in the companion article [a website built with Claude Code and Vercel](/tipy/web-claude-code-vercel).
+
+### Route B: a third-party MCP server
+
+The second option is to find an MCP server that wraps the Gemini API as a tool and connect it as a custom connector via URL. Both community and hosted versions exist, and the model then gets an "ask Gemini" ability like any other.
+
+The price of that convenience is specific: **you're handing your API key to someone else's service.** Whoever holds the key can spend on your account, regardless of how good the author's intentions are — all it takes is a poorly secured server. If you run the server yourself, locally, from source, the risk is smaller; with a hosted one, it's the full risk. Minimum precautions: **a separate key** just for this purpose, **a low budget limit**, **a traceable author**, and **regular spend checks**, because a compromised key only shows up in the bill.
+
+For most real needs, Route A is simpler, cheaper, and safer. Route B makes sense mainly when you want to use Gemini conversationally and continuously, not in batches.
+
+## What to watch for
+
+A connector means giving the model access to your data and, in some cases, the right to change something. The rules that follow from that stay the same, and there are five of them.
+
+**Read first, write only after you've built up trust.** For the first week, ask only about things that don't change anything. You'll find out where the model gets things wrong, and there's no way to learn that except by using it.
+
+**A human always confirms publishing, payments, campaign budget changes, and deletion.** "AI proposes, a human approves" isn't caution, it's a division of labor. The model is good at preparation and bad at judging consequences, because it doesn't see the consequences.
+
+**For ad accounts, set budget limits on the platform's side, not the agent's.** A limit written in a prompt is a request; a limit in account settings is a rule.
+
+**For custom and community MCP servers, only install what you understand and what has a traceable author.** You're handing them the login to your account. Open source doesn't mean safe — it just means you could theoretically read it.
+
+**Sensitive data only on a paid account with contractual data protection.** Personal data, health information, salaries, trade secrets — and even there, keep it to the minimum necessary; whatever can be aggregated or anonymized, aggregate and anonymize. The broader framework is in the chapter [AI, ethically and safely](/prirucka/ai-eticky-a-bezpecne).
+
+### When a connector fails or comes back empty
+
+It happens, and nine times out of ten it isn't a malfunction. **An empty response** usually means a different scope than you assumed — the model searched a different period, workspace, property, or folder; have it tell you exactly what it searched. **A permissions error** means you agreed to a narrower scope when you connected; the fix is disconnecting and reconnecting. **An authentication error** means an expired credential: disconnect, reconnect, done.
+
+The worst case is **when a connector returns nonsense without reporting an error**. The only way to catch it is to spot-check two or three numbers directly in the service's own interface. Do that check with every new connector, and then periodically after that.
+
+```text
+The previous answer doesn't look right to me — [it's empty /
+the numbers don't match what I see in the tool]. Before you
+try again, describe:
+
+- which connector and which of its capabilities you used
+- with what parameters (period, account, property, folder,
+  filter)
+- how many records it returned and whether anything got
+  truncated
+- what in the answer comes from the data you pulled and what
+  is your own conclusion
+
+Then suggest what to change in the request. Don't repeat the
+query until we've agreed on what went wrong.
+```
+
+You'll get a description that usually makes it immediately obvious where things went off track — typically the wrong period or the wrong account. That last line is there because repeating the same query and hoping for a better result is the most common way to burn half an hour without making any progress.
+
+## Common mistakes
+
+- **Turning on ten connectors at once.** You lose track of where data came from, and at the first odd answer you turn everything off. One connector, a week of read-only use, then the next.
+- **Clicking through the permissions screen.** It's the one place where you're the one deciding. Reading it takes a minute and decides what the model is allowed to do next year.
+- **Letting the agent publish.** A queue of drafts you've reviewed is safe; direct publishing isn't.
+- **Deriving rules from five posts.** Social media metrics on small accounts are mostly noise. When the model claims a pattern, ask how many cases it's based on.
+- **Working from prices in the model's memory.** Price lists change and the model remembers the state from its training; always paste the current price list into the prompt yourself.
+- **Handing an API key to a service you don't know.** Whoever holds the key spends on your account. If you do it, use a separate key with a low budget limit — and never run a batch without a trial run on a handful of items first.
+- **Mistaking a coincidence in timing for a cause.** In reports that connect analytics with what you actually did, causation invents itself if you let it.
+
+## What you get out of it
+
+- **Time:** a conservative 3-5 hours a week for someone who currently moves data between analytics, a scheduler, and a design tool.
+- **Money:** the savings aren't in the software, they're in what starts actually getting done. Evaluation that nobody used to do changes what gets published next. And for the Gemini API, batch mode at half price makes every large job cheaper.
+- **Peace of mind:** no more feeling like the answer is somewhere in the data and nobody has time to find it.
+- **Quality:** the model works with current data straight from the source, not with whatever you managed to copy in time. The quiet mistake of "I copied last week's number by accident" disappears.
+
+## Pro tip
+
+An advanced trick that works better than adding another connector: **write a one-page description of how your operation runs** — what your clients and projects are called, which analytics properties belong to whom, what the channels in your scheduler are named, where templates live — and save it into the persistent context the model works from. Connectors then stop guessing blind: the sentence "put together a report for Smith for July" suddenly means the right property, the right folder, and the right format.
+
+And one closing rule: **a connector is permission to prepare, not to finalize.** Reading, searching, sorting, proposing, creating drafts — yes. Publishing, paying, deleting — a human, every time. Put a quarterly reminder on your calendar to "review connectors and keys," and turn off anything you haven't used in three months. Rights you haven't granted can't be misused, and a key that doesn't exist can't be stolen.

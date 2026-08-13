@@ -1,0 +1,581 @@
+---
+title: "Ads and traffic through MCP: Meta Ads and Google Analytics without exports"
+excerpt: "A complete guide with seventeen prompts: the official Meta Ads connector via Meta Business login, the official local Google Analytics MCP server from the Google Analytics team, questions to ask over campaigns and traffic, combining both sides into a single picture, and limits that belong on the platform, not in the prompt."
+category: "ai"
+platform: "vsude"
+audience: ["marketer", "manazer", "freelancer"]
+keys: []
+saves: "~4 hrs a month"
+date: "2026-08-13"
+updated: "2026-08-13"
+---
+
+Anyone spending money on ads asks themselves "what's actually going on there?" at least once a week. And there's one answer you should never accept from a chatbot: anything it made up. An ad account and web analytics are the kind of data where a guess isn't worth a cent — either the model sees real numbers for a real period, or it stays quiet.
+
+That's exactly why connectors make sense here more than almost anywhere else. **The point isn't for AI to advise you about advertising based on whatever it once learned, but for it to pull your own numbers itself — current, in the right structure, for the period you specify — and only then think about them.** The difference is the same as between a consultant who talks about the industry in general terms and one who looked at your account before the meeting.
+
+This guide covers two connectors that officially exist and require no coding on your part: one is from Meta and connects you to your ad account, the other is published by the Google Analytics team and connects you to your site's traffic. The prompts are ready to copy — just fill in the brackets. And over all of it sits a rule that involves real money in advertising: **AI proposes, a human approves.** The model may read, calculate, and write recommendations; only a human may raise a budget or turn on a campaign. A general introduction to connectors is in [the overview of MCP connectors and tools](/tipy/mcp-konektory-nastroje).
+
+## A typical scenario
+
+Marek does marketing for a sporting goods e-shop. His monthly routine looked the same for years: export a CSV from the ad manager, another from Analytics, paste them together in a spreadsheet, and spend half a day staring at numbers that ultimately produced the sentence "looks about the same as last time." When the owner asked him on Monday why they spent thirty percent more last week, the answer came on Wednesday.
+
+Now he has his ad account connected through the Meta connector and traffic through the local Google Analytics MCP server — and the answer takes two minutes. But something other than speed changed too: he stopped asking what happened and started asking why. Within a month he found that one ad set was holding a great CTR and zero orders, because it pointed to a slow-loading page. That was only visible looking at both sides at once.
+
+## Meta Ads: what it is and how to turn it on
+
+Meta's umbrella name for this is **Ads AI Connectors**. It's two interfaces to the same thing — a hosted **MCP server** and, alongside it, a **CLI**, a command-line tool installed via npm. It launched at the end of April 2026.
+
+For most readers, the first one is the interesting part. The MCP server runs at Meta's end; you just connect to it at the address **`mcp.facebook.com/ads`** in your AI client: in Claude via "Add custom connector" in connector settings, in Claude Code with the `claude mcp add` command, elsewhere similarly. It's a standard remote MCP server, so it works anywhere MCP works.
+
+### Logging in without a developer app
+
+Historically, any programmatic access to an ad account meant creating a developer app, generating a token, and going through app review — which put off anyone without a developer on hand.
+
+With the MCP server, you log in **through your regular Meta Business account**, via an ordinary login screen. **You don't create a developer app and you don't go through App Review.** You confirm which ad account the tool gets access to, and from that point your campaigns are visible. To end access, remove the connector and revoke the permission in your Business account settings.
+
+A note for companies: if you manage other people's accounts through Business Manager, check beforehand who on your team is allowed to connect tools to client accounts. That's an organizational question, not a technical one.
+
+### Five areas the connector covers
+
+The inventory is broad, on the order of thirty tools. For practical use, it's enough to understand these five areas:
+
+<Flow title="What the Meta connector can do, ordered by how often you'll use it" steps={[
+  {title: "Reporting and insights", desc: "Campaign and ad performance over a period, comparisons, trends, benchmarks. This is where you'll spend ninety percent of your time."},
+  {title: "Campaign management", desc: "Creating and editing campaigns, ad sets, ads, and audiences. Carefully, and always with confirmation."},
+  {title: "Catalogs", desc: "Product catalogs, feeds, product sets, and diagnostics for why items aren't showing up."},
+  {title: "Account diagnostics", desc: "Errors, alerts, the activity log — who changed what and when."},
+  {title: "Datasets and signals", desc: "Quality of measured events: what's being sent, what's missing, where there's a gap in measurement."},
+]} />
+
+The inventory also includes tools for A/B tests, lift studies, and browsing the ad library. You don't need to know the tool names — the model picks them on its own. What matters is knowing what's worth asking about and where the line is.
+
+### When to use MCP and when to reach for the CLI
+
+Meta itself recommends a split that makes sense even without a technical explanation: **MCP for analysis and ad-hoc reporting, CLI for deterministic, bulk operations.**
+
+**MCP is for questions.** You ask in plain language, and the model decides for itself what data to pull and how to assemble it. Great for "how are we doing" and "what changed" — for anything where you don't know in advance exactly what cut of the data you'll want. The downside is the flip side of the same coin: it can do it slightly differently each time, and if you ask the same question again a week later, the model might pull different columns or use a different period without you noticing.
+
+**CLI is for commands.** You write exactly what should happen, and it happens the same way every time. When you need to create fifty ad sets from a spreadsheet, or pull the same report every Thursday, predictability matters more than convenience. Bulk operations are also harder to do well in conversation — after the twentieth approved change, you stop actually reading what you're approving, and that's where damage happens.
+
+The practical rule: **as long as you're asking questions, use MCP. The moment you start repeating or changing something at scale, move it into a script.**
+
+The very first thing to do after connecting is take inventory. Have the model list which ad accounts it can see (name, ID, currency), how many active and paused campaigns are in them, which objectives are in use, which conversion events are being measured, and how far back it can still pull data — without evaluating anything yet.
+
+What comes out of this is a map of the account, and more importantly, confirmation that the connector sees what you think it sees. Check the currency (with multiple accounts it's easy to end up comparing dollars to euros) and check one more thing: if the model claims it can see data three years back but the account is six months old, it's making things up.
+
+## What's actually worth asking
+
+The prompts are built so the model has to pull real numbers and show where they came from — not write an essay about marketing.
+
+### Campaign performance over a period
+
+```text
+Pull the performance of ad account [account] for the period
+[July 1-31, 2026]. Table by campaign, sorted by spend
+descending: campaign | objective | spend | impressions |
+clicks | CTR | CPC | results | cost per result
+
+Below the table: total for the account, the three campaigns
+with the best cost per result and the three with the worst,
+and which campaigns have so few results that their cost per
+result doesn't mean anything yet.
+
+State the period and currency used. Don't estimate anything —
+leave a missing metric blank and say why.
+```
+
+You'll get an overview that would take ten minutes to assemble by hand in the interface. That last bullet is deliberate: the most common mistake on small accounts is taking a cost-per-conversion calculated from three conversions seriously. And read the first sentence of the answer — if the model used a different period than you asked for, the rest isn't worth reading.
+
+### Comparing two periods
+
+A single number says nothing; a number against last month says almost everything.
+
+```text
+Compare the performance of ad account [account] for the
+period [July 1-31] against [June 1-30].
+
+Table by campaign: metric, value in the first period, value
+in the second, absolute difference, percent difference.
+Metrics: spend, impressions, reach, clicks, CTR, CPC, results,
+cost per result.
+
+Then list:
+1. The three biggest declines in absolute money, not
+   percentage — where the change cost us the most. And the
+   three biggest improvements.
+2. Campaigns that didn't run the full length of either
+   period — comparisons for those are misleading, flag them.
+3. Changes that are most likely just noise, not a trend, and
+   why.
+
+Don't give recommendations, just describe. I want
+recommendations after this.
+```
+
+Point 1 is the reason the prompt is written this way. Percentages lie: a hundred percent jump in cost-per-click on a thousand-dollar campaign is a footnote, a ten percent jump on a hundred-thousand-dollar campaign is a problem. Point 2 protects against the classic mistake — a campaign launched on the twentieth of the month can't fairly be compared against the whole previous month.
+
+### Which ad sets are burning budget
+
+Money in ad accounts usually doesn't leak out of one big hole, it leaks out of ten small ones.
+
+```text
+Go through ad account [account] for the last [30] days at the
+ad-set level and find where budget is being burned without
+results. List ad sets that meet at least one of:
+- spent more than [2,000 Kč] and have zero results
+- have a cost per result more than [double] the account
+  average
+- have a CTR below [half] the account average while spending
+  over [1,000 Kč]
+
+For each, give: campaign, ad set name, spend, results, cost
+per result, CTR, how long it's been running, and which
+condition applies.
+
+Sort by how much money is at risk per month, and at the end
+give the total amount that's leaking away monthly this way.
+
+Don't turn anything off or propose specific budget changes —
+just a list for me to decide on.
+```
+
+The list takes five minutes to go through. Set your own thresholds based on your account — for an expensive B2B product, two thousand crowns with no result is a normal week; for an impulse-buy e-shop, it's an alarm. Don't cut the last line of the prompt.
+
+### Frequency: where the audience is getting tired
+
+Frequency is how many times an average person has seen your ad. When it rises while performance drops, the audience is worn out and you're paying to annoy people.
+
+```text
+Pull the frequency trend for ad account [account] over the
+last [60] days, by week, at the ad-set level. For each ad
+set: week, reach, impressions, frequency, CTR, cost per
+result.
+
+Then pick out:
+1. Ad sets where frequency has risen for three weeks running.
+2. Of those, the ones where CTR is also dropping or cost per
+   result is also rising — audience fatigue is likely there.
+3. Ad sets where frequency is falling instead at the same
+   spend — either the audience expanded or delivery got
+   worse.
+
+For each conclusion, say what numbers it's based on, and
+separate what's visible in the data from what's your
+hypothesis.
+```
+
+This makes audience fatigue visible before it shows up in cost. The last line is the most important part of the prompt — with frequency, models like to jump straight from observation to explanation ("the creative is worn out"), and that explanation can be wrong: the same numbers can also come from an auction shift or seasonality.
+
+### Best- and worst-performing audiences
+
+```text
+For ad account [account] and the period [the last 30 days],
+compare performance by audience and targeting. List ad sets
+by targeting type (custom audience, lookalike audience,
+interest targeting, broad targeting, remarketing) along with
+spend, results, cost per result, and reach. Group them by
+targeting type and calculate a group total and average cost
+per result.
+
+Then answer:
+- which targeting type is cheapest for us and which is most
+  expensive
+- where the difference is small enough that it could be
+  chance
+- which specific audiences are worth trying to expand and
+  which I should consider turning off
+
+For that last point, give a counterargument for each
+suggestion too — why it might actually be a mistake.
+```
+
+The counterargument at the end is worth using everywhere. Without it you get a confident list of recommendations; with it, you also get the information that remarketing has the cheapest conversions only because it's scooping up people who would have bought anyway.
+
+### Account diagnostics
+
+```text
+Run a diagnostic on account [account]. I'm interested in
+technical health, not performance.
+
+1. Active errors and alerts on the account — what they are
+   and what they concern.
+2. Ads or ad sets that are rejected, in review, or not
+   delivering, and why.
+3. Campaigns with an active budget and zero impressions over
+   the last [7] days.
+4. Status of measured events: which conversion events are
+   coming through, which aren't coming through at all, and
+   which have a suspiciously low volume relative to clicks.
+5. Changes to the account over the last [14] days from the
+   activity log: who changed what, and when.
+
+Rank the findings by how much each one is likely costing us,
+and say whether each is a two-minute fix or a half-day one.
+```
+
+Run this once a month and before every budget increase. Point 5 is underrated: most mysterious drops have a mundane explanation in the activity log — someone changed something and forgot to mention it. Point 4 is a defense against optimizing toward numbers from broken measurement.
+
+### Catalog check
+
+If you sell through a product catalog, this is where money disappears most quietly. An item that isn't showing up doesn't make any noise about it.
+
+```text
+Check catalog [name] connected to account [account].
+
+1. How many items it contains, how many are approved, and how
+   many aren't showing up for some reason.
+2. The most common rejection or error reasons, by item count.
+3. Feed status: when it last updated, whether it updated
+   cleanly, and how often it updates.
+4. Items missing data needed for dynamic ads (image, price,
+   availability, identifier).
+5. Product sets and how many items each contains — find the
+   empty or nearly empty ones.
+
+At the end, give the three most urgent things to fix and an
+estimate of how much of the catalog each one affects.
+```
+
+This usually turns up something unpleasant: a chunk of your catalog isn't showing up even though you thought it was running. Empty product sets are the other classic — the campaign runs, the set is empty, and the budget gets spent elsewhere.
+
+### Before you change anything
+
+The last prompt in this section is different. It's for when you already know what you want to do and want it stress-tested before you do it.
+
+```text
+I'm about to make this change in account [account]: [description,
+e.g. raise campaign X's daily budget from 500 to 1,500 Kč].
+
+Don't do anything. Just answer:
+1. What numbers is that change based on, and are they big
+   enough to mean something?
+2. What's the worst-case outcome — how much could I lose
+   before I notice?
+3. What should I watch after the change, and how long before
+   it can be evaluated?
+4. Is there a cheaper way to test the same hypothesis?
+5. Three reasons this change might be a bad idea.
+
+Take point 5 seriously, even if the change seems sound to you.
+```
+
+You'll get something between a devil's advocate review and a checklist. Point 2 earns those thirty seconds: a step change in budget affects algorithmic campaigns differently than people expect. A framework for building campaigns is in the tip [ad campaigns with AI](/tipy/reklamni-kampane-s-ai).
+
+## Google Analytics: yes, an official MCP server exists
+
+There's a lot of community-built Analytics tooling of varying quality floating around, so people are often surprised. But an official MCP server does exist, and it's **published directly by the Google Analytics team**: repository `googleanalytics/google-analytics-mcp`, Apache 2.0 license, documentation at `developers.google.com/analytics/devguides/MCP`. Three properties are worth knowing before you turn it on — and all three are both a limitation and a strength at once.
+
+**It's marked experimental.** That's not marketing caution — it can change, and nothing that has to run reliably should depend on it. Fine for a monthly report, not for something a client's billing runs on.
+
+**It's local.** It doesn't run at Google or in any cloud, it runs **on your computer.** We'll come back to that in a moment, because for analytics it's actually good news.
+
+**It's read-only.** It reaches into GA4 through the Admin API and the Data API and can't reconfigure or delete anything. It's exactly the type of connector you can start using without worrying.
+
+### What it can actually do
+
+There are fewer than ten tools, and they cover what you'd normally open the Analytics interface for:
+
+<Matrix quadrants={[
+  {title: "Account summaries and property detail", action: "get_account_summaries, get_property_details", examples: "what I can see, which property is which, time zone and currency"},
+  {title: "Standard and funnel reports", action: "run_report, run_funnel_report", examples: "any cut of the data and step-by-step journey analysis"},
+  {title: "Real-time reports", action: "run_realtime_report", examples: "what's happening on the site right now — how many people, where from, on what"},
+  {title: "Custom dimensions and links", action: "get_custom_dimensions_and_metrics, list_google_ads_links", examples: "what extra you're tracking and which Google Ads accounts are linked"},
+]} />
+
+It's worth knowing that **the funnel report is its own thing** — for the question "where is our order flow dropping off," there's a dedicated tool, and the answer is more precise than working it out from standard reports.
+
+### What "local" means and why it's an advantage
+
+With a remote connector (like Meta's), the server runs at the provider's end: you send a request, it reaches into the data, and sends the result back. With a local server, **the program runs on your computer** and reaches the data on your behalf. That has three consequences.
+
+**Installation is on you.** It's not a click in a settings panel: you have to enable the relevant APIs in a Google Cloud project, set up credentials, and add the server to your AI client's configuration. The repository walks through it step by step, and it's about half an hour of work — but work, not a checkbox. If you'd rather not do this yourself, bring in [Claude Code](/tipy/claude-code-osobni-automatizace); following a README to install something is exactly its specialty.
+
+**You're not granting anyone new access to your data.** That's why being local is actually an advantage for analytics. Site traffic is more sensitive than it looks — it contains sources, campaigns, customer behavior, and for e-shops, revenue. When the server runs on your own machine, there's no additional party you have to trust.
+
+**You only pay for the model.** The server is open source and free; what costs money is the AI tool you're asking questions through, which you're probably already paying for. There's exactly one downside to running it locally: it only works while your computer is on.
+
+After connecting, run the same kind of inventory as with the ad account: have the model list which properties it can see (name, ID, time zone, currency), how far back their data goes and whether there's a longer gap with no measurement, which key events are tracked, and which custom dimensions are set up. Two things from this matter most. A measurement gap — typically after a site rebuild or a consent-banner swap — invalidates any period comparison that crosses it. And time zone: when a property is on a different time zone than the ad account, "yesterday" means a slightly different day in each tool.
+
+## Questions to ask about traffic
+
+### Where people are coming from
+
+```text
+Pull a traffic-source breakdown from property [name] for the
+period [July 1-31, 2026]. Table by channel (organic search,
+direct, paid search, social, referral, email): users | new
+sessions | engagement rate | key events | conversion rate
+
+Then break the three biggest channels down into specific
+sources and mediums. Finally:
+- which channel brings the most people and which brings the
+  most conversions (and whether it's the same one)
+- how much traffic falls into unassigned categories and what
+  that means for how much to trust the rest of the numbers
+
+State the period and the property's time zone used.
+```
+
+Most reports skip that last bullet. When a fifth of your traffic is unclassified, that's not a footnote — it's information about how accurate every other number in the table is.
+
+### Which pages hold attention
+
+```text
+For property [name] and the period [the last 30 days], do a
+content review. Table by page, top 30 by pageviews: URL |
+title | pageviews | users | average time | engagement rate |
+key events
+
+Then pick out and comment on:
+1. Five pages with high traffic and low engagement — people
+   arrive and leave right away.
+2. Five pages with low traffic and high engagement — content
+   that works, but nobody finds it.
+3. Pages with decent traffic and engagement that still don't
+   lead to any key events.
+
+For each group, note what could be done about it, but keep
+that separate from the description of the data.
+```
+
+Group 2 is usually the biggest surprise and the cheapest opportunity — the article's already written, it just needs links or a better headline. At twenty sessions, though, "high engagement" is noise.
+
+### Where the conversion path drops off
+
+There's a dedicated tool for this, and it shows in the quality of the answer.
+
+```text
+Build a funnel report in property [name] for [the last 30
+days] for this path:
+
+Step 1: product page visit
+Step 2: cart view
+Step 3: checkout started
+Step 4: order completed
+
+For each step: number of users, how many continued on,
+percent drop-off. Then:
+- which step has the biggest drop-off in absolute numbers
+- how the drop-off differs between mobile and desktop
+- how the drop-off differs between new and returning visitors
+
+Don't guess at causes of the drop-off from general e-commerce
+knowledge. Write only what's visible in the data, plus a list
+of questions I should verify elsewhere.
+```
+
+That last paragraph is there because this is exactly where models slide into generic advice about shortening forms. The mobile-versus-desktop split is usually the most valuable line in the answer — a large share of drop-offs has a simple cause that's only visible on mobile.
+
+### What changed after an article went live
+
+```text
+On [date] we published an article at [URL]. Evaluate it in
+property [name].
+
+1. Traffic to that page day by day from publication to today.
+2. Where people are arriving from — broken down by channel,
+   source, and medium, including how the mix has changed over
+   time (first week versus most recent week).
+3. Where they go from it — the most common next pages.
+4. How many key events its visitors generated.
+5. Compare it against the average of similar pages over their
+   first [30] days.
+
+Say whether traffic has settled or is still growing, and as
+of what date you're basing that on.
+```
+
+Point 2 is why you run this after a month, not a week: an article that lives off social shares for the first few days and then switches over to search is a different kind of success than one that drops to zero once the shares dry up.
+
+### Comparing sources against each other
+
+```text
+For property [name], compare traffic quality by source over
+[the last 90 days]. I'm not just interested in volume: for
+every source and medium with at least [200] users, calculate
+number of users, share of new users, pages per session,
+session duration, engagement rate, and conversion rate to key
+event [event name].
+
+Sort by conversion rate and flag sources where it's high but
+the volume is small enough that it might not mean anything.
+
+Then name three sources worth investing more in, and for
+each, a counterargument for why that might be a mistake.
+```
+
+Set the two-hundred-user threshold to fit your site's size — without it, the "best" source turns out to be one that brought three people, one of whom bought something.
+
+### A live view when something's happening
+
+```text
+Show me real-time data in property [name]: how many users are
+on the site right now, which pages they're on, where they
+came from, and what devices they're on.
+
+Then compare whether that matches normal traffic for this
+time of day, or whether something unusual is going on.
+```
+
+You'll use this rarely, and always at a tense moment: right after a campaign launches, right after sending a newsletter, right after deploying a new version of the site. Real-time reports have a different data scope than standard ones, so don't compare them against your usual numbers.
+
+## Combining ads with traffic
+
+The most interesting part, and also where the most mistakes happen. The ad account tells you how many people clicked and what it cost; analytics tells you what those people did next. **Each side alone is half the sentence — and most bad marketing decisions come from reading only one of them.**
+
+### What you can only find out with both sides
+
+The campaign with the cheapest click is often the campaign with the worst traffic — and you can't see that in the ad account, because that account's view ends at the click. Similarly, an ad set with a great CTR and zero orders can have a problem in the ad (promising something the site doesn't deliver) or on the site (leading to a page that doesn't work). Telling the two apart is only possible from what people do after clicking.
+
+```text
+I have ad account [account] and Analytics property [property]
+connected. For the period [July 1-31, 2026], build me one
+combined view from both sides.
+
+From the ad account, pull by campaign: spend, clicks, CPC,
+results, cost per result. From Analytics, pull traffic from
+paid sources, broken down so it can be matched to these
+campaigns (by source, medium, and campaign).
+
+Build a table where each campaign shows, side by side: clicks
+from the ad account | sessions in Analytics | engagement rate
+| pages per session | key events | conversion rate — and a
+column with the percent difference between clicks and
+sessions.
+
+Then say which campaigns show the biggest mismatch, and
+separate what's explained by the data from what's a
+hypothesis. Don't try to smooth the differences out or
+average them away.
+```
+
+You'll get a picture you won't see in either interface alone. The last line of the prompt is essential — and here's exactly why.
+
+### The numbers won't match, and that's fine
+
+This needs to be said plainly, because it's the most common source of pointless frustration: **numbers from the ad account and from Analytics will never match exactly, and it's a mistake to ask AI to make them.** When the model reports 4,210 clicks and 3,480 sessions, that's not a discrepancy to fix, it's the normal state of things. There are three reasons, and all of them are structural.
+
+**Different attribution.** The ad platform credits a result by its own rules — it counts conversions after someone merely sees the ad without clicking, and it measures across devices, because it knows who's who. Analytics works differently and typically splits a person who clicked on their phone and bought on their computer into two people. Neither is wrong, they're just counting different things.
+
+**Different time windows.** Ad accounts typically attribute a conversion to the day of the click, even if the purchase happened three days later; analytics logs it on the day of the purchase. Over a campaign running a whole month, that mostly evens out; over a campaign covering just the last week, it doesn't at all. On top of that, the account and the property can be set to different time zones.
+
+**Blocking and consent.** Some people don't consent to being measured, some run a blocker, some leave before the measurement code even loads. That loss mainly hits analytics, since the ad platform knows about the click regardless of what happens afterward. That's where most of the gap between clicks and sessions comes from.
+
+The practical consequence: **track the trend inside each tool on its own terms, and between tools compare rank order, not values.** The question "how much did that campaign bring in" has two legitimate answers, and arguing about which one is "truer" is a waste of time. The question "which of the three campaigns brings in the best traffic" has one answer.
+
+Technically, it's only worth chasing the discrepancy when it's unusually large. The cause is usually mundane — missing or overwritten parameters in links coming from the ad. The visit then falls into direct traffic in analytics, and the campaign looks like it brought in nobody.
+
+### When it's the ad's fault and when it's the site's
+
+```text
+Campaign [name]'s performance has dropped over the last [60]
+days. Help me decide whether the problem is on the ad side or
+the site side.
+
+From the ad account, pull by week: spend, impressions, CPM,
+clicks, CTR, frequency, results, cost per result. From
+Analytics, pull by week for traffic from this campaign:
+sessions, engagement rate, pages per session, conversion
+rate.
+
+Line these up on one timeline and answer:
+- Is CTR falling while frequency rises? (audience fatigue)
+- Is CPM rising at the same CTR? (a more expensive auction)
+- Are clicks steady while engagement and conversion rate fall?
+  (a problem past the click)
+- Did anything change on the landing page around the time of
+  the drop?
+
+For each possibility, say whether the data supports it,
+rules it out, or can't speak to it. Don't force a winner.
+```
+
+The most useful prompt in this whole article. A diagnosis of "worn-out creative" and a diagnosis of "broken landing page" lead to completely different next steps, and you can't tell them apart without both sides. The last line protects against the model naming a culprit just because you asked it to.
+
+## From a one-off question to a recurring report
+
+Once you're asking the same question for the third time, it's stopped being a question and become a process. And processes shouldn't be asked a different way each time. The problem is the same one raised in the MCP-versus-CLI comparison: conversation isn't reproducible. The model might take a different period next time, different metrics, group things differently — and you end up comparing two reports that aren't comparable without realizing it. For a monthly report to leadership, that's worse than no report at all.
+
+The way out of this is covered in [reproducible data analysis](/tipy/reprodukovatelna-analyza-dat), and it has three stages.
+
+**Stage one: a fixed prompt.** Write the report once, down to the last detail — exact periods, metrics, section order, table format — and after that just copy it and change the date.
+
+```text
+This is the template for my monthly report. Use it exactly
+like this, add nothing and skip nothing.
+
+Period: [August 1-31, 2026], compared against the previous
+month.
+Sources: ad account [account], Analytics property [property].
+
+Section 1 - Summary: spend, results, cost per result,
+sessions from paid sources, key events. Value, change, percent
+change. Nothing more.
+Section 2 - Campaigns: table sorted by spend, same columns
+as last time.
+Section 3 - Traffic: channels, top 10 landing pages.
+Section 4 - What changed: five changes, one sentence each,
+sorted by financial impact.
+Section 5 - Needs a decision: three things that need my
+decision, with supporting data.
+
+Format: dollar amounts, percentages to one decimal place. No
+introduction, no closing, and no advice I didn't ask for. For
+every section, state the source and exact period of the data.
+```
+
+The last line is a safeguard: if something shifts next month, you'll see it right away in the section header.
+
+**Stage two: the report as a script.** Once you know what the report should look like, have a script written for pulling the data — one that fetches exactly what the report needs for a period given as a parameter, saves it as a CSV with the date in the filename, and calculates the comparison against the previous period. Then it's code doing the number-pulling, not the model, and code does the same thing every time. A clean division of labor: **the machine calculates, the model explains.**
+
+Watch two things: that credentials are read from environment variables and never end up in a file you send anywhere, and that the downloaded CSVs get kept — a year from now, that archive of exports is worth more than the report itself.
+
+**Stage three: a routine.** Once the script works, a scheduled task can run it: on the first of the month, data gets pulled, the model writes a comment on it, and you get a finished draft. How to build routines like this is covered in the chapter [routines and agents](/prirucka/rutiny-a-agenti). One thing to watch, stemming from the local GA server: the routine only runs while the computer is on. Anyone who needs it to run without exception has to build the report directly on the API — the setup from [a website built with Claude Code and deployed on Vercel](/tipy/web-claude-code-vercel) is a good fit for that.
+
+## What to watch for
+
+An ad account is the one connector in a typical toolkit where a bad decision shows up as an immediate loss of money. So rules that are optional elsewhere apply here without exception.
+
+**Read-only first.** For the first month, ask questions and change nothing — you'll learn where the model answers reliably and where it makes things up. With Google Analytics this phase is enforced for you, since the server can only read; with Meta it's your own decision, and it's worth making deliberately.
+
+**A human always confirms budget changes, pausing, and launching campaigns.** Never turn on a mode where changes happen without asking. And take the confirmation seriously — after the twentieth dialog, people start clicking through on autopilot, which is exactly why bulk operations belong in a script where you can see the whole list at once.
+
+**Limits belong on the platform's side, not the agent's.** The single most important line in this section. Writing "never raise the daily budget above a thousand dollars" into a prompt isn't a restriction, it's a wish. The real limit gets set in the ad manager: an account spending cap, campaign budget limits, restricted permissions on the user account the connector is logged in as. The model can misread or misunderstand a request, and the only thing that prevents damage at that point is a barrier outside it. **An instruction in a prompt is a rule; a setting on the platform is a lock.**
+
+**Grant rights based on what the tool actually needs to do.** If a connector is there for reporting, log it in with an account that has read-only access in Business Manager; don't hand out full admin rights just because it's more convenient.
+
+**Community MCP servers: verified authors only.** Community-built servers exist around both Meta Ads and Analytics that do more than the official ones. But it's worth being clear about what you're handing them: **the login to an ad account with your money in it**, and access to customer data. Before installing one, find out who's behind it, whether the code is public, and where your credentials travel. If you can't answer any of those, stick with the official ones — the gap between "does thirty percent more" and "has access to my budget" isn't a fair trade.
+
+**Customer data only on an account with contractual data protection.** Information about people's behavior flows through both analytics and the ad account. It doesn't belong in an open chat, and exports containing anything that can be tied to a specific person should be anonymized before you upload them. The framework is in the chapter [AI, ethically and safely](/prirucka/ai-eticky-a-bezpecne). And for every number that ends up in a report for someone else, ask for its source and exact period.
+
+## Common mistakes
+
+- **Letting the model estimate numbers instead of pulling them.** If it can't reach the data for some reason, it'll write a plausible-looking answer anyway. Always demand a source and a period.
+- **Wanting Meta's and Analytics' numbers to match.** They never will. Anyone who tries to eliminate the gap ends up with a number that doesn't match either source.
+- **Deciding by percentages instead of by money.** A hundred percent jump in cost-per-conversion on a campaign that spends a thousand dollars isn't a priority.
+- **Evaluating on numbers that are too small.** Three conversions aren't a trend, and twenty sessions aren't audience behavior. Explicitly ask where the numbers are too small to draw a conclusion.
+- **Relying on limits written into the prompt.** Real caps belong in account settings, not in the request.
+- **Installing a community connector without vetting the author.** Access to an ad account is access to money.
+- **Repeating a monthly report by conversation.** Without a fixed template, you're comparing two differently built reports and thinking you're tracking a trend.
+
+## Best tools
+
+- **Meta Ads MCP server (`mcp.facebook.com/ads`)** — the official hosted connector for analysis and ad-hoc reporting on an ad account; logs in through Meta Business, no developer app, no App Review.
+- **Meta Ads CLI** — a second interface to the same data, installed via npm; for bulk operations and anywhere you need the same result every time.
+- **Google Analytics MCP server** — the official open-source server from the Google Analytics team, Apache 2.0 license; experimental, local, and read-only against GA4 through the Admin and Data APIs.
+- **Claude Code** — installing the local server following the README, and scripts for regularly pulling data; process the resulting export history using the approach from [analyzing data with AI](/tipy/ai-analyza-dat).
+- **The ad manager and the Analytics interface** — you'll still open them, just a lot less. The connector is for questions, the interface is for changes.
+
+## What you get out of it
+
+- **Time:** a monthly report that used to take half a day of exports shrinks to tens of minutes, and a weekly account check to a couple of minutes. For a small company, realistically three to five hours a month.
+- **Money:** ad sets burning budget with no result get found in minutes instead of a quarter later. The savings tend to be biggest wherever nobody's taken a proper look in a long time.
+- **Peace of mind:** you can answer "why did we spend more last week" while you're still being asked the question — the difference between steering advertising and chasing after it.
+- **Better decisions:** both sides at once show the difference between a campaign that buys clicks and one that brings in people.
+
+## Pro tip
+
+The most valuable thing this setup gets you isn't the report. It's the **archive**. Save raw data to CSV every month and never delete it — ad platforms and analytics tools have limited history, and they change data structures and sometimes even how they calculate things. Your folder of exports survives all that, and two years from now it will hold the answer to a question you haven't thought to ask yet.
+
+And a closing rule: **a connector is permission to ask, not permission to spend.** The model may see everything, calculate anything, and write the most confident recommendation it can — but a human raises the budget, a human turns on the campaign, and a human is also responsible for the money spent. Keep the lock on the platform, keep the decision with yourself.
