@@ -20,6 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticPaths = [
     "", "/prirucka", "/tipy", "/ai", "/prompty", "/kurz", "/gadgety", "/slovnik", "/newsletter", "/start",
+    "/nastroje", "/nastroje/kviz", "/nastroje/pomodoro",
     "/o-projektu", "/hledat", "/ochrana-osobnich-udaju",
   ];
 

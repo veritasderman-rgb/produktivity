@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { localePath, type Locale } from "@/lib/i18n";
 
@@ -11,180 +11,181 @@ import { localePath, type Locale } from "@/lib/i18n";
  * které se opravdu dají prodat. Žádný backend, stav v URL kvůli sdílení.
  */
 
-const T = {
-  cs: {
-    inputsTitle: "Vaše čísla",
-    inputsLead:
-      "Vyplňte podle sebe. Čím poctivější vstupy, tím míň nepříjemných překvapení v březnu.",
-    fields: {
-      net: {
-        label: "Kolik chci ročně vydělat čistého",
-        unit: "Kč / rok",
-        hint: "Co má reálně zbýt vám: nájem, jídlo, rodina, splátky. Vezměte to z bankovního výpisu, ne z hlavy — odhad bývá nižší než skutečnost.",
-      },
-      costs: {
-        label: "Měsíční provozní náklady",
-        unit: "Kč / měsíc",
-        hint: "Technika, software, účetní, pojištění, telefon, doprava, vzdělávání, prostor.",
-      },
-      weeks: {
-        label: "Pracovních týdnů v roce",
-        unit: "týdnů",
-        hint: "52 minus dovolená, státní svátky, nemoc a rezerva na věci, které se naplánovat nedají.",
-      },
-      hours: {
-        label: "Hodin práce týdně",
-        unit: "hodin",
-        hint: "Kolik hodin týdně u práce reálně sedíte — včetně těch, které se nikomu neúčtují.",
-      },
-      billable: {
-        label: "Podíl fakturovatelných hodin",
-        unit: "%",
-        hint: "Akvizice, administrativa, učení a prostoje se neplatí. Odhad tady nestačí — změřte si jeden poctivý měsíc.",
-      },
-      tax: {
-        label: "Rezerva na daně a odvody",
-        unit: "%",
-        hint: "Podíl z každé faktury, který si hned odkládáte stranou. Konkrétní sazbu si doplňte podle svého režimu — tahle kalkulačka ji za vás neurčuje.",
-      },
-      margin: {
-        label: "Rezerva na výpadky a investice",
-        unit: "%",
-        hint: "Finanční polštář, nové vybavení, kurzy, důchod. Co se nedostane do sazby, to nikdy nevznikne.",
-      },
-      project: {
-        label: "Modelová zakázka",
-        unit: "fakturovatelných hodin",
-        hint: "Kolik hodin má typická zakázka. Spočítáme, kolik musí nést, aby se vyplatila.",
-      },
+const cs = {
+  inputsTitle: "Vaše čísla",
+  inputsLead:
+    "Vyplňte podle sebe. Čím poctivější vstupy, tím míň nepříjemných překvapení v březnu.",
+  fields: {
+    net: {
+      label: "Kolik chci ročně vydělat čistého",
+      unit: "Kč / rok",
+      hint: "Co má reálně zbýt vám: nájem, jídlo, rodina, splátky. Vezměte to z bankovního výpisu, ne z hlavy — odhad bývá nižší než skutečnost.",
     },
-    outputsTitle: "Výsledek",
-    out: {
-      min: {
-        label: "Minimální hodinová sazba",
-        note: "Spodní hranice, pod kterou vás práce stojí víc, než vynese. Není to cílová cena — je to bod, pod který se nechodí.",
-      },
-      rec: {
-        label: "Doporučená sazba s rezervou",
-        note: "Sazba, která navíc zaplatí hluchá období, nové vybavení a čas investovaný do vlastního rozvoje.",
-      },
-      hours: {
-        label: "Fakturovatelných hodin ročně",
-        note: "Jediné hodiny, které se dají prodat — a musí z nich být zaplacený i celý zbytek roku.",
-      },
-      project: {
-        label: "Kolik musí nést zakázka",
-        note: (h: number, rec: string) =>
-          `Zakázka o ${fmt(h)} fakturovatelných hodinách nesmí klesnout pod tuhle částku, jinak ji dotujete vlastním volným časem. S rezervou: ${rec} Kč.`,
-      },
+    costs: {
+      label: "Měsíční provozní náklady",
+      unit: "Kč / měsíc",
+      hint: "Technika, software, účetní, pojištění, telefon, doprava, vzdělávání, prostor.",
     },
-    unitPerHour: "Kč / h",
-    unitHours: "hodin",
-    unitCzk: "Kč",
-    stepsTitle: "Jak se to spočítalo",
-    steps: {
-      need: "Roční potřeba čistého",
-      needF: (net: string, costs: string) => `${net} (živobytí) + ${costs} (náklady za 12 měsíců)`,
-      revenue: "Obrat, který musíte vyfakturovat",
-      revenueF: (need: string, tax: number) => `${need} ÷ (1 − ${tax} %) — daně a odvody jdou do ceny nahoru, ne jako překvapení v březnu`,
-      hours: "Prodejné hodiny",
-      hoursF: (w: number, h: number, b: number) => `${w} týdnů × ${h} hodin × ${b} % fakturovatelných`,
-      rate: "Minimální sazba",
-      rateF: (rev: string, hrs: string) => `${rev} ÷ ${hrs} hodin`,
-      rec: "Doporučená sazba",
-      recF: (min: string, m: number) => `${min} × (1 + ${m} %)`,
+    weeks: {
+      label: "Pracovních týdnů v roce",
+      unit: "týdnů",
+      hint: "52 minus dovolená, státní svátky, nemoc a rezerva na věci, které se naplánovat nedají.",
     },
-    reset: "Vrátit výchozí hodnoty",
-    errorHours: "Zadejte aspoň jednu prodejnou hodinu — jinak se sazba nedá spočítat.",
-    errorTax: "Rezerva na daně musí být pod 100 %.",
+    hours: {
+      label: "Hodin práce týdně",
+      unit: "hodin",
+      hint: "Kolik hodin týdně u práce reálně sedíte — včetně těch, které se nikomu neúčtují.",
+    },
+    billable: {
+      label: "Podíl fakturovatelných hodin",
+      unit: "%",
+      hint: "Akvizice, administrativa, učení a prostoje se neplatí. Odhad tady nestačí — změřte si jeden poctivý měsíc.",
+    },
+    tax: {
+      label: "Rezerva na daně a odvody",
+      unit: "%",
+      hint: "Podíl z každé faktury, který si hned odkládáte stranou. Konkrétní sazbu si doplňte podle svého režimu — tahle kalkulačka ji za vás neurčuje.",
+    },
+    margin: {
+      label: "Rezerva na výpadky a investice",
+      unit: "%",
+      hint: "Finanční polštář, nové vybavení, kurzy, důchod. Co se nedostane do sazby, to nikdy nevznikne.",
+    },
+    project: {
+      label: "Modelová zakázka",
+      unit: "fakturovatelných hodin",
+      hint: "Kolik hodin má typická zakázka. Spočítáme, kolik musí nést, aby se vyplatila.",
+    },
   },
-  en: {
-    inputsTitle: "Your numbers",
-    inputsLead:
-      "Fill in your own figures. The more honest the inputs, the fewer unpleasant surprises at tax time.",
-    fields: {
-      net: {
-        label: "What I want to take home a year",
-        unit: "CZK / year",
-        hint: "What has to actually stay with you: rent, food, family, repayments. Take it from your bank statement, not from memory — the guess is always lower than reality.",
-      },
-      costs: {
-        label: "Monthly running costs",
-        unit: "CZK / month",
-        hint: "Gear, software, accountant, insurance, phone, travel, training, workspace.",
-      },
-      weeks: {
-        label: "Working weeks a year",
-        unit: "weeks",
-        hint: "52 minus holidays, public holidays, sick days and a buffer for what cannot be planned.",
-      },
-      hours: {
-        label: "Hours worked a week",
-        unit: "hours",
-        hint: "How many hours you really spend on work — including the ones nobody gets billed for.",
-      },
-      billable: {
-        label: "Share of billable hours",
-        unit: "%",
-        hint: "Sales, admin, learning and downtime are unpaid. A guess is not enough here — measure one honest month.",
-      },
-      tax: {
-        label: "Reserve for tax and levies",
-        unit: "%",
-        hint: "The share of every invoice you set aside straight away. Put in the rate that fits your own situation — this calculator does not decide it for you.",
-      },
-      margin: {
-        label: "Reserve for gaps and investment",
-        unit: "%",
-        hint: "A financial cushion, new equipment, courses, retirement. Whatever does not make it into the rate will never exist.",
-      },
-      project: {
-        label: "Typical project",
-        unit: "billable hours",
-        hint: "How many hours a typical job takes. We work out what it has to bring in.",
-      },
+  outputsTitle: "Výsledek",
+  out: {
+    min: {
+      label: "Minimální hodinová sazba",
+      note: "Spodní hranice, pod kterou vás práce stojí víc, než vynese. Není to cílová cena — je to bod, pod který se nechodí.",
     },
-    outputsTitle: "Result",
-    out: {
-      min: {
-        label: "Minimum hourly rate",
-        note: "The floor below which the work costs you more than it brings in. It is not a target price — it is the line you do not cross.",
-      },
-      rec: {
-        label: "Recommended rate with a buffer",
-        note: "A rate that also pays for the quiet months, new equipment and the time you invest in yourself.",
-      },
-      hours: {
-        label: "Billable hours a year",
-        note: "The only hours you can sell — and the whole rest of the year has to be paid out of them.",
-      },
-      project: {
-        label: "What a project has to bring in",
-        note: (h: number, rec: string) =>
-          `A job of ${fmt(h)} billable hours must not drop below this, otherwise you are subsidising it with your own free time. With the buffer: CZK ${rec}.`,
-      },
+    rec: {
+      label: "Doporučená sazba s rezervou",
+      note: "Sazba, která navíc zaplatí hluchá období, nové vybavení a čas investovaný do vlastního rozvoje.",
     },
-    unitPerHour: "CZK / h",
-    unitHours: "hours",
-    unitCzk: "CZK",
-    stepsTitle: "How it was calculated",
-    steps: {
-      need: "Annual net need",
-      needF: (net: string, costs: string) => `${net} (living) + ${costs} (costs over 12 months)`,
-      revenue: "Revenue you have to invoice",
-      revenueF: (need: string, tax: number) => `${need} ÷ (1 − ${tax} %) — tax and levies belong in the price, not in a springtime surprise`,
-      hours: "Sellable hours",
-      hoursF: (w: number, h: number, b: number) => `${w} weeks × ${h} hours × ${b} % billable`,
-      rate: "Minimum rate",
-      rateF: (rev: string, hrs: string) => `${rev} ÷ ${hrs} hours`,
-      rec: "Recommended rate",
-      recF: (min: string, m: number) => `${min} × (1 + ${m} %)`,
+    hours: {
+      label: "Fakturovatelných hodin ročně",
+      note: "Jediné hodiny, které se dají prodat — a musí z nich být zaplacený i celý zbytek roku.",
     },
-    reset: "Reset to defaults",
-    errorHours: "Enter at least one sellable hour — otherwise the rate cannot be calculated.",
-    errorTax: "The tax reserve has to stay below 100 %.",
+    project: {
+      label: "Kolik musí nést zakázka",
+      note: (h: number, rec: string) =>
+        `Zakázka o ${fmt(h)} fakturovatelných hodinách nesmí klesnout pod tuhle částku, jinak ji dotujete vlastním volným časem. S rezervou: ${rec} Kč.`,
+    },
   },
+  unitPerHour: "Kč / h",
+  unitHours: "hodin",
+  unitCzk: "Kč",
+  stepsTitle: "Jak se to spočítalo",
+  steps: {
+    need: "Roční potřeba čistého",
+    needF: (net: string, costs: string) => `${net} (živobytí) + ${costs} (náklady za 12 měsíců)`,
+    revenue: "Obrat, který musíte vyfakturovat",
+    revenueF: (need: string, tax: number) => `${need} ÷ (1 − ${tax} %) — daně a odvody jdou do ceny nahoru, ne jako překvapení v březnu`,
+    hours: "Prodejné hodiny",
+    hoursF: (w: number, h: number, b: number) => `${w} týdnů × ${h} hodin × ${b} % fakturovatelných`,
+    rate: "Minimální sazba",
+    rateF: (rev: string, hrs: string) => `${rev} ÷ ${hrs} hodin`,
+    rec: "Doporučená sazba",
+    recF: (min: string, m: number) => `${min} × (1 + ${m} %)`,
+  },
+  reset: "Vrátit výchozí hodnoty",
+  errorHours: "Zadejte aspoň jednu prodejnou hodinu — jinak se sazba nedá spočítat.",
+  errorTax: "Rezerva na daně musí být pod 100 %.",
 };
+
+const en: typeof cs = {
+  inputsTitle: "Your numbers",
+  inputsLead:
+    "Fill in your own figures. The more honest the inputs, the fewer unpleasant surprises at tax time.",
+  fields: {
+    net: {
+      label: "What I want to take home a year",
+      unit: "CZK / year",
+      hint: "What has to actually stay with you: rent, food, family, repayments. Take it from your bank statement, not from memory — the guess is always lower than reality.",
+    },
+    costs: {
+      label: "Monthly running costs",
+      unit: "CZK / month",
+      hint: "Gear, software, accountant, insurance, phone, travel, training, workspace.",
+    },
+    weeks: {
+      label: "Working weeks a year",
+      unit: "weeks",
+      hint: "52 minus holidays, public holidays, sick days and a buffer for what cannot be planned.",
+    },
+    hours: {
+      label: "Hours worked a week",
+      unit: "hours",
+      hint: "How many hours you really spend on work — including the ones nobody gets billed for.",
+    },
+    billable: {
+      label: "Share of billable hours",
+      unit: "%",
+      hint: "Sales, admin, learning and downtime are unpaid. A guess is not enough here — measure one honest month.",
+    },
+    tax: {
+      label: "Reserve for tax and levies",
+      unit: "%",
+      hint: "The share of every invoice you set aside straight away. Put in the rate that fits your own situation — this calculator does not decide it for you.",
+    },
+    margin: {
+      label: "Reserve for gaps and investment",
+      unit: "%",
+      hint: "A financial cushion, new equipment, courses, retirement. Whatever does not make it into the rate will never exist.",
+    },
+    project: {
+      label: "Typical project",
+      unit: "billable hours",
+      hint: "How many hours a typical job takes. We work out what it has to bring in.",
+    },
+  },
+  outputsTitle: "Result",
+  out: {
+    min: {
+      label: "Minimum hourly rate",
+      note: "The floor below which the work costs you more than it brings in. It is not a target price — it is the line you do not cross.",
+    },
+    rec: {
+      label: "Recommended rate with a buffer",
+      note: "A rate that also pays for the quiet months, new equipment and the time you invest in yourself.",
+    },
+    hours: {
+      label: "Billable hours a year",
+      note: "The only hours you can sell — and the whole rest of the year has to be paid out of them.",
+    },
+    project: {
+      label: "What a project has to bring in",
+      note: (h: number, rec: string) =>
+        `A job of ${fmt(h)} billable hours must not drop below this, otherwise you are subsidising it with your own free time. With the buffer: CZK ${rec}.`,
+    },
+  },
+  unitPerHour: "CZK / h",
+  unitHours: "hours",
+  unitCzk: "CZK",
+  stepsTitle: "How it was calculated",
+  steps: {
+    need: "Annual net need",
+    needF: (net: string, costs: string) => `${net} (living) + ${costs} (costs over 12 months)`,
+    revenue: "Revenue you have to invoice",
+    revenueF: (need: string, tax: number) => `${need} ÷ (1 − ${tax} %) — tax and levies belong in the price, not in a springtime surprise`,
+    hours: "Sellable hours",
+    hoursF: (w: number, h: number, b: number) => `${w} weeks × ${h} hours × ${b} % billable`,
+    rate: "Minimum rate",
+    rateF: (rev: string, hrs: string) => `${rev} ÷ ${hrs} hours`,
+    rec: "Recommended rate",
+    recF: (min: string, m: number) => `${min} × (1 + ${m} %)`,
+  },
+  reset: "Reset to defaults",
+  errorHours: "Enter at least one sellable hour — otherwise the rate cannot be calculated.",
+  errorTax: "The tax reserve has to stay below 100 %.",
+};
+
+const T = { cs, en };
 
 /** Kč s mezerou po tisících (pevná mezera, ať se číslo nikdy nezalomí). */
 function fmt(n: number): string {
@@ -245,12 +246,16 @@ function NumberField({
   step?: number;
   slider?: boolean;
 }) {
+  const id = useId();
   return (
     <div className="border-b border-hairline py-5 last:border-b-0">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-        <label className="text-[15px] font-bold leading-snug">{label}</label>
+        <label htmlFor={id} className="text-[15px] font-bold leading-snug">
+          {label}
+        </label>
         <div className="flex items-baseline gap-2">
           <input
+            id={id}
             type="number"
             inputMode="numeric"
             value={value}

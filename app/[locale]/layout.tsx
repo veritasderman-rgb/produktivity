@@ -63,6 +63,7 @@ export default async function RootLayout({
     { href: p("/tipy"), label: t.nav.tips },
     { href: p("/ai"), label: t.nav.ai, dropdown: true },
     { href: p("/prompty"), label: t.nav.prompts },
+    { href: p("/nastroje"), label: t.nav.tools },
     { href: p("/gadgety"), label: t.nav.gadgets },
     { href: p("/hledat"), label: t.nav.search },
   ];
