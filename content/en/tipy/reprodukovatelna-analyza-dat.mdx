@@ -1,0 +1,513 @@
+---
+title: "Reproducible Data Analysis: Turn a One-Off Query into a Procedure That Always Gives the Same Number"
+excerpt: "A complete guide with prompts: why your agent writes a different script for the same data every time, how to recognize when it's time to move from chat to a file, what needs to be written down around the script, how to run it on a schedule, and how to catch it when something breaks silently."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "freelancer", "vyvojar"]
+keys: []
+saves: "~half a day a month"
+date: "2026-08-13"
+updated: "2026-08-13"
+---
+
+Some questions keep coming back on their own. Last day of the month: “what did we make by category, and what stands out?” Before a leadership meeting: “how are we doing versus last year?” At the end of a campaign: “did it pay off?” Monday morning: “who was out last week?” Every time, a new chat gets opened, a fresh export gets uploaded, and a request goes in that's nearly identical to last time's. And every time, the agent thinks from scratch.
+
+That's the core of the problem. A language model has to write code to calculate anything — and for the same data and the same request, it writes that code **differently every single time**. One run excludes cancellations, the next doesn't. One run treats the invoice date as the month, the next treats the payment date as the month. The results look similar, and that's exactly what makes it dangerous: the difference doesn't look like an error, it looks like a refinement. **An analysis you can't rerun and get the same number from isn't an analysis — it's an opinion with a table attached.**
+
+This guide is part two. The first one ([data analysis via DuckDB and a persistent skill](/tipy/analyza-dat-duckdb-skill)) taught you to ask your data questions in plain language and get an answer that came from a calculation, not a guess. This one takes it a step further: what to do when the same question comes back every month. We'll cover when it makes sense to stop asking and start running, how a conversation turns into a finished file, what has to be documented around it, how to let it run without you, and how to tell when something has broken silently. The prompts are ready to copy and paste. You don't need to know how to program — you need to be able to say what should be calculated, and recognize when it's right.
+
+## A typical scenario
+
+Petra is the operations director at a forty-person company. Every month she puts together the same overview: revenue by category and channel, a comparison against last month and last year, overdue payments, and a list of things that stand out. Her source material is three exports — from invoicing, from the online store, and from the bank.
+
+For a year she did it in spreadsheets, and for the last six months with an agent. It sped things up from a whole day to an hour and a half, but a different problem showed up. In September, the CFO asked why June's revenue in the half-year report was off by eighty thousand from the number he'd gotten in July. Petra opened the July chat and found nothing usable: the script in it had been rewritten three times, and there was no way to tell which version had produced the number. It took her two evenings to figure out that credit notes had been counted into revenue that time around.
+
+The change she made can be summed up in one sentence: **she turned a conversation into a file.** She sat down with the agent, went through the definitions — what revenue is, what an active customer is, what belongs in which month — and had the procedure written down as a single, commented, runnable query. Alongside it came a page of definitions, control numbers, and a revision date, plus a folder of exports named by download date that never get overwritten.
+
+Today: closing the books takes twenty minutes, fifteen of which are spent reading and thinking. The script runs in a few seconds, prints its checksums, and shows how much each number differs from the last run. When the bank export's format changed in November, it failed with “missing column datum_uhrady” — instead of silently calculating zero overdue payments and Petra finding out about it in a meeting. And for the question “why does this number differ from last time,” she has an answer within five minutes, because the version history shows exactly what changed in the calculation and why.
+
+## What "reproducible" actually means
+
+The word sounds academic, but the meaning is mundane: **the same input data plus the same procedure equals the same result — and the procedure is written down in enough detail that someone else can repeat it too.** Not “roughly the same.” Exactly the same, down to the cent; otherwise one of those two runs did something you don't know about.
+
+It's useful to distinguish three levels, because each costs a different amount of effort:
+
+- **Repeatability** — you run it again yourself a week later and get the same thing. A saved script alone handles this.
+- **Reproducibility** — a colleague runs it on their own computer and gets the same thing. For this you need written definitions, precisely specified input data, and instructions for running it.
+- **Auditability** — a year later you can document exactly how a specific number came about: from which export, which version of the calculation, and who approved it. For this you need version history and a note on every run.
+
+For everyday company use, the second level is enough; the third comes almost for free once you're doing the second one properly.
+
+### Why this matters outside of science too
+
+Most people associate reproducibility with a laboratory. Yet the situations where its absence catches up with you are completely ordinary.
+
+**Inspections and audits.** An auditor doesn't ask whether a number is correct — they ask how it came about. “We asked the AI and this is what we got” is not an answer you want to say out loud.
+
+**A dispute with a client or supplier.** When billing gets settled based on your report, you need to be able to show exactly what went into it. A deleted conversation won't help you in that argument.
+
+**Handing off a responsibility.** One person leaving shouldn't stop the monthly report. A procedure that lives in someone's head and in a chat gets passed on like an oral tradition — two months later the successor is doing it differently, and nobody notices.
+
+**Your own memory.** The most frequent user of a written-down procedure is you, six months from now. You won't remember why you excluded orders under $2, or why one customer gets counted separately.
+
+**Trust in your own numbers.** The least visible and most expensive item. When the same question comes back with a slightly different result every time, you stop trusting the numbers — and start deciding by gut feel even though you have the data. The damage from variance isn't that it's imprecise; it's that it trains you to ignore the numbers.
+
+### What most often kills reproducibility
+
+It's almost always one of these four things:
+
+- **A procedure that gets reinvented every time.** Whether the model writes it or you click through a spreadsheet from memory, the result is the same: there's no single version of the truth.
+- **A manual fix after the calculation.** The script calculates, you fix three cells in the spreadsheet because “that doesn't belong there” — and there's no trace anywhere. Next month the fix either doesn't happen again, or happens differently.
+- **Unwritten definitions.** Ninety percent of the differences between two versions of the same number aren't calculation errors — they're a shift in what was actually being counted.
+- **Input data that changes behind your back.** An export gets overwritten by a file of the same name, the source system revises its history after the fact, someone manually fixes a row in a spreadsheet. The same procedure over “the same” data then gives a different number.
+
+A quick test: **if your laptop died tonight, could you produce, tomorrow, from your backed-up data, the exact same number you sent to leadership last week?** If the answer is “I'd have to reconstruct the whole thing,” you have exactly the problem this guide solves.
+
+## When to move from chat to a script
+
+Not everything needs to be frozen into a file. The first few rounds with data are exploration: you ask, you search, you change the question based on what you see. If you froze it right away, you'd concrete over your first idea. Chat is for finding the question; a script is for answering it repeatedly.
+
+Decide deliberately, not in passing. Five questions help:
+
+<Flow title="Five questions that decide whether it's time for a script" steps={[
+  {title: "Does it repeat?", desc: "When you find yourself asking the same question for the third time, that's a signal. Twice is a coincidence; the third time is a process."},
+  {title: "Will someone ask about it later?", desc: "When a number ends up in a report or a contract, someone will eventually ask how you arrived at it — possibly a year from now."},
+  {title: "Does money, payroll, grades, or people ride on it?", desc: "Billing, commissions, attendance, evaluations. Wherever a mistake would hurt someone, the procedure has to be traceable."},
+  {title: "Is the data growing?", desc: "A hundred rows you can eyeball. A hundred thousand you can't — and as volume grows, so does the chance that someone else notices the mistake first."},
+  {title: "Does more than one person need the same number?", desc: "Once the same number is used by sales, accounting, and leadership alike, it has to come from one calculation, not three different chats."}
+]} />
+
+Two “yes” answers are enough; three make it mandatory. And conversely: a one-off question that no decision will ever hinge on doesn't need to end up as a script — turning every five-minute task into a project is just as much a mistake as never doing it at all.
+
+How much ceremony you apply depends on what rides on the result. For a minor operational matter, a commented file is enough. For a number that commissions get paid from, you additionally need written definitions, a control run, and a person who approves the result. For a one-off analysis that a decision still gets made from, you don't need a script — you need a record: what you calculated, from which file, and what numbers came out.
+
+If you're not sure, have it assessed — while keeping in mind the decision is yours:
+
+```text
+Tell me whether to freeze this analysis into a runnable script or
+leave it as a one-off query in chat.
+
+What I'm doing: [description of the analysis, e.g. a monthly
+revenue breakdown by category and channel from three exports]
+How often: [once a month]
+Who gets the result: [leadership, accounting, a client]
+What gets decided based on it: [next month's budget, commission
+amounts]
+How big the data is: [~40,000 rows, growing by ~3,000 a month]
+Who will do this if I can't: [no one / a colleague in accounting]
+
+Answer in a structured way:
+1. Recommendation: chat / script / script with formal approval.
+2. Justification broken down by criterion, not in general terms.
+3. What would need to be written down for someone else to handle
+   this.
+4. What happens if I leave it as is — what mistake is most likely
+   to slip through.
+Give me the recommendation straight away, and admit where you're
+not sure.
+```
+
+Point 4 is usually the most valuable one — it names a risk you'd previously written off as a routine annoyance. Watch out for the model's tendency to recommend a heavier option than necessary: if it comes back with “script with formal approval” for an overview only you ever read, feel free to simplify it.
+
+## How a conversation turns into a script
+
+The process has four steps, and most people skip the second one. It takes one afternoon, and after that you just run it.
+
+### Step 1: find the right question in chat
+
+First ask freely: look over the data, try two or three ways of breaking it down, see what comes out. At this stage chat is irreplaceable — you change the request every minute. Exploration is covered in more detail in the [first part](/tipy/analyza-dat-duckdb-skill) and in the tip [data analysis with AI](/tipy/ai-analyza-dat).
+
+But insist on one thing: have the agent ask you instead of assuming. Most later differences between versions originate right here, from silent assumptions.
+
+```text
+Before you calculate anything, go through the file [name] and
+list the decisions you'd otherwise have to make for me.
+
+I want an overview of [what I want to calculate, e.g. revenue by
+month and category for 2026].
+
+List a numbered set of questions you need my answer to, ordered
+by how much they'd affect the result. For each one, say exactly
+what you don't know, what the options are, how the result would
+differ, and what you'd choose if I didn't answer.
+
+I'm typically interested in: what counts as one case, which rows
+to exclude, which date determines the period, whether amounts
+include tax, and how empty values are handled.
+Don't calculate anything yet, just ask.
+```
+
+You'll get back a list where you'll typically discover two or three things you had no idea were ambiguous. Save your answers — they'll become a glossary of definitions. And if even you don't know the answer, it's not a task for the model — it's a task for whoever manages the source system.
+
+### Step 2: have the procedure written as one runnable file
+
+Once the number checks out and you know why, the crucial sentence arrives: **“save what we just agreed on as a single runnable file.”** From that point on, the procedure doesn't get rewritten — it changes by editing the file.
+
+```text
+We're done. Now write what we just agreed on into a single
+runnable file, so you don't have to work it out again next time.
+
+Requirements:
+- One file, named after what it does: mesicni-prehled-trzeb.
+- A comment header at the top: what the file calculates, from
+  which inputs, what the output is, when it was created, and who
+  is responsible for its contents.
+- Anything that changes between runs (input path, period,
+  thresholds) goes as named values in one place right below the
+  header. Nowhere else should numbers or paths be hardcoded.
+- Split it into sections: loading, input validation, cleaning,
+  calculation, output to the console and to a CSV with the date
+  in its name.
+- Nothing extra that we didn't agree on. Wherever you had to
+  assume something, write it into the header as an open question
+  for me.
+
+Then show me the whole file and explain what each part does in
+plain English.
+```
+
+You'll get back a file you can run even a year from now. Check two things: whether any path or threshold is still hidden in the middle of the calculation, and whether the header contains assumptions you never agreed on — those are usually the source of later discrepancies.
+
+For monthly aggregations, a SQL query is usually the best form — it's readable even for someone who's never programmed, because it can be read almost like a sentence. A saved file then looks roughly like this:
+
+```sql
+-- mesicni-prehled-trzeb.sql
+-- Co: tržby po měsících a kategoriích z exportu fakturace.
+-- Vstup: data/faktury-2026-08-01.csv, výstup: vystup/trzby-po-mesicich.csv
+-- Definice: tržba = částka bez DPH, po odečtení dobropisů;
+--           měsíc = podle data uskutečnění plnění, ne vystavení.
+-- Revidováno: 2026-08-13, schválila: Petra N.
+
+COPY (
+  SELECT
+    date_trunc('month', datum_plneni) AS mesic,
+    kategorie,
+    round(sum(castka_bez_dph), 2)     AS trzba,
+    count(*)                          AS pocet_dokladu
+  FROM 'data/faktury-2026-08-01.csv'
+  WHERE stav <> 'storno'          -- storna do tržeb nepatří
+  GROUP BY 1, 2
+  ORDER BY 1, 3 DESC
+) TO 'vystup/trzby-po-mesicich.csv' WITH (FORMAT csv, HEADER);
+```
+
+You don't need to understand it down to the last character. You need to recognize that the line with `storno` matches what you agreed on — and you can tell that even without a SQL course, thanks to the comments. The file runs with a single command, for example `duckdb < mesicni-prehled-trzeb.sql`, or the agent runs it for you.
+
+### Step 3: comments and control printouts
+
+A script with no comments is just as unreadable six months from now as a deleted chat. A comment like “here we filter out cancellations” is worthless — that much is already visible. What's valuable is the **why**.
+
+```text
+Add comments to the script, but not descriptive ones —
+explanatory ones. For each step, write:
+- what happens in it, in plain language,
+- WHY it's done — what business rule is behind it,
+- what would happen if that step were missing,
+- who or what decided it should be this way (who confirmed it
+  for me).
+
+Comment every filter and every condition especially carefully —
+for those, I want to see the reason, not a description. Write so
+that a colleague who knows our company but doesn't program can
+follow it.
+Write the comments in plain English.
+```
+
+You'll get back a file that's also documentation. Watch out for the model inventing reasons: wherever nobody told it the reason, a question belongs there, not a guess. Go through the comments on the filters line by line — five minutes, the best investment in the entire process.
+
+The other half of the work is control printouts. Without them, you won't notice that a filter meant to drop dozens of rows dropped thousands instead.
+
+```text
+Add control printouts to the script so I can see what's happening
+to the data.
+
+Specifically:
+- row count right after loading the file,
+- row count before and after every filter, and the difference in
+  both absolute numbers and percent,
+- the sum of the key amount column before and after cleaning, so
+  I can see how much money vanished through filtering,
+- the count of empty and nonsensical values in the columns that
+  feed into the calculation,
+- the count of unique categories, and a list of those that appear
+  fewer than [five] times — that's usually where typos hide.
+
+Number the printouts according to the steps of the procedure. At
+the end, add a summary line: how many rows went in, how many
+dropped out, and how many are in the result.
+```
+
+You'll get back a script that narrates what it's doing on every run. Read that printout — it's your main defense against silent errors. When the cancellation filter drops twenty percent of rows instead of the usual two, you have a data problem, and you know it before leadership does.
+
+### Step 4: instructions for someone who's never run it
+
+Finally, have the agent write a short `navod.md`: what the procedure calculates, which export to prepare, which commands to run, how to tell it went well, and what to do about the three most common errors. Frame it as instructions for a colleague who knows Excel and has never seen a command line — it doubles as a quality test for the procedure itself, because anything that can't be written down clearly isn't actually finished.
+
+## What needs to surround the script
+
+The file with the calculation is roughly half the picture. The other half is the context, without which the same procedure behaves differently a year later.
+
+### Input data and its versions
+
+The basic rule: **an export is never overwritten.** Every downloaded file has a date in its name and stays put: `faktury-2026-08-01.csv`, not `faktury.csv`. It'll save you a day the moment you're wondering whether a number changed because of the calculation or because of the data.
+
+Note three things about every export: where it came from (the system and the filter that was set), when it was downloaded, and for which period. Source systems routinely revise history after the fact — credit notes, corrective documents, rebilling. An export downloaded in September for June can therefore differ from one downloaded in July, and **that's not a bug, it's normal operation**. But without the download date, you'll never untangle which is which.
+
+A folder structure that has proven itself:
+
+```text
+mesicni-uzaverka/
+  data/           exports with a date in the name, never overwritten
+  vystup/         results from individual runs, also dated
+  mesicni-prehled-trzeb.sql   the calculation itself
+  definice.md     what the terms mean and what we decided to count
+  navod.md        how to run it
+  historie.md     what changed, when, and why
+```
+
+### Definitions of terms
+
+The most underrated file in the folder, and also the one that saves the most time. “Active customer” isn't an unambiguous term: active over twelve months, or three? Does an order count, or only a paid order? The company, or the branch? Each variant gives a different number, and all of them are defensible — the point isn't to pick the correct one, but to pick one and stick with it.
+
+```text
+Go through our script and pull out every implicit decision that's
+in the code but never explained anywhere.
+
+For each one, write what the script does (with a line reference),
+what other reasonable approach would exist, and when that
+difference would actually matter.
+
+Then assemble a definice.md file: a list of the terms the
+calculation uses (for example [revenue, active customer, month,
+cancellation]), a one-sentence definition of how the script
+actually uses each one, and a note on who confirmed it.
+For terms where I never gave you a decision, write UNCONFIRMED and
+attach the question I need to answer.
+```
+
+You'll get back a document for a discussion with accounting or a client — and, more importantly, a list of open points. There's almost always a decision the model made for you that nobody knew about. That's exactly why the prompt is worth running even on a procedure that “already works fine.”
+
+The definitions should also include **control numbers**: values you know to be correct. “For March 2026, revenue is $2,340,118, and it matches the accounting statement.” If the script returns something different next time, you know either the procedure broke or the data changed. Without an anchor in a known number, you have nothing to measure against.
+
+And two items that cost ten seconds each: **the date of the last revision** and **who approved the result**. Not for bureaucracy's sake, but for the question “is this procedure still valid?”, which always shows up at the worst possible moment.
+
+### Version history, or git without the course
+
+When you edit the script, the old version disappears — and a month later you're asking why the numbers don't match, with nothing to compare against. The fix is called **versioning**, and it's simply **a version history you can go back to**: every time you change the procedure, a new state gets saved along with a note on what changed and why. Old versions stick around and can be pulled up any time.
+
+The standard tool for this is called **git**. It looks like something for programmers, but you only need three abilities from it: save a state, write a sentence about it, and look at what changed between two states. You don't need to know how to operate it — an agent with access to your folder will do it for you.
+
+```text
+Set up version history in this folder using git, so I can go back
+to any earlier version of the calculation.
+
+Set it up like this:
+- The history should include the script, definice.md, navod.md,
+  and historie.md.
+- The history should NOT include the data/ or vystup/ folders —
+  they're large files and they hold operational data. Set it up
+  so they can't end up there even by accident.
+- Save the current state as the starting point.
+
+Then explain in five lines what I should do every time I change
+the script, and how to view the difference between two versions.
+Write it for someone who's never seen git, with commands ready to
+copy and paste.
+
+From now on: whenever you change the script at my request, save
+the change to the history with a description in plain English
+that states WHAT actually changed (for example, “credit notes are
+now subtracted from revenue”), not a technical description.
+```
+
+You'll get back a configured folder and a short set of instructions. The most important part is the sentence about describing changes: a technical one (“filter adjusted”) won't help you a year from now; a substantive one (“credit notes are now subtracted from revenue, confirmed by accounting on 8/13”) answers the question before you've even finished typing it.
+
+If you refuse to use git, at least do the poor-man's version: a `historie/` folder with dated copies of the script, and a text file where every change gets logged with a date, what changed, and why. **The rule is: the script never changes without leaving a trace.**
+
+One last thing: data with personal information — names, emails, salaries, attendance — belongs only in a paid account with contractual data protection, and even there it should be as anonymized as possible. The cleanest approach is to have the procedure written and then **run it locally on your own machine**, because then the data never leaves. Never put production data into version history.
+
+## Running without you
+
+A script you have to run by hand still depends on you remembering to do it. The next step is letting it run on a schedule.
+
+### Scheduled runs
+
+There are three options. **A scheduled agent task** (in Claude, a routine triggered on a schedule): at the appointed time, the agent runs the script, reads the result, and sends you a summary. **A system scheduler** — cron on Mac and Linux, Task Scheduler on Windows, both tools that run a given command at a set time — is more reliable, because it doesn't need a model at all. And **a manual run with a calendar reminder** is enough wherever you have to download something first anyway.
+
+A practical combination for closing the books: the scheduler runs the calculation, and the agent reads and comments on it. That way, the calculation doesn't depend on how the model happens to be responding that day. More in the tip [routines over email and your calendar](/tipy/claude-rutiny-posta-kalendar) and the chapter [routines and agents](/prirucka/rutiny-a-agenti).
+
+```text
+Set up a recurring run of this procedure.
+
+When: [the 1st of every month at 7:00]
+What should happen:
+1. Run the script over the newest export in the data/ folder.
+2. Save the output to vystup/ with the date in its name.
+3. Also save the full run log (control printouts) to a file in
+   log/.
+4. Send me [an email / a chat message] with a short summary: the
+   headline numbers, the checksums, what's different from the
+   last run, and whether the run ended with an error.
+
+Rules:
+- If there's no newer export in the data/ folder than last time,
+  don't calculate anything, and tell me the source data is
+  missing.
+- If the script ends with an error, send me the error message and
+  don't try to work around it.
+- Don't send or publish anything to anyone else — the output goes
+  to me only, and I decide what happens with it.
+
+Tell me where this setup got saved and how to turn it off.
+```
+
+You'll get back a configured task. Don't take the prompt's last paragraph lightly: an automated system that forwards numbers on its own is the fastest way for a bad report to land in the company at five in the morning. **The automation calculates, a human approves the conclusion** — it's the “AI proposes, the human approves” principle in its data form.
+
+### When the shape of the input file changes
+
+This will happen. Someone renames a column in the source system, changes the date format, or adds a totals row to the export. You don't know about it, and the script keeps running.
+
+And here's the crucial thing you have to enforce: **the script must fail loudly instead of silently calculating nonsense.** A missing column must never be treated as zero, an unrecognized date must never be skipped over, an empty table must never pass through as “we made no revenue this year.” A silent error is worse than a crash: you notice a crash immediately, while nonsense makes it into the presentation.
+
+```text
+Add an input check at the start of the script that stops it when
+the data doesn't look the way it should.
+
+Check:
+- that the file exists and isn't empty,
+- that it contains exactly the expected columns — have the script
+  stop on either a missing column or an unexpected extra one,
+- that the data types match (a date is a date, an amount is a
+  number),
+- that the row count is within a reasonable range of the last run
+  (have the script stop on a deviation over [30]%),
+- that no new categories the procedure doesn't know about have
+  appeared,
+- that there are no duplicates by [document number].
+
+If a check fails, the script should exit with an error and print,
+in plain English, WHAT is wrong and what I should do about it. No
+automatic fixes, no filling in missing values, no continuing with
+just a warning — either the data checks out, or nothing gets
+calculated.
+```
+
+You'll get back a more robust script that will occasionally annoy you. That's the point. When a check stops you on something that's actually fine (say, a new legitimate category), the fix is to update the script and log the change in the history — not to turn the check off.
+
+## Checking that nothing broke
+
+A procedure that runs unsupervised for months will break quietly. Three simple checks protect you.
+
+### A regression check on known data
+
+A regression check verifies that after a change, everything that used to work still works. In practice: you have a small data sample where you know exactly what the answer should be, and you run it through the script after every edit. When the result matches, the change didn't break anything old. When it doesn't, you find out immediately — not a month later in a meeting.
+
+```text
+Build me a regression check for this procedure.
+
+1. From our data, produce a small test sample (on the order of
+   [200] rows) covering all the important cases: normal records,
+   cancellations, empty values, boundary dates around a month
+   change, a duplicate, a category with a typo. Replace personal
+   information with made-up data.
+2. Run the script over it and save the result as the expected
+   output.
+3. Show how you arrived at each individual number, so I can verify
+   it by hand.
+4. Prepare a procedure that runs the script over the sample,
+   compares it to the expected output, and on any difference,
+   prints which number and by how much.
+
+I want to run this every time before I deploy a changed script to
+production data.
+```
+
+You'll get back a test set and a comparison procedure. Don't skip point 3: an expected output nobody verified just cements the original mistake in place. Calculate two or three of the numbers by hand for those two hundred rows yourself.
+
+### Checksums and comparison with the previous run
+
+Every run should print a handful of numbers that shouldn't change dramatically: the input row count and the count after cleaning, the total sum of the amount, the number of unique customers. Save them to a log — over time you get a series where every jump is visible.
+
+```text
+Compare today's run output against the file from the last run.
+
+Today: [vystup/trzby-2026-08-01.csv]
+Last time: [vystup/trzby-2026-07-01.csv]
+
+Give me:
+1. A table: metric, last time, today, absolute difference,
+   percentage difference.
+2. Which values changed by more than [10]% — list these
+   separately.
+3. Changes in a period that's already closed (older months
+   shouldn't change) — list these first, they're the most
+   suspicious.
+4. New and disappeared categories or items.
+5. For every larger difference, offer a possible explanation and
+   tell me how I could verify it — in which system, and what to
+   look for there.
+
+Don't claim what happened. State what's visible, and what
+questions follow from it for me.
+```
+
+You'll get back a comparison, the core of the monthly check. Point 3 is the most valuable one: **a change in a period that's already closed almost always means the source data changed, not reality.** Either someone corrected documents retroactively, or the export got downloaded with a different filter — either way, you need to know before you send the number onward.
+
+### "What changed and why"
+
+The last check isn't technical. For every run, write a few lines: the date, the export used, the headline numbers, what changed versus the previous run and how it was explained, whether the script changed, and who approved the result. Three minutes that build a memory of the process.
+
+```text
+Write an entry about today's run into the historie.md file.
+
+Source material: [script output + comparison with the previous
+run].
+
+Structure (max 12 lines):
+- date of the run and the input file used,
+- headline numbers: [total revenue, document count, category
+  count],
+- checksums, and whether they match expectations,
+- what changed versus the previous run and what the explanation
+  is,
+- what remains unexplained and needs to be tracked down,
+- whether the script changed since last time, and how,
+- who approved the result (leave blank, I'll fill it in).
+
+Write it matter-of-factly. Where you don't know the explanation,
+write “unexplained” — don't make up a reason.
+```
+
+You'll get back an entry that you fill in and save. A year later you have twelve paragraphs telling the whole story of your numbers — and the last bullet about approval is what turns an automated process into an accountable one. Deciding what the numbers mean stays with the human; the agent supplies the material and flags where something looks off. The chapter [processes and automation](/prirucka/procesy-a-automatizace) expands on this.
+
+## The most common mistakes
+
+- **Letting the agent write the script over from scratch every time.** You pay for it three times over: in waiting, in tokens, and above all in the fact that two numbers from two runs can't be compared. Once a question repeats for the third time, it belongs in a file.
+- **Freezing the procedure too early.** The opposite mistake: a script built from the first version of the question cements a half-thought-out request in place, and you'll spend months working around it by hand. Ask all your questions first, and only then write it down.
+- **Fixing the result by hand after a run.** Three edited cells cancel out the entire reproducibility. Whatever doesn't belong in the result belongs as a rule in the script, and as a sentence in the definitions.
+- **Not writing down the definitions.** Most disputes about numbers aren't about the calculation — they're about what was actually being counted. One page of term definitions saves more arguments than the best code ever could.
+- **Overwriting the input file under the same name.** Without a date in the name, you can't tell whether the result changed because the procedure was edited or because the source system rewrote its history.
+- **A silent fallback.** A script that “handles” a missing column by plugging in a zero is more dangerous than a script that crashes.
+- **An automated system that forwards conclusions directly.** A scheduled run is allowed to calculate and send you the material. The sentence about what it means, and the decision about what to do with it, is made by a human.
+
+## The best tools
+
+- **DuckDB CLI** — a free tool that reads CSV, Parquet, or JSON straight from a file and runs a SQL query over it. The ideal form for a frozen procedure: a single text file that's still readable a year from now. Setup is covered in the [first part of the series](/tipy/analyza-dat-duckdb-skill).
+- **Claude Code** — an agent that works with the files in a folder: writes the script, runs it, fixes errors, sets up version history, and configures scheduled runs. The fastest path from conversation to file — see [personal automation in Claude Code](/tipy/claude-code-osobni-automatizace).
+- **Git** — version history for the procedure: save a state, write a sentence about it, compare two versions. Leave the rest to the agent.
+- **A system scheduler (cron or Task Scheduler)** — runs the calculation at a set time with no model involved, so the run doesn't depend on how the agent happens to be responding.
+- **Python with the pandas library** — for when the procedure outgrows simple aggregation: joining multiple sources, more complex cleaning, charts. More expensive to maintain than SQL, so reach for it only once it's actually needed.
+- **A spreadsheet editor** — the best tool for the last step: formatting a finished output into something someone will actually read. Not for repeated calculation; a [pivot table](/tipy/excel-kontingencni-tabulka) is well suited to one-off exploration.
+
+## What you get out of it
+
+- **Time:** a recurring analysis drops from hours to minutes. For a monthly close that used to eat up half a day, getting down to twenty minutes — most of it spent reading — is realistic. Setup costs one or two evenings and pays for itself within the second month.
+- **Money:** the agent doesn't rewrite the same thing, it just runs what's already there — runs get shorter and cheaper. And an error caught in a control printout costs a fraction of one caught in invoicing.
+- **Peace of mind:** you answer “how did you get that number” in five minutes, not two evenings. If you're out sick, anyone can run the close by following the instructions.
+- **Quality:** the numbers are comparable across months because they come from the same procedure. Only that makes tracking a trend possible — until now you were comparing numbers from different workshops.
+
+## Pro tip
+
+Once you have the procedure written down, every so often do a **double run**: run today's script over last year's frozen export and compare the result to the number you sent back then. If it matches, you have proof the procedure is reproducible. If it doesn't, you learn two things at once — either the calculation has changed since then (and the version history shows when and why), or the source data changed retroactively. The second case turns out to be surprisingly common, and it's worth saying out loud: “our history shifts under us by a few percentage points.”
+
+And a final rule that will outlast any change of tools: **reproducibility isn't about technology — it's about the procedure existing outside your head and outside the chat.** A file you can run, definitions you can read, a history you can look into. The model will write it for you in an afternoon — deciding that it should exist is up to you.

@@ -1,0 +1,490 @@
+---
+title: "Data Analysis in Plain Language: A Persistent Skill Built on DuckDB"
+excerpt: "A complete guide with prompts: why a chatbot silently gets the math wrong, how one instruction installs the DuckDB CLI and sets up a persistent skill for your agent, so you can ask questions in plain language over any CSV, Excel, Parquet, or JSON file — and how to verify the result is right."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "freelancer", "vyvojar"]
+keys: []
+saves: "~hours over spreadsheets every month"
+date: "2026-08-13"
+updated: "2026-08-13"
+---
+
+More and more people are turning a chatbot loose on their data. They drag an export from their online store, an attendance sheet, a bank statement, or survey results into the window and ask in plain language: how much, when, why. The answer arrives right away, nicely formatted, with percentages and a conclusion. It looks like the future of analytics. It's actually the quietest way to get it wrong.
+
+**A language model is a text predictor. On its own it can't calculate — it can write a number that looks right in that sentence.** Sometimes that number is even correct, and that's exactly the problem: you have no way to tell which of those numbers came from an actual calculation and which came from an impression. The tip [data analysis with AI](/tipy/ai-analyza-dat) covers this distinction in general — why a model must not calculate inside a chat, and how to recognize a tool that actually runs code. This guide builds on that with one concrete solution: give your agent a **persistent skill built on the DuckDB CLI** and then ask your questions in plain language.
+
+First we'll show you exactly where it breaks, then compare two ways to fix it. Next comes a prompt that sets up the whole thing, broken down line by line — and finally the part that matters most: how you ask questions afterward, and how you verify the answer is right. The prompts are ready to copy and paste; just fill in the brackets.
+
+## A typical scenario
+
+Petra handles operational controlling at a company with eighty employees. Every month she gets three exports: point-of-sale data (around forty thousand rows), inventory movements, and costs from accounting. The task is simple to describe and tedious to execute — say what changed in last month's numbers and why. For a year she did it in a spreadsheet: open the file, fix the decimal commas, build a pivot table, copy it into the report. Half a day. And when her boss asked something the template didn't cover (“and how much of that is returns?”), that meant another hour.
+
+Then she tried a chatbot. Two months of enthusiasm, and in the third month the report showed revenue that was off from accounting by a hundred thousand. Tracking it down took two days, and the cause was banal: one export had amounts with a decimal comma, and the model read half the rows as text, so they never got summed. Nothing crashed, no error message. There was just a hundred thousand missing.
+
+Today Petra has the DuckDB CLI and one persistent skill in her agent that spells out how to handle data: look at the file first, write the query, show both the query and the result. The monthly report now takes her twenty minutes, and she can answer the returns question in two. The difference isn't that the AI got smarter — it's that it stopped calculating and started asking a database instead.
+
+## Why a chatbot gets the math wrong
+
+What breaks an analysis done in chat isn't the model being dumb — it's two specific traits. You need to know them by name, or you won't recognize them when they show up.
+
+### Catch one: the model misjudges whether to write a script
+
+Modern models aren't naive. They know a more complex calculation belongs in code — typically they'll write some Python, run it, and hand back the result of that run. For simple things they won't bother, and that's reasonable: you don't need to spin up an interpreter to add three numbers. The problem is the boundary. **The model has to guess whether a request is still “off the top of my head” or already “needs a script” — and it makes that guess the same way it makes everything else: probabilistically.** A sum over twenty thousand rows looks exactly as innocent in the request as a sum over twenty rows. And when the model guesses wrong, you don't get a warning saying “I estimated this” — you get a number stated with exactly the same confidence as one that was actually computed.
+
+Typically this happens with three things:
+
+- **A sum or average over a large file.** The model only sees a slice of the data and estimates the rest. The result falls within a plausible range, and nobody thinks to verify it.
+- **An average instead of a median on skewed data.** You ask for the “typical order” and get an average. When there are three orders worth $2 million and eight thousand worth $600, the average doesn't describe any real customer.
+- **Calculating “roughly.”** A question like “what percentage of transactions are under $1,000” tempts the model to estimate from a sample. Fine at twenty rows, off at twenty thousand.
+
+### Catch two: it writes the script differently every time
+
+Say the model guesses right and writes the script. You've only won half the battle. A month later you open a new chat, upload the same export with fresh data, and ask the same question — and the model writes a **different script**: it handles empty cells differently, rounds differently, interprets the `stav` column differently, and maybe filters out cancellations this time, maybe not.
+
+There are three consequences:
+
+- **Tokens, money, and time.** You pay for writing the same code over and over, and generating plus debugging it takes minutes, while running an existing SQL query takes seconds.
+- **Risk of error.** Every new write is a fresh chance to miss something; ten generations are ten separate rolls of the dice.
+- **The end of reproducibility.** The worst one. Reproducibility is a foundational principle of data analysis: **the same data plus the same procedure must produce the same number — tomorrow, next year, and even if someone else runs it.** When the procedure gets reinvented every time, you don't have a procedure — you have a new experiment under the same name, over and over.
+
+A quick test for whether this applies to you: can you say exactly how the number you sent into last month's report came about? Not “I asked the AI” — which rows, and after which filter.
+
+### What a silent error like this looks like in practice
+
+The most common silent error in Czech-style exports isn't bad math — it's a file that got misread. Take a typical export with a semicolon delimiter and a decimal comma:
+
+```text
+datum;kategorie;castka
+2026-01-05;Nájem;-12500,00
+2026-01-07;Potraviny;-842,50
+2026-01-09;Potraviny;-1230,00
+2026-02-01;Mzda;48000,00
+```
+
+Left untreated, this is what happens (a real output, not a mock-up):
+
+```bash
+duckdb -c "FROM 'vypis.csv' LIMIT 3;"
+
+┌────────────┬───────────┬───────────┐
+│   datum    │ kategorie │  castka   │
+│    date    │  varchar  │  varchar  │
+├────────────┼───────────┼───────────┤
+│ 2026-01-05 │ Nájem     │ -12500,00 │
+│ 2026-01-07 │ Potraviny │ -842,50   │
+│ 2026-01-09 │ Potraviny │ -1230,00  │
+└────────────┴───────────┴───────────┘
+```
+
+Notice the second header row. `datum` is a date, `kategorie` is text — and `castka` is **also text**, because the decimal comma kept it from being read as a number. Any sum over a column like that either crashes, or in other tools silently adds up only the rows it managed to parse. Nothing visibly broke — a number written the local way just ran into a tool that doesn't know the convention, and in a chat window you'd never see this header row at all. The fix is a single parameter:
+
+```sql
+SELECT * FROM read_csv('vypis.csv', delim = ';', decimal_separator = ',');
+```
+
+There are several traps like this, and all of them are equally unassuming: **encoding** (older Czech systems export CP1250, so accented characters fall apart and “Nájem” and “N?jem” suddenly become two different categories), the **delimiter**, **thousands separators** in numbers, **dates read as text**, and **subtotal rows** buried inside the data that get summed a second time. The lesson isn't “don't use AI on data” — it's this: **before anything gets calculated, you have to be able to see what actually got loaded.**
+
+## Two ways to fix it
+
+There are two paths, and it's only fair to say up front that the more laborious one is the better one. **The honest path: write the script properly once, save it, and run it.** You have a script written in Python or R that loads the data, cleans it, calculates, and saves the results. It lives in a file next to the data, you version it, and when you run it next month against a new export, you get numbers calculated exactly the same way as last time. The cleaning decisions are written down in it and readable. That's reproducibility at full strength, and it's the subject of the second article in this series, [reproducible data analysis](/tipy/reprodukovatelna-analyza-dat).
+
+The price is time: the first version takes half a day, and every new question means going back into the code and testing that nothing else broke. For an analysis that money decisions ride on, you'll gladly pay it. For the question “and how much of that is returns?” on a Tuesday afternoon, it's a big enough hurdle that the question never gets asked at all.
+
+**The pragmatic path: give your agent a persistent skill built on the DuckDB CLI.** You don't write a script, you write a request in plain language. The agent looks at the file first, then writes a SQL query, runs it through DuckDB, and hands back both the result and the query. The database does the calculating, not the model — no guessing from memory. And because the rules live in the skill, the agent behaves the same way every time. Reproducibility here is only half the story, though: **the query is reproducible, the path to it isn't.** A saved SQL query can be rerun any time and will give the same number; if you don't save it, the agent will write something similar next time, but not necessarily identical.
+
+| | A script written properly once | A persistent skill on DuckDB |
+| --- | --- | --- |
+| Setup cost | half a day to a day | fifteen minutes |
+| Cost per new question | editing code and testing | one sentence in plain language |
+| Reproducibility | full — the procedure lives in a file | partial — only if you save the query |
+| Who calculates | code you approved | the database, per the query you can see |
+| Audit trail | versioned script and run log | a SQL query with every answer |
+| Best for | recurring reports, numbers for accounting | exploration, one-off questions |
+
+The rule of thumb: **a one-off question and exploration → the skill. A number that recurs, or one someone will recalculate → a script.** And the two combine nicely: use the skill to explore the data and find the right question, then have a script written that answers it the same way every month.
+
+## What DuckDB is, and why this one
+
+DuckDB is an open-source analytical database. “Analytical” means it's built for queries like “sum, group, compare, find outliers” over large tables, not for thousands of small writes per second the way a database behind an online store is. It exists as a library for various languages and — what matters for us — as a **CLI: a single program you run in a terminal**. It's free, and you'll find installation instructions at `duckdb.org`.
+
+### A database that doesn't need a database
+
+This is the property that makes the whole approach worthwhile. A classic database needs installing, a database to be created, tables to be defined, and data to be imported; half a day goes by before you get to your first question. DuckDB skips that step: **it reads a file straight off disk as if it were a table.** The file path goes where a table name would otherwise go:
+
+```sql
+FROM 'prodeje.csv' LIMIT 5;
+```
+
+No setup, no import, nothing gets copied anywhere. It works on **CSV**, **Parquet**, **JSON**, on compressed files (`.csv.gz` gets unpacked on the fly), and, once you install an extension, on **XLSX** too. It can even handle multiple files at once using a wildcard in the path:
+
+```sql
+FROM read_csv('exporty/*.csv', union_by_name = true, filename = true);
+```
+
+`union_by_name` matches columns by name instead of position — necessary when one of the exports has its columns in a different order. And `filename` adds a column with the file path, so you can tell which file each row came from.
+
+### Two commands that justify the whole tool
+
+At the start of every analysis there are two questions: what's in the file, and what does it look like.
+
+```sql
+SUMMARIZE FROM 'prodeje.csv';
+```
+
+It returns one row per column, giving the name, the **type**, the minimum, the maximum, an approximate count of unique values, the average, the standard deviation, the quartiles, and the **share of empty values**. With one command you can see whether a date got loaded as a date, whether there's anything nonsensical between the minimum and maximum of an amount column, how many values are missing, and whether a “region” column has five categories or five hundred (usually a sign of typos).
+
+```sql
+FROM 'prodeje.csv' LIMIT 5;
+```
+
+The first few rows — and the most important five seconds of the whole analysis, because the header of the printout shows the **column types**. This is exactly where you'll catch an amount with a decimal comma turning into text.
+
+### Why not a spreadsheet, and why not Python
+
+A spreadsheet has three properties that work against you in data analysis. **It doesn't remember the procedure** — a pivot table shows the result, but not what you manually deleted before building it. **It changes data behind your back**: autoformat turns codes into dates, strips leading zeros, merges things that shouldn't be merged. And **it's slow at tens of thousands of rows**, so people resort to sampling. That doesn't mean you throw it away — on the contrary, this approach moves it from calculator to checkpoint, where a person manually looks at ten rows and confirms the query isn't lying. For smaller files, a [pivot table](/tipy/excel-kontingencni-tabulka) and [AI-assisted formulas](/tipy/ai-excel-vzorce) remain a great choice.
+
+Python, on the other hand, is more powerful, and SQL stands no chance against it for complex statistics, modeling, or graphics. But for the everyday “sum this up by month and category,” it has three drawbacks. **It's a lot of code for a small result**: load the file, handle the encoding and the decimal comma, convert the date, group, sort — thirty lines, and thirty opportunities to get something wrong, while the equivalent SQL query is five lines and reads almost like a sentence. **The environment is one more thing to manage**: the Python version, the packages, a missing `pandas` — each of those can eat a quarter hour; the DuckDB CLI is a single program with no dependencies.
+
+**And above all: code is harder to check.** You'll read thirty lines of Python through gritted teeth, if you read it at all. In five lines of SQL you'll see `WHERE stav <> 'storno'` and know immediately what got excluded. **Checkability matters more than raw power for this job**, because checking is the only thing standing between you and a silent error. A third option obviously exists too: a Python script that calls DuckDB internally — that's precisely the honest path from the [second article in the series](/tipy/reprodukovatelna-analyza-dat).
+
+## Setup: one prompt that sets it all up
+
+Open an agent that has file access and can run commands — [Claude Code](/tipy/claude-code-osobni-automatizace), Claude Cowork, or Codex — and send it this text. **Once**, not in every chat.
+
+```text
+Install the DuckDB CLI for me (only if I don't already have it;
+it's free, instructions at duckdb.org) and create a persistent,
+reusable skill that I'll use to analyze any data file by telling
+you in plain language what I want.
+
+Have the skill follow these rules:
+- Calculations run through the DuckDB CLI (the duckdb command),
+  which reads CSV, Excel, Parquet, JSON, and gzip directly from
+  the file, with no database to set up. Take SQL syntax from the
+  documentation: duckdb.org/docs/current/sql/introduction.
+- Before writing a query, look at the file first: schema and
+  statistics via SUMMARIZE FROM 'soubor', the first few rows via
+  FROM 'soubor' LIMIT 5. Don't guess column names or types, and
+  when anything is unclear, ask the user.
+- With every answer, show the SQL query that produced the result,
+  and the number of rows that went into it.
+- Don't modify or overwrite the data. When something needs to be
+  excluded or fixed, do it in the query and state what you
+  excluded and why.
+- Save the skill so it loads on its own whenever I talk about
+  analyzing a data file — I shouldn't have to invoke it by hand.
+
+Once it's done, show me where you saved the skill and what's in it.
+```
+
+The agent will install DuckDB (or discover you already have it), create the skill, and show it to you; it takes a few minutes. Don't skip that last line — **read the skill file yourself**, because from this point on it governs every analysis you run.
+
+### Line by line
+
+Every line guards against a specific failure. It's worth knowing which one — then you can adjust the skill yourself.
+
+**“Only if I don't already have it.”** Agents will obediently do what you tell them, even the second time; without this safeguard it might reinstall something that already works. **“Persistent, reusable”** is then the key phrase of the whole request: the difference between an instruction in a chat and a skill is the difference between “I said it once” and “this always applies.”
+
+**“Calculations run through the DuckDB CLI.”** Without this line the agent has a choice and reaches for what it knows — usually Python. The sentence closes the door on guessing from memory. And **“reads directly from the file, with no database to set up”** stops it from building a schema and importing data.
+
+**“Take SQL syntax from the documentation.”** DuckDB has its own extensions on top of standard SQL (`SUMMARIZE`, `GROUP BY ALL`, a query starting with `FROM`), and a model recalling generic SQL will make functions up. **A link to the documentation is the cheapest safeguard against hallucination.**
+
+**“Before writing a query, look at the file first.”** The entire methodology in two commands. Without it, the agent writes a query based on how it imagines the columns to be.
+
+**“Don't guess column names or types.”** The agent assumes a column called `datum`, but it's actually named `date_created`, and the query fails — that's the better outcome. Worse is when both exist and it picks the wrong one.
+
+**“When anything is unclear, ask the user.”** The most important and most neglected line. Models have a built-in urge to answer, not to ask. But decisions like “should cancellations be counted?”, “does the price include VAT?”, “what happens with rows that have no date?” **aren't technical — they're business decisions, and only a human knows the answer.** This line is the data version of “AI proposes, the human approves.”
+
+**“Show the SQL query and the row count.”** An audit trail with every answer; without it you're back to a number with no origin.
+
+**“Don't modify or overwrite the data.”** An agent that “fixes” typos in categories directly in the file destroys your ability to check anything. Cleaning belongs in the query, not in the data.
+
+### What a skill is, and why it should be persistent
+
+A skill is a **persistent instruction for the agent, stored as a file**. It has a short description that the agent uses to decide when to apply it, and a longer body with the actual rules. When you ask about something that matches the description, the body gets loaded and the agent follows it.
+
+The whole difference rests on “persistent.” When you paste the same rules into every chat by hand, over time you shorten them, occasionally forget them, and they're slightly different in every chat — which brings you right back to the non-reproducibility you were trying to escape. **An instruction you have to write out every single time is an instruction you'll eventually stop writing.**
+
+Where a skill gets saved differs from tool to tool and changes over time, so it's best to leave that to the agent — that's why the prompt keeps it general. In Claude Code, the convention is that a skill is a `SKILL.md` file in a folder named after it, either personal (in your home folder, applying across all projects) or project-level (in the repository, shared with the team). The header carries a `name` and `description`; the skill activates itself based on that description. The chapter [routines and agents](/prirucka/rutiny-a-agenti) covers this in more detail.
+
+**Personal or project-level?** Personal when you analyze varied data and the rules are your own. Project-level when it's a specific company's data and you want everyone calculating things the same way; then the skill can be extended with things specific to your data. It's the cheapest way to unify definitions across a company — more on that in the tip [AI at your company](/tipy/ai-ve-firme-kompletni-pruvodce).
+
+And before you turn the skill loose on production data, take it for a dry run: have a test CSV generated with two hundred rows carrying the usual local quirks (semicolon delimiter, decimal comma, a handful of duplicates, empty categories, “Prague” and “prague ” both present, a whole week with no records) and run the skill against it. If the agent starts calculating right away without looking first, tighten the rules.
+
+## How you ask questions afterward
+
+From this point on, you ask in plain language. What follows are eight requests that cover most everyday data work and aren't tied to one domain — they work over sales, attendance, measurement results, and bank statements alike.
+
+### 1. Getting acquainted with an unfamiliar file
+
+Before you ask your first real question, you need to know what's in the file.
+
+```text
+We'll be analyzing the file [file name].
+
+Don't calculate anything yet. Look it over and tell me:
+1. How many rows and columns it has.
+2. For each column: its name, what type it loaded as, how many
+   empty values it has, and how many distinct values it contains.
+3. Which columns you think loaded with the wrong type (typically
+   a number or date read as text) and how to fix that.
+4. What one observation is in this data — what a single row means.
+5. What you need to ask me before we start calculating. Don't
+   hold back: better to ask five things than guess one.
+```
+
+**Point 3 is the safeguard against the silent error from the introduction** — when the answer says “the amount column loaded as text,” you have your diagnosis before you've summed anything. And when the agent can't say what one row is, the data usually has mixed levels, like orders and subtotals jumbled together.
+
+### 2. A period breakdown by category, with an “Other” bucket
+
+The single most common request: see how the structure evolves over time without drowning in fifty categories, forty of which have two rows each.
+
+```text
+We'll be analyzing the file [file name].
+
+Give me a breakdown by [month] across recurring categories.
+Anything that doesn't recur regularly goes into an Other bucket.
+Treat a category as recurring if it appears in at least [three
+periods] and makes up at least [1%] of the total.
+
+Output: a table of period by category, with [sum of amount] in
+each cell and the record count in parentheses, plus totals per
+category and per period.
+
+Below the table, list every anomaly that breaks the typical
+pattern:
+- a category that appeared for the first time, or disappeared,
+- a value that deviates from that category's usual level by more
+  than [double],
+- a period missing a category that otherwise always shows up.
+
+For each anomaly, name the specific row it involves. Don't
+explain causes, just show what's unusual.
+```
+
+Watch three things. **What fell into Other** — if it's forty percent of the total, your thresholds are wrong. **No explaining causes**; the prompt's last sentence is there on purpose, because the model will invent a convincing explanation, and only you know that a supplier fell through in May. And **whether nothing got lost**: the sum per period has to match the file's overall total.
+
+### 3. Comparing two periods
+
+A table shows what happened. This request shows what's behind it.
+
+```text
+In the file [name], compare period [A] against period [B].
+
+I want a table: [category], value in period A, value in period B,
+absolute difference, percentage change, and CONTRIBUTION to the
+overall change in percentage points. Sort by contribution, largest
+first.
+
+Then separately break the overall change into two components:
+change in record count and change in the average value per record.
+
+Finally, list categories that appear in only one of the two
+periods.
+
+Define the periods using the [date] column, and tell me how many
+days each one covers — flag it if they differ.
+```
+
+It returns a breakdown that shows which category is actually responsible for the change. **The split into count and average is the fastest diagnostic you have** — “fewer records came in” and “records were smaller” are two different problems. The last paragraph guards against the most common comparison mistake: February has three fewer days than January, and that alone manufactures a “decline” of about ten percent.
+
+### 4. Duplicates and inconsistencies
+
+Dirty data doesn't look dirty. You only find out by asking.
+
+```text
+In the file [name] I want to find the mess. Don't fix anything,
+just list it.
+
+1. Exact duplicates: rows identical across every column, with
+   three examples.
+2. Duplicates by key [column or combination of columns]: records
+   with the same key but differing in the other columns.
+3. Text values that are probably the same thing written
+   differently: differing only in case, trailing spaces,
+   accented characters, or a typo. Show them in pairs, with the
+   frequency of each variant.
+4. Values outside the expected range: negative numbers where they
+   don't make sense, future dates, zero amounts.
+5. Columns missing more than [5%] of their values.
+
+For each point, state the number of affected rows and their share
+of the total.
+```
+
+It returns a list that would take you half a day to find by hand. **Point 3 is the most valuable** — two spellings of the same category silently split the numbers in half, and you won't see it in a summary. A finding in point 2 means either corrective versions in the data or a badly chosen key; deciding which is up to you.
+
+### 5. Segmentation: who or what makes up the bulk
+
+A classic Pareto view. It works for customers, products, suppliers, and error codes alike.
+
+```text
+In the file [name] I'm interested in the breakdown by [column,
+e.g. customer / product / branch].
+
+1. Rank segments by [sum of value] and show the top 20: segment,
+   value, share of total, cumulative share.
+2. Tell me how many segments make up 50% and how many make up 80%
+   of the total.
+3. For each segment in the top 20, add the record count and the
+   MEDIAN record value, not the average.
+4. Separately show segments with a single record — how many there
+   are and what share of the total they make up combined.
+
+Add a “remainder” row summing the other segments, so the table
+adds up to the total.
+```
+
+**The median instead of the average in point 3 is deliberate**: on skewed data, the average describes something that doesn't exist in the data, and when it diverges sharply from the median, a few extremes are dragging the segment. Point 4 is often a surprise: the “long tail” of one-off segments frequently makes up a bigger share than anyone expected.
+
+### 6. Joining two files on a shared key
+
+The moment you need to enrich sales with a product catalog, or attendance with an org structure.
+
+```text
+I have two files: [file A] and [file B]. I want to join them on
+[shared column].
+
+First, without calculating anything, tell me:
+- how many unique key values each file has,
+- how many values from A have no match in B, and vice versa —
+  show five examples for each,
+- whether the relationship is 1:1, or whether some key repeats
+  within one of the files (and how many times at most).
+
+Only then join them so that not a single row from file A gets
+lost, adding the columns [list] from B.
+After joining, tell me how many rows the result has and compare
+that to the row count in A. If the numbers differ, explain why.
+```
+
+It returns the diagnostics first and only then the join — and **that preliminary check is the entire point of the prompt.** Joining is the fastest way to inflate data without noticing: when a key repeats in the second file, the row count multiplies and every sum gets bigger; when it's missing, rows silently drop out.
+
+### 7. Checking that the data is complete
+
+The most underrated request of all: an analysis over incomplete data is worse than no analysis, because it looks complete.
+
+```text
+In the file [name] I want to check whether the data is complete.
+
+1. The oldest and newest [date] in the file.
+2. A time series of record counts by [day / week / month] — print
+   the whole thing so I can see the gaps.
+3. Periods with zero records even though neighboring periods have
+   them. List these as specific ranges.
+4. Periods where the record count is significantly lower or higher
+   than usual (deviation from the median of more than [50%]).
+5. Whether the composition of the data changes over time:
+   categories appearing only in part of the period, or a column
+   that's empty from a certain date onward. State exactly when
+   the change happened, too.
+```
+
+It returns a map of the gaps. **Point 5 is the one you're really doing this for** — if the collection method changed halfway through the period, or one column stopped being filled in, every “this year versus last year” comparison from that point on is nonsense, and nowhere does it say so.
+
+### 8. And finally: getting the result out of the chat
+
+Have the result saved to a semicolon-delimited CSV with a header, and **next to it a text file with the query, the source file, the row count, and a list of what was excluded and why**. Ask for the query to be written so it can run next month against a new export unchanged — with no hardcoded dates or values. A query saved this way is the seed of a reproducible analysis, and it just needs to be wrapped in a script; the tip [a personal budget from a bank statement](/tipy/osobni-rozpocet-z-bankovniho-vypisu) shows how to turn that into a regular routine.
+
+## How you know the result is right
+
+None of the above means the result is correct. It means it's **checkable** — and the checking is still on you. Four habits, a few minutes each.
+
+### Have it show you the query that produced the number
+
+The skill mandates this, but you have to actually read it. You don't need to be able to write SQL, just to check it: you're looking for **where** it reads from, **what got excluded** (`WHERE`), **what it's grouped by** (`GROUP BY`), and **what's being summed**. When you spot a filter in the query you didn't know about, you have your answer for why the number doesn't match.
+
+```text
+Show me the query that produced the number [specific value], and
+walk me through it piece by piece in plain language — for each
+piece, say what decision about my data it hides inside it.
+
+Then separately list:
+- which rows the query excluded, and how many there were,
+- what happens to rows where [column] is empty,
+- where the query could return a wrong number without failing.
+
+Finally, give me one alternative: how the same thing could be
+calculated differently, and why the result might come out
+different.
+```
+
+The last paragraph is the most valuable one. **When two reasonable paths to the same number give different results, the mistake isn't in the calculation — it's in the request.** It typically turns out that “monthly revenue” means three different things depending on whether it's counted by order date, payment date, or invoice date.
+
+### A checksum against another source
+
+The strongest check you have: **take one number you know from elsewhere and compare it.** Total turnover from accounting, headcount from the HR system, order count from the admin panel.
+
+When it matches, you trust the entire path from loading the file to the final aggregation. When it doesn't, the gap usually tells you straight away where the problem is: is a round amount missing? Rows with an empty value probably dropped out. Is exactly one category missing? A filter. Is it twenty percent short? Check the column type.
+
+### How many rows dropped out, and why
+
+Every filter discards something, and **a silent loss of rows is the most common cause of a wrong number that never raises a flag**. For every intermediate step you want to know three numbers: how many rows there were at the start, how many remained, and how much of that each step accounted for.
+
+```text
+For the last analysis, give me a row-count reconciliation:
+- how many rows the source file had,
+- how many were dropped at each step, and why,
+- how many made it into the final result,
+- check: does the sum of excluded and included rows match the
+  total?
+
+For every step that dropped more than [2%] of rows, show me five
+specific excluded rows so I can see what I lost.
+
+If any rows dropped out unintentionally, say so bluntly instead
+of explaining it away.
+```
+
+**Showing the excluded rows is the part where real problems become visible** — suddenly you see that “340 rows excluded for missing a date” are orders from one branch that records dates differently.
+
+### A test on a small sample where you know the answer
+
+The most underrated habit: **calculate the same thing by hand on ten rows and compare.** Take one category and one month with few records, open the data in a spreadsheet, add it up, and compare it to what the query returned.
+
+It takes five minutes and catches a whole class of errors no other check will — because you're testing whether the request was understood, not whether the calculation is correct. The database calculates reliably; the question is whether it's calculating what you actually wanted.
+
+### AI proposes, the human approves — the data version
+
+The principle that holds across this entire site takes a concrete form with data: **AI may propose the calculation, but a human approves what the number means.**
+
+First, **you don't delegate business decisions.** Whether cancellations are counted, whether the price includes VAT, what happens to rows with no category, whether returns are subtracted or recorded separately — no model knows the answer to these, because they don't live in the data, they live in your company. That's why the skill has that line about asking.
+
+Second, **the result gets verified against reality, not against a gut feeling**: a number isn't correct because it looks reasonable, but because it matches something independent. Third, **you're responsible for the number in the report.** When someone in a meeting asks “where did this come from?”, the sentence “AI calculated it for me” isn't an answer. The answer is “from file XY, for period Z, after excluding cancellations, and it matches accounting down to the dollar.”
+
+And one thing more: **sensitive data.** The advantage of the approach described here is that **the data stays on your own disk** — DuckDB calculates locally, and the agent only sends the model queries and aggregated results. Even so, the usual rule applies: work in a paid account with contractual data protection, and strip personal information out of the export or replace it with a sequence number. A summary by category never needs names.
+
+## The most common mistakes
+
+- **Trusting a number you never saw the query for.** The skill mandates showing the query, but if you skip past it and just copy the result, you're back at square one.
+- **Letting the agent guess what a column means.** The `hodnota` column might include VAT or not, `datum` might be the order date or the shipping date, `stav` might have eight values, three of which mean cancelled. If the agent doesn't ask, explain it yourself — and add that information to the skill.
+- **Overlooking a column's type.** The quietest error in Czech-style data: an amount with a decimal comma loads as text and the sums come out incomplete. The type row sits right under the header of the printout.
+- **Asking to have an anomaly's cause explained.** If you let the agent say why one category spiked in May, it will invent a convincing explanation. You know the cause, or you find it out by asking people — more in the tip [fact-checking](/tipy/ai-overovani-faktu).
+- **Using the skill for numbers that need to be reproducible.** Backup for accounting or a published result belongs in a saved script, not in a conversation.
+- **Letting the agent modify the source data.** The moment the file gets overwritten, you lose the ability to verify anything.
+- **Forgetting the checksum.** A single number from an independent source saves days of tracking down — and looks pointlessly precise right up until it isn't.
+
+## The best tools
+
+- **DuckDB CLI** — the calculation engine behind the whole approach: reads CSV, Excel, Parquet, JSON, and compressed files straight off disk, and answers with a SQL query you can see and check.
+- **Claude Code** — an agent working over a folder of data: installs DuckDB, creates and maintains the skill, writes and runs queries. More in the tip [Claude Code as a personal automation engine](/tipy/claude-code-osobni-automatizace).
+- **Claude Cowork** — the same work in desktop mode over a folder of files, no terminal needed.
+- **Skill (a persistent agent instruction)** — where the procedure's rules and the knowledge about your data live.
+- **A spreadsheet** — a checkpoint, not a calculator: for manually verifying ten rows and for a quick summary via a [pivot table](/tipy/excel-kontingencni-tabulka).
+- **Python with DuckDB or pandas** — for when the skill isn't enough: statistics, modeling, charts, and anything that needs to run the same way every month. The path there is in the tip [small scripts without programming](/tipy/ai-skripty-pro-nevyvojare).
+
+## What you get out of it
+
+- **Time:** a question that used to require building a pivot table is done in a minute; an afternoon spent on an export shrinks to half an hour.
+- **Money:** you decide based on the breakdown, not the summary number, so you address the actual cause. One wrong number in a report costs more than an evening spent verifying it.
+- **Peace of mind:** for every number you know exactly which rows and which query produced it. The question “where did you get that?” stops being uncomfortable.
+- **Quality:** the mandatory look at the file surfaces duplicates, missing periods, and misread types before they make it into the report.
+
+## Pro tip
+
+Once the skill is running smoothly, take one more step: **add knowledge about your specific data to it.** Not just how to calculate things, but what each thing means. That the `stav` column has the values `nova`, `zaplacena`, `storno`, and `vratka`, and that cancellations don't count toward revenue while returns do, just subtracted. That the point-of-sale file uses a semicolon and CP1250, while the e-commerce export uses a comma and UTF-8.
+
+What you end up with is something more valuable than a tool manual: **your company's written data definition.** Knowledge that used to live only in one person's head becomes a file that gets shared, versioned, and corrected — and thanks to it, everyone calculates things the same way. It's the cheapest fix for the “I got a different number” dispute that eats up more time in every company than the analysis itself.
+
+And a final rule that sits above this whole guide: **the model must not be the one doing the calculating — it may only be the one asking the question and writing the query.** The moment a number shows up in an answer without a query that produced it, you don't have an analysis. You have text that happens to contain a decimal point. For full reproducibility, where the procedure lives in a versioned script, continue on to [reproducible data analysis](/tipy/reprodukovatelna-analyza-dat).
