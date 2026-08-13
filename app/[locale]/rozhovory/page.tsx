@@ -197,17 +197,15 @@ export default async function InterviewsPage({
                   />
                 )}
                 <div>
-                  <div className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                    <span className="eyebrow text-faint">{i.role}</span>
-                    <span className="eyebrow text-faint">
-                      · {formatDate(i.date, locale)} · {i.minutes} {t.readTime}
-                    </span>
-                  </div>
+                  <p className="eyebrow mb-2 text-faint">
+                    {formatDate(i.date, locale)} · {i.minutes} {t.readTime}
+                  </p>
                   <h2 className="text-[19px] leading-snug font-bold">
                     <Link href={p(`/rozhovory/${i.slug}`)} className="hover:text-accent">
                       {interviewTitle(i, locale)}
                     </Link>
                   </h2>
+                  <p className="mt-1 text-[14px] font-semibold text-muted">{i.role}</p>
                   <p className="mt-2 max-w-[70ch] text-[14.5px] leading-relaxed text-muted">
                     {i.excerpt}
                   </p>

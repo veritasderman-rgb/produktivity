@@ -105,7 +105,11 @@ export default async function RatePage({
       <h1 className="display text-[clamp(30px,5vw,48px)]">{t.heading}</h1>
       <p className="mt-4 max-w-[60ch] text-[16px] leading-relaxed text-muted">{t.lead}</p>
 
-      <Suspense>
+      {/* Kalkulačka čte stav z URL, takže se dorenderuje až v prohlížeči —
+          prázdný rám drží místo, aby stránka pod ním neposkakovala. */}
+      <Suspense
+        fallback={<div className="mt-10 h-[760px] border-[1.5px] border-hairline" aria-hidden="true" />}
+      >
         <RateCalculator locale={locale} />
       </Suspense>
 
