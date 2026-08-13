@@ -4,6 +4,7 @@ import { getAllTips } from "@/lib/tips";
 import { getAllChapters } from "@/lib/chapters";
 import { getAllNews } from "@/lib/news";
 import { getPromptArticles } from "@/lib/prompts";
+import { getAllInterviews } from "@/lib/interviews";
 
 const BASE = "https://produktivni.cz";
 const EN_BASE = "https://productive.tips";
@@ -21,7 +22,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticPaths = [
     "", "/prirucka", "/tipy", "/ai", "/prompty", "/kurz", "/gadgety", "/slovnik", "/newsletter", "/start",
-    "/nastroje", "/nastroje/kviz", "/nastroje/pomodoro",
+    "/nastroje", "/nastroje/kviz", "/nastroje/pomodoro", "/nastroje/sazba", "/nastroje/promptovac",
+    "/rozhovory",
     "/o-projektu", "/hledat", "/ochrana-osobnich-udaju",
   ];
 
@@ -136,5 +138,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return entries;
   });
 
-  return [...staticRoutes, ...proHub, ...proPages, ...chapters, ...tips, ...news, ...promptArticles];
+  // Rubrika rozhovorů. Dokud nejsou publikované, blok je prázdný.
+  const enInterviews = new Set(getAllInterviews("en").map((i) => i.slug));
+  const interviews = getAllInterviews().flatMap((i) => {
+    const csPath = `/rozhovory/${i.slug}`;
+    const entries: MetadataRoute.Sitemap = [{
+      url: `${BASE}${csPath}`,
+      lastModified: i.date,
+      changeFrequency: "yearly" as const,
+      priority: 0.6,
+      ...withAlternates(csPath, enInterviews.has(i.slug)),
+    }];
+    if (enInterviews.has(i.slug)) {
+      entries.push({ url: `${EN_BASE}${csPath}`, lastModified: i.date, changeFrequency: "yearly", priority: 0.5 });
+    }
+    return entries;
+  });
+
+  return [
+    ...staticRoutes, ...proHub, ...proPages, ...chapters, ...tips, ...news,
+    ...promptArticles, ...interviews,
+  ];
 }

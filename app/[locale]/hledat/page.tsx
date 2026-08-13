@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getAllTips } from "@/lib/tips";
 import { getAllChapters } from "@/lib/chapters";
 import { getAllNews } from "@/lib/news";
+import { getAllInterviews, interviewTitle } from "@/lib/interviews";
 import { SearchAll, type SearchDoc } from "@/components/SearchAll";
 import { isLocale, type Locale } from "@/lib/i18n";
 
@@ -70,6 +71,12 @@ export default async function SearchPage({
       slug: n.slug,
       title: n.title,
       excerpt: n.excerpt,
+    })),
+    ...getAllInterviews(locale).map((i) => ({
+      type: "rozhovor" as const,
+      slug: i.slug,
+      title: interviewTitle(i, locale),
+      excerpt: i.excerpt,
     })),
   ];
 

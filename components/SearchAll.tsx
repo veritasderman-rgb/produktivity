@@ -5,7 +5,7 @@ import Link from "next/link";
 import { localePath } from "@/lib/i18n";
 
 export type SearchDoc = {
-  type: "tip" | "kapitola" | "ai";
+  type: "tip" | "kapitola" | "ai" | "rozhovor";
   slug: string;
   title: string;
   excerpt: string;
@@ -13,7 +13,7 @@ export type SearchDoc = {
 
 const T = {
   cs: {
-    typeLabel: { tip: "Tip", kapitola: "Příručka", ai: "AI novinka" } as Record<
+    typeLabel: { tip: "Tip", kapitola: "Příručka", ai: "AI novinka", rozhovor: "Rozhovor" } as Record<
       SearchDoc["type"],
       string
     >,
@@ -24,7 +24,7 @@ const T = {
       "Nic nenalezeno. Zkuste jiné slovo — nebo napište, co vám chybí, a rutina to doplní.",
   },
   en: {
-    typeLabel: { tip: "Tip", kapitola: "Handbook", ai: "AI update" } as Record<
+    typeLabel: { tip: "Tip", kapitola: "Handbook", ai: "AI update", rozhovor: "Interview" } as Record<
       SearchDoc["type"],
       string
     >,
@@ -40,6 +40,7 @@ const typeHref: Record<SearchDoc["type"], string> = {
   tip: "/tipy",
   kapitola: "/prirucka",
   ai: "/ai",
+  rozhovor: "/rozhovory",
 };
 
 function normalize(s: string) {
