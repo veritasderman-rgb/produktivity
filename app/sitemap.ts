@@ -3,6 +3,7 @@ import { audienceBase, audiencePath, audiences } from "@/lib/audiences";
 import { getAllTips } from "@/lib/tips";
 import { getAllChapters } from "@/lib/chapters";
 import { getAllNews } from "@/lib/news";
+import { getPromptArticles } from "@/lib/prompts";
 
 const BASE = "https://produktivni.cz";
 const EN_BASE = "https://productive.tips";
@@ -119,5 +120,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return entries;
   });
 
-  return [...staticRoutes, ...proHub, ...proPages, ...chapters, ...tips, ...news];
+  // Podstránky databáze promptů — prompty jednoho článku na jedné adrese.
+  const enPromptArticles = new Set(getPromptArticles("en").map((a) => a.slug));
+  const promptArticles = getPromptArticles("cs").flatMap((a) => {
+    const csPath = `/prompty/${a.slug}`;
+    const entries: MetadataRoute.Sitemap = [{
+      url: `${BASE}${csPath}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+      ...withAlternates(csPath, enPromptArticles.has(a.slug)),
+    }];
+    if (enPromptArticles.has(a.slug)) {
+      entries.push({ url: `${EN_BASE}${csPath}`, changeFrequency: "monthly", priority: 0.4 });
+    }
+    return entries;
+  });
+
+  return [...staticRoutes, ...proHub, ...proPages, ...chapters, ...tips, ...news, ...promptArticles];
 }
