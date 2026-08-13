@@ -525,4 +525,76 @@ export const glossary: GlossaryEntry[] = [
       en: "An automatic message one service sends another the moment something happens. Instead of you polling it, the service calls you.",
     },
   },
+  {
+    id: "sql",
+    term: { cs: "SQL", en: "SQL" },
+    match: {
+      cs: "\\bSQL\\b",
+      en: "\\bSQL\\b",
+    },
+    def: {
+      cs: "Jazyk, kterým se kladou dotazy nad tabulkovými daty: vyber tyhle řádky, seskup je takhle, spočítej součet. Dotaz je zápis postupu, takže ho lze uložit a spustit znovu se stejným výsledkem.",
+      en: "The language used to ask questions of tabular data: pick these rows, group them this way, add up that column. A query is a written-down procedure, so you can save it and re-run it for the same result.",
+    },
+  },
+  {
+    id: "duckdb",
+    term: { cs: "DuckDB", en: "DuckDB" },
+    match: {
+      cs: "\\bDuckDB\\b",
+      en: "\\bDuckDB\\b",
+    },
+    def: {
+      cs: "Otevřená analytická databáze, která umí číst datové soubory rovnou z disku, bez zakládání databáze a nahrávání dat. Hodí se na rychlé výpočty nad tabulkami, které by tabulkový procesor už neutáhl.",
+      en: "An open-source analytical database that reads data files straight from disk, with no database to set up and no import step. Good for fast calculations over tables too big for a spreadsheet.",
+    },
+  },
+  {
+    id: "parquet",
+    term: { cs: "Parquet", en: "Parquet" },
+    match: {
+      cs: "\\bParquet\\b",
+      en: "\\bParquet\\b",
+    },
+    def: {
+      cs: "Souborový formát pro velké tabulky. Na rozdíl od CSV ukládá data po sloupcích a komprimovaně, takže zabere méně místa a čte se rychleji.",
+      en: "A file format for large tables. Unlike CSV it stores data column by column and compressed, so it takes less space and reads faster.",
+    },
+  },
+  {
+    id: "reprodukovatelnost",
+    term: { cs: "reprodukovatelnost", en: "reproducibility" },
+    match: {
+      cs: "\\breprodukovateln[\\wáčďéěíňóřšťúůýž]*",
+      en: "\\breproducib[\\w]*",
+    },
+    def: {
+      cs: "Vlastnost postupu, u kterého stejná vstupní data vždy vedou ke stejnému výsledku a postup je zapsaný tak, že ho zopakuje i někdo jiný. Bez ní se výsledek nedá obhájit ani po sobě zkontrolovat.",
+      en: "A property of a procedure where the same input data always leads to the same result, written down clearly enough that someone else can repeat it. Without it a number cannot be defended or re-checked.",
+    },
+  },
+  {
+    id: "skript",
+    term: { cs: "skript", en: "script" },
+    match: {
+      cs: "\\bskript(?!or)[\\wáčďéěíňóřšťúůýž]*",
+      en: "\\bscripts?\\b",
+    },
+    def: {
+      cs: "Soubor s postupem, který počítač provede krok za krokem. Na rozdíl od odpovědi v chatu ho lze uložit, přečíst, opravit a spustit znovu se stejným výsledkem.",
+      en: "A file containing a procedure the computer runs step by step. Unlike an answer in a chat window it can be saved, read, corrected and run again for the same result.",
+    },
+  },
+  {
+    id: "skill",
+    term: { cs: "skill", en: "skill" },
+    match: {
+      cs: "\\bskill[\\wáčďéěíňóřšťúůýž]*",
+      en: "\\bskills?\\b",
+    },
+    def: {
+      cs: "Trvalá instrukce pro AI nástroj, uložená stranou od konverzace a načtená vždy, když se hodí. Díky ní nemusíte stejný postup vypisovat v každém novém chatu.",
+      en: "A standing instruction for an AI tool, stored outside the conversation and loaded whenever it is relevant. It saves you from spelling out the same procedure in every new chat.",
+    },
+  },
 ];
