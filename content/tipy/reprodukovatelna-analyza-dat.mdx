@@ -1,0 +1,483 @@
+---
+title: "Reprodukovatelná analýza dat: z jednorázového dotazu udělejte postup, který dá vždycky stejné číslo"
+excerpt: "Kompletní návod s prompty: proč vám agent napíše pro stejná data pokaždé jiný skript, podle čeho poznat, že je čas přejít od chatu k souboru, co musí být kolem skriptu zapsané, jak ho spouštět podle rozvrhu a jak zjistit, že se něco tiše rozbilo."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "freelancer", "vyvojar"]
+keys: []
+saves: "~půl dne měsíčně"
+date: "2026-08-13"
+updated: "2026-08-13"
+---
+
+Některé otázky se vracejí samy. Poslední den v měsíci: „kolik jsme utržili po kategoriích a co se vymyká?" Před poradou vedení: „jak jsme na tom proti loňsku?" Na konci kampaně: „vyplatila se?" V pondělí ráno: „kdo minulý týden chyběl?" Pokaždé se otevře nový chat, nahraje se čerstvý export a napíše zadání skoro stejné jako minule. A pokaždé agent přemýšlí od nuly.
+
+To je jádro problému. Jazykový model si na výpočet musí napsat kód — a pro stejná data a stejné zadání ho napíše **pokaždé znovu a pokaždé trochu jinak**. Jednou vyřadí storna, podruhé ne. Jednou vezme jako měsíc datum vystavení faktury, podruhé datum úhrady. Výsledky jsou si podobné, a právě proto je to nebezpečné: rozdíl nevypadá jako chyba, ale jako upřesnění. **Analýza, kterou nedokážete spustit znovu a dostat totéž číslo, není analýza — je to názor s tabulkou.**
+
+Tenhle návod je druhý díl. První ([analýza dat přes DuckDB a trvalý skill](/tipy/analyza-dat-duckdb-skill)) vás naučil ptát se dat obyčejnou řečí a dostat odpověď, která vznikla z výpočtu, ne z odhadu. Tady jde o krok dál: co udělat, když se stejná otázka vrací každý měsíc. Projdeme, kdy má smysl přestat se ptát a začít spouštět, jak z rozhovoru vypadne hotový soubor, co musí být kolem něj zapsané, jak ho nechat běžet bez vás a jak poznat, že se něco tiše rozbilo. Prompty jsou k okopírování. Programovat umět nemusíte — musíte umět říct, co se má počítat, a poznat, když to sedí.
+
+## Vzorová situace
+
+Petra dělá provozní ředitelku ve firmě se čtyřiceti lidmi. Každý měsíc skládá stejný přehled: tržby po kategoriích a kanálech, srovnání s minulým měsícem i s loňskem, nedoplatky po splatnosti a seznam věcí, které vybočují. Podklady jsou tři exporty — z fakturace, z e-shopu a z banky.
+
+Rok to dělala v tabulkách a poslední půlrok s agentem. Zrychlilo to z celého dne na půldruhé hodiny, jenže se objevil jiný problém. V září se finanční ředitel zeptal, proč se červnová tržba v pololetní zprávě liší o osmdesát tisíc od čísla, které dostal v červenci. Petra otevřela červencový chat a nenašla nic použitelného: skript v něm byl třikrát přepsaný a nebylo poznat, která verze číslo vyrobila. Dva večery jí trvalo zjistit, že se tenkrát do tržeb počítaly i dobropisy.
+
+Změna, kterou udělala, se dá popsat jednou větou: **z rozhovoru udělala soubor.** Sedla si s agentem, prošli definice — co je tržba, co je aktivní zákazník, co patří do kterého měsíce — a nechala si postup zapsat jako jeden okomentovaný dotaz, který jde spustit. K němu vznikla stránka s definicemi, kontrolními čísly a datem revize a složka s exporty pojmenovanými podle data stažení, které se nikdy nepřepisují.
+
+Dnešní stav: uzávěrka trvá dvacet minut, z toho patnáct minut čte a přemýšlí. Skript proběhne za pár vteřin, vypíše kontrolní součty a ukáže, o kolik se každé číslo liší proti minulému běhu. Když se v listopadu změnil formát exportu z banky, spadl s hláškou „chybí sloupec datum_uhrady" — místo aby tiše spočítal nulové nedoplatky a Petra to zjistila až na poradě. A na otázku „proč se tohle číslo liší od minulého" má odpověď do pěti minut, protože historie verzí ukazuje, co se ve výpočtu změnilo a proč.
+
+## Co znamená reprodukovatelný
+
+Slovo zní akademicky, ale význam je banální: **stejná vstupní data plus stejný postup se rovná stejný výsledek — a postup je zapsaný tak podrobně, že ho zopakuje i někdo jiný.** Ne „přibližně stejný". Stejný na haléř; jinak jeden z těch dvou běhů dělal něco, o čem nevíte.
+
+Užitečné je rozlišit tři úrovně, protože každá stojí jiné úsilí:
+
+- **Opakovatelnost** — spustíte to za týden znovu vy a vyjde totéž. Zvládne to samotný uložený skript.
+- **Reprodukovatelnost** — spustí to kolega na svém počítači a vyjde totéž. K tomu potřebujete zapsané definice, přesně určená vstupní data a návod ke spuštění.
+- **Auditovatelnost** — po roce doložíte, jak konkrétní číslo vzniklo: z jakého exportu, jakou verzí výpočtu a kdo ho schválil. K tomu potřebujete historii verzí a poznámku o každém běhu.
+
+Pro firemní praxi stačí druhá úroveň; třetí přijde skoro zadarmo, když děláte druhou pořádně.
+
+### Proč na tom záleží i mimo vědu
+
+Většina lidí si reprodukovatelnost spojí s laboratoří. Přitom situace, ve kterých vás její nedostatek dostihne, jsou úplně obyčejné.
+
+**Kontrola a audit.** Kontrolor se neptá, jestli je číslo správně, ale jak vzniklo. „Zeptali jsme se AI a tohle nám vyšlo" není odpověď, kterou chcete říkat nahlas.
+
+**Spor s klientem nebo dodavatelem.** Když se přeúčtovává podle vašeho výkazu, musíte umět ukázat, co přesně se do něj počítalo. Smazaná konverzace vám v té debatě nepomůže.
+
+**Předání agendy.** Odchod jednoho člověka nemá zastavit měsíční report. Postup, který žije v hlavě a v chatu, se předává jako ústní tradice — nástupce ho po dvou měsících dělá jinak a nikdo to nepozná.
+
+**Vaše vlastní paměť.** Nejčastější uživatel zapsaného postupu jste vy sami za půl roku. Nebudete si pamatovat, proč jste vyřazovali objednávky pod padesát korun ani proč se jeden zákazník počítá zvlášť.
+
+**Důvěra ve vlastní čísla.** Nejméně viditelná a nejdražší položka. Když stejná otázka vrací pokaždé mírně jiný výsledek, přestanete číslům věřit — a začnete rozhodovat podle pocitu, i když máte data. Rozptyl neškodí tím, že je nepřesný, ale tím, že vás naučí čísla ignorovat.
+
+### Co reprodukovatelnost nejčastěji zabije
+
+Skoro vždycky jedna z těchhle čtyř věcí:
+
+- **Postup, který vzniká pokaždé znovu.** Ať už ho píše model, nebo klikáte v tabulce z hlavy, výsledek je stejný: neexistuje jedna verze pravdy.
+- **Ruční zásah po výpočtu.** Skript spočítá, vy v tabulce opravíte tři buňky, protože „tohle tam nepatří" — a nikde není stopa. Příští měsíc se oprava neopakuje, nebo se opakuje jinak.
+- **Nezapsané definice.** Devadesát procent rozdílů mezi dvěma verzemi téhož čísla nejsou chyby ve výpočtu, ale posun v tom, co se počítalo.
+- **Vstupní data, která se mění pod rukama.** Export se přepíše souborem stejného jména, zdrojový systém dodatečně upraví historii, někdo v tabulce ručně opraví řádek. Stejný postup pak nad „stejnými" daty dá jiné číslo.
+
+Rychlý test: **kdyby vám dnes večer odešel notebook, dokázali byste zítra ze zálohovaných dat vyrobit úplně stejné číslo, jaké jste minulý týden poslali vedení?** Pokud odpověď zní „musel bych to celé rekonstruovat", máte přesně ten problém, který tenhle návod řeší.
+
+## Kdy přejít od chatu ke skriptu
+
+Ne všechno se má zmrazit do souboru. Prvních pár kol s daty je průzkum: ptáte se, hledáte, měníte otázku podle toho, co vidíte. Kdybyste to zmrazili hned, zabetonujete první nápad. Chat je na hledání otázky, skript na její opakované zodpovídání.
+
+Rozhodněte se vědomě, ne mimochodem. Pomůže pět otázek:
+
+<Flow title="Pět otázek, které rozhodnou, jestli je čas na skript" steps={[
+  {title: "Opakuje se to?", desc: "Když stejnou otázku pokládáte potřetí, je to signál. Dvakrát je náhoda, potřetí je to proces."},
+  {title: "Bude se někdo ptát zpětně?", desc: "Když číslo skončí ve zprávě nebo ve smlouvě, jednou přijde otázka, jak jsi k němu došel — klidně za rok."},
+  {title: "Visí na tom peníze, výplaty, známky nebo lidé?", desc: "Fakturace, provize, docházka, hodnocení. Tam, kde chyba někomu ublíží, musí být postup dohledatelný."},
+  {title: "Rostou data?", desc: "Sto řádků přehlédnete okem. Sto tisíc ne — a s objemem roste šance, že si chyby všimne až někdo jiný."},
+  {title: "Musí víc lidí dostat stejné číslo?", desc: "Jakmile totéž číslo používá obchod, účtárna i vedení, musí pocházet z jednoho výpočtu, ne ze tří chatů."}
+]} />
+
+Dvě „ano" stačí, tři jsou povinnost. A naopak: jednorázová otázka, na kterou nikdo nenaváže rozhodnutím, ve skriptu skončit nemusí — dělat projekt z každé pětiminutovky je stejná chyba jako nedělat ho nikdy.
+
+Míra ceremonie se řídí tím, co na výsledku visí. U provozní drobnosti stačí okomentovaný soubor. U čísla, ze kterého se platí provize, potřebujete navíc zapsané definice, kontrolní běh a člověka, který výsledek schvaluje. U jednorázové analýzy, podle níž se ale rozhoduje, nepotřebujete skript, ale protokol: co jste počítali, z jakého souboru a jaká čísla vyšla.
+
+Když si nejste jistí, nechte si to posoudit — s tím, že rozhodnutí je vaše:
+
+```text
+Poraď mi, jestli tuhle analýzu zmrazit do spustitelného skriptu,
+nebo ji nechat jako jednorázový dotaz v chatu.
+
+Co dělám: [popis analýzy, např. měsíční přehled tržeb po kategoriích
+a kanálech ze tří exportů]
+Jak často: [jednou měsíčně]
+Kdo výsledek dostane: [vedení, účtárna, klient]
+Co se podle toho rozhoduje: [rozpočet na příští měsíc, výše provizí]
+Jak velká data: [~40 tisíc řádků, roste o ~3 tisíce měsíčně]
+Kdo to bude dělat, když nebudu: [nikdo / kolegyně z účtárny]
+
+Odpověz strukturovaně:
+1. Doporučení: chat / skript / skript s formálním schvalováním.
+2. Zdůvodnění po jednotlivých kritériích, ne obecně.
+3. Co by bylo potřeba zapsat, aby to zvládl někdo jiný.
+4. Co se stane, když to nechám tak, jak to je — jaká chyba
+   mi nejpravděpodobněji projde.
+Rovnou napiš doporučení a přiznej, kde si nejsi jistý.
+```
+
+Nejcennější bývá bod 4 — pojmenuje riziko, které jste dosud brali jako běžnou nepříjemnost. Pozor na sklon modelů doporučovat těžší variantu, než je potřeba: když vyjde „skript s formálním schvalováním" u přehledu, který čtete jen vy, klidně to zjednodušte.
+
+## Jak z rozhovoru vypadne skript
+
+Postup má čtyři kroky a druhý z nich většina lidí přeskakuje. Trvá to jedno odpoledne a pak už jen spouštíte.
+
+### Krok 1: v chatu najděte správnou otázku
+
+Nejdřív se ptejte volně: prohlédněte si data, zkuste dvě tři varianty členění, podívejte se, co vyjde. V téhle fázi je chat nenahraditelný — zadání měníte každou minutu. Podrobněji je průzkum popsaný v [prvním dílu](/tipy/analyza-dat-duckdb-skill) a v tipu [analýza dat s AI](/tipy/ai-analyza-dat).
+
+Jedno si ale vynuťte: aby se vás agent ptal, místo aby si domýšlel. Většina pozdějších rozdílů mezi verzemi vzniká právě tady, z tichých předpokladů.
+
+```text
+Než začneš cokoli počítat, projdi si soubor [název] a vypiš mi
+rozhodnutí, která bys musel udělat za mě.
+
+Chci přehled [co chci spočítat, např. tržby po měsících
+a kategoriích za rok 2026].
+
+Vypiš očíslovaný seznam otázek, na které potřebuješ mou odpověď,
+seřazený podle toho, jak moc ovlivní výsledek. U každé napiš,
+co konkrétně nevíš, jaké jsou možnosti, jak by se výsledek lišil
+a co bys zvolil ty, kdybych neodpověděl.
+
+Typicky mě zajímá: co se počítá jako jeden případ, které řádky
+vyřadit, podle jakého data se řadí do období, jestli jsou částky
+s daní a jak se zachází s prázdnými hodnotami.
+Zatím nepočítej, jen se ptej.
+```
+
+Vrátí seznam, ve kterém typicky zjistíte dvě tři věci, o kterých jste netušili, že jsou nejednoznačné. Odpovědi si ukládejte — bude z nich slovníček definic. A když odpověď neznáte ani vy, není to úkol pro model, ale pro toho, kdo systém spravuje.
+
+### Krok 2: nechte postup zapsat jako jeden spustitelný soubor
+
+Až číslo sedí a vy víte proč, přijde ta podstatná věta: **„tohle, na čem jsme se právě shodli, mi ulož jako jeden spustitelný soubor."** Od té chvíle se postup nepíše znovu — mění se editací souboru.
+
+```text
+Máme hotovo. Teď to, na čem jsme se právě shodli, zapiš do jednoho
+spustitelného souboru, ať to příště nemusíš vymýšlet znovu.
+
+Požadavky:
+- Jeden soubor, název podle toho, co dělá: mesicni-prehled-trzeb.
+- Nahoře komentářová hlavička: co soubor počítá, z jakých vstupů,
+  co je výstup, kdy vznikl a kdo za obsah odpovídá.
+- Všechno, co se mezi běhy mění (cesta ke vstupu, období, prahy),
+  dej jako pojmenované hodnoty na jedno místo pod hlavičku.
+  Nikde jinde ať se čísla ani cesty nepíšou natvrdo.
+- Rozděl to na části: načtení, kontrola vstupu, čištění, výpočet,
+  výstup do konzole i do CSV s datem v názvu.
+- Nic navíc, co jsme si neřekli. Kde jsi musel něco předpokládat,
+  napiš to do hlavičky jako otevřenou otázku pro mě.
+
+Pak mi soubor ukaž celý a vysvětli česky, co dělá každá část.
+```
+
+Vrátí soubor, který můžete spustit i za rok. Zkontrolujte dvě věci: jestli nezůstala nějaká cesta nebo prahová hodnota schovaná uprostřed výpočtu a jestli hlavička neobsahuje předpoklady, na kterých jste se neshodli — právě ty bývají zdrojem pozdějších rozdílů.
+
+Pro měsíční agregace bývá nejlepší formou SQL dotaz — je čitelný i pro člověka, který nikdy neprogramoval, protože se dá číst skoro jako věta. Uložený soubor pak vypadá zhruba takhle:
+
+```sql
+-- mesicni-prehled-trzeb.sql
+-- Co: tržby po měsících a kategoriích z exportu fakturace.
+-- Vstup: data/faktury-2026-08-01.csv, výstup: vystup/trzby-po-mesicich.csv
+-- Definice: tržba = částka bez DPH, po odečtení dobropisů;
+--           měsíc = podle data uskutečnění plnění, ne vystavení.
+-- Revidováno: 2026-08-13, schválila: Petra N.
+
+COPY (
+  SELECT
+    date_trunc('month', datum_plneni) AS mesic,
+    kategorie,
+    round(sum(castka_bez_dph), 2)     AS trzba,
+    count(*)                          AS pocet_dokladu
+  FROM 'data/faktury-2026-08-01.csv'
+  WHERE stav <> 'storno'          -- storna do tržeb nepatří
+  GROUP BY 1, 2
+  ORDER BY 1, 3 DESC
+) TO 'vystup/trzby-po-mesicich.csv' WITH (FORMAT csv, HEADER);
+```
+
+Nemusíte tomu rozumět do posledního znaku. Musíte poznat, že řádek s `storno` odpovídá tomu, na čem jste se domluvili — a to poznáte i bez kurzu SQL, díky komentářům. Soubor se spouští jedním příkazem, například `duckdb < mesicni-prehled-trzeb.sql`, nebo ho spustí agent za vás.
+
+### Krok 3: komentáře a kontrolní výpisy
+
+Skript bez komentářů je za půl roku stejně nečitelný jako smazaný chat. Komentář „tady filtrujeme storna" je přitom k ničemu — to je vidět. Cenné je **proč**.
+
+```text
+Doplň do skriptu komentáře, ale ne popisné, nýbrž vysvětlující.
+U každého kroku napiš:
+- co se v něm děje běžnou češtinou,
+- PROČ se to dělá — jaké obchodní pravidlo za tím stojí,
+- co by se stalo, kdyby ten krok chyběl,
+- kdo nebo co rozhodlo, že to má být takhle (kdo mi to potvrdil).
+
+Zvlášť pečlivě okomentuj každý filtr a každou podmínku — u nich
+chci vidět důvod, ne popis. Piš tak, aby to pochopil kolega,
+který zná naši firmu, ale neprogramuje.
+Komentáře česky, bez diakritiky nešetři.
+```
+
+Vrátí soubor, který je zároveň dokumentací. Pozor, aby si model důvody nevymyslel: kde mu důvod nikdo neřekl, patří tam otázka, ne domněnka. Komentáře u filtrů projděte řádek po řádku — pět minut, nejlepší investice celého postupu.
+
+Druhá polovina práce jsou kontrolní výpisy. Bez nich nepoznáte, že filtr, který měl vyhodit desítky řádků, vyhodil tisíce.
+
+```text
+Přidej do skriptu kontrolní výpisy, ať vidím, co se s daty děje.
+
+Konkrétně:
+- počet řádků hned po načtení souboru,
+- počet řádků před a po každém filtru a rozdíl v absolutním čísle
+  i v procentech,
+- součet klíčové částky před a po čištění, ať vidím, kolik peněz
+  filtrováním zmizelo,
+- počet prázdných a nesmyslných hodnot ve sloupcích, které
+  vstupují do výpočtu,
+- počet unikátních kategorií a seznam těch, které se objevují
+  méně než [pětkrát] — tam bývají překlepy.
+
+Výpisy očísluj podle kroků postupu. Na konec dej souhrnný řádek:
+kolik řádků vstoupilo, kolik vypadlo a kolik jich je ve výsledku.
+```
+
+Vrátí skript, který při každém běhu vypráví, co dělá. Ten výpis čtěte — je to hlavní obrana proti tichým chybám. Když filtr na storna vyhodí dvacet procent řádků místo obvyklých dvou, máte problém v datech, a víte to dřív než vedení.
+
+### Krok 4: návod pro člověka, který to nikdy nespouštěl
+
+Nakonec nechte agenta napsat krátký `navod.md`: co postup počítá, který export si připravit, jaké příkazy spustit, jak pozná, že to dopadlo dobře, a co dělat u tří nejčastějších chyb. Zadejte to jako návod pro kolegu, který umí Excel a nikdy neviděl příkazovou řádku — je to zároveň test kvality postupu, protože co nejde napsat srozumitelně, není hotové.
+
+## Co musí být v okolí skriptu
+
+Soubor s výpočtem je zhruba polovina věci. Druhá polovina je kontext, bez kterého se stejný postup po roce chová jinak.
+
+### Vstupní data a jejich verze
+
+Základní pravidlo: **export se nikdy nepřepisuje.** Každý stažený soubor má v názvu datum a zůstává ležet: `faktury-2026-08-01.csv`, ne `faktury.csv`. Ušetří to den, až se budete ptát, jestli se číslo změnilo kvůli výpočtu, nebo kvůli datům.
+
+K exportu si poznamenejte tři věci: odkud pochází (systém a nastavený filtr), kdy byl stažený a za jaké období. Zdrojové systémy totiž běžně upravují historii zpětně — dobropisy, opravné doklady, přeúčtování. Export stažený v září za červen tak může být jiný než ten stažený v červenci, a **není to chyba, je to normální provoz**. Bez data stažení to ale nikdy nerozklíčujete.
+
+Struktura složky, která se osvědčila:
+
+```text
+mesicni-uzaverka/
+  data/           exporty s datem v názvu, nikdy se nepřepisují
+  vystup/         výsledky jednotlivých běhů, taky s datem
+  mesicni-prehled-trzeb.sql   samotný výpočet
+  definice.md     co znamenají pojmy a co jsme se rozhodli počítat
+  navod.md        jak to spustit
+  historie.md     co se kdy změnilo a proč
+```
+
+### Definice pojmů
+
+Nejpodceňovanější soubor ve složce a zároveň ten, který nejvíc šetří čas. „Aktivní zákazník" není jednoznačný pojem: aktivní za dvanáct měsíců, nebo za tři? Počítá se objednávka, nebo zaplacená objednávka? Firma, nebo pobočka? Každá varianta dává jiné číslo a všechny jsou obhajitelné — nejde o to vybrat správnou, ale vybrat jednu a držet se jí.
+
+```text
+Projdi náš skript a vytáhni z něj všechna implicitní rozhodnutí,
+která jsou v kódu, ale nikde nejsou vysvětlená.
+
+Pro každé napiš, co skript dělá (s odkazem na řádek), jaké jiné
+rozumné řešení by existovalo a kdy by na tom rozdílu záleželo.
+
+Pak sestav soubor definice.md: seznam pojmů, které výpočet používá
+(například [tržba, aktivní zákazník, měsíc, storno]), u každého
+jednou větou definici, jak ji skript reálně používá, a poznámku,
+kdo ji potvrdil.
+U pojmů, u kterých jsem ti rozhodnutí nikdy nedal, napiš
+NEPOTVRZENO a připoj otázku, kterou se mám zeptat.
+```
+
+Vrátí dokument pro debatu s účtárnou nebo klientem — a hlavně seznam otevřených bodů. Skoro vždycky se najde rozhodnutí, které za vás udělal model a nikdo o něm nevěděl. Kvůli tomu se prompt vyplatí spustit i u postupu, který „přece funguje".
+
+Do definic patří i **kontrolní čísla**: hodnoty, o kterých víte, že platí. „Za březen 2026 je tržba 2 340 118 Kč, souhlasí s účetní sestavou." Když příště skript vrátí něco jiného, víte, že se rozbil postup nebo se změnila data. Bez ukotvení ve známém čísle nemáte proti čemu měřit.
+
+A dvě položky, které stojí deset vteřin: **datum poslední revize** a **kdo výsledek schválil**. Ne kvůli byrokracii, ale kvůli otázce „platí tenhle postup ještě?", která přijde vždycky v nejhorší chvíli.
+
+### Historie verzí, čili git bez kurzu gitu
+
+Když skript upravíte, stará verze zmizí — a za měsíc se ptáte, proč čísla nesedí, a nemáte s čím porovnávat. Řešení se jmenuje **verzování** a je to prostě **historie verzí, ke které se dá vrátit**: pokaždé, když postup změníte, uloží se nový stav i s poznámkou, co se změnilo a proč. Staré verze zůstávají a jdou kdykoli zobrazit.
+
+Standardní nástroj se jmenuje **git**. Vypadá jako věc pro programátory, ale vy z něj potřebujete jen tři schopnosti: uložit stav, napsat k němu větu a podívat se, co se mezi dvěma stavy změnilo. Ovládat ho nemusíte umět — agent s přístupem do vaší složky to udělá za vás.
+
+```text
+Zaveď v téhle složce historii verzí přes git, ať se dá vrátit
+k libovolné starší podobě výpočtu.
+
+Nastav to takhle:
+- Do historie patří skript, definice.md, navod.md a historie.md.
+- Do historie NEPATŘÍ složka data/ ani vystup/ — jsou to velké
+  soubory a jsou v nich provozní údaje. Nastav to tak, aby se
+  tam nedostaly ani omylem.
+- Ulož současný stav jako výchozí bod.
+
+Pak mi na pěti řádcích vysvětli, co mám udělat pokaždé, když
+skript změním, a jak si zobrazím rozdíl mezi dvěma verzemi.
+Piš jako pro člověka, který git nikdy neviděl, s příkazy
+k okopírování.
+
+Od teď platí: kdykoli na můj pokyn skript změníš, ulož změnu
+do historie s popisem v češtině, který říká, CO se věcně
+změnilo (například „dobropisy se nově odečítají od tržby"),
+ne technicky.
+```
+
+Vrátí nastavenou složku a stručný návod. Nejdůležitější je věta o popisu změny: technický („upraven filtr") vám za rok nepomůže, věcný („dobropisy se nově odečítají od tržby, potvrdila účtárna 13. 8.") odpoví na otázku dřív, než ji stihnete dopsat.
+
+Kdo git odmítá, ať dělá aspoň chudou variantu: složka `historie/` s datovanými kopiemi skriptu a textový soubor, kam se ke každé změně píše datum, co se změnilo a proč. **Pravidlo zní: skript se nikdy nemění beze stopy.**
+
+Poslední věc: data s osobními údaji — jména, e-maily, mzdy, docházka — patří jen do placeného účtu se smluvní ochranou dat, a i tam co nejvíc anonymizovaná. Nejčistší je nechat si napsat postup a **spouštět ho lokálně u sebe**, protože pak data nikam neodcházejí. Do historie verzí ostrá data nedávejte nikdy.
+
+## Spouštění bez vás
+
+Skript, který musíte spustit ručně, pořád závisí na tom, že si vzpomenete. Další krok je nechat ho běžet podle rozvrhu.
+
+### Plánované spuštění
+
+Možnosti jsou tři. **Plánovaná úloha agenta** (u Claudu rutina spouštěná podle rozvrhu): v daný čas agent skript pustí, výsledek přečte a pošle vám shrnutí. **Systémový plánovač** — na Macu a Linuxu cron, ve Windows Plánovač úloh, obojí nástroj, který ve stanovený čas spustí zadaný příkaz — je spolehlivější, protože model nepotřebuje vůbec. A **ruční spuštění s připomínkou v kalendáři** stačí tam, kde stejně musíte nejdřív něco stáhnout.
+
+Praktická kombinace pro uzávěrku: plánovač spustí výpočet, agent ho přečte a okomentuje. Výpočet pak nezávisí na tom, jak model zrovna odpovídá. Víc v tipu [rutiny nad poštou a kalendářem](/tipy/claude-rutiny-posta-kalendar) a v kapitole [rutiny a agenti](/prirucka/rutiny-a-agenti).
+
+```text
+Nastav pravidelné spuštění tohoto postupu.
+
+Kdy: [prvního každý měsíc v 7:00]
+Co se má stát:
+1. Spustit skript nad nejnovějším exportem ve složce data/.
+2. Uložit výstup do vystup/ s datem v názvu.
+3. Uložit i celý průběh běhu (kontrolní výpisy) do souboru v log/.
+4. Poslat mi [e-mailem / do chatu] krátké shrnutí: hlavní čísla,
+   kontrolní součty, co se liší proti minulému běhu a jestli
+   běh skončil chybou.
+
+Pravidla:
+- Když ve složce data/ není novější export než minule,
+  nic nepočítej a napiš mi, že chybí podklad.
+- Když skript skončí chybou, pošli mi chybovou hlášku
+  a nesnaž se to obcházet.
+- Nikomu jinému nic neposílej a nic nezveřejňuj — výstup jde
+  jen mně a rozhodnutí, co s ním, dělám já.
+
+Napiš mi, kam se to nastavení uložilo a jak ho vypnu.
+```
+
+Vrátí nastavenou úlohu. Poslední odstavec promptu neberte na lehkou váhu: automat, který sám rozesílá čísla dál, je nejrychlejší cesta k tomu, aby se do firmy v pět ráno dostal špatný report. **Automat počítá, člověk schvaluje závěr** — je to zásada „AI navrhuje, člověk schvaluje" v datové podobě.
+
+### Když se vstupní soubor změní tvarem
+
+Tohle se stane. Někdo v systému přejmenuje sloupec, změní formát data nebo přidá do exportu součtový řádek. Vy o tom nevíte a skript běží dál.
+
+A tady je zásadní věc, kterou si musíte vynutit: **skript musí spadnout hlasitě, místo aby tiše spočítal nesmysl.** Chybějící sloupec nesmí být vyhodnocen jako nula, nerozpoznané datum nesmí být přeskočeno, prázdná tabulka nesmí projít jako „letos jsme neutržili nic". Tichá chyba je horší než pád: pádu si všimnete okamžitě, nesmysl se dostane do prezentace.
+
+```text
+Přidej na začátek skriptu kontrolu vstupu, která ho zastaví,
+když data nevypadají, jak mají.
+
+Kontroluj:
+- že soubor existuje a není prázdný,
+- že obsahuje přesně očekávané sloupce — chybějící i neznámý
+  sloupec navíc ať skript zastaví,
+- že datový typ sedí (datum je datum, částka je číslo),
+- že počet řádků je v rozumném rozmezí proti minulému běhu
+  (odchylka nad [30] % ať skript zastaví),
+- že se neobjevily nové kategorie, které postup nezná,
+- že nejsou duplicity podle [číslo dokladu].
+
+Když kontrola selže, skript ať skončí chybou a vypíše česky,
+CO je špatně a co s tím mám udělat. Žádné automatické opravy,
+žádné dopočítávání chybějících hodnot, žádné pokračování
+s varováním — buď data sedí, nebo se nepočítá.
+```
+
+Vrátí robustnější skript, který vás bude občas otravovat. To je záměr. Když vás kontrola zastaví na něčem, co je ve skutečnosti v pořádku (třeba nová legitimní kategorie), řešením je upravit skript a zapsat změnu do historie — ne kontrolu vypnout.
+
+## Kontrola, že se nic nerozbilo
+
+Postup, který běží měsíce bez dozoru, se rozbije potichu. Ochrání vás tři jednoduché kontroly.
+
+### Regresní kontrola na známých datech
+
+Regresní kontrola je ověření, že po změně pořád funguje to, co fungovalo dřív. V praxi: máte malý vzorek dat, u kterého přesně víte, co má vyjít, a po každé úpravě skriptu ho přes něj proženete. Když výsledek sedí, změna nerozbila nic starého. Když nesedí, víte to hned — ne až za měsíc na poradě.
+
+```text
+Vytvoř mi regresní kontrolu pro tenhle postup.
+
+1. Z našich dat vyrob malý testovací vzorek (řádově [200] řádků)
+   se všemi důležitými případy: běžné záznamy, storno, prázdné
+   hodnoty, hraniční data na přelomu měsíce, duplicita, kategorie
+   s překlepem. Osobní údaje nahraď smyšlenými.
+2. Spusť nad ním skript a výsledek ulož jako očekávaný výstup.
+3. Vypiš, jak jsi k jednotlivým číslům došel, ať je můžu ověřit ručně.
+4. Připrav postup, který skript spustí nad vzorkem, porovná ho
+   s očekávaným výstupem a při rozdílu vypíše, které číslo a o kolik.
+
+Chci to pouštět pokaždé, než změněný skript nasadím na ostrá data.
+```
+
+Vrátí testovací sadu a porovnávací postup. Bod 3 nepřeskakujte: očekávaný výstup, který nikdo neověřil, jen zabetonuje původní chybu. Dvě tři čísla si u dvou set řádků spočítejte ručně.
+
+### Kontrolní součty a porovnání s minulým během
+
+Každý běh má vypsat několik čísel, která by se neměla dramaticky měnit: počet řádků na vstupu i po vyčištění, celkový součet částky, počet unikátních zákazníků. Ukládejte je do logu — časem z nich máte řadu, ve které je vidět každý skok.
+
+```text
+Porovnej výstup dnešního běhu se souborem z minulého běhu.
+
+Dnešní: [vystup/trzby-2026-08-01.csv]
+Minulý: [vystup/trzby-2026-07-01.csv]
+
+Vrať mi:
+1. Tabulku: metrika, minule, dnes, rozdíl absolutně, rozdíl v %.
+2. Které hodnoty se změnily o víc než [10] % — vypiš zvlášť.
+3. Změny v období, které už je uzavřené (starší měsíce by se
+   měnit neměly) — tyhle vypiš jako první, jsou nejpodezřelejší.
+4. Nové a zmizelé kategorie nebo položky.
+5. U každého většího rozdílu nabídni možná vysvětlení a napiš,
+   čím si ho mám ověřit — v jakém systému a co tam mám hledat.
+
+Netvrď, co se stalo. Vypiš, co je vidět, a co z toho plyne
+za otázky pro mě.
+```
+
+Vrátí porovnání, jádro měsíční kontroly. Nejcennější je bod 3: **změna v už uzavřeném období skoro vždycky znamená, že se změnila zdrojová data, ne realita.** Buď někdo opravil doklady zpětně, nebo se export stáhl s jiným filtrem — obojí musíte vědět dřív, než číslo pošlete dál.
+
+### „Co se změnilo a proč"
+
+Poslední kontrola není technická. Ke každému běhu si zapište pár řádků: datum, použitý export, hlavní čísla, co se změnilo proti minulému běhu a jak se to vysvětlilo, jestli se měnil skript a kdo výsledek schválil. Tři minuty, ze kterých vzniká paměť procesu.
+
+```text
+Napiš mi zápis o dnešním běhu do souboru historie.md.
+
+Podklady: [výstup skriptu + porovnání s minulým během].
+
+Struktura (max 12 řádků):
+- datum běhu a použitý vstupní soubor,
+- hlavní čísla: [tržba celkem, počet dokladů, počet kategorií],
+- kontrolní součty a jestli sedí s očekáváním,
+- co se změnilo proti minulému běhu a jaké je vysvětlení,
+- co zůstalo nevysvětlené a je potřeba dohledat,
+- jestli se od minula měnil skript a jak,
+- kdo výsledek schválil (nech prázdné, doplním).
+
+Piš věcně. Kde vysvětlení neznáš, napiš „nevysvětleno" —
+nedomýšlej si důvody.
+```
+
+Vrátí zápis, který doplníte a uložíte. Po roce máte dvanáct odstavců s celým příběhem vašich čísel — a poslední odrážka o schválení je to, co z automatu dělá odpovědný proces. Rozhodnutí, co čísla znamenají, zůstává na člověku; agent dodává podklad a upozorňuje, kde je něco divné. Souvislosti rozvádí kapitola [procesy a automatizace](/prirucka/procesy-a-automatizace).
+
+## Nejčastější chyby
+
+- **Nechat agenta psát skript pokaždé znovu.** Platíte za to trojnásobně: čekáním, tokeny a hlavně tím, že dvě čísla ze dvou běhů nejdou porovnat. Jakmile se otázka opakuje potřetí, patří do souboru.
+- **Zmrazit postup příliš brzy.** Opačná chyba: skript z první verze otázky zabetonuje nedomyšlené zadání a budete ho měsíce obcházet ručně. Nejdřív se doptejte, teprve pak zapisujte.
+- **Opravovat výsledek ručně po běhu.** Tři přepsané buňky zruší celou reprodukovatelnost. Co nepatří do výsledku, patří jako pravidlo do skriptu a jako věta do definic.
+- **Nezapsat definice.** Většina sporů o čísla není o výpočtu, ale o tom, co se počítalo. Jedna stránka s definicemi pojmů ušetří víc hádek než sebelepší kód.
+- **Přepisovat vstupní soubor stejným jménem.** Bez data v názvu nezjistíte, jestli se výsledek změnil kvůli úpravě postupu, nebo kvůli tomu, že systém přepsal historii.
+- **Tichý fallback.** Skript, který si při chybějícím sloupci „poradí" a dosadí nulu, je nebezpečnější než skript, který spadne.
+- **Automat, který rovnou rozesílá závěry.** Plánované spuštění smí spočítat a poslat vám podklad. Větu, co to znamená, a rozhodnutí, co s tím, dělá člověk.
+
+## Nejlepší nástroje
+
+- **DuckDB CLI** — bezplatný nástroj, který přečte CSV, Parquet nebo JSON přímo ze souboru a spočítá nad ním SQL dotaz. Ideální forma zmrazeného postupu: jeden textový soubor čitelný i za rok. Nastavení je v [prvním dílu série](/tipy/analyza-dat-duckdb-skill).
+- **Claude Code** — agent, který pracuje se soubory ve složce: napíše skript, spustí ho, opraví chybu, založí historii verzí a nastaví plánované spuštění. Nejrychlejší cesta od rozhovoru k souboru, viz [osobní automatizace v Claude Code](/tipy/claude-code-osobni-automatizace).
+- **Git** — historie verzí postupu: uložit stav, napsat k tomu větu, porovnat dvě verze. Zbytek nechte na agentovi.
+- **Systémový plánovač (cron nebo Plánovač úloh)** — spustí výpočet v daný čas bez modelu, takže běh nezávisí na tom, jak agent zrovna odpovídá.
+- **Python s knihovnou pandas** — když postup přeroste jednoduchou agregaci: spojování víc zdrojů, složitější čištění, grafy. Na údržbu dražší než SQL, proto až když je to potřeba.
+- **Tabulkový editor** — nejlepší nástroj na poslední krok: naformátovat hotový výstup do podoby, kterou někdo přečte. Ne na opakovaný výpočet; [kontingenční tabulka](/tipy/excel-kontingencni-tabulka) se hodí na jednorázový průzkum.
+
+## Co vám to přinese
+
+- **Čas:** opakovaná analýza spadne z hodin na minuty. U uzávěrky, která zabírala půl dne, je reálné dostat se na dvacet minut, z nichž většinu strávíte čtením. Nastavení stojí jeden až dva večery a vrátí se do druhého měsíce.
+- **Peníze:** agent nepíše totéž znovu, jen spustí hotové — běhy jsou kratší a levnější. A chyba odhalená v kontrolním výpisu stojí zlomek toho, co chyba odhalená ve fakturaci.
+- **Klid:** na otázku „jak jsi k tomu číslu došel" odpovíte do pěti minut, ne do dvou večerů. Když onemocníte, uzávěrku spustí kdokoli podle návodu.
+- **Kvalita:** čísla jsou porovnatelná mezi měsíci, protože vznikají stejným postupem. Teprve to umožňuje sledovat trend — dosud jste porovnávali čísla z různých dílen.
+
+## Pro tip
+
+Když máte postup zapsaný, udělejte jednou za čas **dvojí běh**: spusťte dnešní skript nad loňským zmrazeným exportem a porovnejte výsledek s číslem, které jste tehdy poslali. Když sedí, máte důkaz, že postup je reprodukovatelný. Když nesedí, dozvíte se dvě věci naráz — buď se od té doby změnil výpočet (a historie verzí ukáže kdy a proč), nebo se zpětně změnila zdrojová data. Druhá varianta bývá překvapivě častá a stojí za to říct ji nahlas: „naše historie se pod námi mění o jednotky procent".
+
+A závěrečné pravidlo, které přežije jakoukoli změnu nástrojů: **reprodukovatelnost není o technologii, ale o tom, že postup existuje mimo vaši hlavu a mimo chat.** Soubor, který jde spustit, definice, které jde přečíst, historie, do které jde nahlédnout. Model vám to napíše za odpoledne — rozhodnout, že to má vzniknout, musíte vy.
