@@ -1,77 +1,15 @@
 import Link from "next/link";
-import { getAllTips } from "@/lib/tips";
-import { TipCard } from "@/components/TipCard";
+import { countGuides, getAllTips } from "@/lib/tips";
+import { getAllChapters } from "@/lib/chapters";
+import { getAllPrompts } from "@/lib/prompts";
+import { audienceHref, audiences, formatTipCount, tipsForAudience } from "@/lib/audiences";
+import { getShelves } from "@/lib/shelves";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { Reveal } from "@/components/Reveal";
 import { tipOfTheDay } from "@/lib/related";
-import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { formatCount, getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 
 export const revalidate = 3600; // tip dne se obměňuje bez nového deploye
-
-const T = {
-  cs: {
-    eyebrow: "Ověřené systémy · denní tipy · AI novinky",
-    heroA: "Každý den o kousek ",
-    heroAccent: "rychlejší",
-    heroB: ".",
-    lead: "Produktivita není dřina navíc — je to pár správných návyků, zkratek a nástrojů. Najdete je tady: česky, bez balastu a průběžně aktualizované, protože doba (a hlavně AI) kráčí rychle.",
-    ctaTips: "Začít zrychlovat",
-    ctaHandbook: "Číst příručku",
-    startPre: "Nevíte kudy?",
-    startLink: "Začněte tady",
-    startPost: " — jeden notes, tři značky, čtyři minuty denně.",
-    dailyLabel: "Tip dne",
-    freshEyebrow: "Čerstvé",
-    freshTitle: "Nejnovější tipy",
-    allTips: (n: number) => `Všech ${n} tipů`,
-    handbookEyebrow: "Základ",
-    handbookTitle: "Příručka produktivity",
-    handbookDesc:
-      "Kompletní know-how na jednom místě: GTD, Inbox Zero, Pomodoro, práce s energií i pozorností, výběr nástrojů. Léta praxe srovnaná do kapitol, které dávají smysl po sobě i na přeskáčku.",
-    handbookCta: "Otevřít příručku",
-    trainingEyebrow: "Pro firmy",
-    trainingTitle: "Školení na míru",
-    trainingDesc:
-      "Nemáte čas to celé číst? Přijedu a naučím váš tým to podstatné za půl dne — od e-mailů a porad až po AI nástroje, které reálně šetří hodiny.",
-    trainingCta: "Nabídka školení",
-    newsletterEyebrow: "Newsletter",
-    newsletterTitle: "Jeden tip týdně do e-mailu",
-    newsletterDescA: "To nejlepší z týdne v jednom krátkém e-mailu. Přečtete za dvě minuty, ušetří vám hodiny. Jako bonus hned získáte e-book ",
-    newsletterDescStrong: "Top 30 tipů",
-    newsletterDescB: ".",
-  },
-  en: {
-    eyebrow: "Proven systems · daily tips · AI updates",
-    heroA: "A little ",
-    heroAccent: "faster",
-    heroB: " every day.",
-    lead: "Productivity is not extra work — it is a handful of the right habits, shortcuts and tools. You will find them here: no fluff, kept current, because the world (and AI most of all) moves fast.",
-    ctaTips: "Start speeding up",
-    ctaHandbook: "Read the handbook",
-    startPre: "Not sure where to begin?",
-    startLink: "Start here",
-    startPost: " — one notebook, three marks, four minutes a day.",
-    dailyLabel: "Tip of the day",
-    freshEyebrow: "Fresh",
-    freshTitle: "Latest tips",
-    allTips: (n: number) => `All ${n} tips`,
-    handbookEyebrow: "The foundation",
-    handbookTitle: "Productivity handbook",
-    handbookDesc:
-      "The complete know-how in one place: GTD, Inbox Zero, Pomodoro, managing energy and attention, picking your tools. Years of practice sorted into chapters that work in order — or in any order you like.",
-    handbookCta: "Open the handbook",
-    trainingEyebrow: "For companies",
-    trainingTitle: "Training built for your team",
-    trainingDesc:
-      "No time to read all of it? I will come over and teach your team what matters in half a day — from email and meetings to the AI tools that genuinely save hours.",
-    trainingCta: "See the training",
-    newsletterEyebrow: "Newsletter",
-    newsletterTitle: "One tip a week in your inbox",
-    newsletterDescA: "The best of the week in one short email. Two minutes to read, hours saved. You also get the e-book ",
-    newsletterDescStrong: "Top 30 tips",
-    newsletterDescB: " right away.",
-  },
-};
 
 export default async function HomePage({
   params,
@@ -80,39 +18,123 @@ export default async function HomePage({
 }) {
   const { locale: raw } = await params;
   const locale: Locale = isLocale(raw) ? raw : "cs";
-  const t = T[locale] ?? T.cs;
+  const t = getDict(locale).home;
   const p = (path: string) => localePath(locale, path);
 
+  // Živá čísla — všechno se počítá za běhu buildu, nic není napsané natvrdo.
   const tips = getAllTips(locale);
-  const latest = tips.slice(0, 9);
+  const guides = countGuides(locale);
+  const chapters = getAllChapters(locale);
+  const series = new Set(chapters.map((c) => c.section)).size;
+  const prompts = getAllPrompts(locale).length;
+
+  const stats = [
+    { label: t.statsTips, value: formatCount(tips.length) },
+    { label: t.statsGuides, value: formatCount(guides) },
+    { label: t.statsChapters, value: formatCount(chapters.length) },
+    { label: t.statsPrompts, value: formatCount(prompts) },
+  ];
+
+  const professions = audiences.map((audience) => ({
+    key: audience.id,
+    href: audienceHref(audience, locale),
+    title: audience.name[locale],
+    meta: formatTipCount(tipsForAudience(audience.id, locale).length, locale),
+  }));
+
+  const shelves = getShelves(locale);
+  const latest = tips.slice(0, 4);
   const daily = tips.length > 0 ? tipOfTheDay(tips) : null;
+
+  const tipMeta = (isGuide: boolean, minutes: number) =>
+    isGuide ? t.shelfGuide : `${minutes} ${t.minShort}`;
 
   return (
     <>
-      {/* Hero */}
+      {/* Hero + hledání + živá čísla */}
       <section className="border-b border-hairline">
-        <div className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)] py-20 sm:py-24">
-          <p className="eyebrow mb-6 text-faint">{t.eyebrow}</p>
-          <h1 className="display display-hero text-[clamp(38px,7vw,72px)]">
+        <div className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)] py-14 sm:py-16">
+          <h1 className="display display-hero text-[clamp(34px,6vw,58px)]">
             {t.heroA}
             <span className="text-accent">{t.heroAccent}</span>
             {t.heroB}
           </h1>
-          <p className="prose-a mt-7 text-[18px]">{t.lead}</p>
-          <div className="mt-9 flex flex-wrap items-center gap-3.5">
-            <Link
-              href={p("/tipy")}
-              className="border-[1.5px] border-ink bg-ink px-7 py-4 text-[15.5px] font-bold text-paper transition-colors hover:border-accent hover:bg-accent hover:text-accent-ink"
+          <p className="mt-5 max-w-[58ch] text-[17px] leading-relaxed text-muted">{t.lead}</p>
+
+          <form
+            action={p("/hledat")}
+            method="get"
+            role="search"
+            className="mt-8 flex max-w-2xl flex-col gap-3 sm:flex-row"
+          >
+            <label htmlFor="home-search" className="sr-only">
+              {t.searchLabel}
+            </label>
+            <input
+              id="home-search"
+              type="search"
+              name="q"
+              autoComplete="off"
+              placeholder={t.searchPlaceholder}
+              className="min-w-0 flex-1 border-[1.5px] border-hairline-strong bg-card px-5 py-4 text-[16px] outline-offset-[-2px]"
+            />
+            <button
+              type="submit"
+              className="flex-none border-[1.5px] border-ink bg-ink px-7 py-4 text-[15.5px] font-bold text-paper transition-colors hover:border-accent hover:bg-accent hover:text-accent-ink"
             >
-              {t.ctaTips}
-            </Link>
-            <Link
-              href={p("/prirucka")}
-              className="border-[1.5px] border-hairline-strong px-7 py-4 text-[15.5px] font-bold transition-colors hover:border-accent hover:text-accent"
-            >
-              {t.ctaHandbook}
-            </Link>
-          </div>
+              {t.searchSubmit}
+            </button>
+          </form>
+
+          <dl className="mt-9 grid grid-cols-2 gap-px border border-hairline bg-hairline sm:grid-cols-4">
+            {stats.map((s) => (
+              <div key={s.label} className="bg-paper px-5 py-4">
+                <dt className="eyebrow text-faint">{s.label}</dt>
+                <dd className="display tabular mt-1.5 text-[clamp(21px,3vw,28px)]">{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      {/* Profesní dlaždice */}
+      <section className="border-b border-hairline bg-surface">
+        <div className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)] py-14">
+          <Reveal>
+            <p className="eyebrow text-faint">{t.audienceEyebrow}</p>
+            <h2 className="display mt-2 text-[clamp(22px,3.4vw,30px)]">{t.audienceTitle}</h2>
+            <p className="mt-3 max-w-[58ch] text-[15.5px] leading-relaxed text-muted">
+              {t.audienceLead}
+            </p>
+          </Reveal>
+          <ul className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {professions.map((profession) => (
+              <li key={profession.key}>
+                <Link
+                  href={profession.href}
+                  className="linkblock h-full border border-hairline bg-card p-5 transition-colors hover:border-hairline-strong"
+                >
+                  <span className="block text-[17px] leading-tight font-bold tracking-[-0.01em]">
+                    <span className="draw-link">{profession.title}</span>
+                  </span>
+                  <span className="eyebrow tabular mt-3 block text-faint">{profession.meta}</span>
+                </Link>
+              </li>
+            ))}
+            <li>
+              <Link
+                href={p("/tipy")}
+                className="linkblock h-full border border-hairline bg-card p-5 transition-colors hover:border-hairline-strong"
+              >
+                <span className="block text-[17px] leading-tight font-bold tracking-[-0.01em]">
+                  <span className="draw-link">{t.audienceNotSure}</span>
+                </span>
+                <span className="eyebrow tabular mt-3 block text-faint">
+                  {t.audienceNotSureMeta(tips.length)}
+                </span>
+              </Link>
+            </li>
+          </ul>
           <p className="mt-6 text-[14px] text-muted">
             {t.startPre}{" "}
             <Link href={p("/start")} className="draw-link font-bold text-ink">
@@ -123,55 +145,105 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Tip dne */}
-      {daily && (
-        <section className="border-b border-hairline bg-surface">
-          <div className="mx-auto flex max-w-[var(--page-max)] flex-wrap items-center gap-x-10 gap-y-4 px-[var(--page-pad)] py-8">
-            <p className="eyebrow flex-none text-accent">{t.dailyLabel}</p>
-            <p className="min-w-0 flex-1 text-[15.5px] leading-snug">
-              <Link href={p(`/tipy/${daily.slug}`)} className="draw-link font-bold">
-                {daily.title}
-              </Link>
-              <span className="mt-1 block font-serif text-[13.5px] text-muted">{daily.excerpt}</span>
-            </p>
-            <span className="eyebrow flex-none text-faint">{daily.saves}</span>
+      {/* Tematické police */}
+      {shelves.length > 0 && (
+        <section className="border-b border-hairline">
+          <div className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)] py-14">
+            <Reveal>
+              <p className="eyebrow text-faint">{t.shelvesEyebrow}</p>
+              <h2 className="display mt-2 text-[clamp(22px,3.4vw,30px)]">{t.shelvesTitle}</h2>
+              <p className="mt-3 max-w-[58ch] text-[15.5px] leading-relaxed text-muted">
+                {t.shelvesLead}
+              </p>
+            </Reveal>
+            <div className="mt-8 border-t border-hairline">
+              {shelves.map((shelf) => (
+                <div
+                  key={shelf.id}
+                  className="grid gap-5 border-b border-hairline py-8 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)] md:gap-10"
+                >
+                  <div>
+                    <p className="eyebrow text-faint">{shelf.eyebrow}</p>
+                    <h3 className="display mt-2 text-[20px]">{shelf.title}</h3>
+                    <p className="mt-2.5 font-serif text-[14.5px] leading-[1.6] text-muted">
+                      {shelf.lead}
+                    </p>
+                    <Link
+                      href={shelf.href}
+                      className="draw-link mt-4 inline-block text-[13.5px] font-bold"
+                    >
+                      {shelf.linkLabel}
+                    </Link>
+                  </div>
+                  <ul className="grid gap-3 sm:grid-cols-2">
+                    {shelf.tips.map((tip) => (
+                      <li key={tip.slug}>
+                        <Link
+                          href={p(`/tipy/${tip.slug}`)}
+                          className="linkblock h-full border border-hairline bg-card p-4 transition-colors hover:border-hairline-strong"
+                        >
+                          <span className="block text-[15px] leading-[1.35] font-bold">
+                            <span className="draw-link">{tip.title}</span>
+                          </span>
+                          <span className="eyebrow mt-2.5 block text-faint">
+                            {tipMeta(tip.isGuide, tip.minutes)}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}
 
-      {/* Nejnovější tipy */}
-      {latest.length > 0 && (
-        <section className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)] py-24">
-          <Reveal>
-            <div className="mb-9 flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <p className="eyebrow mb-2 text-faint">{t.freshEyebrow}</p>
-                <h2 className="display text-[clamp(24px,4vw,34px)]">{t.freshTitle}</h2>
-              </div>
-              <Link href={p("/tipy")} className="draw-link text-[14px] font-bold">
-                {t.allTips(tips.length)}
-              </Link>
+      {/* Interaktivní nástroje */}
+      <section className="border-b border-hairline bg-surface">
+        <div className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)] py-14">
+          <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+            <div>
+              <p className="eyebrow text-faint">{t.toolsEyebrow}</p>
+              <h2 className="display mt-2 text-[clamp(22px,3.4vw,30px)]">{t.toolsTitle}</h2>
+              <p className="mt-3 max-w-[58ch] text-[15.5px] leading-relaxed text-muted">
+                {t.toolsLead}
+              </p>
             </div>
-          </Reveal>
-          <div className="grid gap-5 md:grid-cols-3">
-            {latest.map((tip, i) => (
-              <Reveal key={tip.slug} delay={i * 0.08}>
-                <TipCard tip={tip} index={tips.length - i} locale={locale} />
-              </Reveal>
-            ))}
+            <Link href={p("/nastroje")} className="draw-link text-[14px] font-bold">
+              {t.toolsAll}
+            </Link>
           </div>
-        </section>
-      )}
+          <ul className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {t.tools.map((tool) => (
+              <li key={tool.href}>
+                <Link
+                  href={p(tool.href)}
+                  className="linkblock h-full border border-hairline bg-card p-5 transition-colors hover:border-hairline-strong"
+                >
+                  <span className="eyebrow block text-faint">{tool.meta}</span>
+                  <span className="mt-2.5 block text-[16px] leading-tight font-bold tracking-[-0.01em]">
+                    <span className="draw-link">{tool.label}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
       {/* Příručka */}
-      <section className="border-y border-hairline">
+      <section className="border-b border-hairline">
         <div className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)]">
           <Reveal>
-            <Link href={p("/prirucka")} className="linkblock py-18">
+            <Link href={p("/prirucka")} className="linkblock py-14">
               <p className="eyebrow mb-2 text-faint">{t.handbookEyebrow}</p>
               <h2 className="display text-[clamp(22px,3vw,28px)]">{t.handbookTitle}</h2>
               <p className="prose-a mt-4 max-w-2xl text-[15.5px]">{t.handbookDesc}</p>
-              <span className="draw-link mt-6 inline-block text-[14px] font-bold">
+              <p className="eyebrow tabular mt-4 text-faint">
+                {t.handbookMeta(chapters.length, series)}
+              </p>
+              <span className="draw-link mt-5 inline-block text-[14px] font-bold">
                 {t.handbookCta}
               </span>
             </Link>
@@ -179,8 +251,51 @@ export default async function HomePage({
         </div>
       </section>
 
+      {/* Nejnovější + tip dne */}
+      {latest.length > 0 && (
+        <section className="border-b border-hairline">
+          <div className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)] py-12">
+            <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-2">
+              <div>
+                <p className="eyebrow text-faint">{t.latestEyebrow}</p>
+                <h2 className="display mt-2 text-[clamp(20px,3vw,26px)]">{t.latestTitle}</h2>
+              </div>
+              <Link href={p("/tipy")} className="draw-link text-[14px] font-bold">
+                {t.latestAll(tips.length)}
+              </Link>
+            </div>
+            <ul className="mt-6 border-t border-hairline">
+              {latest.map((tip) => (
+                <li
+                  key={tip.slug}
+                  className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-hairline py-3.5"
+                >
+                  <Link
+                    href={p(`/tipy/${tip.slug}`)}
+                    className="draw-link min-w-0 text-[15.5px] font-bold"
+                  >
+                    {tip.title}
+                  </Link>
+                  <span className="eyebrow flex-none text-faint">
+                    {tipMeta(tip.isGuide, tip.minutes)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {daily && (
+              <p className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[14.5px]">
+                <span className="eyebrow flex-none text-faint">{t.dailyLabel}</span>
+                <Link href={p(`/tipy/${daily.slug}`)} className="draw-link min-w-0 font-bold">
+                  {daily.title}
+                </Link>
+              </p>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Newsletter */}
-      <section className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)] py-24">
+      <section className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)] py-16">
         <Reveal>
           <div className="max-w-xl">
             <p className="eyebrow mb-2 text-faint">{t.newsletterEyebrow}</p>

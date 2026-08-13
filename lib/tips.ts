@@ -19,10 +19,13 @@ export type Tip = {
   minutes: number;
   /** Velký návod (přes 15 000 znaků) — na kartě dostane odznak. */
   isMega: boolean;
+  /** Velký průvodce (přes 18 000 znaků) — počítá se do živých čísel na homepage. */
+  isGuide: boolean;
 };
 
 const FENCE_RE = /```[\s\S]*?```/g;
 const MEGA_CHARS = 15000;
+const GUIDE_CHARS = 18000;
 
 function readingMinutes(body: string): number {
   const words = body.replace(FENCE_RE, " ").split(/\s+/).filter(Boolean).length;
@@ -57,6 +60,7 @@ export function getAllTips(locale: string = "cs"): Tip[] {
       body: content,
       minutes: readingMinutes(content),
       isMega: content.length >= MEGA_CHARS,
+      isGuide: content.length >= GUIDE_CHARS,
     };
   });
   return tips.sort((a, b) => (a.date < b.date ? 1 : -1));
@@ -64,4 +68,9 @@ export function getAllTips(locale: string = "cs"): Tip[] {
 
 export function getTip(slug: string, locale: string = "cs"): Tip | undefined {
   return getAllTips(locale).find((t) => t.slug === slug);
+}
+
+/** Kolik z návodů je velkých průvodců (tělo přes 18 000 znaků). Počítá se za běhu buildu. */
+export function countGuides(locale: string = "cs"): number {
+  return getAllTips(locale).filter((tip) => tip.isGuide).length;
 }
