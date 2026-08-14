@@ -54,6 +54,8 @@ export function articleJsonLd(opts: {
   datePublished?: string;
   dateModified?: string;
   section?: string;
+  /** TL;DR článku — propíše se jako `abstract`. */
+  tldr?: string;
 }) {
   const url = `${opts.locale === "en" ? EN_BASE : BASE}${opts.path}`;
   return {
@@ -67,9 +69,51 @@ export function articleJsonLd(opts: {
     ...(opts.datePublished ? { datePublished: opts.datePublished } : {}),
     ...(opts.dateModified ? { dateModified: opts.dateModified } : {}),
     ...(opts.section ? { articleSection: opts.section } : {}),
+    ...(opts.tldr ? { abstract: opts.tldr } : {}),
     author: personJsonLd,
     publisher: personJsonLd,
     image: `${BASE}/api/og?title=${encodeURIComponent(opts.title)}`,
+  };
+}
+
+/** FAQPage z frontmatter pole `faq` — mainEntity s Question/acceptedAnswer. */
+export function faqJsonLd(faq: { q: string; a: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
+}
+
+/**
+ * HowTo pro mega návody s číslovaným postupem (H2 „Fáze N: …" apod.).
+ * Kroky dodává parser `extractHowToSteps` — když žádné nenajde, HowTo se nevkládá.
+ * Article JSON-LD zůstává, HowTo je navíc.
+ */
+export function howToJsonLd(opts: {
+  locale: "cs" | "en";
+  path: string;
+  title: string;
+  description?: string;
+  steps: { id: string; text: string }[];
+}) {
+  const url = `${opts.locale === "en" ? EN_BASE : BASE}${opts.path}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: opts.title,
+    ...(opts.description ? { description: opts.description } : {}),
+    inLanguage: opts.locale,
+    step: opts.steps.map((s, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      name: s.text,
+      url: `${url}#${s.id}`,
+    })),
   };
 }
 

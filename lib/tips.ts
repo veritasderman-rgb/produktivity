@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 
+export type FaqItem = { q: string; a: string };
+
 export type Tip = {
   slug: string;
   title: string;
@@ -21,7 +23,29 @@ export type Tip = {
   isMega: boolean;
   /** Velký průvodce (přes 18 000 znaků) — počítá se do živých čísel na homepage. */
   isGuide: boolean;
+  /** Hrubý odhad času na PROVEDENÍ velkého průvodce v hodinách. Jen pro `isGuide`. */
+  doingHours?: number;
+  /** TL;DR (2–3 věty) — zvýrazněný blok pod hero a `abstract` v article JSON-LD. */
+  tldr?: string;
+  /** Časté otázky — blok `<details>` před sekcí „Pomohlo?" a FAQPage JSON-LD. */
+  faq?: FaqItem[];
 };
+
+/**
+ * Lehká varianta tipu bez těla — jediné, co se smí posílat klientským
+ * komponentám a výpisům. Tělo (MDX) má u velkých návodů desítky kB;
+ * 307 těl v props klientské komponenty nafouklo /tipy na 3,6 MB HTML.
+ */
+export type TipMeta = Omit<Tip, "body">;
+
+export function tipMeta(tip: Tip): TipMeta {
+  const { body: _body, ...meta } = tip;
+  return meta;
+}
+
+export function getAllTipMetas(locale: string = "cs"): TipMeta[] {
+  return getAllTips(locale).map(tipMeta);
+}
 
 const FENCE_RE = /```[\s\S]*?```/g;
 const MEGA_CHARS = 15000;
@@ -30,6 +54,13 @@ const GUIDE_CHARS = 18000;
 function readingMinutes(body: string): number {
   const words = body.replace(FENCE_RE, " ").split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(words / 200));
+}
+
+/** Hrubý odhad provedení velkého průvodce podle délky těla: 18–30k znaků ≈ 1 h, 30–45k ≈ 2 h, 45k+ ≈ 3 h. */
+function guideDoingHours(chars: number): number {
+  if (chars >= 45000) return 3;
+  if (chars >= 30000) return 2;
+  return 1;
 }
 
 function tipsDir(locale: string = "cs") {
@@ -61,6 +92,14 @@ export function getAllTips(locale: string = "cs"): Tip[] {
       minutes: readingMinutes(content),
       isMega: content.length >= MEGA_CHARS,
       isGuide: content.length >= GUIDE_CHARS,
+      doingHours: content.length >= GUIDE_CHARS ? guideDoingHours(content.length) : undefined,
+      tldr: typeof data.tldr === "string" ? data.tldr.trim() : undefined,
+      faq:
+        Array.isArray(data.faq) && data.faq.length > 0
+          ? (data.faq as FaqItem[])
+              .filter((f) => typeof f?.q === "string" && typeof f?.a === "string")
+              .map((f) => ({ q: f.q.trim(), a: f.a.trim() }))
+          : undefined,
     };
   });
   return tips.sort((a, b) => (a.date < b.date ? 1 : -1));

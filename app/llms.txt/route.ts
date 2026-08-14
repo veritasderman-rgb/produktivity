@@ -21,6 +21,8 @@ export async function GET() {
     "> Česká příručka produktivity od Josefa Pavlovice: ověřené systémy (GTD, Inbox Zero, time-blocking, Pomodoro, SCRUM/Kanban/OKR), " +
       `${tips.length} praktických tipů s návody a AI novinky přeložené do praxe. Obsah je psaný česky, průběžně aktualizovaný člověkem i AI. Anglická verze: https://productive.tips`,
     "",
+    "Plná verze s kompletními texty kapitol a nejobsáhlejších návodů: https://produktivni.cz/llms-full.txt (anglicky: https://productive.tips/llms-full.txt)",
+    "",
     "Kurátorovaný výběr vybavení pro produktivitu: https://produktivni.cz/gadgety",
     "",
     `Databáze promptů — ${prompts.length} hotových promptů pro ChatGPT, Claude a Gemini, vytažených z článků a připravených ke zkopírování: https://produktivni.cz/prompty (anglicky: https://productive.tips/prompty)`,

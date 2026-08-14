@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import type { Tip } from "@/lib/tips";
+import type { TipMeta } from "@/lib/tips";
+import { countTipValues, filterTips } from "@/lib/tip-filters";
 import { TipCard } from "@/components/TipCard";
 import { getDict, localePath, type Locale } from "@/lib/i18n";
 
@@ -22,10 +23,6 @@ const ui = {
     emptyDesc: "Try removing some filters — or tell us what you are missing and the daily routine will find it.",
   },
 };
-
-function normalize(s: string) {
-  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-}
 
 function FilterRow({
   label,
@@ -82,7 +79,8 @@ export function TipBrowser({
   lockedAudience,
   basePath = "/tipy",
 }: {
-  tips: Tip[];
+  /** Jen metadata tipů — tělo (MDX) se do klientské komponenty nikdy neposílá. */
+  tips: TipMeta[];
   locale?: Locale;
   /** Landing page profese: skupina je daná, filtr „pro koho“ se schová. */
   lockedAudience?: string;
@@ -108,28 +106,12 @@ export function TipBrowser({
     router.replace(`${localePath(locale, basePath)}${p.size ? `?${p}` : ""}`, { scroll: false });
   }
 
-  const filtered = useMemo(() => {
-    const q = normalize(query.trim());
-    return tips.filter((t) => {
-      if (category && t.category !== category) return false;
-      if (platform && t.platform !== platform && t.platform !== "vsude") return false;
-      if (audience && !t.audience.includes(audience)) return false;
-      if (q) {
-        const hay = normalize(`${t.title} ${t.excerpt} ${t.keys.flat().join(" ")}`);
-        if (!hay.includes(q)) return false;
-      }
-      return true;
-    });
-  }, [tips, category, platform, audience, query]);
+  const filtered = useMemo(
+    () => filterTips(tips, { category, platform, audience, q: query }),
+    [tips, category, platform, audience, query],
+  );
 
-  const count = (field: (t: Tip) => string | string[]) => {
-    const acc: Record<string, number> = {};
-    for (const t of tips) {
-      const v = field(t);
-      for (const item of Array.isArray(v) ? v : [v]) acc[item] = (acc[item] ?? 0) + 1;
-    }
-    return acc;
-  };
+  const count = (field: (t: TipMeta) => string | string[]) => countTipValues(tips, field);
 
   return (
     <div>

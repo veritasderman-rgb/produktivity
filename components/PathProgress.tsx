@@ -22,6 +22,8 @@ export type ProgressStep = {
   minutes: number;
   /** „Návod“ / „Kapitola“ — hotový popisek, komponenta obsah nezná. */
   kindLabel: string;
+  /** „velký návod, provedení ~2 h“ — hotový lokalizovaný popisek u velkých průvodců, jinak nic. */
+  guideNote?: string;
 };
 
 const T = {
@@ -222,6 +224,7 @@ export function PathProgress({
                   </Link>
                   <span className="eyebrow flex-none text-faint">
                     {step.kindLabel} · {step.minutes} {t.minutes}
+                    {step.guideNote && <> · {step.guideNote}</>}
                   </span>
                 </p>
                 <p

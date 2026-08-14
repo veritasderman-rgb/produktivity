@@ -45,6 +45,18 @@ function stripMarkdown(text: string): string {
     .trim();
 }
 
+/**
+ * Krok číslovaného postupu: H2 začínající „Fáze N" / „Krok N" / „Část N" /
+ * „Step N" / „Phase N" / „Part N". Jen tyhle nadpisy se smí stát HowToStep —
+ * když článek žádné nemá, HowTo JSON-LD se negeneruje (nic se nevymýšlí).
+ */
+const HOWTO_STEP_RE = /^(?:Fáze|Krok|Část|Step|Phase|Part)\s+\d+/i;
+
+/** Kroky pro HowTo JSON-LD — podmnožina H2 nadpisů s číslovaným postupem. */
+export function extractHowToSteps(body: string): TocHeading[] {
+  return extractHeadings(body).filter((h) => HOWTO_STEP_RE.test(h.text));
+}
+
 /** H2 nadpisy mimo kódové bloky, v pořadí výskytu. */
 export function extractHeadings(body: string): TocHeading[] {
   const headings: TocHeading[] = [];

@@ -15,6 +15,7 @@ const T = {
     time: "Celkový čas",
     steps: "Kroků",
     kind: { tip: "Návod", chapter: "Kapitola" },
+    guideNote: (h: number) => `velký návod, provedení ~${h} h`,
     ogLabel: "produktivni.cz · cesta",
     saveNote:
       "Odškrtnuté kroky se ukládají jen ve vašem prohlížeči. Nikam se neposílají a na jiném zařízení je neuvidíte.",
@@ -33,6 +34,7 @@ const T = {
     time: "Total time",
     steps: "Steps",
     kind: { tip: "Tip", chapter: "Chapter" },
+    guideNote: (h: number) => `in-depth guide, doing it ~${h} h`,
     ogLabel: "productive.tips · path",
     saveNote:
       "Ticked steps are stored in your browser only. Nothing is sent anywhere and you will not see them on another device.",
@@ -104,6 +106,8 @@ export default async function PathDetailPage({
     outcome: step.outcome,
     minutes: step.minutes,
     kindLabel: t.kind[step.kind],
+    // Krok na velký průvodce nese i odhad provedení — hotový popisek, klient obsah nezná.
+    guideNote: step.doingHours !== undefined ? t.guideNote(step.doingHours) : undefined,
   }));
 
   const facts = [

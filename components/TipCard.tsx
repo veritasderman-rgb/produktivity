@@ -1,8 +1,8 @@
 import Link from "next/link";
-import type { Tip } from "@/lib/tips";
+import type { TipMeta } from "@/lib/tips";
 import { getDict, localePath, type Locale } from "@/lib/i18n";
 
-export function TipCard({ tip, index, locale = "cs" }: { tip: Tip; index: number; locale?: Locale }) {
+export function TipCard({ tip, index, locale = "cs" }: { tip: TipMeta; index: number; locale?: Locale }) {
   const t = getDict(locale).tipCard;
   const href = localePath(locale, `/tipy/${tip.slug}`);
   return (

@@ -135,6 +135,73 @@ export function NavAi({
 }
 
 /**
+ * Kompaktní „Více“ v mobilní navigaci: tlačítko s rozbalovacím panelem pro
+ * položky, které se do řádku nevejdou. Zavírá klik mimo, Escape i klik na odkaz.
+ */
+export function NavMore({ label, items }: { label: string; items: NavAiItem[] }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(e: MouseEvent | TouchEvent) {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+    };
+  }, [open]);
+
+  function onKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Escape") {
+      e.stopPropagation();
+      setOpen(false);
+      buttonRef.current?.focus();
+    }
+  }
+
+  return (
+    <div ref={wrapRef} className="relative" onKeyDown={onKeyDown}>
+      <button
+        ref={buttonRef}
+        type="button"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        onClick={() => setOpen((v) => !v)}
+        className="draw-link inline-flex items-center gap-1 py-1 text-[13px] font-semibold"
+      >
+        {label}
+        <span aria-hidden="true" className={`text-[9px] leading-none transition-transform ${open ? "rotate-180" : ""}`}>
+          ▼
+        </span>
+      </button>
+      <div
+        role="menu"
+        aria-label={label}
+        hidden={!open}
+        className="absolute top-full right-0 z-20 min-w-[168px] border border-hairline-strong bg-paper py-1 shadow-[0_4px_0_var(--key-shadow)]"
+      >
+        {items.map((item) => (
+          <Link
+            key={item.href}
+            role="menuitem"
+            href={item.href}
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2.5 text-[13px] font-semibold text-ink no-underline transition-colors hover:bg-surface hover:text-accent focus-visible:bg-surface focus-visible:text-accent"
+          >
+            {item.label}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
  * Mobilní varianta podmenu: vodorovně scrollovatelný pruh chipů pod hlavní navigací.
  * Nezabírá výšku ani nepotřebuje rozbalování.
  */

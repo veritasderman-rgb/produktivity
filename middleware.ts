@@ -81,5 +81,5 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   // vše kromě statických assetů, API, metadata souborů
-  matcher: ["/((?!api|_next|img|ebook|favicon|icon|sitemap.xml|robots.txt|rss.xml|llms.txt|.*\\..*).*)"],
+  matcher: ["/((?!api|_next|img|ebook|favicon|icon|sitemap.xml|robots.txt|rss.xml|llms.txt|llms-full.txt|.*\\..*).*)"],
 };

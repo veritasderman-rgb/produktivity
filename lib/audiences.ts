@@ -1,4 +1,4 @@
-import { getAllTips, type Tip } from "@/lib/tips";
+import { getAllTipMetas, type TipMeta } from "@/lib/tips";
 import { getDict, localePath, type Locale } from "@/lib/i18n";
 
 /** Cílové skupiny (profese) — zdroj pravdy pro landing pages /pro/* (cs) a /for/* (en). */
@@ -134,9 +134,9 @@ export function getAudienceByAnySlug(slug: string): Audience | undefined {
   return audiences.find((a) => a.slug.cs === slug || a.slug.en === slug);
 }
 
-/** Tipy pro danou profesi: velké návody první, pak od nejnovějšího. */
-export function tipsForAudience(id: string, locale: Locale = "cs"): Tip[] {
-  return getAllTips(locale)
+/** Tipy pro danou profesi (jen metadata, bez těla): velké návody první, pak od nejnovějšího. */
+export function tipsForAudience(id: string, locale: Locale = "cs"): TipMeta[] {
+  return getAllTipMetas(locale)
     .filter((tip) => tip.audience.includes(id))
     .sort((a, b) => {
       if (a.isMega !== b.isMega) return a.isMega ? -1 : 1;

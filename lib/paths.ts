@@ -552,6 +552,8 @@ export type ResolvedStep = {
   href: string;
   outcome: string;
   minutes: number;
+  /** Hrubý odhad provedení v hodinách — jen u kroků na velké průvodce (tipy přes 18 000 znaků). */
+  doingHours?: number;
 };
 
 export type ResolvedPath = {
@@ -582,8 +584,8 @@ export function pathStorageKey(id: string): string {
 }
 
 function resolveStep(pathId: string, step: PathStep, locale: Locale): ResolvedStep | null {
-  const entry =
-    step.kind === "tip" ? getTip(step.slug, locale) : getChapter(step.slug, locale);
+  const tip = step.kind === "tip" ? getTip(step.slug, locale) : undefined;
+  const entry = step.kind === "tip" ? tip : getChapter(step.slug, locale);
 
   if (!entry) {
     const key = `${locale}:${step.kind}:${step.slug}`;
@@ -605,6 +607,7 @@ function resolveStep(pathId: string, step: PathStep, locale: Locale): ResolvedSt
     href: localePath(locale, `${base}/${step.slug}`),
     outcome: step.outcome[locale],
     minutes: step.minutes,
+    doingHours: tip?.doingHours,
   };
 }
 

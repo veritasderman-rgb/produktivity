@@ -6,8 +6,13 @@ import { Schibsted_Grotesk, Lora, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Keycap } from "@/components/Keycap";
 import { LangSwitch } from "@/components/LangSwitch";
-import { NavAi, NavAiChips } from "@/components/NavAi";
+import { NavAi, NavAiChips, NavMore } from "@/components/NavAi";
+import { SearchOverlay, SearchTrigger, type SearchIndexItem } from "@/components/SearchOverlay";
 import { audienceBase, audienceHref, audiences } from "@/lib/audiences";
+import { getAllChapters } from "@/lib/chapters";
+import { getAllInterviews, interviewTitle } from "@/lib/interviews";
+import { getAllNews } from "@/lib/news";
+import { getAllTips } from "@/lib/tips";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 import { JsonLd, websiteJsonLd } from "@/components/JsonLd";
 import "../globals.css";
@@ -70,7 +75,32 @@ export default async function RootLayout({
     { href: p("/prompty"), label: t.nav.prompts },
     { href: p("/nastroje"), label: t.nav.tools },
     { href: p("/gadgety"), label: t.nav.gadgets },
-    { href: p("/hledat"), label: t.nav.search },
+  ];
+
+  // Mobilní řádek: čtyři hlavní položky + lupa; zbytek v rozbalovacím „Více“.
+  const mobileNav = [
+    { href: p("/prirucka"), label: t.nav.handbook },
+    { href: p("/tipy"), label: t.nav.tips },
+    { href: p("/cesty"), label: t.nav.paths },
+    { href: p("/nastroje"), label: t.nav.tools },
+  ];
+  const mobileMore = [
+    { href: p("/ai"), label: t.nav.ai },
+    { href: p("/prompty"), label: t.nav.prompts },
+    { href: p("/gadgety"), label: t.nav.gadgets },
+  ];
+
+  // Index celowebového hledání pro overlay (Ctrl+K): schválně jen typ, slug
+  // a titulek — bez excerptů, ať HTML stránek nenaroste (~38 kB na jazyk).
+  const searchDocs: SearchIndexItem[] = [
+    ...getAllChapters(locale).map((c) => ({ type: "kapitola" as const, slug: c.slug, title: c.title })),
+    ...getAllTips(locale).map((tip) => ({ type: "tip" as const, slug: tip.slug, title: tip.title })),
+    ...getAllNews(locale).map((n) => ({ type: "ai" as const, slug: n.slug, title: n.title })),
+    ...getAllInterviews(locale).map((i) => ({
+      type: "rozhovor" as const,
+      slug: i.slug,
+      title: interviewTitle(i, locale),
+    })),
   ];
 
   // Podmenu profesí: v desktopové navigaci pod položkou „AI“, na mobilu pruh chipů.
@@ -118,6 +148,7 @@ export default async function RootLayout({
                   </Link>
                 ),
               )}
+              <SearchTrigger label={t.search.open} />
               <LangSwitch locale={locale} />
               <Link
                 href={p("/newsletter")}
@@ -133,14 +164,17 @@ export default async function RootLayout({
               </Link>
             </div>
           </div>
-          <nav className="flex justify-center gap-4 border-t border-hairline px-4 py-2 sm:hidden" aria-label="Mobile navigation">
-            {nav.map((item) => (
+          <nav className="flex items-center justify-center gap-4 border-t border-hairline px-4 py-2 sm:hidden" aria-label="Mobile navigation">
+            {mobileNav.map((item) => (
               <Link key={item.href} href={item.href} className="draw-link py-1 text-[13px] font-semibold">
                 {item.label}
               </Link>
             ))}
+            <SearchTrigger label={t.search.open} className="draw-link inline-flex items-center py-1" />
+            <NavMore label={t.nav.more} items={mobileMore} />
           </nav>
           <NavAiChips label={t.nav.forProfession} items={proChips} />
+          <SearchOverlay docs={searchDocs} locale={locale} labels={t.search} />
         </header>
 
         <main>{children}</main>
