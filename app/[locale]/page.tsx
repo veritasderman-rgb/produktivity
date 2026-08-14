@@ -172,7 +172,7 @@ export default async function HomePage({
                   >
                     <span className="eyebrow tabular block text-faint">
                       {formatStepCount(path.stepCount, locale)} ·{" "}
-                      {formatDuration(path.totalMinutes, locale)}
+                      {formatDuration(path.totalMinutes)}
                     </span>
                     <span className="mt-2.5 block text-[17px] leading-tight font-bold tracking-[-0.01em]">
                       <span className="draw-link">{path.title}</span>

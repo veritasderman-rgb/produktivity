@@ -677,11 +677,14 @@ export function formatStepCount(n: number, locale: Locale): string {
   return `${n} kroků`;
 }
 
-/** „2 h 5 min“ pro delší celky, jinak „45 min“. */
-export function formatDuration(minutes: number, locale: Locale): string {
-  const min = locale === "en" ? "min" : "min";
-  if (minutes < 60) return `${minutes} ${min}`;
+/**
+ * „2 h 5 min“ pro delší celky, jinak „45 min“.
+ * Klientská PathProgress má vlastní kopii — tenhle modul čte přes fs a do
+ * prohlížeče se dostat nesmí.
+ */
+export function formatDuration(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`;
   const h = Math.floor(minutes / 60);
   const rest = minutes % 60;
-  return rest === 0 ? `${h} h` : `${h} h ${rest} ${min}`;
+  return rest === 0 ? `${h} h` : `${h} h ${rest} min`;
 }

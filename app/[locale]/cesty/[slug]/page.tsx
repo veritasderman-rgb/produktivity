@@ -107,7 +107,7 @@ export default async function PathDetailPage({
   }));
 
   const facts = [
-    { label: t.time, value: formatDuration(path.totalMinutes, locale) },
+    { label: t.time, value: formatDuration(path.totalMinutes) },
     { label: t.steps, value: String(path.stepCount) },
   ];
 

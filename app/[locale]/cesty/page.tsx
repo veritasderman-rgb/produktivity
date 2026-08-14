@@ -95,7 +95,7 @@ export default async function PathsPage({
               >
                 <p className="eyebrow tabular text-faint">
                   {formatStepCount(path.stepCount, locale)} ·{" "}
-                  {formatDuration(path.totalMinutes, locale)}
+                  {formatDuration(path.totalMinutes)}
                 </p>
                 <h2 className="display mt-2 text-[clamp(20px,2.8vw,25px)]">
                   <Link href={path.href} className="draw-link">
