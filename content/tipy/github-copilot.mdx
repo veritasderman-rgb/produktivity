@@ -8,6 +8,51 @@ keys: []
 saves: "~1 h denně"
 date: "2026-07-05"
 updated: "2026-08-12"
+tldr: >-
+  AI v editoru má tři úrovně — našeptávač, chat s kontextem a agentní režim — a většina
+  zklamání pochází z použití špatné úrovně na daný úkol: čím dražší je špatná odpověď,
+  tím nižší úroveň. Návod ukazuje, jak nastavit kontext projektu, generovat testy
+  z popsaného chování místo z implementace, dělat review cizího kódu a zadávat agentovi
+  práci s mantinely. Základní pravidlo: kód, kterému nerozumíte, není hotový.
+faq:
+  - q: "Kdy použít našeptávač, kdy chat a kdy agentní režim?"
+    a: >-
+      Vodítko zní: čím dražší je špatná odpověď, tím nižší úroveň. Našeptávač na
+      boilerplate a opakující se vzory, chat tam, kde je hodnota ve vysvětlení —
+      pochopení modulu, rozbor chyby, srovnání přístupů — a agent na změny přes víc
+      souborů s rychlou zpětnou vazbou z testů. U návrhových rozhodnutí agent škodí:
+      špatné zadání dokončí rychle a spolehlivě špatně.
+  - q: "Proč mi asistent generuje kód, který musím celý přepsat?"
+    a: >-
+      Skoro vždy proto, že neví, jak se ve vašem projektu píše — bez kontextu sáhne po
+      nejběžnějším vzoru z internetu. Nejvyšší návratnost má soubor s konvencemi
+      projektu, který si asistent načte, a přiložený existující kód jako vzor místo
+      popisu stylu — model je stroj na vzory, tak mu vzor dejte.
+  - q: "Můžu nechat AI vygenerovat testy k existující funkci?"
+    a: >-
+      Pozor na past: testy vygenerované z implementace ověřují, jak se funkce chová
+      teď, ne jak se chovat má — chybu zafixují. Nejdřív popište zamýšlené chování
+      vlastními slovy, teprve pak nechte psát, a vyžádejte si seznam míst, kde se
+      popis rozchází s implementací. Každý rozpor je buď chyba v kódu, nebo ve vašem
+      chápání zadání.
+  - q: "Jak poznám vady typické pro generovaný kód?"
+    a: >-
+      Hledejte přednostně vymyšlené API (metoda, která zní věrohodně a neexistuje),
+      neošetřené okrajové případy, tichou změnu chování při refaktoringu, nadbytečnou
+      abstrakci a bezpečnostní nedbalost. Generovaný kód je sebejistý a plynulý,
+      i když je špatně — proto ho čtete méně pozorně, přesně obráceně, než je správně.
+  - q: "Jak zadat práci agentovi, aby mi nepřepsal půl repozitáře?"
+    a: >-
+      Zadání musí mít rozsah (které soubory ano a které ne), kritérium hotovo, postup
+      po etapách s body, kde se čeká na vaše schválení, a zákazy — hlavně nemazat
+      a neupravovat testy. Pracujte vždy ve větvi s čistým stromem, po etapách malé
+      commity a diff čtěte celý; když je moc velký na přečtení, bylo špatně zadání.
+  - q: "Smím do promptu vložit konfiguraci nebo produkční data?"
+    a: >-
+      Do promptů a kontextu nepatří přístupové klíče, hesla, produkční data zákazníků
+      ani interní tajemství. V konfiguračních souborech nahraďte hodnoty smyšlenými,
+      citlivé věci řešte jen v placeném účtu se smluvní ochranou dat a předem si
+      ověřte firemní pravidla pro sdílení kódu s externími nástroji.
 ---
 
 Za pár let se z doplňování konce řádku stal nástroj, který napíše celou funkci, vysvětlí cizí modul, navrhne refaktoring nebo sám projde repozitář a otevře pull request. Skok je reálný a je největší za dekádu. Zároveň se nezměnila jediná věc, která na téhle profesi vždycky rozhodovala: **do repozitáře jde jen kód, za který se podepíšete.** Nezáleží na tom, kdo ho napsal — vaše jméno je v commitu a vaše pohotovost v tři ráno.

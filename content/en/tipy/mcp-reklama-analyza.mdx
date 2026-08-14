@@ -8,6 +8,56 @@ keys: []
 saves: "~4 hrs a month"
 date: "2026-08-13"
 updated: "2026-08-13"
+tldr: >-
+  Two official connectors with no coding: Meta's MCP server (mcp.facebook.com/ads)
+  connects AI to your ad account, and the local open-source server from the Google
+  Analytics team connects it to your site traffic. The model pulls the numbers
+  itself — current, for the period you specify — and only then reasons about them;
+  the most valuable view comes from combining both sides. Real budget limits belong
+  on the platform, not in the prompt, and account changes are always approved by a
+  human.
+faq:
+  - q: "Do I need a developer app for the Meta connector?"
+    a: >-
+      No. You sign in to Meta's MCP server with your regular Meta Business account
+      through an ordinary login window — no developer app, no App Review. You approve
+      which ad account the tool may access, and when you want to stop, you remove
+      the connector and revoke the permission in your Business account settings.
+  - q: "Is there an official MCP server for Google Analytics?"
+    a: >-
+      Yes, published directly by the Google Analytics team as open source under the
+      Apache 2.0 license. Three properties matter: it's experimental (nothing
+      critical should depend on it), it's local (it runs on your machine, so no new
+      party gets access to your data), and it's read-only — it can't reconfigure or
+      delete anything in GA4.
+  - q: "Why don't the numbers from the ad account and Analytics match?"
+    a: >-
+      They never will, and it's a mistake to ask AI to make them match. The reasons
+      are structural: different attribution, different time windows, and measurement
+      blocking on the visitor side. The practical consequence: track trends within
+      each tool, and between tools compare the ranking of campaigns, not the values.
+  - q: "Is writing a budget limit into the prompt enough?"
+    a: >-
+      No — an instruction in the prompt is a rule, a setting on the platform is a
+      lock. Real limits are set in the ad manager: an account spend cap, campaign
+      budget limits, and restricted rights for the user the connector is signed in
+      as. The model can make a mistake, and the only thing that prevents damage at
+      that moment is a barrier outside of it.
+  - q: "May the model change budgets or turn campaigns on by itself?"
+    a: >-
+      No. The model may read, calculate, and write recommendations; only a human may
+      raise a budget or turn on a campaign. Never enable a mode where changes happen
+      without asking — and do bulk operations with a script where the whole list is
+      visible at once, because after the twentieth dialog people approve on
+      autopilot.
+  - q: "How do I turn one-off questions into a monthly report?"
+    a: >-
+      A conversation isn't reproducible — next time the model may pick a different
+      period or metrics and you'll compare incomparable reports. The path has three
+      stages: a fixed prompt with the template spelled out in full detail, then a
+      script that pulls the data the same way every time (the machine computes, the
+      model explains), and finally a scheduled routine that prepares the brief
+      itself.
 ---
 
 Anyone spending money on ads asks themselves “what's actually going on there?” at least once a week. And there's one answer you should never accept from a chatbot: anything it made up. An ad account and web analytics are the kind of data where a guess isn't worth a cent — either the model sees real numbers for a real period, or it stays quiet.

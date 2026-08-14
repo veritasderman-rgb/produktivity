@@ -8,6 +8,55 @@ keys: []
 saves: "~4 h týdně"
 date: "2026-08-13"
 updated: "2026-08-13"
+tldr: >-
+  S konektory přestává být model komentátorem vaší práce a stává se jejím účastníkem:
+  sáhne do Bufferu, Canvy, Adobe, Notionu, Google Analytics či Supabase, přečte
+  skutečná data a připraví skutečný výstup. Článek je katalog s návodem k použití —
+  jak konektory přidat, co která integrace opravdu umí a jak zapojit Gemini API vedle
+  Claude. Konektor je oprávnění připravovat, ne uzavírat: publikaci, platby a mazání
+  potvrzuje člověk.
+faq:
+  - q: "Jaký je rozdíl mezi vzdáleným a lokálním konektorem?"
+    a: >-
+      Vzdálený konektor je hostovaný server na internetu — připojíte URL, přihlásíte
+      se přes OAuth a běží u poskytovatele (Buffer, Canva, Notion, Adobe). Lokální
+      konektor běží na vašem počítači, jako oficiální MCP server pro Google
+      Analytics. Rozdíl není jen technický: u vzdáleného dáváte přístup k účtu cizí
+      službě, u lokálního jen procesu na vlastním stroji.
+  - q: "Co mám dělat s obrazovkou oprávnění při připojování?"
+    a: >-
+      Přečíst ji celou — je to jediné místo v celém procesu, kde rozhodujete vy.
+      Hledejte tři věci: rozsah (zvolte užší variantu, když ji služba nabízí), směr
+      (co jen čte a co může zakládat, měnit nebo mazat) a účet (který pracovní
+      prostor se připojuje). Osvědčený postup: první týden jen čtení, teprve pak
+      právo zakládat koncepty.
+  - q: "Může agent s konektorem rovnou publikovat příspěvky?"
+    a: >-
+      Ne — zveřejněný příspěvek nejde vzít zpátky a screenshot vznikne dřív, než ho
+      stihnete smazat. Svěřte agentovi přípravu: várky konceptů, vyhodnocení metrik,
+      návrh kalendáře. Legitimní výjimka je automatické publikování naplánovaných
+      konceptů, které jste sami předem schválili — schválení proběhlo, jen s časovým
+      odstupem.
+  - q: "Můžu věřit cenám, které mi model spočítá u API?"
+    a: >-
+      Ne z paměti — ceníky se mění a model si pamatuje stav ze svého tréninku, takže
+      vám klidně spočítá rozpočet podle ceníku, který už neplatí. Aktuální ceník mu
+      vždy vložte do promptu. A útratu hlídejte třemi vrstvami: rozpočtový limit
+      v Google Cloud, strop ve skriptu a zkušební běh na malém vzorku.
+  - q: "Jak zapojím Gemini do Claude Coworku, když to není konektor?"
+    a: >-
+      Gemini API není datový zdroj, ale model — proto se nedá zapnout jako konektor
+      na Drive. Nejčistší cesta je skript nad API klíčem, který Cowork spustí jako
+      nástroj: klíč zůstává v proměnné prostředí a modelu se nikdy neukáže. MCP
+      server třetí strany je pohodlnější, ale dáváte svůj klíč cizí službě — když už,
+      tak samostatný klíč s nízkým limitem.
+  - q: "Co dělat, když konektor vrátí prázdno nebo nesmysly?"
+    a: >-
+      V devíti případech z deseti to není porucha: prázdná odpověď znamená jiný
+      rozsah (období, účet, složka), chyba oprávnění užší odsouhlasený rozsah
+      a chyba autentizace vypršelé pověření. Nejhorší je, když konektor vrací
+      nesmysly bez chyby — proto si u každého nového konektoru namátkou ověřte dvě
+      tři čísla přímo v rozhraní služby.
 ---
 
 Dokud AI nemá konektory, je to chytré textové pole. Umí skvěle přemýšlet nad tím, co jí nasypete, ale nasypat to musíte vy — zkopírovat čísla z analytiky, vyexportovat příspěvky, popsat, jak vypadá vaše šablona. Konektor tenhle mezikrok maže. **Ve chvíli, kdy zapnete konektor, přestane být model komentátorem vaší práce a stane se jejím účastníkem: sáhne si do účtu, přečte skutečná data a připraví skutečný výstup.** Rozdíl v užitečnosti je řádový, a stejně tak rozdíl v tom, co si musíte pohlídat.

@@ -8,6 +8,58 @@ keys: []
 saves: "~4 hrs a week"
 date: "2026-08-13"
 updated: "2026-08-13"
+tldr: >-
+  With connectors, the model stops being a commentator on your work and becomes a
+  participant: it reaches into Buffer, Canva, Adobe, Notion, Google Analytics, or
+  Supabase, reads real data, and produces real output. This guide is a catalog with a
+  user manual — how to add connectors, what each integration can actually do, and how
+  to bring the Gemini API in alongside Claude. A connector is permission to prepare,
+  not to close: publishing, payments, and deletion are confirmed by a human.
+faq:
+  - q: "What's the difference between a remote and a local connector?"
+    a: >-
+      A remote connector is a hosted server on the internet — you connect a URL, log
+      in via OAuth, and it runs at the provider's end (Buffer, Canva, Notion, Adobe).
+      A local connector runs on your own machine, like the official Google Analytics
+      MCP server. The difference isn't just technical: with a remote one you grant a
+      service access to your account, with a local one only a process on your own
+      machine.
+  - q: "What should I do with the permissions screen when connecting?"
+    a: >-
+      Read it in full — it's the only place in the whole process where you decide.
+      Look for three things: scope (choose the narrower option when the service
+      offers one), direction (what it only reads versus what it can create, change,
+      or delete), and account (which workspace is being connected). The proven
+      approach: read-only for the first week, then the right to create drafts.
+  - q: "Can an agent with a connector publish posts directly?"
+    a: >-
+      No — a published post can't be taken back, and a screenshot exists before you
+      can delete it. Give the agent the preparation: batches of drafts, metric
+      analysis, calendar proposals. The legitimate exception is automatic publishing
+      of scheduled drafts you approved in advance yourself — the approval happened,
+      just with a time delay.
+  - q: "Can I trust the API prices the model calculates?"
+    a: >-
+      Not from memory — price lists change and the model remembers the state from its
+      training, so it will happily budget from a price list that no longer applies.
+      Always paste the current price list into the prompt. And guard your spend with
+      three layers: a budget limit in Google Cloud, a cap in the script, and a trial
+      run on a small sample.
+  - q: "How do I bring Gemini into Claude Cowork if it isn't a connector?"
+    a: >-
+      The Gemini API isn't a data source, it's a model — so it can't be switched on
+      like a Drive connector. The cleanest path is a script over an API key that
+      Cowork runs as a tool: the key stays in an environment variable and is never
+      shown to the model. A third-party MCP server is more convenient, but you're
+      handing your key to someone else's service — if you do, use a separate key
+      with a low budget limit.
+  - q: "What do I do when a connector returns nothing or nonsense?"
+    a: >-
+      Nine times out of ten it isn't a malfunction: an empty answer means a different
+      scope (period, account, folder), a permissions error means a narrower approved
+      scope, and an authentication error means expired credentials. The worst case is
+      a connector returning nonsense without an error — so with every new connector,
+      spot-check two or three numbers directly in the service's interface.
 ---
 
 Until AI has connectors, it's a smart text box. It's great at thinking about whatever you feed it, but you're the one who has to feed it — copy numbers out of analytics, export posts, describe what your template looks like. A connector erases that middle step. **The moment you turn a connector on, the model stops being a commentator on your work and becomes a participant in it: it reaches into the account, reads real data, and produces a real output.** The jump in usefulness is an order of magnitude, and so is the jump in what you need to keep an eye on.

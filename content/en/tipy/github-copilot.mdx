@@ -8,6 +8,57 @@ keys: []
 saves: "~1 h a day"
 date: "2026-07-05"
 updated: "2026-08-12"
+tldr: >-
+  AI in the editor comes at three levels — autocomplete, chat with context, and agent
+  mode — and most disappointment comes from using the wrong level for the task: the
+  more expensive a wrong answer is, the lower the level. The guide covers setting up
+  project context, generating tests from described behavior instead of from the
+  implementation, reviewing code you didn't write, and giving agents work with
+  guardrails. The core rule: code you don't understand isn't done.
+faq:
+  - q: "When should I use autocomplete, chat, or agent mode?"
+    a: >-
+      The rule of thumb: the more expensive a wrong answer, the lower the level.
+      Autocomplete for boilerplate and repeating patterns, chat where the value is in
+      explanation — understanding a module, dissecting an error, comparing approaches —
+      and an agent for changes spanning many files with fast feedback from tests. On
+      design decisions an agent hurts: it finishes a bad brief quickly and reliably
+      wrong.
+  - q: "Why does the assistant generate code I have to rewrite entirely?"
+    a: >-
+      Almost always because it doesn't know how your project is written — without
+      context it reaches for the most common pattern on the internet. The highest
+      return comes from a file with the project's conventions that the assistant
+      loads, and from attaching existing code as a sample instead of describing your
+      style — the model is a pattern machine, so give it a pattern.
+  - q: "Can I let AI generate tests for an existing function?"
+    a: >-
+      Beware the trap: tests generated from the implementation verify how the function
+      behaves now, not how it should — they lock a bug in. First describe the intended
+      behavior in your own words, then have the tests written, and ask for a list of
+      places where the description diverges from the implementation. Every divergence
+      is either a bug in the code or a gap in your understanding.
+  - q: "How do I spot flaws typical of generated code?"
+    a: >-
+      Look first for invented APIs (a method that sounds plausible and doesn't exist),
+      unhandled edge cases, silent behavior changes during refactoring, needless
+      abstraction, and security sloppiness. Generated code is confident and fluent
+      even when it's wrong — so you read it less carefully, exactly the opposite of
+      what's right.
+  - q: "How do I brief an agent so it doesn't rewrite half the repository?"
+    a: >-
+      The brief needs a scope (which files are in and which are out), a definition of
+      done, a staged plan with checkpoints where it waits for your approval, and
+      prohibitions — above all, no deleting or editing tests. Always work on a branch
+      with a clean tree, commit in small stages, and read the whole diff; if it's too
+      big to read, the brief was wrong.
+  - q: "Can I paste configuration or production data into a prompt?"
+    a: >-
+      Access keys, passwords, customers' production data, and internal secrets don't
+      belong in prompts or context. Replace values in config files with made-up ones,
+      handle anything sensitive only in a paid account with contractual data
+      protection, and check your company's rules for sharing code with external
+      tools first.
 ---
 
 In just a few years, end-of-line autocomplete has turned into a tool that writes an entire function, explains an unfamiliar module, proposes a refactor, or goes through a repository on its own and opens a pull request. The leap is real, and it's the biggest one in a decade. And yet the one thing that has always decided this profession hasn't changed: **only code you'd put your name on goes into the repository.** It doesn't matter who wrote it — your name is on the commit, and it's you who gets paged at three in the morning.

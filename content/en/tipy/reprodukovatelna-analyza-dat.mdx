@@ -8,6 +8,58 @@ keys: []
 saves: "~half a day a month"
 date: "2026-08-13"
 updated: "2026-08-13"
+tldr: >-
+  A language model writes the code for a calculation from scratch every time, and
+  slightly differently every time — an analysis you can't rerun and get the same
+  number from is just an opinion with a table attached. The fix is turning the
+  conversation into a file: have the procedure written down as one runnable,
+  commented script, alongside term definitions, control numbers, version history,
+  and exports that never get overwritten. Then it can run on a schedule — and the
+  script must fail loudly instead of silently calculating nonsense.
+faq:
+  - q: "Why does the agent give me a slightly different number for the same question?"
+    a: >-
+      Because it writes the code from scratch every time for the same data and
+      the same request — one run excludes cancellations, the next doesn't; one
+      uses the invoice date, the next the payment date. The results look similar,
+      and that's exactly what makes it dangerous: the difference doesn't look
+      like an error, it looks like a refinement.
+  - q: "When should I move from chat to a saved script?"
+    a: >-
+      When you ask the same question for the third time, when someone will ask
+      about the number later, when money or people ride on it, when the data is
+      growing, or when more than one person needs the same number. Two yes
+      answers are enough, three make it mandatory. Chat is for finding the
+      question, a script for answering it repeatedly — freezing the procedure
+      too early is as much a mistake as never freezing it.
+  - q: "Can I manually fix the result in a spreadsheet after the run?"
+    a: >-
+      No — three edited cells destroy the whole reproducibility, because the fix
+      leaves no trace and next month it either doesn't happen again or happens
+      differently. Whatever doesn't belong in the result belongs in the script
+      as a rule and in the definitions as a sentence.
+  - q: "What happens when the source system changes the export format?"
+    a: >-
+      The script must fail loudly instead of silently calculating nonsense:
+      a missing column must not pass as zero and an empty table must not pass as
+      zero revenue. Add an input check at the start that stops the run and
+      explains what's wrong — you notice a crash immediately, while nonsense
+      makes it into a presentation.
+  - q: "Why must exports never be overwritten under the same name?"
+    a: >-
+      Source systems routinely revise history after the fact — credit notes,
+      corrections, rebilling. An export of June downloaded in September can
+      differ from the one downloaded in July, and that's not a bug. Without
+      a download date in the filename you can never untangle whether a number
+      changed because of the calculation or because of the data.
+  - q: "Do I need to know git and programming?"
+    a: >-
+      No. From git you need three abilities — save a state, attach a sentence to
+      it, and compare two versions — and an agent with access to the folder sets
+      it up and operates it for you. You don't need to understand the script down
+      to the last character either: you need to say what should be calculated
+      and, thanks to the comments, recognize that a filter matches what you
+      agreed on.
 ---
 
 Some questions keep coming back on their own. Last day of the month: “what did we make by category, and what stands out?” Before a leadership meeting: “how are we doing versus last year?” At the end of a campaign: “did it pay off?” Monday morning: “who was out last week?” Every time, a new chat gets opened, a fresh export gets uploaded, and a request goes in that's nearly identical to last time's. And every time, the agent thinks from scratch.
