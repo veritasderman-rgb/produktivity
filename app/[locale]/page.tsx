@@ -4,6 +4,7 @@ import { getAllChapters } from "@/lib/chapters";
 import { getAllPrompts } from "@/lib/prompts";
 import { audienceHref, audiences, formatTipCount, tipsForAudience } from "@/lib/audiences";
 import { getShelves } from "@/lib/shelves";
+import { formatDuration, formatStepCount, getPaths } from "@/lib/paths";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { Reveal } from "@/components/Reveal";
 import { tipOfTheDay } from "@/lib/related";
@@ -43,6 +44,7 @@ export default async function HomePage({
   }));
 
   const shelves = getShelves(locale);
+  const learningPaths = getPaths(locale);
   const latest = tips.slice(0, 4);
   const daily = tips.length > 0 ? tipOfTheDay(tips) : null;
 
@@ -144,6 +146,47 @@ export default async function HomePage({
           </p>
         </div>
       </section>
+
+      {/* Cesty — přirozený druhý krok po „kdo jste“ */}
+      {learningPaths.length > 0 && (
+        <section className="border-b border-hairline">
+          <div className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)] py-14">
+            <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+              <div>
+                <p className="eyebrow text-faint">{t.pathsEyebrow}</p>
+                <h2 className="display mt-2 text-[clamp(22px,3.4vw,30px)]">{t.pathsTitle}</h2>
+                <p className="mt-3 max-w-[58ch] text-[15.5px] leading-relaxed text-muted">
+                  {t.pathsLead}
+                </p>
+              </div>
+              <Link href={p("/cesty")} className="draw-link text-[14px] font-bold">
+                {t.pathsAll}
+              </Link>
+            </div>
+            <ul className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {learningPaths.map((path) => (
+                <li key={path.id}>
+                  <Link
+                    href={path.href}
+                    className="linkblock h-full border border-hairline bg-card p-5 transition-colors hover:border-hairline-strong"
+                  >
+                    <span className="eyebrow tabular block text-faint">
+                      {formatStepCount(path.stepCount, locale)} ·{" "}
+                      {formatDuration(path.totalMinutes, locale)}
+                    </span>
+                    <span className="mt-2.5 block text-[17px] leading-tight font-bold tracking-[-0.01em]">
+                      <span className="draw-link">{path.title}</span>
+                    </span>
+                    <span className="mt-2.5 block text-[13.5px] leading-relaxed text-muted">
+                      {path.forWhom}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       {/* Tematické police */}
       {shelves.length > 0 && (

@@ -11,10 +11,10 @@ const T = {
     title: "Nástroje",
     metaTitle: "Interaktivní nástroje pro produktivitu",
     description:
-      "Kvíz na výběr systému produktivity, Pomodoro časovač, kalkulačka hodinové sazby a skládačka promptů. Zdarma, v prohlížeči, bez registrace.",
+      "Kvíz na výběr systému produktivity, Pomodoro časovač, kalkulačka hodinové sazby, skládačka promptů a audit času. Zdarma, v prohlížeči, bez registrace.",
     eyebrow: "Rozcestník",
     heading: "Nástroje",
-    lead: "Čtyři věci, které si tady rovnou vyzkoušíte. Nic se nikam neposílá — všechno běží ve vašem prohlížeči a po zavření záložky zmizí.",
+    lead: "Pět věcí, které si tady rovnou vyzkoušíte. Nic se nikam neposílá — všechno běží ve vašem prohlížeči a po zavření záložky zmizí.",
     open: "Otevřít nástroj",
     soon: "Chystá se",
     minute: "min",
@@ -47,16 +47,23 @@ const T = {
           "Poskládá vám prompt z rolí, kontextu, formátu a omezení — místo hádání, co do chatu napsat.",
         meta: "Generátor",
       },
+      {
+        href: "/nastroje/audit-casu",
+        title: "Co mě stojí čas",
+        blurb:
+          "Zadáte hodiny týdně u osmi opakovaných činností a uvidíte roční ztrátu, rozpad podle položek a návod ke každé z nich.",
+        meta: "Kalkulačka",
+      },
     ],
   },
   en: {
     title: "Tools",
     metaTitle: "Interactive productivity tools",
     description:
-      "A quiz that picks your productivity system, a Pomodoro timer, an hourly rate calculator and a prompt builder. Free, in the browser, no sign-up.",
+      "A quiz that picks your productivity system, a Pomodoro timer, an hourly rate calculator, a prompt builder and a time audit. Free, in the browser, no sign-up.",
     eyebrow: "Where to start",
     heading: "Tools",
-    lead: "Four things you can try right here. Nothing gets sent anywhere — it all runs in your browser and disappears when you close the tab.",
+    lead: "Five things you can try right here. Nothing gets sent anywhere — it all runs in your browser and disappears when you close the tab.",
     open: "Open the tool",
     soon: "Coming up",
     minute: "min",
@@ -88,6 +95,13 @@ const T = {
         blurb:
           "Assembles a prompt out of role, context, format and constraints — instead of guessing what to type into the chat.",
         meta: "Generator",
+      },
+      {
+        href: "/nastroje/audit-casu",
+        title: "What your time costs you",
+        blurb:
+          "Enter your hours a week across eight repeated activities and see the annual loss, the breakdown by item and a guide for each one.",
+        meta: "Calculator",
       },
     ],
   },

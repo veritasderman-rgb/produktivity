@@ -61,6 +61,7 @@ export default async function RootLayout({
   const nav = [
     { href: p("/prirucka"), label: t.nav.handbook },
     { href: p("/tipy"), label: t.nav.tips },
+    { href: p("/cesty"), label: t.nav.paths },
     { href: p("/ai"), label: t.nav.ai, dropdown: true },
     { href: p("/prompty"), label: t.nav.prompts },
     { href: p("/nastroje"), label: t.nav.tools },

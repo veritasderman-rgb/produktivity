@@ -5,6 +5,7 @@ import { getAllChapters } from "@/lib/chapters";
 import { getAllNews } from "@/lib/news";
 import { getPromptArticles } from "@/lib/prompts";
 import { getAllInterviews } from "@/lib/interviews";
+import { getPaths } from "@/lib/paths";
 
 const BASE = "https://produktivni.cz";
 const EN_BASE = "https://productive.tips";
@@ -21,8 +22,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const enNews = new Set(getAllNews("en").map((n) => n.slug));
 
   const staticPaths = [
-    "", "/prirucka", "/tipy", "/ai", "/prompty", "/kurz", "/gadgety", "/slovnik", "/newsletter", "/start",
+    "", "/prirucka", "/tipy", "/cesty", "/ai", "/prompty", "/kurz", "/gadgety", "/slovnik", "/newsletter", "/start",
     "/nastroje", "/nastroje/kviz", "/nastroje/pomodoro", "/nastroje/sazba", "/nastroje/promptovac",
+    "/nastroje/audit-casu",
     "/rozhovory",
     "/o-projektu", "/hledat", "/ochrana-osobnich-udaju",
   ];
@@ -155,8 +157,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return entries;
   });
 
+  // Detaily cest — URL segment /cesty je stejný v obou jazycích, liší se jen obsah.
+  const enPaths = new Set(getPaths("en").map((p) => p.id));
+  const learningPaths = getPaths("cs").flatMap((path) => {
+    const csPath = `/cesty/${path.id}`;
+    const entries: MetadataRoute.Sitemap = [{
+      url: `${BASE}${csPath}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+      ...withAlternates(csPath, enPaths.has(path.id)),
+    }];
+    if (enPaths.has(path.id)) {
+      entries.push({ url: `${EN_BASE}${csPath}`, changeFrequency: "monthly", priority: 0.6 });
+    }
+    return entries;
+  });
+
   return [
     ...staticRoutes, ...proHub, ...proPages, ...chapters, ...tips, ...news,
-    ...promptArticles, ...interviews,
+    ...promptArticles, ...interviews, ...learningPaths,
   ];
 }
