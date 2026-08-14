@@ -1,0 +1,31 @@
+---
+title: "cd - vás vrátí do složky, ze které jste přišli"
+excerpt: "Přeskakujete mezi dvěma adresáři? Nemusíte psát celé cesty tam a zpátky — „cd -“ skočí vždy do té předchozí složky."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~2 min denně"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Typická situace v terminálu: pracujete v projektu, odskočíte si do úplně jiné složky něco zkontrolovat — a teď zpátky. Celou cestu k projektu znovu vypisovat nechcete. Přesně na to existuje dvouznakový příkaz `cd -`: přepne vás do adresáře, ve kterém jste byli bezprostředně předtím. A protože si shell pamatuje vždy tu poslední navštívenou složku, funguje `cd -` i jako přepínač — opakovaným spouštěním skáčete mezi dvěma místy tam a zpátky jako Alt+Tab mezi okny.
+
+## Jak na to
+
+1. Jste ve složce projektu, třeba `~/projekty/eshop/backend/api`. Přejděte kamkoli jinam, například `cd /var/log`.
+2. Až budete hotovi, napište `cd -` — shell vypíše cestu, kam vás vrací, a rázem jste zpět v `~/projekty/eshop/backend/api`.
+3. Další `cd -` vás hodí zase do `/var/log`. Dva adresáře, mezi kterými právě pendlujete, tak máte pořád na jeden krátký příkaz.
+4. Funguje v bashi a zsh všude, v PowerShellu od verze 7 také (a `cd +` tam skáče zase dopředu). Předchozí adresář najdete i v proměnné `$OLDPWD`, takže jde použít i uvnitř jiných příkazů, třeba `cp soubor.txt $OLDPWD`.
+5. Když potřebujete žonglovat s více než dvěma složkami, mrkněte na `pushd` a `popd` — ukládají adresáře na zásobník. Pro běžný den ale `cd -` bohatě stačí.
+
+## Vzorová situace
+
+Vývojář ladí nasazení: v jednom okně upravuje konfiguraci hluboko ve struktuře projektu a průběžně odbíhá do `/etc/nginx` porovnat nastavení. Bez `cd -` by buď vypisoval obě dlouhé cesty pořád dokola, nebo by si otevíral druhé okno terminálu a přepínal mezi nimi. Takhle jen střídá `cd -`, `cd -`, `cd -` — a je vždycky přesně tam, kde potřebuje, bez jediné vypsané cesty.
+
+Stejný trik oceníte při práci se dvěma projekty, které na sebe odkazují: knihovna v jedné složce, aplikace, která ji používá, ve druhé. Upravit, přepnout, otestovat, přepnout zpět — celé odpoledne na dvou klávesách a pomlčce.
+
+## Co vám to přinese
+
+Nejotravnější část práce v terminálu — vypisování dlouhých cest — zmizí přesně v situaci, kdy je nejčastější: při vracení se tam, odkud jste právě přišli. Dva znaky místo třiceti, mnohokrát denně. A na rozdíl od klikání v grafickém správci souborů vám ruce nikdy neopustí klávesnici.
