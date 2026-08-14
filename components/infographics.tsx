@@ -83,7 +83,7 @@ export function Matrix({ quadrants }: { quadrants: [Quadrant, Quadrant, Quadrant
           </div>
         ))}
       </div>
-      <p className="ig-note">Kvadrant „Důležité, neurgentní" je místo, kde vzniká skutečný pokrok — plánujte si pro něj čas dřív, než ho urgence sežerou.</p>
+      <p className="ig-note">Kvadrant „Důležité, neurgentní“ je místo, kde vzniká skutečný pokrok — plánujte si pro něj čas dřív, než ho urgence sežerou.</p>
     </div>
   );
 }
