@@ -1,5 +1,10 @@
 /* Infografické komponenty příručky — čisté CSS/SVG, hover animace, tokeny tématu.
-   Používají se přímo v MDX kapitolách: <Stats>, <Timeline>, <Bars>, <Matrix>, <Flow>, <Donut>. */
+   Používají se přímo v MDX kapitolách: <Stats>, <Timeline>, <Bars>, <Matrix>, <Flow>, <Donut>.
+   Zůstávají serverové (renderují se v RSC přes next-mdx-remote) — plné hodnoty
+   jdou do HTML. Scroll-triggered animace jsou jen klientský překryv:
+   <StatValue> a <FlowList> z infographics.client.tsx. */
+
+import { FlowList, StatValue } from "./infographics.client";
 
 type StatItem = { value: string; label: string; sub?: string };
 
@@ -8,7 +13,7 @@ export function Stats({ items }: { items: StatItem[] }) {
     <div className="ig ig-stats" style={{ ["--cols" as string]: Math.min(items.length, 4) }}>
       {items.map((s) => (
         <div key={s.label} className="ig-stat">
-          <span className="ig-stat-value tabular">{s.value}</span>
+          <StatValue value={s.value} />
           <span className="ig-stat-label">{s.label}</span>
           {s.sub && <span className="ig-stat-sub">{s.sub}</span>}
         </div>
@@ -94,15 +99,15 @@ export function Flow({ title, steps }: { title?: string; steps: FlowStep[] }) {
   return (
     <div className="ig">
       {title && <div className="ig-title">{title}</div>}
-      <ol className="ig-flow">
+      <FlowList>
         {steps.map((s, i) => (
-          <li key={s.title} className="ig-flow-step">
+          <li key={s.title} className="ig-flow-step" style={{ ["--i" as string]: i }}>
             <span className="ig-flow-no tabular">{i + 1}</span>
             <span className="ig-flow-title">{s.title}</span>
             {s.desc && <span className="ig-flow-desc">{s.desc}</span>}
           </li>
         ))}
-      </ol>
+      </FlowList>
     </div>
   );
 }

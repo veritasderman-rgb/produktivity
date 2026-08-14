@@ -17,6 +17,8 @@ import { Pojem } from "@/components/Pojem";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd, faqJsonLd, howToJsonLd } from "@/components/JsonLd";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 import { CopyPre } from "@/components/CopyPre";
+import { KeysDemo } from "@/components/KeysDemo";
+import { TypewriterPre } from "@/components/TypewriterPre";
 import { PrintButton } from "@/components/PrintButton";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { BackToTop } from "@/components/BackToTop";
@@ -26,6 +28,8 @@ import { SaveButton } from "@/components/SaveButton";
 import { extractHeadings, extractHowToSteps, flatText, slugify } from "@/lib/toc";
 import { formatReviewed, reviewedLabel } from "@/lib/reviewed";
 import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
+import { OknaDemo } from "@/components/OknaDemo";
+import { PredPo } from "@/components/PredPo";
 
 const T = {
   cs: {
@@ -92,9 +96,29 @@ export async function generateMetadata({
   };
 }
 
-/** Komponenty pro MDX se vyrábějí podle jazyka — kvůli popiskům tlačítka „zkopírovat". */
-function makeMdxComponents(locale: Locale) {
+/**
+ * Obsah prvního ```text bloku v těle článku — ten jediný dostane psací efekt
+ * (TypewriterPre). Detekce běží nad zdrojem už při přípravě stránky, ne přes
+ * počítadlo v renderu: annotateGlossary nechává kódové ploty netknuté, takže
+ * obsah bloku ve zdroji === textContent vyrenderovaného <pre> (po trim).
+ */
+function firstTextBlock(body: string): string | null {
+  const m = /```text[^\n]*\n([\s\S]*?)```/.exec(body);
+  const content = m?.[1].trim();
+  return content ? content : null;
+}
+
+/**
+ * Komponenty pro MDX se vyrábějí podle jazyka — kvůli popiskům tlačítka
+ * „zkopírovat". `typewriter` = obsah prvního ```text bloku (viz
+ * firstTextBlock); `pre`, jehož text se s ním shoduje, dostane psací efekt.
+ * Zámek `typewriterUsed` žije v closure per volání (per request), takže
+ * paralelní rendery si nic nesdílí a případný duplicitní blok se stejným
+ * obsahem se animuje jen jednou. Ostatní bloky jedou beze změny přes CopyPre.
+ */
+function makeMdxComponents(locale: Locale, typewriter: string | null = null) {
   const copy = (T[locale] ?? T.cs).copy;
+  let typewriterUsed = false;
   return {
     kbd: (props: React.HTMLAttributes<HTMLElement>) => <kbd className="key" {...props} />,
     Pojem,
@@ -103,11 +127,22 @@ function makeMdxComponents(locale: Locale) {
         <table {...props} />
       </div>
     ),
-    pre: (props: React.HTMLAttributes<HTMLPreElement>) => (
-      <CopyPre label={copy}>
-        <pre {...props} />
-      </CopyPre>
-    ),
+    pre: (props: React.HTMLAttributes<HTMLPreElement>) => {
+      const isFirstText =
+        typewriter !== null && !typewriterUsed && flatText(props.children).trim() === typewriter;
+      if (isFirstText) typewriterUsed = true;
+      return (
+        <CopyPre label={copy}>
+          {isFirstText ? (
+            <TypewriterPre>
+              <pre {...props} />
+            </TypewriterPre>
+          ) : (
+            <pre {...props} />
+          )}
+        </CopyPre>
+      );
+    },
     h2: ({ children }: { children?: React.ReactNode }) => (
       <h2 id={slugify(flatText(children))} className="scroll-mt-24">
         {children}
@@ -119,6 +154,8 @@ function makeMdxComponents(locale: Locale) {
     Matrix,
     Flow,
     Donut,
+    OknaDemo,
+    PredPo,
   };
 }
 
@@ -179,20 +216,7 @@ export default async function TipDetail({
         <SaveButton type="tip" slug={tip.slug} title={tip.title} locale={locale} />
         {tip.isGuide && <PrintButton label={t.print} />}
       </div>
-      {tip.keys.length > 0 && (
-        <p className="mt-6 border-y border-hairline py-4 text-[18px]">
-          {tip.keys.map((combo, ci) => (
-            <span key={ci} className="mr-6 inline-block">
-              {combo.map((k, i) => (
-                <span key={k + i}>
-                  {i > 0 && <span className="mx-1.5 text-faint">+</span>}
-                  <kbd className="key">{k}</kbd>
-                </span>
-              ))}
-            </span>
-          ))}
-        </p>
-      )}
+      {tip.keys.length > 0 && <KeysDemo keys={tip.keys} />}
       {hero && (
         <Image
           src={hero}
@@ -223,7 +247,7 @@ export default async function TipDetail({
       )}
       <div className="prose-a mt-6">
         {/* blockJS: false — obsah je náš vlastní z repa; výrazy v props infografik jsou nutné */}
-        <MDXRemote source={annotateGlossary(tip.body, locale)} components={makeMdxComponents(locale)} options={{ blockJS: false, mdxOptions: { remarkPlugins: [remarkGfm] } }} />
+        <MDXRemote source={annotateGlossary(tip.body, locale)} components={makeMdxComponents(locale, firstTextBlock(tip.body))} options={{ blockJS: false, mdxOptions: { remarkPlugins: [remarkGfm] } }} />
       </div>
       {tip.category === "ai" && <DataDisclaimer locale={locale} />}
       {chapter && (

@@ -8,6 +8,8 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import { getAllChapters, getChapter, getSectionLabels } from "@/lib/chapters";
 import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
+import { OknaDemo } from "@/components/OknaDemo";
+import { PredPo } from "@/components/PredPo";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { Disclaimer } from "@/components/Disclaimer";
 import { TipCard } from "@/components/TipCard";
@@ -118,6 +120,8 @@ function makeMdxComponents(locale: Locale) {
     Matrix,
     Flow,
     Donut,
+    OknaDemo,
+    PredPo,
   };
 }
 

@@ -250,6 +250,51 @@ body {
 }
 .key-pressable:hover { animation: key-press 0.35s var(--ease-out); }
 
+/* Demo zkratky na detailu tipu (KeysDemo) — JS jen přepíná .is-down,
+   vzhled klávesy se nemění, klávesa se stiskne dolů a stín se zploští. */
+.keys-demo .key {
+  transition: transform 90ms var(--ease-out), box-shadow 90ms var(--ease-out);
+  will-change: transform;
+}
+.keys-demo .key.is-down {
+  transform: translateY(3px);
+  box-shadow: 0 0.5px 0 var(--key-shadow);
+}
+
+/* Psací efekt prvního ```text bloku (TypewriterPre). Plný text je pořád
+   v DOM — overlay ho jen vizuálně překryje a „píše" prvních pár znaků.
+   Vzhled kopíruje .prose-a pre, aby překryv přesně seděl. */
+.tw-wrap { position: relative; }
+.tw-overlay { display: none; }
+.tw-wrap.is-typing .tw-overlay {
+  display: block;
+  position: absolute;
+  inset: 0;
+  /* bez z-indexu: tlačítko „zkopírovat" v CopyPre je v DOM až za overlai,
+     takže zůstává vykreslené nad ním a klikatelné i během psaní */
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  padding: 16px 18px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre;
+  overflow: hidden;
+}
+.tw-caret {
+  display: inline-block;
+  width: 7px;
+  height: 1.1em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: tw-blink 1s steps(1) infinite;
+}
+@keyframes tw-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 /* ---------- Karta tipu ---------- */
 .tipcard {
   display: flex;
@@ -521,6 +566,36 @@ body {
 .ig-flow-title { font-size: 14px; font-weight: 800; color: var(--ink); line-height: 1.25; }
 .ig-flow-desc { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
 
+/* Vjezd Flow do viewportu: třídu .ig-in přidává až JS (components/infographics.client.tsx),
+   takže výchozí stav — SSR, no-JS, tisk — je plně viditelný. Kroky se rozsvěcí
+   postupně (--i nastavuje server inline, krok po 0.15 s), šipky mezi nimi se
+   „dokreslují" škálováním. Keyframes místo transition: hover přechody kroků
+   zůstávají bez zpoždění a fill-mode: backwards drží start jen po dobu delay. */
+@keyframes ig-step-in {
+  from { opacity: 0; transform: translateY(8px); }
+}
+@keyframes ig-arrow-in {
+  from { opacity: 0; transform: translateY(-50%) scaleX(0); }
+}
+@keyframes ig-arrow-in-down {
+  from { opacity: 0; transform: translateX(-50%) scaleY(0); }
+}
+.ig-flow.ig-in .ig-flow-step {
+  animation: ig-step-in var(--dur-slow) var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 0.15s);
+}
+.ig-flow.ig-in .ig-flow-step:not(:last-child)::after {
+  transform-origin: left center;
+  animation: ig-arrow-in 0.35s var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 0.15s + 0.12s);
+}
+@media (max-width: 560px) {
+  .ig-flow.ig-in .ig-flow-step:not(:last-child)::after {
+    transform-origin: center top;
+    animation-name: ig-arrow-in-down;
+  }
+}
+
 /* Donut */
 .ig-donut-wrap { display: flex; align-items: center; gap: 20px; }
 .ig-donut { width: 128px; height: 128px; flex: none; }
@@ -533,6 +608,197 @@ body {
 .ig-donut-num { font-family: var(--font-sans); font-weight: 850; font-size: 26px; fill: var(--ink); }
 .ig-donut-label { display: block; font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.3; }
 .ig-donut-sub { display: block; font-size: 13px; color: var(--muted); margin-top: 4px; max-width: 36ch; line-height: 1.5; }
+
+/* ---------- OknaDemo (od-*) — smyčková animace správy oken ----------
+   Základní (klidové) pozice = finální stav animace: při vypnuté animaci
+   (od-static, reduced-motion) se tak zobrazí hotové rozložení. Animace běží
+   jen s .is-run (komponenta ji zapíná podle viewportu). */
+.od { max-width: 420px; margin-left: auto; margin-right: auto; }
+.od-screen {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: var(--card);
+  border: 1.5px solid var(--hairline-strong);
+  border-radius: 6px;
+  box-shadow: 0 2.5px 0 var(--key-shadow);
+  overflow: hidden;
+}
+.od-win {
+  position: absolute;
+  background: var(--surface);
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+}
+/* Titulní lišta okna */
+.od-win::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 10px;
+  border-bottom: 1px solid var(--ink);
+  opacity: 0.75;
+}
+/* Naznačené řádky „textu" v okně */
+.od-win::after {
+  content: "";
+  position: absolute;
+  left: 12%; right: 28%;
+  top: 32%; height: 38%;
+  background: repeating-linear-gradient(to bottom, var(--hairline) 0 2px, transparent 2px 9px);
+}
+.od-anim {
+  animation-duration: 6s;
+  animation-timing-function: var(--ease-out);
+  animation-iteration-count: infinite;
+  animation-play-state: paused;
+}
+.od.is-run .od-anim { animation-play-state: running; }
+.od-static .od-anim { animation: none !important; }
+.od-note { text-align: center; margin-left: auto; margin-right: auto; }
+
+/* Varianta „prichyceni" — okno přiletí k levé hraně, druhé doplní pravou */
+.od-p-a { left: 2%; top: 3.5%; width: 46.5%; height: 93%; animation-name: od-p-a; }
+.od-p-b { left: 51.5%; top: 3.5%; width: 46.5%; height: 93%; animation-name: od-p-b; }
+@keyframes od-p-a {
+  0% { left: 27%; top: 17%; width: 42%; height: 54%; opacity: 0; border-color: var(--ink); }
+  6%, 16% { left: 27%; top: 17%; width: 42%; height: 54%; opacity: 1; border-color: var(--ink); }
+  21% { border-color: var(--accent); }
+  30% { left: 2%; top: 3.5%; width: 46.5%; height: 93%; border-color: var(--accent); }
+  42%, 96% { left: 2%; top: 3.5%; width: 46.5%; height: 93%; opacity: 1; border-color: var(--ink); }
+  100% { left: 2%; top: 3.5%; width: 46.5%; height: 93%; opacity: 0; border-color: var(--ink); }
+}
+@keyframes od-p-b {
+  0% { left: 56%; top: 36%; width: 36%; height: 46%; opacity: 0; border-color: var(--ink); }
+  10%, 42% { left: 56%; top: 36%; width: 36%; height: 46%; opacity: 1; border-color: var(--ink); }
+  47% { border-color: var(--accent); }
+  56% { left: 51.5%; top: 3.5%; width: 46.5%; height: 93%; border-color: var(--accent); }
+  68%, 96% { left: 51.5%; top: 3.5%; width: 46.5%; height: 93%; opacity: 1; border-color: var(--ink); }
+  100% { left: 51.5%; top: 3.5%; width: 46.5%; height: 93%; opacity: 0; border-color: var(--ink); }
+}
+
+/* Varianta „plochy" — okno přeskočí mezi dvěma virtuálními plochami */
+.od-desk {
+  position: absolute;
+  top: 7%; height: 72%;
+  border: 1.5px dashed var(--faint);
+  border-radius: 4px;
+}
+.od-desk-1 { left: 3.5%; width: 44%; }
+.od-desk-2 { left: 52.5%; width: 44%; }
+.od-d-win { left: 57.5%; top: 18%; width: 34%; height: 44%; animation-name: od-d-win; }
+.od-dot {
+  position: absolute;
+  bottom: 7%; left: 50%;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  background: transparent;
+}
+.od-dot-1 { transform: translateX(-10px); animation-name: od-dot-1; }
+.od-dot-2 { transform: translateX(3px); background: var(--ink); animation-name: od-dot-2; }
+@keyframes od-d-win {
+  0%, 30% { left: 8.5%; border-color: var(--ink); }
+  35% { border-color: var(--accent); }
+  43% { left: 57.5%; border-color: var(--accent); }
+  50%, 78% { left: 57.5%; border-color: var(--ink); }
+  83% { border-color: var(--accent); }
+  91% { left: 8.5%; border-color: var(--accent); }
+  96%, 100% { left: 8.5%; border-color: var(--ink); }
+}
+@keyframes od-dot-1 {
+  0%, 38% { background: var(--ink); }
+  44%, 86% { background: transparent; }
+  93%, 100% { background: var(--ink); }
+}
+@keyframes od-dot-2 {
+  0%, 38% { background: transparent; }
+  44%, 86% { background: var(--ink); }
+  93%, 100% { background: transparent; }
+}
+
+/* Varianta „mrizka" — čtyři okna se postupně poskládají do kvadrantů */
+.od-g-1 { left: 2%; top: 3.5%; width: 46.5%; height: 45%; animation-name: od-g-1; }
+.od-g-2 { left: 51.5%; top: 3.5%; width: 46.5%; height: 45%; animation-name: od-g-2; }
+.od-g-3 { left: 2%; top: 51.5%; width: 46.5%; height: 45%; animation-name: od-g-3; }
+.od-g-4 { left: 51.5%; top: 51.5%; width: 46.5%; height: 45%; animation-name: od-g-4; }
+@keyframes od-g-1 {
+  0% { left: 21%; top: 20%; width: 40%; height: 44%; opacity: 0; border-color: var(--ink); }
+  6%, 14% { left: 21%; top: 20%; width: 40%; height: 44%; opacity: 1; border-color: var(--ink); }
+  18% { border-color: var(--accent); }
+  26% { left: 2%; top: 3.5%; width: 46.5%; height: 45%; border-color: var(--accent); }
+  34%, 96% { left: 2%; top: 3.5%; width: 46.5%; height: 45%; opacity: 1; border-color: var(--ink); }
+  100% { left: 2%; top: 3.5%; width: 46.5%; height: 45%; opacity: 0; border-color: var(--ink); }
+}
+@keyframes od-g-2 {
+  0% { left: 29%; top: 26%; width: 40%; height: 44%; opacity: 0; border-color: var(--ink); }
+  8%, 24% { left: 29%; top: 26%; width: 40%; height: 44%; opacity: 1; border-color: var(--ink); }
+  28% { border-color: var(--accent); }
+  36% { left: 51.5%; top: 3.5%; width: 46.5%; height: 45%; border-color: var(--accent); }
+  44%, 96% { left: 51.5%; top: 3.5%; width: 46.5%; height: 45%; opacity: 1; border-color: var(--ink); }
+  100% { left: 51.5%; top: 3.5%; width: 46.5%; height: 45%; opacity: 0; border-color: var(--ink); }
+}
+@keyframes od-g-3 {
+  0% { left: 25%; top: 32%; width: 40%; height: 44%; opacity: 0; border-color: var(--ink); }
+  10%, 34% { left: 25%; top: 32%; width: 40%; height: 44%; opacity: 1; border-color: var(--ink); }
+  38% { border-color: var(--accent); }
+  46% { left: 2%; top: 51.5%; width: 46.5%; height: 45%; border-color: var(--accent); }
+  54%, 96% { left: 2%; top: 51.5%; width: 46.5%; height: 45%; opacity: 1; border-color: var(--ink); }
+  100% { left: 2%; top: 51.5%; width: 46.5%; height: 45%; opacity: 0; border-color: var(--ink); }
+}
+@keyframes od-g-4 {
+  0% { left: 33%; top: 24%; width: 40%; height: 44%; opacity: 0; border-color: var(--ink); }
+  12%, 44% { left: 33%; top: 24%; width: 40%; height: 44%; opacity: 1; border-color: var(--ink); }
+  48% { border-color: var(--accent); }
+  56% { left: 51.5%; top: 51.5%; width: 46.5%; height: 45%; border-color: var(--accent); }
+  64%, 96% { left: 51.5%; top: 51.5%; width: 46.5%; height: 45%; opacity: 1; border-color: var(--ink); }
+  100% { left: 51.5%; top: 51.5%; width: 46.5%; height: 45%; opacity: 0; border-color: var(--ink); }
+}
+
+/* ---------- PredPo (pp-*) — přepínač před/po ---------- */
+.pp {
+  border: 1.5px solid var(--hairline-strong);
+  border-radius: 6px;
+  background: var(--card);
+  box-shadow: 0 2.5px 0 var(--key-shadow);
+  overflow: hidden;
+}
+.pp-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--hairline); }
+.pp-tab {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 11px 16px 9px;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+}
+.pp-tab:hover { color: var(--accent); }
+.pp-tab[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+.pp-body { display: grid; padding: 14px 18px; }
+.pp .pp-pane {
+  grid-area: 1 / 1;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--ink);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: visible;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.pp .pp-pane.is-on { opacity: 1; pointer-events: auto; }
 
 /* ---------- Klávesová navigace ----------
    Musí být vidět na všem, co jde zaostřit: odkazy, tlačítka, formulářová pole,
@@ -677,6 +943,13 @@ summary:focus-visible,
   .reveal {
     opacity: 1 !important;
     transform: none !important;
+  }
+
+  /* Vjezdové animace infografik na papíře nikdy — fill-mode: backwards by
+     u ne-přehrátého kroku Flow držel skrytý startovní stav. */
+  .ig-flow-step,
+  .ig-flow-step::after {
+    animation: none !important;
   }
 
   article {
