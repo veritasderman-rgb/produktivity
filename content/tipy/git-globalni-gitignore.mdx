@@ -1,0 +1,29 @@
+---
+title: "Globální .gitignore: .DS_Store řešte jednou provždy"
+excerpt: "Soubory vašeho systému a editoru nepatří do .gitignore každého projektu. Nastavte si globální ignore soubor — platí pro všechny repozitáře."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~5 min týdně"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+V každém druhém repozitáři na světě straší v `.gitignore` řádek `.DS_Store` — a přesto se tenhle soubor, který si macOS vytváří v každé složce, pravidelně někomu připlete do commitu. Přitom je to postavené na hlavu: smetí, které produkuje váš operační systém nebo váš editor, není vlastnost projektu, ale vašeho počítače. Git na to má správné řešení, o kterém se málo ví: globální ignore soubor. Nastavíte ho jednou a platí pro všechny repozitáře na vašem stroji — současné i budoucí.
+
+## Jak na to
+
+1. Vytvořte si soubor, třeba `~/.gitignore_global`, a napište do něj vzory, které chcete ignorovat všude. Typický obsah: `.DS_Store` (macOS), `Thumbs.db` a `Desktop.ini` (Windows), `*.swp` (Vim), případně složky vašich nástrojů, které si do projektů odkládají lokální nastavení.
+2. Řekněte gitu, aby ho používal: `git config --global core.excludesFile ~/.gitignore_global`. Tím se zapíše do vaší globální konfigurace a od té chvíle platí v každém repozitáři.
+3. Ověřte to: v libovolném repozitáři spusťte `git status` ve složce, kde nějaký `.DS_Store` leží — už se nesmí nabízet mezi nesledovanými soubory. Kontrola konfigurace: `git config --global core.excludesFile`.
+4. Pokud už je nějaké smetí v repozitáři commitnuté, ignorování na něj nestačí — odeberte ho z evidence příkazem `git rm --cached .DS_Store` a commitněte.
+5. Do projektového `.gitignore` pak patří jen to, co se týká projektu samotného: složky se závislostmi, výstupy buildu, lokální konfigurace. Hranice je jednoduchá — co by ignorovali i kolegové s jiným systémem a editorem, patří do projektu; co je specialita vašeho stroje, patří do globálního souboru.
+
+## Vzorová situace
+
+Vývojář přechází na nový počítač s macOS a během prvního týdne mu kolegové dvakrát vrátí pull request s poznámkou „máš tam .DS_Store“. Místo přidávání téhož řádku do `.gitignore` osmi firemních repozitářů (a hádky, jestli tam patří) si nastaví globální ignore — pět minut práce — a problém navždy zmizí, i pro každý projekt, který teprve naklonuje. Commity jsou čisté a `.gitignore` projektů přestane bobtnat výjimkami pro každý editor, který kdy někdo v týmu použil.
+
+## Co vám to přinese
+
+Konec trapných commitů se systémovým smetím a konec vracených review kvůli souboru, který tam nepatří. Projektové `.gitignore` zůstanou krátké a srozumitelné, protože řeší projekt, ne vaše nástroje. Jednorázová pětiminutová investice, která pracuje v každém repozitáři, který kdy naklonujete. A pokud si soubor přibalíte do svých dotfiles, přestěhuje se s vámi i na příští počítač.

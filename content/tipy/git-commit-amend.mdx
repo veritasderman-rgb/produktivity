@@ -1,0 +1,29 @@
+---
+title: "git commit --amend: opravte poslední commit místo commitu „oprava“"
+excerpt: "Zapomenutý soubor nebo překlep ve zprávě nepotřebuje nový commit. --amend přepíše ten poslední, jako by se chyba nikdy nestala."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~5 min týdně"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Commitnete, a vteřinu poté to uvidíte: ve zprávě je překlep, nebo hůř — zapomněli jste přidat jeden soubor. Reflex velí udělat druhý commit s názvem „oprava“, „fix“ nebo „teď už fakt“. Historie plná takových záplat se ale špatně čte a při hledání chyby jen překáží. Git na to má čistší nástroj: `git commit --amend` nevytvoří nový commit, ale přepíše ten poslední — přibalí do něj, co jste zapomněli, nebo opraví zprávu. Výsledek vypadá, jako byste to napoprvé udělali správně.
+
+## Jak na to
+
+1. Překlep ve zprávě: spusťte `git commit --amend -m "správná zpráva"` — commit zůstane, jen dostane novou zprávu. Bez `-m` se otevře editor s původním textem k úpravě.
+2. Zapomenutý soubor: přidejte ho jako obvykle (`git add zapomenuty.js`) a spusťte `git commit --amend --no-edit`. Soubor se přibalí do posledního commitu a `--no-edit` zachová původní zprávu — žádné otázky navíc.
+3. Funguje to i obráceně: když do commitu omylem přibalíte soubor navíc, `git reset HEAD~ soubor.txt` ho z posledního commitu vyjme (změny zůstanou v pracovním adresáři) — pak stačí amend.
+4. Zásadní pravidlo: amend přepisuje historii, takže ho používejte jen na commity, které jste ještě neposlali příkazem push. Jakmile je commit na sdíleném serveru a mohli si ho stáhnout kolegové, opravte chybu radši novým commitem.
+5. Pokud přece jen amendnete už pushnutý commit na své vlastní pracovní větvi, budete muset použít `git push --force-with-lease` — a to jen tehdy, když na větvi nepracuje nikdo jiný.
+
+## Vzorová situace
+
+Vývojářka commitne úpravu API a vzápětí zjistí, že zapomněla přidat soubor s testem — klasika, protože test leží v jiné složce. Dřív by historie dostala dvojici „úprava API endpointu“ + „přidán zapomenutý test“. Teď: `git add tests/api.test.js`, `git commit --amend --no-edit` — a v historii je jeden úplný commit, ve kterém změna a její test žijí pohromadě. Kdokoli si ho v budoucnu zobrazí, vidí celek, ne půlku. Stejný pohyb opakuje během dne ještě dvakrát — jednou kvůli překlepu ve zprávě, jednou kvůli zapomenutému řádku v changelogu — a pokaždé je to otázka pěti vteřin, protože `--amend --no-edit` má v prstech jako jeden celek.
+
+## Co vám to přinese
+
+Z historie zmizí šum commitů „oprava překlepu“ a „zapomněl jsem soubor“, které nikoho nezajímají a při procházení jen překážejí. Každý commit je ucelený, což ocení kolegové při review i vy při budoucím hledání v historii. A drobné přešlapy přestanou být veřejné — opravíte je dřív, než je kdo uvidí. Souvisí s tipem [commit zprávy pro budoucí já](/tipy/vyvojar-commit-zpravy).

@@ -1,0 +1,31 @@
+---
+title: "jq: čitelný JSON v terminálu a vytažení hodnoty jedním výrazem"
+excerpt: "Odpověď API jako jednořádková kaše? jq ji zformátuje, obarví a umí z ní vytáhnout přesně to pole, které hledáte."
+category: "aplikace"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~10 min týdně"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+JSON je všude — odpovědi API, konfigurační soubory, logy — a skoro vždycky přijde jako nečitelná jednořádková kaše. Kdo ji chce přečíst, kopíruje ji do online formátovačů (a posílá tak data kdoví kam) nebo ji loví očima. Nástroj `jq` tohle řeší přímo v terminálu: JSON zformátuje, odsadí a obarví jediným příkazem. A to je jen začátek — jq je zároveň dotazovací jazyk, kterým z JSONu vytáhnete konkrétní hodnotu, seznam polí nebo přefiltrovanou podmnožinu, bez psaní skriptu.
+
+## Jak na to
+
+1. Nainstalujte jq: ve Windows `winget install jqlang.jq`, na Macu `brew install jq`, na Linuxu bývá v systémových balíčcích (`apt install jq`).
+2. Základ — zformátovat: `jq . soubor.json` vypíše soubor odsazený a obarvený. Tečka znamená „celý vstup beze změny“. Nejčastěji se jq lepí rovnou za curl: `curl -s https://api.example.com/users | jq .`
+3. Vytažení hodnoty: `jq '.name'` vrátí pole `name`, `jq '.address.city'` zanořenou hodnotu, `jq '.[0]'` první prvek pole.
+4. Průchod polem: `jq '.items[].name'` vypíše názvy všech položek v poli `items`. Kombinace s výběrem více polí: `jq '.items[] | {name, price}'` udělá z každé položky malý objekt jen s těmito dvěma poli.
+5. Když si výraz nejste jistí, stavte ho postupně — začněte tečkou a přidávejte po kousku. A složitější dotaz („vyber položky dražší než sto a seřaď podle názvu“) vám dnes spolehlivě navrhne AI, podobně jako v tipu [regex bez učení](/tipy/ai-regex-na-pockani) — jq výraz do promptu, ukázka dat k tomu.
+
+## Vzorová situace
+
+Vývojářka ladí integraci s API dopravce. Odpověď má osm kilobajtů na jednom řádku a ji zajímá jediné: stav zásilky a čas poslední změny. Místo kopírování do prohlížeče napíše `curl -s ... | jq '.shipment | {status, updated_at}'` a vidí přesně ty dvě hodnoty, čitelně. Když potřebuje totéž pro padesát zásilek, jen upraví výraz na průchod polem — a má tabulku, kterou by jinak vyráběla skriptem půl hodiny. Citlivá data přitom neopustila její počítač, což u online formátovačů nikdy jisté není.
+
+Kdo jq zrovna nemá po ruce, aspoň na zformátování poslouží vestavěná náhrada: `python3 -m json.tool soubor.json` odsadí JSON bez jakékoli instalace. Dotazovat se ale neumí — na vytahování hodnot je jq nenahraditelný.
+
+## Co vám to přinese
+
+Čtení JSONu přestane bolet: formátování je otázka jednoho příkazu a konkrétní hodnotu vylovíte výrazem místo očí. Odpadne kopírování pracovních dat do webových nástrojů. A protože se jq skládá s curl a dalšími příkazy do rour, stane se z něj stavební kámen jednorázových analýz i skriptů, které by jinak vyžadovaly Python.

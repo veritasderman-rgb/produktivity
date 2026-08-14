@@ -1,0 +1,31 @@
+---
+title: "python -m http.server: nasdílejte složku do sítě jedním příkazem"
+excerpt: "Potřebujete dostat soubory do druhého zařízení na stejné síti? Python udělá z libovolné složky webovou stránku ke stažení."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar", "student"]
+keys: []
+saves: "~15 min měsíčně"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Přenést pár souborů z počítače do jiného zařízení na stejné Wi-Fi umí být překvapivě složité — posílání mailem sobě samému, hledání flashky, přihlašování do cloudu. Přitom pokud máte nainstalovaný Python, stačí jeden příkaz: `python3 -m http.server` udělá z aktuální složky miniaturní webový server. Kdokoli na stejné síti pak složku otevře v prohlížeči jako obyčejnou stránku se seznamem souborů — a stáhne si, co potřebuje. Žádná instalace, žádný účet, žádný kabel.
+
+## Jak na to
+
+1. V terminálu přejděte do složky, kterou chcete nasdílet, a spusťte `python3 -m http.server` (ve Windows `py -m http.server`). Vypíše se hlášení, že server běží na portu 8000.
+2. Zjistěte IP adresu svého počítače v místní síti — na Macu a Linuxu ji ukáže `ip addr` nebo Nastavení sítě, ve Windows `ipconfig` (řádek IPv4 adresa), typicky něco jako `192.168.1.23`.
+3. Na druhém zařízení — telefonu, tabletu, cizím notebooku — otevřete v prohlížeči `http://192.168.1.23:8000`. Uvidíte výpis složky; kliknutím soubor stáhnete.
+4. Až budete hotovi, server v terminálu ukončete přes <kbd>Ctrl</kbd> + <kbd>C</kbd>. Nenechávejte ho běžet — složku vidí každý na dané síti.
+5. Dvě zásady: sdílejte vyhrazenou složku jen s tím, co sdílet chcete (server zpřístupní vše včetně podsložek), a používejte to jen v důvěryhodné síti — doma nebo ve firmě, ne na veřejné Wi-Fi. Přenos není šifrovaný ani chráněný heslem.
+
+## Vzorová situace
+
+Vývojář potřebuje dostat do telefonu balík testovacích APK souborů a fotky z prezentace do tabletu kolegyně — tři zařízení, dva operační systémy, žádný společný cloud. Místo žonglování s kabely spustí ve složce `sdileni` server, nadiktuje kolegyni adresu a oba si vezmou, co potřebují, rychlostí místní sítě. Za dvě minuty server vypne. Stejný trik poslouží při vývoji webu: rozpracovanou statickou stránku si takhle otevřete v telefonu a vidíte, jak vypadá na mobilu doopravdy — server totiž soubor `index.html` ve složce automaticky servíruje jako stránku. Jiný port zvolíte přidáním čísla na konec příkazu: `python3 -m http.server 9000`.
+
+Pro pravidelné přenášení mezi vlastními zařízeními jsou pohodlnější systémové nástroje jako [Sdílení v okolí](/tipy/win-sdileni-v-okoli) — http.server vyhrává tam, kde je zařízení víc, platformy se míchají nebo protistrana nemá nic nainstalovaného.
+
+## Co vám to přinese
+
+Univerzální nouzový most mezi zařízeními, který funguje všude, kde je Python a společná síť — bez účtů, aplikací a kabelů. Ocení ho každý, komu se pravidelně sejde „dostaň tohle tamhle“ mezi nesourodými zařízeními; a webaři navíc získají okamžitý testovací server na statické stránky.

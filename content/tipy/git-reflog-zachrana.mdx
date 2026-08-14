@@ -1,0 +1,31 @@
+---
+title: "git reflog: záchrana, když jste si „smazali“ commity"
+excerpt: "Špatný reset, smazaná větev, rozbitý rebase? git reflog ukáže historii všeho, kde HEAD byl — a ztracené commity jdou vrátit."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~30 min měsíčně"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Ten mrazivý pocit zná každý: `git reset --hard` na špatném místě, smazaná větev s necommitnutou prací nebo rebase, po kterém historie vypadá úplně jinak — a commity jako by zmizely. Dobrá zpráva: git skoro nikdy nic nemaže hned. Příkaz `git reflog` vede deník všech pozic, kterými prošel ukazatel HEAD — každý commit, přepnutí větve, reset i rebase. I commit, na který už neukazuje žádná větev, v tomhle deníku pořád je a dá se obnovit. Reflog je záchranná brzda, o které byste měli vědět dřív, než ji budete potřebovat.
+
+## Jak na to
+
+1. Spusťte `git reflog` — vypíše se seznam záznamů od nejnovějšího: zkrácený otisk commitu, značka jako `HEAD@{2}` a popis akce („commit: …“, „reset: …“, „checkout: …“).
+2. Najděte v seznamu poslední stav, kdy bylo všechno v pořádku — typicky záznam těsně před osudným příkazem. Popisy akcí vám pomůžou se zorientovat, kdy se co stalo.
+3. Prohlédněte si ho: `git show HEAD@{2}` (nebo přímo otisk commitu) ukáže, co v něm je — ověřte, že je to opravdu ten správný stav.
+4. Nejbezpečnější obnova: `git branch zachrana HEAD@{2}` vytvoří na ztraceném commitu novou větev, aniž byste cokoli přepsali. Pak se na ni přepněte a v klidu prohlédněte, co jste zachránili.
+5. Chcete-li vrátit aktuální větev, použijte `git reset --hard HEAD@{2}` — ale s rozmyslem: přepíše to, kde větev stojí teď. Pokud si nejste jistí, držte se varianty s novou větví.
+
+## Vzorová situace
+
+Vývojářka večer uklízí větve a smaže i tu, na které měla dva dny práce — všimne si toho až ráno, když větev nikde není. Dřív by to znamenal ztracený víkend a psaní znovu. Teď: `git reflog`, v seznamu najde poslední commit smazané větve („commit: formulář validace“), `git branch zachrana abc1234` — a práce je zpátky, do poslední čárky. Celá záchrana trvala dvě minuty.
+
+Jedno upozornění: reflog je lokální deník vašeho počítače a staré záznamy git po čase promazává (výchozí lhůty se počítají v týdnech až měsících). Zachraňujte tedy brzy — a reflog vám zachrání jen to, co bylo aspoň jednou commitnuté. Necommitnutá práce v něm není; i proto se vyplatí commitovat často a průběžně — klidně nedokonale, na pracovní větvi se dá historie před sdílením učesat. Commit je v gitu nejlevnější pojistka, jaká existuje, a reflog je důvod, proč se vyplácí.
+
+## Co vám to přinese
+
+Nejhorší git nehody — špatný reset, smazaná větev, zpackaný rebase — přestanou být katastrofou a stanou se dvouminutovou opravou. A hlavně získáte klid: s vědomím, že reflog existuje, se přestanete bát destruktivně znějících příkazů a začnete git používat odvážněji.

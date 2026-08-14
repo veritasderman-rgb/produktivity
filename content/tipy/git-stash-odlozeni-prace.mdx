@@ -1,0 +1,31 @@
+---
+title: "git stash: odložte rozdělanou práci na později"
+excerpt: "Přijde urgentní oprava a vy máte rozpracovaný kód? git stash ho schová do šuplíku, git stash pop zase vrátí. Bez polovičatých commitů."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~10 min týdně"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Pracujete na nové funkci, kód je rozpůlený a nekompiluje se — a v tu chvíli přijde zpráva: „na produkci je chyba, hoď se na to hned“. Přepnout větev s rozdělanými změnami nejde čistě a commitovat polotovar se nechce. Přesně pro tuhle situaci má git příkaz `stash`: uklidí všechny necommitnuté změny do postranního šuplíku, pracovní adresář vrátí do čistého stavu — a až bude po požáru, jedním příkazem všechno vytáhnete zpět, přesně jak jste to opustili.
+
+## Jak na to
+
+1. Ve chvíli, kdy potřebujete odložit práci, spusťte `git stash` — všechny změny ve sledovaných souborech (rozpracované i připravené ke commitu) se schovají a adresář je čistý. Nové, dosud nesledované soubory přibalíte přepínačem `-u`.
+2. Teď můžete bez obav přepnout větev, opravit chybu, commitnout a vrátit se zpět na svou větev.
+3. Odloženou práci vrátíte příkazem `git stash pop` — změny se obnoví a záznam ze šuplíku se smaže. Pokud chcete záznam pro jistotu zachovat, použijte `git stash apply`.
+4. Šuplík není jen jeden: `git stash list` ukáže všechny odložené balíčky. Aby se v nich dalo vyznat, ukládejte s popiskem — `git stash push -m "rozdelany formular"`. Konkrétní balíček pak vrátíte třeba přes `git stash pop stash@{1}`.
+5. Co v šuplíku leží, prozradí `git stash show -p` — vypíše změny jako diff, takže se před obnovením můžete podívat, co vlastně vracíte.
+
+## Vzorová situace
+
+Vývojářka buduje nový formulář, v souborech má hodinu rozdělané práce. Kolega píše, že registrace na webu padá. Dřív by udělala commit „WIP nedokonceno nefunguje“, který pak v historii straší navěky, nebo by změny bolestivě kopírovala bokem. Teď: `git stash push -m "formular"`, přepne na main, opraví, nasadí, přepne zpět, `git stash pop` — a pokračuje přesně tam, kde přestala. Historie zůstala čistá a nic se neztratilo.
+
+Stash se hodí i na drobnosti: rychle vyzkoušet, jak se aplikace chová bez vašich změn, nebo si uklidit experiment, ze kterého možná nic nebude, ale mazat ho je škoda. Jen si dejte pozor, aby se ze šuplíku nestalo skladiště — balíčky, které v seznamu leží týdny, už nikdo nikdy nevrátí. Co má hodnotu, patří do commitu na vlastní větvi; stash je na hodiny a dny, ne na měsíce.
+
+## Co vám to přinese
+
+Urgentní přerušení přestanou rozbíjet vaši práci — přepnutí kontextu je otázkou dvou příkazů a žádných kompromisů. Z historie zmizí polovičaté commity „WIP“ a „docasne“, které tam dřív vznikaly jen proto, že se práce potřebovala někam schovat. Souvisí s tipem [commit zprávy pro budoucí já](/tipy/vyvojar-commit-zpravy) — oboje drží historii projektu čitelnou.

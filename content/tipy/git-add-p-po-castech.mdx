@@ -1,0 +1,31 @@
+---
+title: "git add -p: commitujte po kouscích, ne po souborech"
+excerpt: "V jednom souboru máte opravu chyby i nesouvisející úklid? git add -p projde změny kousek po kousku a zeptá se, co patří do commitu."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~10 min týdně"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Ideál je jednoduchý: jeden commit, jedna logická změna. Realita: při opravě chyby jste v tomtéž souboru ještě přejmenovali proměnnou a smazali mrtvý kód. Kdo commituje po souborech, tomu vznikne guláš — commit „oprava přihlášení“, ve kterém je i půlka úklidu. Příkaz `git add -p` (od slova patch) tohle řeší elegantně: projde změny po jednotlivých úsecích, každý vám ukáže jako diff a zeptá se, jestli patří do připravovaného commitu. Z jednoho pracovního chaosu tak vyrobíte dva tři čisté commity.
+
+## Jak na to
+
+1. Místo `git add soubor` spusťte `git add -p` — git začne procházet změněné úseky (hunky) jeden po druhém a u každého se ptá jednou klávesou.
+2. Základní odpovědi: `y` úsek přidá do commitu, `n` přeskočí, `q` ukončí procházení. Nápovědu ke všem volbám vypíše `?`.
+3. Když git nabídne příliš velký úsek, ve kterém se míchá obojí, stiskněte `s` (split) — rozdělí ho na menší kousky a ptá se na každý zvlášť. Na ještě jemnější dělení existuje `e`, ruční úprava patche, ale se `y/n/s` vystačíte v drtivé většině případů.
+4. Po projití spusťte `git diff --cached` — ukáže přesně to, co jste vybrali do commitu. Zkontrolujte a commitněte.
+5. Zbylé změny zůstávají v pracovním adresáři netknuté — uděláte z nich druhý commit (třeba „úklid: přejmenování proměnných“), nebo je zahodíte.
+
+## Vzorová situace
+
+Vývojář opravil výpočet DPH a při tom v souboru uklidil formátování a smazal zakomentovaný blok. Kdyby commitnul celý soubor, kolegyně při code review uvidí třicet změněných řádků a bude lovit, které tři jsou ta skutečná oprava. S `git add -p` vybere jen řádky s výpočtem, commitne „oprava zaokrouhlení DPH“, zbytek přidá do druhého commitu „úklid“. Review pak trvá dvě minuty místo patnácti — a když se za půl roku bude hledat, kde se změnilo zaokrouhlování, `git log` ukáže přesně na jeden malý commit.
+
+Kdo raději kliká, najde totéž v grafických nástrojích: VS Code umí v zobrazení změn připravit ke commitu jednotlivé vybrané řádky (v diffu přes pravé tlačítko volba „Stage Selected Ranges“), podobně GitHub Desktop či JetBrains IDE. Princip je stejný — commitujete myšlenku, ne soubor.
+
+## Co vám to přinese
+
+Commity začnou odpovídat tomu, co se skutečně stalo — jedna změna, jeden commit, čitelný diff. Code review kolegů se zrychlí, protože nikdo neloví jehlu v kupce nesouvisejících úprav. A bonus pro vás: procházení vlastních změn po kouscích je poslední kontrola, při které často odhalíte zapomenutý ladicí výpis dřív, než odejde do světa. Jak commity pojmenovat, radí tip [commit zprávy pro budoucí já](/tipy/vyvojar-commit-zpravy).

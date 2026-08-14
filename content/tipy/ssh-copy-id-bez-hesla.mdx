@@ -1,0 +1,29 @@
+---
+title: "ssh-copy-id: přihlašujte se na server bez psaní hesla"
+excerpt: "Jeden příkaz nahraje váš veřejný klíč na server — a od té chvíle se přihlašujete bez hesla, bezpečněji a rychleji."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~5 min denně"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Psát heslo při každém přihlášení na server je otrava — a paradoxně i slabší zabezpečení, než jaké nabízí přihlašování klíčem. SSH klíč je dvojice souborů: soukromá část zůstává u vás, veřejná se nahraje na server, a od té chvíle se domluví samy. Kámen úrazu býval právě ten přenos veřejného klíče na server: ruční editace souboru `authorized_keys` se správnými právy je přesně ten úkon, kde se chybuje. Příkaz `ssh-copy-id` to celé udělá za vás — správně, napoprvé a jedním řádkem.
+
+## Jak na to
+
+1. Pokud ještě klíč nemáte, vytvořte si ho: `ssh-keygen -t ed25519`. Dotazy můžete odklepnout Enterem; heslo ke klíči (passphrase) je volitelná pojistka navíc pro případ, že by se k souboru s klíčem dostal někdo cizí.
+2. Nahrajte veřejný klíč na server: `ssh-copy-id uzivatel@server`. Naposledy zadáte heslo — příkaz klíč připojí do `~/.ssh/authorized_keys` na serveru a nastaví správná oprávnění.
+3. Vyzkoušejte: `ssh uzivatel@server` — přihlásí vás bez ptaní na heslo serveru.
+4. `ssh-copy-id` je součástí OpenSSH na Macu a Linuxu. Ve Windows tento pomocný skript chybí — buď ho spusťte z Git Bashe či WSL, kde k dispozici je, nebo obsah souboru `id_ed25519.pub` na server přeneste ručně: přihlaste se naposledy heslem a řádek s klíčem připojte na konec souboru `~/.ssh/authorized_keys`.
+5. Opakujte pro každý server, kam se hlásíte. Tentýž veřejný klíč můžete nahrát na víc serverů — a patří i do GitHubu či GitLabu (v nastavení účtu, sekce SSH klíče), ať i git push běží bez hesel.
+
+## Vzorová situace
+
+Vývojář se během dne hlásí na tři servery: testovací, produkční a NAS doma. Každé přihlášení znamenalo vylovit heslo ze správce hesel, zkopírovat, vložit — dvacet vteřin otravné mechaniky, mnohokrát denně, o `scp` a `rsync`, které se ptají znovu, nemluvě. Jedno odpoledne spustí třikrát `ssh-copy-id` a od té doby je každé připojení okamžité. Bonus, který ocení až časem: na serverech pak může nechat vypnout přihlašování heslem úplně, čímž zmizí i riziko útoků hádáním hesla. A skripty, které dřív nešly automatizovat, protože se uprostřed ptaly na heslo — zálohy přes `rsync`, nasazení přes `scp` — najednou běží bez dozoru.
+
+## Co vám to přinese
+
+Každé připojení na server je o vteřiny rychlejší a o jedno vyrušení chudší — což se u lidí, kteří se hlásí desetkrát denně, opravdu sečte. Přihlašování klíčem je zároveň bezpečnostní upgrade: klíč se nedá odpozorovat ani uhádnout jako heslo. A navazující tip [aliasy v SSH konfigu](/tipy/ssh-config-aliasy) zkrátí i samotný příkaz ssh na jedno slovo.

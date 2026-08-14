@@ -1,0 +1,40 @@
+---
+title: "SSH config: místo IP adresy a přepínačů pište „ssh prod“"
+excerpt: "Soubor ~/.ssh/config si pamatuje adresy, uživatele, porty i klíče za vás. Připojení na server se zkrátí na dvě slova."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~5 min denně"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Příkaz `ssh -p 2222 jan.novak@203.0.113.42 -i ~/.ssh/klic_firma` je přesně ten druh věci, kterou si nikdo nepamatuje — a tak žije v poznámkách, odkud se kopíruje myší. Přitom SSH má vestavěné elegantní řešení: konfigurační soubor `~/.ssh/config`, do kterého jednou zapíšete adresu, uživatele, port i cestu ke klíči pod krátkým jménem. Od té chvíle píšete jen `ssh prod` — a stejná zkratka funguje i v `scp`, `rsync` a ve VS Code při vzdáleném vývoji.
+
+## Jak na to
+
+1. Otevřete (nebo vytvořte) soubor `~/.ssh/config` — obyčejný textový soubor, funguje na Macu, Linuxu i ve Windows s OpenSSH.
+2. Přidejte záznam pro server:
+
+   ```
+   Host prod
+       HostName 203.0.113.42
+       User jan.novak
+       Port 2222
+       IdentityFile ~/.ssh/klic_firma
+   ```
+
+3. Uložte a připojte se: `ssh prod`. SSH si všechny údaje dosadí samo. Řádky, které nepotřebujete (výchozí port 22, jediný klíč), můžete vynechat.
+4. Záznamů přidejte, kolik chcete — `prod`, `test`, `nas`, `skola`. Jména se pak nabízejí i v tabulátorovém doplňování a fungují všude, kde se používá SSH: `scp zaloha.tar.gz prod:/opt/`, `rsync -av web/ prod:/var/www/`, vzdálené okno ve VS Code.
+5. Společná nastavení pro všechny servery zapište pod `Host *` — třeba `ServerAliveInterval 60`, které posílá udržovací pakety, aby vám nečinná spojení nepadala.
+
+## Vzorová situace
+
+Vývojářka spravuje šest serverů — dva u klienta se speciálním portem, tři firemní a domácí NAS, každý s jiným uživatelským jménem. Dřív pro každé připojení lovila přesnou kombinaci v poznámkách; kolegům radila po telefonu stylem „ne, tam je to admin, ne deploy“. Teď má šest záznamů v configu a připojuje se přes `ssh klient-web`, `ssh nas`. Když se změní IP adresa serveru, opraví ji na jednom místě — a všechny její příkazy, skripty i uložená spojení ve VS Code fungují dál beze změny.
+
+Config zvládne i pokročilejší situace: server schovaný za přístupovou bránou vyřeší řádek `ProxyJump brana` (SSH se nejdřív připojí na bránu a skrz ni dál, aniž byste to řešili), a když pro GitHub potřebujete jiný klíč než pro firmu, přiřadíte ho záznamem s `Host github.com`. Všechno deklarativně, na jednom místě, v čitelném textovém souboru.
+
+## Co vám to přinese
+
+Připojení na jakýkoli server je otázka dvou slov z hlavy místo kopírování z poznámek. Jména serverů se stanou součástí vaší svalové paměti, zatímco adresy, porty a klíče řeší soubor, který je má správně vždycky. V kombinaci s tipem [ssh-copy-id](/tipy/ssh-copy-id-bez-hesla) — klíč místo hesla, jméno místo adresy — je vzdálený server najednou stejně blízko jako lokální terminál.

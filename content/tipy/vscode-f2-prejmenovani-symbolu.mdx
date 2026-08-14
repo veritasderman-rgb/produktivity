@@ -1,0 +1,32 @@
+---
+title: "F2 přejmenuje funkci v celém projektu — bez hledání a nahrazování"
+excerpt: "Přejmenování symbolu přes F2 změní funkci či proměnnou všude, kde se používá, napříč soubory. Chytřeji než najít a nahradit."
+category: "zkratky"
+platform: "vsude"
+audience: ["vyvojar"]
+keys:
+  - ["F2"]
+saves: "~10 min týdně"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Špatně pojmenovaná funkce zůstává špatně pojmenovaná hlavně proto, že ji nikdo nechce přejmenovávat: používá se na dvaceti místech v osmi souborech a „najít a nahradit“ je ruleta — přepíše i řetězce, komentáře a nesouvisející slova, která jen vypadají stejně. Editor to přitom umí bezpečně: postavte kurzor na název a stiskněte <kbd>F2</kbd>. VS Code přes jazykovou analýzu pozná všechna místa, kde se přesně tento symbol skutečně používá, a přejmenuje je najednou — v celém projektu, ne jen v otevřeném souboru.
+
+## Jak na to
+
+1. Klikněte kurzorem na název funkce, proměnné, třídy nebo parametru — kdekoli, kde se vyskytuje, nemusí to být místo definice.
+2. Stiskněte <kbd>F2</kbd> (příkaz se jmenuje Rename Symbol, najdete ho i v nabídce po pravém kliknutí). Objeví se políčko s aktuálním názvem.
+3. Napište nový název a potvrďte <kbd>Enter</kbd> — editor upraví definici i všechna použití napříč soubory projektu. Změněné soubory se označí jako neuložené, takže výsledek vidíte a můžete ho jedním Ctrl+Z celý vrátit.
+4. Chcete-li si napřed prohlédnout, co všechno se změní, potvrďte místo Enteru přes <kbd>Ctrl</kbd> + <kbd>Enter</kbd> — otevře se náhled všech chystaných změn k odsouhlasení.
+5. V JetBrains IDE (IntelliJ, WebStorm, PyCharm, Rider) dělá totéž <kbd>Shift</kbd> + <kbd>F6</kbd>. Princip je stejný: přejmenování řídí porozumění kódu, ne shoda textu.
+
+## Vzorová situace
+
+Vývojář zdědil projekt, kde se klíčová funkce jmenuje `process2` — název, který neříká nic a plete každého nováčka. S hledáním a nahrazováním by riskoval, že přepíše i `process2` v logovacích řetězcích nebo zapomene na soubor, který nemá otevřený. S F2 postaví kurzor na název, napíše `calculateMonthlyInvoice`, Enter — a během vteřiny je změna provedená ve všech dvanácti souborech, včetně importů. Nic víc, nic míň: řetězce a komentáře s podobným textem zůstaly netknuté.
+
+Rozdíl oproti multi-kurzoru je v záběru: [multi-kurzor](/tipy/vyvojar-multikurzor) je skvělý na úpravy v jednom souboru, které vidíte před sebou, F2 na přejmenování napříč celým projektem, kam nedohlédnete. Kvalita výsledku závisí na jazykové podpoře — u jazyků se silnou analýzou (TypeScript, C#, Java, Rust) je přejmenování prakticky neomylné, u dynamičtějších jazyků se vyplatí projít náhled změn před potvrzením.
+
+## Co vám to přinese
+
+Přejmenování přestane být riskantní operace, a tak ho začnete skutečně dělat — kód se postupně dopracuje k názvům, které něco říkají. Ušetříte minuty při každém refaktoringu a hlavně eliminujete třídu chyb „nahradilo se i to, co nemělo“, kterou klasické hledání a nahrazování vyrábí spolehlivě.
