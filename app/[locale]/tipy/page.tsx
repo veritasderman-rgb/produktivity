@@ -21,6 +21,7 @@ const T = {
     of: "z",
     tips: "tipů",
     clear: "Zrušit filtry",
+    tenMinutes: "Mám 10 minut",
     searchLabel: (q: string) => `Hledáte: „${q}“`,
     emptyTitle: "Tomuhle filtru zatím žádný tip neodpovídá.",
     emptyDesc: "Zkuste zrušit část filtrů — nebo nám napište, co vám chybí, a rutina to najde.",
@@ -43,6 +44,7 @@ const T = {
     of: "of",
     tips: "tips",
     clear: "Clear filters",
+    tenMinutes: "I have 10 minutes",
     searchLabel: (q: string) => `Searching for: “${q}”`,
     emptyTitle: "No tip matches this filter yet.",
     emptyDesc: "Try removing some filters — or tell us what you are missing and the daily routine will find it.",
@@ -241,6 +243,13 @@ export default async function TipsPage({
             {filtered.length} {t.of} {tips.length} {t.tips}
           </span>
           {state.q && <span className="eyebrow text-faint">{t.searchLabel(state.q)}</span>}
+          {/* Vstup podle času — vede na /deset-minut, kde se filtruje délkou čtení. */}
+          <Link
+            href={localePath(locale, "/deset-minut")}
+            className="draw-link text-[13px] font-bold"
+          >
+            {t.tenMinutes} →
+          </Link>
           {hasFilters && (
             <Link href={localePath(locale, "/tipy")} className="draw-link text-[13px] font-bold">
               {t.clear}

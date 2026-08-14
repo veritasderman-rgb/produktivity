@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { MyPrompts } from "@/components/MyPrompts";
 import { getPromptArticles, type PromptArticle } from "@/lib/prompts";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 
@@ -88,6 +89,8 @@ export default async function PromptsPage({
       <p className="mt-4 max-w-[62ch] text-[16px] leading-relaxed text-muted">
         {t.lead(promptCount, articles.length)}
       </p>
+
+      <MyPrompts locale={locale} />
 
       <nav aria-label={t.navLabel} className="mt-8 flex flex-wrap items-center gap-2">
         <span className="eyebrow mr-1 text-faint">{t.navLabel}</span>

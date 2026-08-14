@@ -10,9 +10,12 @@ import { useRef, useState } from "react";
 export function CopyPre({
   children,
   label,
+  actions,
 }: {
   children: React.ReactNode;
   label?: { copy: string; copied: string };
+  /** Volitelné další ovládací prvky vlevo od tlačítka (např. hvězdička promptu). */
+  actions?: React.ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
@@ -33,18 +36,21 @@ export function CopyPre({
   return (
     <div ref={ref} className="copy-pre group relative">
       {children}
-      <button
-        type="button"
-        onClick={copy}
-        className={`absolute top-2 right-2 border px-2.5 py-1 font-mono text-[11px] font-semibold tracking-wide transition-colors ${
-          copied
-            ? "border-ink bg-ink text-paper"
-            : "border-hairline bg-paper text-muted hover:border-ink hover:text-ink"
-        }`}
-        aria-live="polite"
-      >
-        {copied ? t.copied : t.copy}
-      </button>
+      <div className="absolute top-2 right-2 flex items-stretch gap-1.5">
+        {actions}
+        <button
+          type="button"
+          onClick={copy}
+          className={`border px-2.5 py-1 font-mono text-[11px] font-semibold tracking-wide transition-colors ${
+            copied
+              ? "border-ink bg-ink text-paper"
+              : "border-hairline bg-paper text-muted hover:border-ink hover:text-ink"
+          }`}
+          aria-live="polite"
+        >
+          {copied ? t.copied : t.copy}
+        </button>
+      </div>
     </div>
   );
 }

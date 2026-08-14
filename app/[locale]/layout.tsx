@@ -4,6 +4,7 @@ import Script from "next/script";
 import { notFound } from "next/navigation";
 import { Schibsted_Grotesk, Lora, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { BookmarkLink } from "@/components/BookmarkLink";
 import { Keycap } from "@/components/Keycap";
 import { LangSwitch } from "@/components/LangSwitch";
 import { NavAi, NavAiChips, NavMore } from "@/components/NavAi";
@@ -149,6 +150,7 @@ export default async function RootLayout({
                 ),
               )}
               <SearchTrigger label={t.search.open} />
+              <BookmarkLink href={p("/ulozene")} label={t.footer.saved} />
               <LangSwitch locale={locale} />
               <Link
                 href={p("/newsletter")}
@@ -171,6 +173,11 @@ export default async function RootLayout({
               </Link>
             ))}
             <SearchTrigger label={t.search.open} className="draw-link inline-flex items-center py-1" />
+            <BookmarkLink
+              href={p("/ulozene")}
+              label={t.footer.saved}
+              className="draw-link inline-flex items-center py-1"
+            />
             <NavMore label={t.nav.more} items={mobileMore} />
           </nav>
           <NavAiChips label={t.nav.forProfession} items={proChips} />
@@ -216,6 +223,7 @@ gtag('config', '${GA_ID}');`}
                 <li><Link href={p("/gadgety")} className="draw-link">{t.footer.gadgets}</Link></li>
                 <li><Link href={p("/rozhovory")} className="draw-link">{t.footer.interviews}</Link></li>
                 <li><Link href={p("/slovnik")} className="draw-link">{t.footer.glossary}</Link></li>
+                <li><Link href={p("/ulozene")} className="draw-link">{t.footer.saved}</Link></li>
                 <li><Link href="/rss.xml" className="draw-link">{t.footer.rss}</Link></li>
               </ul>
             </div>

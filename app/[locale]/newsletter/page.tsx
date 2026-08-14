@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { NewsletterForm } from "@/components/NewsletterForm";
-import { isLocale, type Locale } from "@/lib/i18n";
+import { isLocale, localePath, type Locale } from "@/lib/i18n";
 
 const T = {
   cs: {
@@ -13,6 +14,7 @@ const T = {
     bullets: ["Žádný spam, žádné „akční nabídky“", "Odhlášení jedním klikem, kdykoli"],
     bonusPre: "Bonus hned po přihlášení: e-book ",
     bonusStrong: "Top 30 tipů, které vám vrátí hodinu denně",
+    sampleLink: "Podívejte se na ukázkové číslo →",
   },
   en: {
     title: "Newsletter",
@@ -24,6 +26,7 @@ const T = {
     bullets: ["No spam, no “special offers”", "Unsubscribe in one click, any time"],
     bonusPre: "A bonus the moment you sign up: the e-book ",
     bonusStrong: "Top 30 tips that give you back an hour a day",
+    sampleLink: "See a sample issue →",
   },
 };
 
@@ -62,7 +65,7 @@ export default async function NewsletterPage({
         <p className="eyebrow mb-2 text-faint">{t.eyebrow}</p>
         <h1 className="display text-[clamp(30px,5vw,48px)]">{t.heading}</h1>
         <p className="mt-4 text-[16.5px] leading-relaxed text-muted">{t.lead}</p>
-        <ul className="mt-6 mb-8 space-y-2 text-[15px] font-semibold">
+        <ul className="mt-6 mb-5 space-y-2 text-[15px] font-semibold">
           {t.bullets.map((b) => (
             <li key={b} className="flex gap-3">
               <span className="text-faint" aria-hidden="true">→</span> {b}
@@ -76,6 +79,11 @@ export default async function NewsletterPage({
             </span>
           </li>
         </ul>
+        <p className="mb-8 text-[15px] font-bold">
+          <Link href={localePath(locale, "/newsletter/ukazka")} className="draw-link">
+            {t.sampleLink}
+          </Link>
+        </p>
         <div className="max-w-md">
           <NewsletterForm source="newsletter-page" locale={locale} />
         </div>

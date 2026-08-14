@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CopyPre } from "@/components/CopyPre";
+import { PromptStar } from "@/components/PromptStar";
 import { getArticlePrompts, getPromptArticles } from "@/lib/prompts";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 
@@ -102,8 +103,16 @@ export default async function PromptArticlePage({
       {article.prompts.map((prompt) => (
         <section key={prompt.id} id={prompt.id} className="mt-10 scroll-mt-24">
           <h2 className="text-[15px] font-bold leading-snug">{prompt.label}</h2>
-          <CopyPre label={t.copy}>
-            <pre className="mt-2 overflow-x-auto border border-hairline bg-surface p-4 pr-24 font-mono text-[12.5px] leading-relaxed whitespace-pre-wrap text-ink">
+          <CopyPre
+            label={t.copy}
+            actions={
+              <PromptStar
+                prompt={{ id: prompt.id, label: prompt.label, slug: article.slug, title: article.title }}
+                locale={locale}
+              />
+            }
+          >
+            <pre className="mt-2 overflow-x-auto border border-hairline bg-surface p-4 pr-36 font-mono text-[12.5px] leading-relaxed whitespace-pre-wrap text-ink">
               {prompt.text}
             </pre>
           </CopyPre>

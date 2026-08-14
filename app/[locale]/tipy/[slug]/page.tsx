@@ -9,6 +9,7 @@ import remarkGfm from "remark-gfm";
 import { getAllTips, getTip } from "@/lib/tips";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { DataDisclaimer } from "@/components/DataDisclaimer";
+import { Disclaimer } from "@/components/Disclaimer";
 import { TipCard } from "@/components/TipCard";
 import { chapterForTip, relatedTips } from "@/lib/related";
 import { annotateGlossary } from "@/lib/annotate";
@@ -16,10 +17,12 @@ import { Pojem } from "@/components/Pojem";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd, faqJsonLd, howToJsonLd } from "@/components/JsonLd";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 import { CopyPre } from "@/components/CopyPre";
+import { PrintButton } from "@/components/PrintButton";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { BackToTop } from "@/components/BackToTop";
 import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { Pomohlo } from "@/components/Pomohlo";
+import { SaveButton } from "@/components/SaveButton";
 import { extractHeadings, extractHowToSteps, flatText, slugify } from "@/lib/toc";
 import { formatReviewed, reviewedLabel } from "@/lib/reviewed";
 import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
@@ -37,6 +40,7 @@ const T = {
     toc: "Obsah článku",
     faq: "Časté otázky",
     copy: { copy: "Zkopírovat", copied: "Zkopírováno ✓" },
+    print: "Vytisknout / uložit PDF",
   },
   en: {
     breadcrumb: "Tips & tricks",
@@ -50,6 +54,7 @@ const T = {
     toc: "In this article",
     faq: "Common questions",
     copy: { copy: "Copy", copied: "Copied ✓" },
+    print: "Print / save as PDF",
   },
 };
 
@@ -170,6 +175,10 @@ export default async function TipDetail({
           {reviewedLabel[locale]}: <time dateTime={reviewedIso}>{reviewed}</time>
         </p>
       )}
+      <div className="mt-4 flex flex-wrap items-end gap-2">
+        <SaveButton type="tip" slug={tip.slug} title={tip.title} locale={locale} />
+        {tip.isGuide && <PrintButton label={t.print} />}
+      </div>
       {tip.keys.length > 0 && (
         <p className="mt-6 border-y border-hairline py-4 text-[18px]">
           {tip.keys.map((combo, ci) => (
@@ -218,7 +227,7 @@ export default async function TipDetail({
       </div>
       {tip.category === "ai" && <DataDisclaimer locale={locale} />}
       {chapter && (
-        <p className="mt-10 border border-hairline bg-surface p-4 text-[14px] text-muted">
+        <p className="print-hide mt-10 border border-hairline bg-surface p-4 text-[14px] text-muted">
           {t.chapterPre}{" "}
           <Link href={p(`/prirucka/${chapter.slug}`)} className="draw-link font-bold text-ink">
             {chapter.title}
@@ -227,7 +236,7 @@ export default async function TipDetail({
         </p>
       )}
       {related.length > 0 && (
-        <div className="mt-12">
+        <div className="print-hide mt-12">
           <p className="eyebrow mb-4 text-faint">{t.relatedTitle}</p>
           <div className="grid gap-5 sm:grid-cols-3">
             {related.map((r, i) => (
@@ -250,7 +259,8 @@ export default async function TipDetail({
         </section>
       )}
       <Pomohlo slug={tip.slug} locale={locale} />
-      <div className="mt-14 border-t-2 border-hairline-strong pt-8">
+      <Disclaimer locale={locale} />
+      <div className="print-hide mt-14 border-t-2 border-hairline-strong pt-8">
         <p className="eyebrow mb-2 text-faint">{t.ctaEyebrow}</p>
         <p className="mb-5 max-w-[48ch] text-[15px] text-muted">{t.ctaDesc}</p>
         <div className="max-w-md">

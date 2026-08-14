@@ -625,3 +625,153 @@ summary:focus-visible,
   opacity: 1;
   visibility: visible;
 }
+
+/* ---------- Tisk ----------
+   Čistý výstup pro velké návody a kapitoly příručky: jen obsah článku,
+   inkoust na bílé. Web-chrome (hlavička, patička, plovoucí prvky) a
+   interaktivní bloky (newsletter, „pomohlo?", související tipy) se skryjí
+   přes .print-hide, resp. přes .fixed (ReadingProgress, BackToTop, popup). */
+@media print {
+  @page {
+    margin: 2cm;
+  }
+
+  /* Celý design systém stojí na proměnných — na papíře je přepneme na
+     čistý inkoust. Červený akcent v tisku nemá co dělat (šedne, stojí toner). */
+  :root {
+    --paper: #ffffff;
+    --surface: #ffffff;
+    --card: #ffffff;
+    --ink: #000000;
+    --muted: #000000;
+    --faint: #333333;
+    --hairline: #999999;
+    --hairline-strong: #000000;
+    --accent: #000000;
+    --accent-hover: #000000;
+    --accent-ink: #ffffff;
+    --key-shadow: #000000;
+  }
+
+  body {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  /* Skrýt: chrome webu, plovoucí prvky a vše označené .print-hide
+     (newsletter CTA, související tipy, prev/next, Pomohlo, odkaz na kapitolu,
+     tlačítko tisku). Profesní chipy (NavAiChips) žijí v <header>. */
+  body > header,
+  body > footer,
+  .fixed,
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Tlačítko „zkopírovat" u promptů pryč — text promptu zůstává. */
+  .copy-pre button {
+    display: none !important;
+  }
+
+  /* Scroll-reveal řídí JS; na papíře nesmí nic zůstat neviditelné. */
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  article {
+    padding: 0 !important;
+  }
+
+  /* <details> (TOC i FAQ) vytisknout ROZBALENÉ. Dvě vrstvy, protože
+     `details:not([open])` se v tisku chová nespolehlivě:
+     1) starší chování — děti zavřeného <details> zviditelnit přes display,
+     2) novější Chromium skrývá obsah přes ::details-content
+        (content-visibility: hidden), takže i ten je potřeba přepnout. */
+  .toc,
+  .faq-item {
+    display: block;
+  }
+  .toc > *:not(summary),
+  .faq-item > *:not(summary) {
+    display: block !important;
+  }
+  .toc::details-content,
+  .faq-item::details-content {
+    content-visibility: visible !important;
+    display: block !important;
+  }
+  /* Summary jako obyčejný nadpis: bez kurzoru a bez rozbalovacího +/–. */
+  .toc > summary,
+  .faq-item > summary {
+    cursor: default;
+    list-style: none;
+  }
+  .toc > summary::before,
+  .faq-item > summary::before {
+    content: "" !important;
+    width: 0;
+  }
+  /* Obsah článku jsou v tisku mrtvé kotvy — stačí prostý seznam. */
+  .toc li a {
+    text-decoration: none;
+  }
+
+  /* Externí odkazy v těle článku: vypsat URL za text. Interní (relativní)
+     odkazy nechat bez — na papíře by „/tipy/…" nikomu nepomohlo. */
+  .prose-a a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    word-break: break-all;
+  }
+
+  /* Obrázky: ať hero nezabere celou stránku; poměr stran zachovat. */
+  img {
+    max-width: 100% !important;
+    max-height: 9cm !important;
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* Prompty musí být čitelné celé — žádný useknutý overflow, řádky zalamovat. */
+  .prose-a pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow: visible;
+  }
+  .prose-a .table-scroll {
+    overflow: visible;
+  }
+
+  /* Nelámat stránku uvnitř bloků, které mají držet pohromadě. */
+  pre,
+  .copy-pre,
+  table,
+  .table-scroll,
+  blockquote,
+  .tldr,
+  .faq-item,
+  .ig,
+  img,
+  kbd {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* Slovníkový pojem: tečkované podtržení ani tooltip na papír nepatří. */
+  .pojem {
+    border-bottom: none;
+    cursor: auto;
+  }
+  .pojem::before,
+  .pojem::after {
+    display: none !important;
+  }
+}

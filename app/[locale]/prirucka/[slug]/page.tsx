@@ -9,6 +9,7 @@ import remarkGfm from "remark-gfm";
 import { getAllChapters, getChapter, getSectionLabels } from "@/lib/chapters";
 import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
 import { NewsletterForm } from "@/components/NewsletterForm";
+import { Disclaimer } from "@/components/Disclaimer";
 import { TipCard } from "@/components/TipCard";
 import { getAllTips } from "@/lib/tips";
 import { tipsForChapter } from "@/lib/related";
@@ -17,7 +18,9 @@ import { annotateGlossary } from "@/lib/annotate";
 import { Pojem } from "@/components/Pojem";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import { CopyPre } from "@/components/CopyPre";
+import { PrintButton } from "@/components/PrintButton";
 import { ReadingProgress } from "@/components/ReadingProgress";
+import { SaveButton } from "@/components/SaveButton";
 import { BackToTop } from "@/components/BackToTop";
 import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { extractHeadings, flatText, slugify } from "@/lib/toc";
@@ -30,6 +33,7 @@ const T = {
     readTime: "min čtení",
     toc: "Obsah článku",
     copy: { copy: "Zkopírovat", copied: "Zkopírováno ✓" },
+    print: "Vytisknout / uložit PDF",
     navAria: "Další kapitoly",
     prev: "← Předchozí",
     next: "Další →",
@@ -43,6 +47,7 @@ const T = {
     readTime: "min read",
     toc: "In this article",
     copy: { copy: "Copy", copied: "Copied ✓" },
+    print: "Print / save as PDF",
     navAria: "More chapters",
     prev: "← Previous",
     next: "Next →",
@@ -162,6 +167,10 @@ export default async function ChapterPage({
           {reviewedLabel[locale]}: <time dateTime={ch.updated}>{reviewed}</time>
         </p>
       )}
+      <div className="mt-4 flex flex-wrap items-end gap-2">
+        <SaveButton type="kapitola" slug={ch.slug} title={ch.title} locale={locale} />
+        <PrintButton label={t.print} />
+      </div>
       <p className="mt-4 border-b border-hairline pb-6 text-[17px] leading-relaxed text-muted">
         {ch.excerpt}
       </p>
@@ -192,7 +201,8 @@ export default async function ChapterPage({
         <MDXRemote source={annotateGlossary(ch.body, locale)} components={makeMdxComponents(locale)} options={{ blockJS: false, mdxOptions: { remarkPlugins: [remarkGfm] } }} />
       </div>
 
-      <nav className="mt-14 grid gap-3 border-t-2 border-hairline-strong pt-6 sm:grid-cols-2" aria-label={t.navAria}>
+      <Disclaimer locale={locale} />
+      <nav className="print-hide mt-14 grid gap-3 border-t-2 border-hairline-strong pt-6 sm:grid-cols-2" aria-label={t.navAria}>
         {prev ? (
           <Link href={p(`/prirucka/${prev.slug}`)} className="group border border-hairline bg-card p-4 hover:border-accent">
             <span className="eyebrow text-faint">{t.prev}</span>
@@ -208,7 +218,7 @@ export default async function ChapterPage({
       </nav>
 
       {related.length > 0 && (
-        <div className="mt-12">
+        <div className="print-hide mt-12">
           <p className="eyebrow mb-4 text-faint">{t.relatedTitle}</p>
           <div className="grid gap-5 sm:grid-cols-2">
             {related.map((r, i) => (
@@ -218,7 +228,7 @@ export default async function ChapterPage({
         </div>
       )}
 
-      <div className="mt-12">
+      <div className="print-hide mt-12">
         <p className="eyebrow mb-2 text-faint">{t.ctaEyebrow}</p>
         <p className="mb-5 max-w-[48ch] text-[15px] text-muted">{t.ctaDesc}</p>
         <div className="max-w-md">

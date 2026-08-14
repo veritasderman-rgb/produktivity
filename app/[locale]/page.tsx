@@ -6,6 +6,7 @@ import { audienceHref, audiences, formatTipCount, tipsForAudience } from "@/lib/
 import { getShelves } from "@/lib/shelves";
 import { formatDuration, formatStepCount, getPaths } from "@/lib/paths";
 import { NewsletterForm } from "@/components/NewsletterForm";
+import { RotatingClaim } from "@/components/RotatingClaim";
 import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { Reveal } from "@/components/Reveal";
 import { tipOfTheDay } from "@/lib/related";
@@ -58,9 +59,7 @@ export default async function HomePage({
       <section className="border-b border-hairline">
         <div className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)] py-14 sm:py-16">
           <h1 className="display display-hero text-[clamp(34px,6vw,58px)]">
-            {t.heroA}
-            <span className="text-accent">{t.heroAccent}</span>
-            {t.heroB}
+            <RotatingClaim claims={t.heroClaims} />
           </h1>
           <p className="mt-5 max-w-[58ch] text-[17px] leading-relaxed text-muted">{t.lead}</p>
 
@@ -88,6 +87,16 @@ export default async function HomePage({
               {t.searchSubmit}
             </button>
           </form>
+
+          {/* Vstup podle času místo tématu — párový filtr k hledání výš. */}
+          <p className="mt-4">
+            <Link
+              href={p("/deset-minut")}
+              className="inline-block border-[1.5px] border-hairline-strong bg-card px-4 py-2 text-[13.5px] font-bold no-underline transition-colors hover:border-accent hover:text-accent"
+            >
+              {t.tenMinutes}
+            </Link>
+          </p>
 
           <dl className="mt-9 grid grid-cols-2 gap-px border border-hairline bg-hairline sm:grid-cols-4">
             {stats.map((s) => (

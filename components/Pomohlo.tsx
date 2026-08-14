@@ -30,7 +30,7 @@ export function Pomohlo({ slug, locale = "cs" }: { slug: string; locale?: Locale
   };
 
   return (
-    <div className="mt-14 border-t border-hairline pt-6">
+    <div className="print-hide mt-14 border-t border-hairline pt-6">
       {voted ? (
         <p className="eyebrow text-accent" role="status">
           {t.thanks}
