@@ -160,6 +160,7 @@ export default async function RootLayout({
                 <li><Link href={p("/tipy")} className="draw-link">{t.footer.tips}</Link></li>
                 <li><Link href={p("/ai")} className="draw-link">{t.footer.aiSection}</Link></li>
                 <li><Link href={p("/prompty")} className="draw-link">{t.footer.prompts}</Link></li>
+                <li><Link href={p("/sablony")} className="draw-link">{t.footer.templates}</Link></li>
                 <li><Link href={p("/gadgety")} className="draw-link">{t.footer.gadgets}</Link></li>
                 <li><Link href={p("/rozhovory")} className="draw-link">{t.footer.interviews}</Link></li>
                 <li><Link href={p("/slovnik")} className="draw-link">{t.footer.glossary}</Link></li>
