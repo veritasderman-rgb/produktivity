@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PathProgress, type ProgressStep } from "@/components/PathProgress";
 import { NewsletterForm } from "@/components/NewsletterForm";
-import { formatDuration, formatStepCount, getPath, getPaths } from "@/lib/paths";
+import { formatDuration, getPath, getPaths } from "@/lib/paths";
 import { isLocale, locales, localePath, type Locale } from "@/lib/i18n";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
