@@ -1,0 +1,29 @@
+---
+title: "Dva vykřičníky zopakují poslední příkaz — i se sudo před ním"
+excerpt: "Zapomněli jste sudo? Nepište příkaz znovu: „sudo !!“ ho zopakuje s právy správce. A „!$“ vloží poslední argument z minulého řádku."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~2 min denně"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Každý, kdo pracuje s terminálem, zná ten moment: spustíte příkaz, terminál odpoví `Permission denied` — a vy víte, že jste zase zapomněli `sudo`. Místo šipky nahoru, skoku na začátek řádku a dopisování stačí napsat `sudo !!`. Dvojice vykřičníků se v bashi a zsh rozbalí na celý předchozí příkaz, takže se spustí totéž, jen tentokrát s právy správce. Vykřičníková historie umí ještě jeden trik, který se hodí denně: `!$` znamená „poslední argument předchozího příkazu“ — typicky cesta k souboru, kterou tak nemusíte psát podruhé.
+
+## Jak na to
+
+1. Spustíte příkaz, který selže na oprávnění — třeba zápis do systémové složky. Napište `sudo !!` a stiskněte <kbd>Enter</kbd>: shell nejdřív vypíše, co se skutečně spustí, a provede předchozí příkaz se `sudo` na začátku.
+2. `!!` funguje i jinde než se sudo: `echo !!` vám předchozí příkaz jen vypíše, což se hodí pro kontrolu, než ho někam vložíte.
+3. `!$` vloží poslední argument minulého řádku. Po `mkdir ~/projekty/novy-web` stačí `cd !$` — a jste uvnitř právě vytvořené složky. Po `ls -l /dlouha/cesta/k/souboru.conf` otevřete tentýž soubor přes `nano !$`.
+4. Když si nejste jistí, co se rozbalí, přidejte na konec `:p` — `!!:p` příkaz jen vytiskne a zařadí do historie, ale nespustí. Interaktivní obdoba: <kbd>Alt</kbd> + <kbd>.</kbd> vkládá poslední argument přímo na řádek a opakovaným stiskem listuje staršími.
+5. Vykřičníky patří bashi a zsh — na Windows je máte v Git Bashi nebo ve WSL, v PowerShellu tato zkratka není.
+
+## Vzorová situace
+
+Správce instaluje balíček: `apt install htop`, odpověď „are you root?“. Napíše `sudo !!`, hotovo — rychlejší než jakékoli klikání či přepisování. O minutu později rozbaluje archiv do nové složky: `mkdir /opt/aplikace/v2` a hned `cd !$`, `tar -xzf balik.tar.gz`. Dlouhou cestu psal jedinkrát, pak už za něj pracovaly vykřičníky. Za den se takových momentů nasbírá tucet — a každý znamená jeden nepřepsaný (a nepřeklepnutý) řádek.
+
+## Co vám to přinese
+
+Nejčastější drobná selhání v terminálu — zapomenuté sudo a dvakrát psaná cesta — se smrsknou na pár znaků. Méně překlepů, protože dlouhé argumenty píšete jen jednou. A dobrá zpráva na závěr: tyhle zkratky fungují na každém serveru, kam se přihlásíte, bez jakékoli instalace či konfigurace.
