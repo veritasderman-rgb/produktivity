@@ -39,6 +39,7 @@ export type Tip = {
 export type TipMeta = Omit<Tip, "body">;
 
 export function tipMeta(tip: Tip): TipMeta {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- rest destrukturing odděluje tělo
   const { body: _body, ...meta } = tip;
   return meta;
 }
