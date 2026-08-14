@@ -28,7 +28,7 @@ const T = {
       },
     ],
     dataNote:
-      "Žádné další osobní údaje web aktivně nesbírá. Nepoužívám reklamní ani sledovací cookies.",
+      "Žádné další osobní údaje web aktivně nesbírá. Nepoužívám reklamní cookies. Pro měření návštěvnosti používám Google Analytics, které cookies ukládá — podrobnosti níže.",
     processorsTitle: "Kdo mi s tím pomáhá (zpracovatelé)",
     processors: [
       {
@@ -38,6 +38,10 @@ const T = {
       {
         strong: "Vercel",
         rest: " (Vercel Inc.) — hosting webu a anonymní měření návštěvnosti (Vercel Web Analytics), které funguje bez cookies a bez identifikace konkrétních osob.",
+      },
+      {
+        strong: "Google Analytics",
+        rest: " (Google Ireland Limited) — měření návštěvnosti. Ukládá do vašeho prohlížeče cookies a zpracovává zkrácenou IP adresu a údaje o zařízení, aby rozlišilo opakované návštěvy. Měření můžete odmítnout blokováním cookies v prohlížeči nebo doplňkem Google pro odhlášení z Analytics.",
       },
     ],
     retentionTitle: "Jak dlouho údaje držím",
@@ -82,7 +86,7 @@ const T = {
       },
     ],
     dataNote:
-      "The site actively collects no other personal data. I use no advertising or tracking cookies.",
+      "The site actively collects no other personal data. I use no advertising cookies. For traffic measurement I use Google Analytics, which does store cookies — details below.",
     processorsTitle: "Who helps me with it (processors)",
     processors: [
       {
@@ -92,6 +96,10 @@ const T = {
       {
         strong: "Vercel",
         rest: " (Vercel Inc.) — website hosting and anonymous traffic measurement (Vercel Web Analytics), which works without cookies and without identifying individuals.",
+      },
+      {
+        strong: "Google Analytics",
+        rest: " (Google Ireland Limited) — traffic measurement. It stores cookies in your browser and processes a truncated IP address along with device data in order to tell repeat visits apart. You can opt out by blocking cookies in your browser or by installing Google's Analytics opt-out add-on.",
       },
     ],
     retentionTitle: "How long I keep the data",

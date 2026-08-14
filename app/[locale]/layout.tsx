@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import { notFound } from "next/navigation";
 import { Schibsted_Grotesk, Lora, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
@@ -26,6 +27,9 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin", "latin-ext"],
   variable: "--font-jbmono",
 });
+
+/** Měřicí kód Google Analytics. Přebitelný proměnnou prostředí, ať jde vypnout bez zásahu do kódu. */
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? "G-6GPVS7CRY6";
 
 export function generateStaticParams() {
   return [{ locale: "cs" }, { locale: "en" }];
@@ -141,6 +145,20 @@ export default async function RootLayout({
 
         <main>{children}</main>
         <Analytics />
+        {GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${GA_ID}');`}
+            </Script>
+          </>
+        )}
 
         <footer className="mt-24 border-t-2 border-hairline-strong">
           <div className="mx-auto grid max-w-[var(--page-max)] gap-10 px-[var(--page-pad)] py-14 sm:grid-cols-3">
