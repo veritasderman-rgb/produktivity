@@ -1,6 +1,6 @@
 ---
 title: "Data Analysis in Plain Language: A Persistent Skill Built on DuckDB"
-excerpt: "A complete guide with prompts: why a chatbot silently gets the math wrong, how one instruction installs the DuckDB CLI and sets up a persistent skill for your agent, so you can ask questions in plain language over any CSV, Excel, Parquet, or JSON file — and how to verify the result is right."
+excerpt: "A guide with prompts: why a chatbot silently gets math wrong, how a persistent DuckDB skill lets you query CSV or Excel in plain words — and check results."
 category: "ai"
 platform: "vsude"
 audience: ["manazer", "freelancer", "vyvojar"]
@@ -8,6 +8,33 @@ keys: []
 saves: "~hours over spreadsheets every month"
 date: "2026-08-13"
 updated: "2026-08-13"
+tldr: >-
+  A language model is a text predictor — it can't calculate on its own, it can only write a number that looks right in the sentence. The fix is a persistent skill built on the DuckDB CLI: instead of computing, the agent asks a database with an SQL query you can see and check. One prompt sets it up, and then you ask questions over any CSV, Excel, Parquet, or JSON file in plain language.
+faq:
+  - q: >-
+      Why does a chatbot get spreadsheet math wrong when the answer looks credible?
+    a: >-
+      A language model is a text predictor — it can't calculate, it writes a number that looks right in the given sentence. Sometimes it even is right, and that's exactly the problem: you have no way to tell which numbers came from a calculation and which from an impression.
+  - q: >-
+      Can I trust a number the skill returns?
+    a: >-
+      Only if you saw the SQL query it came from. The skill mandates showing the query — if you skip past it and just copy the result, you're back at square one.
+  - q: >-
+      What if the agent doesn't know what my columns mean?
+    a: >-
+      Don't let it guess. A value column might include VAT or not, a date might be the order date or the shipping date, a status column might have eight values, three of which mean cancelled. If the agent doesn't ask, explain it yourself — and add that information to the skill.
+  - q: >-
+      What is the quietest error in the data?
+    a: >-
+      An amount with a decimal comma loads as text and the sums come out incomplete. Nothing crashes, no error message — which is why you always check the column type row right under the header of the printout.
+  - q: >-
+      Is the skill right for accounting backup or a published result?
+    a: >-
+      No. Numbers that need to be reproducible belong in a saved script (Python with DuckDB or pandas), not in a conversation.
+  - q: >-
+      May the agent modify the source data?
+    a: >-
+      Never — the moment the file gets overwritten, you lose the ability to verify anything. And keep a checksum from an independent source: a single number saves days of tracking things down.
 ---
 
 More and more people are turning a chatbot loose on their data. They drag an export from their online store, an attendance sheet, a bank statement, or survey results into the window and ask in plain language: how much, when, why. The answer arrives right away, nicely formatted, with percentages and a conclusion. It looks like the future of analytics. It's actually the quietest way to get it wrong.

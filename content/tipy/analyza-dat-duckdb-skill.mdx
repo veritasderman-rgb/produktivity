@@ -1,6 +1,6 @@
 ---
 title: "Analýza dat obyčejnou řečí: trvalý skill nad DuckDB"
-excerpt: "Kompletní návod s prompty: proč chatbot počítá tiše špatně, jak jedním zadáním nainstalovat DuckDB CLI a založit agentovi trvalý skill, kterým se pak nad libovolným CSV, Excelem, Parquetem nebo JSON ptáte česky — a jak si ověřit, že výsledek sedí."
+excerpt: "Kompletní návod s prompty: proč chatbot počítá tiše špatně, jak založit trvalý skill nad DuckDB a ptát se nad CSV či Excelem česky — a jak ověřit výsledek."
 category: "ai"
 platform: "vsude"
 audience: ["manazer", "freelancer", "vyvojar"]
@@ -8,6 +8,33 @@ keys: []
 saves: "~hodiny nad tabulkami každý měsíc"
 date: "2026-08-13"
 updated: "2026-08-13"
+tldr: >-
+  Jazykový model je prediktor textu — sám neumí počítat, umí jen napsat číslo, které ve větě vypadá správně. Řešením je trvalý skill nad DuckDB CLI: agent se místo počítání ptá databáze SQL dotazem, který vidíte a můžete zkontrolovat. Založíte ho jedním promptem a pak se nad CSV, Excelem, Parquetem i JSON ptáte obyčejnou češtinou.
+faq:
+  - q: >-
+      Proč chatbot počítá z tabulky špatně, když odpověď vypadá věrohodně?
+    a: >-
+      Jazykový model je prediktor textu — neumí počítat, umí napsat číslo, které v dané větě vypadá správně. Někdy správné i je, a právě v tom je problém: nemáte podle čeho poznat, které číslo vzniklo z výpočtu a které z dojmu.
+  - q: >-
+      Můžu věřit číslu, které mi skill vrátí?
+    a: >-
+      Jen když jste viděli SQL dotaz, kterým vzniklo. Skill má ukazování dotazu nařízené — když ho přeskočíte a jen zkopírujete výsledek, jste zpátky na začátku.
+  - q: >-
+      Co když agent nezná význam mých sloupců?
+    a: >-
+      Nenechte ho hádat. Sloupec hodnota může být s DPH i bez, datum může být objednávka i expedice, stav může mít osm hodnot, z nichž tři znamenají zrušeno. Když se agent nezeptá, vysvětlete mu to sami — a přidejte tu informaci do skillu.
+  - q: >-
+      Jaká je nejtišší chyba v českých datech?
+    a: >-
+      Částka s desetinnou čárkou se načte jako text a součty jsou neúplné. Nic nespadne, žádná chybová hláška — proto se vždycky kontroluje řádek s typy sloupců hned pod hlavičkou výpisu.
+  - q: >-
+      Hodí se skill i na podklady pro účetnictví nebo publikovaný výsledek?
+    a: >-
+      Ne. Čísla, která mají být reprodukovatelná, patří do uloženého skriptu (Python s DuckDB nebo pandas), ne do konverzace.
+  - q: >-
+      Smí agent upravovat zdrojová data?
+    a: >-
+      Nikdy — jakmile se soubor přepíše, ztrácíte možnost cokoli ověřit. A držte si kontrolní součet z nezávislého zdroje: jediné číslo ušetří dny dohledávání.
 ---
 
 Čím dál víc lidí pouští chatbota na svoje data. Přetáhnou do okna export z e-shopu, docházku, výpis z účtu nebo výsledky dotazníku a zeptají se česky: kolik, kdy, proč. Odpověď přijde vzápětí, hezky naformátovaná, s procenty a se závěrem. Vypadá to jako budoucnost analytiky, ale je to ten nejtišší způsob, jak se splést.
