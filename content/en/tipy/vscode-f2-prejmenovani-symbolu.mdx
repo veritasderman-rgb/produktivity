@@ -1,0 +1,32 @@
+---
+title: "F2 renames a function across the whole project — no searching, no replacing"
+excerpt: "Renaming a symbol with F2 changes a function or variable everywhere it's used, across files. Smarter than find and replace."
+category: "zkratky"
+platform: "vsude"
+audience: ["vyvojar"]
+keys:
+  - ["F2"]
+saves: "~10 min a week"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+A badly named function stays badly named mainly because nobody wants to rename it: it's used in twenty places across eight files, and “find and replace” is a gamble — it'll also rewrite strings, comments, and unrelated words that just happen to look the same. Editors, though, can do this safely: put the cursor on the name and press <kbd>F2</kbd>. Through language analysis, VS Code identifies every place where this exact symbol is actually used, and renames them all at once — across the whole project, not just the open file.
+
+## How to do it
+
+1. Click the cursor onto the name of a function, variable, class, or parameter — anywhere it appears, not necessarily at its definition.
+2. Press <kbd>F2</kbd> (the command is called Rename Symbol; you'll also find it in the right-click menu). A field with the current name appears.
+3. Type the new name and confirm with <kbd>Enter</kbd> — the editor updates the definition and every usage across the project's files. Changed files are marked as unsaved, so you can see the result and undo the whole thing with a single Ctrl+Z.
+4. To preview everything that will change first, confirm with <kbd>Ctrl</kbd> + <kbd>Enter</kbd> instead of Enter — a preview of all pending changes opens for your approval.
+5. In JetBrains IDEs (IntelliJ, WebStorm, PyCharm, Rider), <kbd>Shift</kbd> + <kbd>F6</kbd> does the same thing. The principle is identical: renaming is driven by understanding the code, not by text matching.
+
+## A typical scenario
+
+A developer inherits a project where a key function is called `process2` — a name that tells you nothing and confuses every newcomer. With find and replace, he'd risk rewriting `process2` inside log strings too, or missing a file he doesn't have open. With F2, he puts the cursor on the name, types `calculateMonthlyInvoice`, Enter — and within a second the change is made across all twelve files, imports included. Nothing more, nothing less: strings and comments with similar text stay untouched.
+
+The difference from multi-cursor editing is scope: [multi-cursor](/tipy/vyvojar-multikurzor) is great for edits within a single file you can see in front of you, F2 for renaming across an entire project you can't. The quality of the result depends on language support — for languages with strong analysis (TypeScript, C#, Java, Rust), renaming is practically infallible; for more dynamic languages, it's worth reviewing the change preview before confirming.
+
+## What you get out of it
+
+Renaming stops being a risky operation, so you actually start doing it — code gradually works its way toward names that mean something. You save minutes on every refactor, and above all you eliminate the class of “it replaced something it shouldn't have” bugs that classic find and replace reliably produces.

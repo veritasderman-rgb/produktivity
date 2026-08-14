@@ -1,0 +1,31 @@
+---
+title: "git stash: Set Work Aside for Later"
+excerpt: "An urgent fix comes in and your code is half-finished? git stash tucks it away in a drawer, git stash pop brings it back. No half-baked commits."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~10 min a week"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+You're working on a new feature, the code is halfway there and doesn't even compile — and right then a message comes in: "production is broken, drop everything." You can't cleanly switch branches with in-progress changes, and you don't want to commit a half-finished mess. Git has a command for exactly this situation: `stash`. It tucks all your uncommitted changes into a side drawer, returns your working directory to a clean state — and once the fire's out, one command pulls everything back exactly as you left it.
+
+## How to do it
+
+1. The moment you need to set your work aside, run `git stash` — every change in tracked files (both in-progress and staged) gets tucked away, and your directory is clean. Add new, untracked files too with the `-u` flag.
+2. Now you can safely switch branches, fix the bug, commit, and switch back to your own branch.
+3. Bring the stashed work back with `git stash pop` — the changes are restored and the drawer entry is deleted. If you'd rather keep the entry just in case, use `git stash apply` instead.
+4. There isn't just one drawer: `git stash list` shows every stashed bundle. To keep them straight, save with a label — `git stash push -m "in-progress form"`. You can then restore a specific bundle with `git stash pop stash@{1}`.
+5. `git stash show -p` reveals what's sitting in a drawer — it prints the changes as a diff, so you can see what you're actually restoring before you do.
+
+## A typical scenario
+
+A developer is building a new form, an hour of in-progress work sitting in the files. A colleague messages that registration on the site is broken. It used to mean a commit named "WIP not done doesn't work" that then haunts the history forever, or painfully copying the changes aside by hand. Now: `git stash push -m "form"`, switch to main, fix it, deploy, switch back, `git stash pop` — and she's continuing exactly where she left off. The history stays clean and nothing got lost.
+
+Stash is handy for small things too: quickly checking how the app behaves without your changes, or tucking away an experiment that might not go anywhere but feels wasteful to delete. Just be careful the drawer doesn't turn into storage — bundles that sit in the list for weeks never get restored by anyone. Anything with real value belongs in a commit on its own branch; stash is for hours and days, not months.
+
+## What you get out of it
+
+Urgent interruptions stop derailing your work — switching context is a matter of two commands and no compromises. Half-baked "WIP" and "temp" commits, which used to exist only because the work needed to be tucked away somewhere, disappear from the history. It pairs with the tip [commit messages for future you](/tipy/vyvojar-commit-zpravy) — both keep a project's history readable.

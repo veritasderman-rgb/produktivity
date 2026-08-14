@@ -1,0 +1,29 @@
+---
+title: "A Global .gitignore: Solve .DS_Store Once and For All"
+excerpt: "Files from your system and editor don't belong in every project's .gitignore. Set up a global ignore file instead — it applies to every repository."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~5 min a week"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Every other repository in the world has a `.DS_Store` line haunting its `.gitignore` — and yet this file, which macOS creates in every folder, still regularly sneaks into someone's commit. It's backwards when you think about it: junk your operating system or editor produces isn't a property of the project, it's a property of your computer. Git has the right solution for this, one few people know about: a global ignore file. Set it up once, and it applies to every repository on your machine — current and future.
+
+## How to do it
+
+1. Create a file, say `~/.gitignore_global`, and write into it the patterns you want ignored everywhere. Typical contents: `.DS_Store` (macOS), `Thumbs.db` and `Desktop.ini` (Windows), `*.swp` (Vim), and any folders your tools drop local settings into inside projects.
+2. Tell git to use it: `git config --global core.excludesFile ~/.gitignore_global`. That writes it into your global config, and from then on it applies in every repository.
+3. Verify it: in any repository, run `git status` in a folder where a `.DS_Store` sits — it should no longer show up among untracked files. Check the config with `git config --global core.excludesFile`.
+4. If some junk is already committed in a repository, ignoring it isn't enough — remove it from tracking with `git rm --cached .DS_Store` and commit.
+5. A project's own `.gitignore` should then hold only what's actually about the project: dependency folders, build output, local config. The line is simple — whatever colleagues on a different system and editor would also want ignored belongs in the project; whatever's specific to your machine belongs in the global file.
+
+## A typical scenario
+
+A developer moves to a new Mac, and in the first week colleagues twice bounce back a pull request with "you've got a .DS_Store in there." Instead of adding the same line to `.gitignore` in eight company repositories (and arguing over whether it belongs there), he sets up a global ignore — five minutes of work — and the problem disappears forever, even for every project he hasn't cloned yet. Commits stay clean, and projects' `.gitignore` files stop bloating with exceptions for every editor anyone on the team has ever used.
+
+## What you get out of it
+
+An end to embarrassing commits full of system junk, and an end to reviews bounced back over a file that doesn't belong. Project `.gitignore` files stay short and readable, because they deal with the project, not your tools. A one-time five-minute investment that works in every repository you ever clone. And if you pack the file into your dotfiles, it moves with you to your next computer too.

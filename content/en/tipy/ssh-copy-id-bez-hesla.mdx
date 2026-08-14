@@ -1,0 +1,29 @@
+---
+title: "ssh-copy-id: log in to a server without typing a password"
+excerpt: "One command uploads your public key to a server — from then on you log in without a password, faster and more securely."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~5 min a day"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Typing a password on every server login is annoying — and, ironically, weaker security than logging in with a key. An SSH key is a pair of files: the private half stays with you, the public half goes on the server, and from then on they sort things out between themselves. The usual stumbling block was that exact step, uploading the public key to the server: hand-editing the `authorized_keys` file with the right permissions is precisely where mistakes creep in. The `ssh-copy-id` command does the whole thing for you — correctly, on the first try, in one line.
+
+## How to do it
+
+1. If you don't have a key yet, create one: `ssh-keygen -t ed25519`. You can hit Enter through the prompts; a passphrase on the key is an optional extra safeguard in case someone else ever gets hold of the key file.
+2. Upload the public key to the server: `ssh-copy-id user@server`. You'll type the password one last time — the command appends the key to `~/.ssh/authorized_keys` on the server and sets the correct permissions.
+3. Try it out: `ssh user@server` — it logs you in without asking for the server's password.
+4. `ssh-copy-id` ships with OpenSSH on Mac and Linux. Windows lacks this helper script — either run it from Git Bash or WSL, where it is available, or transfer the contents of `id_ed25519.pub` to the server by hand: log in one last time with a password and append the key line to the end of `~/.ssh/authorized_keys` on the server.
+5. Repeat for every server you log in to. You can upload the same public key to multiple servers — and it belongs on GitHub or GitLab too (in account settings, the SSH keys section), so `git push` runs without passwords as well.
+
+## A typical scenario
+
+A developer logs in to three servers during the day: staging, production, and a home NAS. Every login meant fishing a password out of the password manager, copying it, pasting it — twenty seconds of annoying mechanics, many times a day, not to mention `scp` and `rsync` asking again. One afternoon he runs `ssh-copy-id` three times, and every connection since has been instant. A bonus he only appreciates later: he can now disable password login on the servers entirely, which also removes the risk of password-guessing attacks. And scripts that couldn't be automated before, because they'd stop midway to ask for a password — backups over `rsync`, deployments over `scp` — suddenly run unattended.
+
+## What you get out of it
+
+Every server connection is a few seconds faster and one interruption lighter — which really adds up for people who log in ten times a day. Logging in with a key is also a security upgrade: a key can't be shoulder-surfed or guessed the way a password can. And the follow-up tip on [SSH config aliases](/tipy/ssh-config-aliasy) shortens the `ssh` command itself down to a single word.

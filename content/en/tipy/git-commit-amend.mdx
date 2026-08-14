@@ -1,0 +1,29 @@
+---
+title: "git commit --amend: Fix the Last Commit Instead of Committing a “Fix”"
+excerpt: "A forgotten file or a typo in the message doesn't need a new commit. --amend rewrites the last one, as if the mistake never happened."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~5 min a week"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+You commit, and a second later you see it: a typo in the message, or worse — you forgot to add a file. The reflex is to make a second commit named "fix," "oops," or "actually fix this time." But a history full of patches like that is hard to read and just gets in the way when you're hunting for a bug. Git has a cleaner tool for this: `git commit --amend` doesn't create a new commit, it rewrites the last one — folding in what you forgot, or fixing the message. The result looks like you got it right the first time.
+
+## How to do it
+
+1. Typo in the message: run `git commit --amend -m "correct message"` — the commit stays, just gets a new message. Without `-m`, an editor opens with the original text to edit.
+2. Forgotten file: add it as usual (`git add forgotten.js`) and run `git commit --amend --no-edit`. The file gets folded into the last commit, and `--no-edit` keeps the original message — no extra prompts.
+3. It works in reverse too: if you accidentally folded an extra file into a commit, `git reset HEAD~ file.txt` pulls it back out of the last commit (the changes stay in your working directory) — then just amend.
+4. One key rule: amend rewrites history, so only use it on commits you haven't pushed yet. Once a commit is on a shared server and colleagues might have pulled it, fix the mistake with a new commit instead.
+5. If you do amend an already-pushed commit on your own working branch, you'll need `git push --force-with-lease` — and only when nobody else is working on that branch.
+
+## A typical scenario
+
+A developer commits an API change and immediately realizes she forgot to add the test file — classic, because the test lives in a different folder. It used to mean the history getting a pair of commits: "update API endpoint" + "add forgotten test." Now: `git add tests/api.test.js`, `git commit --amend --no-edit` — and the history has one complete commit where the change and its test live together. Anyone who looks at it later sees the whole thing, not half of it. She repeats the same move twice more that day — once for a typo in a message, once for a forgotten changelog line — and each time it's a five-second job, because `--amend --no-edit` has become second nature.
+
+## What you get out of it
+
+The history stops filling up with noise commits like "fix typo" and "forgot a file" that nobody cares about and just get in the way when browsing. Every commit is self-contained, which colleagues appreciate during review and you appreciate when searching history later. And small slip-ups stop being public — you fix them before anyone sees them. It pairs with the tip [commit messages for future you](/tipy/vyvojar-commit-zpravy).

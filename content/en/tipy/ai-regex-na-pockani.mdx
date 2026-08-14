@@ -1,0 +1,53 @@
+---
+title: "Regex Without the Learning Curve: AI Writes It, Explains It, Tests It"
+excerpt: "Describe in plain words what you want to match, and AI returns a regular expression with a part-by-part explanation and test cases. For Sheets, editors, and bulk edits."
+category: "ai"
+platform: "vsude"
+audience: ["vyvojar", "freelancer"]
+keys: []
+saves: "~15 min per expression"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Regular expressions are the most powerful tool there is for bulk text editing — find every phone number, pull out email addresses, reformat a thousand lines at once. And they also have the most off-putting syntax in all of tech: the notation looks like spilled alphabet soup, and even people who know regex write it by trial and error. AI flips that equation: you describe in plain words what you're looking for, and you get back an expression, a part-by-part explanation, and a test set — so you don't have to trust it blindly.
+
+## How to do it
+
+1. Describe what you're looking for, where you'll use it, and add a few sample data points — the samples matter more than a perfect description:
+
+```text
+Write me a regular expression for [Google Sheets, the
+REGEXEXTRACT function / VS Code / Python].
+
+I want to pull out of the text: [US phone numbers — ten
+digits, may have spaces or dashes grouped, and may have
+a +1 prefix].
+
+Examples it SHOULD match:
++1 601 123 4567
+6011234567
+601-123-4567
+
+Examples it should NOT match:
+123456 (an order number)
+1/6/2026
+
+Return: 1) the expression, 2) a line-by-line explanation
+of each part, 3) a table of my examples with the result
+match/no match.
+```
+
+2. Check the test table — that's the whole trick. You don't need to understand the expression, just see that it does what it should on your examples.
+3. Try it on a small sample of data first, only then on everything. For replacements, also ask for a generated replacement pattern ("rewrite to format +1 XXX-XXX-XXXX").
+4. When the expression fails on real data, feed back the specific case: "it didn't match this: [example]" — the fix is one round-trip.
+
+## A typical scenario
+
+Freelancer Týna got a thousand-row export from a client, with addresses, phone numbers, and notes all mashed into one column, and needs to turn it into a usable table. By hand it would be an afternoon. Sheets has REGEXEXTRACT, but Týna has never written a regex in her life.
+
+She describes the task with five sample rows, gets back two expressions — for phone numbers and zip codes — with a test table where everything checks out. She drops them into formulas, verifies the result on ten sample rows, and runs it on the whole column. An afternoon of work shrinks to twenty minutes, and now she knows "pull a pattern out of text" is a solved category of problem.
+
+## What you get out of it
+
+Bulk text editing that used to be programmers-only — no syntax to learn, but control stays in your hands: the test table is your proof the expression works, and the part-by-part explanation teaches you regex along the way. For developers, the trick saves a round trip to a regex-testing website; for everyone else it unlocks REGEXEXTRACT in Sheets and find-and-replace in editors. For bigger file transformations, there's a follow-on guide: [small scripts without programming](/tipy/ai-skripty-pro-nevyvojare).

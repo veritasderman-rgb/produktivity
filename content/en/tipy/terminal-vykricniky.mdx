@@ -1,0 +1,31 @@
+---
+title: "Two exclamation marks repeat your last command — even with sudo in front"
+excerpt: "Forgot sudo? Don't retype the command: “sudo !!” reruns it with admin rights. And “!$” inserts the last argument from the previous line."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~2 min a day"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Anyone who works with a terminal knows the moment: you run a command, the terminal replies `Permission denied` — and you realize you forgot `sudo` again. Instead of the up arrow, jumping to the start of the line, and retyping, just type `sudo !!`. In bash and zsh, the double exclamation mark expands to the entire previous command, so the same thing runs again, just this time with admin rights. History expansion has one more trick worth knowing for daily use: `!$` means “the last argument of the previous command” — typically a file path, so you don't have to type it twice.
+
+## How to do it
+
+1. You run a command that fails on permissions — say, writing to a system folder. Type `sudo !!` and press <kbd>Enter</kbd>: the shell first prints what's actually about to run, then executes the previous command with `sudo` in front.
+2. `!!` works elsewhere too, not just with sudo: `echo !!` just prints the previous command, handy for checking before you insert it anywhere.
+3. `!$` inserts the last argument of the previous line. After `mkdir ~/projects/new-site`, just `cd !$` — and you're inside the folder you just created. After `ls -l /long/path/to/file.conf`, open the same file with `nano !$`.
+4. If you're not sure what will expand, add `:p` at the end — `!!:p` just prints the command and adds it to history, without running it. The interactive equivalent: <kbd>Alt</kbd> + <kbd>.</kbd> inserts the last argument directly on the line, and repeated presses cycle through older ones.
+5. The exclamation marks belong to bash and zsh — on Windows you get them in Git Bash or WSL; this shortcut doesn't exist in PowerShell.
+
+## A typical scenario
+
+An admin installs a package: `apt install htop`, the reply is “are you root?” He types `sudo !!`, done — faster than any clicking or retyping. A minute later he's unpacking an archive into a new folder: `mkdir /opt/app/v2` and right away `cd !$`, `tar -xzf package.tar.gz`. He typed the long path exactly once; the exclamation marks did the rest. A dozen such moments pile up over a day — and each one means one path not retyped (and not mistyped).
+
+One word of caution: the exclamation mark expands inside quotes too, so when you're writing text that contains exclamation marks (say, a commit message from an excited debugging session), use single quotes — `git commit -m 'Finally works!'` goes through fine, while double quotes would make the shell try to expand `!` as history. This, incidentally, is the most common source of the mysterious `event not found` error.
+
+## What you get out of it
+
+The most common small failures in the terminal — forgetting sudo and typing a path twice — shrink to a handful of characters. Fewer typos, because you type long arguments only once. And the good news to close on: these shortcuts work on every server you log into, with no installation or configuration required.

@@ -1,0 +1,51 @@
+---
+title: "A Table Locked Inside a PDF: AI Puts It Back Into Excel"
+excerpt: "Copying a table out of a PDF turns the columns into one tangled noodle of text. Upload the PDF to AI, ask for CSV — and check the control total."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "freelancer", "student"]
+keys: []
+saves: "~20 min per document"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+Everyone's run into this: a PDF report has a table you need in Excel. You select it, copy it, paste it — and instead of a table you get one long noodle of text, with the numbers merged into the headers. A PDF has no concept of tables, just characters positioned on a page. Retyping it by hand is a punishment, and yet all it takes is uploading the file to a chat: AI recognizes the table's structure from the layout, handles multi-line cells too — and for scanned documents it can read the image directly as well.
+
+## How to do it
+
+1. Upload the PDF to a chat (Claude, ChatGPT, and Gemini all accept files; for a scan, a photo of the page works too).
+2. Use this prompt:
+
+```text
+The attached PDF has a table on page [number] showing
+[description, e.g. monthly revenue by branch]. Convert it
+to CSV using a comma as the delimiter.
+
+Rules:
+- keep every row and column, don't skip or calculate
+  anything,
+- leave numbers exactly as they are (strip thousands
+  separators, keep the decimal point as-is),
+- if a cell can't be read reliably, write UNREADABLE
+  instead of guessing,
+- at the end, give the row count and the sum of column
+  [name], so I can check it against the original.
+```
+
+3. Save the CSV or paste it into a spreadsheet and check it: row count and control total against the original. If both match, the rest is very likely correct too.
+4. For scans and photos, expect a higher error rate — spot-check a few cells too, especially numbers with a lot of zeros.
+
+## A typical scenario
+
+Analyst Ondřej gets a bank's annual report as a PDF and needs a five-year table of loans out of it. Copying makes the usual mess, exporting to Word doesn't help either. It used to mean twenty minutes of retyping and another ten hunting for the typo that's throwing off the totals.
+
+He uploads the PDF, asks for CSV with a control total, and a minute later is pasting the data into a model. The total is off by one number — the original had an asterisk next to a restated value, and the model took the footnote instead. Thanks to the check he catches it right away, fixes the one cell, and moves on. Without the control total, that error would have ridden all the way into the report.
+
+## What you get out of it
+
+Data locked in a PDF stops being an obstacle — reports, price lists, statements, and tables from scanned documents land in Excel in a minute. The key part is the ritual at the end: row count and control total. AI occasionally makes mistakes during conversion, but a conversion with a built-in check is more reliable than a manual retype nobody checks at all. Once you have the data, the follow-on is [analyzing data with AI](/tipy/ai-analyza-dat) — from CSV to a conclusion you can defend.
+
+## Pro tip
+
+For reports that come in every month in the same layout, save the prompt along with the page number and column names. Conversion then shrinks to "upload, paste, check the total" — and that exact kind of repeated routine is the first candidate for full automation, whenever you feel like setting it up.

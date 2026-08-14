@@ -1,0 +1,31 @@
+---
+title: "jq: readable JSON in the terminal and one-expression value extraction"
+excerpt: "API response as one unreadable line of mush? jq formats it, colors it, and pulls out exactly the field you're looking for."
+category: "aplikace"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~10 min a week"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+JSON is everywhere — API responses, config files, logs — and it almost always arrives as an unreadable single-line mush. Anyone who wants to read it pastes it into an online formatter (sending the data who-knows-where) or hunts through it by eye. The `jq` tool solves this right in the terminal: it formats, indents, and colors JSON with a single command. And that's just the start — jq is also a query language that pulls a specific value, a list of fields, or a filtered subset out of JSON, no script required.
+
+## How to do it
+
+1. Install jq: on Windows `winget install jqlang.jq`, on Mac `brew install jq`, on Linux it's usually in the system packages (`apt install jq`).
+2. The basics — formatting: `jq . file.json` prints the file indented and colored. The dot means "the whole input, unchanged." jq most often gets piped straight after curl: `curl -s https://api.example.com/users | jq .`
+3. Extracting a value: `jq '.name'` returns the `name` field, `jq '.address.city'` a nested value, `jq '.[0]'` the first element of an array.
+4. Iterating over an array: `jq '.items[].name'` prints the names of every item in the `items` array. Combined with selecting multiple fields: `jq '.items[] | {name, price}'` turns each item into a small object with just those two fields.
+5. If you're not sure about an expression, build it up gradually — start with a dot and add pieces. And for a more complex query ("pick items over a hundred and sort by name"), AI will reliably suggest one for you these days, similar to the tip on [regex without the learning curve](/tipy/ai-regex-na-pockani) — put the jq expression in the prompt along with a sample of the data.
+
+## A typical scenario
+
+A developer is debugging an integration with a shipping carrier's API. The response is eight kilobytes on a single line, and all she cares about is the shipment status and the time of the last update. Instead of pasting it into a browser, she writes `curl -s ... | jq '.shipment | {status, updated_at}'` and sees exactly those two values, cleanly. When she needs the same thing for fifty shipments, she just tweaks the expression to iterate over the array — and gets a table that would otherwise take half an hour to build with a script. And the sensitive data never left her machine, which online formatters can never quite guarantee.
+
+If jq isn't installed, at least a built-in substitute can format: `python3 -m json.tool file.json` indents JSON with no installation at all. It can't query, though — for pulling out values, jq is irreplaceable.
+
+## What you get out of it
+
+Reading JSON stops hurting: formatting is a single command away, and you pull out a specific value with an expression instead of your eyes. No more pasting work data into web tools. And because jq chains with curl and other commands into pipelines, it becomes a building block for one-off analysis as well as scripts that would otherwise require Python.

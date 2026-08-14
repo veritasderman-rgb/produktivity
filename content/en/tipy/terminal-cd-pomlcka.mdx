@@ -1,0 +1,33 @@
+---
+title: "cd - takes you back to the folder you came from"
+excerpt: "Jumping between two directories? You don't have to type the full paths back and forth — “cd -” always jumps to the previous folder."
+category: "workflow"
+platform: "vsude"
+audience: ["vyvojar"]
+keys: []
+saves: "~2 min a day"
+date: "2026-08-15"
+updated: "2026-08-15"
+---
+
+A typical terminal situation: you're working in a project, hop over to a completely different folder to check something — and now you need to get back. You don't want to type out the full path to the project again. That's exactly what the two-character command `cd -` is for: it switches you to the directory you were in immediately before. And because the shell always remembers the last folder you visited, `cd -` also works as a toggle — running it repeatedly bounces you between two places, like Alt+Tab between windows.
+
+## How to do it
+
+1. You're in a project folder, say `~/projects/shop/backend/api`. Go somewhere else, for example `cd /var/log`.
+2. When you're done, type `cd -` — the shell prints the path it's returning you to, and you're instantly back in `~/projects/shop/backend/api`.
+3. Another `cd -` throws you back into `/var/log`. The two directories you're currently commuting between are always just one short command away.
+4. It works in bash and zsh everywhere, and in PowerShell from version 7 as well (and `cd +` jumps forward again there). The previous directory is also stored in the `$OLDPWD` variable, so you can use it inside other commands too, like `cp file.txt $OLDPWD`.
+5. When you need to juggle more than two folders, take a look at `pushd` and `popd` — they store directories on a stack. For an ordinary day, though, `cd -` is more than enough.
+
+## A typical scenario
+
+A developer is debugging a deployment: in one window he edits configuration deep inside the project structure, while regularly darting over to `/etc/nginx` to compare settings. Without `cd -` he'd either keep typing out both long paths over and over, or open a second terminal window and switch between them. Instead he just alternates `cd -`, `cd -`, `cd -` — and is always exactly where he needs to be, without typing out a single path.
+
+The same trick is a lifesaver when working with two projects that reference each other: a library in one folder, the app that uses it in another. Edit, switch, test, switch back — a whole afternoon on two keys and a dash.
+
+The dash as “the previous one” shows up once more in git, and it's worth knowing: `git checkout -` (or the newer `git switch -`) switches to the branch you came from. Fixing something on main and going back to your working branch is just as fast as hopping between folders — the same mental pattern, two different tools.
+
+## What you get out of it
+
+The most annoying part of working in a terminal — typing out long paths — disappears exactly in the situation where it's most common: going back to where you just were. Two characters instead of thirty, many times a day. And unlike clicking around a graphical file manager, your hands never leave the keyboard — exactly the kind of small thing that makes terminal work so fast.
