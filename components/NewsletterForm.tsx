@@ -49,6 +49,12 @@ export function NewsletterForm({
       const data = await res.json();
       if (res.ok) {
         setStatus("ok");
+        try {
+          // Přihlášeno — newsletter pop-up se už nikdy nemá ukazovat.
+          window.localStorage.setItem("produktivni:subscribed", "1");
+        } catch {
+          /* Zakázané úložiště — přihlášení proběhlo, jen si ho nezapamatujeme. */
+        }
       } else {
         setStatus("error");
         setMessage(data.error ?? t.error);

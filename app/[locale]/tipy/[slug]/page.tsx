@@ -17,6 +17,8 @@ import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 import { CopyPre } from "@/components/CopyPre";
 import { ReadingProgress } from "@/components/ReadingProgress";
+import { BackToTop } from "@/components/BackToTop";
+import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { Pomohlo } from "@/components/Pomohlo";
 import { extractHeadings, flatText, slugify } from "@/lib/toc";
 import { formatReviewed, reviewedLabel } from "@/lib/reviewed";
@@ -225,6 +227,8 @@ export default async function TipDetail({
           <NewsletterForm source={`tip-${tip.slug}`} locale={locale} />
         </div>
       </div>
+      <BackToTop locale={locale} />
+      <NewsletterPopup locale={locale} />
     </article>
   );
 }

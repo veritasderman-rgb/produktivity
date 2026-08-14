@@ -6,6 +6,7 @@ import { audienceHref, audiences, formatTipCount, tipsForAudience } from "@/lib/
 import { getShelves } from "@/lib/shelves";
 import { formatDuration, formatStepCount, getPaths } from "@/lib/paths";
 import { NewsletterForm } from "@/components/NewsletterForm";
+import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { Reveal } from "@/components/Reveal";
 import { tipOfTheDay } from "@/lib/related";
 import { formatCount, getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
@@ -352,6 +353,7 @@ export default async function HomePage({
           </div>
         </Reveal>
       </section>
+      <NewsletterPopup locale={locale} />
     </>
   );
 }
