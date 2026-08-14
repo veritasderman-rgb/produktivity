@@ -20,26 +20,32 @@ Contacts → Settings → Contact attributes. Zkontrolujte, že existuje atribut
 `SOURCE` typu **Text**. Když ho tam nevidíte, založte ho ručně — Brevo ho sice
 při prvním kontaktu vytvoří samo, ale automatizace ho potřebuje znát dopředu.
 
-## 2. Sedm e-mailových šablon
+## 2. Sedm e-mailových šablon — HOTOVO
 
-Campaigns → Templates → New template, a to sedmkrát.
+Šablony jsou v Brevu **už založené** (Campaigns → Templates), aktivní,
+s odesílatelem Josef Pavlovic a reply-to `josef@josefpavlovic.cz`.
+Vygenerovaly se z `content/kurz/den-N.md` a `content/kurz/en/day-N.md`,
+prompty jsou v nich zachované znak po znaku.
 
-Pro každý den `den-N.md`:
+| Den | CS — ID | EN — ID |
+|---|---|---|
+| 1 | 13 | 20 |
+| 2 | 14 | 21 |
+| 3 | 15 | 22 |
+| 4 | 16 | 23 |
+| 5 | 17 | 24 |
+| 6 | 18 | 25 |
+| 7 | 19 | 26 |
 
-- **Předmět** = hodnota `subject` z frontmatteru souboru.
-- **Preheader** (v Brevu „Preview text") = hodnota `preheader`.
-- **Tělo** = text pod frontmatterem, tedy vše pod druhým `---`.
-- Odesílatel: Josef Pavlovic, stejná adresa jako u newsletteru.
+Tagy: `kurz-cs` a `kurz-en` — podle nich šablony v Brevu snadno vyfiltrujete.
 
-Poznámky k převodu textu:
+**Když upravíte text v `content/kurz/`**, změna se do Brevu nepropíše sama.
+Buď ji přeneste ručně, nebo si nechte šablonu založit znovu a v automatizaci
+přepněte na nové ID.
 
-- Nadpisy `## Myšlenka dne` apod. udělejte v šabloně jako podnadpisy.
-- Bloky v trojitých zpětných apostrofech (```) jsou **prompty k okopírování** —
-  dejte je do rámečku s neproporcionálním písmem a světlým pozadím, ať je jasné,
-  co se má zkopírovat. Nezalamujte je jinak, než jak jsou napsané.
-- Odkazy ve tvaru `[text](https://…)` převeďte na normální odkazy.
-- Nezapomeňte na odhlašovací odkaz v patičce (Brevo ho vkládá automaticky, jen
-  ověřte, že v šabloně je).
+**Poznámka k odkazům:** Brevo si ke všem odkazům samo přidává UTM parametry
+(link tracking), včetně odhlašovacího. Je to jeho výchozí chování; kdyby vadilo,
+dá se sledování odkazů v nastavení Brevu vypnout.
 
 ## 3. Automatizace
 
@@ -49,6 +55,11 @@ Automations → Create automation → Custom automation.
 
 **První krok — podmínka:** Condition → contact attribute `SOURCE` **equals**
 `kurz`. Kdo přišel odjinud, větví ven a kurz nedostane.
+
+**Druhý krok — jazyk:** Condition → contact attribute `LOCALE` **equals** `cs`
+(pro anglickou automatizaci `en`). Atribut `LOCALE` posílá formulář automaticky,
+viz `app/api/subscribe/route.ts`. Bez téhle podmínky by anglicky přihlášený
+dostal český kurz.
 
 **Dál v ANO větvi:**
 
@@ -94,34 +105,25 @@ napsané. Nic dalšího nastavovat nemusíte.
 
 ## English version
 
-Anglická verze kurzu (`content/kurz/en/day-1.md` … `day-7.md`) je **druhá,
-samostatná automatizace se stejnou logikou** jako výše — jen s anglickými
-texty a anglickými odkazy (`https://productive.tips/tipy/...`). Postup je
-totožný:
+Anglická verze je **druhá, samostatná automatizace** se stejnou strukturou —
+jen se šablonami ID 20 až 26 a podmínkou `LOCALE` **equals** `en`.
 
-1. Sedm šablon v Brevu (Campaigns → Templates), tentokrát z `day-N.md`:
-   předmět a preheader z frontmatteru, tělo pod druhým `---`. Odesílatel
-   může zůstat Josef Pavlovic, jen s adresou / podpisem odpovídajícím
-   anglické verzi webu.
-2. Vlastní automatizace (Automations → Create automation), se stejným
-   triggerem „A contact is added to a list" a stejnou strukturou
-   Send email → Wait 1 day → Send email … pro Day 1 až Day 7.
+Rozlišení jazyka **už je vyřešené**: formulář posílá spolu se `source` i
+`locale` a `app/api/subscribe/route.ts` z něj ukládá atribut `LOCALE`
+(`cs` / `en`). Obě jazykové mutace posílají `SOURCE = kurz`, takže bez
+`LOCALE` by se automatizace navzájem přebíjely.
 
-**Jak rozeznat anglické přihlášení.** Formulář na `/en/kurz` běží přes
-stejnou komponentu (`app/[locale]/kurz/page.tsx`) jako ten český a posílá
-stejně `source="kurz"` — v datech tedy anglický a český přihlášený vypadají
-identicky, atribut `SOURCE` je nerozliší. Pokud chcete, aby si dvě
-automatizace (CS a EN) navzájem nešlapaly na paty a každá spustila jen tu
-svou jazykovou verzi, bude potřeba přidat druhý rozlišující atribut —
-nejjednodušší je odeslat spolu se `source` i `locale` (např. `LOCALE = en`
-vs. `cs`) z `app/api/subscribe/route.ts` a v Brevu podle něj v prvním kroku
-automatizace větvit (Condition → contact attribute `LOCALE` equals `en`).
-Bez téhle úpravy by anglicky přihlášený dostal český kurz (nebo naopak),
-takže než anglickou automatizaci zapnete, `LOCALE` atribut a jeho odesílání
-z formuláře doplňte.
+**Než anglickou automatizaci zapnete:** ověřte v Contacts → Settings →
+Contact attributes, že atribut `LOCALE` typu Text existuje. Brevo ho založí
+samo při prvním kontaktu, ale automatizace ho potřebuje znát dopředu.
 
 Seznam (list) může být stejný jako pro český kurz, nebo — pokud chcete mít
 anglické odběratele odděleně i pro běžný newsletter po skončení kurzu —
-samostatný `BREVO_LIST_ID` jen pro anglickou verzi. V tom případě přidejte
-novou proměnnou prostředí (např. `BREVO_LIST_ID_EN`) a v `subscribe/route.ts`
-podle `locale` vybírejte správný list.
+samostatný `BREVO_LIST_ID_EN`; v tom případě v `subscribe/route.ts` podle
+`locale` vybírejte správný list.
+
+## Kapacita účtu
+
+Účet běží na **volném tarifu**. Sedmidenní kurz spotřebuje 7 odeslání na
+jednoho odběratele, takže při 269 zbývajících kreditech obslouží zhruba
+38 lidí. Než kurz začnete propagovat, zkontrolujte zůstatek kreditů.
