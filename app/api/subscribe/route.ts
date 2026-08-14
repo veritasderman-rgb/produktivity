@@ -41,25 +41,38 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: err.notReady }, { status: 503 });
   }
 
-  const res = await fetch("https://api.brevo.com/v3/contacts", {
-    method: "POST",
-    headers: { "api-key": apiKey, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      email,
-      listIds: [listId],
-      updateEnabled: true,
-      // LOCALE rozlišuje českou a anglickou větev automatizace — SOURCE sám o sobě
-      // nestačí, formulář kurzu posílá „kurz" z obou jazykových mutací.
-      attributes: {
-        SOURCE: typeof source === "string" ? source : "web",
-        LOCALE: locale,
-      },
-    }),
-  });
+  const sourceValue = typeof source === "string" ? source : "web";
+  const createContact = (attributes: Record<string, string>) =>
+    fetch("https://api.brevo.com/v3/contacts", {
+      method: "POST",
+      headers: { "api-key": apiKey, "Content-Type": "application/json" },
+      body: JSON.stringify({ email, listIds: [listId], updateEnabled: true, attributes }),
+    });
+
+  // LOCALE rozlišuje českou a anglickou větev automatizace — SOURCE sám o sobě
+  // nestačí, formulář kurzu posílá „kurz" z obou jazykových mutací.
+  let res = await createContact({ SOURCE: sourceValue, LOCALE: locale });
+
+  // Brevo odmítne kontakt s atributem, který v účtu není definovaný. Přihlášení
+  // je důležitější než rozlišení jazyka, takže to zkusíme ještě jednou bez něj.
+  if (!res.ok && res.status !== 204) {
+    const detail = await res.text();
+    if (/attribute/i.test(detail)) {
+      console.warn(
+        "Brevo: atribut LOCALE není v účtu definovaný, kontakt ukládám bez něj. " +
+          "Založte ho v Contacts → Settings → Contact attributes (typ Text), " +
+          "jinak nepůjde odlišit českou a anglickou větev kurzu.",
+      );
+      res = await createContact({ SOURCE: sourceValue });
+    } else {
+      console.error("Brevo subscribe failed:", res.status, detail);
+      return NextResponse.json({ error: err.failed }, { status: 502 });
+    }
+  }
 
   if (!res.ok && res.status !== 204) {
     const detail = await res.text();
-    console.error("Brevo subscribe failed:", res.status, detail);
+    console.error("Brevo subscribe failed (bez LOCALE):", res.status, detail);
     return NextResponse.json({ error: err.failed }, { status: 502 });
   }
 
