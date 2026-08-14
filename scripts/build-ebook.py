@@ -42,6 +42,11 @@ COL_W = PAGE_W - MARGIN_R - COL_X
 CONTENT_TOP = PAGE_H - MARGIN_T
 CONTENT_BOTTOM = MARGIN_B + 22  # nad patičkou
 
+# Dva tipy na stranu — každý tip dostane půl strany.
+TIPS_PER_PAGE = 2
+SLOT_GAP = 26  # mezera s vlasovou linkou mezi tipy
+SLOT_H = (CONTENT_TOP - CONTENT_BOTTOM - SLOT_GAP * (TIPS_PER_PAGE - 1)) / TIPS_PER_PAGE
+
 REG = "DejaVuSans"
 BOLD = "DejaVuSans-Bold"
 
@@ -144,65 +149,69 @@ def footer(c: pdfcanvas.Canvas, page_no: int, brand: str) -> None:
 # --- Bloky stránek ---------------------------------------------------------
 
 
+TITLE_SIZE, TITLE_LEAD = 13.5, 16.5
+LEAD_SIZE, LEAD_LEAD = 10, 14.2
+STEP_SIZE, STEP_LEAD = 9.2, 13.2
+STEP_INDENT = 18
+
+
 def tip_height(tip: dict) -> float:
-    """Spočítá výšku bloku tipu, aby se dalo rozhodnout o zalomení stránky."""
-    h = text_height(tip["title"], BOLD, 11.5, COL_W, 14.5)
-    h += 12  # meta řádek
+    """Skutečná výška obsahu tipu — kontroluje se, že se vejde do půlstrany."""
+    h = text_height(tip["title"], BOLD, TITLE_SIZE, COL_W, TITLE_LEAD)
+    h += 13  # meta řádek
     if tip.get("keys"):
-        h += 17
-    h += 6
-    h += text_height(tip["lead"], REG, 9, COL_W, 12.6)
-    h += 8
+        h += 21
+    h += 9
+    h += text_height(tip["lead"], REG, LEAD_SIZE, COL_W, LEAD_LEAD)
+    h += 12
     for step in tip["steps"]:
-        h += text_height(step, REG, 8.5, COL_W - 15, 11.8) + 3
-    h += 9  # řádek s úsporou
+        h += text_height(step, REG, STEP_SIZE, COL_W - STEP_INDENT, STEP_LEAD) + 5
+    h += 14  # řádek s úsporou
     return h
 
 
-def draw_tip(c: pdfcanvas.Canvas, tip: dict, number: int, y: float, saves_label: str) -> float:
-    """Vykreslí jeden tip. y je horní okraj, vrací spodní okraj."""
+def draw_tip(c: pdfcanvas.Canvas, tip: dict, number: int, y: float, saves_label: str) -> None:
+    """Vykreslí jeden tip do slotu, jehož horní okraj je y."""
     top = y
 
     # Číslo tipu — jediné velké místo pro akcent.
-    c.setFont(BOLD, 19)
+    c.setFont(BOLD, 21)
     c.setFillColorRGB(*ACCENT)
-    c.drawString(MARGIN_L, top - 15, f"{number:02d}")
+    c.drawString(MARGIN_L, top - 16, f"{number:02d}")
 
-    y = draw_wrapped(c, tip["title"], COL_X, top, BOLD, 11.5, COL_W, 14.5)
+    y = draw_wrapped(c, tip["title"], COL_X, top, BOLD, TITLE_SIZE, COL_W, TITLE_LEAD)
 
-    c.setFont(REG, 7.5)
+    c.setFont(REG, 8)
     c.setFillColorRGB(*MUTED)
-    y -= 11
+    y -= 12
     c.drawString(COL_X, y, tip["meta"])
 
     if tip.get("keys"):
-        y = draw_keycaps(c, tip["keys"], COL_X, y - 4) - 4
-
-    y -= 6
-    y = draw_wrapped(c, tip["lead"], COL_X, y, REG, 9, COL_W, 12.6)
-
-    y -= 8
-    for i, step in enumerate(tip["steps"], 1):
-        lines = wrap(step, REG, 8.5, COL_W - 15)
-        c.setFont(BOLD, 8.5)
-        c.setFillColorRGB(*ACCENT)
-        c.drawString(COL_X, y - 8.6, f"{i}.")
-        c.setFont(REG, 8.5)
-        c.setFillColorRGB(*INK)
-        for line in lines:
-            y -= 11.8
-            c.drawString(COL_X + 15, y, line)
-        y -= 3
+        y = draw_keycaps(c, tip["keys"], COL_X, y - 6) - 4
 
     y -= 9
-    c.setFont(BOLD, 7.8)
+    y = draw_wrapped(c, tip["lead"], COL_X, y, REG, LEAD_SIZE, COL_W, LEAD_LEAD)
+
+    y -= 12
+    for i, step in enumerate(tip["steps"], 1):
+        lines = wrap(step, REG, STEP_SIZE, COL_W - STEP_INDENT)
+        c.setFont(BOLD, STEP_SIZE)
+        c.setFillColorRGB(*ACCENT)
+        c.drawString(COL_X, y - STEP_LEAD, f"{i}.")
+        c.setFont(REG, STEP_SIZE)
+        c.setFillColorRGB(*INK)
+        for line in lines:
+            y -= STEP_LEAD
+            c.drawString(COL_X + STEP_INDENT, y, line)
+        y -= 5
+
+    y -= 14
+    c.setFont(BOLD, 8.5)
     c.setFillColorRGB(*MUTED)
     label = f"{saves_label} "
     c.drawString(COL_X, y, label)
-    c.setFont(REG, 7.8)
-    c.drawString(COL_X + pdfmetrics.stringWidth(label, BOLD, 7.8), y, tip["saves"])
-
-    return y
+    c.setFont(REG, 8.5)
+    c.drawString(COL_X + pdfmetrics.stringWidth(label, BOLD, 8.5), y, tip["saves"])
 
 
 def draw_cover(c: pdfcanvas.Canvas, t: dict) -> None:
@@ -335,22 +344,22 @@ def build(locale: str, out_path: str) -> tuple[int, int]:
     c.showPage()
 
     page_no += 1
-    y = CONTENT_TOP
-    first_on_page = True
     for i, tip in enumerate(tips, 1):
-        height = tip_height(tip)
-        if not first_on_page and y - height < CONTENT_BOTTOM:
+        slot = (i - 1) % TIPS_PER_PAGE
+        if slot == 0 and i > 1:
             footer(c, page_no, t["footer"])
             c.showPage()
             page_no += 1
-            y = CONTENT_TOP
-            first_on_page = True
-        if not first_on_page:
-            y -= 16
-            rule(c, MARGIN_L, y, PAGE_W - MARGIN_L - MARGIN_R, 0.5, HAIRLINE)
-            y -= 20
-        y = draw_tip(c, tip, i, y, t["saves_label"])
-        first_on_page = False
+        y = CONTENT_TOP - slot * (SLOT_H + SLOT_GAP)
+        if slot > 0:
+            rule(c, MARGIN_L, y + SLOT_GAP / 2, PAGE_W - MARGIN_L - MARGIN_R, 0.5, HAIRLINE)
+        overflow = tip_height(tip) - SLOT_H
+        if overflow > 0:
+            print(
+                f"  varování: tip {i} ({tip['title'][:40]}) přetéká o {overflow:.0f} bodů",
+                file=sys.stderr,
+            )
+        draw_tip(c, tip, i, y, t["saves_label"])
     footer(c, page_no, t["footer"])
     c.showPage()
 
