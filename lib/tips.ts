@@ -16,6 +16,12 @@ export type Tip = {
   date: string;
   /** Datum poslední revize obsahu (ISO). Když ve frontmatteru chybí, použije se `date`. */
   updated?: string;
+  /**
+   * Datum ověření faktů proti živým nástrojům (ISO) — silnější událost než
+   * `updated` (redakční úprava). Zapisuje se JEN po skutečném ověřovacím běhu
+   * (viz docs/OVEROVANI.md), nikdy plošně skriptem. Bez pole se nic nezobrazí.
+   */
+  tested?: string;
   body: string;
   /** Odhad čtení: 200 slov za minutu, kódové bloky se nepočítají. */
   minutes: number;
@@ -89,6 +95,7 @@ export function getAllTips(locale: string = "cs"): Tip[] {
       saves: data.saves as string,
       date: data.date as string,
       updated: (data.updated ?? data.date) as string | undefined,
+      tested: typeof data.tested === "string" ? data.tested : undefined,
       body: content,
       minutes: readingMinutes(content),
       isMega: content.length >= MEGA_CHARS,

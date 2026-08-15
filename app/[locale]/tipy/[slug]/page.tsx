@@ -45,6 +45,7 @@ const T = {
     faq: "Časté otázky",
     copy: { copy: "Zkopírovat", copied: "Zkopírováno ✓" },
     print: "Vytisknout / uložit PDF",
+    tested: "Fakta ověřena proti nástrojům",
   },
   en: {
     breadcrumb: "Tips & tricks",
@@ -59,6 +60,7 @@ const T = {
     faq: "Common questions",
     copy: { copy: "Copy", copied: "Copied ✓" },
     print: "Print / save as PDF",
+    tested: "Facts verified against the tools",
   },
 };
 
@@ -185,6 +187,8 @@ export default async function TipDetail({
   const headings = extractHeadings(tip.body);
   const reviewedIso = tip.updated ?? tip.date;
   const reviewed = formatReviewed(reviewedIso, locale);
+  /* Ověření faktů proti živým nástrojům — silnější stopa než `updated`; zapisuje ho jen ověřovací běh (docs/OVEROVANI.md). */
+  const tested = formatReviewed(tip.tested, locale);
   /* HowTo jen u velkých průvodců (tělo > 18 000 zn.) s číslovaným postupem v H2. */
   const howToSteps = tip.isGuide ? extractHowToSteps(tip.body) : [];
 
@@ -210,6 +214,13 @@ export default async function TipDetail({
       {reviewed && (
         <p className="eyebrow mt-3 text-faint">
           {reviewedLabel[locale]}: <time dateTime={reviewedIso}>{reviewed}</time>
+        </p>
+      )}
+      {tested && tip.tested && (
+        <p className="eyebrow mt-1 text-faint">
+          <Link href={p("/zmeny")} className="hover:underline">
+            {t.tested}: <time dateTime={tip.tested}>{tested}</time>
+          </Link>
         </p>
       )}
       <div className="mt-4 flex flex-wrap items-end gap-2">
