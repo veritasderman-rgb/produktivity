@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { countGuides, getAllTips } from "@/lib/tips";
 import { getAllChapters } from "@/lib/chapters";
@@ -11,6 +12,29 @@ import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { Reveal } from "@/components/Reveal";
 import { tipOfTheDay } from "@/lib/related";
 import { formatCount, getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale: raw } = await params;
+  const locale = isLocale(raw) ? raw : "cs";
+  const dict = getDict(locale);
+  const csUrl = "https://produktivni.cz";
+  const enUrl = "https://productive.tips";
+  return {
+    alternates: {
+      canonical: locale === "en" ? enUrl : csUrl,
+      languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
+    },
+    openGraph: {
+      title: dict.siteTitle,
+      description: dict.siteDescription,
+      images: [`/api/og?title=${encodeURIComponent(dict.siteTitle)}`],
+    },
+  };
+}
 
 export const revalidate = 3600; // tip dne se obměňuje bez nového deploye
 
