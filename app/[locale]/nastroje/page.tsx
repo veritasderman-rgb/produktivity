@@ -11,10 +11,10 @@ const T = {
     title: "Nástroje",
     metaTitle: "Interaktivní nástroje pro produktivitu",
     description:
-      "Kvíz na výběr systému produktivity, Pomodoro časovač, kalkulačka hodinové sazby, skládačka promptů a audit času. Zdarma, v prohlížeči, bez registrace.",
+      "Kvíz na výběr systému produktivity, diagnostika AI zralosti, Pomodoro časovač, kalkulačka hodinové sazby, skládačka promptů a audit času. Zdarma, v prohlížeči, bez registrace.",
     eyebrow: "Rozcestník",
     heading: "Nástroje",
-    lead: "Pět věcí, které si tady rovnou vyzkoušíte. Nic se nikam neposílá — všechno běží ve vašem prohlížeči a po zavření záložky zmizí.",
+    lead: "Šest věcí, které si tady rovnou vyzkoušíte. Nic se nikam neposílá — všechno běží ve vašem prohlížeči a po zavření záložky zmizí.",
     open: "Otevřít nástroj",
     soon: "Chystá se",
     minute: "min",
@@ -25,6 +25,13 @@ const T = {
         blurb:
           "Deset otázek o vašem dni a vstupech. Na konci jeden systém, důvod, proč zrovna ten, a tři konkrétní kroky na zítřek.",
         meta: "2 min · kvíz",
+      },
+      {
+        href: "/nastroje/diagnostika",
+        title: "Na které úrovni AI jste",
+        blurb:
+          "Dvanáct otázek o tom, jak doopravdy používáte AI. Výsledek: úroveň 1–5 podle žebříku chat → agent a osobní plán — tři návody a jedna cesta.",
+        meta: "3 min · diagnostika",
       },
       {
         href: "/nastroje/pomodoro",
@@ -60,10 +67,10 @@ const T = {
     title: "Tools",
     metaTitle: "Interactive productivity tools",
     description:
-      "A quiz that picks your productivity system, a Pomodoro timer, an hourly rate calculator, a prompt builder and a time audit. Free, in the browser, no sign-up.",
+      "A quiz that picks your productivity system, an AI maturity diagnostic, a Pomodoro timer, an hourly rate calculator, a prompt builder and a time audit. Free, in the browser, no sign-up.",
     eyebrow: "Where to start",
     heading: "Tools",
-    lead: "Five things you can try right here. Nothing gets sent anywhere — it all runs in your browser and disappears when you close the tab.",
+    lead: "Six things you can try right here. Nothing gets sent anywhere — it all runs in your browser and disappears when you close the tab.",
     open: "Open the tool",
     soon: "Coming up",
     minute: "min",
@@ -74,6 +81,13 @@ const T = {
         blurb:
           "Ten questions about your day and your inputs. At the end: one system, the reason it is that one, and three concrete steps for tomorrow.",
         meta: "2 min · quiz",
+      },
+      {
+        href: "/nastroje/diagnostika",
+        title: "Which AI level you are on",
+        blurb:
+          "Twelve questions about how you really use AI. The result: your level 1–5 on the chat → agent ladder and a personal plan — three guides and one path.",
+        meta: "3 min · diagnostic",
       },
       {
         href: "/nastroje/pomodoro",

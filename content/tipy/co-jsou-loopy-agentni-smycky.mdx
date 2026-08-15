@@ -1,0 +1,266 @@
+---
+title: "Co jsou loopy: agentní smyčky, které prý nahradí promptování"
+excerpt: "Vysvětlující článek s prompty: co znamená nechat AI běžet ve smyčce, co je na hypu pravda, co přehnané a jak si první loop bezpečně vyzkoušet."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "vyvojar", "freelancer"]
+keys: []
+saves: "~hodiny hlídání týdně"
+date: "2026-08-15"
+updated: "2026-08-15"
+tldr: >-
+  Loop znamená, že AI nedostane otázku, ale cíl a povolení opakovat: udělej krok, zkontroluj výsledek, oprav, pokračuj — dokud není hotovo nebo nenarazí na předem daný limit. Nenahrazuje to promptování, nahrazuje to čekání: prompt se z jednorázového výstřelu mění v pravidla hry, která běží sama. Funguje to jen tam, kde jde výsledek objektivně ověřit (testy, kontrolní součty, validace) — bez ověření smyčka konverguje k průměru, ne k dokonalosti. Limity se nastavují předem a výsledek vždy schvaluje člověk.
+faq:
+  - q: "Nahradí loopy promptování?"
+    a: >-
+      Ne — přesouvají ho jinam. Místo instrukcí krok za krokem píšete cíl, kritéria hotovosti a limity, a to je pořád prompt, jen jiného druhu. Kdo neumí popsat, jak vypadá hotovo, tomu smyčka jen rychleji vyrábí špatné výsledky.
+  - q: "Na jaké úkoly se loop hodí?"
+    a: >-
+      Na úkoly s ověřitelným kritériem hotovosti: kód s testy, data s kontrolními součty, převody formátů s validací, hromadné opravy s pravidly. Tam smyčka kvalitu dramaticky zvedá, protože si každý krok sama zkontroluje a chybu opraví dřív, než ji uvidíte.
+  - q: "A na jaké se nehodí?"
+    a: >-
+      Na úkoly bez objektivního ověření — texty, strategie, rozhodnutí. Tam nemá smyčka podle čeho poznat, že se zlepšuje, takže iteruje k průměrné, uhlazené verzi. U takové práce je lepší konverzace: návrh, vaše reakce, další verze.
+  - q: "Můžu nechat smyčku běžet přes noc bez dozoru?"
+    a: >-
+      Běžet ano, rozhodovat ne. Před spuštěním nastavte limity (počet iterací, rozsah práce, co je zakázané), nechte ji psát průběžný deník a ráno výsledek zkontrolujte a schvalte člověk. Smyčka smí pracovat sama, ale nic z jejího výstupu nejde ven bez vašeho pohledu.
+  - q: "Potřebuju na loopy umět programovat?"
+    a: >-
+      Ne nutně. Princip „udělej, zkontroluj, oprav, opakuj" jde zadat i v běžném chatu nad tabulkou s kontrolním součtem. Programátoři mají výhodu jen v tom, že jejich obor má ověření zabudované — testy a build řeknou jasné ano/ne.
+  - q: "Je to celé jen další hype, který za půl roku zmizí?"
+    a: >-
+      Název možná, mechanismus ne. Pojmy se střídají rychle — po smyčkách už se mluví o dalších vrstvách — ale princip „agent s cílem, ověřením a limitem" zůstává, protože na ověřitelných úkolech prokazatelně funguje. Učte se mechanismus, ne slovník.
+---
+
+Možná jste to zaslechli na poradě nebo v podcastu: „Promptování je mrtvé, teď se spouští loopy." Kolega prý nechal AI běžet přes noc a ráno měl hotový projekt. Na sítích se místo prompt engineeringu skloňuje loop engineering a působí to, jako by se během pár měsíců změnila pravidla — kdo pořád píše prompty, ten to nepochopil.
+
+Skutečnost je zajímavější než slogan. **Loop nenahrazuje promptování — nahrazuje čekání. Prompt se místo jednoho výstřelu stává pravidly hry, která běží sama.** Pořád píšete zadání, jen jiného druhu: místo „udělej tohle" píšete „tohle je cíl, takhle poznáš, že je hotovo, a tady jsou meze, za které nesmíš". Rozdíl není v tom, jestli umíte formulovat, ale co formulujete.
+
+Tenhle článek hype překládá do reality: co loop vlastně je, proč se o něm mluví právě teď, co je na tvrzeních pravda a co přehnané — a jak si první smyčku vyzkoušet, i když neprogramujete. Prompty v rámečcích jsou k okopírování.
+
+## Co je loop obyčejnou řečí
+
+Běžná práce s AI je otázka a odpověď: napíšete prompt, dostanete výstup, přečtete ho, napíšete další prompt. Vy jste motor — každý krok se hne jen tehdy, když do něj strčíte. Když výstup nesedí, vy si toho všimnete, vy formulujete opravu, vy čekáte na další verzi.
+
+Loop (agentní smyčka) tohle otočí. AI nedostane otázku, ale **cíl** — a povolení opakovat cyklus:
+
+1. **Udělej krok** směrem k cíli (oprav soubor, napiš funkci, doplň data).
+2. **Zkontroluj výsledek** objektivním ověřením (spusť testy, přepočítej kontrolní součet, zvaliduj formát).
+3. **Když kontrola neprošla, oprav to** a vrať se k bodu 2.
+4. **Pokračuj**, dokud není splněno kritérium hotovosti — nebo dokud nenarazíš na předem daný limit.
+
+Nejbližší analogie z běžného života: rozdíl mezi „poraď mi, jak to udělat" a „udělej to a zkontroluj si po sobě". První je konzultace — dostanete radu a práce zůstává na vás. Druhé je delegování — a jako u každého delegování nerozhoduje, jak chytře zadáte první krok, ale jestli umíte říct, jak vypadá hotová práce.
+
+Klíčové slovo v celém cyklu je bod 2. Smyčka bez ověření není smyčka, je to jen AI, která mluví sama se sebou. Sílu tomu dává až **objektivní kontrola, kterou nedělá model, ale realita**: testy buď projdou, nebo ne; kontrolní součet buď sedí, nebo ne; tabulka buď má tisíc řádků se správným formátem, nebo nemá. Model se může mýlit v tom, jestli je práce dobrá — spuštěný test se nemýlí.
+
+## Proč se o tom mluví teď
+
+Poctivá odpověď napřed: **nová myšlenka to není.** Cyklus „zkus, ověř, oprav, opakuj" je starý jako programování a agenty běžící ve smyčce zkoušeli lidé od prvních dnů jazykových modelů. Většinou to dopadlo stejně: agent se po pár kolech ztratil, začal si vymýšlet pokrok a spálil peníze. Nové není schéma — nové je, že to začalo fungovat dost spolehlivě na reálnou práci.
+
+Sešly se k tomu tři věci. Za prvé **agentní nástroje**: prostředí typu Claude Code, kde AI pracuje přímo se soubory, spouští skripty a vidí jejich výstup — bez toho nemá krok 2 z čeho číst. Za druhé **výdrž modelů**: současné modely udrží souvislou mnohahodinovou práci, kde starší generace ztrácely nit po desítkách minut. A za třetí — nejméně nápadné, ale nejdůležitější — **možnost ověřit si výsledek strojově**: testy, build, validace dat. Jakmile má agent k dispozici tvrdé ano/ne, přestává být iterace hazardem a stává se řemeslem.
+
+Hype vlna se zvedla v létě 2026. Technologický tisk psal o tom, že „AI svět se zacykluje", autor Claude Code Boris Cherny na konferenci prohlásil, že smyčky jsou stejně velký krok jako přechod od ručního psaní kódu k agentům, a rozšířil se termín loop engineering jako „nástupce prompt engineeringu". K tomu folklór: technika posměšně pojmenovaná Ralph Wiggum (podle postavičky ze Simpsonových) — v jádru obyčejný nekonečný cyklus, který agentovi pořád dokola předkládá stejné zadání i s jeho vlastními chybami, dokud úkol nedotlačí do konce. Zní to hloupě, ale na úkolech s jasným kritériem hotovosti to funguje tak dobře, že z toho vznikl oficiální doplněk Claude Code a kolují historky o týmech, které si přes noc nechaly vygenerovat celé repozitáře. Claude Code má dnes i vestavěný příkaz, který opakovaně spouští zadaný úkol, dokud práce není hotová.
+
+A ještě jedna věc pro střízlivost: kolotoč pojmů se točí dál. V době psaní tohoto článku už část téže scény prohlašuje, že „loop engineering je mrtvý", a razí další termín. To není důkaz, že smyčky nefungují — je to připomínka, že **názvy se střídají rychleji než podstata**. Vyplatí se učit mechanismus, ne slovník.
+
+## Co je pravda a co hype
+
+Férové srovnání toho, co se tvrdí, s tím, co se děje:
+
+| Tvrzení z hype vlny | Jak to je doopravdy |
+| --- | --- |
+| „Už se nepromptuje." | Promptuje se jinak. Místo instrukcí krok za krokem píšete cíl, kritéria hotovosti a limity. Je to pořád formulační dovednost — a náročnější než dřív. |
+| „AI dodělá úkol sama do konce." | Na úkolech s ověřitelným výsledkem často ano, a kvalita je znatelně vyšší, protože si chyby najde a opraví sama. Na úkolech bez ověření se točí v kruhu. |
+| „Nebudete muset nic umět." | Naopak. Smyčka zesiluje kvalitu zadání — dobrá kritéria zesílí, špatná taky. Loop bez dobrých kritérií jen rychleji vyrábí špatné výsledky. |
+| „Necháte to běžet a ráno je hotovo." | Někdy. Nezávislé testy dlouhých agentních běhů ale opakovaně ukazují, že kód z mnoha iterací má sklon bobtnat a ztrácet strukturu — bez ranní lidské kontroly se dluh hromadí potichu. |
+| „Platí to pro každou práci." | Platí to pro práci s tvrdým ano/ne. Texty, strategie a rozhodnutí tvrdé ano/ne nemají — tam smyčka konverguje k průměru, ne k dokonalosti. |
+
+Dvě věci z tabulky stojí za rozvedení, protože na nich stojí celý zbytek článku.
+
+**Pravda: na ověřitelných úkolech je skok skutečný.** Kód s testy, data s kontrolními součty, převody formátů s validací — tam smyčka mění hru, protože dělá to, co člověk u mechanické práce dělat nevydrží: kontroluje po sobě každý krok, pokaždé, bez únavy. Chyba, kterou byste našli za týden, se opraví ve třetí iteraci, dřív než ji vůbec uvidíte.
+
+**Hype: „konvergence k dokonalosti" u tvůrčí práce.** Když smyčka nemá objektivní měřítko, zbývá jí jediné: vlastní úsudek modelu o tom, co je „lepší". A ten systematicky tíhne k uhlazenému průměru — text po deseti iteracích není desetkrát lepší, je desetkrát obroušenější. Všechno, co v něm bylo osobité, smyčka spolehlivě uhladí. U tvůrčí a rozhodovací práce proto zůstává lepší konverzace: návrh, vaše reakce, další návrh — s vámi v roli měřítka.
+
+## Jak vypadá loop v praxi
+
+Tři ukázky od nejjednodušší po nejodvážnější. Všechny stojí na stejné kostře — cíl, ověření, limit — a všechny končí stejně: **výsledek schvaluje člověk.** To je zásada, která se smyčkami neruší, ale zesiluje; podrobně o ní píšeme v příručce [Rutiny a agenti](/prirucka/rutiny-a-agenti).
+
+### Ukázka 1: oprava dat s kontrolním součtem (bez programování)
+
+Nejmenší možný loop zvládnete v obyčejném chatu s nahraným souborem — žádný terminál, žádný kód. Trik je v tom, že si **předem spočítáte kontrolní hodnoty** (v Excelu: součet částek, počet řádků) a uděláte z nich kritérium hotovosti.
+
+```text
+Nahrávám export plateb [soubor.csv]. Je v něm nepořádek: částky mají
+někde čárku, jinde tečku, u některých řádků chybí měna, data jsou
+ve třech různých formátech.
+
+Cíl: sjednotit částky na formát 1234.56, doplnit měnu CZK tam, kde
+chybí a částka je v korunách, a všechna data převést na RRRR-MM-DD.
+
+Pracuj ve smyčce: po každé dávce oprav znovu spočítej dvě kontrolní
+hodnoty — celkový součet sloupce částka a počet řádků — a porovnej je
+s výchozím stavem: součet [742 315.20], řádků [1 480]. Pokud nesedí,
+najdi, kde se to rozbilo, oprav to a přepočítej znovu. Skonči, až
+obě hodnoty sedí a formáty jsou jednotné.
+
+Limity: nikdy nemaž řádky ani neměň hodnoty částek, jen jejich zápis.
+Co nejde opravit jistě, označ ve sloupci „ke kontrole" a nech být.
+Na konci vypiš: kolik řádků jsi upravil, oba kontrolní součty
+a seznam řádků označených ke kontrole.
+```
+
+Vrátí opravený soubor a závěrečný protokol. Zkontrolujte tři věci: že kontrolní součty opravdu sedí s vašimi (přepočítejte si je sami, nevěřte jen výpisu), že počet upravených řádků odpovídá odhadu, a projděte řádky „ke kontrole" ručně. Právě sloupec „ke kontrole" je pojistka proti nejhoršímu selhání — modelu, který nejednoznačnost tiše domyslí místo přiznání.
+
+### Ukázka 2: Claude Code a úkol s testy
+
+V [Claude Code](/tipy/claude-code-osobni-automatizace) je smyčka přirozený způsob práce, protože ověření je po ruce: agent umí testy sám spustit a přečíst si jejich výstup. Zadání pak nepopisuje postup, ale cílový stav:
+
+```text
+V projektu je rozbitý import objednávek — testy v [tests/import]
+padají. Cíl: všechny testy v projektu zelené.
+
+Pracuj ve smyčce: spusť testy, přečti si první selhání, oprav
+příčinu (ne test), spusť testy znovu. Opakuj, dokud celá sada
+neprojde.
+
+Pravidla:
+- Testy samotné neměň a nemaž. Pokud jsi přesvědčený, že je chyba
+  v testu, zastav se a napiš mi to i s odůvodněním.
+- Drž se adresáře [src/import] — pokud oprava vyžaduje zásah jinde,
+  zastav se a zeptej.
+- Limit: 15 iterací. Když do té doby nejsou testy zelené, zastav se
+  a shrň, co jsi zkusil, co víš o příčině a co navrhuješ dál.
+Na konci vypiš seznam změněných souborů a u každého jednou větou proč.
+```
+
+Vrátí zelenou sadu testů, nebo poctivé „nezvládl jsem to a tady je proč" — obojí je dobrý výsledek. Pozor na dvě pravidla, která v promptu nesmí chybět: **zákaz upravovat testy** (jinak si agent kritérium hotovosti „opraví" tak, aby prošlo — nejčastější zkrat smyček vůbec) a **limit iterací** (patnáct kol bez pokroku znamená, že problém je jinde, než smyčka hledá). Změny pak projděte jako každý cizí diff — zelené testy znamenají „chová se to podle testů", ne „je to napsané dobře".
+
+A když testy nemáte? Nechte si je napsat **před smyčkou, ne v ní** — samostatným zadáním, které si zkontrolujete. Smyčka, která si sama píše i měřítko, i práci, neměří nic:
+
+```text
+Než pustím agenta na úpravu [modul/funkce], potřebuju měřítko.
+Napiš sadu testů, která zachytí současné správné chování:
+
+1. Projdi [src/modul] a vypiš, co modul dělá — vstupy, výstupy,
+   okrajové případy. Nepiš zatím žádný kód, jen seznam chování.
+2. Počkej na moje potvrzení, které z těch chování jsou záměr
+   a které jsou náhoda nebo chyba.
+3. Teprve potom napiš testy pro potvrzená chování — včetně
+   okrajových případů a aspoň jednoho testu na každou chybu,
+   kterou má pozdější úprava opravit (ten teď bude červený).
+
+Testy musí jít spustit jedním příkazem a nesmí záviset na síti
+ani na pořadí spuštění.
+```
+
+Krok 2 je tam schválně: bez něj model zabetonuje do testů i současné chyby jako „správné chování". Vy jste jediný, kdo ví, co je záměr — proto seznam chování schvalujete dřív, než vznikne jediný test. Až sada existuje a vy jí rozumíte, teprve pak má smysl pouštět smyčku z předchozího promptu.
+
+### Ukázka 3: noční běh s ranní kontrolou
+
+Nejodvážnější varianta: zadat večer větší úkol a ráno najít výsledek. Tady se láme hype od praxe — rozdíl mezi „nechal jsem to běžet přes noc" jako chlubením a jako pracovním postupem je v přípravě. Tři podmínky předem: úkol má **strojové ověření**, smyčka má **tvrdé limity** (iterace, rozsah, zakázané operace — a máte-li kde, i strop útraty: dlouhý běh spotřebovává výrazně víc než chat) a běží **v odděleném prostoru** (kopie dat, samostatná větev v gitu), takže nejhorší možný výsledek je smazaná větev, ne škoda.
+
+```text
+Přes noc proveď migraci: převeď všech [214] článků ze složky
+[stary-web/] z formátu [HTML] do [Markdownu] podle pravidel
+v souboru [pravidla-migrace.md].
+
+Pracuj po dávkách po 10 souborech. Po každé dávce spusť kontrolu
+[skript kontrola.py]: validní výstup, žádný ztracený obrázek, počet
+znaků v toleranci 5 procent proti zdroji. Soubor, který kontrolou
+neprojde, zkus opravit; když neprojde ani na třetí pokus, přesuň ho
+do [rucni-kontrola/] a pokračuj další dávkou.
+
+Limity: pracuj výhradně ve větvi [migrace], nikdy nemaž zdrojové
+soubory, neinstaluj nic nového. Když kontrolní skript spadne sám
+o sobě, zastav celý běh — neobcházej ho.
+
+Po celou dobu veď soubor DENIK.md: za každou dávku jeden řádek
+(čas, počet OK, počet oprav, počet odložených). Na konci připiš
+shrnutí: co je hotové, co je v rucni-kontrola/ a proč, čeho sis
+všiml v datech, co by mě mělo zajímat.
+```
+
+Ráno pak nezačínáte čtením 214 souborů, ale deníku — a namátkou zkontrolujete pár hotových souborů plus všechno v ručni-kontrole. Teprve po vaší kontrole se výsledek slije do hlavní větve nebo nasadí; **smyčka smí pracovat sama, ale schvaluje člověk**. Stejná logika platí pro [plánované úlohy a rutiny](/prirucka/rutiny-a-agenti), kterými se dá takový běh spouštět opakovaně. A pokud noční běh sahá na data, platí dvojnásob pravidlo z tipu o [reprodukovatelné analýze dat](/tipy/reprodukovatelna-analyza-dat): každý krok jako skript, který jde ráno přehrát a zkontrolovat.
+
+## Kdy loop a kdy obyčejný prompt
+
+Celé rozhodnutí se vejde do jedné otázky: **má úkol ověřitelné kritérium hotovosti?** Tedy takové, o kterém rozhodne stroj nebo číslo, ne dojem.
+
+- **Má → loop.** Testy projdou. Součet sedí. Validátor mlčí. Všech 214 souborů je převedeno a zkontrolováno. Tady smyčka vyhrává, protože iteruje rychleji a svědomitěji než vy.
+- **Nemá → konverzace.** Je ten text přesvědčivý? Je tahle strategie správná? Máme to koupit? Tady je měřítkem váš úsudek — a ten do smyčky zavřít nejde. Návrh, vaše reakce, další verze: obyčejné promptování je pořád správný nástroj a nikam neodchází.
+
+Šedá zóna existuje: úkoly, které vypadají neověřitelně, ale část ověření v nich schovaná je. Newsletter nejde strojově změřit — ale „má tři sekce, žádný odstavec přes čtyři řádky, všechny odkazy vedou na existující stránky" změřit jde. Trik zkušených uživatelů: **rozdělit úkol na ověřitelnou kostru (loop) a tvůrčí obsah (konverzace).**
+
+Když si nejste jistí, na kterou stranu úkol patří, zeptejte se:
+
+```text
+Chci na tenhle úkol nasadit AI a rozhoduju se mezi jednorázovým
+zadáním a smyčkou (agent iteruje, dokud není hotovo): [popis úkolu].
+
+1. Navrhni pro ten úkol kritérium hotovosti, které jde ověřit
+   strojově nebo číslem — bez lidského dojmu. Pokud takové
+   neexistuje, napiš to na rovinu a nevymýšlej pseudokritérium.
+2. Pokud existuje jen pro část úkolu, rozděl úkol na část
+   ověřitelnou (vhodnou pro smyčku) a část, kterou musím
+   posoudit sám.
+3. Navrhni rozumné limity smyčky: počet iterací, rozsah
+   (čeho se nesmí dotknout) a co má udělat, když se zasekne.
+```
+
+Vrátí buď použitelné kritérium s limity, nebo přiznání, že úkol patří do konverzace — obojí vám ušetří spálený večer. Pozor na bod 1: model má tendenci vyrábět pseudokritéria typu „text je kvalitní a čtivý". To není kritérium, to je dojem v převleku; kritérium poznáte podle toho, že o něm umí rozhodnout skript.
+
+A když už kritérium máte, změní se způsob, jak píšete prompt. Tohle je ta část „promptování se píše jinak", o které hype mluví oprávněně — a dá se natrénovat převodem vlastních starých promptů:
+
+```text
+Tady je prompt, který používám opakovaně: [vložit prompt].
+
+Přepiš ho ze stylu „instrukce krok za krokem" do stylu zadání pro
+agentní smyčku. Výsledek musí obsahovat čtyři bloky:
+1. Cíl — cílový stav jednou větou, ne postup.
+2. Kritéria hotovosti — jak se pozná hotovo, ověřitelně.
+3. Pravidla a zákazy — čeho se nesmí dotknout, co nesmí měnit
+   (včetně samotných kritérií), kdy se má zastavit a zeptat.
+4. Limity a hlášení — max. počet iterací, co dělat při zaseknutí,
+   co má být v závěrečném shrnutí.
+Pokud původní prompt žádné ověřitelné kritérium neumožňuje, napiš
+to a doporuč zůstat u konverzace.
+```
+
+Vrátí vaše vlastní zadání přeskládané do kostry cíl–kritéria–pravidla–limity. Srovnání obou verzí vedle sebe je nejrychlejší lekce loop engineeringu, jakou znám: uvidíte, kolik z vašeho původního promptu byly instrukce nahrazující chybějící kritérium. Kde má smyčka běžet nad větším objemem práce najednou, navazuje na to orchestrace více agentů — o té podrobně v tipu [Subagenti: nechte AI řídit AI](/tipy/claude-subagenti-nechte-ai-ridit-ai) a v příručce [Pět úrovní AI](/prirucka/pet-urovni-ai), kde smyčky a rutiny tvoří vyšší patra žebříčku.
+
+## Nejčastější chyby
+
+- **Smyčka bez kritérií.** „Vylepšuj to, dokud to nebude skvělé" není cíl, je to modlitba. Agent bude iterovat podle vlastního dojmu a výsledkem je uhlazená verze první myšlenky, ne lepší práce. Bez ověřitelného „hotovo" smyčku nespouštějte.
+- **Smyčka bez limitu.** Bez stropu iterací a rozsahu se zaseknutá smyčka točí celé hodiny na neřešitelném problému — a celou dobu spotřebovává. Limit není projev nedůvěry, je to součást zadání; „po 15 kolech se zastav a shrň" patří do každého promptu.
+- **Loop na úkol bez ověření.** Nejčastější zklamání nováčků: pustí smyčku na text nebo návrh, ráno najdou desátou verzi horší než druhou. Není to vada nástroje — jen chybělo měřítko. Takový úkol patří do konverzace.
+- **Kritérium, které si agent může upravit.** Když smí smyčka měnit vlastní testy nebo kontrolní skript, dřív či později to udělá — ne ze zlé vůle, ale protože je to nejkratší cesta k „hotovo". Zákaz sahat na měřítko musí být v zadání výslovně.
+- **Žádný deník.** Běh, po kterém zbyde jen výsledek, se nedá zkontrolovat jinak než přečtením celého výsledku. Průběžný záznam (co, kdy, proč, co bylo odloženo) mění ranní kontrolu z archeologie na čtení.
+- **Schvalování se přeskočí, „protože prošly testy".** Zelené testy jsou nutná podmínka, ne dostatečná. Smyčka smí pracovat bez vás, ale odesílat, nasazovat, mazat a platit se smí až po lidském pohledu — to je pravidlo, které s rostoucí samostatností nástrojů neslábne, ale sílí.
+
+## Co vám to přinese
+
+- **Čas:** u mechanických úkolů s ověřením (opravy dat, migrace, testy) odpadá největší žrout — hlídání a popostrkávání po každém kroku. Večer zadáte, ráno kontrolujete; z aktivních hodin se stávají minuty kontroly.
+- **Peníze:** střízlivě — smyčky spotřebovávají znatelně víc než chat, takže úspora je v hodinách vaší práce, ne v účtu za AI. Vyplatí se tam, kde je vaše hodina dražší než hodiny běhu, což u mechanické práce bývá skoro vždy.
+- **Klid:** dobře ohraničená smyčka s deníkem znamená, že rozdělaná mechanická práce přestane viset ve vaší hlavě. Víte, že běží, víte, kde má meze, a víte, že ráno uvidíte protokol.
+- **Kvalita:** na ověřitelných úkolech vyšší než při ruční iteraci — smyčka kontroluje po sobě každý krok a neunaví se. Na neověřitelných naopak nižší; ta hranice je celé tajemství.
+
+## Pro tip
+
+Až vám první smyčky pojedou, přidejte krok, který z jednorázových běhů udělá učící se systém: **post-mortem smyčky.** Po každém větším běhu nechte agenta zhodnotit ne výsledek, ale samotné zadání — a vylepšit ho pro příště:
+
+```text
+Právě jsi dokončil běh podle tohoto zadání: [vložit zadání smyčky].
+Tady je deník běhu: [vložit deník].
+
+Zhodnoť zadání, ne výsledek:
+1. Která kritéria hotovosti fungovala a která se ukázala jako děravá
+   (šlo je splnit, aniž byla práce opravdu hotová)?
+2. Kde jsi ztratil nejvíc iterací a jaká věta v zadání by tomu
+   příště zabránila?
+3. Které limity byly zbytečně těsné a které chyběly?
+Na základě toho napiš vylepšenou verzi zadání pro příští běh.
+Změny vyznač a u každé napiš jednou větou důvod.
+```
+
+Vrátí novou verzi zadání, která je o jeden reálný běh chytřejší — a po pěti bězích máte zadání, jaké byste od stolu nikdy nenapsali. Prohlédněte navržené změny kriticky: občas se agent pokusí uvolnit přesně ten limit, který ho v běhu právem zastavil.
+
+A závěrečné pravidlo, které přežije i příští vlnu pojmů: **smyčka je jen zesilovač zadání.** Dobré zadání s ověřením zesílí na práci, kterou byste ručně nestihli; mlhavé zadání zesílí na mlhu. Hype říká, že už nebudete muset umět promptovat. Pravda je, že to budete muset umět líp — jen se ta dovednost přestěhovala z instrukcí do kritérií.

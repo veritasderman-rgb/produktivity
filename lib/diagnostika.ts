@@ -1,4 +1,3 @@
-import type { Locale } from "@/lib/i18n";
 import type { AudienceId } from "@/lib/audiences";
 
 /* ---------------------------------------------------------------------------
@@ -80,7 +79,7 @@ export const DIAG_QUESTIONS: DiagQuestion[] = [
           cs: "Denně, na dílčí úkoly",
           en: "Daily, for individual tasks",
         },
-        scores: { 2: 2 },
+        scores: { 2: 2, 3: 1 },
         area: 2,
       },
       {
@@ -164,7 +163,7 @@ export const DIAG_QUESTIONS: DiagQuestion[] = [
           cs: "Vlastní zadání s rolí, kontextem a formátem — a doptávám se",
           en: "My own prompts with role, context and format — and I follow up",
         },
-        scores: { 2: 2 },
+        scores: { 2: 2, 3: 1 },
         area: 2,
       },
       {
@@ -206,7 +205,7 @@ export const DIAG_QUESTIONS: DiagQuestion[] = [
           cs: "Mám vlastní instrukce — nástroj to o mně ví",
           en: "I have custom instructions — the tool already knows",
         },
-        scores: { 2: 3 },
+        scores: { 2: 3, 3: 1 },
         area: 2,
       },
       {
