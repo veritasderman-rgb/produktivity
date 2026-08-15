@@ -32,10 +32,10 @@ export default async function HomePage({
   const prompts = getAllPrompts(locale).length;
 
   const stats = [
-    { label: t.statsTips, value: formatCount(tips.length) },
-    { label: t.statsGuides, value: formatCount(guides) },
-    { label: t.statsChapters, value: formatCount(chapters.length) },
-    { label: t.statsPrompts, value: formatCount(prompts) },
+    { label: t.statsTips, value: formatCount(tips.length), href: "/tipy" },
+    { label: t.statsGuides, value: formatCount(guides), href: "/tipy?typ=pruvodce" },
+    { label: t.statsChapters, value: formatCount(chapters.length), href: "/prirucka" },
+    { label: t.statsPrompts, value: formatCount(prompts), href: "/prompty" },
   ];
 
   const professions = audiences.map((audience) => ({
@@ -100,10 +100,14 @@ export default async function HomePage({
 
           <dl className="mt-9 grid grid-cols-2 gap-px border border-hairline bg-hairline sm:grid-cols-4">
             {stats.map((s) => (
-              <div key={s.label} className="bg-paper px-5 py-4">
-                <dt className="eyebrow text-faint">{s.label}</dt>
+              <Link
+                key={s.label}
+                href={p(s.href)}
+                className="group bg-paper px-5 py-4 no-underline transition-colors hover:bg-surface"
+              >
+                <dt className="eyebrow text-faint transition-colors group-hover:text-accent">{s.label}</dt>
                 <dd className="display tabular mt-1.5 text-[clamp(21px,3vw,28px)]">{s.value}</dd>
-              </div>
+              </Link>
             ))}
           </dl>
         </div>

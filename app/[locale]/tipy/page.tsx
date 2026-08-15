@@ -169,12 +169,14 @@ export default async function TipsPage({
     pro: valid(first(sp.pro), dict.audiences),
     q: (first(sp.q) ?? "").trim() || null,
   };
+  const typ = first(sp.typ) === "pruvodce" ? "pruvodce" : null;
 
   const filtered = filterTips(tips, {
     category: state.kategorie,
     platform: state.platforma,
     audience: state.pro,
     q: state.q,
+    typ,
   });
 
   // Stránkování: server-side slice po 30 kartách, ?strana=N.

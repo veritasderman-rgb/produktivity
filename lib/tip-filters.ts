@@ -16,6 +16,8 @@ export type TipFilterQuery = {
   platform?: string | null;
   audience?: string | null;
   q?: string | null;
+  /** "pruvodce" = jen velké návody (isGuide). */
+  typ?: string | null;
 };
 
 /** Bez diakritiky a velkých písmen — „Schránka“ najde i „schranka“. */
@@ -30,6 +32,7 @@ export function normalizeSearch(s: string): string {
 export function filterTips<T extends TipMeta>(tips: T[], filter: TipFilterQuery): T[] {
   const q = normalizeSearch((filter.q ?? "").trim());
   return tips.filter((t) => {
+    if (filter.typ === "pruvodce" && !t.isGuide) return false;
     if (filter.category && t.category !== filter.category) return false;
     if (filter.platform && t.platform !== filter.platform && t.platform !== "vsude") return false;
     if (filter.audience && !t.audience.includes(filter.audience)) return false;
