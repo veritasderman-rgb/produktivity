@@ -3,7 +3,7 @@ import path from "node:path";
 import matter from "gray-matter";
 
 /**
- * Rubrika „Z praxe" — workflow od čtenářů: jak reálně používají AI ve své práci.
+ * Rubrika „Z praxe“ — workflow od čtenářů: jak reálně používají AI ve své práci.
  * Obsah leží v content/z-praxe/*.mdx (cs) a content/en/z-praxe/*.mdx (en).
  * Příspěvky posílají čtenáři formulářem, Ctrl je přepíše do standardního
  * formátu (viz content/z-praxe/SABLONA.md), Josef schválí a autor autorizuje.

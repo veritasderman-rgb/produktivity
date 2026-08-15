@@ -14,8 +14,8 @@ const ERR = {
     badName: "Vyplňte jméno nebo přezdívku.",
     badEmail: "Zadejte platný e-mail.",
     badRole: "Vyplňte profesi nebo obor.",
-    tooShortSolved: `Popis „Co jste vyřešili" potřebuje aspoň ${MIN_SOLVED} znaků.`,
-    tooShortHow: `Popis „Jak to děláte" potřebuje aspoň ${MIN_HOW} znaků.`,
+    tooShortSolved: `Popis „Co jste vyřešili“ potřebuje aspoň ${MIN_SOLVED} znaků.`,
+    tooShortHow: `Popis „Jak to děláte“ potřebuje aspoň ${MIN_HOW} znaků.`,
     noConsent: "Bez souhlasu se zveřejněním nemůžeme příspěvek přijmout.",
     notReady: "Formulář právě spouštíme. Napište mi prosím zatím napřímo na josef@josefpavlovic.cz.",
     failed: "Odeslání se nepovedlo. Zkuste to prosím znovu.",
@@ -46,7 +46,7 @@ function str(v: unknown): string {
   return typeof v === "string" ? v.trim() : "";
 }
 
-// Příjem příspěvků do rubriky „Z praxe" — nikam se neukládá, jde e-mailem
+// Příjem příspěvků do rubriky „Z praxe“ — nikam se neukládá, jde e-mailem
 // Josefovi přes Brevo transactional API. Vyžaduje env BREVO_API_KEY; bez něj
 // vrací srozumitelnou 503, aby formulář nikdy nepředstíral úspěch.
 // Anti-spam: honeypot pole `web` + minimální délky textů. Víc netřeba.

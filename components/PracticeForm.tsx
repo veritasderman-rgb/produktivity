@@ -31,8 +31,8 @@ const T = {
     sending: "Odesílám…",
     submit: "Poslat příspěvek",
     error: "Odeslání se nepovedlo. Zkuste to prosím znovu.",
-    tooShortSolved: (n: number) => `Popis „Co jste vyřešili" potřebuje aspoň ${n} znaků.`,
-    tooShortHow: (n: number) => `Popis „Jak to děláte" potřebuje aspoň ${n} znaků.`,
+    tooShortSolved: (n: number) => `Popis „Co jste vyřešili“ potřebuje aspoň ${n} znaků.`,
+    tooShortHow: (n: number) => `Popis „Jak to děláte“ potřebuje aspoň ${n} znaků.`,
     done: "Díky! Příspěvek dorazil. Ozvu se vám e-mailem — před vydáním dostanete náhled ke schválení.",
   },
   en: {
