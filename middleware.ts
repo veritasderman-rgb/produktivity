@@ -8,11 +8,14 @@ import { NextRequest, NextResponse } from "next/server";
 // - jiné hosty (preview, localhost): /en/* s prefixem, čeština bez prefixu
 // - na "/" bez cookie: Accept-Language en → redirect na EN mutaci (jednorázově)
 
-const EN_DOMAIN = process.env.EN_DOMAIN ?? "productive.tips";
+const EN_DOMAIN = process.env.EN_DOMAIN ?? "www.productive.tips";
 const CS_DOMAIN = process.env.CS_DOMAIN ?? "www.produktivni.cz";
 
-const isEnHost = (host: string) => host === EN_DOMAIN || host === `www.${EN_DOMAIN}`;
-const isCsHost = (host: string) => host === CS_DOMAIN || `www.${host}` === CS_DOMAIN;
+// Porovnávání hostů bez ohledu na www — redirect cíle jdou vždy na kanonickou
+// (www) variantu, aby nevznikal dvojitý skok přes apex.
+const stripWww = (h: string) => h.replace(/^www\./, "");
+const isEnHost = (host: string) => stripWww(host) === stripWww(EN_DOMAIN);
+const isCsHost = (host: string) => stripWww(host) === stripWww(CS_DOMAIN);
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

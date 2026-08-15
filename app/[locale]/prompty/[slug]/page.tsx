@@ -49,8 +49,8 @@ export async function generateMetadata({
   const t = T[locale] ?? T.cs;
   const article = getArticlePrompts(slug, locale);
   if (!article) return {};
-  const csUrl = `https://produktivni.cz/prompty/${slug}`;
-  const enUrl = `https://productive.tips/prompty/${slug}`;
+  const csUrl = `https://www.produktivni.cz/prompty/${slug}`;
+  const enUrl = `https://www.productive.tips/prompty/${slug}`;
   return {
     title: t.metaTitle(article.title),
     description: t.description(article.prompts.length, article.title),

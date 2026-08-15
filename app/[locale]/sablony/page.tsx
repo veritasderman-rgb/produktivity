@@ -5,8 +5,8 @@ import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { getTemplates } from "@/lib/templates";
 
-const CS_URL = "https://produktivni.cz/sablony";
-const EN_URL = "https://productive.tips/sablony";
+const CS_URL = "https://www.produktivni.cz/sablony";
+const EN_URL = "https://www.productive.tips/sablony";
 
 const T = {
   cs: {

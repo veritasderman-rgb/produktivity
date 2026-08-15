@@ -9,8 +9,8 @@ export function JsonLd({ data }: { data: Record<string, unknown> }) {
   );
 }
 
-const BASE = "https://produktivni.cz";
-const EN_BASE = "https://productive.tips";
+const BASE = "https://www.produktivni.cz";
+const EN_BASE = "https://www.productive.tips";
 
 export const personJsonLd = {
   "@type": "Person",

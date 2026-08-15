@@ -21,8 +21,8 @@ export async function generateMetadata({
   const { locale: raw } = await params;
   const locale = isLocale(raw) ? raw : "cs";
   const dict = getDict(locale);
-  const csUrl = "https://produktivni.cz";
-  const enUrl = "https://productive.tips";
+  const csUrl = "https://www.produktivni.cz";
+  const enUrl = "https://www.productive.tips";
   return {
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,

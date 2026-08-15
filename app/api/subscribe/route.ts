@@ -106,7 +106,7 @@ export async function POST(req: Request) {
   return NextResponse.json({ ok: true });
 }
 
-const SITE = { cs: "https://produktivni.cz", en: "https://productive.tips" };
+const SITE = { cs: "https://www.produktivni.cz", en: "https://www.productive.tips" };
 const EBOOK_PATH = {
   cs: "/ebook/produktivni-top-30-tipu.pdf",
   en: "/ebook/productive-top-30-tips.pdf",

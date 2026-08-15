@@ -73,8 +73,8 @@ export async function generateMetadata({
   const t = T[locale] ?? T.cs;
   const ch = getChapter(slug, locale);
   if (!ch) return {};
-  const csUrl = `https://produktivni.cz/prirucka/${slug}`;
-  const enUrl = `https://productive.tips/prirucka/${slug}`;
+  const csUrl = `https://www.produktivni.cz/prirucka/${slug}`;
+  const enUrl = `https://www.productive.tips/prirucka/${slug}`;
   return {
     title: ch.title,
     description: ch.excerpt,

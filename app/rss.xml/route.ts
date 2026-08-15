@@ -1,6 +1,6 @@
 import { getAllTips } from "@/lib/tips";
 
-const SITE = "https://produktivni.cz";
+const SITE = "https://www.produktivni.cz";
 
 function escapeXml(s: string) {
   return s

@@ -17,7 +17,7 @@ const AI_BOTS = ["GPTBot", "ClaudeBot", "Claude-Web", "PerplexityBot", "Google-E
 export function GET(req: NextRequest) {
   const host = (req.headers.get("host") ?? "").toLowerCase();
   const isEn = host === EN_DOMAIN || host === `www.${EN_DOMAIN}`;
-  const base = isEn ? "https://productive.tips" : "https://produktivni.cz";
+  const base = isEn ? "https://www.productive.tips" : "https://www.produktivni.cz";
 
   const lines = [
     "User-Agent: *",

@@ -54,8 +54,8 @@ export async function generateMetadata({
   const locale: Locale = isLocale(raw) ? raw : "cs";
   const n = getNewsItem(slug, locale);
   if (!n) return {};
-  const csUrl = `https://produktivni.cz/ai/${slug}`;
-  const enUrl = `https://productive.tips/ai/${slug}`;
+  const csUrl = `https://www.produktivni.cz/ai/${slug}`;
+  const enUrl = `https://www.productive.tips/ai/${slug}`;
   return {
     title: n.title,
     description: n.excerpt,

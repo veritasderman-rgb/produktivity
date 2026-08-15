@@ -65,8 +65,8 @@ export async function generateMetadata({
   const interview = getInterview(slug, locale);
   if (!interview) return {};
   const title = interviewTitle(interview, locale);
-  const csUrl = `https://produktivni.cz/rozhovory/${slug}`;
-  const enUrl = `https://productive.tips/rozhovory/${slug}`;
+  const csUrl = `https://www.produktivni.cz/rozhovory/${slug}`;
+  const enUrl = `https://www.productive.tips/rozhovory/${slug}`;
   return {
     title,
     description: interview.excerpt,
@@ -106,7 +106,7 @@ function makeMdxComponents(locale: Locale) {
  * Person se plní výhradně z frontmatteru — žádné dopočítávané údaje.
  */
 function intervieweeJsonLd(interview: Interview, locale: Locale) {
-  const base = locale === "en" ? "https://productive.tips" : "https://produktivni.cz";
+  const base = locale === "en" ? "https://www.productive.tips" : "https://www.produktivni.cz";
   const person: Record<string, unknown> = {
     "@type": "Person",
     name: interview.name,

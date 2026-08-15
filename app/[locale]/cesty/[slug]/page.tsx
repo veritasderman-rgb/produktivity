@@ -67,8 +67,8 @@ export async function generateMetadata({
   const t = T[locale] ?? T.cs;
   const path = getPath(slug, locale);
   if (!path) return {};
-  const csUrl = `https://produktivni.cz/cesty/${slug}`;
-  const enUrl = `https://productive.tips/cesty/${slug}`;
+  const csUrl = `https://www.produktivni.cz/cesty/${slug}`;
+  const enUrl = `https://www.productive.tips/cesty/${slug}`;
   return {
     title: path.title,
     description: path.lead,

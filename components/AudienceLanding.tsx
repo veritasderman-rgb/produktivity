@@ -15,8 +15,8 @@ import {
 } from "@/lib/audiences";
 import { getDict, localePath, type Locale } from "@/lib/i18n";
 
-const CS_BASE = "https://produktivni.cz";
-const EN_BASE = "https://productive.tips";
+const CS_BASE = "https://www.produktivni.cz";
+const EN_BASE = "https://www.productive.tips";
 
 /** Doporučený start = tři nejlepší velké návody skupiny. */
 const START_COUNT = 3;

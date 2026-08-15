@@ -4,8 +4,8 @@ import { formatDuration, formatStepCount, getPaths } from "@/lib/paths";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
-const CS_URL = "https://produktivni.cz/cesty";
-const EN_URL = "https://productive.tips/cesty";
+const CS_URL = "https://www.produktivni.cz/cesty";
+const EN_URL = "https://www.productive.tips/cesty";
 
 const T = {
   cs: {

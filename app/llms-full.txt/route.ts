@@ -17,8 +17,8 @@ const EN_DOMAIN = process.env.EN_DOMAIN ?? "productive.tips";
 const FULL_TIPS = 25;
 
 const BASES: Record<Locale, string> = {
-  cs: "https://produktivni.cz",
-  en: "https://productive.tips",
+  cs: "https://www.produktivni.cz",
+  en: "https://www.productive.tips",
 };
 
 const FENCE_RE = /```[\s\S]*?```/g;
@@ -66,7 +66,7 @@ function buildText(locale: Locale): string {
           "# Productive.tips",
           "",
           "> Productivity handbook by Josef Pavlovic: proven systems (GTD, Inbox Zero, time-blocking, Pomodoro, SCRUM/Kanban/OKR), " +
-            `${tipCount} practical tips with step-by-step guides and AI news translated into practice. English edition of the Czech original: https://produktivni.cz`,
+            `${tipCount} practical tips with step-by-step guides and AI news translated into practice. English edition of the Czech original: https://www.produktivni.cz`,
           "",
           `This is llms-full.txt — the full-text edition: complete texts of all ${chapters.length} handbook chapters and the ${FULL_TIPS} longest guides. The short overview with links to everything: ${base}/llms.txt`,
           "",
@@ -75,7 +75,7 @@ function buildText(locale: Locale): string {
           "# Produktivní.cz",
           "",
           "> Česká příručka produktivity od Josefa Pavlovice: ověřené systémy (GTD, Inbox Zero, time-blocking, Pomodoro, SCRUM/Kanban/OKR), " +
-            `${tipCount} praktických tipů s návody a AI novinky přeložené do praxe. Obsah je psaný česky, průběžně aktualizovaný člověkem i AI. Anglická verze: https://productive.tips`,
+            `${tipCount} praktických tipů s návody a AI novinky přeložené do praxe. Obsah je psaný česky, průběžně aktualizovaný člověkem i AI. Anglická verze: https://www.productive.tips`,
           "",
           `Toto je llms-full.txt — plná verze: kompletní texty všech ${chapters.length} kapitol příručky a ${FULL_TIPS} nejobsáhlejších návodů. Stručný přehled s odkazy na všechen obsah: ${base}/llms.txt`,
           "",

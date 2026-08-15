@@ -49,7 +49,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = getDict(isLocale(locale) ? locale : "cs");
   return {
-    metadataBase: new URL(locale === "en" ? "https://productive.tips" : "https://produktivni.cz"),
+    metadataBase: new URL(locale === "en" ? "https://www.productive.tips" : "https://www.produktivni.cz"),
     title: { default: t.siteTitle, template: `%s · ${t.siteBrand}` },
     description: t.siteDescription,
   };

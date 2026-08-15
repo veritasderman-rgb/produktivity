@@ -10,8 +10,8 @@ import {
 } from "@/lib/audiences";
 import { getDict, type Locale } from "@/lib/i18n";
 
-const CS_BASE = "https://produktivni.cz";
-const EN_BASE = "https://productive.tips";
+const CS_BASE = "https://www.produktivni.cz";
+const EN_BASE = "https://www.productive.tips";
 
 export function audienceIndexMetadata(locale: Locale): Metadata {
   const t = getDict(locale).pro;

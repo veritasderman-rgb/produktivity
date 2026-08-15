@@ -84,8 +84,8 @@ export async function generateMetadata({
   const t = T[locale] ?? T.cs;
   const tip = getTip(slug, locale);
   if (!tip) return {};
-  const csUrl = `https://produktivni.cz/tipy/${slug}`;
-  const enUrl = `https://productive.tips/tipy/${slug}`;
+  const csUrl = `https://www.produktivni.cz/tipy/${slug}`;
+  const enUrl = `https://www.productive.tips/tipy/${slug}`;
   return {
     title: tip.title,
     description: tip.excerpt,

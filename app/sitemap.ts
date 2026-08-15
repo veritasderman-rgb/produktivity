@@ -8,8 +8,8 @@ import { getAllInterviews } from "@/lib/interviews";
 import { getAllPracticePosts } from "@/lib/practice";
 import { getPaths } from "@/lib/paths";
 
-const BASE = "https://produktivni.cz";
-const EN_BASE = "https://productive.tips";
+const BASE = "https://www.produktivni.cz";
+const EN_BASE = "https://www.productive.tips";
 
 function withAlternates(csPath: string, hasEn: boolean) {
   return hasEn

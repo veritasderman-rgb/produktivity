@@ -89,8 +89,8 @@ export async function generateMetadata({
   const { locale: raw } = await params;
   const locale: Locale = isLocale(raw) ? raw : "cs";
   const t = T[locale] ?? T.cs;
-  const csUrl = "https://produktivni.cz/zmeny";
-  const enUrl = "https://productive.tips/zmeny";
+  const csUrl = "https://www.produktivni.cz/zmeny";
+  const enUrl = "https://www.productive.tips/zmeny";
   return {
     title: t.title,
     description: t.description,

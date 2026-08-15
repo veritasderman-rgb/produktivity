@@ -5,8 +5,8 @@ import { SystemQuiz } from "@/components/SystemQuiz";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
-const CS_URL = "https://produktivni.cz/nastroje/kviz";
-const EN_URL = "https://productive.tips/nastroje/kviz";
+const CS_URL = "https://www.produktivni.cz/nastroje/kviz";
+const EN_URL = "https://www.productive.tips/nastroje/kviz";
 
 const T = {
   cs: {

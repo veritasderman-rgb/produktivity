@@ -79,8 +79,8 @@ export async function generateMetadata({
   const t = T[locale] ?? T.cs;
   const post = getPracticePost(slug, locale);
   if (!post) return {};
-  const csUrl = `https://produktivni.cz/z-praxe/${slug}`;
-  const enUrl = `https://productive.tips/z-praxe/${slug}`;
+  const csUrl = `https://www.produktivni.cz/z-praxe/${slug}`;
+  const enUrl = `https://www.productive.tips/z-praxe/${slug}`;
   return {
     title: post.title,
     description: post.excerpt,

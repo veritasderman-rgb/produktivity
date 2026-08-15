@@ -4,8 +4,8 @@ import { PomodoroTimer } from "@/components/PomodoroTimer";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
-const CS_URL = "https://produktivni.cz/nastroje/pomodoro";
-const EN_URL = "https://productive.tips/nastroje/pomodoro";
+const CS_URL = "https://www.produktivni.cz/nastroje/pomodoro";
+const EN_URL = "https://www.productive.tips/nastroje/pomodoro";
 
 const T = {
   cs: {

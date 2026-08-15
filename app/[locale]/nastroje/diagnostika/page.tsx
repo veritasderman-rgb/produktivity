@@ -14,8 +14,8 @@ import { audienceHref, audiences } from "@/lib/audiences";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
-const CS_URL = "https://produktivni.cz/nastroje/diagnostika";
-const EN_URL = "https://productive.tips/nastroje/diagnostika";
+const CS_URL = "https://www.produktivni.cz/nastroje/diagnostika";
+const EN_URL = "https://www.productive.tips/nastroje/diagnostika";
 
 const T = {
   cs: {
