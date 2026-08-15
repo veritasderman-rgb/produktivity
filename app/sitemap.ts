@@ -5,6 +5,7 @@ import { getAllChapters } from "@/lib/chapters";
 import { getAllNews } from "@/lib/news";
 import { getPromptArticles } from "@/lib/prompts";
 import { getAllInterviews } from "@/lib/interviews";
+import { getAllPracticePosts } from "@/lib/practice";
 import { getPaths } from "@/lib/paths";
 
 const BASE = "https://produktivni.cz";
@@ -25,7 +26,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "", "/prirucka", "/tipy", "/deset-minut", "/cesty", "/ai", "/prompty", "/sablony", "/kurz", "/gadgety", "/slovnik", "/newsletter", "/newsletter/ukazka", "/start",
     "/nastroje", "/nastroje/kviz", "/nastroje/pomodoro", "/nastroje/sazba", "/nastroje/promptovac",
     "/nastroje/audit-casu",
-    "/rozhovory", "/zmeny",
+    "/rozhovory", "/z-praxe", "/zmeny",
     "/o-projektu", "/hledat", "/ochrana-osobnich-udaju",
   ];
 
@@ -157,6 +158,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return entries;
   });
 
+  // Rubrika „Z praxe" — příspěvky čtenářů. Dokud nejsou publikované, blok je prázdný.
+  const enPractice = new Set(getAllPracticePosts("en").map((post) => post.slug));
+  const practice = getAllPracticePosts().flatMap((post) => {
+    const csPath = `/z-praxe/${post.slug}`;
+    const entries: MetadataRoute.Sitemap = [{
+      url: `${BASE}${csPath}`,
+      lastModified: post.date,
+      changeFrequency: "yearly" as const,
+      priority: 0.6,
+      ...withAlternates(csPath, enPractice.has(post.slug)),
+    }];
+    if (enPractice.has(post.slug)) {
+      entries.push({ url: `${EN_BASE}${csPath}`, lastModified: post.date, changeFrequency: "yearly", priority: 0.5 });
+    }
+    return entries;
+  });
+
   // Detaily cest — URL segment /cesty je stejný v obou jazycích, liší se jen obsah.
   const enPaths = new Set(getPaths("en").map((p) => p.id));
   const learningPaths = getPaths("cs").flatMap((path) => {
@@ -175,6 +193,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     ...staticRoutes, ...proHub, ...proPages, ...chapters, ...tips, ...news,
-    ...promptArticles, ...interviews, ...learningPaths,
+    ...promptArticles, ...interviews, ...practice, ...learningPaths,
   ];
 }

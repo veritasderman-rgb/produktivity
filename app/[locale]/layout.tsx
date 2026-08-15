@@ -222,6 +222,7 @@ gtag('config', '${GA_ID}');`}
                 <li><Link href={p("/sablony")} className="draw-link">{t.footer.templates}</Link></li>
                 <li><Link href={p("/gadgety")} className="draw-link">{t.footer.gadgets}</Link></li>
                 <li><Link href={p("/rozhovory")} className="draw-link">{t.footer.interviews}</Link></li>
+                <li><Link href={p("/z-praxe")} className="draw-link">{t.footer.practice}</Link></li>
                 <li><Link href={p("/slovnik")} className="draw-link">{t.footer.glossary}</Link></li>
                 <li><Link href={p("/zmeny")} className="draw-link">{t.footer.changes}</Link></li>
                 <li><Link href={p("/ulozene")} className="draw-link">{t.footer.saved}</Link></li>

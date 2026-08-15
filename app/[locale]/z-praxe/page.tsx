@@ -11,7 +11,7 @@ const T = {
       "Rubrika workflow od čtenářů: jak lidé v různých profesích reálně používají AI ve své práci. Konkrétní postupy, konkrétní nástroje, pod jménem autora.",
     eyebrow: "Rubrika od čtenářů",
     heading: "Z praxe",
-    leadA: "Návodů, jak by se AI „dala" používat, je plný internet. Tahle rubrika je o něčem jiném: ",
+    leadA: "Návodů, jak by se AI „dala“ používat, je plný internet. Tahle rubrika je o něčem jiném: ",
     leadStrong: "jak ji skuteční lidé ve své práci používají doopravdy",
     leadB: ". Postupy posílají čtenáři, každý vyjde pod jménem autora — a žádný si nevymýšlíme.",
     howTitle: "Jak to funguje",

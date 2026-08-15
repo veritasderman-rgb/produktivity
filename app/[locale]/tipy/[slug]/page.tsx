@@ -192,6 +192,8 @@ export default async function TipDetail({
   const reviewed = formatReviewed(reviewedIso, locale);
   /* Ověření faktů proti živým nástrojům — silnější stopa než `updated`; zapisuje ho jen ověřovací běh (docs/OVEROVANI.md). */
   const tested = formatReviewed(tip.tested, locale);
+  /* Odkaz na rubriku „Co se změnilo" — jen když má tip aspoň jeden záznam v changelogu. */
+  const hasChangelog = changesForSlug(tip.slug).length > 0;
   /* HowTo jen u velkých průvodců (tělo > 18 000 zn.) s číslovaným postupem v H2. */
   const howToSteps = tip.isGuide ? extractHowToSteps(tip.body) : [];
 
@@ -223,6 +225,13 @@ export default async function TipDetail({
         <p className="eyebrow mt-1 text-faint">
           <Link href={p("/zmeny")} className="hover:underline">
             {t.tested}: <time dateTime={tip.tested}>{tested}</time>
+          </Link>
+        </p>
+      )}
+      {hasChangelog && (
+        <p className="eyebrow mt-1 text-faint">
+          <Link href={p("/zmeny")} className="hover:underline">
+            {t.changeHistory}
           </Link>
         </p>
       )}
