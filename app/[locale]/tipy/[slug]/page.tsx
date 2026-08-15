@@ -268,7 +268,7 @@ export default async function TipDetail({
           </ol>
         </details>
       )}
-      <div className="prose-a mt-6">
+      <div className={`prose-a mt-6 ${headings.length >= TOC_MIN_HEADINGS ? "prose-numbered" : "prose-marked"}`}>
         {/* blockJS: false — obsah je náš vlastní z repa; výrazy v props infografik jsou nutné */}
         <MDXRemote source={annotateGlossary(tip.body, locale)} components={makeMdxComponents(locale, firstTextBlock(tip.body))} options={{ blockJS: false, mdxOptions: { remarkPlugins: [remarkGfm] } }} />
       </div>

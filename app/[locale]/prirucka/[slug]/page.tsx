@@ -200,7 +200,7 @@ export default async function ChapterPage({
           </ol>
         </details>
       )}
-      <div className="prose-a mt-6">
+      <div className={`prose-a mt-6 ${headings.length >= TOC_MIN_HEADINGS ? "prose-numbered" : "prose-marked"}`}>
         {/* blockJS: false — obsah je náš vlastní z repa; výrazy v props infografik jsou nutné */}
         <MDXRemote source={annotateGlossary(ch.body, locale)} components={makeMdxComponents(locale)} options={{ blockJS: false, mdxOptions: { remarkPlugins: [remarkGfm] } }} />
       </div>
