@@ -47,40 +47,25 @@ přepněte na nové ID.
 (link tracking), včetně odhlašovacího. Je to jeho výchozí chování; kdyby vadilo,
 dá se sledování odkazů v nastavení Brevu vypnout.
 
-## 3. Automatizace
+## 3. Automatizace — VYŘEŠENO V APLIKACI (Brevo Automations nejsou potřeba)
 
-Automations → Create automation → Custom automation.
+Brevo API tvorbu automatizací nepodporuje, proto rozesílku řeší web sám:
 
-**Trigger:** „A contact is added to a list" (seznam s vaším `BREVO_LIST_ID`).
+- **Den 1** posílá `/api/subscribe` okamžitě po přihlášení (`SOURCE=kurz`),
+  šablona dle jazyka (CS 13 / EN 20), a kontaktu nastaví atribut `KURZ_DEN=1`.
+- **Dny 2–7** posílá denní cron `/api/kurz-drip` (Vercel Cron, 06:00 UTC,
+  viz `vercel.json`): projde kontakty listu, a komu od přihlášení uběhl další
+  den, pošle následující šablonu a posune `KURZ_DEN`. Max jeden díl na kontakt
+  a den; odhlášení (blacklist) kontakt z rozesílky vyřazuje automaticky.
+- Atributy `KURZ_DEN` (číslo) a `LOCALE` (text) si cron/route založí samy.
 
-**První krok — podmínka:** Condition → contact attribute `SOURCE` **equals**
-`kurz`. Kdo přišel odjinud, větví ven a kurz nedostane.
+**Doporučené:** ve Vercelu nastavte proměnnou `CRON_SECRET` (libovolný dlouhý
+řetězec) — cron endpoint pak přijímá jen podepsaná volání. Bez ní se spoléhá
+na hlavičku Vercel Cronu.
 
-**Druhý krok — jazyk:** Condition → contact attribute `LOCALE` **equals** `cs`
-(pro anglickou automatizaci `en`). Atribut `LOCALE` posílá formulář automaticky,
-viz `app/api/subscribe/route.ts`. Bez téhle podmínky by anglicky přihlášený
-dostal český kurz.
-
-**Dál v ANO větvi:**
-
-1. Send email → šablona *Den 1*
-2. Wait → 1 day
-3. Send email → *Den 2*
-4. Wait → 1 day
-5. Send email → *Den 3*
-6. Wait → 1 day
-7. Send email → *Den 4*
-8. Wait → 1 day
-9. Send email → *Den 5*
-10. Wait → 1 day
-11. Send email → *Den 6*
-12. Wait → 1 day
-13. Send email → *Den 7*
-
-Den 1 odchází hned po přihlášení, dalších šest po jednodenních pauzách.
-
-**Nastavení automatizace:** zapněte, že kontakt může do automatizace vstoupit
-jen jednou — jinak by při opětovném přihlášení dostal celý kurz znovu.
+Chcete-li přesto použít Brevo Automations (hezčí statistiky), postavte je
+podle šablon výše a **vypněte cron** smazáním záznamu z `vercel.json` —
+jinak by odběratelé dostávali díly dvakrát.
 
 ## 4. Než to pustíte
 

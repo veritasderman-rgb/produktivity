@@ -83,6 +83,26 @@ export async function POST(req: Request) {
     console.error("Welcome email failed:", e);
   }
 
+  // Kurz: Den 1 odchází hned po přihlášení, další díly posílá denní cron
+  // /api/kurz-drip podle atributu KURZ_DEN (Brevo Automations nejdou přes API).
+  if (sourceValue === "kurz") {
+    try {
+      const day1 = locale === "en" ? 20 : 13;
+      await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: { "api-key": apiKey, "Content-Type": "application/json" },
+        body: JSON.stringify({ templateId: day1, to: [{ email }] }),
+      });
+      await fetch(`https://api.brevo.com/v3/contacts/${encodeURIComponent(email)}`, {
+        method: "PUT",
+        headers: { "api-key": apiKey, "Content-Type": "application/json" },
+        body: JSON.stringify({ attributes: { KURZ_DEN: 1 } }),
+      });
+    } catch (e) {
+      console.error("Kurz day 1 failed:", e);
+    }
+  }
+
   return NextResponse.json({ ok: true });
 }
 
