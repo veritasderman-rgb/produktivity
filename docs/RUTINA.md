@@ -146,6 +146,19 @@ Hromadné nastavení pole (např. při zavedení nového ročníku revizí) umí
 `python3 scripts/set-updated.py --date YYYY-MM-DD`; skript doplňuje `updated`
 jen tam, kde chybí, a nic jiného v souboru nemění.
 
+### 7b. Ověřování faktů proti nástrojům (`tested`)
+
+Vedle `updated` (redakční úprava) existuje silnější stopa: frontmatter pole
+`tested: "YYYY-MM-DD"` — datum, kdy byla fakta článku **ověřena proti živým
+nástrojům** (funkce, limity bezplatných úrovní, cesty v menu pořád platí).
+Zobrazuje se v detailu jako druhý řádek pod „Naposledy ověřeno" s odkazem
+na `/zmeny`.
+
+Ověřovací běh má vlastní týdenní rutinu — přesný postup (výběr fronty přes
+`scripts/verification-queue.py`, co kontrolovat, co dělat při driftu, zápis
+do changelogu) je v **`docs/OVEROVANI.md`**. Zásada: `tested` se zapisuje
+**jen po skutečném ověření**, nikdy plošně skriptem.
+
 ### 8. Limity
 
 - Max 5 položek na den, radši 2 kvalitní než 5 slabých.
