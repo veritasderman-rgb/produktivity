@@ -25,7 +25,11 @@ export function Pomohlo({ slug, locale = "cs" }: { slug: string; locale?: Locale
   const [voted, setVoted] = useState(false);
 
   const vote = (value: "up" | "down") => {
+    // Paralelně do Vercel Analytics i GA4 — každý kanál může být vypnutý,
+    // takže se hlas počítá tam, kde zrovna analytika běží.
     track("tip-feedback", { slug, vote: value });
+    const w = window as typeof window & { gtag?: (...args: unknown[]) => void };
+    w.gtag?.("event", "tip_feedback", { slug, vote: value });
     setVoted(true);
   };
 
