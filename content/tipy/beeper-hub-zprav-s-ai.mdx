@@ -1,0 +1,459 @@
+---
+title: "Beeper jako hub všech zpráv: Claude vám z chatů vytahá sliby, než je zapomenete"
+excerpt: "Kompletní návod s prompty: Beeper sjednotí WhatsApp, Messenger i Slack do jedné aplikace a Claude z nich přes MCP pravidelně vytahuje sliby a termíny do Notionu. Včetně trpělivého úvodu do terminálu pro ty, kdo ho nikdy neotevřeli."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "freelancer"]
+keys: []
+saves: "~3 h týdně a zapomenuté sliby"
+date: "2026-08-15"
+updated: "2026-08-15"
+tldr: >-
+  Beeper sjednotí WhatsApp, Messenger, Instagram, Signal, Slack i SMS do jedné aplikace
+  a má lokální Desktop API s vestavěným MCP serverem. Když k němu připojíte Claude Code,
+  umí AI dvakrát denně projít zprávy ze všech sítí, vytáhnout sliby a termíny — vaše
+  i cizí — a zapsat je do Notionu a kalendáře. Návod počítá s tím, že jste terminál nikdy
+  neotevřeli, a vede vás krok za krokem. Tvrdá hranice: Claude čte a navrhuje, nikdy za
+  vás neodesílá — a citlivé chaty do skenu vůbec nepouštíte.
+faq:
+  - q: "Musím umět programovat nebo ovládat příkazovou řádku?"
+    a: >-
+      Ne. Terminál tu slouží jen jako okno, do kterého vložíte pár připravených příkazů
+      a pak už jen píšete běžnou češtinou, jako v chatu. Návod obsahuje sekci pro úplné
+      začátečníky: jak terminál otevřít na Macu i ve Windows, co v něm uvidíte a co dělat,
+      když se něco pokazí.
+  - q: "Uvidí Claude všechny moje zprávy?"
+    a: >-
+      Uvidí to, na co se ho zeptáte — a protože Beeper sjednocuje všechny sítě, může to
+      být klidně všechno. Proto do skenu patří jen chaty, které tam pustíte: citlivé
+      konverzace vyjmenujte jako výjimky, nebo obraťte logiku a skenujte jen seznam
+      povolených chatů. A celé to provozujte jen na placeném účtu se smluvní ochranou dat.
+  - q: "Může Claude přes Beeper i odpovídat na zprávy?"
+    a: >-
+      Technicky ano — Beeperovo API umí zprávy i odesílat. Právě proto je v každém promptu
+      v tomhle návodu natvrdo věta „nic neodesílej". Odpovídat za vás bez schválení je
+      přesně to, co se nikdy nedeleguje: AI smí navrhnout text, odeslání je vždy vaše
+      kliknutí.
+  - q: "Musí u toho běžet můj počítač?"
+    a: >-
+      Ano. Beeperovo Desktop API běží lokálně na vašem stroji a funguje, jen když je
+      aplikace Beeper Desktop spuštěná. Je to dobrá zpráva pro soukromí (databáze zpráv
+      neodchází na cizí server), ale znamená to, že sken nespustíte z cloudu — plánované
+      úlohy na claude.ai na lokální Beeper nedosáhnou.
+  - q: "Jak často nechat zprávy skenovat?"
+    a: >-
+      Dvakrát denně stačí — sliby mají horizont dnů, ne minut. Častější běhy přidají šum
+      a duplicity a hlavně přestanete stíhat výstupy kontrolovat, čímž padá pojistka
+      „AI navrhuje, člověk schvaluje". Ráno a po obědě je rytmus, který se osvědčil.
+  - q: "Co když nepoužívám Notion?"
+    a: >-
+      Workflow funguje i s obyčejným textovým souborem na disku — Claude Code do něj umí
+      zapisovat přímo. Přijdete o kalendářové zobrazení a filtry, ale jádro (nic se
+      neztratí, všechno je na jednom místě s citací) zůstává. Termíny jdou navíc zapsat
+      do Google Kalendáře přes konektor v aplikaci Claude.
+---
+
+Spočítejte si, kolika aplikacemi vám dnes přitekly zprávy: WhatsApp od klientů, Messenger od známých, Instagram s poptávkou, Slack z týmu, LinkedIn od náboráře, SMS od řemeslníka, možná Signal a Telegram. V každé z nich dnes někdo něco slíbil — vy jemu, nebo on vám. „Pošlu ti to do pátku." „Zavolám zítra." „Sejdeme se ve čtvrtek v deset." A každá z těch vět žije v jiné aplikaci, která ji do večera odroluje pryč. **Sliby se neztrácejí proto, že byste byli nespolehliví — ztrácejí se proto, že jsou rozstříleny do sedmi schránek a žádná z nich nemá paměť.**
+
+Tenhle návod staví řešení ze dvou dílů. Beeper stáhne všechny sítě do jedné aplikace — a protože má lokální API s vestavěným MCP serverem, může nad tou jednou schránkou pracovat AI. Claude pak v pravidelných intervalech projde nové zprávy ze všech sítí naráz, vytáhne z nich závazky a termíny a zapíše je do Notionu a do kalendáře. Vy ráno místo sedmi aplikací otevřete jednu tabulku.
+
+Je to nejtechničtější návod na tomhle webu, a proto je psaný pro netechnické čtenáře: počítá s tím, že jste **nikdy neotevřeli příkazovou řádku**, a každý krok popisuje včetně toho, co přesně uvidíte na obrazovce. Nastavení zabere jedno odpoledne; provoz pak pár minut denně. A nad celým textem platí dvě pravidla: **AI navrhuje, člověk schvaluje** — nic se neodesílá ani nezapisuje bez vaší kontroly — a citlivé konverzace do skenu vůbec nepouštíte.
+
+## Vzorová situace
+
+Marek dělá projektového manažera napůl na volné noze. Klienti mu píšou, kde je napadne: dva přes WhatsApp, jeden trvá na Messengeru, poptávky chodí Instagramem, dva týmy žijí ve Slacku, náborář na LinkedIn a zedník, co mu předělává kancelář, výhradně přes SMS. Denně mu proteče kolem sto čtyřiceti zpráv v sedmi aplikacích. Systém na úkoly má — ale úkol vznikne, jen když si ho zapíše, a mezi „jasně, pošlu ti to do pátku" napsaným palcem v tramvaji a otevřením aplikace na úkoly je propast, do které mu spadnou dva sliby týdně. Jednou za měsíc z toho je trapný telefonát, jednou za kvartál naštvaný klient.
+
+Po nastavení z tohohle návodu vypadá jeho den jinak. V Beeperu má všech sedm sítí v jedné schránce. Ráno v 8:30 a odpoledne v 15:00 spustí v Claude Code uložený sken: Claude projde zprávy od minulého běhu, vytáhne z nich závazky — „slíbil jsi Petrovi kalkulaci do pátku (WhatsApp)", „Jana ti pošle podklady do středy (Slack)", „čtvrtek 10:00 schůzka s Novákem (Messenger)" — a navrhne zápis do Notionu. Marek přehled zkontroluje, dvěma slovům opraví termín, odsouhlasí — a Claude položky zapíše do databáze slibů; schůzky přidá Marek jedním potvrzením do kalendáře. Celé to trvá pět minut dvakrát denně. Za první měsíc systém zachytil 63 závazků; čtyři z nich by podle Marka jinak s jistotou zapadly. Zapomenuté sliby: nula.
+
+## Co je Beeper a proč je to hub
+
+Beeper je aplikace, která sjednocuje chatovací sítě do jedné schránky. Vlastní ji Automattic (firma stojící za WordPress.com), která ji koupila v roce 2024, a v roce 2025 vyšla přestavěná verze, kde propojování sítí běží primárně přímo na vašem zařízení. Podporuje mimo jiné WhatsApp, Messenger, Instagram, Telegram, Signal, Slack, Discord, LinkedIn, X a Google Messages (tedy SMS/RCS z vašeho Androidu); k tomu Matrix a Google Chat. Základní úroveň je bezplatná s omezeným počtem připojených účtů, placený tarif limity zvedá — aktuální podmínky si ověřte na webu Beeperu, mění se.
+
+Princip: v Beeperu se přihlásíte ke každé síti svým vlastním účtem a od té chvíle vidíte všechny konverzace v jednom seznamu, odpovídáte z jednoho okna a hledáte jedním hledáním napříč vším. Protistrana nic nepozná — pro ni píšete normálně z WhatsAppu či Messengeru.
+
+Poctivě k limitům. Za prvé, Beeper funguje přes **mosty** — softwarové překladače mezi sítí a Beeperem. Most je vždy o krok za oficiální aplikací: když síť něco změní, může se most na hodiny až dny odmlčet, některé funkce (mizející zprávy, hlasovky, reakce v některých sítích) fungují omezeně. Za druhé, **iMessage v nabídce nehledejte** — po přetahované s Applem v roce 2023 podpora skončila. Za třetí, u sítí jako WhatsApp porušuje používání neoficiálních klientů formálně podmínky služby; praxe je léta tolerovaná, ale vědět to máte. A za čtvrté — pro tenhle návod nejdůležitější — Beeper má **Desktop API**: lokální rozhraní, přes které smí jiný program na vašem počítači číst a prohledávat vaše chaty. Součástí je vestavěný MCP server, tedy standardní „zásuvka", do které se umí zapojit Claude. Celé to běží jen na vašem stroji a jen když je Beeper Desktop spuštěný — nic z toho není cloudová služba. Co je MCP obecně a co všechno se do Claude dá zapojit, popisuje [přehled konektorů a MCP](/tipy/mcp-konektory-nastroje).
+
+## Než začnete: co budete potřebovat
+
+- **Počítač s Mac nebo Windows**, na kterém můžete instalovat programy. Celý systém poběží lokálně, takže to musí být stroj, u kterého trávíte dny — ne služební notebook se zákazem instalací (tam se nejdřív zeptejte IT, viz sekce o bezpečnosti).
+- **Beeper Desktop** — desktopová aplikace Beeperu s připojenými sítěmi. Počítejte s tím, že připojení každé sítě znamená jedno přihlášení či naskenování QR kódu; pět sítí zvládnete za půl hodiny.
+- **Placený účet Claude.** Claude Code vyžaduje placený tarif — a pro tenhle případ ho chcete i kvůli zásadě webu: soukromé konverzace jsou citlivá data a patří jen do placeného účtu se smluvní ochranou dat, ne do bezplatného chatu.
+- **Claude Code** — Claude v příkazové řádce. Nainstalujeme ho společně v další sekci; nic předem nepotřebujete.
+- **Notion** (volitelně) — cíl, kam se sliby zapisují. Bezplatný účet stačí. Kdo Notion nechce, dostane v návodu alternativu s obyčejným textovým souborem.
+- **Čas:** 60–90 minut na první nastavení, když jdete krok za krokem. Provoz pak zabere pět minut dvakrát denně.
+
+## Terminál pro ty, kdo ho nikdy neotevřeli
+
+Tahle sekce je schválně nejpodrobnější. Příkazová řádka (terminál) je důvod, proč většina lidí podobné návody zavře — a přitom je to jen jiné okno pro rozhovor s počítačem. Místo klikání na tlačítka píšete věty. Nic se v ní nerozbije tím, že se do ní podíváte, a špatný příkaz skoro vždycky skončí jen chybovou hláškou, ne katastrofou.
+
+### Co terminál je a jak vypadá
+
+Terminál je okno s textem. Po otevření v něm uvidíte jeden nebo dva řádky textu — typicky název vašeho počítače a uživatelské jméno — a za nimi znak, kterým počítač říká „poslouchám": na Macu obvykle `%` nebo `$`, ve Windows `>`. Za tím znakem bliká kurzor. Cokoli napíšete, se objeví za kurzorem; klávesou Enter to odešlete a počítač odpoví dalším textem. To je celé. Tři věci, které se hodí vědět dopředu:
+
+- Příkazy **kopírujte celé, na jeden řádek**, a vkládejte je klávesami Ctrl+V (na Macu Cmd+V). Překlep v příkazu skoro vždy znamená jen hlášku typu „command not found" — nic víc.
+- Když terminál po odeslání příkazu chvíli „nic nedělá", pracuje. Nechte ho; hotovo poznáte tak, že se znovu objeví řádek se znakem `%`/`$`/`>` a blikajícím kurzorem.
+- Když se cokoli zasekne, klávesová zkratka **Ctrl+C** běžící věc přeruší a vrátí vám řádek. To je vaše univerzální záchranná brzda.
+
+### Otevření terminálu na Macu
+
+Stiskněte Cmd+mezerník (otevře se hledání Spotlight), napište „Terminal" a stiskněte Enter. Otevře se bílé nebo černé okno s řádkem, který končí znakem `%`. To je ono — nechte ho otevřené.
+
+### Otevření terminálu ve Windows
+
+Stiskněte klávesu Windows, napište „PowerShell" a stiskněte Enter. Otevře se modré či černé okno s řádkem, který začíná `PS C:` a končí znakem `>`. PowerShell je terminál Windows — pro nás plnohodnotný.
+
+### Instalace Claude Code
+
+Claude Code je Claude, který místo v prohlížeči běží v terminálu — a právě proto umí věci, které webový chat neumí: pracovat se soubory na disku a připojovat se k lokálním programům, jako je Beeper. Instaluje se jedním příkazem, oficiálním postupem z dokumentace Anthropic.
+
+Na **Macu** vložte do terminálu tento řádek a stiskněte Enter:
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+Ve **Windows** vložte do PowerShellu tento řádek a stiskněte Enter:
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+Poběží instalace — poteče text, může to trvat minutu či dvě. Až se vrátí řádek s kurzorem, ověřte výsledek příkazem `claude --version` (napište ho a stiskněte Enter). Když se vypíše číslo verze, máte hotovo. Když terminál odpoví, že příkaz nezná, zavřete okno terminálu, otevřete nové a zkuste to znovu — čerstvě nainstalované programy se novému oknu teprve představí.
+
+### První spuštění a přihlášení
+
+Napište `claude` a stiskněte Enter. Při prvním spuštění se Claude Code potřebuje přihlásit k vašemu účtu: nabídne přihlášení přes prohlížeč — potvrďte, otevře se stránka claude.ai, kde se přihlásíte jako obvykle, a terminál si to převezme. Pak už uvidíte chatové rozhraní přímo v terminálu: pole, do kterého píšete, jako byste psali na webu. Zkuste pozdravit nebo se zeptat „co umíš" — odpoví česky, když česky píšete.
+
+Dvě ovládací drobnosti na začátek: konverzaci ukončíte příkazem `/exit` (nebo prostě zavřením okna) a když se Claude v průběhu práce zeptá, jestli smí něco udělat — přečíst soubor, zavolat nástroj — odpovídáte šipkami a Enterem. **Tyhle dotazy jsou vaše pojistka, ne otrava.** Neodklikávejte je bez čtení; u workflow nad soukromými zprávami obzvlášť.
+
+## Připojení Beeperu ke Claude
+
+Teď ty dva světy propojíme: Beeper nabídne svůj MCP server a Claude Code se k němu přihlásí. Zabere to pět minut.
+
+### Krok 1: Desktop API v Beeperu
+
+Spusťte Beeper Desktop a nechte ho běžet — API funguje jen za běhu aplikace. V Beeperu otevřete **Settings → Integrations** (Nastavení → Integrace). Tady bydlí Desktop API: najdete tu připravené postupy připojení pro jednotlivé AI aplikace a seznam **Approved connections** — schválených připojení, kde později uvidíte (a můžete kdykoli zrušit) přístup Claude. Nic dalšího teď nastavovat nemusíte; server běží lokálně na adrese, kterou za chvíli řekneme Claudu.
+
+### Krok 2: příkaz claude mcp add
+
+Zavřete případnou běžící konverzaci Claude (`/exit`), ať jste v běžném terminálu, a vložte tento příkaz — je to oficiální postup z dokumentace Beeperu:
+
+```bash
+claude mcp add beeper http://localhost:23373/v0/mcp -t http -s user
+```
+
+Co ten řádek říká, po částech: „přidej MCP server, říkej mu beeper, najdeš ho na adrese localhost:23373 (tedy na tomhle počítači, žádný internet), mluv s ním protokolem HTTP a zapamatuj si ho pro všechny moje budoucí konverzace" (`-s user`). Terminál odpoví potvrzením, že server přidal. Ověřit to můžete příkazem `claude mcp list` — v seznamu má být řádek „beeper".
+
+### Krok 3: schválení a ověření
+
+Spusťte `claude` a napište `/mcp`. Uvidíte seznam připojených serverů a jejich stav. Při prvním použití proběhne schválení přístupu (OAuth) — Beeper si ho odbaví sám a připojení se objeví v jeho seznamu Approved connections. Pokud by schvalování zlobilo, dá se v Beeperu v Settings → Integrations vytvořit přístupový token ručně (tlačítkem plus u Approved connections) a předat ho v příkazu — postup je v dokumentaci Beeperu; pro většinu lidí ale funguje automatická cesta.
+
+A teď ten moment, kdy se to poprvé propojí. Napište Claudu testovací dotaz:
+
+```text
+Máš přes MCP připojený Beeper. Zkus se ho zeptat, co mi dnes přišlo:
+projdi zprávy za posledních 12 hodin napříč všemi sítěmi a vypiš mi
+stručný přehled — od koho, z jaké sítě, o čem zpráva zhruba je.
+Nic neotvírej jako přečtené, nic neoznačuj a hlavně NIC NEODESÍLEJ.
+Jen čti a shrň. Když se k Beeperu nepřipojíš, napiš přesně, jaká
+chyba se objevila.
+```
+
+Claude se zeptá, jestli smí použít nástroj Beeperu — potvrďte — a vrátí přehled dnešních zpráv ze všech sítí naráz. To je chvíle, kdy má většina lidí husí kůži: WhatsApp, Slack a SMS v jedné odpovědi. Pokud místo toho přijde chyba, v devíti případech z deseti neběží Beeper Desktop, nebo jste `claude mcp add` spustili s překlepem — smažte server příkazem `claude mcp remove beeper` a přidejte znovu.
+
+Druhý dotaz se vyplatí hned po prvním: inventura. Budete ji potřebovat v sekci o bezpečnosti.
+
+```text
+Vypiš mi přehled mého Beeperu: jaké sítě/účty mám připojené a u každé
+sítě 10 chatů, kde byl v posledních 14 dnech největší provoz — název
+chatu, síť, zhruba kolik zpráv.
+Rozděl je na dvě skupiny: pracovní a osobní (odhadni podle obsahu,
+u nejistých napiš otazník). Nic nečti nahlas do detailu, žádné citace
+soukromých zpráv — jen názvy chatů a čísla. Nic neodesílej.
+```
+
+Z výstupu uvidíte černé na bílém, kam všude AI dosáhne — a rovnou si z osobní skupiny vypíšete chaty, které v příští sekci ze skenování vyloučíte.
+
+## První skenování slibů
+
+Srdce celého workflow je jeden důkladný prompt. Jeho úkol: projít nové zprávy ve všech sítích a vytáhnout z nich **závazky** — věty, kterými někdo někomu něco slíbil. Vaše sliby ostatním, cizí sliby vám, a domluvené schůzky, což jsou sliby s časem a místem.
+
+### Hlavní skenovací prompt
+
+```text
+Projdi přes Beeper moje zprávy za posledních 24 hodin napříč všemi
+sítěmi a vytáhni z nich závazky. Hledej tři druhy:
+
+1. MOJE SLIBY — co jsem komu slíbil já („pošlu", „připravím",
+   „zavolám", „zjistím", „dám vědět do…").
+2. CIZÍ SLIBY — co kdo slíbil mně („pošlu ti", „ozvu se", „dodám
+   podklady do…").
+3. SCHŮZKY A TERMÍNY — domluvená setkání, hovory, deadliny, na
+   kterých jsme se shodli.
+
+U každého nálezu uveď:
+- kdo komu (jména z chatu),
+- co přesně (jedna věta),
+- dokdy (převeď „zítra" a „do pátku" na konkrétní datum; dnes je
+  [datum]; když termín nezazněl, napiš „bez termínu"),
+- síť a název chatu,
+- doslovnou citaci věty, ze které to vyvozuješ.
+
+Pravidla: vyluč chaty [názvy vyloučených chatů]. Nezaměňuj úvahy
+(„možná bych mohl…") za sliby — ber jen jasné závazky. Když si nejsi
+jistý, zařaď nález do zvláštní sekce „K posouzení" místo hádání.
+Nikam nic nezapisuj, nic neoznačuj jako přečtené a NIC NEODESÍLEJ —
+jen vypiš přehled.
+```
+
+Vrátí strukturovaný přehled ve třech skupinách plus „K posouzení". První běh klidně pusťte na 7 dní místo 24 hodin — uvidíte, kolik závazků vám za týden proteklo mezi prsty, a je to nejlepší motivace celé nastavování dokončit. Dvě věci zkontrolujte: **převod termínů** (relativní výrazy jako „do konce týdne" model občas přepočítá špatně — proto je v promptu dnešní datum) a **citace** — každý nález má u sebe doslovnou větu, takže poznáte, jestli AI slib nevyfabulovala z nevinné zdvořilosti.
+
+### Jak vypadá výstup
+
+```text
+MOJE SLIBY (3)
+1. Já → Petr Svoboda: poslat kalkulaci rekonstrukce
+   Dokdy: pátek 21. 8. | WhatsApp, chat „Petr Svoboda"
+   Citace: „jasně, kalkulaci ti pošlu do pátku"
+2. Já → tým Web: nachystat podklady pro sprint review
+   Dokdy: středa 19. 8. | Slack, kanál „projekt-web"
+   Citace: „podklady nachystám do středy"
+
+CIZÍ SLIBY (2)
+1. Jana Malá → já: dodat texty na landing page
+   Dokdy: úterý 18. 8. | Messenger, chat „Jana Malá"
+   Citace: „texty ti dodám v úterý, slibuju"
+
+SCHŮZKY A TERMÍNY (1)
+1. Schůzka s p. Novákem, čtvrtek 20. 8. v 10:00, u nich
+   Messenger, chat „Ing. Novák" | „čtvrtek v 10 u nás v kanceláři?"
+   → moje odpověď: „platí"
+
+K POSOUZENÍ (1)
+1. Tomáš (SMS): „mrknu na tu podlahu příští týden" — slib bez
+   pevného termínu, navrhuji zapsat s termínem „příští týden".
+```
+
+### Doptání na kontext
+
+U nálezů ze sekce „K posouzení" — a vždycky, když si nejste jistí, jestli slib platí — se doptejte, místo abyste otevírali původní aplikaci:
+
+```text
+K nálezu č. [číslo] mi vypiš celou konverzaci kolem citované věty:
+10 zpráv před ní a všechny zprávy po ní až do teď, s časy a jmény
+autorů. Chci posoudit, jestli slib pořád platí, nebo ho někdo mezitím
+zrušil či posunul. Nic nehodnoť, jen doslovný přepis. Nic neodesílej.
+```
+
+Tohle je mimochodem největší praktická výhoda hubu: kontext dohledáváte jedním dotazem, ať slib padl v SMS nebo ve Slacku. A pořád platí základní zásada: **výstup skenu je návrh.** Než se cokoli zapíše do Notionu nebo kalendáře, projdete ho očima — AI slib najde, ale jen vy víte, že „pošlu ti to do pátku" bylo v tom vlákně míněno ironicky.
+
+## Zápis do Notionu a kalendáře
+
+Přehled v terminálu je hezký, ale odroluje stejně jako zprávy. Sliby potřebují bydlet v něčem trvalém — databázi, kde mají termín, stav a odkaz na původ.
+
+### Připojení Notionu
+
+Notion má oficiální MCP server, který se ke Claude Code připojí stejně jako Beeper. V terminálu (mimo běžící konverzaci):
+
+```bash
+claude mcp add --transport http notion https://mcp.notion.com/mcp -s user
+```
+
+Pak spusťte `claude`, napište `/mcp` a u Notionu dokončete přihlášení — otevře se prohlížeč, kde přístup potvrdíte svým účtem Notion a vyberete, ke kterým stránkám smí. Rozdíl proti Beeperu: tenhle server běží u Notionu, ne u vás — připojujete cloudovou službu ke cloudové službě, což je běžný a podporovaný scénář.
+
+### Struktura databáze slibů
+
+Databázi si nechte založit — a strukturu jí nadiktujte, ať je stejná jako v tomhle návodu:
+
+```text
+Založ mi v Notionu novou databázi „Sliby a závazky" s těmito
+vlastnostmi:
+- Slib (title) — jedna věta, co se má stát
+- Kdo (select: Já, Protistrana)
+- Protistrana (text) — jméno druhé strany
+- Dokdy (date)
+- Síť (select: WhatsApp, Messenger, Instagram, Slack, Signal,
+  LinkedIn, SMS, Telegram, Discord, Jiné)
+- Chat (text) — název konverzace
+- Citace (text) — doslovná věta ze zprávy
+- Stav (select: Nový, Potvrzeno, Splněno, Zrušeno; výchozí Nový)
+- Zapsáno (created time)
+Přidej pohled „Kalendář" podle vlastnosti Dokdy, pohled „Po termínu"
+filtrovaný na Dokdy v minulosti a Stav není Splněno ani Zrušeno,
+a pohled „Moje sliby" filtrovaný na Kdo = Já. Nic jiného nezakládej.
+```
+
+Vrátí hotovou databázi včetně tří pohledů. Kalendářový pohled je důvod, proč sloupec Dokdy je typu date — Notion vám sliby rovnou vykreslí do mřížky týdne, i kdybyste žádný jiný kalendář nepřipojovali.
+
+### Zápis nálezů: navrhnout, schválit, zapsat
+
+Teď se obě půlky potkají. Zápis do databáze dělejte vždy dvoufázově — nejdřív návrh, po vašem odsouhlasení zápis:
+
+```text
+Vezmi závazky z posledního skenu a připrav zápis do notionové
+databáze „Sliby a závazky".
+
+Nejdřív mi ukaž tabulku řádků, které se chystáš založit, ve formátu
+sloupců databáze. Zkontroluj duplicity: pokud už v databázi je řádek
+se stejnou protistranou a stejným slibem, nezakládej ho znovu —
+místo toho navrhni aktualizaci termínu, pokud se změnil.
+
+Počkej na moje schválení. Teprve až napíšu „zapiš", řádky založ
+a potom vypiš, co přesně jsi zapsal, s odkazy na založené položky.
+Nikdy nezapisuj nic, co jsem neschválil, nic v databázi nemaž
+a do Beeperu NIC NEODESÍLEJ.
+```
+
+Claude ukáže tabulku, vy řeknete „zapiš" (nebo opravíte termín a pak „zapiš") a položky se objeví v Notionu. Kontrola duplicit je důležitá — sliby se v konverzacích opakují („jo jo, do pátku, jak jsme říkali") a bez ní byste měli každý závazek třikrát.
+
+### Termíny navíc do Google Kalendáře
+
+Schůzky a tvrdé termíny chcete i v kalendáři, kde žije zbytek vašeho dne. Nejjednodušší ověřená cesta: Google Kalendář má oficiální konektor pro Claude — připojíte ho v nastavení konektorů na claude.ai (funguje ve webové i desktopové aplikaci Claude). Výstup skenu pak vložíte do konverzace v aplikaci Claude s tímto zadáním:
+
+```text
+Tady je dnešní přehled závazků z mých chatů:
+
+[vložit sekci SCHŮZKY A TERMÍNY z výstupu skenu]
+
+Navrhni z nich události do mého Google Kalendáře: název ve tvaru
+„Jméno: co" (např. „Novák: schůzka u nich"), správné datum a čas,
+u termínů bez času celodenní událost. Ke každé události dej do
+popisu citaci a síť, ze které pochází. Zkontroluj kolize s mým
+stávajícím kalendářem a vypiš je. Ukaž mi seznam navržených událostí
+a založ je až po mém výslovném schválení.
+```
+
+Vrátí seznam událostí ke schválení a po odsouhlasení je založí. Jak z konektoru na poštu a kalendář vytěžit víc — včetně automatických rutin — popisuje návod na [rutiny nad poštou a kalendářem](/tipy/claude-rutiny-posta-kalendar).
+
+### Alternativa bez Notionu: textový soubor
+
+Nechcete další aplikaci? Claude Code umí zapisovat rovnou do souboru na disku — a textový soubor je nezničitelný, přenositelný a váš:
+
+```text
+Místo Notionu veď moje sliby v souboru sliby.md v této složce.
+Struktura: nadpis týdne, pod ním odrážky ve tvaru
+- [ ] DOKDY | KDO KOMU | CO | síť/chat | „citace"
+Splněné sliby označuj zaškrtnutím - [x], nikdy je nemaž.
+Vezmi závazky z posledního skenu, ukaž mi, které řádky přidáš,
+a po mém schválení je připiš na správné místo. Seřaď podle termínu.
+Nic neodesílej.
+```
+
+Přijdete o filtry a kalendářové zobrazení, ale jádro — jedno místo, nic se neztratí, u všeho citace — zůstává. Soubor se dá kdykoli později do Notionu přestěhovat. Na Macu jde stejným způsobem diktovat i zápis do aplikace Připomínky přes její exportní formáty, ale textový soubor je robustnější start.
+
+## Pravidelné intervaly
+
+Systém funguje, jen když běží pravidelně. A tady potřebujete vědět jednu poctivou technickou věc: **plánované úlohy (rutiny) na claude.ai běží v cloudu — a na Beeper nedosáhnou**, protože jeho API žije jen na vašem počítači, na adrese localhost, kam z internetu nikdo nevidí. Pro poštu a kalendář jsou cloudové rutiny skvělé (podrobně v [kapitole o rutinách a agentech](/prirucka/rutiny-a-agenti)); pro Beeper musí sken běžet u vás.
+
+### Cesta 1: rytmus místo automatu
+
+Nejjednodušší a pro začátek nejlepší: sken spouštíte sami, dvakrát denně, na povel z kalendáře. Uložte si hlavní prompt jako kombinovanou „denní dávku" — sken plus zápis v jednom:
+
+```text
+Denní kontrola slibů. Dnes je [datum].
+1. Projdi přes Beeper zprávy od včerejšího večera napříč všemi
+   sítěmi kromě těchto chatů: [seznam vyloučených chatů].
+2. Vytáhni závazky (moje sliby, cizí sliby, schůzky) ve formátu:
+   kdo komu, co, dokdy, síť/chat, doslovná citace.
+3. Porovnej s databází „Sliby a závazky" v Notionu: co je nové,
+   co je duplicita, u čeho se posunul termín.
+4. Zkontroluj stávající databázi: které sliby mají termín dnes
+   nebo jsou po termínu — vypiš je zvlášť jako „HOŘÍ".
+5. Ukaž mi návrh zápisů a změn. Zapisuj až po mém „zapiš".
+Nic neodesílej, nic nemaž, nic neoznačuj jako přečtené.
+```
+
+Do kalendáře si dejte dvě opakované události (8:30 a 15:00, pracovní dny) a spuštění je: otevřít terminál, napsat `claude`, vložit prompt. Po týdnu to je stejný automatismus jako ranní kafe — a máte jistotu, že u každého zápisu byl člověk.
+
+### Cesta 2: skutečný automat pro pokročilé
+
+Kdo chce, aby se sken spouštěl sám, může použít plánovač úloh svého systému — na Macu a Linuxu cron, ve Windows Plánovač úloh — a neinteraktivní režim `claude -p`, který provede zadání a skončí. Na Macu by řádek v cronu pro běh v 8:30 a 15:00 vypadal takto:
+
+```bash
+30 8,15 * * 1-5 claude -p "$(cat ~/sliby/denni-sken.txt)" >> ~/sliby/log.txt
+```
+
+Než se do toho pustíte, tři upozornění. Neinteraktivní běh nemá koho se zeptat na povolení — museli byste nástrojům Beeperu a Notionu předem povolit konkrétní akce, a tím oslabujete pojistku schvalování; pokud to uděláte, povolte výhradně čtení a zápis do jedné databáze, nikdy odesílání zpráv. Počítač musí být v čase běhu zapnutý a Beeper spuštěný. A výstup si stejně musíte přečíst — automat, jehož výstupy nikdo nečte, je jen dražší způsob, jak si nevšímat slibů. Pro většinu lidí je cesta 1 lepší kompromis: dvě minuty ručního spuštění denně za plnou kontrolu.
+
+### Proč dvakrát denně, a ne každých pět minut
+
+Sliby mají horizont dnů. Sken co pět minut nepřinese rychlejší reakce, přinese: duplicitní nálezy, spotřebované limity vašeho tarifu, notifikační šum — a hlavně **konec kontroly**, protože čtyřiadvacet výstupů denně nikdo poctivě nepročte, takže je začnete odklikávat. Dvakrát denně znamená, že ranní běh chytí večerní a noční zprávy a odpolední běh dopoledne; nic nestihne zapadnout hlouběji než půl dne. Míň už je riskantní (pondělní žeň z víkendu je dlouhá), víc nepotřebujete.
+
+## Soukromí a bezpečnost
+
+Tahle sekce není přívažek, je to podmínka provozu. Uvědomte si, co jste právě postavili: **program s umělou inteligencí má čtecí přístup ke všem vašim soukromým konverzacím naráz.** K pracovnímu Slacku i k rodinnému WhatsAppu, k vyjednávání o zakázce i ke zprávám od partnera. To není důvod to nedělat — je to důvod dělat to s pravidly.
+
+### Co přesně kam teče
+
+Beeperovo Desktop API běží lokálně: databáze zpráv sedí na vašem disku a API z ní čte jen na vyžádání, jen když Beeper běží. Ale ve chvíli, kdy Claude zprávy čte, **jejich obsah odchází ke zpracování do Claude** — jako každý text, který modelu pošlete. Proto je nepodkročitelná zásada webu: tenhle typ dat výhradně na **placeném účtu se smluvní ochranou dat**, kde se vaše konverzace nepoužívají k trénování a platí pro ně obchodní podmínky. Na bezplatném účtu tohle workflow neprovozujte vůbec. A pokud jde o pracovní zprávy vaší firmy, máte vůči kolegům a klientům závazky i vy — u firemní agendy se o nasazení poraďte s IT, ať neporušíte interní pravidla dřív, než ušetříte první hodinu.
+
+### Vyloučené chaty: rozhodněte předem, ne za pochodu
+
+Vraťte se k inventuře chatů z připojovací sekce a sepište si **seznam vyloučených konverzací**: partner, rodina, zdraví, cokoli, co do pracovního systému nepatří. Ten seznam patří do každého skenovacího promptu („vyluč chaty: …"). U opravdu citlivých věcí jděte o krok dál a otočte logiku — místo černé listiny bílá:
+
+```text
+Od teď při skenování slibů pracuj VÝHRADNĚ s tímto seznamem chatů
+a žádné jiné neotvírej ani neprohledávej:
+[seznam povolených chatů — např. „Petr Svoboda (WhatsApp)",
+„projekt-web (Slack)", „Ing. Novák (Messenger)"]
+Pokud by pro splnění úkolu bylo potřeba sáhnout mimo seznam,
+zastav se a napiš mi to — nikdy to neudělej sám. Potvrď, že jsi
+pravidlo pochopil, a zopakuj mi seznam.
+```
+
+Bílá listina je bezpečnější, protože nová citlivá konverzace je chráněná automaticky — nemusíte si na ni vzpomenout. Nevýhoda: sliby z nových pracovních chatů vám utečou, dokud chat na seznam nepřidáte; jednou týdně proto seznam aktualizujte. Pamatujte přitom, že jde o instrukci modelu, ne technický zámek — což je přesně důvod, proč ji opakujete v každém promptu a výstupy kontrolujete.
+
+### Co nikdy nedelegovat
+
+Beeperovo API umí zprávy nejen číst, ale i **odesílat**. Pro tohle workflow je to riziko, ne funkce — proto každý prompt v tomhle návodu končí zákazem odesílání. Tři věci nedelegujte nikdy, ani „na zkoušku":
+
+- **Odpovídání za vás.** AI smí navrhnout text odpovědi či urgence; odeslání je vaše kliknutí ve vaší aplikaci. Zpráva odeslaná vaším jménem se nedá odvyslovit.
+- **Mazání a archivace.** Sken jen čte. Nikdy nedávejte právo mazat zprávy nebo chaty — omyl je nevratný.
+- **Cokoli s penězi.** Platební údaje a potvrzování transakcí do konverzací s AI nepatří vůbec.
+
+### Jak to celé vypnout
+
+Odpojení je stejně důležité jako připojení — a máte ho na dvou místech. V terminálu `claude mcp remove beeper` (a případně `claude mcp remove notion`) smaže propojení na straně Claude. V Beeperu v Settings → Integrations u Approved connections zrušíte schválený přístup, čímž přestane platit i případný token. Když jedete na dovolenou nebo počítač někomu půjčujete, stačí zavřít Beeper Desktop — bez něj API neběží.
+
+## Nejčastější chyby
+
+- **Přeskočit testovací dotaz a jet rovnou velký sken.** Když první příkaz selže, potřebujete vědět, jestli je problém v Beeperu, v MCP, nebo v promptu. Malý dotaz „co mi dnes přišlo" izoluje techniku od zadání.
+- **Nechat ve skenu všechny chaty, protože „to je jedno".** Není. První trapný moment — citace z osobní konverzace uprostřed pracovního přehledu — přijde do týdne. Vyloučené chaty definujte první den.
+- **Věřit termínům bez kontroly.** „Do konce příštího týdne" přepočítaný modelem je nejčastější tichá chyba celého workflow. Proto má každý nález citaci a proto do promptu píšete dnešní datum — zkontrolujte aspoň termíny, na kterých něco stojí.
+- **Zapisovat do Notionu bez schvalovacího kroku.** Jednofázový zápis plní databázi duplicitami a špatně pochopenými „sliby" a vy jí přestanete věřit. Databáze, které nevěříte, je horší než žádná — zpátky ke slibům v hlavě.
+- **Zapnout automat dřív než rytmus.** Cron bez návyku číst výstupy vyrábí jen delší log. Nejdřív dva týdny ručně dvakrát denně; automatizujte, až když víte, jak vypadá dobrý výstup.
+- **Brát Beeper jako neprůstřelný archiv.** Mosty občas vypadnou a síť se na den odmlčí. Sken hlásí jen to, co Beeper vidí — když vám celá síť týden mlčí, koukněte, jestli most nespadl, než uvěříte, že vám nikdo nepíše.
+
+## Nejlepší nástroje
+
+- **Beeper Desktop** — hub všech sítí a zdroj dat: jedna schránka nad WhatsAppem, Messengerem, Instagramem, Slackem, Signalem i SMS, s lokálním Desktop API a vestavěným MCP serverem.
+- **Claude Code** — motor workflow: běží u vás, mluví s Beeperem přes localhost, se soubory na disku i s Notionem, a celé se ovládá běžnou češtinou.
+- **Notion s oficiálním MCP** — trvalé bydliště slibů: databáze s termíny, stavy, citacemi a kalendářovým pohledem, do které Claude zapisuje po vašem schválení.
+- **Google Kalendář s konektorem Claude** — schůzky a tvrdé termíny tam, kde žije zbytek dne; události zakládá Claude v aplikaci po odsouhlasení seznamu.
+- **Obyčejný textový soubor** — minimalistická alternativa Notionu: sliby.md na disku, který přežije všechno a nikam neodchází.
+
+## Co vám to přinese
+
+- **Čas:** místo večerního projíždění sedmi aplikací „jestli jsem něco neslíbil" dva pětiminutové skeny denně — reálně kolem tří hodin týdně, hlavně z rozsekaného přepínání mezi aplikacemi.
+- **Peníze:** zapomenutý slib klientovi je nejdražší druh chyby na volné noze — nestojí hodiny, stojí důvěru a zakázky. Systém, který chytí dva zapadlé závazky měsíčně, se zaplatí mnohonásobně.
+- **Klid:** vědomí, že „pošlu ti to do pátku" napsané v tramvaji někdo do odpoledne vytáhne a zapíše, je konec toho tichého večerního skenování hlavy. Zapomínat smíte — systém nezapomene.
+- **Kvalita:** odpovídáte s kontextem. Před schůzkou se zeptáte na celou historii domluvy jedním dotazem, urgujete s citací původního slibu — působíte jako člověk, který si všechno pamatuje.
+
+## Pro tip
+
+Až vám sken týden spolehlivě běží, přidejte druhou vrstvu: hlídání **cizích slibů**. V databázi už je máte (Kdo = Protistrana) — jednou týdně nechte Claude projít, co vám kdo slíbil a nesplnil, a připravit návrhy připomínek:
+
+```text
+Projdi v databázi „Sliby a závazky" položky, kde Kdo = Protistrana
+a Stav není Splněno ani Zrušeno, a termín je dnes nebo v minulosti.
+Ke každé ověř v Beeperu, jestli mezitím nedorazilo splnění nebo
+posun termínu — pokud ano, navrhni změnu stavu.
+Pro zbytek mi připrav krátké, přátelské připomínky v mém tónu
+(pro každou síť zvlášť, ať sedí kontextu chatu), s odkazem na
+původní domluvu. NIC NEODESÍLEJ — texty mi jen vypiš, odešlu je
+sám ze svých aplikací.
+```
+
+Dostanete páteční přehled „kdo vám co dluží" s hotovými texty urgencí — pošlete je vlastní rukou za dvě minuty. Podrobněji tuhle disciplínu rozvíjí [follow-up hlídač](/tipy/ai-follow-up-hlidac).
+
+A závěrečné pravidlo celého systému: **hub smí všechno vidět, ale nic říct.** V okamžiku, kdy byste AI pustili k odesílání, přestává být pojistkou proti zapomenutým slibům a začíná být rizikem nových — slibů, které jste nikdy nedali. Čtení a návrhy stroji, podpis člověku.
