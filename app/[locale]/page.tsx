@@ -289,6 +289,38 @@ export default async function HomePage({
         </div>
       </section>
 
+      {/* E-mailový kurz */}
+      <section className="border-b border-hairline">
+        <div className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)] py-14">
+          <Reveal>
+            <div className="border-[1.5px] border-hairline-strong bg-card p-7 shadow-[0_4px_0_var(--key-shadow)] sm:p-9">
+              <p className="eyebrow mb-2 text-accent">{t.kurzEyebrow}</p>
+              <h2 className="display text-[clamp(24px,3.6vw,34px)]">{t.kurzTitle}</h2>
+              <p className="mt-3 max-w-[58ch] text-[15.5px] leading-relaxed text-muted">{t.kurzDesc}</p>
+              <ol className="mt-6 flex flex-wrap gap-2">
+                {t.kurzDays.map((d, i) => (
+                  <li key={d} className="flex items-center gap-2 border border-hairline bg-surface px-3 py-1.5 text-[12.5px] font-semibold">
+                    <span className="eyebrow text-faint">{i + 1}</span>
+                    {d}
+                  </li>
+                ))}
+              </ol>
+              <div className="mt-7 flex flex-wrap items-center gap-5">
+                <Link
+                  href={p("/kurz")}
+                  className="bg-ink px-6 py-3 text-[14px] font-bold text-paper no-underline transition-colors hover:bg-accent hover:text-accent-ink"
+                >
+                  {t.kurzCta}
+                </Link>
+                <Link href={p("/newsletter/ukazka")} className="draw-link text-[14px] font-bold">
+                  {t.kurzSample}
+                </Link>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       {/* Příručka */}
       <section className="border-b border-hairline">
         <div className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)]">
