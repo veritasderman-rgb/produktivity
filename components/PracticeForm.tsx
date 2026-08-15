@@ -195,7 +195,7 @@ export function PracticeForm({ locale = "cs" }: { locale?: "cs" | "en" }) {
           name="consent"
           type="checkbox"
           required
-          className="mt-1 h-4 w-4 shrink-0 accent-[var(--accent,#D63210)]"
+          className="mt-1 h-4 w-4 shrink-0 accent-accent"
         />
         <span>{t.consent}</span>
       </label>

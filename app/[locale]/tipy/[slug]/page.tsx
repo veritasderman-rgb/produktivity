@@ -27,6 +27,7 @@ import { Pomohlo } from "@/components/Pomohlo";
 import { SaveButton } from "@/components/SaveButton";
 import { extractHeadings, extractHowToSteps, flatText, slugify } from "@/lib/toc";
 import { formatReviewed, reviewedLabel } from "@/lib/reviewed";
+import { changesForSlug } from "@/lib/changes";
 import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
 import { OknaDemo } from "@/components/OknaDemo";
 import { PredPo } from "@/components/PredPo";
@@ -46,6 +47,7 @@ const T = {
     copy: { copy: "Zkopírovat", copied: "Zkopírováno ✓" },
     print: "Vytisknout / uložit PDF",
     tested: "Fakta ověřena proti nástrojům",
+    changeHistory: "Historie změn tohoto návodu →",
   },
   en: {
     breadcrumb: "Tips & tricks",
@@ -61,6 +63,7 @@ const T = {
     copy: { copy: "Copy", copied: "Copied ✓" },
     print: "Print / save as PDF",
     tested: "Facts verified against the tools",
+    changeHistory: "Change history for this guide →",
   },
 };
 
