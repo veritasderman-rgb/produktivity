@@ -1,0 +1,780 @@
+---
+title: "Od skici tužkou do počítače: co dnes jde přenést do vektorů, CAD a 3D"
+excerpt: "Kompletní návod s 18 prompty: jak z ruční skici, fotky nebo starého plánu udělat editovatelný soubor, se kterým už umí pracovat CAD, 3D nebo sazba — včetně kalibrace měřítka, přehledu MCP konektorů (oficiální vs. komunitní) a tvrdého vymezení, kde končí podklad a začíná projekt."
+category: "ai"
+platform: "vsude"
+audience: ["freelancer", "manazer"]
+keys: []
+saves: "~desítky hodin překreslování ročně"
+date: "2026-08-16"
+updated: "2026-08-16"
+tldr: >-
+  Skica tužkou vyfocená mobilem a „hezky překreslená“ AI do obrázku je slepá ulička:
+  dostanete pixely, které nikdo nemůže dál měřit, kótovat ani upravit. Užitečné je
+  něco jiného — převést skicu na vektorové křivky se správným měřítkem a vyexportovat
+  ji do formátu, který otevře CAD, 3D nástroj nebo sazba. Návod vede celý řetěz:
+  poctivá inventura vstupů (skica, fotka, papírový plán, PDF, katastr, LiDAR sken
+  z telefonu) a co z každého reálně vypadne; jak nafotit skicu, aby vektorizace
+  fungovala; jak z rastru udělat křivky; jak dostat do souboru správné rozměry podle
+  jednoho známého kóty; jak exportovat do SVG a DXF; a jak z půdorysu vytáhnout
+  jednoduchý 3D model. K tomu přehled programů ovladatelných přes MCP s jasným
+  rozlišením oficiálních konektorů od komunitních projektů, které si instalujete na
+  vlastní odpovědnost. A tvrdá hranice: výstupem tohohle postupu je podklad
+  a komunikační nástroj, ne projektová dokumentace — tu razítkuje autorizovaný
+  člověk, který za ni ručí.
+faq:
+  - q: >-
+      Umí AI z fotky mojí skici udělat rovnou výkres do CAD?
+    a: >-
+      Ne v jednom kroku a ne spolehlivě. Model z fotky udělá buď popis, nebo nový
+      obrázek — a obrázek jsou pixely, se kterými CAD neumí pracovat. Použitelný
+      výsledek vznikne řetězem: vyčistit fotku, převést ji na vektorové křivky,
+      zkalibrovat měřítko podle jednoho známého rozměru a teprve pak exportovat do
+      SVG nebo DXF. Každý z těch kroků jde zadat promptem, ale rozhodnutí a kontrola
+      rozměrů zůstávají na vás.
+  - q: >-
+      Jaký je rozdíl mezi obrázkem z chatu a zdrojovým souborem?
+    a: >-
+      Obrázek je konečná stanice: chcete-li posunout příčku o deset centimetrů,
+      generujete znovu a doufáte, že zbytek zůstane stejný. Zdrojový soubor — vektor
+      s křivkami, CAD výkres, 3D model — otevřete za půl roku, chytnete jednu čáru
+      a posunete ji. Celý tenhle návod je o tom, jak skončit u druhé varianty.
+  - q: >-
+      Které programy jde dnes ovládat přes MCP a je to bezpečné?
+    a: >-
+      Oficiální konektory má Adobe, Affinity, SketchUp, Autodesk Fusion, Blender
+      a Canva; Rhino a Grasshopper mají bezplatný konektor přímo od McNeel, Revit
+      technickou předběžnou verzi od Autodesku zatím jen pro čtení. Kolem toho existuje
+      hodně komunitních projektů (FreeCAD, AutoCAD, další varianty pro Revit a Rhino).
+      Komunitní server je software třetí strany, který si pouštíte na svém počítači
+      s přístupem k souborům — instalujte jen to, čemu rozumíte a co si přečtete.
+  - q: >-
+      Jak dostanu do vektoru správné rozměry?
+    a: >-
+      Přes jeden ověřený rozměr. Na skice nebo ve scéně musí existovat vzdálenost,
+      kterou jste změřili metrem — délka stěny, šířka dveřního otvoru, výška parapetu.
+      Ten rozměr se změří i ve vektoru a celá kresba se přeškáluje poměrem. Pak se
+      zkontroluje druhý, nezávislý rozměr. Pokud nesedí, není chyba v měřítku, ale
+      v perspektivě fotky — a fotku je potřeba přefotit kolmo.
+  - q: >-
+      Můžu takhle vzniklý výkres použít na stavební povolení?
+    a: >-
+      Ne. Projektová dokumentace, statika, požárně bezpečnostní řešení a posouzení
+      podle norem jsou vyhrazené činnosti — autorizovaný architekt nebo inženýr
+      razítkuje vlastní práci a nese za ni odpovědnost. Výstup tohohle workflow je
+      podklad, se kterým za ním přijdete, aby nemusel překreslovat od nuly. To je
+      užitečné a legitimní; víc to ale není.
+  - q: >-
+      Můžu do AI nahrát půdorys klientova domu?
+    a: >-
+      Jen do placeného účtu se smluvní ochranou dat a s vědomím, co nahráváte:
+      půdorys cizího domu je citlivý podklad — je z něj vidět dispozice, vstupy
+      a často i jméno a adresa v rohovém razítku. Do anonymních free nástrojů
+      nepatří. Minimum je začernit hlavičku s osobními údaji a mít od klienta
+      souhlas s tím, že jeho podklady zpracováváte v cloudové službě.
+---
+
+Skoro každý návrh začíná stejně: tužkou na papíře, na účtence v kavárně nebo na milimetrovém papíře na kolenou v cizí kuchyni. A skoro každý pak narazí na stejnou zeď — jak ten papír dostat do počítače tak, aby se s ním dalo dál pracovat. Aby šlo chytit jednu čáru a posunout ji o deset centimetrů, změřit vzdálenost mezi stěnami a poslat soubor někomu, kdo z něj udělá skutečný projekt nebo skutečnou kuchyňskou linku.
+
+Odpověď, kterou většina lidí zkusí jako první, je nejhorší z možných: vyfotit skicu mobilem, hodit ji do chatu a napsat „překresli mi to hezky“. Dostanete obrázek. Vypadá dobře — a je k ničemu. **Obrázek jsou pixely: nejde v něm nic změřit, nic posunout, nic exportovat do CAD.** Rozdíl mezi obrázkem z chatu a zdrojovým, dál editovatelným souborem je klíčová myšlenka, na které stojí i [návod o značce jako systému](/tipy/firma-brand-voice-brozura-web-crm) — a v technických oborech platí ještě tvrději. Ve značce vás špatně vygenerovaný obrázek stojí čas. V dispozici vás stojí důvěru řemeslníka, který podle něj něco vyrobí.
+
+Tenhle návod vede celý řetěz od papíru k použitelnému souboru: co dnes reálně jde přenést a v jaké kvalitě, jak nafotit skicu, aby vektorizace fungovala, jak z rastru udělat křivky, jak do nich dostat správné měřítko (nejkritičtější a nejčastěji přeskakovaný krok), jak exportovat do formátu, který otevře CAD, a jak z půdorysu vytáhnout jednoduchý 3D model. K tomu přehled programů ovladatelných přes MCP konektory, s poctivým rozlišením oficiální integrace od komunitního projektu. Číst se dá po fázích — každá stojí samostatně a má prompty k okopírování. A jedna sekce je povinná pro všechny: **kde tenhle postup končí.** Protože končí dřív, než si většina nadšených uživatelů myslí.
+
+## Vzorová situace
+
+Dvě linky, které se v návodu potkávají. Nejsou náhodné — je to tentýž technický problém viděný ze dvou stran stolu.
+
+### Linka A: projektantka a ruční skica dispozice
+
+Tereza dělá interiéry na volné noze. Se zákazníky sedí na místě a kreslí: půdorys, varianty příčky, kde bude kuchyň, kudy se chodí. Skicuje rychle, tužkou, na papír formátu A3, protože nic jiného během schůzky nefunguje — otevřený notebook rozhovor zabíjí.
+
+Doma pak stráví dvě až tři hodiny tím, že skicu překreslí v CAD. Ne že by to neuměla — je to ale mechanická práce: podívat se na papír, naklikat čáru, podívat se na papír, naklikat čáru. U tří zakázek měsíčně je to celý pracovní den, který nikdo nezaplatí, protože zákazník platí za návrh, ne za obtahování.
+
+Po zavedení postupu z tohohle návodu vypadá její večer jinak. Skicu vyfotí rovnou na schůzce (kolmo, s metrem položeným přes kresbu), doma ji nechá vyčistit a zvektorizovat, zkalibruje podle změřené délky obvodové stěny a exportuje do DXF. V CAD pak neobtahuje — otevře podklad, který má správné rozměry, a rovnou nad ním kreslí čistou kresbu. Z dvou až tří hodin je zhruba čtyřicet minut a zbytek je práce, kterou dělat chce.
+
+### Linka B: člověk, který si přestavuje kuchyň
+
+Martin není architekt. Přestavuje kuchyň v bytě, ve kterém bydlí patnáct let, a má tři věci: milimetrový papír s načrtnutým půdorysem a rozměry ze svinovacího metru, dvacet fotek stavu z mobilu a názor manželky, že „ta linka nemůže být u okna“.
+
+Chce jít za truhlářem. A ví, že tam se nechodí s fotkou v telefonu a větou „je to tak nějak do L“ — pak dostane nabídku s výhradou a při montáži se zjistí, že tam, kde měla být myčka, je stoupačka.
+
+Cílem není, aby si Martin udělal projekt. Cílem je, aby přišel s jedním PDF, na kterém je půdorys se skutečnými rozměry, fotky současného stavu s popisem, kde jsou přípojky, a jednoduchý 3D náhled toho, jak si to představuje. Truhlář si to za pět minut přečte, řekne „tady to nepůjde a tady ano“ a jednání začne o dvě úrovně výš. To je celý přínos — ne nahradit odborníka, ale přijít za ním připravený.
+
+## Co dnes reálně jde přenést a v jaké kvalitě
+
+Než začneme s nástroji, poctivá inventura vstupů. U každého platí stejná otázka: co z toho vypadne a jak moc se tomu dá věřit. Pořadí je od nejlepšího výsledku k nejzrádnějšímu.
+
+### Ruční skica: čárová kresba
+
+Nejlepší vstup, jaký můžete mít — pokud je kreslená s tím, že se bude digitalizovat. Čistá čárová kresba tmavou tužkou nebo tenkým fixem na bílém papíře se dá zvektorizovat velmi dobře: výsledkem jsou křivky, které kopírují vaše čáry.
+
+Čemu věřit: **geometrii ano, rozměrům ne.** Vektorizace zachytí tvar, ale nemá odkud vědět, že ta stěna je 4,2 metru. Měřítko musíte dodat vy (fáze 3). A ruční čára je ruční čára — mírně se klepe, rohy nejsou pravoúhlé, rovnoběžné stěny nejsou rovnoběžné. Vektor bude přesně tak křivý jako originál. To není chyba nástroje, to je vlastnost vstupu.
+
+### Fotka místnosti
+
+Fotka je skvělý vstup pro popis a pro variantní návrhy, mizerný vstup pro rozměry. Model z fotky velmi slušně vyčte, co v místnosti je: kde je okno, jaký je typ podlahy, kde vede radiátor, jestli jsou dveře posuvné. Umí z ní udělat strukturovaný soupis současného stavu, který jinak píšete ručně dvacet minut.
+
+Čemu nevěřit: **jakémukoli rozměru odhadnutému z fotky.** Když se modelu zeptáte „jak je ta místnost široká“, odpoví — a odpověď bude odhad podle perspektivy, klidně o půl metru vedle. Perspektiva navíc zkresluje tak, že ani rovná stěna na fotce není rovná. Fotka je popis a inspirace, ne měřidlo.
+
+### Staré papírové plány
+
+Půdorys z osmdesátých let ze složky po předchozím majiteli, kopie kopie s rozmazanými kótami. Jde s tím pracovat, ale s dvojí opatrností.
+
+Za prvé, kvalita předlohy: čím starší kopie, tím víc šumu, a vektorizace šum věrně obtáhne. Za druhé a hlavně — **starý plán popisuje stav, který dnes nemusí platit.** Za čtyřicet let se bourala příčka, měnila okna, dělaly rozvody. Starý plán je hypotéza o skutečnosti, kterou je nutné ověřit metrem na místě, ne pravda.
+
+### PDF projektová dokumentace — a proč záleží, jak vznikla
+
+Tady je rozdíl, který rozhoduje o tom, jestli budete mít hotovo za pět minut, nebo za dvě hodiny. Existují dva úplně odlišné druhy PDF, které vypadají stejně:
+
+- **Vektorové PDF** vzniklo exportem z CAD. Čáry v něm jsou skutečné čáry, texty jsou skutečné texty. Dá se z něj vytáhnout geometrie i kóty, otevřít ho v Illustratoru nebo Inkscape a získat křivky bez jakékoli vektorizace. Poznáte ho tak, že v prohlížeči jde v PDF vyhledat text (zkuste najít slovo z popisky) a při velkém přiblížení zůstávají čáry ostré.
+- **Skenované PDF** je fotka papíru zabalená do PDF. Text v něm nejde vyhledat, při přiblížení se rozpadá na pixely. Pracuje se s ním jako s obrázkem: vyčistit, zvektorizovat, zkalibrovat.
+
+První krok u každého PDF je proto zjistit, který druh držíte. Věnujeme tomu vlastní prompt ve fázi 7.
+
+### Katastrální podklady
+
+Katastr nemovitostí dává zdarma k dispozici mapové podklady a informace o parcelách — hranice pozemku, výměra, typ pozemku, čísla parcel. Pro první orientaci před studií (kam se dům vejde, jak je pozemek orientovaný ke světovým stranám, kde jsou hranice) je to dobrý a legitimní vstup.
+
+Čemu věřit: identifikaci a přibližnému tvaru pozemku. Čemu nevěřit: **přesnosti hranic v terénu.** Katastrální mapa není geodetické zaměření a poloha hranice v mapě se od kolíku v zemi může lišit natolik, že na tom nelze stavět plot, natož dům. Jakmile se rozhoduje o umístění stavby, nastupuje geodet s vytyčovacím protokolem — to nejde obejít žádným softwarem.
+
+### Mračno bodů a LiDAR sken z telefonu
+
+Novější iPhony a iPady s LiDAR senzorem dokážou naskenovat místnost a řada aplikací z toho vyrobí půdorys nebo 3D model. Exportní formáty bývají velkorysé — od PDF a PNG přes DXF pro CAD až po OBJ, USDZ nebo IFC.
+
+Přesnost: podle testů a údajů výrobců se pečlivě pořízený sken typicky pohybuje v řádu jednotek centimetrů odchylky. To je použitelné pro dispoziční studii a pro odhad, kolik se kam vejde. Není to použitelné pro zakázkovou výrobu na milimetr — **kuchyňská linka se nevyrábí podle telefonního skenu.** Před výrobou se stejně přijede přeměřit, a to je správně.
+
+Nejužitečnější je kombinace: sken jako rychlý základ celkového tvaru — včetně nepravidelností starých bytů, které se ručně měří mizerně — plus ruční přeměření klíčových rozměrů, kterými se sken zkontroluje.
+
+### Souhrnná tabulka vstupů
+
+| Vstup | Co z toho reálně dostanu | Čím to zpracuju dál |
+| --- | --- | --- |
+| Ruční skica tmavou tužkou | Vektorové křivky věrné tvaru, bez měřítka | Vektorizace → SVG/DXF → CAD, 3D |
+| Fotka místnosti | Strukturovaný popis stavu, reference pro varianty | Popis do zadání, obrázkové varianty jako moodboard |
+| Starý papírový plán | Původní dispozice, přepis kót a textů, hypotéza o stavu | Vektorizace + ověření metrem na místě |
+| Vektorové PDF z CAD | Skutečné čáry a texty bez ztráty kvality | Přímé otevření ve vektorovém editoru, export DXF |
+| Skenované PDF | Rastr jako každá jiná fotka | Vyčištění → vektorizace → kalibrace |
+| Katastrální podklad | Tvar a identifikace parcely, orientace | Podklad pro studii, nikdy pro vytyčení |
+| LiDAR sken z telefonu | Půdorys a hrubý 3D model s odchylkou v centimetrech | Základ dispozice, doplněný ručním měřením |
+| Vygenerovaný obrázek z chatu | Vizuální dojem, nic víc | Moodboard, komunikace nálady — ne podklad |
+
+## Programy ovladatelné přes MCP a jejich reálný stav
+
+MCP je protokol, kterým se k modelu připojují nástroje a data — podrobněji ho rozebírá [přehled konektorů a nástrojů](/tipy/mcp-konektory-nastroje). V praxi to znamená, že Claude neumí jen mluvit o Blenderu, ale může v něm skutečně něco udělat.
+
+Zásadní rozlišení, které se v nadšených videích ztrácí: **jinou důvěru si zaslouží oficiální konektor od výrobce programu a jinou komunitní projekt z GitHubu.** Oficiální konektor běží pod odpovědností firmy, která ho postavila, prochází jejím schvalováním a v adresáři konektorů ho zapnete kliknutím. Komunitní MCP server je software třetí strany, který si stáhnete a pustíte na svém počítači — s přístupem k souborům, často i s možností spouštět kód uvnitř vašeho návrhového programu. Nejsou to špatné projekty; některé jsou výborné. Ale odpovědnost za to, co si pustíte, je vaše.
+
+### Přehled ke srpnu 2026
+
+| Nástroj | Stav | Co reálně umí přes MCP | K čemu v tomhle řetězu |
+| --- | --- | --- | --- |
+| Adobe for Creativity | Oficiální konektor | Desítky nástrojů napříč Creative Cloud — úpravy fotek, vektorizace rastru, práce s dokumenty a exporty, generování v Firefly | Čištění fotky skici, vektorizace, prezentační deska |
+| Affinity by Canva | Oficiální konektor | Dávkové produkční úkony: hromadné úpravy obrázků, přejmenování vrstev, export | Zpracování série fotek stavu, příprava podkladů |
+| Canva | Oficiální konektor | Zakládání a úprava návrhů, práce se šablonami a značkou, export | Rychlá prezentační deska pro klienta |
+| SketchUp | Oficiální konektor (Trimble) | Ze zadání a referenčních obrázků včetně skic a půdorysů staví geometrii, vrací soubor .skp, drží historii verzí | Z půdorysu jednoduchá hmota a 3D náhled |
+| Autodesk Fusion | Oficiální konektor | Tvorba a úprava 3D modelů, operace přes rozhraní Fusionu, export souborů; vyžaduje předplatné Fusionu | Přesnější 3D, díly a zakázkový nábytek |
+| Blender | Oficiální konektor | Přístup k Python rozhraní Blenderu v přirozeném jazyce, analýza a ladění scén, dávkové úpravy | Vytažení půdorysu do hmoty, dávkové operace nad scénou |
+| Rhino a Grasshopper | Oficiální, bezplatné od McNeel (Rhino MCP Platform) | Čtení obsahu souborů, tvorba geometrie, spouštění příkazů, psaní a úprava skriptů, stavba definic v Grasshopperu | Přesná křivková geometrie, parametrické varianty |
+| Revit | Oficiální technická předběžná verze od Autodesku (Revit 2027) | Zatím jen čtení — dotazy nad modelem, reporty, navigace; zápis do modelu není | Kontrola a výtah dat z modelu, ne kreslení |
+| FreeCAD | Komunitní projekt | Zakládání dokumentů, vkládání a úprava objektů, spouštění Python kódu v aplikaci | Bezplatná CAD cesta pro technicky zdatné |
+| AutoCAD | Ověřený oficiální MCP konektor jsem v době psaní nenašel | Existují komunitní servery různé kvality; Autodesk má oficiální jen server pro přístup k nápovědě produktů | Do AutoCADu se dostanete přes soubor (DXF/DWG), ne přes konektor |
+| Figma | Oficiální MCP server od Figmy | Strukturovaný přístup k návrhu pro vývojové agenty — komponenty, proměnné, návaznost na kód | Spíš návrh rozhraní než stavařina |
+| Illustrator, Inkscape lokálně | Bez konektoru, ale s dávkovým režimem | Illustrator přes skripty, Inkscape přes příkazovou řádku — obojí umí Claude Code obsloužit | Dávková vektorizace desítek skic |
+
+Pár poznámek, které z tabulky nevyplývají a jsou důležité:
+
+**Blender a Revit mají dvě vrstvy.** Vedle oficiálního konektoru existuje u obou i starší, hodně používaný komunitní projekt — u Blenderu je to [blender-mcp](https://github.com/ahujasid/blender-mcp), u Revitu hned několik samostatných serverů. Komunitní varianty umí často víc (třeba u Revitu i zápis do modelu, který oficiální předběžná verze zatím nedovoluje), a přesně proto je u nich potřeba víc opatrnosti: server, který smí měnit ostrý model, si zaslouží zálohu předem a vlastní testovací soubor.
+
+**U Rhina to je naopak, než většina lidí čeká.** Zatímco se komunitní servery množily, McNeel vydal vlastní bezplatnou platformu — takže tady sáhněte po oficiální cestě, i když vyhledávání nabídne pět projektů na GitHubu dřív.
+
+**Co jsem nenašel potvrzené:** oficiální MCP konektor pro AutoCAD od Autodesku (existuje jen oficiální server nad nápovědou a řada komunitních projektů), oficiální konektor pro ArchiCAD a oficiální konektor pro sazbu v Affinity nad rámec dávkových produkčních úkonů popsaných výše. Kde nemám potvrzení, tam v tomhle článku nic netvrdím — a doporučuju stejný postoj i vám: než něco pustíte na svůj projekt, najděte si stránku výrobce, ne jen video na sociální síti.
+
+Poslední praktická poznámka k prostředí: na jednotlivé úkony stačí běžný chat s konektorem, ale jakmile pracujete se složkou souborů — desítky fotek z obhlídky, série skic, dávkový export — je na místě Claude Cowork nebo Claude Code. Rozdíly mezi způsoby použití rozebírá [úvod pro začátečníky](/tipy/ai-zacatecnik-instalace-a-rozdily).
+
+## Fáze 1: Nafotit skicu tak, aby šla vektorizovat
+
+Tohle je nejpraktičtější kapitola celého návodu a zároveň ta, kterou všichni přeskakují. Devět z deseti nepovedených vektorizací není chyba softwaru — je to chyba dvě vteřiny dlouhá, která se stala při focení. Vektorizace nedělá nic jiného, než že hledá hranici mezi tmavým a světlým. Když jí dáte fotku, na které je stín tmavší než tužka, obtáhne stín.
+
+### Jak vypadá skica, která se dobře vektorizuje
+
+- **Tmavá čára.** Tenký černý fix nebo měkká tužka přitlačená tak, aby čára byla opravdu černá, ne šedá. Tvrdá tužka HB kreslená lehce je pro vektorizaci nejhorší možná kombinace: čára je světlejší než okolní šum papíru.
+- **Čistý bílý papír bez rastru.** Milimetrový a čtverečkovaný papír je při kreslení pohodlný, ale vektorizace obtáhne i mřížku a vy pak mažete tisíc čtverečků. Když už na čtverečkovaný, pak silným fixem, aby byl rozdíl mezi kresbou a mřížkou výrazný.
+- **Jedna vrstva informace.** Kóty, poznámky a šrafování stěn se vektorizují taky. Pokud chcete čistý obrys dispozice, kreslete popisky mimo kresbu nebo jinou barvou.
+- **Uzavřené obrysy.** Čáry, které se skoro dotýkají, ale ne úplně, vytvoří v CAD otevřený obrys, který nejde vyplnit ani použít pro plochu. Rohy dotahujte.
+- **Jeden známý rozměr přímo v kresbě.** Napište k jedné stěně skutečnou naměřenou délku, nebo ještě lépe položte přes papír svinovací metr a vyfoťte to. Tenhle jeden údaj rozhoduje o tom, jestli půjde kresbu zkalibrovat, nebo bude navždy jen obrázkem.
+
+### Jak ji vyfotit
+
+- **Kolmo shora.** Fotoaparát rovnoběžně s papírem, ne pod úhlem. Šikmá fotka znamená lichoběžníkové zkreslení, které z pravého úhlu udělá osmdesát pět stupňů — a to se pak propíše do všech rozměrů.
+- **Rovnoměrné světlo, žádný stín.** Ideálně u okna za denního světla, papír natočený tak, aby na něm nebyl váš vlastní stín ani odlesk. Blesk zhoršuje víc, než pomáhá.
+- **Celý papír v záběru, naplocho, nezvlněný.** Ořezaná skica se špatně narovnává, zvlněná ohýbá čáry a vytváří stíny.
+- **Nejvyšší rozlišení, žádné filtry.** Portrétní režim a „vylepšení“ v mobilu dělají věci, které vektorizaci škodí.
+
+Praktický trik: většina mobilů má v aplikaci Poznámky nebo Soubory funkci skenování dokumentu. Ta udělá dvě věci zdarma — narovná perspektivu a zvýší kontrast. Pro tuhle práci je to obvykle lepší start než obyčejná fotka.
+
+### První prompt: kontrola, jestli je fotka použitelná
+
+Než pustíte vektorizaci, nechte si fotku posoudit. Ušetří vám to kolo, ve kterém byste ladili nastavení nástroje, zatímco problém je v předloze.
+
+```text
+Přikládám fotku ruční skici půdorysu, kterou chci vektorizovat a dostat do CAD.
+Posuď ji jako podklad pro vektorizaci, ne jako kresbu.
+
+Projdi postupně:
+1. Kontrast čáry proti papíru — je kresba dost tmavá, nebo hrozí, že
+   vektorizace čáru ztratí?
+2. Stíny a nerovnoměrné osvětlení — kde přesně na fotce je problém?
+3. Perspektiva — je fotka kolmá, nebo je papír lichoběžníkový? Odhadni,
+   jak moc.
+4. Rušivé prvky — rastr papíru, poznámky, šrafy, prsty v záběru, sešívačka.
+5. Je v kresbě čitelný alespoň jeden rozměr, podle kterého půjde
+   zkalibrovat měřítko? Pokud ano, uveď ho.
+
+Na konci napiš jasný verdikt: buď „použitelné, pokračuj“, nebo „přefotit“
+s konkrétní instrukcí, co udělat jinak. Nesnaž se mi fotku pochválit,
+potřebuju vědět pravdu dřív, než na tom stavím.
+```
+
+Vrátí posudek a hlavně verdikt. Model má sklon být vstřícný, proto je v promptu výslovná žádost o tvrdé hodnocení — bez ní dostanete „fotka je dobrá, jen pozor na stíny“ i u fotky, která je k ničemu. Když přijde „přefotit“, přefoťte.
+
+### Druhý prompt: vyčištění fotky před vektorizací
+
+Vyčištění znamená: narovnat, oříznout, zvýšit kontrast tak, aby čára byla černá a papír bílý, a odstranit šum. S Adobe konektorem to jde zadat jedním promptem.
+
+```text
+Připrav přiloženou fotku ruční skici na vektorizaci. Cílem není hezký
+obrázek, ale co nejčistší černobílá čárová kresba.
+
+Postupuj takto:
+1. Srovnej horizont a narovnej perspektivu tak, aby okraje papíru byly
+   svislé a vodorovné.
+2. Ořízni na plochu papíru, s minimálním okrajem.
+3. Zvyš kontrast a expozici tak, aby papír byl čistě bílý a čára co
+   nejtmavší. Cílový dojem: skenovaný dokument, ne fotka.
+4. Potlač šum a texturu papíru.
+5. Zachovej rozlišení, nezmenšuj.
+
+Po každé úpravě mi napiš, co jsi udělal a proč. Na konci ukaž výsledek
+a upozorni na místa, kde se čára při zvyšování kontrastu ztratila nebo
+naopak splynula s okolím.
+```
+
+Vrátí upravený obrázek plus popis kroků. Kontrolujte přesně to poslední — přehnaný kontrast umí ztenčenou tužku úplně vymazat, což při zběžném pohledu na náhled nepoznáte, ale po vektorizaci se to projeví dírami v obrysu. Když se čára ztrácí, ubereme kontrast a raději pak ručně domažeme šum.
+
+## Fáze 2: Vektorizace — z pixelů na křivky
+
+### Co to vlastně je a proč na tom celý postup stojí
+
+Rastrový obrázek je mřížka barevných bodů. Nic víc. Když ho zvětšíte, uvidíte čtverečky. Když do něj chcete zasáhnout, přemalováváte body.
+
+Vektorová kresba je popis tvarů: „úsečka odsud sem“, „křivka s těmito řídicími body“. Dá se libovolně zvětšovat, dá se měřit, dá se v ní chytit jeden bod a posunout ho, dá se exportovat do formátů, kterým rozumí CAD a řezací stroje. **Vektorizace je jediný krok, který mění povahu vašeho podkladu — z obrázku dělá data.**
+
+Vektorizace ovšem není magie: z ruční skici nedělá technický výkres, jen křivky kopírující ruční čáru včetně jejího klepnutí. Čistá kresba vzniká až obtažením v CAD — jen už neodhadujete, kde mají být.
+
+### Tři cesty a kdy kterou
+
+**Adobe konektor.** Nejpohodlnější, když už s Adobe pracujete: vektorizaci zadáte v chatu jako jeden krok mezi ostatními a rovnou navážete exportem nebo sazbou — celá cesta v jednom rozhovoru.
+
+**Illustrator a jeho Image Trace.** Největší kontrola nad výsledkem: přednastavení pro čárovou kresbu, ruční ladění prahu a hladkosti, náhled před potvrzením. Když na výsledku hodně záleží, tudy.
+
+**Inkscape.** Zdarma, běží všude a je to nejlepší volba pro dvě situace: když nechcete platit za nic navíc, a když potřebujete zpracovat dávku. Vektorizace je v nabídce Cesta a volba Vektorizovat rastr; pro čárovou kresbu se používá práh jasu, protože rozlišuje jen mezi tmavým a světlým — což je přesně to, co chceme. Následuje zjednodušení cest a export. A protože Inkscape se dá ovládat z příkazové řádky, dávkové zpracování třiceti skic je práce pro Claude Code, ne pro vaši myš.
+
+### Prompt: dávková vektorizace složky skic
+
+Tenhle prompt je psaný pro Claude Code nebo Cowork nad složkou s fotkami. Je to nejúspornější trik v celém návodu, pokud skicujete pravidelně.
+
+```text
+Ve složce [cesta ke složce] mám fotky ručních skic půdorysů, formát JPG.
+Chci z nich dávkově udělat vektorové SVG pomocí Inkscape, který mám
+nainstalovaný.
+
+Postup:
+1. Nejdřív mi vypiš, kolik souborů jsi našel a jaké mají rozlišení.
+   Nic zatím neměň.
+2. Navrhni mi příkaz pro Inkscape, kterým se udělá vektorizace prahem
+   jasu, a vysvětli mi každý parametr jednou větou.
+3. Pusť ho NEJDŘÍV na jeden jediný soubor, který vyberu, a ukaž mi
+   výsledek. Originály nikdy nepřepisuj — výstupy ukládej do podsložky
+   vektory.
+4. Až potvrdím, že výsledek sedí, zpracuj zbytek dávkově.
+5. Na konci mi napiš tabulku: soubor, počet vzniklých cest, velikost
+   výstupu, a označ ty, kde je počet cest podezřele vysoký — to obvykle
+   znamená, že se vektorizoval šum.
+
+Nesahej na nic mimo tuhle složku.
+```
+
+Vrátí přehled, jeden testovací výstup ke schválení a teprve pak dávku — dávkové operace se pouštějí až po ukázce na jednom kuse. Podezřele vysoký počet cest je nejlepší detektor toho, že se něco pokazilo: čistý půdorys má cest desítky, ne tisíce.
+
+### Prompt: posouzení a čištění vzniklých křivek
+
+```text
+Přikládám výsledek vektorizace ruční skici půdorysu (SVG) a vedle něj
+původní fotku. Porovnej je a napiš mi, co je potřeba opravit, než
+podklad použiju v CAD.
+
+Zaměř se na:
+1. Chybějící úseky čar — místa, kde se obrys nedovřel.
+2. Zdvojené obrysy — vektorizace často udělá z jedné čáry dvě, protože
+   obtáhne obě její hrany. Kde se to stalo?
+3. Zbytkový šum: drobné cesty, které nejsou součástí kresby.
+4. Texty a kóty — jsou zvektorizované jako křivky? Ty je lepší smazat
+   a přepsat později jako skutečný text.
+5. Nadbytečné body na křivkách, které by šlo zjednodušit.
+
+Ke každému bodu napiš, jestli to mám řešit v grafickém editoru, nebo až
+v CAD při obtahování. Nepřepisuj mi soubor, chci nejdřív seznam.
+```
+
+Vrátí seznam vad a doporučení, kde je opravit. Zdvojený obrys je nejčastější překvapení — kdo to nečeká, diví se, proč má každá stěna dvě čáry ve vzdálenosti půl milimetru. U čárové kresby je to normální chování.
+
+## Fáze 3: Kalibrace měřítka — krok, na kterém to obvykle padá
+
+Zvektorizovaná skica je hezká a nepoužitelná, dokud nemá měřítko. Vektor ví, že úsečka měří 847 jednotek. Nemá odkud vědět, že je to ve skutečnosti 4,2 metru.
+
+**Bez kalibrace je vektor jen hezčí obrázek.** S kalibrací je to podklad, nad kterým se dá pracovat. Rozdíl je v jednom čísle a pěti minutách práce.
+
+### Princip: jeden ověřený rozměr
+
+Metoda je jednoduchá a funguje vždycky:
+
+1. Na skice existuje vzdálenost, kterou jste **fyzicky změřili metrem** — třeba vnitřní délka obvodové stěny 4,20 m. Čím delší, tím lépe: chyba se rozpouští v délce.
+2. Ve vektorovém editoru změříte tutéž vzdálenost v jednotkách souboru.
+3. Spočítáte poměr a celou kresbu jím přeškálujete.
+4. Změříte **jiný, nezávislý rozměr**, který jste taky měřili metrem, a porovnáte.
+
+Ten čtvrtý krok je celá pojistka. Když druhý rozměr sedí do centimetru nebo dvou, kalibrace je v pořádku. Když nesedí o deset centimetrů, není chyba ve výpočtu — je v tom, že fotka nebyla kolmá a kresba je zkreslená lichoběžníkem. Řešení není počítat znovu; řešení je přefotit.
+
+### Prompt: výpočet měřítka a kontrola
+
+```text
+Kalibruju měřítko zvektorizované skici půdorysu. Pomoz mi to spočítat
+a hlavně ověřit.
+
+Údaje:
+- Referenční rozměr změřený na místě metrem: [např. vnitřní délka jižní
+  stěny = 4,20 m]
+- Tentýž rozměr změřený ve vektorovém editoru: [např. 847 px]
+- Kontrolní rozměr změřený na místě: [např. šířka dveřního otvoru = 0,80 m]
+- Tentýž kontrolní rozměr ve vektoru: [např. 158 px]
+
+Udělej:
+1. Spočítej měřítko z referenčního rozměru — kolik metrů odpovídá jedné
+   jednotce souboru a jakým koeficientem mám kresbu přeškálovat, aby
+   1 jednotka = 1 mm.
+2. Aplikuj to měřítko na kontrolní rozměr a napiš, jaká délka by z toho
+   vyšla.
+3. Porovnej ji s naměřenou hodnotou a spočítej odchylku v milimetrech
+   i v procentech.
+4. Vyhodnoť: do jaké odchylky je podklad použitelný pro dispoziční
+   studii, a odkdy je potřeba přefotit nebo přeměřit? Zdůvodni.
+
+Ukaž mi mezivýpočty, ať si je můžu překontrolovat.
+```
+
+Vrátí koeficient, kontrolní přepočet a odchylku. Mezivýpočty chtějte vždy — přenásobit se dá i chybně a číslo bez postupu se špatně kontroluje. Praktické vodítko: u ruční skici je odchylka do zhruba dvou procent běžná a pro dispoziční úvahu bez problému; nad pěti procent je někde chyba, kterou nemá smysl přenášet dál.
+
+### Co dělat, když referenční rozměr chybí
+
+Stává se to pořád: skica je hotová, člověk je doma a zjistí, že si nezapsal jedinou skutečnou délku. Možnosti jsou tři, seřazené od nejlepší:
+
+- **Vrátit se a změřit.** Nudné, ale jediné poctivé.
+- **Použít rozměr, který je normovaný nebo ověřitelný jinak.** Standardní stavební otvor pro dveře, šířka schodišťového stupně, rozteč sloupků. Riziko: „standardní“ ve starém domě nic neznamená.
+- **Odvodit z jiného podkladu** — z katastru nebo starého plánu s kótou. Nejméně přesné, ale pro první úvahu to stačí.
+
+Co nedělat nikdy: nechat model rozměr odhadnout z fotky. Odpoví sebejistě a bude vedle — a ta chyba se pak propíše do všeho, co na podkladu postavíte.
+
+### Prompt: kótovací seznam ke kontrole na místě
+
+Užitečný obrat: nechte si vygenerovat seznam rozměrů, které je potřeba doměřit, ještě než odjedete z místa.
+
+```text
+Přikládám skicu půdorysu [popis: byt 3+1, panelový dům, měřím kvůli
+návrhu kuchyně].
+
+Sestav mi kontrolní seznam rozměrů, které musím na místě změřit metrem,
+abych z téhle skici udělal použitelný podklad. Seřaď je podle důležitosti
+a u každého napiš:
+- co přesně měřit a odkud kam,
+- proč je ten rozměr důležitý,
+- jaká nepřesnost u něj ještě nevadí a od jaké už to je problém.
+
+Nezapomeň na věci, na které se běžně zapomíná: světlé výšky, výšky
+parapetů, polohu a výšku přípojek vody, odpadu, plynu a elektřiny,
+směr otevírání dveří, polohu topení, šířku průchodů kolem otevřených
+dvířek a nepravoúhlost rohů.
+
+Výstup chci jako tabulku, kterou si vytisknu a vezmu s sebou, s prázdným
+sloupcem pro naměřenou hodnotu.
+```
+
+Vrátí tabulku k vytištění. Tenhle prompt vydělá nejvíc času ze všech v článku — druhá cesta na místo kvůli jednomu zapomenutému rozměru stojí půl dne. Seznam si po první obhlídce upravte a používejte pořád dokola.
+
+## Fáze 4: Export do formátu, který otevře CAD
+
+Vektor máte, měřítko sedí. Teď ho potřebujete dostat do programu, ve kterém se doopravdy kreslí. A tady jsou tři formáty, mezi kterými se rozhoduje.
+
+### SVG, DXF, DWG — co je co
+
+- **SVG** je vektorový formát světa grafiky: umí ho každý grafický editor i prohlížeč, ale CAD programy ho otevírají různě — někdy dobře, někdy s podivným měřítkem, někdy vůbec. Skvělý mezikrok, špatná konečná stanice.
+- **DXF** je výměnný formát pro CAD, navržený přesně k tomu, aby si data předávaly různé programy. Umí ho otevřít prakticky každý CAD, včetně těch bezplatných. Pro tenhle řetěz je to **výchozí volba**.
+- **DWG** je nativní formát AutoCADu. Je nejrozšířenější v projekční praxi, ale je to uzavřený formát, do kterého se zvenčí zapisuje hůř. Praktický postup: exportovat DXF a případný převod do DWG nechat na tom, kdo v AutoCADu pracuje — otevře DXF a uloží jako DWG jedním klikem.
+
+Konkrétně: Inkscape umí uložit vektor jako DXF ve starší kompatibilní verzi, což pro obtahovací podklad bohatě stačí. Illustrator exportuje do DXF také. Cesta „SVG z vektorizace → DXF → CAD“ je tedy schůdná zdarma i placeně.
+
+### Na co si dát pozor při exportu
+
+Tři věci, které pravidelně kazí radost:
+
+- **Jednotky.** Vektorové editory pracují v pixelech nebo bodech, CAD v milimetrech. Když se při exportu jednotky nepřevedou, otevře se v CAD kresba tisíckrát menší nebo větší. Řeší se to buď nastavením při exportu, nebo přeškálováním po otevření — proto se v CAD vždy hned na začátku změří jeden známý rozměr.
+- **Křivky versus úsečky.** Vektorizace vyrábí Bézierovy křivky a některé CAD programy je při importu z DXF rozloží na množství krátkých úseček. Pro podklad, který stejně obtahujete, to nevadí — je to ale další důvod, proč je zvektorizovaná skica podklad, ne výsledek.
+- **Hladiny.** Do CAD dorazí vše v jedné hladině. Vyplatí se ji hned přejmenovat na něco jako podklad-skica, dát jí šedou barvu a zamknout ji. Pak se přes ni kreslí čistá kresba a nehrozí, že si omylem chytnete bod z podkladu.
+
+### Prompt: příprava exportu a kontrolní seznam
+
+```text
+Mám zvektorizovanou a zkalibrovanou skicu půdorysu v SVG (1 jednotka = 1 mm)
+a potřebuju ji dostat do [název CAD programu] jako podklad pro obtahování.
+
+Připrav mi postup a kontrolní seznam:
+1. Jaký formát exportu doporučuješ pro tenhle cíl a proč — a co je druhá
+   nejlepší varianta, kdyby první selhala?
+2. Na co si dát pozor u jednotek, aby kresba přišla ve správné velikosti.
+3. Jak před exportem uklidit soubor: co smazat, co spojit, co převést.
+4. Co udělat hned po otevření v CAD — jak ověřím, že měřítko sedí, a jak
+   podklad zamknu do vlastní hladiny.
+5. Tři nejčastější problémy při tomhle přenosu a jak je poznám.
+
+Piš stručně a v krocích, chci to používat jako kontrolní kartu, ne jako
+článek.
+```
+
+Vrátí použitelnou kartu. Jednu věc si ověřte sami: názvy položek v nabídkách se mezi verzemi programů liší a model si je s klidem domyslí. Postup berte jako mapu, jména příkazů hledejte v programu.
+
+### Prompt: kontrola po importu
+
+```text
+Otevřel jsem v CAD zvektorizovaný podklad a chci se ujistit, že je
+použitelný. Proveď mě kontrolou.
+
+Napiš mi seznam kontrol, které mám udělat, seřazený od nejdůležitější,
+a u každé uveď, jaký výsledek je v pořádku a jaký znamená problém:
+- kontrola měřítka podle známého rozměru,
+- kontrola pravoúhlosti tam, kde má být pravý úhel,
+- kontrola, jestli je kresba celá a nic se neztratilo,
+- kontrola počtu prvků (příznak rozpadlých křivek),
+- kontrola polohy vůči počátku souřadnic.
+
+U každé kontroly napiš jednu větu o tom, co dělat, když neprojde.
+```
+
+Vrátí kontrolní seznam. Bod o poloze vůči počátku souřadnic vypadá jako formalita, ale kresba zaimportovaná kilometry od počátku dělá v CAD problémy s přesností a otravné přiblížení — a je to práce na deset vteřin, když se na ni přijde hned.
+
+## Fáze 5: Z půdorysu jednoduchý 3D model
+
+Trojrozměrný náhled je nejlepší komunikační nástroj, jaký v téhle práci existuje. Klient, který nad půdorysem mlčí a tváří se, že rozumí, se u 3D náhledu hned zeptá „a to okno je takhle vysoko?“ — přesně ten rozhovor potřebujete vést dřív než po montáži.
+
+Ambice musí být malá a jasná: **jednoduchá hmota, ne vizualizace.** Stěny vytažené do výšky, otvory na správných místech, hrubé objemy nábytku — bez materiálů, světel a fotorealismu. Takový model vznikne rychle a nikoho nesvádí považovat ho za projekt.
+
+### Cesta SketchUp
+
+SketchUp má oficiální konektor a je z celé trojice nejpřívětivější pro lidi, kteří 3D nedělají denně. Zvládne pracovat i s referenčními obrázky — půdorysem nebo skicou — a vrací soubor .skp, který si otevřete v aplikaci a dál v ní klikáte sami. Bez předplatného je počet generovaných souborů omezený, s předplatným ne.
+
+```text
+Přikládám půdorys bytu (zkalibrovaný, kóty jsou v metrech) a chci z něj
+jednoduchou 3D hmotu pro komunikaci s klientem, ne vizualizaci.
+
+Zadání:
+- Světlá výška místností: [2,6 m]
+- Tloušťka obvodových stěn: [0,45 m], vnitřních příček: [0,1 m]
+- Okna: parapet ve výšce [0,9 m], nadpraží [2,2 m], šířky podle půdorysu
+- Dveřní otvory: výška [2,0 m]
+- Materiály neřeš, stačí neutrální bílá.
+
+Postup, který po tobě chci:
+1. Nejdřív mi vypiš, jak jsi z půdorysu přečetl místnosti a rozměry —
+   seznam místností s plochou. Zastav se a nech mě to potvrdit.
+2. Teprve po mém potvrzení postav model.
+3. Na konci mi napiš, co jsi musel odhadnout, protože to z podkladu
+   nešlo přečíst.
+
+To poslední je pro mě nejdůležitější — potřebuju vědět, čemu v modelu
+nevěřit.
+```
+
+Vrátí nejdřív interpretaci půdorysu, pak model. Zastávka po prvním kroku je zásadní: nejčastější chyba není špatně postavená stěna, ale špatně přečtený půdorys — model si splete šrafovanou příčku s nábytkem a postaví zeď přes kuchyň. V seznamu ploch to poznáte okamžitě, v hotovém modelu až za dvacet minut.
+
+### Cesta Blender
+
+Blender je zdarma, umí všechno a je mnohem méně přívětivý. Přes konektor se k němu mluví hlavně jazykem jeho Python rozhraní — a to je jeho síla: opakující se operace se dají popsat a spustit dávkově. Pro architekta bez zkušenosti s Blenderem je to nástroj druhé volby; pro někoho, kdo v něm už pracuje, je konektor výrazná úspora.
+
+```text
+Pracuju v Blenderu a mám v něm zaimportovaný zkalibrovaný půdorys jako
+podklad (křivky, 1 jednotka = 1 metr).
+
+Chci z něj udělat jednoduchou hmotu:
+1. Popiš mi nejdřív postup, kterým to uděláš — jaké objekty vzniknou
+   a jak budou pojmenované.
+2. Stěny vytáhni do výšky [2,6 m], obvodové v tloušťce [0,45 m].
+3. Otvory pro okna a dveře vyřež podle podkladu, parapety ve výšce
+   [0,9 m].
+4. Každou místnost dej do vlastní kolekce pojmenované podle názvu
+   místnosti.
+5. Nastav kameru na izometrický pohled shora a udělej náhled.
+
+Nesahej na nic mimo scénu, kterou mám otevřenou, a než pustíš cokoli,
+co maže nebo přepisuje existující objekty, zeptej se.
+```
+
+Vrátí popis postupu a pak model. Poslední odstavec je tu záměrně a patří do každého promptu, který sahá na živý soubor: **nejdřív popis, pak provedení, mazání jen po potvrzení.** Blender neumí neomezené kroky zpět a scéna přepsaná skriptem se obnovuje ze zálohy, nebo nijak.
+
+### Cesta Rhino a Grasshopper
+
+Když jde o přesnou křivkovou geometrii nebo o varianty řízené parametry (rozteče, počty, opakování), je Rhino s Grasshopperem přirozenější než obojí předchozí. Bezplatný konektor od McNeelu umí přečíst obsah otevřeného souboru, vytvářet geometrii, spouštět příkazy a skládat definice v Grasshopperu — tedy přesně tu práci, která se jinak klikáním skládá dlouho.
+
+## Fáze 6: Fotky současného stavu a varianty návrhu
+
+Fotky z obhlídky obvykle skončí ve složce, kterou nikdo neotevře. Přitom je v nich polovina informací, které pak pracně dohledáváte: typ radiátoru, poloha vypínače, tvar parapetu, druh podlahy.
+
+### Prompt: strukturovaný soupis současného stavu z fotek
+
+```text
+Přikládám [počet] fotek kuchyně, kterou budeme přestavovat. Sestav z nich
+strukturovaný soupis současného stavu.
+
+Rozděl ho do částí:
+1. Konstrukce a povrchy — podlaha, stěny, strop, okna, dveře, parapety.
+2. Technika a přípojky — co je vidět: radiátory, vypínače, zásuvky,
+   odpady, plyn, digestoř, kotel. Uveď i to, co se dá jen tušit.
+3. Vybavení — co v prostoru je a jestli to zůstává, nebo jde pryč.
+4. Problémy a rizika — co na fotkách vypadá jako komplikace pro přestavbu.
+
+Pravidla:
+- U každé položky napiš, ze které fotky to je.
+- Rozměry NEODHADUJ. Kde by byl rozměr potřeba, napiš místo něj
+  „doměřit na místě“ a stručně proč.
+- Kde si nejsi jistý, co vidíš, napiš to otevřeně místo dohadu.
+
+Na konci přidej seznam otázek, které se mám zeptat majitele.
+```
+
+Vrátí soupis a seznam otázek. Zákaz odhadování rozměrů je nejdůležitější řádek promptu — bez něj dostanete text plný čísel, která vypadají jako měření a nejsou jím. Seznam otázek bývá překvapivě dobrý: zeptá se na stáří rozvodů nebo směr otevírání oken.
+
+### Varianty návrhu z fotky — a jak je poctivě označit
+
+Tady se dostáváme k tomu, co dnes všechny nástroje umí a co je zároveň nejnebezpečnější část celého řetězu. Z fotky kuchyně se dá vygenerovat obrázek téže kuchyně s jinými dvířky, jinou deskou, jinou barvou stěn. Vypadá to skvěle. Klientovi se to líbí. A pak přijde montáž.
+
+Tři pravidla, která z toho dělají užitečný nástroj místo problému:
+
+- **Obrázek je nálada, ne návrh.** Vygenerovaná varianta ukazuje barevnost a atmosféru. Neukazuje rozměry, konstrukci, ani to, jestli se ta linka vejde.
+- **Popisek přímo v obrázku, ne pod ním.** Do rohu patří text „ilustrační vizualizace — nezávazné, neodpovídá skutečným rozměrům“. Popisek v e-mailu se ztratí, jakmile si klient obrázek přepošle tchyni.
+- **Vždy spolu s půdorysem.** Nálada bez dispozice vytváří očekávání, které dispozice nesplní. Půdorys je opravný prostředek.
+
+```text
+Přikládám fotku současné kuchyně. Vytvoř tři varianty moodboardu pro
+klienta — jde mi o barevnost, materiály a atmosféru, ne o návrh dispozice.
+
+Varianty:
+A) [světlá skandinávská, dub a bílá]
+B) [tmavá, matné fronty, kámen]
+C) [tradiční, dřevo, rámované dvířka]
+
+U každé varianty chci:
+- vizuál vycházející z přiložené fotky (zachovej dispozici, okno a proporce
+  prostoru),
+- do pravého dolního rohu obrázku vlož čitelný text „Ilustrační
+  vizualizace — nezávazné, neodpovídá skutečným rozměrům“,
+- pod obrázek krátký popis: materiály, povrchy, barvy, na co se zeptat
+  dodavatele.
+
+Nevymýšlej si značky ani konkrétní produkty, které bys nemohl doložit.
+```
+
+Vrátí tři varianty s popisem. Kontrolujte, jestli se do obrázků skutečně vložil popisek — u generovaných obrázků se text občas rozsype nebo vynechá, a pak je potřeba ho dopsat v grafickém editoru. Poslední řádek promptu brání tomu, aby se v popisu objevily vymyšlené modely a kódy produktů, které klient začne shánět.
+
+## Fáze 7: Staré plány a PDF — co z nich vytěžit
+
+Složka po předchozím majiteli, archiv stavebního úřadu, dokumentace od developera. Postup je vždycky stejný: zjistit, co za soubor to je, vytěžit informace a ověřit je.
+
+### Prompt: co je to za PDF a co z něj jde dostat
+
+```text
+Přikládám PDF s projektovou dokumentací. Než ho začnu zpracovávat,
+potřebuju vědět, s čím pracuju.
+
+Zjisti a napiš mi:
+1. Je obsah PDF vektorový (skutečné čáry a texty), nebo je to sken
+   či fotka vložená do PDF? Jak jsi to poznal?
+2. Jde v dokumentu vyhledávat text? Pokud ano, vypiš mi popisky, razítka
+   a legendu.
+3. Jaké výkresy dokument obsahuje, na kterých stranách a v jakém měřítku
+   podle popisového pole.
+4. Jaké kóty jsou v dokumentu čitelné a u kterých si nejsi jistý.
+5. Podle toho mi doporuč postup: dá se z toho geometrie vytáhnout přímo,
+   nebo to musí projít vektorizací jako obrázek?
+
+U bodů 2 a 4 rozlišuj, co jsi skutečně přečetl, a co jsi dovodil.
+Nedomýšlej čísla, která nejsou vidět.
+```
+
+Vrátí diagnózu souboru a doporučený postup. Bod pět rozhoduje o dvou hodinách práce: vektorové PDF se otevře ve vektorovém editoru a máte hotovo, sken musí projít celou cestou z fáze 2 a 3. A poslední věta je klíčová u kót — nečitelná kóta, kterou model „přečte“, je nejzákeřnější chyba v celém řetězu, protože vypadá jako fakt.
+
+### Prompt: přepis a porovnání se skutečností
+
+```text
+Z dokumentace jsem vytáhl tyhle údaje: [vlož přepsané kóty a plochy].
+Na místě jsem naměřil tohle: [vlož naměřené hodnoty].
+
+Porovnej obojí:
+1. Tabulka: údaj z dokumentace, naměřená hodnota, rozdíl v cm a v %.
+2. Označ rozdíly, které jsou v mezích běžné stavební tolerance,
+   a ty, které znamenají, že se od doby vzniku dokumentace něco změnilo.
+3. U větších rozdílů navrhni vysvětlení — přizdívka, nová příčka, jiné
+   měření (světlé versus konstrukční rozměry), chyba přepisu.
+4. Napiš, které rozměry mám doměřit znovu, protože rozdíl může být
+   chybou měření.
+
+Neomlouvej rozdíly. Když něco nesedí, chci to vidět.
+```
+
+Vrátí porovnávací tabulku. Rozdíl mezi světlým a konstrukčním rozměrem je nejčastější příčina zdánlivého nesouladu — a dobrá zpráva, protože znamená, že nikdo nic nepřestavěl, jen se měřilo jinak. Špatná zpráva je, když sedí všechno kromě jedné příčky.
+
+## Fáze 8: Prezentační deska pro klienta nebo řemeslníka
+
+Poslední krok je ten, kvůli kterému se celý řetěz dělá: jeden soubor, který někomu předáte. Ne pět příloh v e-mailu — jedno PDF, které si příjemce otevře v telefonu a rozumí mu.
+
+Sazbu zvládne Canva (rychlé, šablony, sdílení odkazem), Adobe (přesnější typografie a tisková příprava) i Affinity (dávkové operace nad sérií podkladů) — volba je otázka toho, v čem už pracujete.
+
+```text
+Sestav prezentační desku pro klienta ve formátu A3 na šířku, výstup PDF.
+
+Podklady: [půdorys, 3 fotky stavu, 3 varianty moodboardu, tabulka rozměrů].
+
+Struktura:
+1. Hlavička: název zakázky, adresa, datum, moje jméno.
+2. Levá třetina: půdorys s vyznačeným měřítkem a severkou.
+3. Střed: fotky současného stavu s krátkými popisky.
+4. Pravá třetina: tři varianty materiálů, každá s popiskem.
+5. Patička přes celou šířku, malým ale čitelným písmem:
+   „Studie a podklad pro jednání. Nejde o projektovou dokumentaci.
+   Rozměry ověřit na místě před výrobou.“
+
+Drž se dvou písem, jedné doplňkové barvy a klidného rozvržení.
+Nic neroztahuj na celou plochu jen proto, aby to bylo zaplněné.
+Až to bude hotové, ukaž mi náhled a napiš, co je v sazbě nejslabší.
+```
+
+Vrátí desku a autokritiku sazby, která bývá k věci. Patičku nevynechávejte a nedávejte ji šedou osmičkou — je to text, který v případě sporu rozhoduje o tom, co jste vlastně předali.
+
+```text
+Napiš průvodní zadání pro truhláře ke kuchyňské lince. Podklady:
+[půdorys, soupis stavu, naměřené rozměry, moodboard].
+
+Struktura textu:
+1. Co se dělá a v jakém prostoru — dvě věty.
+2. Naměřené rozměry v tabulce, s poznámkou, které jsou ověřené metrem
+   a které vychází z podkladu.
+3. Známá omezení a rizika — stoupačka, nerovná stěna, nízký parapet,
+   poloha přípojek.
+4. Čeho chci dosáhnout a co je pro mě priorita.
+5. Otázky, na které potřebuju odpověď v nabídce.
+
+Piš věcně, bez marketingových přívlastků. Nikde neuváděj rozměr, který
+nemám v podkladech — místo něj napiš „k doměření“.
+```
+
+Vrátí text, který se dá poslat beze změn. Řemeslníkovi tenhle formát šetří čas stejně jako vám: nabídku pak píše nad známými fakty místo nad domněnkami.
+
+## Kde je hranice
+
+**Nic z toho, co jste v návodu přečetli, není projektování.** Projektová dokumentace pro povolení stavby, statické posouzení, požárně bezpečnostní řešení, posouzení podle stavebních norem a hygienických požadavků — to jsou vyhrazené činnosti, které dělá autorizovaný architekt nebo autorizovaný inženýr. Razítko je osobní: kdo razítkuje, ten za práci ručí, a proto razítkuje jen vlastní práci, kterou prošel a rozumí jí. Žádný model, konektor ani soubor na tom nic nemění.
+
+Konkrétně a bez obalu:
+
+- **Nosné konstrukce nejsou věc promptu.** Otázka „můžu tuhle stěnu vybourat“ má jedinou správnou odpověď: posudek člověka, který si to na místě prohlédne a spočítá.
+- **Instalace a rozvody** se navrhují podle předpisů a podle skutečného stavu objektu, ne podle toho, co je na fotce vidět.
+- **Normové požadavky** — světlé výšky, prosvětlení, únikové cesty, odstupy — se mění, jsou provázané a model si jejich znění pamatuje ze svého tréninku, tedy nespolehlivě. Citace normy z chatu je hypotéza, ne zdroj.
+
+Co tedy výstup tohohle workflow je: **podklad a komunikační nástroj.** Skica převedená do měřítka, se kterou přijdete za architektem, aby nemusel začínat od nuly. Půdorys a soupis stavu, nad kterým se truhlář ptá na správné věci. Jednoduchá hmota, díky které klient pochopí, o čem se bavíte. To je hodně — ušetří to hodiny na obou stranách a zlepší to kvalitu rozhodování. Jen to není projekt a nemá se tak tvářit.
+
+## Bezpečnost a data
+
+Tři okruhy, každý s jasným pravidlem. Širší kontext je v [kapitole o etickém a bezpečném používání AI](/prirucka/ai-eticky-a-bezpecne).
+
+**Komunitní MCP servery jsou software, který si pouštíte doma.** Běží lokálně, vidí na soubory a u návrhových programů umí spouštět kód uvnitř aplikace. To je jejich smysl i jejich riziko. Než něco nainstalujete: podívejte se, kdo projekt vede a jestli je živý; otevřete si, co ten skript dělá, nebo si to nechte vysvětlit; nikdy nekopírujte konfigurace z náhodných videí a diskuzí bez přečtení. A oddělte testování od ostré práce — nový server si vyzkoušejte nad kopií souboru, ne nad zakázkou, která má termín.
+
+```text
+Chystám se nainstalovat komunitní MCP server [odkaz na projekt], aby
+mi Claude mohl ovládat [program]. Než to udělám, projdi ho se mnou.
+
+Zajímá mě:
+1. Co server technicky dělá — jaké oprávnění potřebuje, k jakým složkám
+   se dostane, jestli umí spouštět kód v aplikaci.
+2. Jak je projekt udržovaný: poslední aktivita, kdo za ním stojí,
+   otevřené problémy.
+3. Které konkrétní kroky v návodu k instalaci znamenají trvalý zásah
+   do systému a jak je vzít zpět.
+4. Co bych měl zálohovat, než ho poprvé pustím na svá data.
+5. Nejmenší rozumný test, kterým ověřím, že funguje, aniž bych riskoval
+   svoje soubory.
+
+Kde nemáš informace, napiš to. Nepřebírej marketingová tvrzení
+z popisu projektu jako fakt.
+```
+
+Vrátí strukturované posouzení a testovací postup. Ověřte si u něj jednu věc: model může popsat i projekt, který nezná, na základě názvu. Když se odpověď tváří jistě, ale nezmiňuje konkrétní soubory a příkazy z repozitáře, dívá se do prázdna.
+
+**Klientské podklady jsou citlivé.** Půdorys cizího domu je informace o tom, jak je uspořádaný, kudy se do něj chodí a co v něm je — plus obvykle jméno a adresa v razítku. Do anonymních free nástrojů to nepatří. Platí známé pravidlo: citlivá data jen v placeném účtu se smluvní ochranou dat, a i tam s uklizenou hlavičkou a se souhlasem klienta.
+
+**Zálohy před dávkovými operacemi.** Dávková vektorizace, hromadné přejmenování vrstev, skript v Blenderu — to všechno za vteřinu udělá práci na hodinu, včetně škody. Originály nikdy nepřepisovat, výstupy do samostatné složky, ostrý projekt nikdy agentovi bez kopie. **AI navrhuje, člověk potvrzuje** — a u dávek to potvrzení znamená podívat se nejdřív na jeden kus.
+
+## Nejčastější chyby
+
+- **Spokojit se s hezkým obrázkem.** Nejběžnější chyba vůbec: skica se pošle do chatu, vrátí se pěkně překreslený obrázek a práce se považuje za hotovou. Pak přijde první úprava a začíná se od nuly. Zeptejte se u každého výstupu: můžu v tomhle chytit jednu čáru a posunout ji?
+- **Přeskočit kalibraci měřítka.** Zvektorizovaná skica bez měřítka je dekorace. Kalibrace trvá pět minut a rozhoduje o tom, jestli je celá předchozí hodina k něčemu.
+- **Věřit rozměru odhadnutému z fotky.** Model odpoví na jakoukoli otázku po rozměru, i když k tomu nemá podklad. Odpověď zní věrohodně a bývá vedle o desítky centimetrů.
+- **Řešit v softwaru to, co se pokazilo při focení.** Šikmá fotka se nedá dodatečně narovnat beze ztráty přesnosti. Přefotit trvá deset vteřin.
+- **Pustit dávku bez testu na jednom kuse.** Třicet špatně zvektorizovaných souborů je stejná práce jako jeden, jen se to zjistí později a s originály přepsanými navrch.
+- **Nechat vizualizaci žít vlastním životem.** Obrázek bez popisku putuje dál a cestou se z něj stává příslib. Popisek patří do obrázku, ne pod něj.
+
+## Nejlepší nástroje
+
+- **Adobe for Creativity (oficiální konektor)** — čištění fotky skici, vektorizace rastru na křivky, práce s dokumenty a exporty, sazba prezentační desky. Nejucelenější cesta, když už v Adobe pracujete.
+- **Inkscape** — bezplatná vektorizace prahem jasu, zjednodušení cest a export do DXF. Nejlepší volba pro dávky, protože se dá ovládat z příkazové řádky přes Claude Code.
+- **SketchUp (oficiální konektor)** — z půdorysu a skic jednoduchá hmota a soubor .skp, který si dál otevřete a doupravíte sami.
+- **Blender (oficiální konektor)** — bezplatná 3D cesta a dávkové operace nad scénou; pro nezkušené strmější než SketchUp.
+- **Rhino a Grasshopper (bezplatný konektor od McNeelu)** — přesná křivková geometrie a parametrické varianty pro ty, kdo v Rhinu už pracují.
+- **Canva nebo Affinity (oficiální konektory)** — rychlá prezentační deska a dávkové zpracování série fotek.
+- **Claude Cowork a Claude Code** — prostředí, ve kterém se pracuje nad celou složkou podkladů místo nad jedním přiloženým souborem.
+- **Skenovací funkce v mobilu** — narovnání perspektivy a kontrast zdarma, přímo na místě.
+
+## Co vám to přinese
+
+- **Čas.** Překreslení ruční skici do CAD podkladu se zkrátí z dvou až tří hodin na zhruba čtyřicet minut, protože obtahujete nad geometrií místo nad fotkou. U tří zakázek měsíčně je to den práce.
+- **Peníze.** Ušetřený čas je čas fakturovatelný jinde. Druhá položka je méně viditelná: méně chyb z nedorozumění s dodavateli, tedy méně předělávek, které nikdo nezaplatí.
+- **Klid.** Přijít na jednání s jedním PDF, ve kterém je půdorys, stav a otázky, mění povahu schůzky. Místo dohadování se řeší rozhodnutí.
+- **Kvalita.** Kontrolní seznam rozměrů a porovnání dokumentace se skutečností odhalí nesoulad dřív, než se podle něj něco vyrobí.
+
+## Pro tip
+
+Nejsilnější věc na celém postupu není žádný nástroj — je to **opakovatelnost**. Jakmile máte řetěz jednou odladěný, stává se z něj zvyk: vyfotit podle stejných pravidel, pustit stejnou dávku, zkalibrovat stejným postupem.
+
+Vyplatí se to jednou sepsat. Ne do hlavy, do souboru:
+
+```text
+Z našeho postupu udělej jednostránkovou pracovní kartu, kterou budu
+používat u každé zakázky.
+
+Zahrň:
+1. Co udělat na místě — focení skici, minimum rozměrů k naměření.
+2. Co udělat doma — pořadí kroků od fotky po DXF, u každého jednou
+   větou, co je hotový výsledek.
+3. Kontrolní body, ve kterých se zastavím a něco ověřím, a co přesně
+   ověřuju.
+4. Co nikdy neposílám dál bez popisku.
+
+Formát: očíslované kroky, žádná vysvětlování, vejde se to na jednu
+stranu A4. Ať to jde vytisknout a odškrtávat.
+```
+
+A závěrečné pravidlo, které platí pro celý řetěz: **AI vám podklad připraví, ale rozměr potvrzuje metr a projekt razítkuje člověk.** Všechno mezi tím je práce, kterou má smysl zrychlit. To první a to poslední zrychlovat nechtějte.
