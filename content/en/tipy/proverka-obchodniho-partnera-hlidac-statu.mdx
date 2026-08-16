@@ -1,0 +1,908 @@
+---
+title: "Vetting a business partner with Hlídač státu: a risk profile before you sign"
+excerpt: "A complete guide with 23 prompts: run a counterparty through the Register of Contracts, the insolvency register, corporate criminal records, subsidies and political party sponsorship via Hlídač státu's MCP server — then save the result as a versioned risk profile you update with a single prompt before the next contract."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "freelancer"]
+keys: []
+saves: "~hours of research and the risk of an unpaid invoice"
+date: "2026-08-16"
+updated: "2026-08-16"
+tldr: >-
+  The most expensive piece of information about a business partner is the one you
+  learn only after you've signed. Yet a surprising amount of it is public: insolvencies,
+  corporate criminal records, contracts with the state, subsidies, donations to
+  political parties. Hlídač státu's MCP server plugs this data directly into Claude,
+  so vetting a partner isn't an afternoon of clicking through registries — it's a
+  guided conversation: name → company ID (IČO) → a series of checks → a one-page risk
+  profile. The key step is saving the result as a versioned document in git or Notion
+  — a living asset you update with a single prompt before the next contract, not a
+  one-off answer in a chat window. And the second key step is interpretation: the
+  data is public, but the conclusions are drawn by a human. An old, closed insolvency
+  case is not a verdict, and a clean record is not a guarantee.
+faq:
+  - q: >-
+      What is Hlídač státu's MCP server, and what do I need to connect it?
+    a: >-
+      An interface that lets an AI assistant (Claude, but other clients too) read
+      Hlídač státu's data directly: the Register of Contracts, insolvencies, corporate
+      criminal records, subsidies, party sponsorship and more. You need an account
+      at hlidacstatu.cz; in claude.ai you then add the server as a custom connector
+      at mcp.api.hlidacstatu.cz and sign in via OAuth, while older clients use an API
+      token from your profile. The details keep evolving, so check Hlídač's current
+      documentation.
+  - q: >-
+      Is it legal to vet business partners like this?
+    a: >-
+      Yes. All the data this guide works with is public by law — the Register of
+      Contracts, the insolvency register, the register of corporate criminal records,
+      the subsidy records and parties' annual reports all exist precisely so that
+      anyone can look them up. The ethical line isn't at reading the data, but at
+      the conclusions you draw from it: presumption of innocence, keeping fact
+      separate from interpretation, and the rule that a profile is an internal
+      working document, not something to circulate.
+  - q: >-
+      What does it mean if a company has a record in the insolvency register?
+    a: >-
+      On its own, almost nothing — you have to read the record. What matters is
+      whether the company appears as the debtor or only as a creditor (it filed a
+      claim against someone else), whether the proceedings are ongoing or were closed
+      years ago, and how they ended. An ongoing insolvency is a stop sign; a case
+      closed ten years ago is a question to ask about; a string of records in the
+      creditor role says more about who the company supplies than about the company
+      itself.
+  - q: >-
+      What is the K-index, and does it apply to private companies too?
+    a: >-
+      The Key Risk Index, which Hlídač státu uses to grade public authorities and
+      public institutions from A to F based on how they handle contracts — hidden
+      prices, supplier concentration, contract amendments. It doesn't grade a private
+      limited company (s.r.o.); when vetting one, you use it indirectly — you check
+      what grades the public bodies your partner works for have, and whether its
+      revenue rests on institutions with the worst ratings.
+  - q: >-
+      Why save the risk profile to git or Notion instead of leaving it in the chat?
+    a: >-
+      Because a chat answer is a one-off: six months later you won't find it, you
+      won't know what's changed since, and you'll have to redo the whole check — or,
+      more likely, not do it at all. A versioned document is a living asset: you
+      update it with a single prompt before the next contract, you see the difference
+      from the last state, and the change history is itself information — for
+      instance, that a partner has been gradually piling up debt.
+  - q: >-
+      What can't I find through Hlídač státu, and where do I have to look instead?
+    a: >-
+      Enforcement/garnishment proceedings (the central enforcement register is a
+      paid lookup), financial statements and the collection of documents (justice.cz),
+      beneficial owners (the beneficial ownership register), debts to social security
+      administration and health insurers (not public — ask for a certificate of no
+      debt), real-estate holdings in the land registry, and of course anything
+      private: obligations between companies, disputes in progress, reputation in
+      the industry. The guide has a dedicated section and a comparison table for
+      these cases.
+---
+
+The most expensive sentences in business sound innocent: "They're a proven company, they do a lot of work" and "It's a big company, surely they'll pay." Both usually get said right before signing — and both can be replaced with facts in under an hour, because a surprising amount of information about Czech companies is publicly available: who owns them, whether they're in insolvency, whether they've faced criminal prosecution, how much they take from the state, and which political party they sponsor. The problem was never that the data doesn't exist. The problem is that it sits in six different registries, each with its own search interface, and nobody wants to dig through court filings on a Friday afternoon when the contract "has to be signed."
+
+That's exactly the problem Hlídač státu's MCP server solves: it plugs Hlídač's data straight into Claude, so instead of clicking through registries you hold a guided conversation — company name, company ID, a series of checks, interpretation. But connecting the server is only half the story. **The other half is that the output of a vetting session shouldn't be a chat answer — it should be a document: a one-page risk profile, versioned and updatable with a single prompt before every subsequent contract.** You won't find a chat answer six months from now; you'll open a document in git or Notion, have it updated, and see what's changed. It's the same line of thinking we used in the guide on [building a brand as a system](/tipy/firma-brand-voice-brozura-web-crm) to build a brand voice and a brochure: one concrete situation, an inventory, a single source of truth, derived outputs, an editable asset — and security and costs handled honestly at the end.
+
+You can read this straight through, or in phases — each one stands on its own and comes with copy-paste prompts; just fill in the brackets. Phases 1 through 6 cover vetting a single company from inventory to a finished profile, followed by a section on manual sources outside Hlídač, a routine for re-checking your whole supplier portfolio, and the limits and ethics that, in this discipline, aren't a footnote but part of the craft.
+
+## A typical scenario
+
+Roman co-owns a small construction company: twelve people, near Hradec Králové, working for municipalities and private investors. On Tuesday he got an offer that's hard to turn down: an unfamiliar s.r.o. — let's call it Omega Stav, the name is invented — is offering to subcontract facade and insulation work on two projects already underway. Roman desperately needs the capacity, deadlines are looming, and the price undercuts what he pays his current crews. The catch is in the details: the company wants an advance for materials, and none of Roman's contacts have heard of it. In the old days Roman would have handled this the old way — call two friends in the trade, glance at the company's website, and if nothing smelled off, sign. It once cost him almost three hundred thousand crowns: a subcontractor vanished halfway through a job, advance payment and all, and the insolvency petition that had already been running against them for two months would have taken Roman three minutes to find — if he'd known where to look.
+
+This time he does it differently. In the evening he sits down at claude.ai with Hlídač státu's MCP server connected and runs Omega Stav through a full series of checks: identification and age of the company, insolvency, criminal records, VAT payer reliability, contracts with the state, subsidies, party sponsorship, the history of the managing director. Forty-five minutes later he has a one-page risk profile with a traffic-light rating. The result isn't black and white — and that's exactly what makes it valuable: Omega Stav is clean in both the insolvency and criminal registers, but it's only two years old, has never done business with the state (even though the sales rep talked about "projects for the region"), and its sole managing director sat, until last year, on the board of a company that ended up in bankruptcy. Roman doesn't sign the contract, and he doesn't tear it up either — he signs it differently: no advance, staged payments with retention, and an explanation he's happy to raise with the director directly. He saves the profile to the company's git repository next to the contract. Four months later, before the second stage, he has it updated with a single prompt.
+
+A second thread of the same story, on a smaller scale: Jana is a freelance graphic designer. A new client reached out — a trading company, sounds legitimate, wants a website and a product catalog. So far so good. Then comes the draft contract: sixty-day payment terms. For Jana that means two months of work at her own risk; an unpaid invoice for a project like that isn't a bookkeeping line item, it's an existential problem. Jana's check is shorter than Roman's — fifteen minutes, four checks — and comes out the other way: the client has two entries in the insolvency register, but in the creditor role (its customers went under, not the client itself), it has done business with the state long-term and without scandal, and the company has sat at the same address for fifteen years. Jana accepts the sixty-day terms — but thanks to the profile she negotiates from a position backed by facts: a third of the fee upfront, and clarity that this isn't a concession made out of weakness. Both threads run through the rest of the guide; Roman's is the main one, Jana's shows how to shrink the same process down.
+
+## What Hlídač státu is, and what its MCP server can do
+
+Before we start vetting anyone, a quick word on the tool itself — without it, the rest of this guide would be floating in thin air.
+
+### Hlídač státu: the watchdog that connects the data
+
+Hlídač státu is a Czech nonprofit that, since 2016, has been collecting, cross-referencing and publishing data on how the Czech state manages public money. It started with the Register of Contracts — a statutory database into which public institutions must publish contracts above a legal threshold, or the contract loses effect — and gradually added further sources: state and EU subsidies, public procurement, the insolvency register, the register of corporate criminal records, political party donations pulled from parties' annual reports, politicians' and senior officials' salaries, decisions of the antitrust office, and even legislation still in preparation (VeKLEP). The key word is *connects*: the individual registries also exist on their own, but Hlídač indexes them by company ID (IČO) and by people's names, so you can ask "show me everything about this company" — which is exactly the question anyone asks before signing a contract.
+
+One more feature matters for our purposes: Hlídač doesn't just mirror the data, it runs its own analyses on top of it. The best known is the K-index — the Key Risk Index, an annual A-to-F grade for public authorities and public institutions based on how riskily they handle contracts. We'll get to reading it in Phase 4, including what it doesn't say.
+
+### The MCP server: data straight in the conversation
+
+MCP (Model Context Protocol) is an open standard that lets AI assistants connect to external data and tools — covered in detail in our [overview of MCP connectors](/tipy/mcp-konektory-nastroje). The gist, in one sentence: instead of copying data into the chat yourself, the model gets tools it can use to read the data itself, and you can see what it asked for.
+
+In the summer of 2025, Hlídač státu launched its own MCP server at mcp.api.hlidacstatu.cz. The difference from "just ask a chatbot about company XY" is fundamental and worth understanding right at the start. A language model without connected data answers from memory — that is, from training data, which is old, incomplete, and for a small Czech s.r.o. probably nonexistent; the result tends to be a confident hallucination. With the MCP server, the model calls specific tools against Hlídač's live database: every figure in the answer has a traceable origin, and in the conversation you can see which tools were called and with what parameters. Vetting stops being "the AI thinks" and becomes "the registry says" — and that difference is what this entire guide rests on. It doesn't mean blind trust: the model can still summarize a result badly or attach it to a different company with the same name, which is why we'll consistently work by company ID (IČO) and double-check key findings by clicking through to the source.
+
+### How to connect the server to Claude
+
+The prerequisite is an account at hlidacstatu.cz — registration is open to anyone. As of this writing, there are two ways to connect; both may evolve, so treat what follows as the state at the time of writing and check the current documentation at mcp.api.hlidacstatu.cz/doc.
+
+The first and more convenient route is OAuth, recommended for modern clients: in claude.ai (works on the web and in the desktop app) open Settings → Connectors → Add custom connector, enter the server address, and the first time you use it your browser will walk you through signing in with your Hlídač account. You never copy a token anywhere — the client negotiates authorization itself and works with short-lived tokens.
+
+The second route is an API token for clients that don't support OAuth, or where you want to keep the configuration in a file — typically Claude Desktop with an mcpServers configuration. You'll find the token after signing in, in your profile at api.hlidacstatu.cz, under the authorization token section (historically access was arranged by email with the Hlídač team; the current process is described in the documentation). The configuration then looks like this:
+
+```json
+{
+  "mcpServers": {
+    "hlidac-statu": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.api.hlidacstatu.cz",
+        "--header",
+        "Authorization: Token YOUR-API-TOKEN"
+      ]
+    }
+  }
+}
+```
+
+One principle about the token, which we'll come back to in the security section: it's a key to your account — it belongs in your client's configuration or a password manager, never in a prompt, a shared document, or a git repository with profiles in it. According to the documentation, besides Claude the server also works in ChatGPT, Cursor, VS Code and other MCP clients; the rest of the guide assumes claude.ai, because that's where we can best tie in Projects and scheduled tasks.
+
+### What the server can do: tools by category
+
+The exact list of tools may change, but at the time of writing the server covers the following areas — I'm including the technical tool names too, since they'll come in handy when you want to be precise in a prompt:
+
+- **Identifying entities:** finding a company or institution by name (`find_legal_entity_by_name`), basic business information about an entity (`get_legal_entity_business_info`), subsidiaries (`get_subsidiaries_of_legal_entity`), finding people and politicians by name (`find_persons_by_name`, `find_politicians_by_name`), and a person's detail with their engagements in companies and offices (`get_person_detail`).
+- **Register of Contracts:** full-text and structured contract search (`search_contracts`), the detail of a specific contract including amendments (`get_contract_detail`), contract categories (`list_contract_categories`), and a summary of an entity's business with the state (`get_business_with_government`).
+- **Existential risks:** insolvency records by company ID (`find_insolvency_records_by_ico`), records of criminal proceedings against companies by company ID (`find_criminal_records_by_ico`), and unreliable VAT payer status (`get_unreliable_vat_payer_status`).
+- **Money from the state:** subsidy search (`search_subsidies`) and the detail of a specific subsidy (`get_subsidy_detail`).
+- **Political ties:** party sponsorship by a specific company (`find_party_sponsoring_by_company`), by a specific person (`find_party_sponsoring_by_person`), donations received by a party (`find_party_sponsors`), and general search across sponsorship records (`find_party_sponsoring_records`).
+- **Public-sector context:** an institution's K-index (`get_kindex_for_legal_entity`), politicians' salaries (`get_politician_salaries`), decisions of the antitrust office UOHS (`search_uohs_decisions`, `get_uohs_decision_detail`), legislation in preparation (`search_veklep_legislation`, `get_veklep_legislation_detail`), and lists of government offices by type (`list_government_offices_by_type`).
+
+A few conventions that apply across the tools and will save you confusion: the underlying data is in Czech, so write full-text queries in Czech too. The IČO (company ID) is an eight-digit number and the only reliable identifier — company names repeat. Search results are paginated, so "I found three contracts" might mean "on the first page." Amounts are in Czech crowns, dates in year-month-day format. And some analytical tools (like rankings of contracts with the biggest price increases) are restricted to special roles — a regular account won't see them, which doesn't matter for our purposes.
+
+### What the server can't do
+
+Just as important as the list of capabilities: Hlídač státu sees what's in the public registries it indexes. It doesn't see enforcement/garnishment proceedings (the central enforcement register is separate and paid), it doesn't see financial statements or other documents from the collection of documents, it doesn't see debts to health insurers and social security administration (those aren't public at all), it doesn't see the land registry, private disputes, or industry reputation. Vetting via the MCP is therefore the first and fastest layer, not the only one — the section "When the MCP isn't enough" and the comparison table below spell out exactly what to look up by hand and where.
+
+## The mental model: a document, not an answer
+
+Before we run the first check, let's align on the process — because the process is exactly what separates a check that changes something from an entertaining chat you'll forget by next week.
+
+We'll use the same arc as the guide on [building a brand as a system](/tipy/firma-brand-voice-brozura-web-crm), which pushes one thesis throughout this site: a chat output is a terminus, a source file is a living asset. There it was about brand voice and a brochure; here it's about knowing your counterparty, but the logic is identical and worth naming step by step:
+
+1. **One concrete situation.** We're not vetting "some company just in case" — we're vetting Omega Stav ahead of signing a specific subcontract. The concrete situation defines what counts as relevant risk — for a subcontractor taking an advance, it's the ability to survive and deliver; for a client with long payment terms, it's the ability to pay. Same data, different questions.
+2. **Taking stock.** First write down what you already know and what the other side claims — because vetting isn't just data collection, it's mainly a confrontation between claims and registries. "We do work for the region" is a claim; the Register of Contracts is the test.
+3. **One source of truth.** The output is a single document — the risk profile — and every decision happens on top of it. Not five chats, three screenshots, and a note on your phone.
+4. **Derived outputs.** From the profile you derive what you actually need: a yes/no/conditional decision, specific contract adjustments (advances, retention, payment terms), talking points for the negotiation. The profile isn't the goal — it's the source you derive the goal from.
+5. **An editable asset.** The profile is a versioned file in git or a page in Notion. You update it with a single prompt before the next contract and — this is the whole point — you see the diff against the last state. That nothing changed is itself information.
+6. **Security.** The API token stays out of prompts and repositories, profiles are treated as internal documents with their own handling rules, sensitive reasoning stays in a paid account with contractual data protection.
+7. **Honest costs.** What's free, what costs money, and what costs time — laid out qualitatively and without illusions, at the end of the guide.
+
+If you take away one thing from this whole article, make it point 5. Vetting as a one-off event has a lousy return: you do it once, with enthusiasm, for your biggest partner — and then never again. Vetting as a living document has a compounding return: the first pass costs an hour, every update costs minutes, and over time a portfolio of profiles becomes institutional memory you can't buy. We'll come back to that compounding return in the section on re-checking a portfolio.
+
+## Phase 1: taking stock and setting up the profile
+
+The first phase doesn't need the MCP server at all — and yet it determines the quality of the whole check. It's about two things: writing down what you know and what the other side claims, and setting up the document everything will flow into.
+
+### Taking stock: what you know and what they claim
+
+It sounds trivial, but do it in writing. The reason is psychological: as long as information stays "in your head," fact ("they sent an offer at price X") blurs together with impression ("they seem solid") and the counterparty's claim ("we've done projects for the region"). Vetting is largely about sorting these three categories — and the counterparty's claims are its most valuable input, because they can be tested against the registries. A company you know nothing about is unknown; a company whose claims don't match the Register of Contracts is a warning.
+
+```text
+I'm preparing to vet a business partner. Here is everything I know
+about them so far — help me sort it before we start verifying.
+
+Situation: [facade subcontracting on two projects, they want an
+advance for materials, signing is due within two weeks]
+What I know: [company name, how they reached out, who the contact
+is, what they're offering, the price is roughly 15% below the going
+rate]
+What they claim: [did projects for the region, have 20 people, have
+been around for 10 years]
+My impression: [professional communication, but pushing for a fast
+signature]
+
+Sort this into three categories: verifiable fact / counterparty claim
+that can be tested against public data / my impression. For each
+claim, note which registry could verify it. Finally, add the questions
+I should know the answer to but don't — ask me one at a time.
+```
+
+It will return a sorted list and — more valuably — a list of testable claims: "projects for the region" is tested by the Register of Contracts, "we've been around ten years" by the date of incorporation, "twenty people" at least roughly by the financial statements (which sit outside Hlídač — we'll note it under the manual checks). Watch for one thing: the model tends to promote impressions to facts, because they sound concrete. "Pushing for a fast signature" is an impression — relevant, but an impression; in the profile it gets its own column, not a seat among the facts.
+
+### The risk-profile template
+
+Now the document. The format is markdown — readable by humans, versionable in git, and pastable into Notion or a Project on claude.ai. The template is deliberately one page: nobody reads a six-page profile before signing, and a profile you can't read in three minutes doesn't do its job. Here's the whole thing; right below it we'll explain why it looks exactly like this.
+
+```markdown
+# Risk profile: [company name], IČO [12345678]
+
+Status: [traffic light: green / yellow / red]
+Purpose of the check: [facade subcontract, projects A and B, advance
+for materials]
+Date of check: [2026-08-16] | Checked by: [name] | Version: [1]
+
+## Verdict (3 sentences)
+[Summary: biggest risk, biggest reassurance, recommendation on signing.]
+
+## Identification
+- Legal form, incorporation, registered seat, share capital: [...]
+- Statutory body and owners: [...]
+- Ties of key people to other companies: [...]
+
+## Findings from public data (Hlídač státu, [date])
+| Check | Result | Note |
+| --- | --- | --- |
+| Insolvency (debtor) | [clean / finding] | [detail, case number] |
+| Insolvency (creditor) | [number of records] | [what it indicates] |
+| Corporate criminal record | [clean / finding] | [detail] |
+| Unreliable VAT payer | [no / YES] | [since when] |
+| Contracts with the state | [count, volume] | [main contracting authorities] |
+| Subsidies | [count, volume] | [programs] |
+| Party sponsorship | [none / finding] | [party, year, amount] |
+| UOHS | [none / finding] | [detail] |
+
+## Manual checks outside Hlídač
+- Collection of documents (latest financial statement year): [year, status]
+- Enforcement/garnishment (CEE): [not checked / result]
+- Beneficial owners: [result]
+- References / reputation: [who I asked, what they said]
+
+## Claims vs. data — discrepancies
+- [Counterparty's claim] → [what the data says]
+
+## Impressions and soft signals (kept separate from facts)
+- [...]
+
+## Recommended contract terms
+- [advances, retention, payment terms, milestones, safeguards]
+
+## Version history
+- v1 [date]: first check, [conclusion]
+```
+
+Three design choices are worth explaining. First, **the verdict sits at the top and runs three sentences** — the profile will also be read by a colleague who wasn't part of the check, and they need to grasp the conclusion before deciding whether to read on. Second, the findings table always lists **every row, including the clean ones**: "insolvency — clean" is a record that the check was actually run; a missing row is ambiguous (not checked, or nothing found?). Third, **discrepancies and impressions get their own sections** — a discrepancy between a claim and the data is the single strongest signal in the whole check and deserves visibility; impressions belong in the profile too, but labeled as impressions.
+
+### Where the document will live
+
+Two good answers, one trap. The good answer for companies that already version other documents: a **git repository** — say `firma-partneri` (company-partners), structured as one folder per partner, with a `profil.md` inside plus any attachments. Commit history solves the "when did we know this" question for free: every version of the profile has a date and an author, which matters not just operationally but also years later, when you need to reconstruct what you based a decision on. Claude Code can help you with git without you needing to know it yourself — and if you're introducing git into the company for the first time, the guide on [building a brand as a system](/tipy/firma-brand-voice-brozura-web-crm) shows the exact same pattern applied to brand documents. The good answer for non-technical teams: **Notion** (or another company wiki) — a "Partners" database, one page per company, the profile as the page content, versions as history entries. Through the Notion connector, Claude can then read and update profiles directly.
+
+The trap is leaving profiles in a chat or an email. Not because they're not there — but because they can't be found there. The test is simple: when a second contract from Omega Stav comes in six months from now, can anyone at the company find the profile within a minute? If not, you don't have a system, you have a memory.
+
+```text
+Set up a structure for business-partner risk profiles for me. We
+work in [git / Notion]. I want:
+1. A folder/database called partners, with a first sample partner
+   in it: [Omega Stav s.r.o.]
+2. A profile file/page using this template: [paste the template above]
+3. A README file/page with the rules: the profile is updated before
+   every new contract above [threshold, e.g. "beyond a routine order"],
+   versions are never deleted, only a human may change the traffic
+   light and only after reading the findings
+4. Fill in only the header and the Discrepancies section of Omega
+   Stav's profile from this inventory: [paste the inventory output]
+Don't fill in anything else — we still have to find the data, and I
+don't want any guesses in the document passed off as findings.
+```
+
+That last sentence isn't decorative. The model likes to "help" by pre-filling the table with plausible-looking values — and a pre-filled profile is worse than an empty one, because it looks finished. An empty field says "we don't know"; a made-up field lies. Once the structure is set up, add the template and README to a Project on claude.ai — from then on every check has them in context automatically and you won't need to paste them again.
+
+## Phase 2: identification — from name to company ID (IČO)
+
+Only now do we turn on the MCP server. And the first task isn't any of the interesting checks — it's the boring one everything else stands on: figuring out who you're actually vetting.
+
+### Why the IČO is the only solid ground
+
+Czech company names repeat, resemble each other, and change. "Omega Stav" could be an s.r.o. in Hradec, a different s.r.o. founded in Brno last year, and a third company in liquidation that went by a different name until 2019. If you run the check by name, you risk the worst possible outcome: **the right answer about the wrong company.** A clean register for a competitor with the same name gives you false peace of mind; a stranger's insolvency, on the other hand, sinks an innocent counterparty. That's why the entire check rests on the IČO — an eight-digit identification number that's unique, never changes, and is what every Hlídač tool expects as input.
+
+You'll find the counterparty's IČO in the offer, the draft contract, or the footer of their website; a legitimate company states it. If you don't have it, the first step is a search by name — and that's simultaneously the first red flag on the way: a company that sent you an offer without an IČO and can't be unambiguously found has some explaining to do before you check anything at all.
+
+```text
+I'm vetting a business partner. Search Hlídač státu for a legal
+entity by name: [Omega Stav]. I expect it to be based in [Hradec
+Králové or nearby] and operate in [construction].
+
+If you find several entities with similar names, list all of them
+with their IČO, registered seat, and business activity, and flag
+which one most likely matches my description — but don't choose for
+me, I'll decide. If you're not sure, say so. From the moment I
+confirm the IČO, use only the IČO in every further query, never
+the name.
+```
+
+That last sentence is a rule for the whole conversation and worth stating explicitly: otherwise the model may later reach for a full-text name search and mix in an unrelated company. When the search returns multiple candidates, decide based on registered seat and line of business — and if the company's name doesn't match what the counterparty claims (a different city, a different legal form), that's your first entry for the Discrepancies section.
+
+### The basic profile: age, registered seat, people, structure
+
+With the IČO confirmed, the first real data collection begins: basic business information about the entity and — often overlooked — subsidiaries and related companies.
+
+```text
+We're working with IČO [12345678]. Put together a basic identification
+profile:
+1. Legal form, date of incorporation, registered seat, share capital,
+   line of business
+2. Statutory body: who acts on behalf of the company, and since when
+3. Subsidiaries and related companies, if any
+4. Summary of business with the state: does the company do business
+   with public institutions? (just a summary — contract details we'll
+   handle separately)
+
+Give me the output as a filled-in Identification section for our
+profile template. For each item, note which tool/source it came from.
+Anything you couldn't determine, mark as NOT DETERMINED — don't fill
+it in with a guess.
+```
+
+How should you read the results? The numbers alone don't say much — context from the situation gives them meaning, per point 1 of the mental model. A few pointers that have proven useful:
+
+- **Company age vs. claimed history.** Omega Stav "has been around ten years," but it was incorporated two years ago? That's not necessarily a lie — people often count the history of the crew, not the s.r.o. But it does mean the legal entity you're signing with has no ten-year history at all: liability, references and enforceability all attach to that IČO, not to the story. A young company plus a request for an advance is a combination that calls for staged payments.
+- **Registered seat.** An address that hosts hundreds of companies (a virtual registered office) isn't a problem by itself — it's a normal saving for freelancers and small s.r.o.'s. It becomes a signal in combination: a construction company with twenty employees and equipment that has no traceable operating premises is a question worth asking.
+- **Share capital.** A token amount is standard for new s.r.o.'s and means nothing on its own. The more interesting extreme is the opposite — a recent increase can indicate preparation for bigger contracts, but also an attempt to look more credible.
+- **Changes over time.** Frequent changes of director, registered seat, or name is a classic pattern for companies covering their tracks. One change is life; three changes in two years is a pattern.
+
+### The people behind the company
+
+For small s.r.o.'s, you're not really vetting the company, you're vetting a person — a two-year-old company with a director who's been in business for fifteen years. The history of the director and shareholders is often more revealing than the company's own history, and this is exactly where Hlídač shines, because it links people across entities.
+
+```text
+Still on the check for IČO [12345678]. Now the people:
+1. Look up the detail of every person on the statutory body and among
+   the shareholders: [name, name]
+2. For each person, list every known engagement in other companies —
+   current and past, with dates
+3. For past engagements, find out how the company turned out: does it
+   still exist, is it in liquidation, did it go through insolvency?
+4. Check whether any of these people appear in politics or public
+   office
+
+Watch out for name matches: if you find several people with the same
+name, list them separately and flag which ones you can't confirm are
+tied to our company. Don't merge people just because the name matches.
+```
+
+The name-match warning matters even more for people than for companies — Jan Novák the entrepreneur and Jan Novák in bankruptcy could be two different people, and the model tends to merge them into one story. Hlídač uses internal person identifiers, but the check of "is this really the same person?" (date of birth in the commercial register, address) is still on you; for serious findings, do it manually on justice.cz.
+
+What do you do with a finding like "the director previously sat on the board of a company that ended up in bankruptcy"? Write it down, but don't pass judgment — that's exactly the case for the ethical principle we'll develop in the conclusion: **one past business failure isn't disqualifying; a pattern of repeated bankruptcies with the IČO getting swapped out each time is.** You tell them apart by frequency (once in fifteen years vs. three times in five), by timing (did the company collapse and a new one with the same line of business spring up right next to it?), and by role (a director who merely sat on the board of a large company when it failed, vs. the sole shareholder who actually ran it). Roman's finding at Omega Stav — the director was on the board of a company that's in bankruptcy today, until last year, and Omega Stav was founded two months after he left — is yellow, not red: a legitimate fresh start looks exactly the same as a phoenix rising from the ashes. The rest of the check, and a direct question to the director, will settle it; [preparing for a negotiation with AI](/tipy/ai-priprava-na-jednani) covers how to get ready for a conversation like that.
+
+## Phase 3: existential risks — insolvency, criminal records, VAT
+
+The three checks in this phase answer the hardest question of the whole vetting process: can this company stop existing within the life of the contract, or could its problems drag you down with it? At first glance they're fast and binary — and tricky to interpret, which is why we'll unpack what each finding actually means.
+
+### Insolvency: role first, then time, then outcome
+
+The insolvency register is a public list of bankruptcy proceedings. Hlídač can pull records by IČO — but "the company has a record in the insolvency register" is a sentence that means nothing without three clarifications:
+
+**Role.** Insolvency proceedings involve debtors and creditors — and the register records both. A company as **debtor** is the bad news. A company as **creditor** means it filed a claim against someone who went under — which says nothing bad about the company itself; it says something about its customers. Jana's client had exactly this in the register: two entries as creditor. For Jana that's actually useful context — the client's customers are going bankrupt, so its cash flow may be tight, and that may well be the reason behind the sixty-day payment terms; one more reason to ask for an advance, one less reason to fear fraud.
+
+**Time.** An ongoing case and a case closed ten years ago are two different planets. An ongoing insolvency proceeding with the company as debtor is a hard stop for a new contract involving an advance — not a moral judgment, just plain arithmetic: an advance paid to a company in bankruptcy is a receivable you might see years from now, and maybe only in part. A long-closed proceeding, on the other hand, is a historical event that deserves exactly one thing: the question "what happened back then?" — ideally asked to the counterparty directly. Companies that weathered a bankruptcy and kept going exist, and they tend to have learned something.
+
+**Outcome.** Even closed proceedings differ: an insolvency petition might have been dismissed as vexatious (someone tried to damage the company — it happens, and it's actually a point in the company's favor), the bankruptcy might have ended in reorganization (the company survived and is repaying according to a plan), in liquidation (assets sold off, company done), or the proceedings might have been discontinued for lack of assets — which, paradoxically, is one of the worst signals when it concerns a company whose director now sits behind your counterparty: it means creditors got essentially nothing.
+
+```text
+Continuing the check on IČO [12345678]. Check insolvency records —
+and for each record found, distinguish:
+1. The company's role: debtor or creditor?
+2. Status of proceedings: ongoing or closed? From when to when?
+3. Outcome for closed cases: petition dismissed, reorganization,
+   liquidation, discontinued for lack of assets?
+4. The case number, so I can verify the detail myself on
+   isir.justice.cz
+
+Run the same check for the IČOs of companies from the director's
+past engagements: [IČO, IČO]. Give the output as rows for the profile's
+findings table, with separate rows for "insolvency — debtor" and
+"insolvency — creditor." If you find nothing, write explicitly
+"no record as of [date]" — not just a blank.
+```
+
+The phrase "no record as of [date]" isn't pedantry. An insolvency petition could arrive tomorrow — that's why the profile dates every check, and why re-checking exists. And one more trap: the absence of a record in the model's answer isn't the same as the absence of a record in the register. For a check that a decision worth hundreds of thousands rests on, verify the key result by clicking through — either on Hlídač or directly on isir.justice.cz using the case number. AI proposes, a human confirms; here that applies literally.
+
+### Corporate criminal records
+
+A less widely known fact: legal entities in Czechia have carried their own criminal liability since 2012, and final convictions of companies are public — unlike the criminal record register for individuals, which the counterparty won't let you see. Hlídač indexes this data by IČO. The typical repertoire of corporate crime: tax evasion, subsidy fraud, laundering proceeds of crime, arranging an advantage in awarding a public contract, harming a creditor.
+
+```text
+Next in the check on IČO [12345678]: check corporate criminal records.
+If a record exists, list:
+1. What the offense was and what stage the case is at — a final
+   conviction, or just proceedings underway?
+2. When the act took place and when the decision was made
+3. What penalty the company received (fine, ban from public
+   procurement, publication of the judgment...)
+4. Does the matter relate to the field we're going to do business in?
+
+Do the same for the companies from the director's past engagements:
+[IČO, IČO]. State any finding neutrally, as a fact with a source —
+no judgmental adjectives, I'll form my own assessment. If there's no
+finding, write "no record as of [date]."
+```
+
+Interpretation calls for a level head in two directions. First: **proceedings underway are not a conviction.** Presumption of innocence applies to companies the same as to people, and vexatious criminal complaints are a real thing in competitive rivalries. A record of ongoing proceedings belongs in the profile as a fact with a question mark, not as a verdict. Second: for a final conviction, read the offense and the timing. A company convicted eight years ago of tax evasion, with new management and clean since then, is a different story from a company convicted last year of harming a creditor — which is exactly what you, as a creditor, are worried about. And for suppliers on public contracts, a ban from public procurement is a critical penalty: if your collaboration depends on the partner being allowed to supply the state, this penalty kills it outright.
+
+### Unreliable VAT payer status: an unassuming check with a direct impact on you
+
+The third check is the fastest of them all, and the only one that hits you financially, even if the partner never goes bankrupt. The tax authority keeps a public list of unreliable VAT payers — companies that seriously breached their tax obligations. The point for you: **if you do business with an unreliable payer, you become liable for the VAT that payer fails to remit.** That's not an abstract risk — it's a mechanism by which someone else's tax debt can become yours.
+
+```text
+Last existential check for IČO [12345678]: is the company listed as
+an unreliable VAT payer? If so, since when?
+
+Also add the practical consequence to the profile: what does VAT
+liability mean for us as the buyer, and what measures are available
+[paying into the published account, a special tax-security arrangement].
+Also remind me that we should verify the current status and the
+published bank accounts directly in the tax authority's VAT payer
+register before paying — your figure is as of the check date, not
+the payment date.
+```
+
+A finding of "YES, unreliable payer" is one of the few unambiguously red flags in the whole check: it's not history, it's a current status with a direct financial impact on you. If you still want to go ahead with the collaboration (there are situations where that makes sense — say, a company under new ownership going through recovery), it comes with strict payment hygiene: pay only into the account published in the payer register, and consider securing the tax. That's already a matter for your accountant — the profile should just contain the finding and the recommendation to "settle with the accountant before the first invoice."
+
+### Quick triage: three checks in a single prompt
+
+Once you've gone through the process carefully step by step, you'll want a shortcut for next time — and for situations like Jana's, where the whole check has to fit into fifteen minutes. The three existential checks can be combined into one prompt with a traffic-light output:
+
+```text
+Quick existential check on a business partner, IČO [12345678],
+context: [new client, wants 60-day payment terms, project worth
+roughly two months of capacity].
+
+Run: insolvency (distinguish debtor/creditor, ongoing/closed),
+corporate criminal records, unreliable VAT payer status.
+
+Output: a table of check / result / date, followed by a traffic-light
+rating with reasoning — red only for an ongoing insolvency as debtor,
+a final conviction relevant to payment behavior, or unreliable-payer
+status. Cite the source for everything. If any check fails or returns
+no data, say so explicitly — a silent check failure must never look
+like a clean result.
+```
+
+The line about a silent failure comes from experience: when a tool returns no data (an outage, a limit, a typo in the IČO), the model tends to carry on as if the check came back clean. In a quick triage where you're only looking at the traffic light, that could cost you exactly the finding you were running the check for.
+
+## Phase 4: relationships with the state — the Register of Contracts, subsidies, the K-index
+
+The existential checks were hunting for problems. The fourth phase hunts for something subtler: **a picture of how the company actually does business.** The Register of Contracts and the subsidy records are the only places where you can see the company's real business from the outside — who it deals with, at what volumes, for how long, and how cleanly. For companies that don't do business with the state, this phase comes back empty — and that's a result too, as we'll see with Omega Stav.
+
+### The Register of Contracts: everything one table of contracts can tell you
+
+A quick reminder of the mechanics: since mid-2016, public institutions have had to publish contracts above a statutory threshold in the Register of Contracts, or the contracts are void. For vetting, that yields a golden rule and its limit. The golden rule: **a claim about working for the state is 100% testable.** The limit: the register only contains contracts with public institutions above the threshold — it says nothing about a partner's business with private companies, and smaller contracts below the threshold aren't in it either. So absence from the register isn't a finding by itself; the finding is absence from the register combined with a claim like "we do work for the region."
+
+```text
+Continuing the check on IČO [12345678]: the Register of Contracts.
+Search for all contracts where the company appears as the supplier,
+and compile an overview:
+1. Total number of contracts and sum of their value; watch out for
+   pagination — go through every page of results and state how many
+   records you actually processed
+2. Timeline: from when to when did the contracts run, are there any
+   from this year?
+3. Contracting authorities: who's the biggest, what share of the
+   volume do they account for
+4. How many contracts have a hidden (redacted) value
+5. How many contracts have amendments, and for which ones the
+   amendments significantly raised the price
+
+Specifically verify the counterparty's claim: ["we carried out
+projects for the region"]. Find contracts with the region or
+regional organizations — if there aren't any, note it in the
+Discrepancies section of the profile.
+```
+
+The pagination instruction is critical for contracts — for a company with hundreds of contracts, the model will summarize just the first page without it and act as if it's seeing the whole picture. Ask for the number "I processed X of Y records found."
+
+How should you read the result? Four layers, from the surface down:
+
+- **Volume and duration.** A company that's supplied the state for ten years at stable volumes has been through dozens of handovers, audits and invoicing cycles — that's a form of reference you can't buy. A sudden jump from zero to large volumes within a year, on the other hand, is a reason to check who the contracting authority is and what changed.
+- **Concentration.** One contracting authority accounting for most of the volume means dependency: if your subcontract relates to exactly that project, you're sharing a risk you don't know about. For Jana, the concentration of her client's customers (even the public ones she can see) is a clue to how stable its income is.
+- **Hidden prices.** The law allows part of a value to stay unpublished (trade secret), but systematically redacted amounts are, in Hlídač's data, consistently one of the leading risk indicators — it's one of the parameters behind the K-index. For a supplier, a high share of contracts with a hidden price is at least a question worth asking.
+- **Amendments.** A contract won cheap and then inflated by tens of percent through amendments is a classic pattern in Czech public procurement. For your partner acting as supplier, read it soberly: it can mean legitimate extra work, but a pattern of "win it cheap, chase the amendments" says something about the business culture you'll encounter too — say, the moment "one more necessary extra cost" after another starts showing up on your project.
+
+For a suspicious contract, drill into the detail — that's where the numbers turn into a story:
+
+```text
+Show me the detail of contract [ID from the previous output]:
+the parties, subject matter, original value, all amendments with
+dates and value changes, and a link to the register entry.
+
+Then help me interpret it: by how many percent did the amendments
+change the original value, how much time passed before they were
+made, and how is the subject of the amendments described [extra work,
+extension, change of scope]? Stick to the facts in the record; where
+the record doesn't give a reason for an amendment, write "reason not
+stated" — don't guess at it.
+```
+
+### Subsidies: money, dependency, and a sensitive history
+
+The subsidy records show how much a company draws from the state and from EU funds. For vetting purposes, there are three ways to read it. The first is simple: subsidies are income — a company built on subsidy-funded projects is vulnerable to changes in the programs, which is information about stability. The second reading is a cross-check: subsidy history intersects with the criminal check from Phase 3 — subsidy fraud is one of the most common corporate offenses, so heavy subsidy drawdown plus a criminal record in that area is a combination you don't want to overlook. The third reading is positive: successfully completed subsidy projects mean the company has gone through the provider's strict audits — the administrative discipline that subsidies enforce shows up in everyday invoicing too.
+
+```text
+Check for IČO [12345678]: subsidies. Search all subsidies the company
+has drawn, and summarize:
+1. Total volume and count, broken down by year and program
+2. The largest individual subsidies — pull the detail on the top 3:
+   purpose, provider, amount
+3. Ratio to the company's size, if it can be estimated from the
+   available data — and if not, say so
+4. Cross-check: does any subsidy relate, in timing or subject matter,
+   to the criminal record from the previous check?
+
+Write a Subsidies row into the profile with the total volume and a
+note on whether the data suggests dependency on subsidy income.
+```
+
+### The K-index: whose grades you're actually reading
+
+The K-index is Hlídač's best-known analytical product — and the most commonly misread, so let's be precise: it's an annual Key Risk Index that grades **authorities, municipalities and public institutions** (large enough, measured by the number and volume of contracts) on a scale from A to F. It's made up of parameters like the share of contracts with a hidden price, supplier concentration, the share of contracts with serious deficiencies, or bidding right at the threshold — and Hlídač itself stresses that a bad grade isn't proof of corruption, but a measure of risky practices that make corruption easier.
+
+Which means one crucial thing for vetting: **the K-index doesn't grade your private s.r.o.** Its use is indirect, but valuable in two ways. First, if you're vetting an entity that's itself a public institution or a municipal/state-owned company — which happens, municipalities and their technical services are common business partners — it has its own grade, and that belongs in the profile. Second, for a private partner, look at the grades of the authorities it works for: a company whose revenue rests on institutions graded E and F is operating in a risky environment — and you want to know whether its success is built on quality, or on an environment where quality isn't what gets competed on.
+
+```text
+Check for IČO [12345678], context from the contracts: the company's
+main contracting authorities are [names/IČOs of the institutions
+from the Register of Contracts output].
+
+1. If the vetted entity is a public institution or a public company,
+   get its K-index and how the grade has moved over the years
+2. Get the K-index of its three largest contracting authorities
+3. For each grade, explain which parameters are dragging it down —
+   and remind me it's a measure of risk, not proof
+
+For the profile: the contracting authorities' grades as context for
+the Contracts with the state row. No conclusion along the lines of
+"the company is tied to corrupt authorities" — just facts and grades.
+```
+
+For Omega Stav, the whole fourth phase came back empty: no contracts in the register, no subsidies. That gets written into the profile as two rows — and one entry in the Discrepancies section, because the sales rep talked about "projects for the region." Maybe he meant subcontracting for the region's general contractor (the general contractor, not the subcontractor, would appear in the register — that's a legitimate explanation and a fair question for the negotiation). But that's exactly why the discrepancy gets recorded: so the question gets asked at the negotiation, and the answer gets noted down.
+
+## Phase 5: political ties and wider context
+
+The fifth phase is the most delicate — and, for a routine subcontract, entirely optional. It looks for context that mainly concerns companies doing business with the state: political party sponsorship, antitrust decisions, and the political engagements of people around the company. For Jana's client, it can be skipped; for a partner whose business rests on public contracts, it's the phase where the most interesting connections tend to hide.
+
+### Political party sponsorship
+
+Donations to political parties are public — parties must disclose them in their annual reports, and Hlídač indexes them by donor, company and party. Fairness first: **sponsoring a party is legal, and on its own it isn't a red flag.** Companies and individuals have every right to support the politics they believe in. What belongs in a vetting check is the pattern, not the existence: donations timed around winning a public contract, donations to several parties at once (buying goodwill across the spectrum rather than conviction), or a striking mismatch between the company's size and the size of its donations.
+
+```text
+Check for IČO [12345678], wider context: political party sponsorship.
+1. Has the entity ever donated to a political party? When, to whom,
+   how much?
+2. Same question for the individuals in management and among the
+   shareholders: [names] — proceed carefully with name matches and
+   flag any uncertainty
+3. If you find donations, lay the timeline of donations next to the
+   timeline of contracts with the state from the earlier check — just
+   the facts side by side, no conclusions about causation
+
+Record the finding in the profile neutrally: who, to whom, when, how
+much. Only use the phrase "donations close in time to contracts" when
+the gap is under [6 months] — and even then, as an observation, not
+an accusation.
+```
+
+That restraint in the prompt is deliberate, and it illustrates the ethics of the whole exercise well: chronological proximity isn't causation, and a profile that turns donations straight into "corrupt ties" is slander with a table attached. Facts side by side, conclusion left to the human — and the conclusion can perfectly well be "I see a pattern I don't like, and I don't want it in my supply chain." That's a legitimate business decision that doesn't require condemning anyone.
+
+### UOHS decisions
+
+The Office for the Protection of Competition (UOHS) rules on reviews of public contracts and on cartel agreements; Hlídač indexes its decisions going back to the late 1990s. For vetting a supplier, two kinds of findings matter: the company as a party to proceedings over a prohibited agreement (bid rigging — coordinated bids in tenders), and a company that repeatedly turns up in reviews of contracts it won. The first is a serious finding; the second is more context — review requests are commonly filed by unsuccessful competitors, and the review itself doesn't imply wrongdoing.
+
+```text
+Check for IČO [12345678]: UOHS decisions. Search for decisions in
+which the company appears, and split them into:
+1. Proceedings over prohibited agreements or abuse of dominance where
+   the company is a party — for any finding, pull the detail: what it
+   concerned, how it was resolved, what sanction was imposed
+2. Reviews of public contracts where the company appears as the
+   selected supplier — how many are there and how did they resolve?
+3. For everything, distinguish: a final decision on a violation vs.
+   proceedings discontinued or a request dismissed
+
+If there's no finding, write "no record as of [date]." For a finding
+under point 1, mark the profile at least yellow and note that I want
+to read the detail myself.
+```
+
+### People in politics and VeKLEP: context on the margins
+
+Two last checks from Hlídač's toolset are worth a brief mention, since they only enter a standard vetting session on the margins. First, people: if Phase 2 showed that a shareholder is also a local politician, it's worth knowing — not as a disqualifier, but as context (a conflict of interest on municipal contracts, political exposure of the company). The politician salary tools here just fill in who holds public office; for vetting a business partner it's more of a curiosity. Second, VeKLEP — the database of legislation in preparation: it has no direct bearing on vetting a partner, but once you have the MCP server connected, a bonus use case suggests itself, which we've saved for the Pro tip section. It's worth mentioning if only to show that the server isn't a single-purpose vetting machine, but a general window into data about the state.
+
+## Phase 6: synthesis — from findings to a one-page profile
+
+You've now run eight to ten checks and have a conversation full of tables. Now comes the step that separates a real vetting process from a pile of data: synthesizing it into one page with a verdict. And right at the start, the most important rule of this phase: **the model writes the synthesis, the human writes the verdict.** The model is good at assembling findings, weighing them, and proposing wording — but the decision "we're signing under these conditions" is a business decision you're accountable for, and it should be signed in the profile accordingly.
+
+### Assembling the profile
+
+```text
+Closing out the check on IČO [12345678]. Assemble a complete risk
+profile using the template from the Project — pull in every finding
+from this conversation.
+
+Synthesis rules:
+1. Enter EVERY check that was run into the findings table, including
+   clean ones, always with a date and a source
+2. Build the Discrepancies section from confronting the counterparty's
+   claims (from the inventory) with the data — each discrepancy as a
+   claim/data pair
+3. Propose a traffic-light rating with reasoning, but mark it as a
+   DRAFT — I'll fill in the final rating myself
+4. In the Recommended contract terms section, propose 3-5 concrete
+   contractual measures proportionate to the findings [advances,
+   milestones, retention, payment terms, verifying the VAT payer's
+   account]
+5. Fill the Manual checks outside Hlídač section in as a checklist
+   with links to what I still need to verify myself — don't mark any
+   of it as done
+
+Word the verdict soberly: biggest risk, biggest reassurance,
+recommendation. No dramatization, no "guaranteed."
+```
+
+Read the output slowly, with a pencil in hand — this is the five minutes the entire check exists for. Check three things: that no check you actually ran is missing from the table (and none appears that wasn't run — the model occasionally "adds" a check that never happened), that the discrepancies match the actual inventory, and that the recommended terms are proportionate — a profile with two yellow findings shouldn't end with a recommendation of "don't collaborate," but not with "everything's fine" either.
+
+How do you calibrate the traffic light? We've found this rough map useful — adjust it to your own risk appetite: **red** = ongoing insolvency as debtor, unreliable VAT payer status, a final conviction for an offense against creditors or in the field you're partnering on, a final UOHS finding of a cartel agreement. **Yellow** = a young company with no history where history is claimed; the director's past bankruptcies; substantial discrepancies between claims and data; a pattern of amendments and hidden prices; a combination of minor signals. **Green** = checks are clean, or findings come with an innocent explanation confirmed by a second source. And one safeguard: yellow isn't "almost green" — yellow means "signing is fine, but the contract has to address the risk and the questions from the profile have to be asked out loud."
+
+### Red-teaming: let the profile get attacked
+
+Before you declare the profile finished, turn the model against it. It's the cheapest quality check you have available — and for a document that a decision about money rides on, it's doubly worth it.
+
+```text
+Here's the finished risk profile [paste it]. Play two roles, one
+after the other:
+
+1. The counterparty's lawyer: go through the profile and find every
+   spot where we're drawing a strong conclusion from weak data, where
+   interpretation is getting ahead of the facts, or where the company
+   could reasonably object. For each spot, suggest more cautious
+   wording.
+
+2. The skeptical business partner: conversely, find spots where we
+   were too lenient — a risk mentioned in the data that didn't make
+   it into the verdict, a combination of signals we didn't evaluate
+   together, a missing check.
+
+Output: two lists with specific quotes from the profile. Don't edit
+the document yourself — I'll approve changes one at a time.
+```
+
+The two-role setup is deliberate: a profile typically has both flaws at once — somewhere it overshoots (turning a single donation to a party into "political ties"), somewhere it undershoots (evaluating three yellow signals in isolation when together they form a pattern). After incorporating the feedback, fill in the final traffic light, sign your name, and commit — for the git version, with an honest message like "v1: first check ahead of the subcontract, yellow, terms in the profile."
+
+### The second thread: Jana's fifteen-minute version
+
+We promised Jana's client check in full — here it is, as proof that the process scales down. Jana doesn't need six phases; she needs an answer to one question: "can I absorb the risk that this client pays late or not at all?" Her process: IČO from the draft contract (Phase 2 in a single step — confirming the IČO belongs to the company she's dealing with), a quick existential-risk triage (the Phase 3 prompt), a look at contracts with the state as a substitute reference (has the state paid this company reliably over time? then it can invoice and survive handovers) — and synthesis into a minimal profile:
+
+```text
+Vetting a new client before signing: IČO [12345678] from the draft
+contract. I'm a freelancer, the project takes two months of capacity,
+the client wants 60-day payment terms.
+
+1. Confirm the IČO matches the company [name from the email] — if
+   not, stop
+2. Existential triage: insolvency (debtor vs. creditor!), criminal
+   records, unreliable VAT payer
+3. Contracts with the state as an indirect reference: does the
+   company supply public institutions repeatedly and over a long
+   period?
+4. Output: a half-page profile — a table of checks with dates, a
+   draft traffic light, and negotiation advice: what advance and what
+   payment milestones make sense given this finding
+
+Remember: insolvency records in the creditor role are information
+about the client's customers, not about the client itself.
+```
+
+We already saw Jana's result in the opening scenario: two creditor-role records, clean existential risks, fifteen years of contracts with public institutions. Green light, but with a note — the client's customers are going under, so a third of the fee upfront isn't paranoia, it's an oxygen mask. Jana saves the whole profile to Notion; when the next project comes in a year from now, updating it takes two minutes. Even a solo freelancer ends up building a portfolio of profiles this way — and that small discipline is exactly the difference between "I invoice and hope" and risk management that big companies pay for as a service.
+
+## When the MCP isn't enough, and where to go by hand
+
+A thorough vetting process knows where its data stops. Hlídač státu covers an impressive slice of the public registries, but not all of them — and some of the remaining ones matter a great deal for a decision about a contract. Here's a map of the manual steps, ranked by usefulness per minute spent.
+
+### Justice.cz: the commercial register, and above all the collection of documents
+
+The public commercial register at justice.cz is the primary source for a company's legal status — a full extract shows the history of directors, shareholders, registered seats and transformations, including deleted entries, which is handy for confirming the findings from Phase 2 (and for checking that people match by date of birth). Free, no registration required.
+
+The real treasure, though, is the **collection of documents**: financial statements, annual reports, founding documents. Two questions you can answer there and nowhere else: How is the company doing financially? (the balance sheet and income statement — even roughly: revenue, profit/loss, equity, liabilities; negative equity in a partner asking for an advance is a hard red flag.) And does the company actually file its statements? A significant share of Czech companies ignore the collection of documents — **missing statements for recent years are themselves a signal**: the company isn't meeting a statutory obligation whose whole point is transparency toward business partners — meaning you. Incidentally, Claude can read and summarize a downloaded financial-statement PDF — a legitimate combination of manual and AI work: you download the document by hand, and delegate the analysis to a prompt.
+
+### ARES: a quick cross-check
+
+ARES, run by the Ministry of Finance, aggregates basic data from all the registries (commercial, trade licensing, VAT...) under one IČO. Free, with an open API. For vetting, it serves as a second source to confirm identification — and as a quick check of trade licenses: does the partner actually hold the license for the activity it's offering you? For skilled trades and regulated trade licenses, that's not a formality.
+
+### The central enforcement register: the one paid item in a basic check
+
+Enforcement/garnishment proceedings are the blind spot in everything we've covered so far — they're neither in the insolvency register nor on Hlídač. The central enforcement register is run by the Chamber of Executors, and looking someone up is a paid lookup (per query; check the register's website for current rates). Whether every check deserves a paid query is up to you; in practice, a proportionality rule works well — for a contract where you're handing the counterparty an advance or two months of work, it's a cheap insurance policy; for a small order, it isn't. An active enforcement proceeding against a company that wants money from you upfront is a red-category finding.
+
+### The beneficial ownership register
+
+Who actually owns the company? For simple s.r.o.'s, the commercial register will tell you, but for multi-layered structures, the answer is the beneficial ownership register (esm.justice.cz) — a partial extract is publicly available for free. What you mainly want to know: is the beneficial owner a traceable person, or does the chain end in an opaque foreign structure? Opacity isn't a crime, but for a partner you might one day need to collect from, it's good to know there's somewhere to collect from.
+
+### The VAT payer register and published accounts
+
+We checked unreliable-payer status through Hlídač; before the first payment, though, check directly in the tax authority's VAT payer register — partly for the status as of the payment date, and partly for the **published bank accounts**: paying into an account the payer hasn't published creates VAT liability even for an otherwise reliable payer. An invoice with an account number that isn't in the register is an operational red flag your accountant should know about too.
+
+### What you won't find anywhere — and have to ask for directly
+
+Debts to the district social security administration and to health insurers aren't public. For larger contracts, it's standard to ask the counterparty for a **certificate of no outstanding debt** (issued by the social security administration, the tax authority, and insurers) — a legitimate company will provide it without taking offense. The same goes for references: two phone calls to past customers you pick yourself (not the ones the counterparty suggests) add a dimension no database has. And specifically for construction: a look at the land registry, to see who owns the company's premises, says more about stability than an annual report does.
+
+```text
+From the risk profile [paste it], prepare a checklist of manual checks
+outside Hlídač státu, ranked by benefit-to-effort ratio for my
+situation [subcontract with an advance for materials]:
+1. For each item: exactly where to verify it (which registry's name),
+   what to look for there, and what finding would change the
+   traffic light
+2. Mark what's free and what's paid
+3. Specifically for the collection of documents: which years'
+   statements should exist, and what to read in them as a
+   layperson [equity, liabilities vs. revenue]
+4. Add wording for an email to the counterparty requesting a
+   certificate of no outstanding debt, explaining it's standard
+   procedure — I'll send the email myself
+
+Add the checklist to the profile's Manual checks section; I'll tick
+items off as I go.
+```
+
+### Comparison table: what Hlídač státu tells you vs. what you have to find elsewhere
+
+| What you're checking | Hlídač státu via MCP | Where else, and how |
+| --- | --- | --- |
+| Company identification, IČO, ties between people | Yes — finding entities, person detail, subsidiaries | Cross-check: justice.cz (full extract incl. history), ARES (free) |
+| Insolvency | Yes — records by IČO, role, status | Case detail: isir.justice.cz (free) |
+| Corporate criminal records | Yes — by IČO | Primary source: the public register of corporate criminal records (free) |
+| Unreliable VAT payer | Yes — status | Before paying: the VAT payer register, including published accounts (free) |
+| Contracts with the state, amendments | Yes — a strong point: full text, details, summaries | Primary source: Register of Contracts (free), but harder to search directly |
+| Subsidies | Yes — search and detail | Provider sources — scattered; Hlídač aggregates them |
+| Party sponsorship, K-index, UOHS, salaries, VeKLEP | Yes — unique aggregation, not found together elsewhere | Practically no substitute in one place |
+| Enforcement/garnishment | No | Central enforcement register — paid query |
+| Financial statements, financial health | No | Collection of documents on justice.cz (free); Claude can analyze the PDF |
+| Beneficial owners | No | esm.justice.cz — partial extract, free |
+| Trade licenses | Only marginally | ARES / the trade licensing register (free) |
+| Social security and health insurance debts | No — not public | Certificate of no outstanding debt from the counterparty |
+| Real estate holdings | No | Land registry (free lookup, paid extracts) |
+| Reputation, references, quality of work | No | Phone calls, industry contacts, your own judgment |
+
+Read the table as a defense of the guide's whole ordering too: the MCP layer comes first because it covers the most rows for the least effort — but the "No" rows contain some of the hardest-hitting findings (enforcement proceedings, negative equity), so for serious contracts, a check without the manual layer isn't finished.
+
+## Re-checking: your whole partner portfolio in a single prompt
+
+Now we come back to point 5 of the mental model — and to the reason we built the profile as a document from the start. A one-off check protects a single signature. But risk doesn't only appear on signing day: a subcontractor who was healthy at the first contract could be in bankruptcy by the third; a client with a solid payment record could become an unreliable VAT payer. **The value of vetting doesn't live in one snapshot, but in a time series of snapshots** — and a time series only happens when a snapshot is cheap. With profiles in git or Notion, updating one is cheap to the point of being almost trivial.
+
+### Updating a single profile before the next contract
+
+The basic rhythm: before every subsequent contract with the same partner (or on an agreed schedule for long-term relationships), update the profile. Not rewrite it — update it, with a new version in the history.
+
+```text
+Ahead of the next contract, update this partner's risk profile
+[paste the current profile / a link to the Notion page]. Take the
+IČO from the profile.
+
+1. Repeat every check from the findings table as of today
+2. Create a "Changes since the last version [date]" section: what's
+   new, what's gone, what changed — and write "no change" explicitly
+   if nothing changed
+3. If the changes shift the risk picture, propose an updated traffic
+   light with reasoning — the final call is mine
+4. Add an entry to Version history: v[N], date, a one-sentence
+   summary
+5. Show me the finished document for approval before saving it
+
+Context for the new contract: [second stage, higher volume this
+time, the partner is proposing a larger advance]. Reflect it in the
+Recommended contract terms.
+```
+
+Notice what time does to interpretation: findings that were yellow at the first check (a young company with no history) can turn green at the second — the company has since delivered to you for a year without issues, which is reference data no registry has. It's therefore worth folding your own experience into the profile at update time: payment behavior toward you, delivery quality, communication when something went wrong. That turns public data and firsthand experience into a single picture — which, incidentally, is exactly what professional credit-risk teams do, just with more expensive tools.
+
+### Bulk re-checking the whole portfolio
+
+Once you have more than a few profiles — a smaller company could easily have ten suppliers and five key clients — updating them one by one whenever you happen to remember stops making sense. Instead: one overview table (a `portfolio.md` file in the repository, or a database in Notion) with columns for partner, IČO, traffic light, date of last check — and one prompt that sweeps through everything once a quarter.
+
+```text
+Quarterly portfolio re-check. Here's the table of partners with IČOs
+and traffic lights [paste / link to portfolio.md].
+
+For each IČO, run a shortened check: insolvency (debtor role only),
+criminal records, unreliable VAT payer status, and for partners
+marked as [dependent on public contracts] also significant changes
+in the Register of Contracts over the last quarter.
+
+Output:
+1. A summary table: partner / check / change since last time —
+   partners with no changes get a single "no change" row
+2. Only break out in detail the partners where something changed
+3. For each change: a recommendation on whether to open a full
+   profile update
+4. At the end, state how many IČOs you actually checked — it must
+   match the number of rows in the table
+
+Don't write anything into the profiles yet — we'll transfer changes
+into them one at a time, with my approval.
+```
+
+The checksum at the end is the same safeguard as with contracts: bulk tasks are exactly where the model likes to quietly skip three items out of fifteen. And the last step of automation suggests itself: set up a **scheduled task** in claude.ai that runs this prompt on the first Monday of the quarter and presents you with the result — you then just review the changes. The rule "AI proposes, a human confirms" takes a concrete shape here: the routine may read registries and write a summary, but a human changes the traffic lights and the profiles. For companies rolling out AI systematically, this is a textbook example of automation with a human in the loop — in the [complete guide to deploying AI at a company](/tipy/ai-ve-firme-kompletni-pruvodce) it would fall under low-risk, highly repeatable tasks.
+
+It's also worth noting what regular re-checking does to your negotiating position. When you tell a subcontractor ahead of the second stage, "I see you've picked up three new contracts with the region over the last six months, congratulations — can you handle the capacity alongside our contract too?", that's not snooping; it's public data and a question any good buyer would ask. Partners get used to an informed counterparty quickly — and the solid ones appreciate it, because an informed counterparty decides based on facts, not moods.
+
+## Limits and ethics: the data is public, but people draw the conclusions
+
+One pair of sentences runs through this entire guide, and now we'll give it full room, because without it this tool is dangerous: **the data is public — but the conclusions drawn from it, and the responsibility for them, belong to a human.** The registries we've worked with exist by law precisely so that people can look into them. Reading them isn't snooping; it's basic business due diligence that banks and insurers expect from companies too. The ethical problem doesn't arise from reading — it arises in three other ways.
+
+**Mistaking a signal for a verdict.** An insolvency twelve years ago, one donation to a party, a review of a contract filed by an unsuccessful competitor — each of these findings has an innocent explanation that's statistically more likely than the sinister one. Presumption of innocence isn't just a legal principle for courts; it's also a working discipline for an analyst. A concrete rule: before you elevate a finding into a reason to refuse collaboration, give the counterparty a chance to explain it — ask the question directly. Companies that weathered a bankruptcy usually talk about it readily, and how they talk about it is more valuable information than the record itself. And conversely: don't write a company off over one old insolvency — write it off because it lies to you when you ask about it.
+
+**Circulating the profile.** A risk profile is an internal working document full of interpretation — and an interpretation that's legitimate caution inside the company ("I don't want to hand them an advance") turns into reputational harm, with legal consequences for you, the moment it's forwarded to a third party. Rule: a profile never leaves the company. If a business partner asks you for your opinion on a mutual acquaintance, point them to the public registries — let them run their own check, the data is theirs too.
+
+**Personal overreach.** You're vetting a company, but the findings concern people — and people have a right to proportionality even outside of GDPR. Vet the director in the roles that relate to the business (engagements in other companies, public office, sponsorship); their private life doesn't belong in the profile, even if public data could technically be clicked through to it. The proportionality test is simple: if the counterparty read your profile about them, could you defend every sentence as legitimate business caution? If not, the sentence doesn't belong in the profile. The wider framework — what AI is and isn't allowed to do at a company, where the boundaries are, and why they matter even when nobody's watching — is covered in the [chapter on using AI ethically and safely](/prirucka/ai-eticky-a-bezpecne).
+
+Humility toward the data itself is part of the limits too. Public registries lag (last year's statement might not be there yet), contain errors (typos in IČOs, misattributed people), and have gaps (anything below the threshold isn't in the Register of Contracts). Hlídač aggregates the data honestly, but aggregation doesn't shrink the errors — if anything, it makes them more convincing, because they arrive in a tidy table. That's why the profile keeps a source for every finding, and why decisions about serious money rest on the primary registry, not on the model's summary. And that's why the last prompt in this section exists:
+
+```text
+Go through this risk profile [paste it] purely from a wording
+standpoint:
+1. Find every statement that's an interpretation but is written as
+   a fact — rewrite it so it's clear what the registry says and what
+   we think it might mean ["the registry shows X" vs. "this could
+   mean Y"]
+2. Find every judgmental word [suspicious, tied to, risky] and
+   replace it with a description of what's actually in the data
+3. Check that every finding has a source and a date
+4. Check that the profile never comments on anyone's private life
+   outside their business roles
+
+Return a list of changes for me to approve, not a rewritten document.
+```
+
+It's worth running this "ethics proofread" over any profile more than one person will read — that discipline of wording is exactly what separates internal due diligence from gossip with a table attached.
+
+## Security: tokens, accounts, and how sensitive profiles are
+
+Security notes were scattered through the text; here they are gathered together, because together they form a system — short, but without exceptions.
+
+- **Hlídač's API token is a key to your account.** It belongs in your MCP client's configuration or a password manager. Never in a prompt, a shared document, or a repository with profiles in it — git history doesn't forget, and a token that was ever in it is a compromised token. If you suspect it's been exposed, rotate the token in your profile at api.hlidacstatu.cz.
+- **Run checks in a paid account with contractual data protection.** The registry data is public, but your vetting conversation isn't: it contains who you're vetting, why, what terms you're preparing, and what you're worried about — in other words, your business strategy. That doesn't belong in an anonymous free chat.
+- **Profiles are sensitive documents.** A private repository or a restricted Notion section, access limited to the people who decide on contracts, and the rule from the ethics section: a profile never leaves the company. If you use git, consider keeping profiles separate from repositories that outside contractors can access.
+- **The agent reads, a human changes things.** A scheduled re-check may read registries and draft a summary; writing to profiles, changing traffic lights, and any communication with the counterparty goes through a human. For vetting, this matters double, because a mistake here isn't measured in typos, but in damaged reputation.
+- **Don't turn vetting into a pretext for collecting data on people.** These safeguards protect the counterparty too — and, incidentally, a dated version history of the profile is also your own evidence that you handled the data proportionately and in a business context.
+
+## An honest look at costs
+
+No numbers here — they change, and you'll find them at the source; but everyone deciding whether to introduce this kind of vetting deserves to know the shape of the costs.
+
+**What's free.** The vast majority of the data layer: a basic Hlídač státu account, the public registries (justice.cz, ARES, isir, the Register of Contracts, the VAT payer register, a partial extract from the beneficial ownership register, land-registry lookups). Czech transparency infrastructure is above average by European standards, and this guide lives off it.
+
+**What costs money.** A paid AI assistant account with contractual data protection — a company most likely already has this for other tasks, so vetting is incremental value on top. Queries to the central enforcement register. Possibly higher-tier access to Hlídač's API for heavy use — the terms are in their documentation. And for large contracts, paid commercial reports or legal due diligence — this guide doesn't replace them, but makes sure you order them with full information, and only where it's worth it.
+
+**What costs time — and how that changes.** The first check, while you're still learning the process: an evening. The second: an hour. A routine check following the template: under half an hour, plus manual checks proportionate to the stakes. A quarterly portfolio re-check: minutes of your time reviewing the routine's output. Against that stands the cost of the alternative, which isn't worth glossing over: an unvetted partner always reveals itself eventually — sometimes just via an overdue invoice, an advance swallowed into a bankruptcy estate, or liability for someone else's VAT. Roman, from our opening scenario, has this math worked out precisely — and his three hundred thousand crowns is a sum against which this entire toolkit is cheap, even in its most expensive configuration.
+
+## The most common mistakes
+
+- **Vetting by name instead of by IČO.** The fastest route to the right answer about the wrong company. Confirm the IČO at the start, then use only the IČO — and tell the model so explicitly, or it will reach for a full-text search halfway through the conversation.
+- **Reading "a record in the insolvency register" as a verdict.** Without distinguishing role (debtor/creditor), time (ongoing/closed) and outcome, that record is unreadable. Half the value of this kind of vetting is in interpretive discipline, not in the data itself.
+- **Treating an empty answer as a clean result.** A tool could have failed, results could be sitting on a second page, the model could have silently skipped a check. Ask for "no record as of date X" and counts of processed records; for decisive findings, click through to the primary registry.
+- **Leaving the result in the chat.** Six months from now it doesn't exist. No document means no versioning; no versioning means no re-checking; no re-checking means you only ever guarded signing day — and risk keeps showing up afterward too.
+- **A pre-filled profile.** The model likes to fill empty fields with "probable" values, and a document that looks finished goes unquestioned. An empty field says "we don't know" — a made-up value kills that information.
+- **Verdicts from a single signal.** An old insolvency, one donation to a party, a virtual registered office — individual signals have innocent explanations. Patterns (repetition, timing, contradictions with claims) are what should move the traffic light — and even a pattern deserves a question asked to the counterparty directly.
+- **The profile as ammunition.** Forwarding an internal risk profile to a third party is a legal risk and an ethical failure rolled into one. It's an internal document, full stop.
+
+## The best tools
+
+- **Hlídač státu + the MCP server** — the core of the whole process: identification, contracts, insolvency, criminal records, VAT status, subsidies, sponsorship, the K-index, UOHS decisions, all in one interface an AI can read. Without it, this guide is an afternoon of clicking; with it, a guided conversation.
+- **claude.ai with Projects** — a vetting template and README in a Project mean every new check starts with the right context already loaded; scheduled tasks handle the quarterly portfolio re-check.
+- **Claude Code** — for the git-based variant: setting up a profile repository, versioning, commits with honest messages — without you needing to know git yourself.
+- **Notion with the connector** — for non-technical teams: a partner database, profiles as pages, version history; Claude reads and writes to them through the connector, while approval stays with you.
+- **justice.cz (the register plus the collection of documents) and isir.justice.cz** — primary sources for the manual layer: full extracts, financial statements, insolvency case files. Free and no registration required; Claude can then analyze the downloaded statement PDFs.
+- **ARES and the VAT payer register** — quick cross-checks of identification, licenses, and published accounts before you pay.
+- **The central enforcement register** — the one paid item in the basic set; worth the query for contracts involving an advance or heavy exposure.
+
+## What you get out of it
+
+- **Time:** a check that used to mean an afternoon across six registries (and so never got done) now takes under half an hour with a ready-made template; re-checking a whole portfolio takes a few minutes of your time reviewing the routine's output.
+- **Money:** the biggest savings are the ones that never happen — an advance paid to a company in bankruptcy, an unpaid invoice after sixty-day terms, liability for someone else's VAT. On top of that, a stronger negotiating position: contract terms (advances, retention, milestones) backed by facts are easier to push through than terms backed by nerves.
+- **Peace of mind:** you sign knowing exactly what you checked and what you didn't — the profile includes a list of checks not performed, so you know the shape of your own uncertainty. And if something goes wrong a year from now, you have dated evidence that you acted with the care of a prudent business owner.
+- **Better decisions:** a portfolio of profiles is institutional memory about your partners that outlasts a salesperson leaving or a gap in your own memory. The question "who do we work with, and on what terms" stops being a matter of mood and becomes a craft built on data, history and rules.
+
+## Pro tip
+
+Once you have Hlídač's MCP server connected, point it somewhere it doesn't usually look: at yourself and your surroundings. Three ideas to close on. First, **vet your own company** — run the whole process on your own IČO and see what counterparties can see about you; a missing statement in the collection of documents or a forgotten record is easier to explain proactively than under pressure. Second, **vet before a tender, the other way around** — if you're bidding for a contract with a municipality or institution, its K-index and contract history will tell you what environment you're stepping into and how competition actually works there. Third, use VeKLEP as a radar: a monthly scheduled task can scan legislation in preparation and flag proposals relevant to your industry — for a construction company, say, changes to procurement rules or technical standards.
+
+```text
+Monthly radar: search VeKLEP for legislation in preparation on the
+topics [construction, public procurement, subcontractors, VAT in
+construction]. For each relevant proposal: what stage it's at, what
+it changes compared to today, and who it affects. Skip proposals that
+don't concern our business, and write "nothing new" if there's nothing
+new. Output: five bullet points at most, no legal analysis — I'll ask
+for that separately if I need it.
+```
+
+And a closing rule for the whole guide, worth keeping even if you take away nothing else: **trust is a decision, not a feeling — and a decision deserves data.** The registries this country maintains are paid for with public money and exist so that people can look into them. An hour spent with them before signing is the cheapest legal service you'll ever get.
