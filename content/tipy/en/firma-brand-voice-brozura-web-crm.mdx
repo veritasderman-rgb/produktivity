@@ -1,0 +1,434 @@
+---
+title: "Your brand as a system: from brand voice through brochure and website to CRM"
+excerpt: "A complete guide with 15 prompts: turn a brand manual into a lasting Brand Voice document, build a print-ready brochure in Affinity through Claude Cowork, a website on Vercel, and a locked-down CRM on Supabase — one company, one continuous story."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "freelancer", "marketer"]
+keys: []
+saves: "~weeks of designer and agency work"
+date: "2026-08-16"
+updated: "2026-08-16"
+tldr: >-
+  The difference between a company that uses AI for one-off images and a company that builds a system with it comes down to one word: editability. An image generated in a chat window is a dead end — a pricing error means generating it again, and differently. A source file (an .af brochure, brand voice in git, website code, a CRM schema) is a living asset you can open and fix six months from now. This guide walks one model company through five phases: a Brand Voice document distilled from company materials, a print-ready brochure in Affinity via Claude Cowork, a brand versioned on GitHub, a website on Vercel, and an internal CRM on Supabase — with security built in from day one and the rule “AI drafts, a human approves.”
+faq:
+  - q: >-
+      Why isn’t it enough to just generate the brochure directly in ChatGPT or Gemini?
+    a: >-
+      Because what comes out of a chat window is an image — a dead end. A pricing error means generating it again and hoping the rest comes out the same; fonts tend to be approximate, colors inconsistent, and print quality (CMYK, bleed, 300 DPI) is simply missing. A source file in a layout tool you can fix in a minute, and the brand stays consistent.
+  - q: >-
+      What is a Brand Voice document, and why put it on GitHub?
+    a: >-
+      A text document that describes the brand’s tone, vocabulary, sample phrasing, and forbidden phrases — specific enough that both a human and an AI can write from it. On GitHub it’s versioned, accessible to every tool (the website reads it at build time, Cowork reads it when laying out the brochure), and there’s a single source of truth instead of five copies scattered across drives.
+  - q: >-
+      What is an .af file, and why does it matter?
+    a: >-
+      The native format of the Affinity app — the brochure’s source file with all its layers, text, and styles. Unlike a generated image, you can send it to a colleague, open it again in six months, and change the price list without anything else shifting. That’s the central argument of this whole approach: the output isn’t a black-box image, but an editable asset.
+  - q: >-
+      Can I upload a brand manual, price list, and internal materials to an AI?
+    a: >-
+      Into a paid account with contractual data protection, yes — that’s exactly what it’s for. Internal materials don’t belong in an anonymous free chat. And regardless of the account: API keys and passwords never belong in a prompt, and never in a git repository either.
+  - q: >-
+      How do you protect customer data in an internal CRM?
+    a: >-
+      Create the Supabase project in the EU region (personal data), turn on Row Level Security from the very first migration — not “we’ll add it later” — handle login through Supabase Auth instead of rolling your own cryptography, and keep the service key on the server only; only the anon key, covered by RLS policies, belongs in the browser.
+  - q: >-
+      Is an AI agent allowed to write to the CRM on its own?
+    a: >-
+      No. The agent may read and suggest — who hasn’t ordered in a while, who should get a follow-up. A human approves every write to live data and every message that goes out. One incorrectly logged order, or one email that sounds off-brand, costs more than the automation ever saves.
+---
+
+Most small companies have their brand scattered across drives: a brand manual in a PDF from a studio they no longer work with, a price list in Excel with three different versions, website copy written by three people in three different tones, and photos “somewhere in a folder.” When a brochure is needed, someone orders it from a designer and waits; when a sentence on the website needs to change, someone emails the agency. And when someone tries a shortcut and has a chat tool generate the material instead, they get a nice-looking image — one that can’t be fixed a week later.
+
+This guide shows a different path: **build the brand as a system of editable source files, not a pile of one-off outputs.** One model company goes through five phases: company materials become a Brand Voice document (phase 1), which becomes a print-ready brochure with an editable source file (phase 2), the brand moves into a git repository as the single source of truth (phase 3), the website connects to it (phase 4), and finally an internal CRM with a properly locked-down database (phase 5). Security isn’t a chapter tacked on at the end but a thread that runs through the whole process — and at the end there’s also a section on why not to just “do it all in a chat window.”
+
+You can read it phase by phase — each one stands on its own and has its own copy-paste prompts, just fill in the brackets. Anyone rolling out AI more broadly across a company than just around the brand has a [complete guide](/tipy/ai-ve-firme-kompletni-pruvodce) for that; this piece is its specific, deeply worked-out case study.
+
+## A typical scenario
+
+Marta runs a small coffee roastery: six people, retail sales through an online shop and — increasingly important — wholesale to cafés. A design studio built her brand years ago: logo, colors, a twenty-page brand manual in PDF. Nobody has touched it since. Marta wrote the website copy, a colleague wrote the product descriptions, a part-timer wrote the newsletters — each in a different voice. The wholesale price list lives in Excel and changes twice a year.
+
+Now she needs three things at once: a print-ready brochure for sales meetings with cafés, a new website to replace a slow template, and finally a proper record of her wholesale customers — until now, a spreadsheet anyone edits however they like. The classic route: a designer for the brochure (weeks of waiting, a new round for every price change), an agency for the website, a CRM “whenever there’s time.” That adds up to months, and a budget a small roastery doesn’t take for granted.
+
+Instead, Marta spends one evening having a Brand Voice document distilled from the brand manual and her own copy. On a second evening, she puts together a folder of photos and the price list and has Claude Cowork with Affinity build the brochure — the result is a print PDF, plus an .af source file she can open in six months to change the price list. She puts the brand voice on GitHub, the website reads it from there, and the CRM runs on Supabase with a database locked down from day one. None of this is magic — it’s a sequence of steps we’ll walk through now.
+
+## Phase 1: the brand voice document — from a desk drawer to a lasting asset
+
+A brand manual from a design studio usually tells you what the brand looks like: logo, colors, fonts. It almost never tells you how the brand speaks — and that’s exactly what you need once more people, and increasingly AI, are writing your copy. A Brand Voice document is a text file that describes tone specifically enough to write from: tone traits with examples, vocabulary, forbidden phrases, “not like this / like this” pairs. The general method for distilling such a document from your own writing is covered in the tip on [brand and voice](/tipy/znacka-ton-hlasu-ai); here we’ll walk through it with Marta’s roastery, already keeping in mind that the document will later be read by the brochure layout and the website build too.
+
+One rule right up front: the brand manual, internal copy, and price list are company materials — upload them **to a paid account with contractual data protection**, not to an anonymous free chat. This holds for the whole guide.
+
+### Distilling from the materials
+
+Gather what you have: the brand manual (Claude can read PDFs, including scans), website copy, a few newsletters, catalog sheets. The more real writing, the better — tone gets distilled from how you already write, not from how you’d describe yourself in a questionnaire.
+
+```text
+I'm uploading our roastery's brand manual, website copy, three
+newsletters, and a catalog sheet [add your own materials]. We're
+[a small coffee roastery, 6 people, we sell to cafés and end
+customers].
+
+Turn this into a Brand Voice document in markdown, structured as:
+1. Who we are and who we're talking to (2-3 sentences, no marketing
+   fluff)
+2. Tone: 4-6 traits, each with an explanation of what it means in
+   practice and a sample sentence that demonstrates it
+3. Vocabulary: words and phrases we use (including technical ones —
+   variety names, roast levels) and how we write numbers and units
+4. Forbidden phrases: what we never say, with the reason why
+5. Examples: 3 "not like this / like this" pairs for a product
+   description, a customer email, and a social media post
+
+Base this only on the uploaded materials. Where the materials
+disagree with each other, list it as an open question at the end —
+don't decide for me.
+```
+
+You’ll get a first draft of the document and — more valuable — a list of places where your own materials contradict each other (the website uses informal “you,” the newsletter formal; the online shop writes “specialty-grade coffee,” the manual “specialty coffee”). Check the sample sentences especially closely: the model tends to slide into a generic marketing tone that sounds fine and belongs to nobody.
+
+### Follow-up questions: what’s missing from the materials
+
+The first draft has gaps — situations that aren’t in the materials because they haven’t happened in writing yet. The fastest way to find them is to flip the roles.
+
+```text
+Go through the Brand Voice document we created and act like an
+editor who has to write from it tomorrow: ask me every question the
+document doesn't answer. I'm especially interested in:
+- informal vs. formal address across different channels
+- humor: how much the website can carry, how much email, how much
+  a sales proposal
+- how we talk about competitors
+- how we sound in an unpleasant situation (complaints, price
+  increases, delayed deliveries)
+Ask me one question at a time and work my answers straight into
+the document.
+```
+
+This is the most important half hour of the whole phase: you’re answering questions that would otherwise only surface once you’re already live. Phrase your answers in your own words — the document should sound like you, not like the model.
+
+### Stress test
+
+Before declaring the document finished, test it on copy none of you has written yet.
+
+```text
+Here's our Brand Voice document [paste it] and here are three
+writing briefs that aren't in the materials: [a complaint email to
+a café, a description of a new coffee, an invitation to a tasting
+for wholesale customers].
+
+Write each piece according to the document. Then add a short note:
+which rules you weren't sure about because they can be read two
+ways, and how you chose. Those are exactly the spots we'll tighten
+up in the document.
+```
+
+If the resulting texts are usable after minor edits, the document works. If they sound off, the model isn’t the problem — the document is too vague; go back to the examples and sharpen them. Save the finished document as `brand-voice.md` and add it to a Project on claude.ai as persistent context — from this point on, every conversation has it on hand. In phase 3 it gets an even better home.
+
+## Phase 2: a print-ready brochure through Claude Cowork and Affinity
+
+Now for the main event: a ten-page print brochure for sales meetings with cafés. The goal isn’t “a nice-looking image” but two files: a print PDF for the printer, and a **native, editable source file (.af)** — you can send it to a colleague, open it again in six months, change the price list, and print it again. That’s the difference between an output and an asset, and we’ll keep coming back to it.
+
+A quick word on the tools, so you know what you’re working with. Affinity — originally a trio of apps, Designer, Photo, and Publisher, from Serif — is today, after being acquired by Canva, a single app with three studios (vector, pixel, and layout), and the basic version is available for free; its native format is .af. At the time of writing, there’s an integration with Claude: Claude Cowork (a desktop mode that works over a folder of files) can control Affinity through an MCP connector — creating documents, laying out text and images, exporting. The integration is fresh and labeled beta, so check the current Affinity documentation for exact capabilities; the working principle we describe here — you brief and approve, Cowork clicks — doesn’t depend on that and only the details might shift. What MCP is and how connectors get set up is explained in the [overview of MCP tools](/tipy/mcp-konektory-nastroje).
+
+### A folder as the brief
+
+Cowork works over a folder, so the folder is the brief. Create `brochure-2026` and put three things in it: a `photos` subfolder — and feel free to make it **a curator’s shortlist in the style of “everything I like,”** since picking the one right shot per page is exactly the job you’re about to delegate to the next step — then the current `price-list.xlsx`, and a `copy` folder with your materials (raw is fine: coffee descriptions from the online shop, the roastery’s about text from the website). And of course `brand-voice.md` from phase 1.
+
+### Inventory and a structure proposal
+
+The first prompt doesn’t produce anything — it proposes. For multi-step work with an agent, it pays to keep this rhythm: propose, approve, then produce.
+
+```text
+Work over the folder brochure-2026. It has a photos subfolder (a
+shortlist I like — deliberately more than I need), price-list.xlsx,
+and a copy folder with materials. Our tone is in brand-voice.md.
+
+Do an inventory: list what's in the folder, and propose the content
+of a ten-page print brochure for the cafés that buy coffee from us.
+For each page, give: its purpose, the main message, which photos are
+candidates (file names), and where the text will come from. Pick
+fewer photos than I'd expect — one strong shot per page beats a
+collage. For the price list, suggest which items belong in the
+printed brochure and which don't, because they change too often.
+Don't produce anything yet, I'm waiting to approve the proposal.
+```
+
+You’ll get a page-by-page structure back. Watch for two things: that the proposal uses real photos (file names, not “a coffee photo goes here”) and that the printed price list only includes stable items — anything that changes more often than the brochure belongs on the website, not in print.
+
+### Building the document
+
+```text
+I approve the structure proposal with changes: [notes]. Build the
+brochure in Affinity as a new document: A5 portrait, 10 pages, 3 mm
+bleed, 12 mm margins. Take colors and fonts from brand-voice.md; if
+a font from the manual isn't installed on the system, tell me and
+suggest a replacement — don't pick one yourself.
+
+Work spread by spread: place text and photos, show me a preview, and
+wait for approval before continuing. Take copy from the materials
+and adapt it per brand-voice.md; don't invent anything — where text
+is missing, leave a placeholder box marked MISSING and give me a
+list of them at the end. Set the price list as a table from
+price-list.xlsx; don't retype the numbers by hand, read them from
+the file.
+```
+
+The “spread, preview, approve” rhythm is slower than “just do the whole thing” — and that’s exactly why it works: you catch a mistake on page 2 while it’s still cheap to fix. The line about reading numbers from the price list isn’t paranoia; retyping numbers by hand is the single most common place where an error slips into an otherwise nice document — the kind of error that gets a brochure reprinted.
+
+### Iteration: this is what the source file is for
+
+The first version won’t be final, and it isn’t meant to be. Give corrections as a list of specific changes.
+
+```text
+Edits after the first proofread:
+- on page 4, swap the photo for [file-name], it's sharper
+- the [item] entry changed in the price list: I've uploaded a new
+  price-list.xlsx, reload it and regenerate the table
+- the headline on page 7 is off-tone; propose three variants per
+  brand-voice.md and wait for me to pick one
+Show me a preview of every changed page before you save the file.
+```
+
+Notice what just happened: you changed the price list in a finished document, and nothing else moved. With a generated image, that instruction wouldn’t even make sense — the whole thing would get regenerated, differently.
+
+### Export for print — and saving the source file
+
+```text
+The brochure is approved. First save the native file
+brochure-2026.af to the project folder — that's the source file
+we'll be editing in six months, it must not get lost.
+Then export a print PDF per the printer's requirements [paste
+verbatim from the printer's email — usually PDF/X, CMYK, 3 mm bleed,
+crop marks, 300 DPI], and separately a lightweight PDF for email
+(RGB, small size).
+Finally, print a checklist: page dimensions, bleed, page count,
+fonts used, and whether they're embedded in the PDF.
+```
+
+Paste the printer’s requirements verbatim — every printer’s specs are a little different, and paraphrasing from memory is a good way to lose the bleed. The phase produces three files: `brochure-2026.af` (the source — archive it, share it with colleagues), a print PDF (for the printer), and a lightweight PDF (for emails to cafés). The first one is the most valuable, even though no customer will ever open it.
+
+By the way, the same principle — Cowork over a folder, a human approving — also works at the other end of a business relationship: the tip on [turning business cards into CRM contacts](/tipy/vizitky-do-crm-claude-cowork) uses it to build a contact table from a stack of business cards. It’ll come in handy in phase 5.
+
+## Phase 3: brand voice on GitHub — the single source of truth
+
+The Brand Voice document now lives in a Project and in the brochure folder. That’s two more places than is healthy: in six months the copies will drift apart and nobody will know which one is current. We’ll borrow a solution from developers: **a git repository as the single source of truth.** Not because it’s trendy — because of three specific properties. Versioning: every tone change has a date, an author, and a reason. Accessibility: a colleague can read the repository, so can Claude Code when building the website, so can Cowork on the next brochure. And unambiguity: whoever wants a change makes it here, not in their own copy.
+
+You don’t need to know git — Claude Code operates it for you, you approve. What that collaboration looks like more broadly is covered in the [guide to company knowledge](/prirucka/firemni-znalosti); here’s the concrete setup.
+
+```text
+Create a new git repository company-brand with this structure:
+- brand-voice.md (insert the attached file)
+- logos/ (attached SVG and PNG files)
+- colors-fonts.md (pull color values and font names from the
+  attached brand manual, note the usage for each color)
+- README.md: what the repository is for, and the rule that
+  brand-voice.md is the single source of truth — whoever wants a
+  tone change proposes it here
+Add a .gitignore that excludes .env files, keys, and working
+exports. Before the first commit, print me the complete list of
+files you're about to commit — I'll check that nothing sensitive is
+in there.
+Create the repository as private.
+```
+
+That second-to-last sentence is the security thread in practice: **look into git before you push something, not after.** What belongs in the brand repository, and what doesn’t:
+
+- **Belongs:** brand voice, logos, colors and fonts, document templates. Brochure source files (.af) too — precisely so a colleague can find them.
+- **Consider:** the wholesale price list. It can live in a private repository; but the moment you ever make the repository public (say, to share templates), the price list is the first thing that has to go. It’s safer to keep it separate.
+- **Never:** API keys, passwords, tokens, exports containing personal data. Not even “just for a moment” — git remembers deleted files in its history too.
+
+### How tone changes from here on
+
+The repository also changes how decisions about the brand get made. When a colleague in marketing decides “artisanal roasting” now sounds stale, she doesn’t quietly change it in her own newsletter — she proposes a change to brand-voice.md (a chat sentence is enough: “suggest an update to the vocabulary, retire this word, and offer replacements”) and Marta approves it, or doesn’t. The change has a commit, a date, and a reason; a year from now you can look up when and why the brand shifted. And because both the website and the brochure read this file, one approved change propagates everywhere the next piece of writing or layout happens. That’s the whole magic of a “single source of truth”: not that there’s one file, but that every decision happens over it.
+
+## Phase 4: a company website that reads brand voice from the repository
+
+The whole process of building a website with Claude Code — from the first prompt, through git as a safety net, to deploying on Vercel and a domain — has its own [detailed guide](/tipy/web-claude-code-vercel) on this site, and we won’t repeat it. What interests us here is one extra connection: the website shouldn’t have its own, third copy of the brand’s tone. It should read the one in the repository.
+
+```text
+In the website project, use brand-voice.md from the company-brand
+repository as the source of tone. Specifically:
+1. Suggest the simplest way to get it into the website project and
+   keep it current [a copy with an update script, a git submodule...]
+   — explain the difference and recommend the option for a small
+   team
+2. Then go through all the website copy and list sentences that
+   conflict with the brand voice: forbidden phrases, wrong form of
+   address, off-tone wording
+3. Only propose fixes, don't write them in — I'll go through them
+   one at a time
+```
+
+The practical effect is bigger than it sounds: every new piece of website copy — a new page, a product description, an error message — now gets written with the brand voice in context, so Marta’s roastery sounds the same on the website as in the brochure. And before every deployment, consistency can be checked with a single prompt:
+
+```text
+Before we deploy the new version of the website: compare all the
+copy in the content directory against brand-voice.md and return a
+table: file, sentence, rule violated, suggested fix. Flag separately
+any spots where the rule conflicts with clarity or the page's SEO
+needs — I'll decide those.
+Don't report "all clear" until you've stated how many files you
+actually went through.
+```
+
+That last sentence is insurance against the most common failure mode of review prompts: the model checks three files out of thirty and happily waves it through. Ask for a number.
+
+Two security notes about Vercel that are easier to overlook there than they are here. First, **environment variables**: keys (for example, to the Supabase project from the next phase) belong in the Vercel project settings, not in the code — and keep track of the difference between variables that stay on the server and ones the framework ships to the browser (in Next.js, anything prefixed NEXT_PUBLIC ends up public). Second, **preview deployments**: Vercel creates a preview version of the site at a public address for every change; turn on Deployment Protection so work-in-progress versions — say, with a not-yet-public price list — are only visible to the logged-in team.
+
+## Phase 5: an internal CRM on Supabase
+
+The final phase is the biggest jump: from materials to an actual application with a database. Marta’s CRM is meant to be simple — wholesale customers, contacts, orders, visit notes — but it contains customers’ personal data, and that changes the rules. A spreadsheet on a shared drive stops being enough, not because of missing features, but because of control: who saw it, who changed it, where it is.
+
+Supabase fits here for three reasons. It’s a managed PostgreSQL database with built-in login (Supabase Auth: email and password, magic links, sign-in with Google — **no rolling your own cryptography, ever**), it has Row Level Security — rules built directly into the database that say who can read and change which rows — and when you create the project, you choose a region: **choose the EU for customer personal data** (Frankfurt, say) and your data sits in a European jurisdiction.
+
+### Schema and locks in one step
+
+The key decision of this whole phase: RLS gets turned on in the first migration, not “once it works.” A database that gets locked down afterward always has a window when it’s wide open — and that’s exactly when accidents happen.
+
+```text
+We're building an internal CRM for our roastery's wholesale
+customers in Supabase. Design the database schema: tables for
+customers, contacts, orders, notes. For each table, write the Row
+Level Security policies right away — RLS must be on from the first
+migration, not added later:
+- a logged-in team member can read everything; only the admin role
+  can delete
+- a logged-out user sees nothing
+- the service key is used exclusively in server-side code; only the
+  anon key, restricted by RLS policies, goes to the browser
+Generate the SQL migrations and add a comment to every policy
+explaining exactly what it allows and for whom. Before you run
+anything, explain the migrations to me as if I don't read SQL every
+day — I'll approve each one separately.
+```
+
+You’ll get migrations back with commented policies. Even if you don’t read SQL, you can read comments — and that’s enough to ask questions like “why can anyone logged in read this?” Don’t run anything you don’t understand at least at that level; it’s the same principle as with the writing: AI drafts, a human approves.
+
+### Red-teaming your own database
+
+Policies nobody has tried to break are just a hypothesis. Test them — on a test project, not on live data.
+
+```text
+Play the attacker: you have the anon key of our Supabase project
+(it's public in the website code by nature) and you know the
+database schema. List every query you'd try to get at customer data
+without logging in, or with a regular account to get at data it
+isn't allowed to see.
+For each query, say whether the current RLS policies stop it and
+why. Where you're not sure, propose a concrete test — we'll run it
+against the test project with made-up data, not against live data.
+```
+
+A typical finding: a table where turning on RLS got forgotten (so it’s fully readable through the anon key), or a policy written only for reads while writes stayed wide open. Either one is a five-minute fix — if you catch it now.
+
+One practical note on login: you don’t create accounts for the roastery’s six people by hand in the database — Supabase Auth has invitations and user management in its admin panel, and roles (who’s an admin with delete rights) are handled as a user attribute that RLS policies refer to. An employee leaving then means one click: deactivate the account, and the policies cut them off from everything at once. Compare that to a spreadsheet on a shared drive that who-knows-who still has a link to — that’s the difference between a record-keeping habit and a system, and it’s why phase 5 is worth it even for a small company.
+
+### The agent reads, the human writes
+
+Once the CRM is live, it’s tempting to connect it to AI: regular summaries, follow-up suggestions. The principle running through this whole guide applies double here — **the agent may read and suggest; a human approves every write to live data and every message that goes out.** In practice that means giving the agent read-only access and framing tasks as producing drafts:
+
+```text
+Rules: you may read from the CRM, you write nothing to it, and you
+send nothing. Every Monday, go through the last three months of
+orders and prepare for me:
+- customers whose orders have dropped by more than a third compared
+  to their usual average
+- customers who haven't ordered in over 6 weeks
+- for each one, a draft of a short follow-up email in our tone per
+  brand-voice.md, with a specific reason for reaching out
+The output is a table of drafts. I decide who to write to, and I
+send it myself.
+```
+
+Notice that the brand voice from phase 1 is doing work here too — a follow-up to a café sounds like the roastery, not like a robot. The circle closes: one document, four different uses.
+
+## Why not “just generate it in a chat window”
+
+Now to the question hanging over the whole guide: why go through all this machinery when ChatGPT or Gemini can generate a brochure image in a minute? The answer is the central thesis of the whole article: **a pixel output from a chat window is a dead end; a source file is a living asset.**
+
+A generated image can’t be opened and fixed. A pricing error means generating it again — and because generation isn’t deterministic, the new version comes out different: a different layout, slightly different colors, a different font weight. Text in generated images is also still a lottery (diacritics, small garbled characters), and you can’t count on brand consistency across ten pages at all — every page is a new roll of the dice. And for a printer, an RGB image with no bleed at an unknown resolution simply isn’t usable material — it’s not a print-ready file. Finally, there’s the question of rights: with traditional layout, you know whose font and whose photos are in there, because you put them there; with a generated image, you’re vouching for an output whose origin you don’t actually know.
+
+| Question | Image from a chat | Source file (.af, git, code) |
+| --- | --- | --- |
+| Pricing error | Generate again — and the whole thing comes out different | Open it, edit the cell, export |
+| Consistency across 10 pages | Every page is a different roll of the dice | Styles and the template keep everything consistent |
+| Print (CMYK, bleed, DPI) | RGB image, the printer will reject it | Export PDF/X exactly to the printer's spec |
+| Handing off to a colleague | You send a PNG, they can't edit it | You send the .af, they pick up where you left off |
+| Editing it six months later | Start over from scratch, different result | Open the source file, change it, done |
+| Rights to fonts and photos | Unknown origin, you're vouching blind | Your own photos, licensed fonts |
+
+None of this means image generation is useless — for a mood board, a quick sketch, or a one-off visual in a slide deck, it’s great. Feel free to start phase 2 with it: generate three visual directions for the brochure, pick the one you like, and only then build that one properly in a layout tool. The real line is elsewhere: **anything you’ll ever edit needs a source file.** A brochure, a price list, a website, a database — you’ll be editing all of those.
+
+There’s also a deeper difference in what’s left behind afterward. Someone who generates in a chat window ends up with a folder of images and a conversation history; someone who builds a system ends up with a process they can repeat — the next brochure comes from the same folder, the same brand voice, and the same prompts, in a fraction of the time the first one took. The first path buys outputs; the second builds a capability. For a one-off, it doesn’t matter which; for a brand that’s meant to outlive the company’s current shape, it does.
+
+## Alternatives to Affinity
+
+Affinity isn’t the only route to a source file, and an honest guide should say so.
+
+- **Canva via MCP.** Canva has an official connector for AI assistants: from Claude you can create designs from a description, fill brand templates with content, edit and resize, search the asset library, and export (PDF, PNG, PPTX, and more). The output is an editable design in your Canva account — a source file, not a black box, it just lives in Canva’s cloud instead of a file on disk. When it’s enough: social media, presentations, simpler flyers, materials a team without a designer can fine-tune. Where it runs out: precise typographic control and print preparation — Canva can do a print PDF with bleed, but full control over color management and layout to a printer’s stricter specs belongs more to Affinity or InDesign.
+
+```text
+Using the Canva connector, create a design for an eight-page
+brochure for cafés: colors and fonts per the attached
+brand-voice.md, copy from the attached materials, I've already
+uploaded photos to the Brochure folder in Canva.
+Generate a first version and send me a link to the design — I'll
+fine-tune the details directly in the Canva editor. Don't rewrite
+the copy in your own words, stick to the materials; where text is
+missing, leave a placeholder box with a note.
+Once I approve the design, export a print PDF with bleed.
+```
+
+- **Adobe Express.** Fast, web-based, template-driven design with AI features and ties into the Adobe ecosystem; a good choice if Adobe is already part of the company’s toolkit. For a ten-page print piece needing precise layout, it’s in the same league as Canva — fine for simpler jobs.
+- **Adobe InDesign.** The professional standard for layout. AI’s role here is through prepared templates and data sources (Claude prepares the text and tables, the template holds the layout); typically the route for companies that work with a design studio and just want to hand it better-prepared materials.
+
+A rule of thumb for choosing: the closer the output is to the printer and the longer it needs to last, the more a full layout tool with a file on disk (Affinity, InDesign) pays off. The faster and more digital the output, the more likely Canva or Express is enough. The common denominator across all four: the result is an editable design, not pixels.
+
+## Security across the whole process
+
+The security notes have been scattered across the phases; here they are together, because as a whole they form a system. The broader framework — what can and can’t go into AI, and why — is covered in the [chapter on ethics and safety](/prirucka/ai-eticky-a-bezpecne).
+
+- **Sensitive materials only into a paid account with contractual data protection.** The brand manual, price lists, internal copy — never into an anonymous free chat. For customer data, an extra rule: only what the task actually needs.
+- **What may go into the repository:** brand voice and logos, yes; the internal price list only with consideration (and in a private repo); **API keys and passwords, never** — they belong in .env files covered by .gitignore and in Vercel’s environment variable settings. Git remembers history: a key that was ever in the repo is compromised even after you delete it — at that point, the only fix is to rotate it.
+- **CRM:** personal data into a Supabase project in the EU region; RLS from the first migration, not added later; the service key only on the server, only the anon key covered by policies in the browser; login through Supabase Auth, no rolling your own cryptography.
+- **Website:** distinguish server-side and public environment variables; preview deployments behind protection, so work-in-progress versions aren’t visible to the whole internet.
+- **AI drafts, a human approves.** Especially for the CRM: the agent reads and suggests, a human approves writes to live data and every email that goes out.
+
+And every so often, a full review — this is a prompt for a final check before launch, but feel free to turn it into a quarterly routine:
+
+```text
+Do a security review of the whole project before we publish
+anything:
+1. Go through the git history of the repositories (brand, website,
+   crm) and look for anything that looks like a key, password, or
+   token — including in old commits
+2. Confirm that .env files are in .gitignore and that the Supabase
+   service key never ends up in code that runs in the browser
+3. List the environment variables set in Vercel and flag which ones
+   are public (reach the browser)
+4. Confirm that the website's preview deployments have protection
+   turned on
+Return the findings sorted by severity, each with a suggested fix.
+Don't fix anything without my approval.
+```
+
+## Common mistakes
+
+- **Generating the brochure as an image and calling it done.** A month later the price list changes and you find you have nothing to open. Anything you’ll be editing needs a source file.
+- **Skipping phase 1 and going straight to the brochure.** Without a brand voice, you get copy in a generic AI tone — nice-looking, interchangeable, off-brand. The document from phase 1 is an hour of work, and it carries every phase after it.
+- **Letting copies of brand voice live in three places.** Six months from now they’ll have drifted apart. One version in git, everything else reads from it.
+- **Turning on RLS “afterward.”** A database locked down after the fact always has a window when it’s open. RLS belongs in the first migration, and red-teaming right after it.
+- **Committing a key “just for a moment.”** Git doesn’t forget; a key in the history is a compromised key. Prevention is cheap (.gitignore, checking before you commit), the fix is expensive (rotating every key).
+- **Letting the agent write to the CRM because “it saves time.”** One incorrectly logged order, or one automatically sent email in the wrong tone, costs more than approval ever saves.
+
+## What you get out of it
+
+- **Time:** a brochure that used to mean weeks of waiting now comes together in days — and updating it takes minutes instead of a new round with a designer. Website copy and follow-ups stop getting written from scratch.
+- **Money:** fewer one-off jobs for things that repeat (updating print materials, copy), and you keep the expert for where they’re irreplaceable — brand design, photography, the final typographic proofread.
+- **Peace of mind:** a database locked down from day one, keys kept out of repositories, one truth about the brand instead of five copies. Most corporate AI mishaps are a violation of exactly these boring rules.
+- **Quality:** consistency that comes not from talent but from a system — the brochure, the website, and an email to a customer all sound like one company, because they all read the same document.
+
+## Pro tip
+
+A brand built as a system can watch itself. Set up a scheduled task in Claude that runs once a quarter, goes through the company’s new copy — recent newsletters, new website pages, follow-up drafts from the CRM — and compares it against brand-voice.md: what’s drifting, but maybe rightly so (the brand is evolving — then update the document in git so the change applies everywhere), and what’s simply sloppy (then fix the text). That keeps the brand voice from becoming a document from last year and turns it into what it’s supposed to be: the most accurate description of how the company talks right now.
+
+And the closing rule of this whole guide: **own your source files.** Tools will keep changing — connectors, apps, models. The .af file on disk, the brand voice in git, the SQL migrations, and the website code stay yours and stay editable. That’s the difference between a company that had AI generate a few images and a company that built a system.
