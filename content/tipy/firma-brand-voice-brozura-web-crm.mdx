@@ -1,0 +1,408 @@
+---
+title: "Značka jako systém: od brand voice přes brožuru a web po CRM"
+excerpt: "Kompletní návod s 15 prompty: z brand manuálu trvalý Brand Voice dokument, tisknutelná brožura v Affinity přes Claude Cowork, web na Vercelu a chráněné CRM se Supabase — jedna firma, jeden souvislý příběh."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "freelancer", "marketer"]
+keys: []
+saves: "~týdny práce grafika a agentury"
+date: "2026-08-16"
+updated: "2026-08-16"
+tldr: >-
+  Rozdíl mezi firmou, která AI používá na jednorázové obrázky, a firmou, která si s ní staví systém, je v jednom slově: editovatelnost. Obrázek vygenerovaný v chatu je konečná stanice — chyba v ceníku znamená generovat znovu a jinak. Zdrojový soubor (.af brožura, brand voice v gitu, kód webu, schéma CRM) je živé aktivum, které za půl roku otevřete a opravíte. Návod provede jednu modelovou firmu pěti fázemi: Brand Voice dokument z firemních podkladů, tisknutelná brožura v Affinity přes Claude Cowork, značka verzovaná na GitHubu, web na Vercelu a interní CRM se Supabase — s bezpečností od prvního dne a pravidlem „AI navrhuje, člověk schvaluje“.
+faq:
+  - q: >-
+      Proč nestačí vygenerovat brožuru rovnou v ChatGPT nebo Gemini?
+    a: >-
+      Protože z chatu vypadne obrázek — konečná stanice. Chyba v ceníku znamená generovat znovu a doufat, že zbytek vyjde stejně; písma bývají přibližná, barvy nekonzistentní a tisková kvalita (CMYK, spadávky, 300 DPI) chybí. Zdrojový soubor v sazečském nástroji opravíte za minutu a značka zůstane konzistentní.
+  - q: >-
+      Co je Brand Voice dokument a proč ho dávat na GitHub?
+    a: >-
+      Textový dokument, který popisuje tón, slovník, ukázkové formulace a zakázané fráze značky — tak konkrétně, že podle něj umí psát člověk i AI. Na GitHubu je verzovaný, dostupný všem nástrojům (web ho čte při stavbě, Cowork při sazbě brožury) a existuje jen jedna pravda místo pěti kopií po discích.
+  - q: >-
+      Co je soubor .af a proč na něm záleží?
+    a: >-
+      Nativní formát aplikace Affinity — zdrojový soubor brožury se všemi vrstvami, texty a styly. Na rozdíl od vygenerovaného obrázku ho pošlete kolegovi, otevřete za půl roku a změníte ceník, aniž by se cokoli jiného pohnulo. To je hlavní argument celého postupu: výstupem není obrázek z černé skříňky, ale editovatelné aktivum.
+  - q: >-
+      Můžu do AI nahrát brand manuál, ceník a interní podklady?
+    a: >-
+      Do placeného účtu se smluvní ochranou dat ano — přesně k tomu je. Do anonymního free chatu interní podklady nepatří. A bez ohledu na účet: API klíče a hesla nepatří do promptu nikdy a do git repozitáře také ne.
+  - q: >-
+      Jak ochránit data zákazníků v interním CRM?
+    a: >-
+      Projekt Supabase založit v EU regionu (osobní údaje), Row Level Security zapnout od první migrace — ne „doděláme později“ — přihlašování řešit přes Supabase Auth místo vlastní kryptografie a servisní klíč držet jen na serveru; do prohlížeče patří jen anon klíč krytý RLS politikami.
+  - q: >-
+      Smí AI agent zapisovat do CRM sám?
+    a: >-
+      Ne. Agent smí číst a navrhovat — kdo dlouho neobjednal, komu poslat follow-up. Zápis do ostrých dat a každé odeslání schvaluje člověk. Jedna špatně zapsaná objednávka nebo e-mail v cizím tónu stojí víc, než kolik automatizace ušetří.
+---
+
+Většina malých firem má značku rozsypanou po discích: brand manuál v PDF od studia, které už s nimi nespolupracuje, ceník v Excelu se třemi verzemi, texty na webu psané třemi lidmi třemi tóny a fotky „někde ve složce“. Když je potřeba brožura, objednává se u grafika a čeká se; když je potřeba změnit větu na webu, píše se agentuře. A když někdo zkusí zkratku a nechá si materiál vygenerovat v chatu, dostane hezký obrázek — který za týden nejde opravit.
+
+Tenhle návod ukazuje jinou cestu: **postavit značku jako systém editovatelných zdrojových souborů, ne jako hromadu jednorázových výstupů.** Jedna modelová firma projde pěti fázemi: z podkladů vznikne Brand Voice dokument (fáze 1), z něj tisknutelná brožura se zpětně editovatelným zdrojákem (fáze 2), značka se přestěhuje do git repozitáře jako jediný zdroj pravdy (fáze 3), napojí se na ni web (fáze 4) a nakonec interní CRM s pořádně zamčenou databází (fáze 5). Bezpečnost není kapitola na konci, ale linka, která se táhne celým postupem — a na konci je i sekce o tom, proč tohle všechno nedělat „rovnou v chatu“.
+
+Číst můžete po fázích — každá stojí samostatně a má vlastní prompty k okopírování, stačí doplnit hranaté závorky. Kdo zavádí AI ve firmě šířeji než jen kolem značky, má k tomu [kompletního průvodce](/tipy/ai-ve-firme-kompletni-pruvodce); tenhle text je jeho konkrétní, do hloubky rozpracovaný případ.
+
+## Vzorová situace
+
+Marta vede malou pražírnu kávy: šest lidí, prodej koncovým zákazníkům přes e-shop a — čím dál důležitější — velkoobchod pro kavárny. Značku jí před lety postavilo grafické studio: logo, barvy, dvacetistránkový brand manuál v PDF. Od té doby se s ním nepracovalo. Texty na web psala Marta, popisky produktů kolega, newslettery brigádnice; každý jinak. Ceník pro kavárny žije v Excelu a mění se dvakrát ročně.
+
+Teď potřebuje tři věci najednou: tisknutelnou brožuru pro obchodní schůzky s kavárnami, nový web místo pomalé šablony a konečně pořádnou evidenci odběratelů — dosud tabulka, do které píše kdo chce a jak chce. Klasická cesta: grafik na brožuru (týdny čekání, každá změna ceníku nové kolo), agentura na web, CRM „až bude čas“. Odhadem měsíce a rozpočet, který malá pražírna necítí jako samozřejmost.
+
+Místo toho Marta věnuje jeden večer tomu, že z brand manuálu a svých textů nechá vydestilovat Brand Voice dokument. Druhý večer připraví složku s fotkami a ceníkem a nechá Claude Cowork s Affinity postavit brožuru — výsledkem je tiskové PDF a vedle něj zdrojový soubor .af, který za půl roku otevře a změní v něm ceník. Brand voice dá na GitHub, web ho odtud čte, CRM stojí na Supabase s databází zamčenou od prvního dne. Nic z toho není kouzlo; je to posloupnost kroků, které si teď projdeme.
+
+## Fáze 1: brand voice dokument — z šuplíku trvalé aktivum
+
+Brand manuál od studia obvykle říká, jak značka vypadá: logo, barvy, písma. Skoro nikdy neříká, jak značka mluví — a právě to potřebujete, když má texty psát víc lidí a čím dál častěji AI. Brand Voice dokument je textový soubor, který tón popisuje tak konkrétně, že podle něj jde psát: vlastnosti tónu s ukázkami, slovník, zakázané fráze, páry „takhle ne / takhle ano“. Obecnou metodiku, jak takový dokument vzniká z vlastních textů, popisuje tip o [značce a tónu hlasu](/tipy/znacka-ton-hlasu-ai); tady ji projdeme na Martině pražírně a rovnou s výhledem, že dokument bude číst i sazba brožury a build webu.
+
+Jedna zásada hned na začátku: brand manuál, interní texty a ceník jsou firemní podklady — nahrávejte je **do placeného účtu se smluvní ochranou dat**, ne do anonymního free chatu. Platí pro celý návod.
+
+### Destilace z podkladů
+
+Posbírejte, co máte: brand manuál (PDF zvládne Claude přečíst včetně skenů), texty z webu, pár newsletterů, katalogové listy. Čím víc skutečných textů, tím líp — tón se destiluje z toho, jak už píšete, ne z toho, jak byste chtěli znít v dotazníku.
+
+```text
+Nahrávám brand manuál naší pražírny, texty z webu, tři newslettery
+a katalogový list [doplňte vlastní podklady]. Jsme [malá pražírna kávy,
+6 lidí, prodáváme kavárnám a koncovým zákazníkům].
+
+Vytvoř z toho Brand Voice dokument v markdownu se strukturou:
+1. Kdo jsme a s kým mluvíme (2–3 věty, žádný marketingový balast)
+2. Tón: 4–6 vlastností, každá s vysvětlením, co znamená v praxi,
+   a ukázkovou větou, která ji předvádí
+3. Slovník: slova a obraty, které používáme (i odborné — názvy odrůd,
+   stupně pražení), a jak píšeme čísla a jednotky
+4. Zakázané fráze: co u nás nikdy nezazní, s důvodem
+5. Ukázky: 3 páry „takhle ne / takhle ano“ pro popis produktu,
+   e-mail zákazníkovi a příspěvek na sociální sítě
+
+Vycházej jen z nahraných podkladů. Kde se podklady rozcházejí, napiš to
+jako otevřenou otázku na konec — nerozhoduj za mě.
+```
+
+Vrátí první verzi dokumentu a — což je cennější — seznam míst, kde si vaše vlastní materiály protiřečí (web tyká, newsletter vyká; e-shop píše „káva výběrové kvality“, manuál „výběrová káva“). Zkontrolujte hlavně ukázkové věty: model má sklon sklouznout do obecného marketingového tónu, který zní dobře a nepatří nikomu.
+
+### Doptávání: co v podkladech není
+
+Dokument z první verze má díry — situace, které v podkladech nejsou, protože zatím nenastaly písemně. Nejrychlejší cesta, jak je najít, je obrátit role.
+
+```text
+Projdi Brand Voice dokument, který jsme vytvořili, a chovej se jako
+redaktor, který podle něj má zítra psát: polož mi všechny otázky,
+na které v dokumentu nenajde odpověď. Zajímá mě hlavně:
+- tykání/vykání v jednotlivých kanálech
+- humor: kolik ho snese web, kolik e-mail, kolik obchodní nabídka
+- jak mluvíme o konkurenci
+- jak zníme v nepříjemné situaci (reklamace, zdražení, zpožděná dodávka)
+Ptej se po jedné otázce a moje odpovědi rovnou zapracovávej
+do dokumentu.
+```
+
+Tohle je nejdůležitější půlhodina celé fáze: odpovídáte na otázky, které by jinak vyplavaly až v ostrém provozu. Odpovědi formulujte vlastními slovy — dokument má znít jako vy, ne jako model.
+
+### Zátěžový test
+
+Než dokument prohlásíte za hotový, otestujte ho na textech, které nikdo z vás ještě nenapsal.
+
+```text
+Tady je náš Brand Voice dokument [vložit] a tady tři zadání textů,
+které v podkladech nejsou: [reklamační e-mail kavárně, popis nové
+kávy, pozvánka na degustaci pro odběratele].
+
+Napiš každý text podle dokumentu. Pak přidej krátkou rozvahu:
+u kterých pravidel sis nebyl jistý, protože jdou vyložit dvěma
+způsoby, a jak sis vybral. Přesně tahle místa v dokumentu upřesníme.
+```
+
+Pokud jsou výsledné texty k použití po drobných úpravách, dokument funguje. Pokud znějí cize, není špatně model — je nekonkrétní dokument; vraťte se k ukázkám a zpřesněte je. Hotový dokument uložte jako `brand-voice.md` a vložte ho do Projektu na claude.ai jako trvalý kontext — od téhle chvíle ho má po ruce každá konverzace. Ve fázi 3 ho čeká ještě lepší domov.
+
+## Fáze 2: tisknutelná brožura přes Claude Cowork a Affinity
+
+Teď to hlavní: desetistránková tisková brožura pro obchodní schůzky s kavárnami. Cíl není „hezký obrázek“, ale dva soubory: tiskové PDF pro tiskárnu a **nativní zdrojový soubor .af, který je zpětně editovatelný** — pošlete ho kolegovi, otevřete za půl roku, změníte ceník a vytisknete znovu. To je rozdíl mezi výstupem a aktivem a budeme se k němu vracet.
+
+Krátce k nástrojům, ať víte, s čím pracujete. Affinity — původně trojice aplikací Designer, Photo a Publisher od Serifu — je dnes, po převzetí Canvou, jedna aplikace se třemi studii (vektor, pixel a sazba) a základní verze je dostupná zdarma; nativním formátem je právě .af. V době psaní existuje napojení na Claude: Claude Cowork (desktopový režim, který pracuje nad složkou souborů) umí přes MCP konektor Affinity ovládat — zakládat dokumenty, sázet texty a obrázky, exportovat. Napojení je čerstvé a označované jako beta, takže konkrétní možnosti si ověřte v aktuální dokumentaci Affinity; princip práce, který tu popisujeme — vy zadáváte a schvalujete, Cowork kliká — na tom nestojí a padá jen v detailech. Co je MCP a jak se konektory připojují, vysvětluje [přehled MCP nástrojů](/tipy/mcp-konektory-nastroje).
+
+### Složka jako zadání
+
+Cowork pracuje nad složkou, takže zadáním je složka. Založte `brozura-2026` a dejte do ní tři věci: podsložku `fotky` — a sem klidně **kurátorský výběr ve stylu „všechny, co se mi líbí“**, výběr té jedné správné na stranu je přesně práce, kterou deleguje další krok — dále aktuální `cenik.xlsx` a složku `texty` s podklady (klidně syrové: popisy káv z e-shopu, text o pražírně z webu). A samozřejmě `brand-voice.md` z fáze 1.
+
+### Inventura a návrh struktury
+
+První prompt nic nevyrábí — navrhuje. U vícekrokové práce s agentem se tenhle rytmus vyplatí držet: návrh, schválení, teprve pak výroba.
+
+```text
+Pracuj nad složkou brozura-2026. Je v ní podsložka fotky (výběr, který
+se mi líbí — je jich schválně moc), cenik.xlsx a složka texty
+s podklady. Náš tón je v souboru brand-voice.md.
+
+Udělej inventuru: sepiš, co ve složce je, a navrhni obsah
+desetistránkové tiskové brožury pro kavárny, které od nás odebírají
+kávu. Pro každou stranu uveď: účel, hlavní sdělení, které fotky
+připadají v úvahu (názvy souborů) a odkud vezmeš text. Fotek vybírej
+méně, než bych čekal — raději jedna silná na stranu než koláž.
+U ceníku navrhni, které položky do tištěné brožury patří a které ne,
+protože se často mění.
+Nic zatím nevyráběj, čekám návrh ke schválení.
+```
+
+Vrátí strukturu strana po straně. Dvě věci pohlídejte: aby návrh počítal s reálnými fotkami (názvy souborů, ne „sem přijde fotka kávy“) a aby ceník v tištěné verzi obsahoval jen stabilní položky — všechno, co se mění častěji než brožura, patří na web, ne do tisku.
+
+### Stavba dokumentu
+
+```text
+Návrh struktury schvaluji s úpravami: [poznámky]. Postav brožuru
+v Affinity jako nový dokument: A5 na výšku, 10 stran, spadávka 3 mm,
+okraje 12 mm. Barvy a písma vezmi z brand-voice.md; pokud písmo
+z manuálu není v systému nainstalované, napiš mi to a navrhni náhradu
+— nevybírej ji sám.
+
+Postupuj po dvojstranách: vždy polož texty a fotky, ukaž mi náhled
+a čekej na schválení, než budeš pokračovat. Texty ber z podkladů
+a upravuj je podle brand-voice.md; nic si nedomýšlej — kde text chybí,
+nech rámeček s poznámkou CHYBI a na konci mi dej jejich seznam.
+Ceník vysázej jako tabulku ze souboru cenik.xlsx; čísla nepřepisuj
+ručně, načti je ze souboru.
+```
+
+Rytmus „dvojstrana, náhled, schválení“ je pomalejší než „udělej to celé“ — a přesně proto funguje: chybu na straně 2 opravíte, dokud je levná. Věta o číslech z ceníku není paranoia; ruční přepis čísel je nejčastější místo, kde do jinak pěkného dokumentu vklouzne chyba, kvůli které se pak přetiskuje.
+
+### Iterace: proto existuje zdroják
+
+První verze nebude finální a nemá být. Korektury zadávejte jako seznam konkrétních změn.
+
+```text
+Úpravy po první korektuře:
+- na straně 4 vyměň fotku za [nazev-souboru], je ostřejší
+- v ceníku se změnila položka [název]: nahrál jsem nový cenik.xlsx,
+  načti ho znovu a tabulku přegeneruj
+- titulek na straně 7 zní mimo náš tón; navrhni tři varianty podle
+  brand-voice.md a počkej, kterou vyberu
+Ukaž mi náhled každé změněné strany, než soubor uložíš.
+```
+
+Všimněte si, co se právě stalo: změnili jste ceník v hotovém dokumentu a nic jiného se nepohnulo. S vygenerovaným obrázkem by tahle věta nedávala smysl — generovalo by se celé znovu a jinak.
+
+### Export do tiskárny — a uložení zdrojáku
+
+```text
+Brožura je schválená. Nejdřív ulož nativní soubor brozura-2026.af
+do složky projektu — to je zdrojový soubor, který budeme za půl roku
+upravovat, nesmí se ztratit.
+Pak vyexportuj tiskové PDF podle požadavků tiskárny [vložit doslova
+z e-mailu tiskárny — obvykle PDF/X, CMYK, spadávka 3 mm, ořezové
+značky, 300 DPI] a zvlášť lehké PDF pro e-mail (RGB, malá velikost).
+Na závěr vypiš kontrolní přehled: rozměr stran, spadávku, počet stran,
+použitá písma a jestli jsou vložená do PDF.
+```
+
+Požadavky tiskárny vložte doslova — každá je má trochu jiné a parafráze z paměti je způsob, jak přijít o spadávku. Výsledkem fáze jsou tři soubory: `brozura-2026.af` (zdroj — archivujte, sdílejte s kolegy), tiskové PDF (do tiskárny) a lehké PDF (do e-mailů kavárnám). Ten první je nejcennější, i když ho nikdy neotevře zákazník.
+
+Mimochodem, stejný princip — Cowork nad složkou, člověk schvaluje — funguje i na druhém konci obchodního vztahu: tip o [vizitkách do CRM](/tipy/vizitky-do-crm-claude-cowork) s ním z krabice vizitek vyrábí tabulku kontaktů. Bude se hodit ve fázi 5.
+
+## Fáze 3: brand voice na GitHub — jediný zdroj pravdy
+
+Brand Voice dokument teď žije v Projektu a ve složce brožury. To je o dvě místa víc, než je zdrávo: za půl roku se kopie rozjedou a nikdo nebude vědět, která platí. Řešení si vypůjčíme od vývojářů: **git repozitář jako jediný zdroj pravdy.** Ne kvůli módě — kvůli třem konkrétním vlastnostem. Verzování: každá změna tónu má datum, autora a zdůvodnění. Dostupnost: repozitář umí číst kolega, Claude Code při stavbě webu i Cowork při příští brožuře. A jednoznačnost: kdo chce změnu, mění ji tady, ne ve své kopii.
+
+Nemusíte umět git — Claude Code ho ovládá za vás, vy schvalujete. Jak taková spolupráce vypadá, ukazuje šířeji [průvodce firemními znalostmi](/prirucka/firemni-znalosti); tady je konkrétní založení.
+
+```text
+Založ nový git repozitář firma-znacka se strukturou:
+- brand-voice.md (vlož přiložený soubor)
+- loga/ (přiložené SVG a PNG soubory)
+- barvy-pisma.md (vytáhni z přiloženého brand manuálu hodnoty barev
+  a názvy písem, u každé barvy uveď použití)
+- README.md: k čemu repozitář slouží a pravidlo, že brand-voice.md
+  je jediný zdroj pravdy — kdo chce změnu tónu, navrhuje ji tady
+Přidej .gitignore, který vyloučí .env soubory, klíče a pracovní
+exporty. Před prvním commitem mi vypiš úplný seznam souborů, které
+se chystáš commitnout — zkontroluji, že tam není nic citlivého.
+Repozitář založ jako soukromý.
+```
+
+Ta předposlední věta je bezpečnostní linka v praxi: **do gitu se dívejte předtím, než tam něco pošlete, ne potom.** Co do repozitáře se značkou patří a co ne:
+
+- **Patří:** brand voice, loga, barvy a písma, šablony dokumentů. Klidně i zdrojáky brožur (.af) — právě proto, aby je našel i kolega.
+- **Zvážit:** velkoobchodní ceník. V soukromém repozitáři může být; jakmile byste ale repozitář někdy zveřejnili (třeba kvůli sdílení šablon), ceník je první, co z něj má zmizet. Bezpečnější je držet ho odděleně.
+- **Nikdy:** API klíče, hesla, tokeny, exporty s osobními údaji. Ani „na chvilku“ — git si pamatuje i smazané soubory v historii.
+
+### Jak se od teď mění tón
+
+Repozitář mění i to, jak se o značce rozhoduje. Když kolegyně z marketingu usoudí, že „řemeslná praženost“ už zní otřepaně, nezmění to potichu ve svém newsletteru — navrhne změnu v brand-voice.md (klidně větou v chatu: „navrhni úpravu slovníku, tohle slovo vyřaď a nabídni náhrady“) a Marta ji schválí, nebo neschválí. Změna má commit, datum a zdůvodnění; za rok se dá dohledat, kdy a proč se značka posunula. A protože web i brožura čtou tenhle soubor, jedna schválená změna se propíše všude, kde se příště bude psát nebo sázet. To je celé kouzlo „jediného zdroje pravdy“: ne že je jeden soubor, ale že se všechna rozhodnutí dějí nad ním.
+
+## Fáze 4: firemní web, který čte brand voice z repozitáře
+
+Celý postup stavby webu s Claude Code — od prvního promptu přes git jako záchrannou síť po nasazení na Vercel a doménu — má na tomhle webu [vlastní podrobný návod](/tipy/web-claude-code-vercel) a nebudeme ho opisovat. Tady nás zajímá jedno napojení navíc: web nemá mít vlastní, třetí kopii tónu značky. Má číst tu z repozitáře.
+
+```text
+V projektu webu použij jako zdroj tónu soubor brand-voice.md
+z repozitáře firma-znacka. Konkrétně:
+1. Navrhni nejjednodušší způsob, jak ho do projektu webu dostat
+   a udržovat aktuální [kopie se skriptem na aktualizaci, git
+   submodul…] — vysvětli rozdíl a doporuč variantu pro malý tým
+2. Pak projdi všechny texty webu a vypiš věty, které jsou s brand
+   voice v rozporu: zakázané fráze, špatné oslovení, cizí tón
+3. Opravy jen navrhni, nezapisuj je — projdu je po jedné
+```
+
+Praktický efekt je větší, než zní: každý další text na webu — nová stránka, popis produktu, chybová hláška — vzniká s brand voice v kontextu, takže Martina pražírna zní na webu stejně jako v brožuře. A před každým nasazením se konzistence dá zkontrolovat jedním promptem:
+
+```text
+Než nasadíme novou verzi webu: porovnej všechny texty v adresáři
+content se souborem brand-voice.md a vrať tabulku: soubor, věta,
+porušené pravidlo, návrh opravy. Zvlášť označ místa, kde jde pravidlo
+proti srozumitelnosti nebo SEO potřebě stránky — ta rozhodnu já.
+Nehlas „vše v pořádku“, dokud jsi nevypsal, kolik souborů jsi
+skutečně prošel.
+```
+
+Poslední věta je pojistka proti nejčastějšímu selhání kontrolních promptů: model zkontroluje tři soubory z třiceti a spokojeně to odmávne. Chtějte číslo.
+
+K Vercelu dvě bezpečnostní poznámky, které v návodu na web zapadnou snadněji než tady. Za prvé, **proměnné prostředí**: klíče (například k Supabase z další fáze) patří do nastavení projektu ve Vercelu, ne do kódu — a hlídejte rozdíl mezi proměnnými, které zůstávají na serveru, a těmi, které framework posílá do prohlížeče (u Next.js všechno s prefixem NEXT_PUBLIC skončí veřejné). Za druhé, **preview nasazení**: Vercel vytváří ke každé změně náhledovou verzi webu na veřejné adrese; zapněte si ochranu nasazení (Deployment Protection), ať rozpracované verze — třeba s neveřejným ceníkem — vidí jen přihlášený tým.
+
+## Fáze 5: interní CRM se Supabase
+
+Poslední fáze je největší skok: z materiálů ke skutečné aplikaci s databází. Martino CRM má být jednoduché — odběratelé, kontakty, objednávky, poznámky z návštěv — ale obsahuje osobní údaje zákazníků, a to mění pravidla hry. Tabulka na disku přestává stačit ne kvůli funkcím, ale kvůli kontrole: kdo to viděl, kdo to změnil, kde to je.
+
+Supabase se sem hodí ze tří důvodů. Je to spravovaná PostgreSQL databáze s vestavěným přihlašováním (Supabase Auth: e-mail a heslo, magic linky, přihlášení přes Google — **žádná vlastní kryptografie, nikdy**), má Row Level Security — pravidla přímo v databázi, která říkají, kdo smí který řádek číst a měnit — a při zakládání projektu si vyberete region: **pro osobní údaje zákazníků zvolte EU** (třeba Frankfurt) a máte data v evropské jurisdikci.
+
+### Schéma a zámky v jednom kroku
+
+Klíčové rozhodnutí celé fáze: RLS se zapíná v první migraci, ne „až to bude fungovat“. Databáze, která se zamyká dodatečně, má vždycky období, kdy je otevřená — a přesně v něm se stávají nehody.
+
+```text
+Stavíme interní CRM pro velkoobchodní odběratele naší pražírny
+v Supabase. Navrhni schéma databáze: tabulky odberatele, kontakty,
+objednavky, poznamky. U každé tabulky rovnou napiš Row Level Security
+politiky — RLS musí být zapnuté od první migrace, ne dodatečně:
+- přihlášený člen týmu čte všechno; mazat smí jen role admin
+- nepřihlášený uživatel nevidí nic
+- servisní klíč se používá výhradně v serverovém kódu, do prohlížeče
+  jde jen anon klíč, který RLS politiky omezují
+Vygeneruj SQL migrace a ke každé politice přidej komentář, co přesně
+povoluje a komu. Než cokoli spustíš, vysvětli mi migrace jako
+člověku, který SQL nečte denně — schvaluji každou zvlášť.
+```
+
+Vrátí migrace s komentovanými politikami. I když SQL nečtete, komentáře číst umíte — a to stačí na otázky typu „proč tady smí číst kdokoli přihlášený?“. Nespouštějte nic, čemu aspoň na téhle úrovni nerozumíte; je to stejný princip jako u textů: AI navrhuje, člověk schvaluje.
+
+### Červený tým na vlastní databázi
+
+Politiky, které nikdo nezkusil obejít, jsou hypotéza. Otestujte je — na testovacím projektu, ne na ostrých datech.
+
+```text
+Zahraj si na útočníka: máš anon klíč našeho Supabase projektu (ten je
+z povahy věci veřejný v kódu webu) a znáš schéma databáze. Vypiš
+všechny dotazy, kterými by ses pokusil dostat k datům odběratelů bez
+přihlášení, nebo s běžným účtem k datům, na která nemá právo.
+Ke každému dotazu napiš, jestli ho současné RLS politiky zastaví
+a proč. Kde si nejsi jistý, navrhni konkrétní test — spustíme ho
+proti testovacímu projektu se smyšlenými daty, ne proti ostrým.
+```
+
+Typický nález: tabulka, u které se RLS zapnout zapomnělo (pak je přes anon klíč čitelná celá), nebo politika psaná jen pro čtení, zatímco zápis zůstal otevřený. Obojí je za pět minut opravené — když se na to přijde teď.
+
+K přihlašování ještě prakticky: účty pro šest lidí z pražírny nezakládáte ručně v databázi — Supabase Auth má pozvánky a správu uživatelů v administraci, role (kdo je admin s právem mazat) se řeší jako atribut uživatele, na který se RLS politiky odkazují. Odchod zaměstnance pak znamená jedno kliknutí: deaktivovat účet, a politiky ho odříznou od všeho najednou. Srovnejte s tabulkou na sdíleném disku, ke které má odkaz kdo ví kdo — tohle je ten rozdíl mezi evidencí a systémem, kvůli kterému se fáze 5 vyplatí i malé firmě.
+
+### Agent čte, člověk zapisuje
+
+Jakmile CRM žije, nabízí se ho napojit na AI: pravidelné přehledy, návrhy follow-upů. Tady platí zásada z celého webu dvojnásob — **agent smí číst a navrhovat, zápis do ostrých dat a každé odeslání schvaluje člověk.** Prakticky to znamená dát agentovi jen čtecí přístup a formulovat úlohy jako výrobu návrhů:
+
+```text
+Pravidla: z CRM smíš číst, nic do něj nezapisuješ a nic neodesíláš.
+Každé pondělí projdi objednávky za poslední tři měsíce a připrav mi:
+- odběratele, jejichž objednávky klesly o víc než třetinu proti
+  jejich dosavadnímu průměru
+- odběratele, kteří neobjednali déle než 6 týdnů
+- ke každému návrh krátkého follow-up e-mailu v našem tónu podle
+  brand-voice.md, s konkrétním důvodem kontaktu
+Výstupem je tabulka návrhů. Já rozhodnu, komu napíšu, a odešlu sám.
+```
+
+Všimněte si, že i tady pracuje brand voice z fáze 1 — follow-up kavárně zní jako pražírna, ne jako robot. Kruh se uzavírá: jeden dokument, čtyři různá použití.
+
+## Proč ne „vygenerovat to rovnou v chatu“
+
+Teď k otázce, která se vznáší nad celým návodem: proč tenhle aparát, když ChatGPT nebo Gemini vygenerují obrázek brožury za minutu? Odpověď je ústřední teze celého článku: **pixelový výstup z chatu je konečná stanice; zdrojový soubor je živé aktivum.**
+
+Vygenerovaný obrázek nejde otevřít a opravit. Chyba v ceníku znamená generovat znovu — a protože generování není deterministické, nová verze vyjde jinak: jiné rozložení, trochu jiné barvy, jiný řez písma. Text v generovaných obrázcích navíc pořád bývá loterie (diakritika, drobné rozpadlé znaky) a s konzistencí značky napříč deseti stranami se nedá počítat vůbec — každá strana je nový hod kostkou. A pro tiskárnu je RGB obrázek bez spadávek a v neznámém rozlišení prostě nepoužitelný podklad, ne soubor k tisku. Nakonec práva: u klasické sazby víte, čí je písmo a čí fotky, protože jste je tam dali; u generovaného obrázku ručíte za výstup, jehož původ neznáte.
+
+| Otázka | Obrázek z chatu | Zdrojový soubor (.af, git, kód) |
+| --- | --- | --- |
+| Chyba v ceníku | Generovat znovu — a celé vyjde jinak | Otevřít, přepsat buňku, exportovat |
+| Konzistence 10 stran | Každá strana jiný hod kostkou | Styly a šablona drží vše stejně |
+| Tisk (CMYK, spadávka, DPI) | RGB obrázek, tiskárna ho odmítne | Export PDF/X přesně dle tiskárny |
+| Předání kolegovi | Pošlete PNG, upravit ho neumí | Pošlete .af, pokračuje, kde jste skončili |
+| Úprava za půl roku | Znovu od nuly, jiný výsledek | Otevřít zdroják, změnit, hotovo |
+| Práva k písmům a fotkám | Neznámý původ, ručíte naslepo | Vlastní fotky, licencovaná písma |
+
+Neznamená to, že generování obrázků je k ničemu — na moodboard, rychlou skicu nebo jednorázový vizuál do prezentace je skvělé. Klidně jím fázi 2 začněte: nechte si vygenerovat tři vizuální směry brožury, vyberte, který se líbí, a teprve ten postavte pořádně v sazbě. Hranice vede jinudy: **všechno, co budete někdy upravovat, musí mít zdrojový soubor.** Brožura, ceník, web, databáze — to všechno budete upravovat.
+
+Je v tom i hlubší rozdíl v tom, co po práci zůstane. Kdo generuje v chatu, má na konci složku obrázků a historii konverzací; kdo staví systém, má na konci postup, který umí zopakovat — příští brožura vznikne z téže složky, téhož brand voice a týchž promptů za zlomek času té první. První cesta kupuje výstupy, druhá buduje schopnost. U jednorázovky je to jedno; u značky, která má firmu přežít, ne.
+
+## Alternativy k Affinity
+
+Affinity není jediná cesta ke zdrojovému souboru a poctivý návod to má říct.
+
+- **Canva přes MCP.** Canva má oficiální konektor pro AI asistenty: z Claude jde vytvářet návrhy podle popisu, plnit brandové šablony obsahem, upravovat a měnit velikosti, prohledávat knihovnu a exportovat (PDF, PNG, PPTX a další). Výstup je editovatelný návrh ve vašem účtu Canvy — tedy zdroják, ne černá skříňka, jen žije v cloudu Canvy místo v souboru na disku. Kdy stačí: sociální sítě, prezentace, jednodušší letáky, materiály, které dolaďuje tým bez grafika. Kde narazí: přesná typografická kontrola a tisková příprava — tiskové PDF se spadávkou Canva umí, ale plná kontrola nad barevností a sazbou podle přísnějších požadavků tiskárny patří spíš do Affinity nebo InDesignu.
+
+```text
+Přes konektor Canva vytvoř návrh osmistránkové brožury pro kavárny:
+barvy a písma podle přiloženého brand-voice.md, texty z přiložených
+podkladů, fotky jsem předem nahrál do složky Brozura v Canvě.
+Vygeneruj první verzi a pošli mi odkaz na návrh — detaily doladím
+přímo v editoru Canvy. Texty nepřepisuj vlastními slovy, drž se
+podkladů; kde text chybí, nech zástupný rámeček s poznámkou.
+Až návrh schválím, exportuj tiskové PDF se spadávkou.
+```
+
+- **Adobe Express.** Rychlá webová tvorba nad šablonami, s AI funkcemi a napojením na Adobe ekosystém; dobrá volba, pokud už ve firmě Adobe žije. Pro desetistránkovou tiskovinu s přesnou sazbou je to stejná liga jako Canva — stačí na jednodušší věci.
+- **Adobe InDesign.** Profesionální standard sazby. AI sem vede přes připravené šablony a datové podklady (texty a tabulky připraví Claude, sazbu drží šablona); typicky cesta pro firmy, které spolupracují se studiem a chtějí mu jen dodávat lépe připravené podklady.
+
+Vodítko pro výběr: čím blíž je výstup tiskárně a čím déle má žít, tím víc se vyplatí plnohodnotná sazba se souborem na disku (Affinity, InDesign). Čím rychlejší a digitálnější je výstup, tím spíš stačí Canva nebo Express. Společný jmenovatel všech čtyř: výsledkem je editovatelný návrh, ne pixely.
+
+## Bezpečnost napříč celým postupem
+
+Bezpečnostní poznámky byly rozeseté po fázích; tady jsou pohromadě, protože jako celek tvoří systém. Širší rámec — co do AI smí, co nesmí a proč — má [kapitola o etice a bezpečnosti](/prirucka/ai-eticky-a-bezpecne).
+
+- **Citlivé podklady jen do placeného účtu se smluvní ochranou dat.** Brand manuál, ceníky, interní texty — nikdy do anonymního free chatu. U dat zákazníků navíc: jen to, co je pro úlohu potřeba.
+- **Co smí do repozitáře:** brand voice a loga ano; interní ceník jen se zvážením (a v soukromém repu); **API klíče a hesla nikdy** — patří do .env souborů krytých .gitignore a do nastavení proměnných ve Vercelu. Git si pamatuje historii: klíč, který v repu kdy byl, je prozrazený, i když ho smažete — pak nezbývá než ho vyměnit.
+- **CRM:** osobní údaje do Supabase projektu v EU regionu; RLS od první migrace, ne dodatečně; servisní klíč jen na serveru, v prohlížeči jen anon klíč krytý politikami; přihlašování přes Supabase Auth, žádná vlastní kryptografie.
+- **Web:** rozlišovat serverové a veřejné proměnné prostředí; preview nasazení za ochranou, ať rozpracované verze nevidí celý internet.
+- **AI navrhuje, člověk schvaluje.** U CRM zvlášť: agent čte a navrhuje, zápisy do ostrých dat a odesílání e-mailů schvaluje člověk.
+
+A jednou za čas celkovou revizi — tohle je prompt na závěrečnou kontrolu před spuštěním, ale klidně si z něj udělejte čtvrtletní rutinu:
+
+```text
+Udělej bezpečnostní revizi celého projektu, než cokoli zveřejníme:
+1. Projdi git historii repozitářů (znacka, web, crm) a hledej cokoli,
+   co vypadá jako klíč, heslo nebo token — i ve starých commitech
+2. Ověř, že .env soubory jsou v .gitignore a že se servisní klíč
+   Supabase nikde nedostává do kódu běžícího v prohlížeči
+3. Vypiš proměnné prostředí nastavené ve Vercelu a označ, které z nich
+   jsou veřejné (dostanou se do prohlížeče)
+4. Ověř, že preview nasazení webu má zapnutou ochranu
+Vrať nálezy seřazené podle závažnosti, každý s návrhem opravy.
+Nic neopravuj bez mého schválení.
+```
+
+## Nejčastější chyby
+
+- **Vygenerovat brožuru jako obrázek a považovat to za hotovo.** Za měsíc se změní ceník a zjistíte, že nemáte co otevřít. Všechno, co budete upravovat, musí mít zdrojový soubor.
+- **Přeskočit fázi 1 a jít rovnou na brožuru.** Bez brand voice dostanete texty v obecném AI tónu — hezké, zaměnitelné, cizí. Dokument z fáze 1 je hodina práce a nese všechny další fáze.
+- **Nechat kopie brand voice žít na třech místech.** Za půl roku se rozjedou. Jedna verze v gitu, všechno ostatní z ní čte.
+- **Zapnout RLS „až potom“.** Databáze zamykaná dodatečně má vždy okno, kdy je otevřená. RLS patří do první migrace a červený tým hned po ní.
+- **Commitnout klíč „jen na chvilku“.** Git nezapomíná; klíč v historii je prozrazený klíč. Prevence je levná (.gitignore, kontrola před commitem), náprava drahá (rotace všech klíčů).
+- **Pustit agenta k zápisu do CRM, protože „to šetří čas“.** Jedna špatně zapsaná objednávka nebo automaticky odeslaný e-mail v cizím tónu stojí víc, než schvalování kdy ušetří.
+
+## Co vám to přinese
+
+- **Čas:** brožura, na kterou se čekalo týdny, vzniká ve dnech — a její aktualizace v minutách místo nového kola s grafikem. Texty webu a follow-upy se přestávají psát od nuly.
+- **Peníze:** méně jednorázových zakázek za věci, které se opakují (aktualizace tiskovin, texty), a experta si necháváte na to, kde je nenahraditelný — návrh značky, foto, finální typografická korektura.
+- **Klid:** databáze zamčená od prvního dne, klíče mimo repozitáře, jedna pravda o značce místo pěti kopií. Většina firemních AI průšvihů je porušení právě těchhle nudných pravidel.
+- **Kvalita:** konzistence, kterou nezajistí talent, ale systém — brožura, web i e-mail odběrateli znějí jako jedna firma, protože čtou jeden dokument.
+
+## Pro tip
+
+Značka postavená jako systém se umí sama hlídat. Nastavte si v Claude plánovanou úlohu, která jednou za čtvrtletí projde nové texty firmy — poslední newslettery, nové stránky webu, návrhy follow-upů z CRM — a porovná je s brand-voice.md: co se odchyluje, ale možná právem (značka se vyvíjí — pak aktualizujte dokument v gitu, ať změna platí všude), a co je prostě odfláknuté (pak opravte text). Brand voice tím přestává být dokument z minulého roku a stává se tím, čím má být: nejpřesnějším popisem toho, jak firma právě teď mluví.
+
+A závěrečné pravidlo celého návodu: **vlastněte zdrojáky.** Nástroje se budou měnit — konektory, aplikace, modely. Soubor .af na disku, brand voice v gitu, SQL migrace a kód webu zůstanou vaše a editovatelné. To je rozdíl mezi firmou, které AI vygenerovala pár obrázků, a firmou, která si postavila systém.
