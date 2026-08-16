@@ -61,6 +61,11 @@ export const shelves: Shelf[] = [
     slugs: [
       "ai-ve-firme-kompletni-pruvodce",
       "firma-brand-voice-brozura-web-crm",
+      "proverka-obchodniho-partnera-hlidac-statu",
+      "firemni-procesy-mapy-lucid-notion",
+      "interni-crm-supabase-detailni-navod",
+      "marketingova-kampan-jeden-zdroj-mcp",
+      "freelancer-znacka-system-mcp",
       "vizitky-do-crm-claude-cowork",
       "mcp-konektory-nastroje",
       "mcp-reklama-analyza",
@@ -100,7 +105,10 @@ export const shelves: Shelf[] = [
     href: { cs: "/pro/rodice", en: "/for/parents" },
     slugs: [
       "ai-v-rodine-vychova-hry-pohadky",
+      "svatba-velka-akce-ai-system",
+      "spolek-klub-ai-system",
       "osobni-rozpocet-z-bankovniho-vypisu",
+      "prodej-nemovitosti-ai-system",
       "jidelnicek-a-nakupni-seznam-ai",
       "cestovni-itinerar-ai",
       "foto-do-akce-claude-mobil",
