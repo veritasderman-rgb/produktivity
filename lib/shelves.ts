@@ -60,6 +60,7 @@ export const shelves: Shelf[] = [
     href: { cs: "/pro/manazery", en: "/for/managers" },
     slugs: [
       "ai-ve-firme-kompletni-pruvodce",
+      "firma-brand-voice-brozura-web-crm",
       "vizitky-do-crm-claude-cowork",
       "mcp-konektory-nastroje",
       "mcp-reklama-analyza",
