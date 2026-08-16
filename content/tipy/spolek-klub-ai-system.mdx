@@ -1,6 +1,6 @@
 ---
 title: "Spolek jako systém: plakáty, kalendář akcí a členská evidence s AI"
-excerpt: "Kompletní návod s 24 prompty pro každého, kdo po večerech táhne spolek: jednotná vizuální identita přes Canva konektor, kalendář akcí jako zdroj pravdy, členská evidence s rolemi v Supabase, hromadné maily s osobním oslovením — a celý systém dokumentovaný tak, aby šel předat nástupci."
+excerpt: "Kompletní návod s 25 prompty pro každého, kdo po večerech táhne spolek: jednotná vizuální identita přes Canva konektor, kalendář akcí jako zdroj pravdy, členská evidence s rolemi v Supabase, hromadné maily s osobním oslovením — a celý systém dokumentovaný tak, aby šel předat nástupci."
 category: "ai"
 platform: "vsude"
 audience: ["rodic", "manazer"]
@@ -227,6 +227,16 @@ potřebuji ověřit, že to jsou účty spolku, ne moje osobní.
 
 Pokud výpis nesedí (prázdný kalendář, cizí návrhy), odpojte konektor a připojte správný účet teď — dokud je to jedno kliknutí, ne stěhování dat. A obecné pravidlo z přehledu konektorů platí i tady: obrazovku oprávnění při připojování čtěte celou; je to jediný moment, kdy rozhodujete vy, co služba AI dovolí.
 
+### Mantinely pro konektory, které umějí zapisovat
+
+Kalendář a Canva jsou konektory s právem zápisu — AI přes ně může zakládat, měnit a mazat. To je jejich smysl i jejich riziko, a proto se vyplatí tři návyky, které uvidíte ve všech promptech tohoto návodu a které si přeneste i do vlastních:
+
+- **Zapisující prompt vždy říká, co se nesmí.** „Existující události nemaž ani nepřepisuj", „předlohu neměň, vytvoř kopii" — mantinel patří do zadání, ne do dobré vůle. Model bez mantinelu udělá, co považuje za vstřícné, a vstřícnost s právem mazat je špatná kombinace.
+- **Hromadné operace jedou nasucho.** Nejdřív „ukaž mi, co se chystáš udělat", pak schválení, pak provedení. U jedné události je to zbytečnost; u založení celého ročního plánu nebo importu členů je to rozdíl mezi kontrolou a úklidem.
+- **Nevratné akce zůstávají člověku.** Mazání, odesílání, publikace — to nejsou úlohy pro konektor, ale rozhodnutí pro vás. Všimněte si, že žádný prompt v tomhle návodu nekončí „a smaž staré" nebo „a odešli to"; končí „ukaž mi", „připrav", „vypiš ke schválení".
+
+Zní to jako byrokracie, ale v praxi jde o jeden řádek v promptu a deset vteřin schvalování — a je to přesně ta disciplína, díky které můžete konektorům svěřovat čím dál větší kusy práce s klidným svědomím.
+
 ## Fáze 3: jednotná identita — celý sbor z jedné šablony
 
 Teď to, co je na výsledku nejvíc vidět. Cíl fáze: **jedna brandová šablona v Canvě, ze které se odvozuje plakát, pozvánka, diplom i obrázek na sítě** — takže všechno, co sbor vydá, vypadá jako od jednoho sboru, a změna (nový termín, jiná fotka) je oprava v jednom místě, ne výroba od nuly.
@@ -447,6 +457,26 @@ Nic neodesílej a nepublikuj — checklist odpracuji já, ty připravuješ.
 
 Za pozornost stojí bod 2: model nemůže sundat papír z vývěsky ani opravit facebookovou událost, kterou spravuje jiný člen — ale umí vygenerovat úplný checklist toho, co všechno je odvozené a musí se dotknout. To je přesně rozdíl mezi „zapomněli jsme na vývěsku" a „vývěska je bod 3 na seznamu". Systém nespočívá v tom, že všechno udělá stroj; spočívá v tom, že nic nevypadne.
 
+### Mapa odvozenin: co všechno z kalendáře žije
+
+Aby bylo jasné, o co v téhle fázi ve skutečnosti jde, tady je mapa závislostí celého systému — co je zdroj a co odvozenina. Hodí se do provozní příručky a je to zároveň diagnostická pomůcka: kdykoli někde nesedí údaj, ptejte se, jestli někdo neopravil odvozeninu místo zdroje.
+
+| Údaj | Zdroj pravdy | Odvozeniny (nikdy se needitují samostatně) |
+| --- | --- | --- |
+| Termín, čas, místo akce | událost v kalendáři sboru | plakát, pozvánka, e-mail, FB událost, rozhlas, vývěska |
+| Vizuál (logo, barvy, písma) | mini brand + předlohy v Canvě | každý konkrétní plakát, diplom, obrázek na sítě |
+| Kdo je člen, kontakty, role | členská evidence (Supabase) | adresáti e-mailů, seznam na diplomy, prezenčka VH |
+| Kdo zaplatil příspěvek | tabulka prispevky | seznam dlužníků, upomínky, zpráva o hospodaření |
+| Souhlasy (fotky, e-maily) | tabulka souhlasy | co smí do alba, kdo dostává poštu |
+| Povinnosti a lhůty spolku | stanovy → výtah → opakované události | připomínky, program VH, termín rozeslání pozvánek |
+| Jak se co dělá | provozní příručka | zaučení nástupce, rutiny, odpovědi na „jak se u nás…" |
+
+Všimněte si, že sloupec zdrojů je krátký — sedm řádků na celý spolek. To je celé tajemství: sedm míst, která se udržují, a všechno ostatní se z nich vyrábí. Janin předchůdce udržoval desítky míst (každý plakát, každý seznam, každý mail) a proto to nešlo stíhat.
+
+### Veřejný kalendář: vývěska, která se aktualizuje sama
+
+Google Kalendář umí vedle interního kalendáře výboru i veřejnou vrstvu — kalendář akcí, který se dá sdílet odkazem, vložit na web obce nebo spolku a členové si ho můžou přidat do telefonu. Praktický postup: veďte dva kalendáře — interní (s poznámkami výboru, garanty a řádky PLAKÁT:) a veřejný „Akce SDH", do kterého se z interního přenáší jen to, co je pro veřejnost: název, datum, čas, místo. I tohle přenášení je rutina pro AI („z interního kalendáře založ/aktualizuj veřejné verze událostí, ukaž mi rozdíly ke schválení") a odměna je značná: každý, kdo si kalendář přidal, má změnu termínu v kapse v okamžiku, kdy ji uděláte — bez plakátu, bez mailu, bez rozhlasu. Vývěska a rozhlas tím nekončí (půlka vsi si kalendář nepřidá nikdy), ale poprvé máte kanál, který se aktualizuje sám.
+
 Mimochodem — pokud spolková rodina žije i sdíleným rodinným kalendářem, celá tahle logika se dá zmenšit na domácnost: návod na [AI v rodině](/tipy/ai-v-rodine-vychova-hry-pohadky) ukazuje tentýž princip jednoho přehledu nad rodinným chaosem. Jana, která má tři děti a sbor, používá oba.
 
 ## Fáze 5: členská evidence v Supabase — role, příspěvky, pořádek
@@ -532,6 +562,8 @@ posouzení — nikdy ji nikam nepřiřazuj odhadem.
 ```
 
 Ten poslední řádek je poučení z praxe každého pokladníka: rodič platí za dítě ze svého účtu s vlastním jménem, babička platí za vnuka, jeden převod pokrývá dva sourozence. Model tyhle vzory umí rozpoznat a navrhnout — ale přiřazení cizí platby ke členovi je rozhodnutí s důsledky, a tak ho dělá člověk. Jak vypadá navazující upomínka, uvidíte ve fázi 6; díky oddělené evidenci půjde jen skutečným dlužníkům.
+
+Jedno vymezení, které ušetří spor s účetním: **evidence příspěvků není účetnictví spolku.** Spolek jako právnická osoba vede účetnictví podle zákona (u malých spolků obvykle jednoduché) a to zůstává tam, kde je — u účetního, v jeho nástroji, podle jeho pravidel. Vaše evidence odpovídá na jinou otázku: který člen má zaplaceno. Obě soustavy se potkávají v kontrolním bodě (součet vybraných příspěvků v evidenci má sedět na příslušnou položku v účetnictví — a jednou ročně, před zprávou o hospodaření, si to nechte AI porovnat a rozdíly vypsat), ale nenahrazují se. Pokus vést v členské evidenci „rovnou i účetnictví" je klasická cesta, jak si znepřátelit účetního a rozbít obě věci najednou.
 
 ### Červený tým: pět minut, které chrání čtyřicet lidí
 
@@ -645,6 +677,12 @@ aby lhůta ze stanov platila — ten si dám do kalendáře.
 
 Tenhle prompt je hezká ukázka toho, jak se vrství práce z předchozích fází: lhůty hlídá výtah stanov (fáze 1), termín drží kalendář (fáze 4), adresáty dává evidence (fáze 5), koncepty dělá Gmail (fáze 6). Žádný z těch kroků není sám o sobě ohromující — ale pozvánka na valnou hromadu, která se kdysi skládala celý víkend, je hotová za večer a formálně správně.
 
+### Došlá pošta: schránka jako institucionální paměť
+
+Konektor Gmailu nepracuje jen s odchozí poštou — a pro spolek je možná ještě cennější to, co umí s došlou. Spolková schránka je institucionální paměť: korespondence s okresním sdružením, s obcí kvůli pronájmu sálu, s pojišťovnou, s kapelou na ples. Postaru tahle paměť žila v hlavě jednatele („s kapelou jsme loni domluvili, že…"); posystému je to schránka, ve které umí AI hledat. „Najdi loňskou domluvu s kapelou na ples a shrň, na čem jsme se dohodli" je dotaz na deset vteřin — a znamená, že letošní vyjednávání nezačíná od nuly ani od vzpomínek.
+
+Aby to fungovalo, stačí minimální disciplína: spolková pošta chodí do spolkové schránky (ne do osobních mailů členů výboru — to je stejné pravidlo jako u účtů) a jednou za čas necháte AI navrhnout štítky a projít neroztříděné (návrh štítků ano, hromadné přeštítkování zase jen po schválení). Víc systému došlá pošta malého spolku nepotřebuje; podstatné je, že odpověď na „jak to bylo domluvené" se hledá ve schránce, ne po telefonátech bývalým funkcionářům. A až se bude předávat funkce, předá se s ní i tahle paměť — celá, prohledávatelná, na spolkovém účtu.
+
 ## GDPR a děti: opatrně, poctivě a bez paniky
 
 Kapitola, kterou by nejraději každý přeskočil — a právě proto ji tenhle návod má. Spolek s dětskými členy zachází s osobními údaji dětí a tam je na místě opatrnost, ne proto, že hrozí kontrola, ale protože jde o důvěru rodičů, bez které dětský kroužek neexistuje. Dobrá zpráva: systém z tohoto návodu dělá compliance snazší, ne těžší — evidence souhlasů je tabulka v databázi, ne krabice papírů. Zlá zpráva: žádný nástroj nezbaví výbor odpovědnosti. Pojďme na to střízlivě.
@@ -675,3 +713,145 @@ Pomoz mi nastavit souhlasy a fotky pro dětské členy:
 K bodu 3 poctivá technická poznámka: samotné rozpoznání „které dítě je na fotce" je přesně ten krok, který nemá dělat stroj — jednak automatizované rozpoznávání tváří dětí je z principu velmi citlivé zpracování, které malý spolek nemá čím obhájit, jednak vedoucí mládeže děti prostě zná. Praktický postup je lidský: vedoucí projde album se seznamem v ruce, AI mu předtím připravila seznam a checklist a potom zapíše výsledek. Stroj dělá evidenci, člověk dělá poznávání a rozhodování.
 
 A ještě tři pravidla, která s dětmi souvisejí a patří do provozní příručky. Za prvé: jména dětí se nikdy nespojují s fotkami veřejně („na fotce zleva…" na Facebook nepatří); diplom se jménem na nástěnce v hasičárně je jiná situace než tentýž diplom na internetu. Za druhé: údaje o dětech v AI konverzacích — minimum minima; pro většinu úloh stačí „dvanáct dětí ve věku 6 až 14 let" a jmenný seznam je potřeba jen u diplomů a adresných dokumentů, v placeném účtu se smluvní ochranou dat. Za třetí: když rodič souhlas odvolá, odvolání se zapíše do evidence a už publikované fotky se odstraní v rozsahu, v jakém to jde — a to „v rozsahu, v jakém to jde" řekněte rodičům předem poctivě: z vlastního webu a stránky ano, ze stažených kopií cizích lidí to nedokáže nikdo. Širší rámec — co do AI smí a co ne, nejen u dětí — má [kapitola o etice a bezpečnosti](/prirucka/ai-eticky-a-bezpecne).
+
+## Bezpečnost napříč celým systémem
+
+Bezpečnostní zásady byly rozeseté po fázích; tady jsou pohromadě, protože dohromady tvoří systém — a protože tahle stránka patří do provozní příručky vedle tabulky rolí. U spolku nejde o obchodní tajemství, ale o něco citlivějšího: důvěru čtyřiceti sousedů a rodičů dvanácti dětí.
+
+- **Osobní údaje členů jen do placeného účtu se smluvní ochranou dat** — a i tam podle zásady minimalizace: do konverzace výřez, který úloha potřebuje, ne „celá evidence pro jistotu". Trvalý domov dat je databáze s rolemi, ne historie chatu.
+- **Spolkové účty, ne osobní.** Kalendář, pošta, Canva i databáze patří spolku. Hesla ve správci hesel s přístupem pro nejméně dva lidi z výboru — jeden člověk je jediný bod selhání, a spolky mívají dlouhý život a křehkou kontinuitu.
+- **Role kopírují funkce a vymáhá je databáze.** Pokladník zapisuje platby, vedoucí mládeže vidí jen svoje děti, mazat nesmí nikdo — a platí to díky RLS i tehdy, když si někdo najde cestu k datům mimo aplikaci. Politiky se testují červeným týmem na smyšlených datech, ne nadějí.
+- **Konektory s právem zápisu dostávají mantinely v každém promptu** — co se nesmí, jede se nasucho, nevratné akce (mazání, odesílání, publikace) zůstávají člověku. AI je role s nejpřísnějšími pravidly v tabulce přístupů.
+- **Děti mají zvláštní režim:** souhlasy zákonných zástupců v evidenci, alba se před publikací kontrolují proti evidenci, jména se s fotkami veřejně nespojují, údaje dětí v konverzacích na minimum.
+- **Odchod člověka = změna rolí, ne detektivka.** Když někdo skončí ve výboru, odeberou se mu role v evidenci a přístupy ke spolkovým účtům — jedno sezení, úplný výsledek. To je mimochodem nejpádnější bezpečnostní argument proti tabulce na sdíleném disku, ke které má odkaz kdo ví kdo z minulých let.
+
+Nic z toho není paranoia a nic z toho není drahé — je to pár návyků. A vyplatí se je zavést dřív, než budou potřeba: bezpečnostní pravidla se nejhůř zavádějí po průšvihu, kdy se místo systému buduje alibi.
+
+## Předání funkce: systém, který přežije svého autora
+
+A teď kapitola, kvůli které se celý návod psal. Vraťme se k větě z úvodu: ve firmě je pointa editovatelnosti „opravím chybu za minutu", ve spolku je to předatelnost. Pan Kratochvíl nebyl špatný jednatel — byl vynikající. Jenže třicet let stavěl systém, který existoval jen v jeho hlavě, a tak se předání smrsklo na sedm šanonů a „kdyby něco, zavolej". Jana teď může udělat totéž o jednu technologickou generaci později: vybudovat skvělý systém v Canvě, Supabase a kalendáři, kterému bude rozumět jen ona. **Nástroje samy o sobě předatelnost nezajistí — zajistí ji dokumentace a struktura přístupů.** Obojí se dá postavit tak, aby rostlo samo.
+
+Dobrá zpráva: většinu dokumentace jste už napsali, jen o tom nevíte. Výtah ze stanov, mini brand, komentované migrace databáze, popisy událostí v kalendáři, tabulka rolí — to všechno jsou kusy provozní příručky. Zbývá je sesbírat na jedno místo a doplnit to, co je zatím jen ve zvyku.
+
+### Provozní příručka: jeden dokument, který odpovídá na „jak se u nás dělá…"
+
+```text
+Sestav provozní příručku našeho spolku pro mého nástupce ve funkci.
+Podklady: výtah ze stanov, mini brand, tabulka rolí a přístupů,
+seznam šablon v Canvě, schéma členské evidence [vše přiloženo]
+a tento popis rutin, jak je dělám [popište vlastními slovy: co
+se děje před akcí, jak se zapisují platby, jak probíhá rozeslání].
+Struktura:
+1. Mapa systému: co kde žije (termíny → kalendář, vizuál → šablony
+   v Canvě, členové a platby → evidence, pošta → spolkový Gmail)
+   a zlaté pravidlo: měň zdroj, ne odvozeniny
+2. Rutiny jako návody „krok za krokem": příprava akce (3 týdny
+   předem), změna termínu, zápis plateb, upomínky, valná hromada,
+   přijetí nového člena, publikace fotek z dětské akce
+3. Přístupy: jaké spolkové účty existují, kdo k nim má jakou roli,
+   kde je správce hesel — hesla samotná do příručky NEPIŠ, jen
+   kde jsou uložená
+4. Kalendář roku jednatele: co se dělá v kterém měsíci
+5. Slovníček: co je konektor, šablona, evidence — pro čtenáře,
+   který tyhle nástroje nikdy neviděl
+Piš pro konkrétního člověka: dobrovolník, večer, unavený, nemusí
+umět s počítačem víc než e-mail a bankovnictví. Každou rutinu
+ukonči větou „když si nevíš rady, zeptej se AI takto: …"
+s konkrétním promptem.
+```
+
+Poslední instrukce je malý trik s velkým dopadem: příručka, jejíž každá kapitola končí připraveným promptem, dělá z AI trvalou součást předání — nástupce nedostane jen popis, ale i pomocníka, který ho rutinou provede. A poznámka k bodu 3: pravidlo „hesla do příručky nepatří" berte vážně; příručka je dokument, který se sdílí a tiskne, hesla žijí ve správci hesel spolku s řízeným přístupem.
+
+Příručku uložte tam, kde žijí ostatní dokumenty spolku, a — to je důležité — **udržujte ji jako zdroj pravdy o procesech**: když se rutina změní, mění se příručka, stejně jako se termín mění v kalendáři. Zastaralá příručka je horší než žádná, protože jí nástupce uvěří.
+
+### Test předatelnosti: nástupce nanečisto
+
+Jak poznat, že je příručka opravdu úplná? Stejným obratem, jakým se ve firemním návodu testoval brand voice: obraťte role a nechte AI hrát čtenáře.
+
+```text
+Přečti si přiloženou provozní příručku spolku a zahraj si na mého
+nástupce: dobrovolníka, který funkci přebírá, systém nikdy neviděl
+a umí běžnou práci s počítačem. Projdi v duchu první rok ve funkci
+(použij kalendář roku jednatele z příručky) a ptej se mě na všechno,
+co bys v té situaci nevěděl a příručka na to neodpovídá:
+- chybějící krok v rutině („kde vezmu přístup do Canvy?")
+- znalost, která se tváří samozřejmě, ale nikde není zapsaná
+  („kdo je pan Souček a proč se mu posílá pozvánka poštou?")
+- rozhodnutí, u kterého není jasné, kdo ho dělá
+Ptej se po jedné otázce, moje odpovědi rovnou zapracovávej do
+příručky. Skonči, až projdeš celý rok bez otázky, na kterou
+příručka neodpoví.
+```
+
+Tahle hodina je nejlepší investice celé kapitoly. Otázky, které z modelu padají, jsou přesně ty, které by za tři roky pokládal skutečný nástupce — jenže teď na ně odpovídáte v klidu u čaje, ne po telefonu z dovolené. A vedlejší efekt: uvidíte vlastní systém cizíma očima, což je pohled, který autor nikdy nemá.
+
+### Předání v praxi: rok, ne večer
+
+Samotné předání pak není akt, ale proces — a systém z tohoto návodu mu dává přirozený tvar. Rok předem dostane nástupce roli „čte všechno" (řádek v tabulce rolí — proto tam je) a začne se dívat: vidí evidenci, kalendář, šablony, dostává kopie důležité pošty. Půl roku předem si vezme první rutinu — třeba přípravu jedné akce podle příručky, s vámi za zády. Na valné hromadě se předá funkce formálně a technicky je to: změna rolí v evidenci, předání správce hesel, přepis vlastníka spolkových účtů. Žádné šanony, žádné „kdyby něco, zavolej" — tedy, zavolat může, ale nemusí.
+
+A poslední poctivá poznámka: předatelný systém má i druhou stranu — přežije nejen výměnu jednatele, ale i výměnu nástrojů. Canva, Supabase i konektory se za deset let promění nebo zmizí; co zůstane, jsou zdroje pravdy v otevřených formátech (seznam členů jde kdykoli vyexportovat z databáze do tabulky, kalendář do standardního formátu, dokumenty jsou text). Při stavbě systému se občas zeptejte: „kdyby tenhle nástroj zítra skončil, dostanu z něj svá data ven?" U všech nástrojů z tohoto návodu je odpověď ano — a to není náhoda, ale kritérium, podle kterého byly vybrané.
+
+## Stejný systém pro oddíl, rodičovský spolek i skauty
+
+Celý návod běžel na hasičích, protože konkrétní příběh se čte líp než obecné schéma. Architektura — zdroje pravdy, odvozeniny, role, příručka — je ale stejná pro každý spolek; mění se jen obsah tabulek a rytmus roku. Pár poznámek k přenosu, ať si nemusíte překládat každou větu:
+
+- **Sportovní oddíl** má místo osmi akcí sezónu: rozpis zápasů či závodů (často daný svazem — pak je zdrojem pravdy svazový termínový kalendář a váš kalendář je jeho hlídaná kopie, což je potřeba v příručce přiznat), tréninky jako opakované události a soustředění. Evidence přibírá specifika: zdravotní prohlídky s expirací (další datum, které hlídá kalendář), registrace u svazu, velikosti dresů. Diplomová šablona jede naplno a upomínky příspěvků jsou u oddílů s dětmi největší úspora vůbec — oddílové příspěvky se platí pololetně a „kdo nezaplatil" je věčné téma.
+- **Rodičovský spolek při škole** má rok řízený školním kalendářem: ples, jarmark, příspěvky do tříd. Specifikum: skoro nulová kontinuita — funkce se předávají po dvou třech letech, jak děti odrostou, takže kapitola o předání není poslední, ale první, kterou byste měli číst. A skoro všichni členové jsou zároveň rodiče nečlenů (dětí ve škole), takže hranice „čí údaje spolek vlastně eviduje" chce vyjasnit hned: evidujte členy spolku a u akcí pro děti jen to, co akce vyžaduje.
+- **Skautské středisko či oddíl** má výhodu: ústředí poskytuje celostátní registraci a metodiky, takže členskou evidenci nestavíte celou — vaše lokální vrstva (družiny, výpravy, souhlasy nad rámec registrace, oddílové příspěvky) se staví vedle ní, ne místo ní. Totéž platí pro hasiče v okresních strukturách nebo sportovce se svazovými registry: **nejdřív zjistěte, co už eviduje střešní organizace, a lokálně veďte jen to, co tam není.** Duplikovat celostátní evidenci lokálně je práce navíc a GDPR riziko k tomu.
+- **Malý kulturní spolek, myslivci, zahrádkáři, divadelníci** — čím menší spolek, tím víc platí minimální verze z následující kapitoly. Divadelní soubor s pěti premiérami za deset let nepotřebuje Supabase; potřebuje šablonu plakátu a jednu složku. Systém se staví podle provozu, ne podle návodu — návod je menu, ne povinnost.
+
+Společný jmenovatel: vždycky začněte otázkou „co je u nás zdroj pravdy o termínech, o lidech a o vizuálu" — a teprve pak vybírejte nástroje. Spolek, který si na tyhle tři otázky odpoví, má z tohoto návodu to podstatné, i kdyby nakonec všechno vedl v jiných aplikacích.
+
+## Kolik to stojí: free tiery a jejich poctivé hranice
+
+Ceny sem nepatří — mění se rychleji než články — ale struktura nákladů se popsat dá a pro spolek je mimořádně příznivá: **na velikost běžného spolku (desítky členů, jednotky akcí ročně) vystačíte většinou s bezplatnými tarify.** Důležitější než „co je zdarma" je ale vědět, kde bezplatné tarify končí, abyste na hranici nenarazili uprostřed plesové sezóny.
+
+- **Canva** zdarma pokryje tvorbu návrhů, spoustu šablon a export; konektor funguje i s bezplatným účtem. Hranice: skutečné brandové šablony (zamčené prvky, plnění daty), sdílené firemní sady a část prémiového obsahu patří do placených tarifů. Pro spolky je tu ale podstatná výhybka: registrované neziskové organizace — což český zapsaný spolek typicky je — mohou požádat o program **Canva for Nonprofits**, který dává prémiové funkce zdarma pro tým lidí. Žádost chce doložit registraci spolku (výpis ze spolkového rejstříku) a chvíli trpělivosti; pro spolek s dětským kroužkem je to jedna z nejvýhodnějších žádostí, jakou může výbor podat. Podmínky programu si ověřte na webu Canvy, mění se.
+- **Supabase** free tier bez problémů unese členskou evidenci o desítkách až stovkách záznamů — objemem je to pro databázi zanedbatelné. Hranice, na kterou spolek reálně narazí, není velikost, ale aktivita: neaktivní projekt na bezplatném tarifu po delší pauze „usne" a je potřeba ho v administraci probudit. Členská evidence, do které se sáhne jednou za měsíc, je přesně kandidát — počítejte s tím (probuzení je kliknutí, žádná ztráta dat) a jednou za čas si udělejte export členů do tabulky jako zálohu; to je dobrá praxe bez ohledu na tarif.
+- **Google účet** zdarma stačí na kalendář, poštu i sdílenou složku fotek. Hranice: úložiště na fotky je omezené (po letech akcí se zaplní — archiv starších let přesuňte na disk a zálohu) a spolková pošta na adrese končící gmail.com vypadá méně oficiálně než vlastní doména; to je ale kosmetika, kterou lze řešit později, pokud vůbec.
+- **Claude**: konektory a práce se soubory patří k placeným tarifům a — důležitější — pro práci s osobními údaji členů je placený účet se smluvní ochranou dat podmínka, ne příjemnost. Tohle je jediná položka, kde návod doporučuje počítat s náklady: jeden placený účet pro toho, kdo systém provozuje. Střízlivě řečeno — je to řádově cena, kterou spolek utratí za občerstvení na jedné schůzi výboru, a nese celý systém. Případný druhý účet (pokladník) je luxus, ne nutnost; rutiny lze provozovat z jednoho.
+
+A jedna nákladová položka, která se nepočítá v penězích: čas na zavedení. Poctivý odhad pro sbor Janiny velikosti je pět až osm večerů rozložených do dvou měsíců — inventura dva, identita jeden až dva, kalendář jeden, evidence dva, pošta a příručka po jednom. Není to zadarmo; je to investice, která se vrátí první sezónu, protože každá akce pak stojí večer místo víkendu. A na rozdíl od večerů strávených ve Wordu nad plakátem tahle práce zůstane.
+
+## Minimální verze: když máte jen dva večery
+
+Poctivost velí přiznat, že ne každý má na plný systém sílu — a že rozestavěný systém je horší než malý hotový. Pokud máte jen dva večery, tady je minimální verze, která už nese ovoce a na kterou se dá kdykoli navázat:
+
+**Večer první: šablona.** Mini brand na jednu stránku a jedna předloha plakátu v Canvě (prompty z fáze 3, klidně bez konektoru — zadání se dá do Canvy přenést i ručně). Od té chvíle žádný plakát od nuly a všechno z jednoho vizuálu. To je nejviditelnější výsledek za nejmíň práce.
+
+**Večer druhý: kalendář.** Spolkový Google účet, roční plán akcí jako události, povinnosti ze stanov jako opakované události (prompty z fáze 4). Od té chvíle má termín jediný domov a nic nestojí na paměti.
+
+To je celé — a je to víc, než má devadesát procent spolků. Evidence v Supabase, koncepty v Gmailu, souhlasy a příručka počkají na další zimu; do té doby vám poslouží vyčištěná tabulka členů z inventury (jedna, s jasným vlastníkem — pokladníkem) a disciplína „adresy do skryté kopie". Jediné, co nesmí počkat ani v minimální verzi: fotky dětí bez souhlasu nikam a osobní údaje jen do placeného účtu. Bezpečnost není modul, který se dokupuje ve verzi dvě.
+
+A až další zima přijde, budete stavět na hotovém: kalendář a šablony jsou přesně ty základy, na které se evidence a pošta připojují. Minimální verze není ochuzená verze — je to první patro téhož domu.
+
+## Nejčastější chyby
+
+- **Připojit konektory k osobním účtům.** Nejdražší chyba celého návodu, protože se projeví až za roky — při předávání funkce, kdy se ukáže, že kalendář sboru, šablony i pošta žijí ve vašem soukromém účtu a stěhování je peklo. Spolkové účty od prvního dne; půl hodiny, která rozhoduje o všem dalším.
+- **Vyrábět odvozeniny místo oprav zdroje.** Klasika: termín se změní, někdo v rychlosti opraví plakát v Canvě, ale kalendář nechá být — a další rutina si z kalendáře vezme staré datum. Zlaté pravidlo systému: měň zdroj (kalendář, evidenci, šablonu), odvozeniny se přegenerují. Kdo opravuje odvozeninu, rozbíjí systém.
+- **Nechat AI rozeslat poštu bez kontroly.** Čtyřicet konceptů se kontroluje deset minut; jeden e-mail se špatným oslovením nebo upomínka zaplativšímu se ve vsi vysvětluje měsíc. Koncepty ano, automatické odeslání ne — u spolku, kde je každý adresát soused, bez výjimky.
+- **Nasypat osobní údaje členů do free chatu.** Seznam členů s adresami a roky narození patří do databáze s řízenými přístupy a do placeného účtu se smluvní ochranou dat — a do konverzace jen výřez, který úloha potřebuje. „Vždyť je to jen tabulka" je věta, po které následují průšvihy.
+- **Publikovat fotky dětí „než to vychladne".** Album z dětského dne se kontroluje proti evidenci souhlasů před publikací, vždycky. Zdržení o den nikoho nebolí; fotka dítěte bez souhlasu může ublížit doopravdy — a důvěra rodičů se neobnovuje omluvou na Facebooku.
+- **Postavit systém a nenapsat příručku.** Nejtišší chyba: všechno funguje, dokud funguje autor. Bez příručky jste jen vyměnili sedm šanonů pana Kratochvíla za sedm účtů, kterým rozumíte jen vy — modernější závislost je pořád závislost. Příručka a test nástupce nanečisto jsou součást stavby, ne nadstavba.
+
+## Nejlepší nástroje
+
+- **Claude s konektory (claude.ai)** — dirigent celého systému: čte kalendář a evidenci, vytváří návrhy v Canvě, připravuje koncepty v Gmailu, drží rutiny. Placený účet se smluvní ochranou dat je pro práci s údaji členů podmínka.
+- **Canva + konektor** — domov vizuální identity: mini brand, předlohy plakátů, diplomy, odvozeniny pro sítě. Editovatelné návrhy ve vašem účtu, ne obrázky z černé skříňky; pro registrované spolky stojí za žádost program pro neziskovky.
+- **Google Kalendář + konektor** — jediný zdroj pravdy o termínech: akce, povinnosti ze stanov, připomínky lhůt. Veřejná verze kalendáře akcí se dá sdílet členům i vyvěsit na web obce.
+- **Gmail (spolkový účet) + konektor** — hromadná pošta jako koncepty s osobním oslovením; odesílá vždy člověk. Štítky drží pořádek v agendě (příspěvky, okrsek, akce).
+- **Supabase** — členská evidence s rolemi a Row Level Security: členové, funkce, příspěvky, souhlasy. EU region, RLS od první migrace; podrobná stavba v [detailním návodu na CRM](/tipy/interni-crm-supabase-detailni-navod).
+- **Telefon s foťákem** — podceňovaný klíčový nástroj inventury: šanony, stanovy i zápisy z výboru vstupují do systému jako fotky, které AI přečte. Žádný skener spolek nepotřebuje.
+
+## Co vám to přinese
+
+- **Čas:** příprava akce z víkendu na večer — plakát, pozvánka, e-maily i rozhlas z jednoho zdroje. Změna termínu z krizového odpoledne na hodinu s checklistem. Upomínky příspěvků z celoročního „chytání" na jedno kolo konceptů. Střízlivě: dva až tři večery měsíčně zpátky, v sezóně víc.
+- **Peníze:** spolek většinou provozuje celý systém na bezplatných tarifech plus jeden placený AI účet; grafika, kterou by jinak někdo platil nebo prosil kamaráda, vzniká z vlastních šablon. A líp vybrané příspěvky nejsou zanedbatelná položka — evidence, ve které je dluh vidět, se prostě vybírá lépe než sešit.
+- **Klid:** termíny hlídá kalendář, lhůty ze stanov jsou události, souhlasy jsou evidence, a nic nestojí na tom, že si vzpomenete. A ten specifický spolkový klid navíc: vědomí, že až budete chtít skončit, můžete — protože je co předat.
+- **Kvalita:** sbor navenek vypadá jako jeden sbor — plakáty, diplomy i e-maily z jedné identity. Pošta oslovuje jménem a chodí jen tomu, koho se týká. A dětský kroužek zachází s údaji dětí líp než leckterá instituce, což rodiče vidí, i když to neumí pojmenovat.
+
+## Pro tip
+
+Až systém poběží, přidejte mu tep: plánovanou úlohu, která jednou týdně projde kalendář sboru a pošle vám krátký přehled — co je do měsíce, kterým akcím běží termín „vyrobit plakát" z popisu události, které lhůty ze stanov se blíží a jestli v evidenci nepřibyli členové bez zapsaného souhlasu nebo platby. Deset řádků v pondělí ráno, žádná akce bez rozběhu. To je poslední stupeň vývoje, kterým jednatel projde: od člověka, který všechno dělá, přes člověka, který všechno zadává, k člověku, kterému systém sám říká, co je potřeba zadat — a rutina se z hlídání stala hlídačem.
+
+A závěrečné pravidlo celého návodu, příbuzné s „vlastněte zdrojáky" z firemního dílu, ale spolkové: **stavějte pro nástupce.** Každé rozhodnutí — kam co uložit, jak co pojmenovat, jestli rutinu zapsat — dělejte s otázkou, jestli tomu za pět let porozumí unavený dobrovolník, který vás nahradí. Vyjde z toho systém, který je mimochodem lepší i pro vás. Pan Kratochvíl sloužil sboru třicet let a předal sedm šanonů; vy můžete sloužit klidně jen pět a předat fungující spolek. To druhé je víc.
