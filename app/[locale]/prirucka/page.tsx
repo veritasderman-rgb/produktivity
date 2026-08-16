@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BookArt, QuizArt } from "@/components/HandbookArt";
 import { getAllChapters, getSectionLabels, type Chapter } from "@/lib/chapters";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 
@@ -108,22 +109,30 @@ export default async function HandbookPage({
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-14">
-      <p className="eyebrow mb-2 text-faint">{t.eyebrow}</p>
-      <h1 className="display text-[clamp(30px,5vw,48px)]">{t.heading}</h1>
-      <p className="mt-4 max-w-[58ch] text-[16px] leading-relaxed text-muted">{t.lead}</p>
-      <p className="mt-4 text-[15px]">
-        <Link href={p("/start")} className="draw-link font-bold">
-          {t.startLink}
-        </Link>
-      </p>
+      <div className="flex items-start justify-between gap-10">
+        <div>
+          <p className="eyebrow mb-2 text-faint">{t.eyebrow}</p>
+          <h1 className="display text-[clamp(30px,5vw,48px)]">{t.heading}</h1>
+          <p className="mt-4 max-w-[58ch] text-[16px] leading-relaxed text-muted">{t.lead}</p>
+          <p className="mt-4 text-[15px]">
+            <Link href={p("/start")} className="draw-link font-bold">
+              {t.startLink}
+            </Link>
+          </p>
+        </div>
+        <BookArt className="mt-2 shrink-0 max-md:hidden" />
+      </div>
       <Link
         href={p("/nastroje/kviz")}
-        className="mt-8 block border border-hairline-strong bg-surface p-6 no-underline transition-colors hover:border-accent"
+        className="mt-8 flex items-center justify-between gap-8 border border-hairline-strong bg-surface p-6 no-underline transition-colors hover:border-accent"
       >
-        <p className="eyebrow mb-2 text-accent">{t.quizEyebrow}</p>
-        <p className="display text-[clamp(19px,2.6vw,24px)]">{t.quizTitle}</p>
-        <p className="mt-2 max-w-[56ch] text-[15px] leading-relaxed text-muted">{t.quizDesc}</p>
-        <p className="mt-4 text-[14px] font-bold">{t.quizCta}</p>
+        <div>
+          <p className="eyebrow mb-2 text-accent">{t.quizEyebrow}</p>
+          <p className="display text-[clamp(19px,2.6vw,24px)]">{t.quizTitle}</p>
+          <p className="mt-2 max-w-[56ch] text-[15px] leading-relaxed text-muted">{t.quizDesc}</p>
+          <p className="mt-4 text-[14px] font-bold">{t.quizCta}</p>
+        </div>
+        <QuizArt className="shrink-0 max-sm:hidden" />
       </Link>
       {chapters.length > 0 ? (
         <div className="mt-10 grid gap-5 md:grid-cols-2">
