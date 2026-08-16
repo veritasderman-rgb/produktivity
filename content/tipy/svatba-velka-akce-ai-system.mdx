@@ -1,0 +1,856 @@
+---
+title: "Svatba jako systém: jeden zdroj pravdy pro hosty, web, jmenovky i zasedací pořádek"
+excerpt: "Kompletní návod s 24 prompty: seznam hostů, harmonogram, dodavatelé a rozpočet ve strukturovaných datech, ze kterých se odvozují pozvánky, svatební web, jmenovky, menu i cedule. Změna času obřadu je jedna oprava, ne pět — a RSVP žije v databázi místo ve třech vláknech na Messengeru."
+category: "ai"
+platform: "vsude"
+audience: ["rodic", "manazer"]
+keys: []
+saves: "~desítky hodin přepisování a dohadování"
+date: "2026-08-16"
+updated: "2026-08-16"
+tldr: >-
+  Svatba pro osmdesát lidí je projekt jako každý jiný: rozpočet, dodavatelé, neposunutelný termín a tým lidí s emocemi. Návod z ní staví systém s jedním zdrojem pravdy — hosté, harmonogram, dodavatelé a rozpočet žijí ve strukturovaných datech a pozvánky, svatební web, jmenovky, menu i cedule se z nich odvozují. Změna času obřadu je pak jedna oprava ve zdroji plus checklist výstupů, ne pět oprav a dvě zapomenutá místa. AI dělá mechaniku (slučování excelů, varianty zasedacího pořádku, návrhy upomínek), rozhoduje a odesílá vždy člověk. Skoro všechno běží ve free tierech; seznam hostů s dietami a dětmi jsou osobní údaje a patří jen do placeného účtu se smluvní ochranou dat, nikdy na veřejný web.
+faq:
+  - q: >-
+      Proč nestačí sdílený excel a skupina na Messengeru?
+    a: >-
+      Chvíli stačí — přesně do první změny. Sdílený excel nemá pravidla (každý dopisuje po svém), Messenger nemá paměť (informace se zasype dalšími zprávami) a hlavně: z žádného z nich se nedají odvozovat výstupy. Jeden zdroj pravdy se strukturou znamená, že jmenovky, počty pro catering i web vznikají z týchž dat — a změna se propíše všude.
+  - q: >-
+      Musíme umět programovat, abychom si svatbu postavili jako systém?
+    a: >-
+      Ne. Jádro systému je složka s tabulkami a textovými soubory plus Canva na grafiku a Google Forms na RSVP — nic z toho nevyžaduje ani řádek kódu. Svatební web je volitelný krok navíc: s Claude Code a návodem na stavbu webu ho zvládne i netechnický pár, ale systém funguje i bez něj.
+  - q: >-
+      Smíme nahrát seznam hostů do AI?
+    a: >-
+      Jen do placeného účtu se smluvní ochranou dat — seznam hostů s dietami, dětmi a kontakty jsou osobní údaje a do anonymního free chatu nepatří. A bez ohledu na účet: na veřejný web ani do veřejně sdílené tabulky jména hostů nedávejte a po svatbě smažte data, která už nepotřebujete.
+  - q: >-
+      Může AI rozeslat upomínky hostům sama?
+    a: >-
+      Ne. AI upomínky připraví — rozdělené podle vztahu, v tónu vaší svatby — ale každou zprávu čte a odesílá člověk. Automat, který napíše babičce, pozná se to a rodina si to pamatuje déle než svatbu. Stejné pravidlo platí pro platby a pro cokoli, co jde k dodavatelům.
+  - q: >-
+      Co když se měsíc před svatbou změní čas obřadu?
+    a: >-
+      Přesně pro tenhle moment systém stavíte: čas opravíte na jednom místě v harmonogramu, necháte si vypsat dopadovou analýzu (co se posouvá, které výstupy jsou zastaralé, kterých dodavatelů se to týká) a přegenerujete web, cedule a verzi pro koordinátorku. Jedna oprava a checklist — místo pěti oprav a dvou zapomenutých míst.
+  - q: >-
+      Funguje to i na jinou akci než svatbu?
+    a: >-
+      Ano, systém je přenosný: kulatiny, zlatá svatba, sraz po letech i větší dětská oslava mají stejnou kostru — hosté, harmonogram, dodavatelé, rozpočet, jeden zdroj pravdy a odvozené výstupy. Jen se zmenší měřítko: místo webu stačí sdílená stránka s mapou a časem, místo zasedacího pořádku zasedací zvyk.
+---
+
+Svatba pro osmdesát lidí je nejspíš největší akce, jakou kdy budete organizovat: víc dodavatelů než malá konference, tvrdší termín než cokoli v práci a tým složený z lidí, které nejde vyměnit, protože jsou to příbuzní. Přesto se většina svateb řídí nástroji, které by neobstály ani u školního plesu — pět excelů, tři vlákna na Messengeru, sešit s telefonními čísly a to nejdůležitější „v hlavě“. Výsledek zná každý, kdo tím prošel: stejná informace existuje ve čtyřech verzích, změna času obřadu se opravuje na pěti místech a tři týdny před svatbou nikdo neumí říct, kolik lidí vlastně přijde.
+
+Tenhle návod ukazuje jinou cestu: **postavit svatbu jako systém s jedním zdrojem pravdy, ze kterého se všechno ostatní odvozuje.** Seznam hostů, harmonogram dne, dodavatelé a rozpočet žijí ve strukturovaných datech — a pozvánky, svatební web, jmenovky, menu na stoly i informační cedule jsou jen výstupy, které se z těch dat generují. Když se něco změní, opraví se to jednou, ve zdroji, a výstupy se přegenerují. AI v tom dělá přesně to, co umí nejlíp: mechaniku. Sloučí tři verze seznamu hostů a vypíše konflikty, navrhne varianty zasedacího pořádku podle vašich omezení, připraví poptávkové e-maily a srovná nabídky do tabulky. Rozhodnutí — koho pozvat, kdo bude sedět s kým, komu poslat upomínku — zůstávají vaše.
+
+Číst můžete po fázích; každá stojí samostatně a má prompty k okopírování, stačí doplnit hranaté závorky. Nad celým návodem platí dvě pravidla. První: **AI navrhuje, člověk schvaluje** — žádná zpráva hostům ani platba dodavateli neodejde bez toho, aby ji člověk přečetl a odeslal sám. Druhé: **seznam hostů s dietami a dětmi jsou osobní údaje.** Patří jen do placeného účtu se smluvní ochranou dat, nikdy na veřejný web a nikdy do tabulky sdílené „komukoli s odkazem“ — soukromí má v návodu vlastní kapitolu a bere se vážně od první fáze.
+
+## Vzorová situace
+
+Klára a Martin se budou brát za osm měsíců: osmdesát hostů, obřad venku na louce, hostina ve stodole kousek za městem. Oba pracují na plný úvazek, na svatbu mají večery a část víkendů. Organizaci „vzala pod sebe“ Klářina sestra Veronika — což v praxi znamená pět excelů: hosté, rozpočet, dodavatelé, ubytování a výslužky, z nichž každý vypadá jinak, dva se navzájem popírají a jeden existuje ve třech kopiích s příponami „final“, „final2“ a „final-OPRAVDU“. Martinova máma mezitím vede vlastní seznam hostů, ve kterém je o šest lidí víc, protože „přece nemůžeme nepozvat Šebestovy“. A RSVP chodí, kudy koho napadne: SMS Kláře, hlasovka Martinovi, zpráva Veronice do vlákna, ve kterém se zrovna řešila kapela, a jedno „my dorazíme, viď“ na rodinné oslavě, které si nikdo nezapsal.
+
+Pak se poprvé změnil čas obřadu — oddávající mohl až ve dvě. Opravilo se to ve dvou excelech z pěti, cateringu to Veronika napsala, floristce už ne, a hosté z Moravy, kteří si koupili jízdenky na dopoledne, se to dozvěděli náhodou. Každá další změna spustila vlnu otázek ve třech vláknech najednou, protože neexistovalo místo, na které by šlo ukázat a říct: tady je vždycky aktuální verze.
+
+Systémová verze téže svatby vypadá jinak. Na disku je jedna složka: v ní jediný seznam hostů (sloučený ze všech verzí, konflikty vyřešené u nedělního oběda, ne v datech), harmonogram jako textový soubor, tabulka dodavatelů s termíny záloh a rozpočet. Svatební web čte harmonogram a FAQ, RSVP padá do databáze místo do SMS, jmenovky a menu se generují ze seznamu hostů přes jednu šablonu v Canvě. Když se podruhé pohnul čas obřadu, byla to jedna oprava v harmonogramu, jeden checklist výstupů k přegenerování a jedna hromadně připravená (a ručně odeslaná) zpráva hostům. Veronika přestala být přepisovačkou tabulek a stala se koordinátorkou; máma má právo navrhovat změny — ale na jednom místě, ne tichým dopisováním do vlastní verze. Zbytek návodu je postup, jak se od první verze dostat k té druhé.
+
+## Svatba je projekt jako každý jiný
+
+Kdyby akci téhle velikosti pořádala firma, dostal by ji na starost projektový manažer s rozpočtem, harmonogramem a rizikovým plánem. Svatba má všechno z toho: rozpočet s desítkami položek a platbami rozloženými do měsíců, osm až dvanáct dodavatelů s vlastními smlouvami, zálohami a termíny, deadline, který nejde posunout ani o den, a osmdesát „stakeholderů“, z nichž každý má názor, dietu nebo obojí. A navíc jednu ztěžující podmínku, kterou firemní projekty nemívají: nikdo z týmu to nikdy předtím nedělal, všichni to dělají po večerech vedle práce a polovina týmu jsou příbuzní, se kterými se po projektu neloučíte na LinkedIn, ale u štědrovečerního stolu.
+
+Právě proto se vyplatí ukrást si z projektového řízení to, co funguje — a vynechat obřadnost okolo. Tenhle web má podobný postup rozepsaný pro firmu v návodu na [značku jako systém](/tipy/firma-brand-voice-brozura-web-crm): tam se z podkladů staví jeden zdroj pravdy o značce a z něj brožura, web a CRM. Mentální postup je tady úplně stejný, jen přeložený do domácího kontextu: **modelová situace → inventura → jeden zdroj pravdy → odvozené výstupy → editovatelnost → soukromí.** Místo brand manuálu vizuální identita svatby, místo firemního webu svatební web, místo CRM databáze hostů s RSVP. Kdo četl firemní návod, pozná strukturu na první pohled; kdo ne, nic mu chybět nebude.
+
+### Co si z projektového řízení vzít — a co nechat v kanceláři
+
+Vzít si stojí za to pět věcí. **Jeden zdroj pravdy:** každá informace má právě jedno místo, kde platí, a všechno ostatní se na něj odkazuje nebo se z něj generuje. **Milníky pozpátky od termínu:** ne seznam přání, ale řetěz „nejpozději do“, který začíná u svatby a končí u dneška. **Explicitní role:** kdo rozhoduje (vy dva), kdo koordinuje (jeden pověřený člověk), kdo navrhuje (všichni ostatní) — nevyřčené role jsou zdroj poloviny rodinných třenic. **Plány B sepsané předem:** déšť, výpadek dodavatele a nemoc klíčového člověka se neřeší v den svatby, ale v klidu tři měsíce před ní. A **zápisy rozhodnutí:** jedna poznámka „vybrali jsme stodolu, protože je krytá varianta obřadu zadarmo; kapelu strýce jsme odmítli kvůli repertoáru“ ušetří za tři měsíce znovuotevření debaty, kterou už jste jednou uzavřeli.
+
+A co naopak nechat být: firemní nástroje. Svatba nepotřebuje Jiru, Ganttův diagram ani tabuli se sprinty — zavádění projektového softwaru na rodinnou akci je prokrastinace s čistým svědomím. Stačí složka se soubory, tabulky, chat s AI a disciplína v jedné jediné věci: změny se dělají ve zdroji, ne ve výstupech.
+
+### Inventura: zmapovat chaos dřív, než ho začnete uklízet
+
+První krok není zakládat nový systém, ale poctivě sepsat ten stávající. U svatby, kterou už pár měsíců „nějak“ plánujete, existuje překvapivě mnoho míst, kde žijí informace — a inventura je jediný způsob, jak žádné nezapomenout při stěhování.
+
+```text
+Plánujeme svatbu pro [80] hostů, termín [datum], obřad [venku na louce],
+hostina [ve stodole]. Organizaci zatím děláme takhle: [vypište po pravdě
+všechno, co existuje — excel hostů u sestry, druhý seznam u maminky,
+rozpočet v sešitě, vlákno s kapelou na Messengeru, nabídky cateringu
+v e-mailu, ubytování v poznámkách v telefonu].
+
+Udělej inventuru:
+1. Vypiš všechna místa, kde teď žijí informace, a u každého: co obsahuje,
+   kdo ho spravuje a s čím se překrývá.
+2. Označ informace, které existují ve víc verzích, a u každé napiš, čím
+   je duplicita nebezpečná (dva seznamy hostů = dva různé počty pro
+   catering a dvě různé představy o rozpočtu).
+3. Navrhni, co se má stát jediným zdrojem pravdy pro čtyři oblasti:
+   hosté, harmonogram, dodavatelé, rozpočet — a co může klidně zůstat,
+   kde je (staré nabídky, inspirace).
+4. Seřaď stěhování podle naléhavosti: co hoří, protože se blíží termín,
+   a co počká.
+Nic nezakládej, zatím jen mapujeme.
+```
+
+Vrátí mapu vašeho chaosu a plán stěhování. Dvě věci pohlídejte: buďte v zadání nemilosrdně upřímní (systém postavený nad polovinou reality se rozpadne na té druhé polovině) a bod 3 berte jako návrh k diskusi — o tom, kde bude žít seznam hostů, rozhodujete vy dva, ne model.
+
+### Milníky pozpátku od termínu
+
+Svatby se nehroutí na tom, že něco trvalo dlouho, ale na tom, že se na něco přišlo pozdě: pozvánky se tisknou, až když je hotová grafika, grafika čeká na definitivní čas obřadu a čas obřadu na potvrzení oddávajícího. Plán pozpátku tyhle řetězy ukáže dřív, než se zauzlují.
+
+```text
+Svatba je [datum], dnes je [datum]. Oba pracujeme; reálně máme na
+plánování [4] hodiny týdně, víc jen o některých víkendech. Co už je
+hotové: [zamluvené místo / potvrzený oddávající / nic].
+
+Sestav plán milníků pozpátku od termínu svatby:
+- u každého milníku datum „nejpozději do“, co konkrétně má být hotové
+  a proč právě tehdy (vazba na jiné kroky: tisk pozvánek potřebuje
+  definitivní čas a místo, catering finální počty, ohlášky svůj termín)
+- zvlášť označ body, které nejde posunout: rezervace místa a klíčových
+  dodavatelů, zákonné náležitosti obřadu, termín tisku
+- ke každému měsíci maximálně 3 hlavní úkoly — víc se do našich hodin
+  nevejde; když to nevychází, řekni to rovnou, ať ubereme jinde
+- poslední dva týdny nech jen na potvrzování a drobnosti, žádné velké
+  úkoly ani rozhodnutí
+Výstup jako tabulka: měsíc, milník, úkoly, na co navazuje.
+```
+
+Vrátí kostru osmi měsíců, kterou si přenesete do kalendáře. Zkontrolujte hlavně vazby: model občas navrhne tisknout pozvánky dřív, než je potvrzený čas obřadu, nebo nechá rozeslání pozvánek a RSVP deadline příliš blízko sobě — mezi nimi potřebují hosté aspoň šest až osm týdnů, s malými dětmi a cestou přes republiku spíš víc.
+
+### Role: kdo rozhoduje, kdo koordinuje, kdo navrhuje
+
+Systém rodinné role neruší — dělá je viditelné, a tím krotí. Funguje trojice: **pár rozhoduje** (všechna finální ano/ne jsou vaše dvě), **jeden člověk koordinuje** (u Kláry a Martina Veronika: má právo zapisovat do zdrojových dat a v den svatby je to její telefon, který zvoní), **všichni ostatní navrhují** (máma může navrhnout Šebestovy — ale jako návrh v jednom systému, ne jako tichý zápis do vlastní verze seznamu).
+
+Zavádí se to snáz, než to zní, pokud to neuchopíte jako odebírání práce. Věta „tvůj excel je špatně, teď to bude jinak“ prohrává; věta „slili jsme všechny verze do jedné, tady je odkaz, je tam všechno tvoje — a změny prosím rovnou tam, ať ti je nikdo nepřepisuje“ vyhrává. Společná data paradoxně dávají mámě víc vlivu, ne míň: její návrhy už se neztrácejí v přeposílaných přílohách, mají jedno místo, kam přijít, a buď projdou, nebo dostanou odpověď. A Veronika přestane trávit večery přepisováním a začne dělat to, co koordinátorka dělat má: hlídat termíny a v den svatby držet plán.
+
+## Osm měsíců v praxi: kdy dělat kterou fázi
+
+Fáze návodu jsou stavební bloky, ne kalendář — v reálném plánování se prolínají. Aby bylo vidět, jak se skládají do času, tady je typický průběh pro svatbu za osm měsíců; váš plán z promptu na milníky bude přesnější, tohle je mapa pro orientaci:
+
+- **Měsíc 1–2 (osm až sedm měsíců před):** inventura, konsolidace seznamu hostů a milníky (kapitola výše), založení složky a zdrojových souborů (fáze 1). Zároveň už běží poptávky z fáze 6 na velkou čtyřku — místo, catering, fotograf, hudba — protože ta se rezervuje nejdřív a její termíny jsou tvrdší než vaše. A jedno rozhodnutí, které nesnese odklad: počet hostů. Odvíjí se od něj místo, rozpočet i všechno ostatní.
+- **Měsíc 3 (kolem šesti měsíců):** jakmile je jisté datum a místo, přichází vizuální identita a šablony (fáze 2), svatební web v základní verzi (fáze 3) a pozvánky do tisku. RSVP formulář musí být živý dřív, než odejde první pozvánka — pozvánka s QR kódem na web, který ještě neexistuje, je promarněná první dojem.
+- **Měsíc 4–5:** RSVP provoz s týdenním přehledem (fáze 4), zbývající dodavatelé, smlouvy a zálohy (fáze 6), průběžný sběr zasedacích omezení (fáze 5 — omezení se sbírají dlouho, skládá se z nich krátce). Degustace a finální menu.
+- **Měsíc 6–7:** RSVP deadline a upomínky, první varianty zasedacího pořádku, master harmonogram dne (fáze 7) a krizové plány. Finální počty a diety míří k cateringu — z živých dat, ne z paměti.
+- **Poslední měsíc:** jmenovky, menu a cedule z šablon (fáze 2 se teď vrací a vyplácí), finální zasedací pořádek, odvozené verze harmonogramu; tisk pro koordinátorku až večer předem. Poslední dva týdny žádná nová rozhodnutí — jen potvrzování, ladění a spánek.
+
+Za tím rozvrhem jsou dvě logiky. Vnější termíny (rezervace, tisk, počty pro catering) jsou dané a neposunutelné — od nich se plánuje pozpátku. Vnitřní pořadí je závislostní: web potřebuje identitu, jmenovky potřebují RSVP a zasedací pořádek, zasedací pořádek potřebuje omezení. Když fáze prohodíte, nic nevybuchne — jen budete něco dělat dvakrát. Systém je tolerantní k odchylkám; netoleruje jen jedno: druhý zdroj pravdy.
+
+## Fáze 1: jeden zdroj pravdy
+
+Jádro celého systému je nudné a právě proto funguje: jedna složka se čtyřmi zdrojovými soubory. Žádná speciální aplikace, žádné předplatné — čistý text a tabulky, které přežijí cokoli a otevřou se kdekoli. Nad složkou pak pracujete s AI: na claude.ai si založte Projekt „Svatba“ (trvalý kontext — nemusíte v každé konverzaci vysvětlovat, kdo jste a kdy se berete), a pokud používáte desktopovou aplikaci, Claude Cowork umí pracovat rovnou nad složkou se soubory: čte je, upravuje a zakládá nové, zatímco vy schvalujete.
+
+Struktura složky, která se osvědčila:
+
+```
+svatba/
+  hoste.csv          jediný seznam hostů (fáze 1 a 4)
+  harmonogram.md     harmonogram dne + milníky příprav (fáze 7)
+  dodavatele.csv     kontakty, stavy, zálohy, termíny (fáze 6)
+  rozpocet.csv       položky, odhady, domluvené částky, platby (fáze 8)
+  vizual/            identita.md, barvy, písma, motiv (fáze 2)
+  dokumenty/         smlouvy a nabídky v PDF
+  web/               kód svatebního webu (fáze 3)
+  poznamky.md        rozhodnutí a proč padla
+```
+
+Jednotlivé soubory si projdeme v dalších fázích; teď to nejdůležitější — jak z pěti excelů a dvou soukromých seznamů udělat jeden.
+
+### Seznam hostů: sloupce, které se vyplatí
+
+Seznam hostů není seznam jmen — je to nejcennější databáze celé svatby, protože se z ní odvozuje skoro všechno: počty pro catering, diety pro kuchyni, jmenovky, zasedací pořádek, ubytování, doprava i poděkování. Sloupce, které se vyplatí mít od začátku:
+
+- **Identita a vztah:** jméno, příjmení, strana (nevěsta/ženich), vztah k vám (sestra, kolega z práce, kamarád ze studií), skupina (rodina / přátelé / práce). Vztahy budou zlato při zasedacím pořádku.
+- **Kdo s kým:** doprovod (jméno, pokud ho znáte), děti a jejich věk. Dítě není poznámka pod čarou — je to porce jídla, židlička a argument pro dětský koutek.
+- **Jídlo:** dieta a alergie (vegetarián, bezlepková, ořechy…). Tenhle sloupec jednou pojede do kuchyně, pište ho tak, aby mu cizí člověk rozuměl.
+- **Logistika:** zájem o ubytování, jak přijedou (auto / vlak / svoz), odkud.
+- **Stav:** rsvp_stav (pozván → potvrdil / odmítl / nereaguje), datum poslední změny, kontakt (telefon, e-mail).
+- **Provozní:** číslo stolu (doplní se ve fázi 5), poznámka.
+
+Že je to hodně sloupců? Je — a každý z nich je otázka, kterou byste jinak řešili panicky na poslední chvíli. Vyplňovat je budete postupně; důležité je, aby existovaly a aby existovaly jednou.
+
+### Konsolidace: z pěti verzí jedna
+
+Teď ten nejnáročnější krok, který AI zvládne za minuty místo vašeho večera — sloučení všech existujících verzí. Připomínka ze začátku: seznamy hostů jsou osobní údaje, nahrávejte je do placeného účtu se smluvní ochranou dat.
+
+```text
+Nahrávám [tři] soubory se seznamy svatebních hostů, které vznikly
+nezávisle na sobě: [hoste-verca.xlsx, seznam-mama.xlsx a text
+zkopírovaný z vlákna na Messengeru].
+
+Slouč je do jedné tabulky se sloupci: jméno, příjmení, strana
+(nevěsta/ženich), vztah k nám, skupina, doprovod, děti a věk, dieta,
+kontakt, poznámka, zdroj (ze kterého seznamu řádek pochází).
+
+Pravidla:
+- stejný člověk zapsaný různě („Jana Nováková“ vs. „Janča Novák.“)
+  patří do jednoho řádku — spoj je, ale označ, že sis spojení domyslel,
+  zkontrolujeme každé
+- kde se verze rozcházejí (jednou s doprovodem, jednou bez; jiná dieta),
+  NEROZHODUJ: vypiš obě hodnoty do sloupce KONFLIKT, vybereme sami
+- koho má jen jedna verze, označ „jen u [zdroj]“ — to jsou hosté,
+  o kterých se doma ještě nemluvilo
+- nikoho nevyřazuj, ani když vypadá jako zjevná duplicita
+Na konec napiš kontrolu: počet řádků v každém zdroji, počet po
+sloučení a počet konfliktů — čísla musí sedět.
+```
+
+Vrátí jednu tabulku a — což je cennější — seznam konfliktů. Ten není chyba systému, to je jeho první výhra: každý konflikt je rozhovor, který se stejně musel stát, jen by jinak proběhl v horší chvíli. „Jen u mámy: Šebestovi, Krátký s přítelkyní“ není řádek v tabulce, je to téma na nedělní oběd — a po něm se rozhodnutí zapíše a přestane strašit. Kontrolní počty na konci promptu nejsou paranoia: slučování je přesně ta operace, při které se tiše ztrácejí řádky, a součet je jediný způsob, jak to poznat hned.
+
+### Harmonogram, dodavatelé, rozpočet: zbytek zdrojů
+
+**harmonogram.md** má dvě části: milníky příprav (z promptu výše) a harmonogram svatebního dne, který vznikne ve fázi 7. Formát prostý: čas od–do, co se děje, kdo je odpovědný, kde, co k tomu musí být nachystané. **dodavatele.csv** vede každého dodavatele jako řádek: název, služba, kontaktní osoba, telefon, stav (osloven → nabídka → potvrzen → smlouva), termín a stav zálohy, termín doplatku, do kdy potřebuje finální počty, poznámka. **rozpocet.csv** drží položky: kategorie, položka, odhad, domluvená částka, zaplaceno (záloha), zbývá, termín platby. K rozpočtu se vrátíme ve fázi 8 — teď stačí, že existuje jako soubor, ne jako pocit.
+
+Jakmile zdroje stojí, nechte je zkontrolovat proti sobě i proti realitě:
+
+```text
+Tady jsou naše čtyři zdrojové soubory: hoste.csv, harmonogram.md,
+dodavatele.csv a rozpocet.csv [nahrát]. Svatba je [datum] pro [80]
+hostů, obřad [venku na louce], hostina [ve stodole], [další kontext].
+
+Projdi je jako zkušená svatební koordinátorka a vypiš, co chybí:
+1. V datech: hosté bez kontaktu, dodavatelé bez termínu zálohy, položky
+   rozpočtu bez odhadu, kroky v harmonogramu bez odpovědné osoby.
+2. V realitě: co svatby našeho typu obvykle potřebují a v souborech to
+   vůbec není — ozvučení obřadu venku? plán B na déšť? odvoz hostů
+   v noci? květiny? koordinace dětí? Formuluj jako otázky na nás,
+   nerozhoduj.
+3. Rozpory mezi soubory: dodavatel v rozpočtu, který není
+   v dodavatele.csv; čas v harmonogramu, který nesedí s dobou služby
+   z nabídky; počet hostů jiný než počet řádků v hoste.csv.
+Výstup ve třech seznamech, seřazený podle závažnosti. Nic neoprav
+sám — opravy uděláme my, ať víme, co se změnilo.
+```
+
+Vrátí seznam děr, který je v téhle fázi k nezaplacení: rozpory mezi soubory jsou přesně ty chyby, které v excelovém chaosu nikdo nevidí, protože nikdo nikdy nečte všechny soubory najednou. Bod 2 berte jako checklist otázek, ne jako nákupní seznam — model neví, že ozvučení půjčuje kamarád; odpovězte a odpovědi zapište do poznámek.
+
+### Pravidlo jedné opravy
+
+Teď to hlavní, kvůli čemu celá fáze existuje. Ve starém světě znamenala změna času obřadu z 12:00 na 14:00 pět oprav: dva excely, web (kdyby existoval), zprávu cateringu, zprávu floristce — a dvě z pěti se zapomněly. V novém světě je to **jedna oprava v harmonogram.md plus checklist odvozených výstupů.** A protože i checklist je mechanika, dělá ho AI:
+
+```text
+V harmonogram.md jsme právě změnili čas obřadu z [12:00] na [14:00].
+Projdi všechny soubory ve složce svatba/ a vrať tři seznamy:
+1. Co se změnou souvisí a musí se posunout taky: příjezd hostů, focení
+   (pozor na světlo — západ slunce je v [čas]), svoz z hotelu, začátek
+   hostiny, večerní program. Navrhni nové časy, schválím je.
+2. Které odvozené výstupy jsou teď zastaralé a musí se přegenerovat:
+   svatební web, tištěný harmonogram pro koordinátorku, cedule,
+   FAQ, e-mail hostům. U každého napiš, jestli už byl vytištěný.
+3. Kterých dodavatelů se změna týká a co přesně potřebují vědět —
+  připrav krátké zprávy, odešleme je sami.
+Nic neměň bez schválení, vrať seznamy.
+```
+
+Vrátí dopadovou analýzu, jakou by ve firmě dělal projekťák půl dne. Všimněte si posledního řádku: zprávy dodavatelům model připraví, ale odesíláte je vy — jednak kvůli pravidlu „člověk schvaluje“, jednak proto, že vztah s dodavatelem je váš, ne modelu. A ještě jedna disciplína, bez které pravidlo jedné opravy nefunguje: **výstupy se nikdy neopravují ručně.** Když si všimnete chyby na webu nebo na ceduli, opravíte ji ve zdroji a výstup přegenerujete — jinak se zdroj a výstupy rozjedou a jste zpátky v pěti excelech, jen s hezčí grafikou.
+
+## Fáze 2: vizuální identita — jedna šablona, pět výstupů
+
+Svatba má vlastní malý brand: barvy, písmo, motiv, tón. Ne kvůli marketingu, ale kvůli konzistenci a rychlosti — když pozvánka, jmenovky, menu, cedule a web vycházejí z jedné vizuální identity, vypadá svatba „udělaná“, i když ji dělal pár po večerech. A hlavně: pátý výstup vzniká za deset minut, protože se neřeší znovu barvy a písma, jen obsah. Je to stejný princip jako brand manuál ve firemním návodu, jen o dva řády menší.
+
+### Identita jako soubor, ne jako pocit
+
+Založte `vizual/identita.md` — jednu stránku textu, která popisuje: dvě hlavní a dvě doplňkové barvy (s hex kódy, ať jsou všude stejné), dvojici písem (nadpisové a textové), motiv, který se opakuje (větvička eukalyptu, monogram, linka), a tón textů — jak zvete, jestli hostům tykáte, jak moc je svatba formální. Ten poslední bod se podceňuje: pozvánka psaná obřadní češtinou a web, který hostům tyká, jsou dvě různé svatby.
+
+Pokud zatím žádnou představu nemáte, nechte si navrhnout směry — to je klasická úloha „AI vyrobí varianty, člověk vybere“:
+
+```text
+Navrhni tři vizuální směry pro naši svatbu. Vstupy: [místo — stodola /
+zámecká zahrada / louka], [roční období a měsíc], [co máme rádi —
+barvy, květiny, styl oblečení, hudba], [čeho se bojíme — přezdobenost,
+kýč, chladná elegance].
+
+U každého směru:
+- paleta: 2 hlavní a 2 doplňkové barvy s hex kódy a popisem, kde se
+  která použije (tisk, web, květiny, textil)
+- dvojice písem (nadpisové + textové) dostupná zdarma i pro tisk,
+  s poznámkou, jak zvládá českou diakritiku — ozdobná písma na ní
+  často pohoří
+- motiv nebo ornament, který jde opakovat na všech materiálech
+  a zvládne ho i jednobarevný tisk
+- ukázková věta pozvánky, aby bylo slyšet, jak směr zní v textu
+Směry ať se opravdu liší náladou, ne tři odstíny téhož.
+```
+
+Vrátí tři srovnatelné karty. Dvě kontroly, než jednu vyberete: diakritiku písem si ověřte na vlastní oči — napište si v obou písmech „Klára a Martin Vás zvou, říjen, něžně“ a dívejte se na háčky; ozdobné fonty česká písmena často nemají nebo je mají ošklivá. A barvy si vytiskněte: hex kód, který na monitoru vypadá jako šalvějová, umí z domácí tiskárny vylézt jako khaki.
+
+### Canva: šablony, které přežijí změny
+
+Na výrobu materiálů se nabízí Canva — zdarma použitelný editor se šablonami a hlavně s funkcí hromadného vyplnění, která bude klíčová u jmenovek. V době psaní má Canva i oficiální konektor pro AI asistenty (MCP): po propojení účtů jde z Claude vytvářet návrhy, plnit šablony obsahem, upravovat je a exportovat. Konektor se vyvíjí, takže aktuální možnosti si ověřte v nápovědě Canvy — ale postup na něm nestojí: všechno níž jde udělat i tak, že šablony postavíte v Canvě ručně a AI použijete na obsah, texty a datové podklady.
+
+Podstatné je jedno rozhodnutí: **nevyrábíte pět grafik, vyrábíte jednu sadu šablon.** Pozvánka, jmenovka, menu, cedule a kartička s wi-fi jsou jedna rodina — stejná paleta, stejná písma, stejný motiv, jiný formát.
+
+```text
+Přes konektor Canva založ sadu svatebních šablon podle přiloženého
+souboru vizual/identita.md (barvy, písma, motiv):
+1. pozvánka [A6 na výšku] — jména, datum, místo, odkaz na web s QR kódem
+2. jmenovka na stůl [9 x 5 cm složená] — jméno hosta, motiv
+3. menu na stoly [DL] — chody, označení alergenů, nápoje
+4. informační cedule [A3] — velký nadpis + text (poslouží pro
+   harmonogram dne, „tudy na obřad“, zasedací plán u vchodu)
+5. kartička [A7] — wi-fi, hashtag na fotky, odkaz na album
+Všude stejná paleta, stejná dvojice písem, motiv z identita.md.
+Texty nech zástupné — obsah doplníme z dat. Pošli odkazy na návrhy,
+detaily doladím v editoru sám.
+```
+
+Vrátí sadu propojených návrhů ve vašem účtu Canvy — tedy editovatelné zdroje, ne hotové obrázky. Doladění (posunout linku, zvětšit jméno) udělejte klidně ručně v editoru; smysl konektoru není nahradit myš, ale ušetřit zakládání a přenášení identity. A záměrně žádný z výstupů negenerujte jako hotový obrázek v chatu: vygenerovaná grafika je slepá ulička, do které za měsíc nejde vstoupit a opravit datum — přesně o tom je [firemní návod](/tipy/firma-brand-voice-brozura-web-crm) a platí to pro svatbu stejně.
+
+### Jmenovky a menu hromadně z dat
+
+Teď se poprvé potká grafika s daty. Osmdesát jmenovek se nevyrábí osmdesátkrát — vyrábí se jedna šablona a jeden datový podklad:
+
+```text
+Z hoste.csv vezmi všechny hosty se stavem rsvp_stav = potvrdil
+a vygeneruj podklad pro hromadné jmenovky:
+- sloupce: jméno na jmenovku (křestní + příjmení; u dětí jen křestní),
+  číslo stolu, dieta zkratkou (V = vegetariánská, BL = bezlepková,
+  A = alergie dle poznámky), aby ji obsluha poznala z rubu jmenovky
+- zkontroluj délky: jména delší než [18] znaků označ a navrhni zalomení
+  nebo zmenšení písma, ať to nerozhoduje tiskárna
+- doprovody, u kterých zatím neznáme jméno, vypiš zvlášť — jmenovka
+  „+1“ na stole vypadat nebude, jména musíme zjistit
+- seřaď podle čísla stolu a v rámci stolu podle zasedacího pořádku
+Ulož jako jmenovky.csv — nalije se do šablony v Canvě hromadným
+vyplněním.
+```
+
+Vrátí podklad připravený pro funkci hromadného vyplnění v Canvě (šablona + tabulka = všechny jmenovky najednou) a dva užitečné vedlejší produkty: seznam neznámých doprovodů (zjistit jména je úkol na příští telefonáty, ne na ráno svatby) a upozornění na dlouhá jména, která by jinak přetekla z kartičky. Stejným mechanismem vzniknou menu (podklad je potvrzené menu od cateringu plus označení alergenů) i cedule (texty z harmonogram.md). Po exportu do PDF si před tiskem projděte diakritiku a náhodně tři jmenovky proti hoste.csv — hromadné vyplnění je spolehlivé, ale kontrola tří kusů stojí minutu a tisk celé sady ne.
+
+A ještě jednou pravidlo jedné opravy v praxi: když se za měsíc změní menu nebo se přesune host ke stolu 4, neopravujete grafiku — opravíte zdroj (menu, zasedací pořádek), přegenerujete podklad a znovu vyplníte šablonu. Grafické kolečko se nekoná.
+
+### Tisk pozvánek: kontrola, po které se netiskne dvakrát
+
+Pozvánka je jediný výstup celého systému, který po rozeslání nejde přegenerovat — proto si zaslouží tvrdší kontrolu než všechno ostatní. Checklist před odesláním do tiskárny: datum, čas a místo zkontrolovat proti harmonogram.md, ne z hlavy (z hlavy kontrolujete to, co jste si zapamatovali špatně). QR kód vytisknout nanečisto na domácí tiskárně a načíst třemi různými telefony z papíru — na obrazovce funguje každý QR kód, na matném papíru v příšeří už ne, a příliš malý nebo příliš tmavý kód je nejčastější tisková vada pozvánek. Projít diakritiku ve zvoleném písmu a zkontrolovat jména — jestli mají být na pozvánce rodiče a v jakém pořadí je přesně ten typ detailu, který rozpoutá rodinnou bouři. Požadavky tiskárny vložit do chatu doslova z jejich e-mailu a nechat zkontrolovat exportované PDF proti nim (formát, spadávka, barevný režim). A nakonec jeden zkušební výtisk přečíst nahlas — čtení nahlas najde chyby, které oči po dvacáté přeskočí.
+
+A pravidlo, co na pozvánku patří: jen to stálé. Jména, datum, místo, QR kód na web, případně heslo k webu. Všechno proměnlivé — přesné časy, mapy, dress code, ubytování — patří na web, který se na rozdíl od pozvánky umí opravit. Pozvánka rozeslaná se špatným časem se nedá stáhnout z oběhu; web s opraveným časem je jedna regenerace.
+
+## Fáze 3: svatební web — rozcestník pro hosty
+
+Svatební web není povinnost a není to vizitka páru — je to **služba hostům**, která vám ušetří desítky opakovaných odpovědí. Osmdesát lidí znamená osmdesátkrát „jak se tam dostanu“, „co si mám vzít na sebe“, „můžu vzít děti“ a „do kdy mám dát vědět“. Web na to odpovídá jednou a pořád aktuálně — protože čte data ze složky svatba/, takže když se změní čas, změní se i web, a hosté mají místo, kterému se dá věřit.
+
+### Co na web patří — a co na něj nepatří
+
+Patří: jména a datum (křestní stačí), mapa s adresou, popisem cesty a parkováním, harmonogram dne ve verzi pro hosty (kdy kde být, kdy se jí, kdy jede odvoz — ne logistika dodavatelů), FAQ, RSVP formulář a kontakt na koordinátorku pro den svatby. Nepatří: **seznam hostů, jmenný zasedací pořádek, adresy, cokoli osobního o třetích lidech.** Web je poloveřejný — odkaz z pozvánky se přepošle, zaindexuje, objeví. Pravidlo je jednoduché: na webu nesmí být nic, co by vám bylo nepříjemné vidět vytištěné na nástěnce v supermarketu. Ochranu navíc dává jednoduché heslo uvedené na pozvánce, nebo aspoň neveřejná adresa mimo vyhledávače; heslo je slabé (znají ho všichni hosté), ale proti náhodným kolemjdoucím a robotům stačí.
+
+### Stavba: jeden večer s Claude Code
+
+Celý postup stavby a nasazení webu — od prvního promptu přes git jako záchrannou síť po vlastní adresu — je na tomhle webu rozepsaný v návodu [web s Claude Code a Vercelem](/tipy/web-claude-code-vercel) a nebudeme ho opisovat; svatební web je jeho nejjednodušší možný případ, jedna stránka bez administrace. Hosting na Vercelu v základním tarifu pro takový web bohatě stačí. Tady je zadání, které z návodu udělá svatební web:
+
+```text
+Postav jednostránkový svatební web. Zdroje ve složce svatba/:
+harmonogram.md (použij jen sekci „verze pro hosty“), vizual/identita.md
+(barvy, písma, tón textů), faq.md.
+
+Struktura stránky:
+- úvod: [Klára a Martin], [datum], místo [obec] — žádná příjmení
+- jak se k nám dostanete: mapa, adresa, parkování [kde], svoz z hotelu
+  [časy], kontakt na koordinátorku [křestní jméno a telefon — číslo
+  doplním sám, do kódu nepatří natvrdo]
+- harmonogram dne pro hosty
+- FAQ z faq.md
+- RSVP formulář: jméno a příjmení, přijdu ano/ne, doprovod (jména),
+  děti a věk, dieta (výběr + volné pole), zájem o ubytování a svoz,
+  vzkaz — odpovědi se ukládají do [Google Sheets / Supabase],
+  ne do e-mailu
+Pravidla: žádná jména hostů ani rozsazení; texty v tónu z identita.md;
+web musí perfektně fungovat na telefonu — hosté ho otevřou z QR kódu
+na pozvánce; celé v češtině včetně chybových hlášek formuláře.
+```
+
+Vrátí funkční web, který si projdete a doladíte iteracemi („datum větší“, „mapu níž“, „formulář hlásí úspěch česky“). Tři kontroly před sdílením: otevřete web na telefonu (tam ho uvidí většina hostů), vyplňte formulář nanečisto a ověřte, že odpověď skutečně doputovala do tabulky, a zkuste odeslat formulář s prázdnými poli — hosté vyplňují formuláře všelijak a web nesmí spadnout na babiččině „ano ano přijdeme oba“. Odkaz na web pak patří na pozvánku jako QR kód — most mezi tištěným a živým světem: pozvánka se po vytištění už nezmění, web ano, proto pozvánka nese jen to stálé (jména, datum, místo, QR) a všechno proměnlivé žije na webu.
+
+### FAQ: odpovědi napřed
+
+FAQ je nejvděčnější stránka webu — každá otázka, kterou zodpovíte tam, je otázka, kterou vám nikdo nepoloží v šesti kopiích do tří kanálů.
+
+```text
+Napiš FAQ pro svatební web. Kontext: [obřad venku na louce, hostina ve
+stodole, děti vítány, dress code „letní formální“, dary raději
+příspěvek na svatební cestu, parkování u obecního úřadu 300 m, svoz
+do hotelu ve 23:00 a v 1:00, snídaně pro ubytované].
+
+Napiš 10 až 14 otázek, které hosté reálně kladou, a krátké odpovědi:
+co si vzít na sebe (zvlášť pro muže — sako ano/ne), co když bude
+pršet, můžu vzít děti / partnera, jak je to s dary, v kolik mám
+přijet, kde zaparkuju, jak se v noci dostanu pryč, do kdy a jak
+potvrdit účast, na koho se obrátit v den svatby, je kde přebalit dítě.
+Odpovědi konkrétní a v našem tónu podle identita.md, žádné
+vyhýbavé „dle vlastního uvážení“. Kde odpověď z kontextu neznáš,
+napiš OTÁZKA NA NÁS — nevymýšlej.
+```
+
+Vrátí hotový návrh FAQ se seznamem děr označených OTÁZKA NA NÁS — a ty díry jsou opět cennější než hotové odpovědi: jsou to provozní rozhodnutí, která jste ještě neudělali (je kde přebalit dítě?). Rozhodněte, doplňte do faq.md a přegenerujte web. FAQ pište jednou a odkazujte na něj: když se někdo zeptá v SMS, odpověď zní „je to na webu v otázkách — a kdyby tam něco chybělo, řekni, doplníme“. Tím se web stává tím, čím být má: místem, kam se chodí pro pravdu.
+
+### Web za provozu: tři režimy změn
+
+Web žije celé přípravy a mění se v něm trojí druh věcí, s trojí disciplínou. **Běžné aktualizace** — doplněná otázka do FAQ, upřesněné parkování — se dělají kdykoli: oprava ve zdroji, regenerace, hotovo, nikomu se nic nehlásí. **Významné změny** — posun času, změna místa — projdou stejným mechanismem, ale web sám nestačí: web není notifikační kanál a kdo ho zrovna neotevře, nic neví. Významná změna proto vždycky znamená web plus zprávu hostům (připravenou z dopadové analýzy ve fázi 1, odeslanou ručně). **Krizové zprávy v den svatby** mají vlastní pruh: jedna výrazná věta úplně nahoře na stránce, kterou mají všichni v telefonu — víc v kapitole o krizových scénářích.
+
+Jedno pravidlo nad tím vším: web nesmí být nikdy pozadu za realitou. Host, který jednou zjistí, že „na webu to bylo špatně“, se přestane na web spoléhat a začne se zase ptát do vláken — a jste tam, kde jste začali. Proto je web v tabulce výstupů na konci návodu veden jako výstup s průběžnou aktualizací: každá změna zdroje, která se ho týká, znamená regeneraci ještě ten večer.
+
+## Fáze 4: RSVP databáze místo tří vláken
+
+RSVP je místo, kde svatební chaos bolí nejvíc, protože na něm visí peníze a jídlo: catering chce finální počty a diety k pevnému datu, ubytování má kapacitu, zasedací pořádek nejde dělat z odhadů. A přitom se odpovědi tradičně sbírají nejhorším možným způsobem — každý host odpoví jiným kanálem, jiné osobě a jinak úplně. „My dorazíme“ od tety znamená dva, nebo pět s dětmi? Odpověděl bratranec vám, nebo mámě, nebo nikomu? Tři týdny před svatbou pak sedíte nad sedmi vlákny a rekonstruujete realitu jako detektivové.
+
+Řešení: **odpovědi tečou do jedné databáze, hosté je zadávají sami přes formulář a stavy se vedou u hostů, ne v hlavách.** Databáze zní vznešeně; v základní verzi je to tabulka Google Sheets napojená na formulář.
+
+### Varianta A: Google Forms a Sheets — bez kódu a zdarma
+
+Nejjednodušší cesta, která stačí většině svateb: formulář Google Forms (nebo formulář na webu z fáze 3, který zapisuje do stejné tabulky), odpovědi padají do Sheets, a tenhle sešit je RSVP část vašeho systému. Hosté bez formulářových ambicí (babička) zůstávají výjimkou po telefonu — jejich odpověď do tabulky zapíše koordinátorka, ne „někdo někam“.
+
+Formulář ale musí být dobře postavený, jinak jen přestěhuje chaos z SMS do tabulky:
+
+```text
+Navrhni RSVP formulář pro naši svatbu a napojení na seznam hostů.
+
+1. Pole formuláře: jméno a příjmení, přijdu ano/ne, jména osob
+   doprovodu, děti a jejich věk, dieta a alergie (výběr + volné pole),
+   zájem o ubytování, zájem o noční svoz, vzkaz. U každého pole napiš
+   přesné znění popisku tak, aby hosté odpovídali jednoznačně —
+   např. u doprovodu chceme jména, ne počet, kvůli jmenovkám.
+2. Co ve formuláři NEchtít: adresy, data narození, cokoli, co
+   k organizaci nepotřebujeme — čím míň osobních údajů sbíráme,
+   tím míň jich chráníme.
+3. Párování s hoste.csv: co dělat, když host vyplní přezdívku, když
+   potvrdí celou rodinu jedním záznamem, když vyplní formulář dvakrát
+   s různými odpověďmi. Navrhni pravidla, ať je řešíme pokaždé stejně.
+4. Stavy hosta v hoste.csv: pozván → potvrdil / odmítl / nereaguje
+   + datum poslední změny. Napiš, kdy který stav nastavujeme a kdo.
+```
+
+Vrátí strukturu formuláře i provozní pravidla — a právě ta pravidla jsou to podstatné. Dvojité vyplnění, přezdívky a rodinné hromadné odpovědi nastanou tak jako tak; rozdíl mezi chaosem a systémem není v tom, že se to neděje, ale v tom, že na to existuje dohodnutý postup (platí poslední odpověď; páruje se ručně jednou týdně; hromadnou odpověď rozepíše koordinátorka na jednotlivé hosty).
+
+### Varianta B: Supabase — pro páry, kde jeden umí trochu s kódem
+
+Pokud jste web stavěli s Claude Code a chcete o krok dál, formulář na webu může zapisovat do Supabase — spravované databáze s free tierem, který na svatbu bohatě stačí. Výhody proti tabulce: odpovědi jsou strukturované už při vzniku (žádné „ano ano přijdeme oba“ ve volném poli), data jsou oddělená od kódu webu a přístup k nim jde omezit. Dvě zásady, pokud touhle cestou jdete: projekt založte v EU regionu (jsou to osobní údaje hostů) a zabezpečení Row Level Security zapněte od začátku — anonymní návštěvník smí odpověď vložit, ale nikdy ne číst cizí. Číst odpovědi smíte jen vy přes administraci. Pro většinu párů je to ale zbytečná liga — tabulka stačí; tahle varianta je tu pro úplnost, ne jako doporučení.
+
+### Týdenní přehled: z odpovědí realita
+
+Databáze je k ničemu, když se do ní nikdo nedívá. Zaveďte nedělní rituál na deset minut — a jeho mechaniku nechte na AI:
+
+```text
+Tady je aktuální export RSVP odpovědí a náš hoste.csv [nahrát].
+Udělej týdenní přehled:
+- kolik hostů potvrdilo, odmítlo a nereaguje — v počtech OSOB včetně
+  doprovodů a dětí, ne v počtech řádků; zvlášť počet dětí podle věku
+  (kvůli porcím a hlídání)
+- co je nového od minulého týdne a co z toho plyne za úkol (další
+  bezlepková dieta → napsat cateringu; potvrzené ubytování → rezervace)
+- rozpory: potvrzený doprovod, který nebyl pozvaný; dieta jiná, než
+  máme v seznamu; host, který odpověděl dvakrát různě
+- hosté, kteří nereagují a do RSVP deadlinu [datum] zbývá méně než
+  [14] dní — seřaď je podle dopadu na plánování (rodina 5 osob
+  s ubytováním výš než jeden kolega)
+Žádné zprávy nikomu neposílej, jen přehled a seznam úkolů.
+```
+
+Vrátí přehled, který se čte za dvě minuty a řídí celý týden. Klíčový je přepočet na osoby — nejčastější RSVP chyba vůbec je počítat řádky tabulky a pak se divit, že cateringu chybí dvanáct porcí, protože doprovody a děti nikdo nesečetl. A druhá klíčová věc je seznam rozporů: každý z nich je telefonát nebo rozhodnutí, a je lepší je sbírat průběžně po dvou než na konci po dvaceti.
+
+### Upomínky nerozhodnutým — návrhy ano, automat ne
+
+Vždycky zůstane skupina hostů, která neodpověděla: ne ze zlé vůle, ale protože pozvánka zapadla. Upomínat je nepříjemné, a proto se to odkládá — ideální práce pro AI na přípravu a pro člověka na odeslání.
+
+```text
+Pro hosty ve stavu „nereaguje“ [vložit seznam s vztahy] připrav
+upomínky. Kontext: RSVP deadline je [datum], catering potřebuje finální
+počty [10 dní] před svatbou, formulář je na webu [adresa].
+
+- rozděl hosty do skupin podle vztahu: blízká rodina, přátelé,
+  kolegové, známí rodičů — a pro každou skupinu napiš jinou zprávu:
+  rodině vřele a osobně, kolegům krátce a věcně, všechny v našem tónu
+  podle identita.md
+- v každé zprávě: připomínka termínu, odkaz na formulář a věta, že
+  i „bohužel nepřijdeme“ je pro nás cenná odpověď — ať se nikdo
+  nestydí odmítnout
+- u hostů, kteří formuláře nevyplňují [babička, strýc Jarda], navrhni
+  místo zprávy, kdo z rodiny jim má zavolat a co přesně zjistit
+- žádné výčitky, žádné „už jsme se ptali“ — píšeme to poprvé, i když
+  není
+Zprávy odešleme sami, každou po přečtení a osobní úpravě.
+```
+
+Vrátí sadu zpráv rozdělených podle vztahu plus seznam telefonátů. Poslední řádek promptu je celý smysl téhle podsekce: **upomínky se neautomatizují.** Hromadná zpráva, kterou babička pozná jako hromadnou, napáchá v rodině víc škody, než kolik času ušetří — a jedna osobní věta navíc („těšíme se, že Jituška uvidí poníky“) stojí deset vteřin a změní vyznění celé zprávy. AI vám dá kostru a překoná ostych z prvního slova; vztah do zprávy doplňte sami.
+
+### Deadline, který drží
+
+RSVP deadline se nenastavuje od pocitu, ale pozpátku: catering chce finální počty a diety typicky deset dní až dva týdny před svatbou, vy chcete před tím týden na dohánění nerozhodnutých a týden na zasedací pořádek v klidu — takže deadline pro hosty leží zhruba čtyři až pět týdnů před svatbou. A osvědčený trik: na pozvánce a webu je jeden termín, ve vašem plánu interní termín o týden dřív. Rozdíl není lež hostům, je to polštář — protože část hostů odpoví po termínu vždycky, a s polštářem vás to nerozhodí.
+
+K pozdním odpovědím jedno pravidlo předem, ať se nerozhoduje pod tlakem: kdo se ozve po deadlinu, dostane odpověď podle toho, co ještě reálně jde — a rozhodujete to vy dva podle kapacity a nákladů, ne špatné svědomí v deset večer. I tohle rozhodnutí („po deadlinu bereme jen do kapacity stolů, bez nároku na výběr menu“) stojí za větu v poznamky.md; příbuzenstvo má dobrou paměť a jednotné pravidlo je jediná obrana proti „ale Novákovým jste to vzali“.
+
+## Fáze 5: zasedací pořádek — AI navrhuje varianty, pár rozhoduje
+
+Zasedací pořádek je kombinatorická úloha maskovaná jako rodinná diplomacie: osmdesát lidí, deset stolů, desítky vztahů a pár nášlapných min. Přesně ten typ problému, kde se lidský mozek zacyklí („když přesadím Petra, rozbije se stůl u okna…“) a stroj vesele generuje varianty. Dělba práce je tu čistá: **vy víte, kdo se s kým nesnáší — AI umí rychle skládat a přeskládávat.** Ani jedno bez druhého nefunguje.
+
+### Nejdřív omezení, pak skládání
+
+Chyba, kterou dělá skoro každý, je začít rozsazovat rovnou. Správné pořadí je opačné: nejdřív sepsat omezení — a teprve nad nimi skládat. Omezení jsou tří druhů: **tvrdá** (rozvedení rodiče nesmí sedět u jednoho stolu; děti sedí u svých rodičů; teta s berlemi potřebuje kraj a blízko východu), **měkká** (kamarádi ze studií by rádi spolu; bratranec je nejzábavnější vedle strýce) a **strukturní** (kapacity stolů, kdo sedí u hlavního stolu, kde je parket a reproduktory — stůl vedle beden není pro babičku).
+
+```text
+Pomoz nám sepsat omezení pro zasedací pořádek. Projdi hoste.csv
+(sloupce vztah a skupina) a ptej se po jedné otázce na to, co v datech
+není:
+- kdo s kým NESMÍ sedět u stolu (rozvedení rodiče? pohádaní
+  bratranci? bývalí partneři mezi hosty?)
+- kdo s kým MUSÍ: páry a rodiny pohromadě, děti u svých rodičů,
+  [babička] blízko východu a dál od hudby
+- kdo koho zná: u hostů bez vazeb (kolegové, známí rodičů) navrhni
+  podle dat, ke komu by mohli sednout — společná práce, podobný věk,
+  děti stejného věku — a ptej se, jestli to sedí
+Každé pravidlo zapiš do zasedaci-omezeni.md ve formátu: pravidlo,
+typ (tvrdé/měkké), důvod. Důvody formuluj neutrálně a stručně —
+soubor může někdy vidět i někdo z rodiny.
+```
+
+Vrátí strukturovaný soubor omezení — a poslední věta promptu není vtip: „Pavel nesmí s Janou, protože Pavel je nesnesitelný“ je věta, která nesmí existovat v žádném souboru; „oddělit — napjatý vztah“ splní stejný účel a nikoho nezraní, když se soubor omylem otevře na sdíleném počítači. Doptávací formát (po jedné otázce) je záměr: u citlivých vztahů si otázky zaslouží přemýšlení, ne odklikání.
+
+### Varianty: tři filozofie rozsazení
+
+```text
+Navrhni tři varianty zasedacího pořádku. Vstupy: hoste.csv (jen hosté
+se stavem potvrdil, počty včetně doprovodů a dětí),
+zasedaci-omezeni.md a rozložení sálu: [10 stolů po 8, hlavní stůl
+pro 6, parket vpravo, vchod a bar vzadu].
+
+Pravidla:
+- tvrdá omezení jsou nepřekročitelná; pokud nejdou splnit všechna
+  najednou, napiš to a vypiš, která se vylučují — nic neohýbej
+- měkkých splň co nejvíc; u každé varianty vypiš, která jsi obětoval
+  a proč
+- varianty ať se liší filozofií: 1) rodiny a skupiny pohromadě,
+  2) promíchat stranu nevěsty a ženicha, ať se rodiny poznají,
+  3) podle věku a zájmů (mladí k parketu, starší dál od hudby)
+- u každého stolu: jména, počet dětí, souhrn diet (poslouží obsluze)
+- u každé varianty 3 rizika („stůl 6 nemá společné téma“,
+  „u stolu 2 budou dvě dominantní osobnosti“)
+Vybereme sami, nejspíš zkombinujeme.
+```
+
+Vrátí tři úplné pořádky s vysvětlením kompromisů. Číst je budete jinak, než čekáte: hotové varianty jsou hlavně **nástroj na vyvolání reakce** — teprve nad konkrétním návrhem („Verča vedle tety Milady? To nemyslíš vážně“) si uvědomíte omezení, která jste zapomněli sepsat. Doplňte je do zasedaci-omezeni.md a nechte přegenerovat; dvě tři kola stačí. Rizika u variant berte vážně: model nezná vaši rodinu, ale „stůl složený ze samých lidí, kteří se neznají“ pozná z dat spolehlivě, a to je přesně stůl, který v deset večer osiří.
+
+Finální rozhodnutí je vaše a dělá se u kuchyňského stolu, ne v chatu — vytiskněte si vítěznou variantu, projděte stůl po stolu a ptejte se u každého: „Bude se tenhle stůl bavit?“ Model optimalizuje omezení; jestli to bude dobrá oslava, poznáte jen vy.
+
+### Hlavní stůl a děti: dvě zóny mimo algoritmus
+
+Dvě části rozsazení se neřeší optimalizací, ale rozhodnutím — a do promptu vstupují jako hotová fakta. **Hlavní stůl** je věc protokolu a vašich přání: klasika s rodiči a svědky, komorní varianta jen pro vás dva, nebo neformální stůl s nejbližšími kamarády — každá je legitimní, ale musí padnout předem, protože určuje, kolik míst zbývá pro algoritmus, a protože se jí týkají nejcitlivější vztahy (rozvedení rodiče u jednoho hlavního stolu jsou přesně to tvrdé omezení, kvůli kterému se zasedaci-omezeni.md píše). **Děti** mají vlastní logiku: malé děti patří k rodičům (a židlička je plnohodnotné místo v kapacitě stolu — na to se při počítání zapomíná), starší děti bývají šťastnější pohromadě u dětského stolu s vlastním programem. Dětský stůl ale znamená dvě podmínky, které patří do omezení: musí být viditelný z míst rodičů a někdo dospělý má službu. Model tyhle konvence zná a navrhne je sám — ale jsou to rozhodnutí kulturní a rodinná, takže je udělejte vy a modelu je dejte jako vstup, ne jako otázku.
+
+### Když se něco změní — a ono se změní
+
+Týden před svatbou se odhlásí rodina a přihlásí doprovod. Ve světě papírového plánku to znamená gumovat celý večer; ve světě zdrojových dat je to prompt:
+
+```text
+Změna v hoste.csv: [teta Alena s rodinou (4 osoby) se odhlásila,
+kolega Tomáš potvrdil doprovod navíc]. Uprav vybraný zasedací pořádek
+s CO NEJMENŠÍM počtem přesunů:
+- všechna tvrdá omezení musí dál platit
+- vypiš každý přesun zvlášť s důvodem — schválím je po jednom
+- pokud po odhlášce zůstane stůl poloprázdný, navrhni sloučení stolů
+  a co s uvolněným stolem (dary? dezerty?)
+- po schválení přegeneruj jmenovky.csv (jména a čísla stolů) a označ,
+  které jmenovky už byly vytištěné a musí se přetisknout
+```
+
+Vrátí minimální sadu přesunů místo nového pořádku — to je důležité, protože každý přesun týden před svatbou je potenciální telefonát a uražená sestřenice; čím míň se hýbe, tím líp. A všimněte si posledního kroku: změna pořádku automaticky znamená přegenerovat jmenovky. To je systém z fáze 2 v akci — zasedací pořádek je zdroj, jmenovky jsou výstup, a výstupy se needitují ručně.
+
+## Fáze 6: dodavatelé — poptávky, srovnání nabídek, smlouvy a zálohy
+
+Svatba pro osmdesát lidí znamená obvykle osm až dvanáct dodavatelů: místo, catering, fotograf, kapela nebo DJ, floristka, vizážistka, dort, doprava, případně video a koordinace. Každý z nich je samostatné kolo poptávek, nabídek, rozhodnutí, smlouvy a plateb — a každé kolo má stejnou strukturu. Právě proto je to nejvděčnější místo pro AI podporu: mechanika se opakuje, jen se mění obor a jména.
+
+Než začnete: všechno o dodavatelích žije v dodavatele.csv. Každý oslovený dodavatel je řádek se stavem (osloven → nabídka přišla → schůzka → potvrzen → smlouva → záloha zaplacena), nabídky se ukládají do dokumenty/ a rozhodnutí („vybrali jsme catering U Lípy, protože jediný uměl bezlepkovou variantu celého menu“) do poznamky.md. Zní to byrokraticky přesně do chvíle, kdy potřebujete po třech měsících vědět, co vám kdo slíbil.
+
+### Poptávka, na kterou se dá odpovědět
+
+Dobrá poptávka je půl výběru: dodavatel, který dostane konkrétní zadání, pošle konkrétní nabídku — a konkrétní nabídky se dají srovnávat. Vágní „kolik stojí svatba pro 80 lidí?“ plodí vágní odpovědi a druhé kolo dotazů.
+
+```text
+Napiš poptávkový e-mail pro [fotografa]. Fakta: svatba [datum],
+[obec a místo], [80] hostů, obřad [ve 14:00] venku, hostina do
+[cca 02:00], přípravy od [9:00] v [místo]. Chceme [reportážní styl,
+minimum aranžovaných řad, důraz na děti a prarodiče].
+
+Struktura:
+- kdo jsme a co chystáme (2 věty, ať si nás umí představit)
+- co přesně poptáváme: počet hodin, očekávané výstupy (počet upravených
+  fotek, termín dodání, forma předání)
+- naše otázky: máte volný termín? co obsahuje základní balíček a co je
+  navíc? jak řešíte zálohu a storno? do kdy platí nabídka? můžete
+  poslat celou galerii z jedné svatby, ne jen výběr do portfolia?
+- do kdy prosíme o odpověď
+Tón: mile a věcně, žádné podbízení ani superlativy. Vrať text,
+zkontroluju a odešlu sám.
+```
+
+Vrátí e-mail, který stačí přečíst, upravit a poslat — a hlavně šablonu, kterou obměníte pro catering (přidejte diety a předběžné počty z RSVP), kapelu (repertoár, do kolika hrají, co potřebují za techniku) i floristku (barvy z identita.md — vizuální identita se právě začíná vyplácet). Otázka na celou galerii u fotografa není náhodná: portfolio je výběr nejlepších záběrů, celá svatba ukáže průměr — a průměr je to, co dostanete.
+
+Odpovědi průběžně zapisujte do dodavatele.csv (stav, termíny) a nabídky ukládejte do dokumenty/ — následující krok je potřebuje pohromadě.
+
+### Srovnání nabídek: tabulka místo pocitu
+
+Tři nabídky na catering jsou tři PDF psaná třemi jazyky: jedna počítá na osobu, druhá na menu, třetí má polovinu věcí „dle dohody“. Lidský mozek z toho udělá pocit; tabulka z toho udělá rozhodnutí.
+
+```text
+Nahrávám [tři] nabídky na [catering] z dokumenty/ [soubory]. Udělej
+srovnávací tabulku po řádcích, ať je vidět, co která nabídka neříká:
+- co je v ceně: počet chodů, nápoje, obsluha (kolik lidí na kolik
+  hostů), nádobí a sklo, doprava, korkovné, přesčasové hodiny,
+  dětské porce, úklid
+- co je za příplatek a co nabídka vůbec neřeší — prázdná buňka
+  v tabulce je otázka, ne výhoda
+- termíny: záloha, doplatek, do kdy finální počty a diety, storno
+  podmínky a v jakých krocích
+- ke každé nabídce seznam otázek, které mám položit, než se rozhodnu
+  — hlavně tam, kde je formulace mlhavá
+Neporovnávej jen celkové částky: přepočti nabídky na stejný rozsah
+(80 hostů, stejný počet chodů a hodin) a označ místa, kde se rozsahy
+liší natolik, že přímé srovnání kulhá.
+```
+
+Vrátí srovnávací tabulku a seznam doplňujících otázek — a ten je důležitější než tabulka. Nabídky se skoro nikdy neliší jen částkou; liší se tím, co v nich chybí, a chybějící řádek (přesčasové hodiny kapely, úklid po hostině) je budoucí nepříjemné překvapení. Pošlete otázky, doplňte odpovědi do tabulky a teprve pak rozhodujte. A rozhodnutí — které je vaše, ne modelu — zapište do poznamky.md i s důvodem; za půl roku, až někdo u piva nadhodí „a proč jste nevzali toho druhého?“, budete mít odpověď místo pokrčení ramen.
+
+### Smlouva: AI jako pomocník na doptání, ne právník
+
+U větších dodavatelů (místo, catering, hudba) přijde smlouva. AI tu má jasně ohraničenou roli: pomůže vám smlouvě porozumět a dobře se doptat — právní posouzení u vysokých částek patří právníkovi.
+
+```text
+Tady je návrh smlouvy od [dodavatele] [nahrát]. Nejsi můj právník
+a nechci právní posudek — chci smlouvě rozumět a dobře se doptat:
+1. Shrň lidsky: k čemu se zavazujeme my, k čemu oni, kdy se co platí
+   a co se stane, když jedna strana couvne.
+2. Vypiš místa, která jsou jednostranná nebo neobvyklá: storno jen
+   v náš neprospěch, právo měnit menu bez souhlasu, smluvní pokuty
+   jen na naší straně, přesčasy bez stropu.
+3. Co ve smlouvě chybí a na svatbě se to typicky řeší: zpoždění
+   obřadu, náhradník za nemocného fotografa, déšť u venkovní části,
+   škody způsobené hosty, do kdy jde měnit počty.
+4. Seznam otázek k vyjasnění e-mailem — ať máme odpovědi písemně,
+   ne po telefonu.
+```
+
+Vrátí srozumitelné shrnutí a seznam otázek. Dvě zásady k tomu: odpovědi na otázky chtějte e-mailem (ústní sliby se v květnu špatně dokazují) a u smluv s vysokými částkami — typicky místo a catering — nechte finální text projít právníkem; hodina konzultace je proti hodnotě smlouvy zanedbatelná. Model navíc občas označí za „neobvyklé“ ustanovení, které je v oboru standard — nálezy z bodu 2 berte jako témata k doptání, ne jako obvinění dodavatele.
+
+### Schůzky a degustace: přijít připravení, odejít se zápisem
+
+Finalisty poznáte osobně — a osobní schůzka bez přípravy sklouzne k příjemnému povídání, po kterém zůstane dobrý pocit a žádné odpovědi. Před schůzkou si proto z chatu vytáhněte přípravu: „připrav mi otázky na zítřejší schůzku s cateringem — vyjdi z otevřených bodů našeho srovnání nabídek a z toho, co jejich nabídka neříká“ vrátí seznam, se kterým schůzku řídíte vy. Po schůzce druhá půlka rituálu: cestou domů nadiktujte do telefonu, co zaznělo (hlasový režim je na to ideální — mluvíte, model se doptává na díry), nechte poznámky učesat a zapsat do poznamky.md, a sliby, které padly ústně, si nechte potvrdit krátkým e-mailem: „děkujeme za schůzku, jen si potvrzuji, že v ceně je i…“. Ne z nedůvěry — z prosté zkušenosti, že v květnu si obě strany pamatují únorovou schůzku jinak.
+
+U degustací totéž strukturovaně: hodnoťte na místě do tabulky (chod, dojem, poznámka, foto), ne po paměti — dvě degustace se po týdnu slijí v jednu a rozhodovat budete podle toho, která byla poslední, ne která byla lepší.
+
+### Zálohy: radar termínů
+
+Nejbanálnější a nejdražší selhání svatebního plánování: zapomenutá záloha a propadlá rezervace. Dodavatele.csv drží u každého dodavatele termín zálohy a doplatku — a jednou měsíčně (víc netřeba) se nad ním dělá kontrola; kompletní finanční revizi včetně kalendáře plateb má fáze 8. Kdo chce, přidá si pojistku: plánovaná úloha v Claude umí každé pondělí projít dodavatele.csv a připomenout, co je splatné v příštích třech týdnech — připomínka je automatická, platba nikdy; peníze odesílá vždy člověk.
+
+## Fáze 7: harmonogram dne — jedna pravda, tři pohledy
+
+Harmonogram svatebního dne je nejčtenější dokument celé svatby a zároveň dokument s nejrozdílnějším publikem: hosté potřebují vědět, kdy kde být a kdy se jí; koordinátorka potřebuje minutovku s telefony a záložními plány; catering potřebuje jen své okno a kontakt. Klasická chyba je vyrobit tři dokumenty — které se okamžitě rozjedou. Systémové řešení: **jeden master harmonogram jako zdroj pravdy a tři odvozené pohledy,** které se nikdy needitují samostatně.
+
+### Master: minutovka s rezervami
+
+```text
+Sestav podrobný harmonogram svatebního dne do harmonogram.md.
+Vstupy: obřad [14:00, louka u stodoly], hostina [stodola, 200 m
+pěšky], západ slunce [19:40 — kvůli focení], přípravy nevěsty
+[od 9:00, penzion], časy dodavatelů z dodavatele.csv, večerní program
+[první tanec, krájení dortu, house band do 02:00], svozy [23:00
+a 01:00].
+
+Pravidla:
+- od rána (přípravy, dovoz výzdoby) po odvoz posledních hostů
+  a co se děje s výzdobou a dary v noci
+- u každé položky: čas od–do, co se děje, kdo je odpovědný (jménem),
+  kde, a co k tomu musí být předem nachystané
+- rezervy: za obřad, gratulace, focení a přejezdy vlož [15–20] minut
+  polštáře — harmonogram bez rezerv je beletrie
+- označ KOTVY, které nejde posunout (příjezd cateringu, západ slunce,
+  svozy), a bloky, které se naopak smí protáhnout nebo vypustit
+- na konec vypiš 5 míst, kde se svatby nejčastěji zpožďují, a co
+  s tím v našem plánu uděláme předem
+```
+
+Vrátí minutovku, kterou projdete dvakrát: jednou sami (sedí vzdálenosti? stihne se babička přesunout za 10 minut?) a jednou s koordinátorkou, která ji ponese. Nejcennější jsou rezervy a kotvy: den se zpozdí — to není riziko, to je jistota — a rozdíl mezi pohodovou a vystresovanou svatbou je v tom, jestli má plán kde zpoždění vstřebat a jestli všichni vědí, co posunout nejde. Gratulace po obřadu jsou klasika: osmdesát lidí × půl minuty objímání je čtyřicet minut, ne „chvilka“.
+
+### Tři pohledy z jednoho zdroje
+
+```text
+Z master harmonogramu v harmonogram.md odvoď tři verze:
+1. PRO HOSTY (na web a ceduli): jen co potřebují — kdy kde být, obřad,
+   jídlo, dort, první tanec, svozy. Žádná logistika, žádní dodavatelé,
+   maximálně 10 řádků, časy zaokrouhlené.
+2. PRO KOORDINÁTORKU (tisk A4, vejde se do ruky): všechno včetně
+   telefonů na dodavatele, co kde má být nachystané, kotvy zvýrazněné,
+   a u rizikových bloků poznámka „když se zpozdí, tak…“.
+3. PRO DODAVATELE: každému jen jeho okno — příjezd, stavba, akce,
+   balení — plus kontakt na koordinátorku, ať v den svatby volají jí,
+   ne nám.
+Verze ulož jako sekce do harmonogram.md pod master. Když se master
+změní, přegenerují se všechny tři — nikdy je neupravuj samostatně.
+```
+
+Vrátí tři konzistentní pohledy na tentýž den. Verze pro hosty jde na web (fáze 3) a na ceduli u vchodu (šablona z fáze 2); verze pro koordinátorku se tiskne den předem večer — dřív ne, ať je opravdu aktuální; verze pro dodavatele se posílá s předstihem e-mailem, každému jen ta jeho. Že je to celé jeden soubor, není detail — je to důvod, proč po změně času obřadu z fáze 1 stačila jedna oprava.
+
+### Den D: papír a jeden telefon
+
+V den svatby systém opouští obrazovky. Koordinátorka má vytištěnou svou verzi (a jednu záložní v tašce), na cedulích visí verze pro hosty a platí poslední organizační pravidlo, které je potřeba říct nahlas všem dodavatelům i rodině: **v den svatby se volá koordinátorce, ne nevěstě a ne ženichovi.** Vy dva máte ten den jedinou položku harmonogramu, kterou nesmíte delegovat. Telefon nechte svědkovi.
+
+## Fáze 8: rozpočet a hlídání záloh
+
+O svatebních rozpočtech se dá napsat cokoli kromě konkrétních čísel — ta se liší krajem, sezónou a představami natolik, že by každá částka v tomhle návodu byla za rok k smíchu. Co se ale nemění, je struktura problému: svatební rozpočet má desítky položek, platby rozprostřené přes řadu měsíců, dvě fáze u většiny dodavatelů (záloha a doplatek) a jednu univerzální zákonitost — skutečnost bývá vyšší než první odhad, protože první odhad zapomíná na drobnosti, kterých je dvacet.
+
+Dobrá zpráva stranou nákladů na systém samotný: **skoro všechno z tohoto návodu běží zadarmo nebo ve free tierech.** Tabulky a formuláře Google jsou zdarma, Canva má použitelnou bezplatnou verzi, hosting webu na Vercelu v základním tarifu pro svatební web stačí, Supabase má free tier nad možnosti jedné svatby. Jediná položka, která za peníze stojí, je placený účet AI se smluvní ochranou dat — a ten byste kvůli osobním údajům hostů měli mít tak jako tak. Systém tedy nesoupeří s rozpočtem svatby; proti jediné odvrácené chybě (propadlá záloha, dvanáct porcí navíc, přetisk pozvánek) se zaplatí sám.
+
+### Struktura: odhad → domluveno → zaplaceno
+
+Rozpocet.csv z fáze 1 vede každou položku ve třech sloupcích: odhad (co si myslíte na začátku), domluveno (co je ve smlouvě nebo nabídce) a zaplaceno (kolik už odešlo, typicky záloha). K tomu termín platby a vazba na dodavatele. Tahle trojice je celé kouzlo: rozdíl mezi odhadem a domluvenou částkou ukazuje, jak se vyvíjí realita, a rozdíl mezi domluveným a zaplaceným je váš závazkový kalendář. A úplně nahoře jedna řádka navíc: rezerva — položka, která nemá dodavatele a přesto se utratí.
+
+### Měsíční finanční revize
+
+```text
+Tady je rozpocet.csv a dodavatele.csv [nahrát]. Udělej měsíční
+finanční revizi:
+- které položky nemají domluvenou částku, ačkoli se blíží jejich
+  milník (podle harmonogramu příprav) — to jsou odhady, které brzy
+  přestanou být odhady
+- kalendář plateb na příští [3] měsíce: co, komu, kdy, záloha nebo
+  doplatek, seřazeno podle data — ať víme, co který měsíc odteče
+- kde se domluvená částka liší od odhadu o víc než [15] procent,
+  a co to dělá s celkovým součtem a rezervou
+- křížová kontrola: dodavatel se smlouvou, který není v rozpočtu;
+  položka rozpočtu bez dodavatele; záloha po termínu
+- co v rozpočtech svateb obvykle bývá a u nás chybí: spropitné,
+  doprava, kytice a drobnosti na poslední chvíli, přesčas kapely,
+  snídaně den po
+Nic neplať a nikam nezapisuj — vrať přehled, platby a zápisy děláme my.
+```
+
+Vrátí měsíční obrázek, který se čte za pět minut a zabrání dvěma nejdražším scénářům: tichému rozjetí rozpočtu (deset položek po „jen o trochu víc“ je dohromady ošklivé číslo) a zapomenuté platbě. Poslední bod — co obvykle chybí — berte jako checklist, ne jako pokyn utrácet: polovinu drobností škrtnete, ale škrtnete je vědomě. A pravidlo z celého webu tu platí doslova: AI připravuje přehled, **platby zadává výhradně člověk.** Žádný agent s přístupem k bankovnictví, žádné automatické úhrady „ať to nezapomeneme“ — pro zapomínání je tu připomínka, ne automat.
+
+Po svatbě se rozpocet.csv naposledy otevře k závěrečnému vyúčtování — o tom v poslední fázi.
+
+## Soukromí: seznam hostů jsou osobní údaje
+
+Tahle kapitola je krátká a nesmlouvavá, protože svatební data jsou citlivější, než na první pohled vypadají. Hoste.csv obsahuje jména, kontakty, vztahy, informace o dětech včetně věku a diety — a dieta může vypovídat o zdraví (celiakie, cukrovka) nebo vyznání. Zasedaci-omezeni.md obsahuje rodinné vztahy, které nikdo nechce číst nahlas. RSVP databáze ví, kdo kde bude určitou sobotu večer — a tedy i to, čí byt bude prázdný. S tím vším se zachází podle několika pravidel; širší rámec má [kapitola o etické a bezpečné AI](/prirucka/ai-eticky-a-bezpecne).
+
+- **Do AI jen přes placený účet se smluvní ochranou dat.** Seznam hostů, diety, vztahová omezení — nic z toho nepatří do anonymního free chatu. Tohle je jediná placená položka celého systému a je nevyjednatelná.
+- **Na web nepatří jména hostů.** Svatební web je poloveřejný; jmenný seznam, zasedací pořádek ani fotky s popisky tam nemají co dělat. Web nese informace o akci, ne o lidech. Ochranu navíc dá jednoduché heslo z pozvánky.
+- **Sdílené tabulky jen konkrétním lidem.** RSVP tabulku sdílejte jmenovitě (vy dva a koordinátorka), nikdy „komukoli s odkazem“ — odkaz se přepošle rychleji, než myslíte. Přístup dalších členů rodiny řešte exportem toho, co potřebují, ne přístupem ke všemu.
+- **Sbírejte minimum.** Každý sloupec, který nepotřebujete k organizaci, je zbytečné riziko. Adresy potřebujete jen kvůli tištěným oznámením — a pak je smažte.
+- **Formulujte neutrálně.** Důvody v zasedacích omezeních a poznámky u hostů pište tak, aby nikoho nezranily, kdyby je četl. Soubory se sdílejí, počítače zůstávají otevřené.
+- **Po svatbě ukliďte.** RSVP data, kontakty a omezení smažte, jakmile doslouží (po rozeslání poděkování); co má zůstat na památku (harmonogram, vizuál, web), osobní údaje neobsahuje. Systém, který umí vzniknout, má umět i zaniknout.
+
+A jedna věc navíc, která s daty souvisí jen napůl: **fotky.** Na svatbě budou děti a budou tam lidé, kteří nechtějí viset na internetu. Sdílené album pro hosty chraňte aspoň heslem, na veřejné sítě dávejte jen fotky lidí, kteří s tím souhlasí, a u cizích dětí se ptejte rodičů — vždycky. Nic z toho AI nevyřeší; je to slušnost, kterou systém jen nesmí obcházet.
+
+## Krizové scénáře: plán B se píše v klidu
+
+Tři měsíce před svatbou je jediná správná chvíle na otázku „co když bude pršet?“ — v den svatby už na ni odpovídá panika. Projektové řízení tomu říká rizikový plán; svatebně řečeno: pro každý pravděpodobný průšvih existuje předem rozmyšlený postup, koordinátorka ho zná a věci, které plán potřebuje, jsou nachystané. Nejde o katastrofické myšlení — jde o to, že rozhodnutí udělaná v klidu jsou lepší než rozhodnutí dělaná v dešti.
+
+```text
+Připrav plány B pro naši svatbu: [obřad venku na louce, hostina ve
+stodole, 80 hostů, srpen, fotograf + kapela + catering externě].
+Pro každý scénář rozepiš: spouštěč (kdy plán aktivujeme a KDO o tom
+rozhoduje), co přesně se změní, koho a jak informujeme, co musí být
+připravené předem.
+
+Scénáře:
+1. Déšť v den obřadu — kde je krytá varianta, jak rychle se přestaví,
+   kdy padá rozhodnutí (ráno v 8? dvě hodiny před?) a kdo ho řekne
+   oddávajícímu a hostům
+2. Dodavatel nedorazí — zvlášť catering, fotograf, kapela: pro
+   každého náhradní řešení a do kdy se dá reálně aktivovat
+3. Onemocní klíčový člověk — svědek, koordinátorka, oddávající
+4. Výpadek proudu nebo zvuku ve stodole
+5. Vedro nad 30 stupňů — stín u obřadu, voda pro hosty, zmrzlina
+   pro děti, přesun focení
+Ke každému scénáři nakonec: obsah jedné kartičky A5 s postupem pro
+koordinátorku — rozhodovat bude ona, my budeme na obřadu.
+```
+
+Vrátí sadu plánů, ze kterých vyplyne i nákupní a organizační seznam (deštníky do zásoby, prodlužovačka a záložní repro, telefon na náhradního fotografa „jen kdyby“). Nejdůležitější řádek každého plánu je **spouštěč a rozhodovatel**: plán B, o kterém se v kritické chvíli hlasuje, není plán, ale další zdroj chaosu. „Když v 8 ráno predikce hlásí déšť po poledni, rozhoduje Veronika a obřad se stěhuje dovnitř“ — takhle vypadá věta, která v sobotu ráno ušetří hodinu dohadování.
+
+Kartičky vytiskněte přes šablonu z fáze 2 (i krizový plán může být hezký) a dejte koordinátorce s její verzí harmonogramu. A do každého plánu patří komunikační krok: kdo napíše hostům. Nejrychlejší kanál na změny v den svatby je přitom už postavený — web z fáze 3. Jedna věta „Obřad se kvůli počasí přesouvá do stodoly, vše ostatní beze změny“ nahoře na stránce, kterou mají všichni v telefonu z QR kódu, doplněná SMS těm, kdo web neotevřou; šablonu té SMS mějte předepsanou v poznámkách, ať se v sobotu jen doplní čas.
+
+## Po svatbě: poděkování, fotky, vyúčtování a úklid
+
+Svatbou systém nekončí — má ještě čtyři úkoly, a protože je postavený, zvládne je za zlomek času, který by stály z nuly. Je to zároveň fáze, na kterou po svatbě není energie, takže platí: čím víc je předpřipravené, tím spíš se stane.
+
+### Poděkování, které není hromadné
+
+Poděkování je zrcadlo upomínek z fáze 4: AI připraví strukturu a kostry, osobní rozměr dodáváte vy. Podklad už existuje — hoste.csv, do kterého po svatbě doplníte sloupec s dary a pomocí (kdo co daroval, kdo pomohl se stavbou výzdoby, kdo vozil babičky).
+
+```text
+Po svatbě chceme poděkovat. Tady je hoste.csv s doplněným sloupcem
+dar/pomoc [nahrát] — u koho je prázdný, doplníme, než se cokoli
+odešle.
+
+- rozděl hosty do skupin podle vztahu a typu daru či pomoci a pro
+  každou skupinu napiš vzor poděkování v našem tónu podle identita.md:
+  osobní a konkrétní („díky za pomoc se stěhováním lavic v dešti“),
+  žádné univerzální „děkujeme za účast a krásný dar“
+- v každém vzoru nech [hranatou závorku] na jednu osobní větu nebo
+  vzpomínku — bez ní se poděkování neodesílá
+- zvlášť připrav poděkování dodavatelům, kteří odvedli skvělou práci,
+  a ke každému návrh krátké veřejné recenze — pro malé dodavatele je
+  recenze cennější než spropitné
+- navrhni pořadí a tempo: komu do týdne, komu stačí do měsíce
+Odesíláme sami a průběžně; nic se neposílá hromadně.
+```
+
+Vrátí vzory po skupinách a plán odesílání. Trik s povinnou osobní větou v hranaté závorce se osvědčil: nutí vás u každého jména na vteřinu zastavit a vzpomenout si — a přesně ta vteřina dělá z formality vztah. Recenze dodavatelům pište, dokud si detaily pamatujete; jsou to jejich budoucí zakázky a vaše nejlevnější forma vděku.
+
+### Fotky: album pro hosty, ne pro internet
+
+Od fotografa přijde galerie, od hostů stovky záběrů z telefonů. Postup, který se osvědčil: jedno sdílené album chráněné heslem (odkaz a heslo pošlete hostům — klidně stránkou na svatebním webu, který tím dostává druhý život), výzva hostům, ať do něj nahrají své fotky, a výběr těch nejlepších do menšího „oficiálního“ alba. Pravidla z kapitoly o soukromí platí dál: veřejně sdílejte jen fotky lidí, kteří souhlasí, u dětí se ptejte rodičů. A jeden praktický tip: vybrat z osmi set fotek dvě stě do alba je práce na večer s dobrou hudbou — dělat ji ve dvou je hezčí než ji delegovat.
+
+### Administrativa po svatbě
+
+Poslední, na co po svatbě zbývá myslet, je úřední kolečko — a přesně proto se hodí mít ho jako checklist, ne jako mlhavý pocit povinnosti. Pokud si někdo z vás mění příjmení, čeká ho výměna dokladů a ohlášení změny na řadě míst: doklady, banka, zaměstnavatel, pojišťovny, smlouvy. Nechte si sestavit osobní checklist („měníme příjmení, pracujeme tam a tam, máme hypotéku a dvě auta — sestav seznam institucí, kde změnu hlásit, a v jakém pořadí, s tím, co k tomu budeme potřebovat“) a odškrtávejte ho stejným nedělním rituálem, jakým jste plánovali svatbu. Jedno upozornění, které platí pro každý AI checklist úředních věcí: lhůty a náležitosti se mění — konkrétní termíny a poplatky si ověřte na oficiálních stránkách úřadů, checklist od modelu je osnova, ne právní jistota.
+
+### Vyúčtování a archiv
+
+Poslední otevření rozpocet.csv: doplňte skutečné částky, srovnejte s odhady a napište si tři věty do poznamky.md — co stálo víc, než jste čekali, co míň a co byste příště dělali jinak. Ne kvůli účetnictví; kvůli tomu, že se vás na to budou ptát kamarádi, kteří se budou brát za rok, a vaše tři věty jim ušetří měsíc.
+
+Pak úklid, jak ho slibuje kapitola o soukromí: smazat RSVP data, kontakty a zasedací omezení — dosloužily. A archiv: harmonogram, vizuální identita, šablony v Canvě, web (klidně ho nechte žít jako vzpomínkovou stránku — bez osobních údajů) a poznámky s rozhodnutími. To není nostalgie, to je znovupoužitelný systém: příští velká rodinná akce — kulatiny, výročí, křtiny — začne kopií složky, přejmenováním a promptem „projdi strukturu svatby a uprav ji na oslavu šedesátin pro 40 hostů“. Druhá akce je s hotovým systémem otázka večerů, ne měsíců.
+
+## Co se odkud generuje: mapa výstupů
+
+Celý systém na jedné tabulce — každý výstup, jeho zdroj pravdy a moment, kdy se naposledy aktualizuje. Pravidlo čtení: když je výstup špatně, opravuje se zdroj a výstup se generuje znovu; výstup se needituje nikdy.
+
+| Výstup | Zdroj pravdy | Kdy naposledy aktualizovat |
+| --- | --- | --- |
+| Pozvánka (tisk + QR) | identita.md + harmonogram.md + adresa webu | Před tiskem — pak už jen web |
+| Svatební web | harmonogram.md (verze pro hosty), faq.md, identita.md | Průběžně; poslední revize týden před svatbou, pak jen krizové zprávy |
+| FAQ | faq.md | Kdykoli přijde otázka, která tam chybí |
+| Jmenovky | hoste.csv + zasedací pořádek + šablona Canva | Po RSVP deadlinu; přetisk jen u změněných |
+| Menu na stoly | potvrzené menu od cateringu + identita.md | Po finálním potvrzení menu a alergenů |
+| Informační cedule | harmonogram.md (verze pro hosty) + identita.md | Týden před svatbou |
+| Zasedací plán u vchodu | zasedací pořádek | Den před svatbou, po posledních změnách |
+| Harmonogram pro koordinátorku | harmonogram.md (master) | Večer před svatbou — tisk až nakonec |
+| Okna pro dodavatele | harmonogram.md (master) + dodavatele.csv | Po každé změně masteru; rozeslat s předstihem |
+| Počty a diety pro catering | hoste.csv (stav potvrdil) | K deadlinu cateringu — z živých dat, ne z paměti |
+| Upomínky a zprávy hostům | hoste.csv + identita.md | Pokaždé čerstvě ze živých dat; odesílá člověk |
+| Poděkování | hoste.csv + sloupec dar/pomoc | Po svatbě, před smazáním osobních dat |
+
+Tabulka je zároveň checklist pro každou větší změnu: projdete sloupec zdrojů, najdete ty zasažené a víte přesně, které výstupy přegenerovat. To je celá dopadová analýza z fáze 1, zhuštěná do jednoho pohledu.
+
+## Nejčastější chyby
+
+- **Druhý seznam „jen pro jistotu“.** Jakmile si kdokoli — máma, svědek, vy sami — založí vlastní kopii hostů nebo rozpočtu, systém umřel; za měsíc se verze rozjedou a nikdo neví, která platí. Jedna pravda, všichni ostatní čtou nebo navrhují.
+- **Editovat výstupy místo zdroje.** Opravit překlep rovnou na webu nebo v cedulích je rychlé a fatální: zdroj dál nese starou verzi a příští generování chybu vrátí. Oprava patří do zdroje, výstup se přegeneruje — bez výjimek, i když spěcháte.
+- **RSVP přes „napište nám zprávu“.** Odpovědi rozstříknuté po SMS, Messengeru a telefonátech znamenají, že finální počty pro catering vznikají rekonstrukcí. Formulář + tabulka + týdenní přehled; výjimky (babička) zapisuje jeden určený člověk.
+- **Zasedací pořádek na poslední chvíli a bez sepsaných omezení.** Skládat rozsazení večer před svatbou z hlavy je loterie s rodinnými vztahy. Omezení se sbírají týdny (fáze 5), varianty generuje stroj, rozhodujete v klidu.
+- **Automatizovat komunikaci s hosty.** Hromadná upomínka, robotické poděkování, automat na zprávy — rodina to pozná vždycky a pamatuje si to dlouho. AI píše návrhy; číst, přiosobnit a odeslat je práce člověka. Totéž platí pro platby.
+- **Seznam hostů ve free chatu nebo tabulka „komukoli s odkazem“.** Jména, diety, děti a vztahy jsou osobní údaje. Placený účet se smluvní ochranou dat, jmenovité sdílení, minimum sloupců — a po svatbě smazat, co dosloužilo.
+
+## Nejlepší nástroje
+
+- **Claude (claude.ai) s Projektem „Svatba“** — trvalý kontext celé akce: jednou popíšete svatbu, styl a role, a každá další konverzace na tom staví. Placený účet kvůli osobním údajům hostů.
+- **Claude Cowork** — práce nad složkou svatba/: konsolidace seznamů, dopadové analýzy změn, generování podkladů — model soubory čte i upravuje, vy schvalujete.
+- **Canva** — šablony pozvánek, jmenovek, menu a cedulí z jedné vizuální identity; hromadné vyplnění jmenovek z tabulky. V době psaní i s konektorem pro AI asistenty.
+- **Google Forms + Sheets** — RSVP formulář a databáze odpovědí zdarma a bez kódu; pro ambicióznější páry Supabase (EU region, zamčená od začátku).
+- **Claude Code + Vercel** — svatební web za večer podle [samostatného návodu](/tipy/web-claude-code-vercel): mapa, harmonogram, FAQ, RSVP formulář.
+- **Plánované úlohy v Claude** — týdenní RSVP přehled a hlídání termínů záloh: připomínky automaticky, rozhodnutí a platby vždy ručně.
+
+## Co vám to přinese
+
+- **Čas:** konsolidace seznamů, srovnání nabídek, varianty zasedacího pořádku a odvozené harmonogramy jsou večery práce, které se smrsknou na minuty — a hlavně zmizí nekonečné přepisování téhož na pěti místech a odpovídání na tutéž otázku v šesti vláknech.
+- **Peníze:** žádná propadlá záloha, žádné porce navíc kvůli špatným počtům, žádný přetisk pozvánek kvůli neaktuálnímu času. Systém běží ve free tierech — jediná placená položka je účet AI, který chrání data hostů.
+- **Klid:** poslední týden před svatbou se potvrzuje a ladí, místo aby se dohledávalo a hasilo. V den svatby existuje jeden papír s pravdou, jeden telefon, na který se volá, a plány B napsané v klidu.
+- **Kvalita:** konzistentní vizuál od pozvánky po ceduli, hosté informovaní z jednoho místa, zasedací pořádek promyšlený místo poskládaného v panice — a poděkování, která jsou osobní, protože na ně zbyla energie.
+
+## Pro tip
+
+Zaveďte si **nedělní svatební poradu s rutinou**: plánovaná úloha v Claude každou neděli večer projde RSVP export, dodavatele.csv a rozpocet.csv a připraví jednu zprávu — co se změnilo, co je po termínu, co příští týden rozhodnout, komu se ozvat. Vy dva si k tomu sednete na dvacet minut s čajem, projdete to a rozdělíte si tři úkoly. Svatba se přestane plánovat „pořád“ (tedy nikdy pořádně a všude po troškách) a začne se plánovat ve vyhrazeném čase nad aktuálními daty — což je mimochodem přesně ta dovednost, která se vám bude hodit i po svatbě; jak AI pomáhá s během rodiny dál, ukazuje návod na [AI v rodině](/tipy/ai-v-rodine-vychova-hry-pohadky).
+
+A závěrečné pravidlo celého návodu: **jedna oprava, ne pět.** Kdykoli během příprav zjistíte, že stejnou informaci opravujete podruhé na druhém místě, systém vám právě řekl, že má díru — jedno z těch dvou míst má být zdroj a druhé výstup. Opravte to hned a svatba zůstane tím, čím má být: oslavou, ne správou pěti excelů.
