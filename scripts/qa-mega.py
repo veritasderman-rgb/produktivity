@@ -10,7 +10,7 @@ import os
 
 FOREIGN = re.compile(r"[Ѐ-ӿ一-鿿぀-ヿ가-힯Ͱ-Ͽ]")
 
-def check(path, min_len=18000, max_len=60000):
+def check(path, min_len=18000, max_len=100000):
     problems = []
     with open(path, encoding="utf-8") as f:
         t = f.read()

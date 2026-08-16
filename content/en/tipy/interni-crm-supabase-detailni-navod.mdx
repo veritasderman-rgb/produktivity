@@ -1,0 +1,644 @@
+---
+title: "An internal CRM with Supabase: a detailed guide from data to deployment"
+excerpt: "A continuation of Marta the roastery owner’s story: a complete guide with 14 prompts showing how to turn contacts in your phone and orders in spreadsheets into a real CRM — a data model in SQL, roles and Row Level Security, a newsletter connected through Brevo, and deployment on Vercel."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "freelancer"]
+keys: []
+saves: "~months of custom development"
+date: "2026-08-16"
+updated: "2026-08-16"
+tldr: >-
+  A homemade internal CRM isn’t a software-company-sized project — it’s five
+  tables in PostgreSQL, a handful of security policies, and a simple web app
+  you can build with Claude Code over a few evenings. This guide walks
+  through the whole build: an inventory and cleanup of the data you already
+  have (contacts, business cards, spreadsheets of orders), a data model with
+  a SQL schema, admin/sales/viewer roles enforced directly in the database
+  through Row Level Security — never only in the UI — a newsletter connected
+  through Brevo with GDPR columns built into the schema, an honest cost
+  reckoning (free tiers cover the build, not ongoing operation), and
+  deployment on Vercel with mandatory sign-in. A human always approves every
+  write to live data.
+faq:
+  - q: >-
+      Why build your own CRM when off-the-shelf ones already exist?
+    a: >-
+      An off-the-shelf CRM charges per user per month, and you still end up
+      bending it to fit: half its features go unused, the one you actually
+      need is missing. A homemade CRM is five tables tailored exactly to how
+      you operate, your data sits in your own EU database, and extending it
+      is an evening with Claude Code, not a negotiation with a vendor. The
+      trade-off is an honest one: you become your own administrator —
+      nobody handles backups, access, and updates for you.
+  - q: >-
+      Do I need to know SQL to follow this guide?
+    a: >-
+      Being able to read it, yes; write it, no. Claude Code drafts the SQL
+      migrations and policies; your job is to have each one explained in
+      plain language and to approve it. This guide walks through every
+      column and every policy sentence by sentence for exactly that reason —
+      so you approve with real understanding. Don’t run anything you don’t
+      understand, at least at that level.
+  - q: >-
+      What is Row Level Security, and why isn’t hiding buttons in the app
+      enough?
+    a: >-
+      RLS is a set of rules written directly into the database: who’s
+      allowed to read, change, and delete which row. Checking only in the
+      UI is cosmetic — the anon key is public by its very nature, and
+      anyone holding it can call the database’s API directly, completely
+      outside your app. A hidden button won’t stop them; an RLS policy
+      will, because it’s evaluated in the database on every single query.
+  - q: >-
+      What’s the difference between the anon key and the service role key?
+    a: >-
+      The anon key is public — it sits in code that runs in the browser —
+      and everything that goes through it gets filtered by RLS policies
+      based on the signed-in user. The service role key bypasses those
+      policies entirely, which is why it belongs exclusively on the server
+      (as an environment variable on Vercel) and never in the browser or in
+      git. A key that has ever leaked is compromised — there’s nothing left
+      to do but rotate it.
+  - q: >-
+      Does the newsletter record belong in the CRM, or in Brevo?
+    a: >-
+      Both, but with a clear division of labor: the CRM is the truth about
+      customers — who gave consent, when and where, who unsubscribed.
+      Brevo is the delivery engine — lists, templates, open statistics.
+      The sync flows from the CRM to Brevo; only unsubscribes and
+      undeliverable addresses flow back the other way. The moment the
+      truth lives in two places, it stops being the truth.
+  - q: >-
+      What happens once we outgrow the free tiers?
+    a: >-
+      You’ll hit three walls: a Supabase free project auto-pauses after
+      roughly a week without activity and has no automatic backups, Brevo’s
+      free tier caps daily sends, and Vercel Hobby is for non-commercial
+      use only. For company operation, budget for paid tiers — it’s still
+      a fraction of the cost of an off-the-shelf CRM billed per user, and
+      nowhere near as much as one lost wholesale customer.
+---
+
+In the [guide on the brand as a system](/tipy/firma-brand-voice-brozura-web-crm), the model roastery went through five phases — and the last one, an internal CRM with Supabase, only got the basic outline: an EU region, Row Level Security from the first migration, an agent that reads and suggests. But between “I know I need to lock down the CRM” and “I have a CRM the team actually writes to” lies an entire build: what data to start from, what the tables look like, how roles get enforced, where the newsletter fits, and what it will cost. This guide walks through that build step by step.
+
+The core idea: **a small company doesn’t need a CRM with a hundred features — it needs five tables that match how it actually operates, and a database that enforces on its own who’s allowed to do what.** Everything else is a bonus layer. That’s exactly what makes building your own CRM realistic even for a company with no developer: Claude Code drafts the SQL, the policies, and the app; you decide and approve.
+
+Read it phase by phase — they follow the order you build in: data, locks, integrations, cost reckoning, the build itself. Every phase has copy-paste prompts; replace the brackets with your own details. And the principle from the previous guide holds from the very first line: company and personal data belong only in a paid account with contractual data protection, never in an anonymous free chat.
+
+## A typical scenario
+
+Marta at the roastery already has the brand voice, the brochure, and the website behind her — and the customer records still live in a spreadsheet called “cafes FINAL v3.” Her roughly eighty wholesale customers are scattered across six places: contacts in her phone and in salesperson Petr’s phone, addresses buried in email threads, a box of business cards from trade shows, orders in spreadsheets (a new file every year, each one a little different), invoices in the invoicing tool, and meeting notes — which live nowhere at all, because Petr just “remembers” them.
+
+The consequences are concrete. The café U Mlýna hadn’t ordered in three months and nobody noticed — they’d switched to a competitor. The newsletter goes out to a list nobody can say who opted into or when. And when Petr got sick right before the holiday rush, half the relationships with the cafés existed only in his head and his phone.
+
+After the rebuild this guide describes, the same operation looks like this: one database in the EU that Marta, Petr, and the bookkeeper each sign into with their own account and a role matching their job. Orders get imported from spreadsheets, meeting notes get written against the company, not stored in someone’s head. The Monday view of “who hasn’t ordered in over six weeks” flags three cafés before they get a chance to leave. And the newsletter only goes to contacts with a dated consent record in the database. The build took four evenings and a weekend; the longest part, as always, was cleaning the data.
+
+## Phase 1: a data inventory — what to actually build the CRM from
+
+The biggest mistake at the start is to begin with the technology: set up a project, generate tables, and then discover you have nothing to put in them. The right order is the reverse: first an inventory of what the company already has, then cleanup — and only then does the data model emerge from the cleaned data.
+
+### What you already have, you just don’t know it
+
+Almost no company starts from zero. The typical sources worth exporting:
+
+- **Contacts in your phone and email.** Both phones and Gmail/Outlook can export to CSV or vCard — have every team member who talks to customers do it. Expect duplicates and half-complete records; that’s normal, and gets handled in the next step.
+- **Business cards.** A box from trade shows is a goldmine, handwritten margin notes included — how Claude Cowork turns it into a table, transcribing the handwriting along the way, is covered in a separate guide on [business cards into a CRM](/tipy/vizitky-do-crm-claude-cowork). Its output CSV is exactly the format you need right now.
+- **Orders in spreadsheets.** Even inconsistent spreadsheets spanning three years are history that a “who’s ordering less” view will later grow out of. Gather every version, even the ugly ones.
+- **Invoices.** Your invoicing tool can export data — and invoices are the most reliable source of tax IDs, billing addresses, and actual amounts. Where the spreadsheets and the invoices disagree, trust the invoices.
+- **Communication history.** Don’t import whole email threads; pull out only the facts about the relationship — when the last meeting happened, what was agreed. Leave the rest in your inbox; a CRM isn’t an email archive.
+
+The first prompt doesn’t clean anything — it just maps the terrain. Working with data rewards the same rhythm as the brochure in the previous guide: draft, approve, only then build.
+
+```text
+I'm preparing data for our company's internal CRM [a small coffee
+roastery, 6 people, roughly 80 wholesale customers]. I'm uploading
+exports: contacts from my phone (CSV), contacts from email, a table
+from transcribed business cards, three spreadsheets of orders for
+[2024-2026], and an invoice export.
+
+Do an inventory, don't change anything yet:
+1. For each file, list which columns it contains, how many records it
+   has, and what a typical row looks like
+2. Estimate overlaps: how many companies and people show up in more
+   than one source
+3. List format inconsistencies: phone numbers, tax IDs, company names,
+   dates
+4. Flag anything that's completely missing from the sources and that
+   I'll have to fill in by hand
+The output is a summary table of the sources and a list of problems
+ranked by severity. I'll wait for approval before we start cleaning.
+```
+
+You’ll get back a map of the terrain — and almost always a surprise along the lines of “the same café appears four times under three different names.” That’s not a reason to panic, it’s the reason phase 1 exists. Check point 2 especially: the overlap estimate tends to be an undercount, since the model only matches obvious cases.
+
+### Cleanup: deduplication and normalization
+
+Dirty data in a CRM is worse than no data — three records for the same café mean orders get split among them and no view shows the truth. AI speeds up cleanup considerably; the decision to merge records stays with you.
+
+```text
+Clean up the uploaded contacts and companies data using these rules:
+1. Convert phone numbers to international format [+420 and nine
+   digits, no spaces]; whatever can't be converted, flag in a
+   problem column
+2. Tax ID: must have 8 digits and a valid check digit — flag invalid
+   ones, don't guess at them
+3. Standardize company names: remove differences like "s.r.o." vs
+   "s. r. o.", casing, typos — but keep the original name in an
+   original_name column
+4. Find likely duplicates (same tax ID, similar name + same city, same
+   email) and list them as PAIRS with a confidence level — don't
+   merge anything yourself, I approve merges one at a time
+5. Check emails for obvious domain typos; only suggest fixes
+Return the cleaned table and, separately, the list of proposed merges.
+```
+
+Point 4 is the core of it: **AI proposes deduplication, a human approves it** — automatically merging two branches of the same chain into one record is a mistake that takes months to notice. For tax IDs, a second pass is worth it: have uncertain ones verified against the public ARES business register and have the official name and registered address filled in — but the model has to state, for every record, that it actually verified it, not just claim it checks out.
+
+When the duplicates are resolved, all that’s left is reshaping the data into the future tables’ format:
+
+```text
+From the approved, cleaned data, produce import CSV files that match
+the CRM schema exactly: companies.csv, contacts.csv, orders.csv,
+notes.csv [I'll paste in the schema from the next phase]. Rules:
+- every order row must reference an existing company; where the link
+  is missing, put the row in orders_unmatched.csv, don't guess
+- for contacts, fill in the source column (marta-phone,
+  business-cards-trade-show-2026, invoicing-export...) so we always
+  know where a record came from
+- leave empty values empty, no "not provided" and no made-up data
+At the end, print checksums: the row count for each file and how many
+records got lost along the way, and why.
+```
+
+Checksums aren’t a formality — they’re the only place you’ll notice that two hundred orders got “lost” along the way because they didn’t match a company. The file of unmatched rows is homework for an evening, not something you sweep under the rug.
+
+### The data model: five tables is enough
+
+Now, finally, the schema. Five tables are enough for a small company — resist the urge to add more “just in case”; every extra table is a table someone will have to keep filling in.
+
+```sql
+create table companies (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  tax_id text unique,
+  city text,
+  category text,
+  created_at timestamptz not null default now()
+);
+
+create table contacts (
+  id uuid primary key default gen_random_uuid(),
+  company_id uuid references companies (id) on delete set null,
+  name text not null,
+  email text,
+  phone text,
+  position text,
+  source text,
+  created_at timestamptz not null default now()
+);
+```
+
+In plain terms: `id` is a random identifier the database generates — you never make one up by hand. `name` is required (`not null` — a company without a name doesn’t make sense), `tax_id` is `unique`, so the database itself refuses a second company with the same tax ID — a safeguard against future duplicates. `category` (café, hotel, online shop) is plain text; turn it into a lookup table once you actually have a reason to. On the contact, `company_id` is the link to a company: `on delete set null` means deleting a company doesn’t delete the contact, it just orphans it — contacts are relationships with people, and people change companies. `source` answers the question “where did we get this from” — useful operationally and for GDPR. And `created_at` with `timestamptz` stores the moment of creation including the time zone.
+
+```sql
+create table orders (
+  id uuid primary key default gen_random_uuid(),
+  company_id uuid not null references companies (id),
+  date date not null,
+  amount_czk numeric(12,2) not null,
+  items text,
+  source text,
+  created_at timestamptz not null default now()
+);
+
+create table interactions (
+  id uuid primary key default gen_random_uuid(),
+  company_id uuid not null references companies (id),
+  contact_id uuid references contacts (id),
+  type text not null
+    check (type in ('call', 'email', 'meeting', 'tasting', 'other')),
+  date timestamptz not null default now(),
+  summary text,
+  author uuid
+);
+
+create table notes (
+  id uuid primary key default gen_random_uuid(),
+  company_id uuid not null references companies (id),
+  text text not null,
+  author uuid,
+  created_at timestamptz not null default now()
+);
+```
+
+An order stores its amount as `numeric(12,2)` — an exact decimal number, never `float`, which rounds. `items` is plain text for now (“3× Ethiopia 1 kg, 2× espresso blend”); breaking it out into line items is a classic case of over-engineering a first version. `interactions` is a relationship diary — one row per call or meeting; `check` restricts the type to an approved list, so “meeting” can’t end up spelled five different ways in the data. `notes` are free-form notes on a company. The `author` column on both is reserved for now — it gets filled in during phase 2, once user accounts exist. And notice what’s missing from the schema: no newsletter columns. Those arrive in phase 3 as their own migration — the schema evolves step by step, and every step is a documented migration, not a quiet manual change to the database.
+
+## Phase 2: roles and locks — who’s allowed to do what
+
+The previous guide laid down the principle: RLS from the first migration, an EU region, no homemade cryptography. Now we’ll turn that principle into concrete policies for the three roles a small company needs: **admin** (Marta — can do everything, including delete), **sales** (Petr — reads and writes, doesn’t delete), and **viewer** (the bookkeeper and the part-timer — read only).
+
+### Signing in: Supabase Auth, and nothing homemade
+
+Supabase Auth handles the entire login flow: email and password, or a magic link — a link sent to your inbox that signs you in the moment you click it, no password needed, which non-technical teams often find friendlier. You don’t create accounts by hand; the admin panel has invitations, so you invite the roastery’s six people by email, and an employee leaving is a single click — a deactivated account gets cut off from everything at once by the policies. The rule from last time holds unchanged: never roll your own password storage; that’s exactly the part you’re buying off the shelf.
+
+### The profiles table: where roles live
+
+Supabase Auth keeps users in its own system table, one you don’t touch directly. So roles live in your own `profiles` table, linked to the user through their `id`:
+
+```sql
+create table profiles (
+  id uuid primary key references auth.users (id) on delete cascade,
+  name text,
+  role text not null default 'viewer'
+    check (role in ('admin', 'sales', 'viewer'))
+);
+
+alter table profiles enable row level security;
+
+create policy "everyone signed in can read profiles"
+  on profiles for select
+  to authenticated
+  using (true);
+
+create function public.my_role()
+returns text
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select role from public.profiles where id = auth.uid()
+$$;
+```
+
+Sentence by sentence. `id ... references auth.users` says: a profile only exists for a real account, and `on delete cascade` means deleting the account deletes the profile too. A new profile has `default 'viewer'`: **every newly invited person starts with the lowest privilege**, and an admin raises their role from there; the opposite default is a security hole. `check` makes sure the role is one of exactly three approved values. The policy on `profiles` grants signed-in users read access only — and because no write policy exists, writes through the regular API are simply forbidden: nobody can promote their own role, only an admin can change it from the Supabase dashboard. The `my_role()` function returns the role of whoever is currently signed in (`auth.uid()` is their identity, verified from the token), and every policy will call it; `security definer` and an empty `search_path` are safeguards that make the function always read the right table and never get caught in an RLS loop.
+
+### RLS policies for three roles, sentence by sentence
+
+Now, the locks on the data. Here’s the pattern for `contacts` — the same pattern applies to the other tables:
+
+```sql
+alter table contacts enable row level security;
+
+create policy "everyone signed in can read"
+  on contacts for select
+  to authenticated
+  using (true);
+
+create policy "sales and admin can insert"
+  on contacts for insert
+  to authenticated
+  with check (public.my_role() in ('sales', 'admin'));
+
+create policy "sales and admin can update"
+  on contacts for update
+  to authenticated
+  using (public.my_role() in ('sales', 'admin'))
+  with check (public.my_role() in ('sales', 'admin'));
+
+create policy "only admin can delete"
+  on contacts for delete
+  to authenticated
+  using (public.my_role() = 'admin');
+```
+
+The first statement turns RLS on — and from that moment the golden rule applies: **whatever no policy explicitly allows is forbidden.** A signed-out visitor therefore sees nothing, without you writing a single line for them — every policy targets `to authenticated`, i.e. signed-in users only. The `select` policy with `using (true)` says: any signed-in user may read every row — in a small team, transparency is a feature. The `insert` policy uses `with check`: the condition is evaluated against the row being inserted and only passes for the sales or admin role — a viewer gets an error straight from the database, no matter which app they try it from. `update` carries two conditions: `using` decides which existing rows a user may even touch, and `with check` makes sure the row doesn’t break the rules after the edit either. And `delete` is granted to a single role: deletion is irreversible, so make it rare. If the roastery later wanted a finer-grained rule — say, “only a note’s author may edit it” — the policy would just need to compare the `author` column with `auth.uid()`; that’s exactly why we added it back in phase 1.
+
+Have the migrations generated — and, above all, explained:
+
+```text
+Generate SQL migrations for the CRM: the companies, contacts, orders,
+interactions, notes, and profiles tables per the schema we designed.
+Turn on RLS for every table and write policies per this matrix:
+- select: everyone signed in
+- insert and update: the sales and admin roles
+- delete: admin only
+- profiles: signed-in users only read, nobody writes through the API
+Add a comment to every policy stating exactly what it allows and for
+whom. Then explain each migration to me as if I don't read SQL every
+day — what happens if I run it, and what would happen if I didn't.
+I approve each migration separately; don't run anything without
+approval.
+```
+
+You’ll get back migrations with comments. Don’t rush the explanations — this is where you keep asking “why” until the answers make sense. A typical finding on review: a policy that forgot `with check` on update, so a salesperson can only edit rows they’re allowed to touch, but could still rewrite them into a state that isn’t allowed.
+
+### Why a role is never checked only in the UI
+
+It’s tempting: just hide the Save button from viewers in the app and call it solved. It isn’t. Your app is only one of many clients that can talk to the database — the anon key sits in the page’s code, so it’s public, and anyone holding it can send the database a request directly, completely outside your UI. A hidden button is cosmetic, good manners for honest users; an RLS policy is a lock for everyone, because it’s evaluated in the database on every single query. A well-built app does both — the UI hides what a user isn’t allowed to do, the database enforces it. But whenever you have to choose where a rule actually lives, the answer is: in the database.
+
+### The anon key, the service role key, and what the JWT carries
+
+Three terms that decide the security of the whole build. The **anon key** identifies your project and is public — assume everyone has it; on its own it grants no rights to data, it just opens the door to the API, behind which RLS stands guard. The **JWT** is a signed token a user gets when they sign in; it carries their identity, and the database reads `auth.uid()` from it — the signature guarantees nobody forged it themselves. Policies look up the role in `profiles`; you can also embed it in the token as a custom claim (faster, but then the role only updates on the next sign-in — an unnecessary optimization for six people). The **service role key** bypasses RLS entirely — a master key for server-side jobs like a data import. It belongs exclusively in server-side environment variables, never in the browser and never in git; a key that was ever committed to a repository is compromised even after you delete it.
+
+Before you let colleagues loose on the system, actually test the role matrix:
+
+```text
+In a test project, create three test accounts: test-admin, test-sales,
+and test-viewer, with the matching roles in profiles. Then, for each
+account, try every operation against every CRM table: select, insert,
+update, delete — plus one operation with no sign-in, using only the
+anon key. Return a results matrix: operation x table as rows, role as
+columns, allowed/denied in each cell. Flag every cell where the
+result differs from the intended permission matrix, and explain why.
+Test against the test project with made-up data, not against live
+data.
+```
+
+The output is a table even a non-technical person can read — and every red cell is a bug caught in five minutes instead of six months. It complements the red-team exercise from the previous guide: there, the attack came from outside; here, you systematically walk through who’s allowed to do what from the inside.
+
+## Phase 3: the newsletter — the CRM is the truth, Brevo delivers
+
+The roastery sends cafés a monthly newsletter and occasional promotions to end customers. It’s tempting to send them “from the CRM” — and that’s exactly what not to do. Sending email is a craft of its own: deliverability, templates, unsubscribe links, statistics. Specialized tools exist for that; we’ll use **Brevo** as the main example because it has a generous free tier to start with and a usable API. A one-line note on alternatives: MailerLite is simpler to get started with, Ecomail is a Czech option with local-language support, Mailchimp is the best-known but often needlessly complex for a small company — the division of labor with the CRM is the same across all of them.
+
+### What belongs in the CRM and what belongs in the newsletter tool
+
+A fundamental architectural decision: **the CRM is the single source of truth about customers, Brevo is the delivery engine.** The moment that boundary blurs, you end up six months later with two parallel records and nobody knows which one is right.
+
+| Question | CRM (Supabase) | Newsletter tool (Brevo) |
+| --- | --- | --- |
+| Who the customer is, what they ordered, what the relationship looks like | Yes — the home record | No — only the attributes needed for email |
+| Newsletter consent: when, where, what kind | Yes — the consent columns live here | Only an operational copy of the status |
+| Recipient lists and segments | Definition (who counts as wholesale) | Operational lists filled by the sync |
+| Templates, campaigns, sending | No | Yes — that’s its job |
+| Open and click statistics | Only a summary, if you want one | Yes — the detail lives here |
+| Unsubscribes | Recorded here (unsubscribed_at) | Originates here, synced back to the CRM |
+| Right to erasure | Deleted here... | ...and here at the same time — in both systems |
+
+### Consent belongs in the schema, not in a notes field
+
+GDPR shows up in the database as more columns — another migration, exactly as promised back in phase 1:
+
+```sql
+alter table contacts
+  add column newsletter_consent boolean not null default false,
+  add column consent_date timestamptz,
+  add column consent_source text,
+  add column unsubscribed_at timestamptz;
+```
+
+`newsletter_consent`, with `default false`, means: **whoever hasn’t explicitly opted in doesn’t get the newsletter** — the exact opposite of how it plays out in spreadsheets where “addresses just get added.” `consent_date` and `consent_source` (a form on the website, verbal consent at a tasting...) are your answer to “where did you get my address and who told you it was okay to write to me” — one you need to be able to answer specifically. `unsubscribed_at` is the unsubscribe date: the record doesn’t get deleted, because “this person opted out, don’t write to them again” is information you need to hold onto. And watch out for the trap from the previous guide’s business-card chapter: neither a business card nor an order is newsletter consent — a one-to-one business email is a different thing from a bulk send.
+
+### Sync: from the CRM to Brevo, and only unsubscribes flow back
+
+Brevo keeps contacts in lists (wholesale, end customers) and, on each contact, attributes — name, city, category — for personalization. The sync over the API is one-way: the CRM is the source, Brevo is the destination.
+
+```text
+Write a script that syncs contacts from our Supabase CRM to Brevo
+through its API:
+1. From contacts, select only records where newsletter_consent = true
+   and unsubscribed_at is empty — don't send anyone else to Brevo
+2. Add them to a list based on the company's category [wholesale /
+   end customer] and fill in the NAME, CITY, and CATEGORY attributes
+3. Contacts that are in Brevo but no longer meet the condition should
+   be removed from the lists (don't remove them from the Brevo account,
+   just from the lists)
+4. Read the Brevo API key from an environment variable; it must never
+   appear in the code
+5. The script needs a dry-run mode: print what it would do, without
+   writing anything
+Also write a short guide on how to run the script, and what each line
+of output means. We'll do the first run together in dry-run mode.
+```
+
+Dry-run mode is the “AI drafts, a human approves” rule translated into code: first you look at what would happen, only then do you actually let it run. The reverse direction — unsubscribes — is handled by webhooks: when someone unsubscribes, Brevo calls your endpoint and the CRM records `unsubscribed_at`.
+
+```text
+Set up the return flow of unsubscribes from Brevo to the CRM:
+1. Create a server-side endpoint in the project that receives Brevo's
+   webhook for unsubscribes and undeliverable addresses (hard bounces)
+2. The endpoint looks up the contact by email and sets unsubscribed_at
+   to the event's timestamp; if it can't find the contact, log the
+   event, don't discard it
+3. Write to the database using the service role key — the endpoint
+   runs on the server; explain to me why the anon key isn't enough
+   here
+4. Secure the endpoint by verifying the request genuinely came from
+   Brevo
+Show me the code and walk me through it block by block before we
+deploy it.
+```
+
+On point 3: a webhook has no signed-in user, so RLS would block its write — hence the server-side code and the service role key. And point 4 isn’t paranoia: an unprotected webhook is an address anyone can send a fake unsubscribe to.
+
+### The right to erasure: a process, not a button
+
+When a customer asks for their personal data to be erased, it has to disappear everywhere — from the CRM and from Brevo. What you’re allowed to keep (invoicing records, say, for accounting-law reasons) is a legal question; the broader framework is covered in the [chapter on ethics and safety](/prirucka/ai-eticky-a-bezpecne). Technically, prepare the process in advance:
+
+```text
+Design a "right to erasure" process for our CRM and Brevo:
+1. Using email or name, find every place the person appears: contacts,
+   notes, interactions, Brevo lists and contacts
+2. List what you propose to delete, what to anonymize (the company's
+   orders stay — they're business records, just without a link to the
+   person), and what we're legally required to keep — state the reason
+   for each
+3. Don't delete anything; the output is a proposal log that I'll
+   approve, and only then generate the actual SQL and the steps in
+   Brevo
+4. At the end, add a record that the request was handled, with a date
+   — we archive that outside the CRM
+Deletion is irreversible, so I approve each step individually.
+```
+
+Notice the logic in point 2: erasing a person doesn’t mean erasing the company’s business history — the café’s orders stay, they just get disconnected from the specific individual. That exact nuance is why erasure is a process with approvals, not a button.
+
+## Phase 4: what it will cost — an honest reckoning
+
+This whole system can be run for free — and it’s only fair to say up front exactly where that stops being enough. We won’t quote specific amounts here (they change; the current price lists for Supabase, Vercel, and Brevo are always the authoritative source), but the limits themselves can be described.
+
+**What’s free, and what it’s enough for.** The Supabase free tier can carry the entire build, and comfortably the first few months of a small company running on it: an EU database, Auth, RLS — everything this guide uses. Brevo’s free tier handles a monthly newsletter to dozens of contacts, and Vercel Hobby is enough for development and testing. In other words: **the build phase costs you nothing but time** — and that’s as it should be, because during the build you don’t yet know whether you’ll stick with the system.
+
+**Where you’ll hit a wall.** Three walls a growing company runs into, as of this writing (verify against the current terms):
+
+- **Idle-project pausing.** A low-activity Supabase free project auto-pauses after roughly a week — you can wake it up from the dashboard, but a CRM that “won’t wake up” on a Monday morning is exactly the kind of small thing that makes a team stop trusting the system. A paid tier doesn’t pause projects.
+- **Backups.** The free tier doesn’t do automatic backups — as long as you’re on it, backups are your job (a regular export, easily set up as a scheduled task). A paid tier adds automatic daily backups; once the CRM is the only place holding your relationship history, this is the strongest argument for upgrading.
+- **Daily email limits and commercial use.** Brevo’s free tier caps daily sends in the low hundreds — enough for a monthly newsletter to eighty cafés, not enough for a send to thousands of end customers; paid tiers remove the cap. And Vercel Hobby is, per its terms, for non-commercial personal use — a company CRM is commercial operation, so budget for a paid tier before going live.
+
+**Why the paid tiers are worth it.** Compare three numbers, each from its own price list: the sum of the paid tiers in this stack is a fixed monthly amount for the whole company. Off-the-shelf CRMs typically charge per user — with six people, that multiplies. And one wholesale customer who quietly left because nobody noticed them going quiet costs more per year than this entire infrastructure. The point isn’t “free,” it’s an order-of-magnitude lower fixed cost, and your data in your own hands.
+
+Have the reckoning run on your own numbers — verified against current price lists, not from the model’s memory:
+
+```text
+Help me put together a cost analysis for a self-built CRM. Our
+numbers: [6] users, [about 80] companies and [500] contacts in the
+database, a newsletter [1x a month to 80 addresses, growing toward
+2,000 end customers], database size today [under 1 GB]. Look up the
+CURRENT price lists and free-tier terms for Supabase, Vercel, and
+Brevo (cite dated sources) and answer:
+1. How long the free tiers will last us, and which limit we'll hit
+   first
+2. Exactly what we get with the first paid tier of each service
+3. Compare the annual cost of this stack with [the off-the-shelf CRM
+   we're considering] at our user count
+4. Which limits may have changed since your training data — mark what
+   you actually verified in sources and what you didn't
+No marketing language, just numbers and sources.
+```
+
+Point 4 is a safeguard against a confidently stated but outdated figure — price lists and limits change more often than models get retrained, so insist on dated citations.
+
+## Phase 5: building it with Claude Code, step by step
+
+You have clean data, an approved schema, and roles and integrations worked out. Only now does the project actually get created — and Claude Code handles all the mechanical work, while you keep the rhythm from last time: draft, approve, build.
+
+### Setting up the project and migrations
+
+```text
+We're setting up a Supabase project for the internal CRM. Go step by
+step, and wait for approval before each one:
+1. Create the project in the EU region [Frankfurt] — the database
+   will hold customer personal data, and we want EU jurisdiction
+2. Apply the approved migrations in order: the table schema, profiles
+   with roles, RLS policies, the newsletter columns — in that order,
+   and after each migration print the state (which tables exist,
+   where RLS is turned on)
+3. Save the migrations as files in git, so the schema has a history
+4. At the end, run a check: list every table without RLS turned on
+   and every table without policies — both numbers must be zero
+Print me the anon key and project URL, but never print the service
+role key anywhere — we'll set it directly as an environment variable.
+```
+
+The final check in point 4 is a one-line safeguard against the single most common hole out there: a table added later that RLS got forgotten on. And the last sentence is basic key hygiene — the service role key has no business appearing in a conversation transcript, let alone in git.
+
+### The app: an internal table UI, no design
+
+An internal CRM doesn’t need to be beautiful, it needs to be fast to use. Resist the urge to think “since we’re building it anyway, let’s make it look nice” — every hour spent on design is an hour the system never pays back. How to build and deploy a web app with Claude Code in general is covered in a [separate guide](/tipy/web-claude-code-vercel); here’s the brief tailored to a CRM:
+
+```text
+Build a simple internal app on top of our Supabase CRM (Next.js):
+1. Sign-in through Supabase Auth (both email + password and magic
+   link); with no sign-in, nothing shows at all, not even the company
+   list
+2. Companies page: a table with search by name and a filter by
+   category; clicking a row goes to the company detail page
+3. Company detail: contacts, orders sorted newest first, notes, and
+   interactions, with a form for adding a new note
+4. Show forms according to the role from profiles: read-only for
+   viewers — but add a code comment noting that the actual enforcement
+   is done by RLS
+5. No design system, a readable table and forms are enough; make the
+   mobile view usable, since the salesperson will be out in the field
+Go page by page, and show me each one before starting the next.
+```
+
+Point 4 is the phase 2 principle in practice: the UI adapts to the role for convenience, the database enforces the role for security. Both layers, each for its own reason.
+
+### Deployment: locked down from minute one
+
+```text
+Deploy the CRM to Vercel using this security checklist:
+1. The service role key and other secrets only as server-side
+   environment variables; check that no secret variable has the
+   prefix that sends it to the browser
+2. Verify that no page or API endpoint is reachable without signing
+   in — walk through every route and list what it's protected by
+3. Turn on preview deployment protection, so no one who isn't signed
+   in can see work-in-progress versions
+4. Try opening the app in an incognito window and list what's
+   visible — the correct answer is only the sign-in page
+Return a checklist with the result of every point, not just "done".
+```
+
+The incognito-window test is the cheapest security audit in the world — do it after every major deployment. An internal CRM shouldn’t have a single public pixel; the sign-in page is the only thing a signed-out visitor is allowed to see.
+
+### Data import: checksums, for the third and last time
+
+```text
+Import the cleaned data from phase 1 (companies.csv, contacts.csv,
+orders.csv, notes.csv) into the production database:
+1. Dry-run first: print how many rows would be inserted into each
+   table, how many would be rejected, and why (missing links,
+   duplicate tax IDs)
+2. After my approval, run the import through a server-side script
+   using the service role key, and print the final counts
+3. Compare the counts against the source CSVs: explain every
+   discrepancy specifically, no "a few rows didn't fit"
+4. Finally, spot-check by printing 10 companies with their contacts
+   and latest orders — I'll check them against the original records
+   by hand
+The import must never run twice: propose a safeguard against a
+duplicate run and explain it to me.
+```
+
+The manual spot check in point 4 looks old-fashioned and is irreplaceable: ten random companies checked against the source records catch a systemic import bug (shifted columns, mangled diacritics) more reliably than any automated test.
+
+### The first views: make the CRM pay off in week one
+
+A system that gives back nothing gets abandoned by the team. So right after the import, set up two views that answer the questions the CRM was built to answer in the first place:
+
+```sql
+create view dormant_customers
+with (security_invoker = on) as
+select
+  c.id, c.name, c.city,
+  max(o.date) as last_order,
+  (now()::date - max(o.date)) as days_without_order
+from companies c
+join orders o on o.company_id = c.id
+group by c.id, c.name, c.city
+having max(o.date) < now()::date - 42;
+
+create view top_customers
+with (security_invoker = on) as
+select
+  c.id, c.name,
+  sum(o.amount_czk) as revenue_last_year,
+  count(*) as order_count
+from companies c
+join orders o on o.company_id = c.id
+where o.date > now()::date - 365
+group by c.id, c.name
+order by revenue_last_year desc;
+```
+
+The first view is the answer to the U Mlýna café story: companies whose most recent order is older than six weeks (adjust the threshold to your industry’s rhythm). The second is a ranking by revenue over the last 365 days — the names at the top are the relationships that deserve personal attention. Easy to miss but important is the `security_invoker = on` clause: the view is evaluated with the rights of whoever is asking, so RLS policies apply here too — without it, the view could accidentally bypass them. This is exactly the detail to ask about when you have Claude Code set up the views:
+
+```text
+Create the dormant_customers and top_customers views in the CRM per
+the design, and add an Overview page to the app that displays them.
+For dormant customers, add a link to each company's detail page and a
+"log a contact note" button. Explain to me how the views respect RLS
+(security_invoker), and verify it with a test using the viewer role.
+Make the 42-day threshold configurable in one place, not copy-pasted
+throughout the code.
+```
+
+The weekly routine from the previous guide can then grow out of these views too — an agent that reviews the overview on Monday and drafts follow-ups in the brand’s voice. We won’t repeat it here; what matters is that it now has something to run on.
+
+### Writes: AI drafts, a human approves — inside the system too
+
+The rule from the previous guide — the agent may read and suggest, a human approves every write — can now rest on architecture instead of good intentions. An agent that proposes data additions doesn’t get the service role key, only an account with the viewer role — so the database itself refuses its writes. It hands over its suggestions as a list, a human clicks through them in the app, and the write happens under that person’s account, with their name in the `author` column. The difference from “we promised ourselves the agent wouldn’t write” is fundamental: here, promising isn’t enough — it’s structurally impossible.
+
+## The most common mistakes
+
+- **Starting with the technology instead of the data.** Setting up a project and designing tables from an armchair leads to a schema that doesn’t match what the company actually has. The order is: inventory, cleanup, and only then a schema built from the cleaned data.
+- **Letting AI auto-merge duplicates.** Two branches of the same chain merged into one company record is a mistake that quietly corrupts data for months. Deduplication gets proposed in pairs and approved one at a time.
+- **Enforcing roles in the app instead of the database.** A hidden button only stops the honest; the anon key is public and the database can be called outside the UI. Every permission rule has to exist as an RLS policy — the UI may, at most, mirror it.
+- **Adding a table later and forgetting RLS.** The single most common hole out there: a pristine first migration, then a table added a month later with no policies. Run the “tables without RLS = zero” check after every migration.
+- **Keeping newsletter consent in Brevo instead of the CRM.** The moment the truth about consent lives in the delivery tool, you no longer control it — and switching tools means losing it. Both consent and unsubscribes belong in the CRM schema; Brevo only gets a copy.
+- **Relying on the free tier in live production.** A project paused on a Monday morning and missing backups aren’t savings, they’re risk. Free for building and testing; once the CRM is the only place holding your relationship history, it belongs on a paid tier with backups.
+
+## The best tools
+
+- **Supabase** — managed PostgreSQL with built-in authentication and Row Level Security; the heart of the build, in an EU region because of the personal data.
+- **Claude Code** — builds the whole CRM: drafts migrations and policies, writes the app and the import scripts, and explains every step in plain language; you approve.
+- **Claude Cowork** — data prep over a folder of files: business cards, contact exports, old spreadsheets; the output is clean CSVs ready to import.
+- **Brevo** — newsletter delivery: lists, templates, statistics, unsubscribe webhooks; connected via API to the CRM as the source of truth. Alternatives: MailerLite, Ecomail, Mailchimp.
+- **Vercel** — hosts the app, with server-side variables for keys and preview-deployment protection; on a paid tier for company use.
+- **GitHub** — history for migrations and code; the schema deserves the same traceable change history as the brand voice document from the previous guide.
+
+## What you get out of it
+
+- **Time:** no more hunting for “which is the current spreadsheet” or retyping contacts between files. The dormant-customers overview is ready in seconds instead of an hour of digging through spreadsheets — and, crucially, it actually gets done.
+- **Money:** a fixed infrastructure cost instead of paying per user for an off-the-shelf CRM — plus caught departures: one wholesale customer reached in time pays for the system for the year. To be sober about it: the savings show up only once it’s bedded in; the first month costs you evenings.
+- **Peace of mind:** data in a single EU database, roles enforced by the database, consent with a date and a source, keys nowhere near git. When a customer or an authority asks, you answer from records, not from memory.
+- **Quality:** customer relationships stop depending on what’s in someone’s head and phone. Illness, vacation, or a salesperson leaving no longer carries off half the company’s memory.
+
+## Pro tip
+
+Once the system is running, give it a quarterly check-up — a scheduled task that checks the health of both the data and the locks in a single run: tables without RLS (must be zero), contacts with consent but no consent date, companies with zero interactions in the past year (archiving candidates), the share of orders with no link to a company. The output is a short report with suggested fixes — and, naturally, a human approves the fixes. That turns the CRM from a project that got built once into a system that flags its own maintenance.
+
+And a closing rule: **a CRM is only as good as how honestly people log into it.** Every piece of technique in this guide only supports one human habit: one row in interactions after every meeting and call. Build the system so that row is as cheap as possible to add — and guard that habit as strictly as you guard the locks on the database. Anyone rolling AI out more broadly across a company will find the overall framework in the [complete guide](/tipy/ai-ve-firme-kompletni-pruvodce); this CRM is its most tangible building block.
