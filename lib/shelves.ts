@@ -66,6 +66,7 @@ export const shelves: Shelf[] = [
       "interni-crm-supabase-detailni-navod",
       "marketingova-kampan-jeden-zdroj-mcp",
       "freelancer-znacka-system-mcp",
+      "architekt-skica-do-pocitace-mcp",
       "vizitky-do-crm-claude-cowork",
       "mcp-konektory-nastroje",
       "mcp-reklama-analyza",
