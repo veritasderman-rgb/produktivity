@@ -1,0 +1,915 @@
+---
+title: "Firemní know-how z hlavy do map: AI zpověď, Lucid a Notion"
+excerpt: "Kompletní návod s 25 prompty: AI vyzpovídá majitele i mistra, procesy nakreslí do editovatelných map přes konektor Lucid a postupy uloží do živé znalostní báze v Notionu. Firma přestane stát na tom, co má Franta v hlavě."
+category: "ai"
+platform: "vsude"
+audience: ["manazer"]
+keys: []
+saves: "~týdny sepisování dokumentace"
+date: "2026-08-16"
+updated: "2026-08-16"
+tldr: >-
+  Firemní postupy obvykle nežijí v žádném dokumentu, ale v hlavě majitele a dvou tří
+  klíčových lidí — a proto se firma nedá předat, prodat ani opustit na čtrnáct dní.
+  Tenhle návod ukazuje cestu, na které nikdo nepíše wiki: AI vede strukturovanou
+  zpověď („jak se to u nás vlastně dělá, když přijde objednávka?“), z rozhovoru
+  nakreslí procesní mapu přes konektor Lucid a postup uloží jako stránku znalostní
+  báze v Notionu. Výsledek je editovatelný — když se proces změní, upravíte diagram
+  a stránku jedním promptem, místo abyste „to někdy nakreslili znovu“. Deset
+  procesů, které stojí na jednom člověku, zmapujete po večerech za několik týdnů.
+faq:
+  - q: >-
+      Proč selhává klasické „sepíšeme si wiki“?
+    a: >-
+      Protože psaní dokumentace je jiná práce než ta, kterou dokumentujete — a v
+      souboji o čas vždycky prohraje s provozem. Expert navíc trpí prokletím
+      znalosti: kroky, které dělá automaticky, při psaní vynechá, protože je
+      nevidí. AI to obrací: vy o své práci mluvíte, což umí každý, a AI se
+      doptává, strukturuje, kreslí a píše.
+  - q: >-
+      Co umí konektor Lucid v době psaní?
+    a: >-
+      Vytvořit diagram z textové specifikace — vývojové diagramy, dráhy rolí
+      (swimlanes), kontejnery, BPMN prvky, tabulky — dále org chart z textového
+      popisu nebo CSV, myšlenkovou mapu, sekvenční diagram a ERD; dokumenty umí
+      prohledávat, upravovat po jednotlivých prvcích, exportovat do PNG a sdílet
+      odkazem. Vzniklý diagram je běžný editovatelný dokument Lucid; není datově
+      napojený a sám se neaktualizuje — o aktuálnost se stará vlastník procesu a
+      čtvrtletní revize.
+  - q: >-
+      Co když majitel „neumí popsat, jak to vlastně dělá“?
+    a: >-
+      Přesně proto je jádrem návodu zpověď, ne psaní. Strukturovaný rozhovor se
+      ptá po jedné otázce na spouštěč, kroky, role, systémy, výjimky a na to, co
+      se pokazí — a doptává se na věci, které expert považuje za samozřejmé.
+      Nejlépe nad poslední skutečnou zakázkou, ne nad „obecným postupem“: na
+      konkrétní případ si člověk vzpomene i tam, kde by obecné pravidlo
+      nezformuloval.
+  - q: >-
+      Co do znalostní báze nepatří?
+    a: >-
+      Hesla a přístupové kódy (patří do správce hesel — báze smí říct, kde
+      přístup najdete, ne jaký je), osobní údaje zákazníků nad rámec nezbytného,
+      mzdy a hodnocení lidí. Báze popisuje, jak se věci dělají, ne citlivá data,
+      se kterými se dělají. A celá patří do placeného účtu se smluvní ochranou
+      dat, ne do anonymního free chatu.
+  - q: >-
+      Jak zajistím, že báze nezastará jako každá wiki před ní?
+    a: >-
+      Třemi mechanismy: každý proces má vlastníka odpovědného za pravdivost
+      stránky, změna procesu znamená úpravu diagramu i stránky jedním promptem
+      (údržba je levná, proto se reálně dělá) a čtvrtletní revize — jeden prompt
+      vypíše procesy po termínu a připraví vlastníkům kontrolní otázky.
+      Editovatelnost není detail, je to celá pointa.
+  - q: >-
+      Opravdu tohle zvýší cenu firmy při prodeji?
+    a: >-
+      Střízlivě: kupující platí za firmu, která funguje bez prodávajícího, víc
+      než za firmu, kde s majitelem odejde půlka know-how — zdokumentované
+      procesy jsou jedna z prvních věcí, na které se při prověrce ptá. Přesné
+      číslo vám nikdo poctivě neslíbí; jistý je opačný efekt: firma stojící na
+      jedné hlavě se prodává špatně, nebo vůbec.
+---
+
+Zeptejte se v malé firmě „jak se u nás dělá cenová nabídka?“ a dostanete tři různé odpovědi a jedno pokrčení ramen: „to dělá šéf.“ Zeptejte se, co se stane, když přijde reklamace, a odpověď zní „to řeší Franta.“ Firma funguje — zakázky se dělají, faktury odcházejí, zákazníci se vracejí. Ale nefunguje jako systém; funguje jako součet dvou tří hlav, které vědí. Dokud ty hlavy chodí do práce, nikdo si toho nevšimne. Všimne si toho majitel, který chce jet na dovolenou a pátý den zvedá pátý telefon. Všimne si toho nováček, kterého tři týdny nemá kdo zaučit. A všimne si toho kupující, který má firmu koupit a při prověrce zjistí, že by nekupoval firmu, ale závislost na jejím majiteli.
+
+Klasická rada zní „sepište si procesy“. Klasický výsledek: nikdy se to nestane, protože sepisování je práce navíc, kterou nikdo neumí a na kterou nikdo nemá čas. Tenhle návod jde jinou cestou a stojí na dvou myšlenkách. První: **vy mluvíte, AI píše a kreslí.** Strukturovaný rozhovor — v textu nebo nahlas — z majitele a klíčových lidí vytáhne, jak se věci skutečně dělají, a AI z toho vyrobí procesní mapu přes konektor Lucid a stránku znalostní báze v Notionu. Druhá: **výstupem není dokument, ale editovatelné aktivum.** Když se proces změní, upravíte diagram a stránku jedním promptem — ne „nakreslíme to někdy znovu“, což je věta, kterou dokumentace umírá.
+
+Myšlenkový postup je stejný jako v návodu o [značce jako systému](/tipy/firma-brand-voice-brozura-web-crm): modelová situace, inventura toho, co máte, jeden zdroj pravdy, odvozené výstupy, editovatelnost, bezpečnost — a na konci střízlivá úvaha, co to přinese, bez slibovaných čísel. Tam byl materiálem tón značky; tady je materiálem to nejcennější, co firma má — know-how, jak se dělá její práce. Číst můžete po fázích, každá stojí samostatně a má prompty k okopírování; stačí doplnit hranaté závorky. Je to dlouhý text záměrně: má vás provést celou cestou, ne vás navnadit.
+
+## Vzorová situace
+
+Petr vede zámečnickou dílnu: dvanáct lidí, zakázková výroba — vrata, zábradlí, ocelové konstrukce, schodiště — plus montáže a servis pro stálé zákazníky. Firma běží přes dvacet let a běží dobře. Jenže když si Petr jednou zkusil upřímně odpovědět na otázku „co z téhle firmy existuje mimo moji hlavu?“, vyšlo mu: budova, stroje, sklad materiálu a dvanáct pracovních smluv. Všechno ostatní — jak se kalkuluje nabídka, kdy se bere záloha, jak se objednává hutní materiál, co se kontroluje před expedicí, jak probíhá kooperace se zinkovnou, komu volat, když si stavba vynutí změnu termínu — existuje ve dvou exemplářích: v jeho hlavě a v hlavě mistra Franty. Franta je ve firmě devatenáct let a je to nejspolehlivější člověk, jakého Petr zná. Taky je mu padesát osm.
+
+Konkrétně to vypadá takhle. Cenové nabídky dělá výhradně Petr — kalkulační přirážky má v sešitě a v hlavě, nikdo jiný nabídku nespočítá, takže když je Petr na horách, nabídky týden stojí a dvě zakázky mezitím vezme konkurence. Franta jediný ví, jak se plánuje týden výroby, v jakém pořadí se pouštějí zakázky na ohýbačku a co přesně se domlouvá se zinkovnou, aby se konstrukce nevrátila pozdě nebo poškrábaná. Účetní Jana umí fakturaci — ale jen ona; když byla na operaci, faktury tři týdny neodešly. A když nastoupil nový montážník, „zaučení“ znamenalo půl roku chodit s partou a odkoukávat, přičemž první tři reklamace vznikly přesně z kroků, které mu nikdo neřekl, protože „to přece každý ví“.
+
+Petr má dva cíle, jeden velký a jeden malý. Velký: za pět let chce firmu prodat, nebo předat, a tuší, že firma, která funguje jen s ním uvnitř, se prodává špatně. Malý, ale naléhavější: chce v srpnu čtrnáct dní k moři, aniž by mu dílna volala pětkrát denně. Oba cíle mají stejné řešení — dostat know-how z hlav do podoby, kterou si může přečíst, prohlédnout a upravit kdokoli z týmu.
+
+Za šest týdnů to vypadá jinak. Petr s Frantou a Janou absolvovali sérii večerních „zpovědí“ — rozhovorů, které vedla AI a které se místo psaní jen namluvily. Deset nejkritičtějších procesů má procesní mapu v Lucidu — nakreslenou z rozhovoru, ne ručně — a stránku ve znalostní bázi v Notionu: kroky, výjimky, kdo za co odpovídá, kde co najít. Nabídku na běžné zábradlí teď umí podle postupu připravit i obchodní referentka a Petr ji jen schvaluje. Nový svářeč Ondřej se první dva týdny zaučoval hlavně sám: základní otázky mu zodpověděla báze, na lidi si nechával to podstatné — proč se věci dělají právě takhle. A když se v říjnu změnil postup objednávání materiálu, protože dílna vyměnila hutního dodavatele, neznamenalo to „někdy překreslit mapu“: Petr jedním promptem upravil diagram i stránku a do historie změn přibyl řádek s datem a důvodem.
+
+Žádné kouzlo se nekonalo. Byla to posloupnost kroků, které si teď projdeme — a která funguje stejně pro autoservis, účetní kancelář, e-shop nebo ordinaci. Zámečnická dílna je jen modelový případ; hranaté závorky v promptech si doplníte podle sebe.
+
+## Proč dokumentace procesů normálně selhává — a co na tom mění AI
+
+Než začneme, stojí za to pochopit, proč všechny předchozí pokusy o „sepsání procesů“ skončily, jak skončily. Ne kvůli lenosti — kvůli čtyřem strukturálním důvodům, které se týkají skoro každé malé firmy.
+
+**Za prvé: psaní je jiná dovednost než dělání.** Franta je vynikající mistr a mizerný pisatel — a to je v pořádku, nikdo ho nenajal psát. Chtít po nejlepších lidech firmy, aby po večerech sepisovali wiki, znamená chtít po nich práci, kterou neumějí, nemají rádi a za kterou je nikdo nechválí. Výsledkem bývá jedna nadšená sobota, tři rozepsané dokumenty a tichý konec.
+
+**Za druhé: prokletí znalosti.** Expert nevidí vlastní kroky. Když Franta popisuje, jak pouští zakázku do výroby, řekne „no, prostě to naplánuju na týden“ — a vynechá patnáct rozhodnutí, která dělá automaticky: že svařence na zinkování musí jít v pondělí, protože zinkovna sváží v úterý; že u zábradlí na stavbu se nejdřív volá stavbyvedoucímu, jestli je hotové kotvení; že když je v zakázce nerez, plánuje se na konec týdne, aby se nekontaminovala bruska. Tyhle věci z něj nedostane prázdný papír. Dostane je z něj dobrá otázka — a přesně to je práce, ve které je AI silná: ptát se systematicky, trpělivě a do hloubky.
+
+**Za třetí: dokumentace bez údržby zastará v den vzniku.** I firmy, které dokumentaci mají — třeba kvůli certifikaci ISO — mívají příručky psané pro auditora, ne pro provoz: v den auditu formálně platné, v denní praxi mrtvé. Proces se změní, dokument ne, a jakmile lidé jednou narazí na zastaralý postup, přestanou dokumentaci věřit jako celku. Údržba selhává ze stejného důvodu jako vznik: úprava dokumentu a překreslení diagramu je drahá ruční práce, tak se odkládá.
+
+**Za čtvrté: i když dokument existuje, nikdo ho nenajde.** Postup na fakturaci je v e-mailu z roku 2021, kalkulační vzorce v sešitě, schéma organizace v prezentaci na ploše Petrova notebooku. Dokumentace roztroušená po discích a schránkách je pro praxi totéž co žádná.
+
+AI mění všechny čtyři body najednou, a proto tenhle návod dává smysl právě teď. Psaní a kreslení přestává být úzké hrdlo: **mluvit o své práci umí každý — a víc než to, většina expertů o ní mluví ráda.** Zpověď procesu je pro Frantu příjemnější večer než psaní wiki: někdo se ho konečně zeptal, jak to vlastně dělá. Prokletí znalosti prolamuje struktura rozhovoru — AI se doptává na spouštěče, výjimky a průšvihy, tedy přesně na to, co by expert sám od sebe nezmínil. Údržba je levná: úprava diagramu a stránky je jeden prompt, takže se reálně dělá. A protože všechno vzniká na jednom místě — mapy v Lucidu, postupy v Notionu, obojí propojené — dá se to i najít, prohledat a položit tomu otázku.
+
+Jedno AI nezmění: rozhodnutí, že to firma myslí vážně, a hodinu dvě týdně, které tomu majitel a klíčoví lidé věnují. To je celá vstupní investice. Vraťme se k Petrovi a začněme tam, kde začíná každý pořádek: inventurou.
+
+## Než začnete: dva konektory a jeden Projekt
+
+Technické přípravy je na celý návod překvapivě málo a zvládne ji člověk, který umí nainstalovat aplikaci do telefonu. Tři kroky.
+
+**Zapojte konektory Lucid a Notion.** Oba jsou vzdálené konektory: na claude.ai je najdete v adresáři konektorů, kliknete na připojit a přihlásíte se ke svému účtu Lucid, respektive Notion. Při připojování čtěte obrazovku oprávnění — je to jediné místo, kde rozhodujete vy: který workspace připojujete (firemní, ne osobní) a co konektor smí. U Notionu navíc zvolíte, které stránky konektoru zpřístupníte — pro začátek klidně jen budoucí kořenovou stránku báze; rozšířit to jde kdykoli. Obecný postup připojování, orientaci v oprávněních i přehled dalších nástrojů s konektorem najdete v [katalogu MCP nástrojů](/tipy/mcp-konektory-nastroje). Účty potřebujete v obou službách; u Lucidu se informujte, které funkce vaše úroveň účtu pokrývá — a připomínám zásadu z fáze 1: firemní know-how patří do placených účtů se smluvní ochranou dat, ne do anonymních free verzí.
+
+**Založte Projekt.** Na claude.ai vytvořte Projekt, třeba „Procesy firmy“, a do instrukcí mu napište stálý kontext: co je vaše firma, kolik lidí, kdo je kdo (stačí pět řádků), a pravidla, která chcete držet v každé konverzaci — „ptej se po jedné otázce“, „nedomýšlej, označuj otevřené otázky“, „výstupy česky, jazykem dílny“. Do Projektu pak povedete všechny zpovědi i stavbu báze; kontext se neztrácí mezi konverzacemi a nemusíte ho opakovat.
+
+**Domluvte si podpis.** Ne technický krok, ale rozhodne o víc věcech než oba předchozí: řekněte týmu, co se chystá a proč. Formulace má sílu — „budeme dokumentovat procesy“ zní jako audit a lidi zamknou; „chci, aby tahle firma nestála na tom, že Franta a já všechno držíme v hlavě — a začneme tím, že nás AI vyzpovídá“ zní jako úleva, kterou to doopravdy je. Zdůrazněte dvě věci: nikdo nebude nic psát (mluvit umí každý) a dokumentace nikoho nenahrazuje — naopak, uvolňuje klíčovým lidem ruce od otázek, které je otravují. Frantova první reakce „to jako budu diktovat robotovi?“ je normální; po první zpovědi, kde ho hodinu někdo poslouchal a na nic nezapomněl, se obvykle mění na „a kdy jdeme na plánování výroby?“.
+
+## Fáze 1: inventura — zjistit, co všechno máte v hlavách
+
+První reflex bývá špatný: otevřít Notion a začít stavět krásnou strukturu, nebo rovnou kreslit první diagram. Jenže dokud nevíte, kolik procesů firma vlastně má a které z nich hoří, stavěli byste regály, aniž víte, co do nich patří. Fáze 1 je papírová (respektive chatová): sepsat, co ve firmě existuje, a vybrat, čím začít. Zabere jeden večer a rozhodne o tom, jestli projekt za měsíc žije, nebo usnul.
+
+Hned na začátku jedna zásada, která platí pro celý návod: procesy, kalkulace a interní postupy jsou firemní know-how. Pracujte s nimi **v placeném účtu se smluvní ochranou dat**, ne v anonymním free chatu. A ideálně v Projektu na claude.ai, aby kontext — co je vaše firma, kdo je kdo, jak mluvíte — nesl každou další konverzaci.
+
+### Hrubý seznam: co se u nás vůbec dělá
+
+Nezačínejte od „procesní mapy firmy“ — to je konzultantský pojem, který v hlavě nikdo nemá. Začněte od činností: co se ve firmě opakuje. AI je tu dobrá na dvě věci: nabídnout osnovu oblastí, na kterou byste sami nepřišli celou, a doptat se na to, co jste vynechali.
+
+```text
+Jsem majitel zámečnické dílny s 12 lidmi: zakázková výroba (vrata,
+zábradlí, ocelové konstrukce, schodiště), montáže u zákazníků a servis.
+Chci sepsat všechny opakující se procesy ve firmě, abych vybral,
+které zdokumentovat nejdřív.
+
+Veď mě oblast po oblasti: obchod (poptávky, nabídky, smlouvy), zakázky
+a výroba, nákup a sklad, montáže a servis, ekonomika (fakturace,
+platby, upomínky), lidé (nábor, nástup, docházka), provoz (stroje,
+revize, BOZP, auta). U každé oblasti mi polož 3–5 otázek typu „co se
+stane, když…“ a z mých odpovědí průběžně skládej seznam procesů.
+Proces = opakovaná činnost se začátkem a koncem, ne oddělení.
+
+Ptej se po jedné oblasti, ať to stíhám. Na konci vrať jeden seznam:
+název procesu, jednou větou co to je, jak často běží (denně / týdně /
+měsíčně / občas) a kdo ho dnes reálně dělá — jména, ne funkce.
+```
+
+Vrátí seznam, který bude mít u dvanáctičlenné firmy typicky 25–45 položek — a to je v pořádku, mapovat je zatím nebudete. Dvě věci pohlídejte. Zaprvé sloupec „kdo ho dnes reálně dělá“: trvejte na jménech. „Dělá to výroba“ je mlha; „dělá to Franta, když nemůže, tak nikdo“ je informace, kvůli které tohle celé děláte. Zadruhé pozor na sklon modelu doplňovat procesy, které zná z učebnic, ale u vás neexistují („řízení dodavatelských vztahů“) — co nepoznáváte, škrtněte. Je to váš seznam, ne jeho.
+
+### Bus factor: které procesy stojí na jednom člověku
+
+Teď to hlavní rozhodnutí celé fáze. Nemá smysl dokumentovat všech čtyřicet procesů — projekt by umřel na vyčerpání kolem čísla dvanáct. Vyberete deset. A kritérium výběru není „co je největší“ ani „co je nejsnazší“, ale **co firmu nejvíc ohrožuje tím, že to má jeden člověk v hlavě**. Vývojáři tomu říkají bus factor: kolik lidí by muselo zítra nenastoupit, aby se činnost zastavila. U procesů s bus factorem jedna je odpověď „jeden“ — a přesně ty vás drží doma z dovolené a srážejí cenu firmy při prodeji.
+
+```text
+Tady je seznam našich procesů z inventury [vložit seznam]. Pomoz mi
+vybrat 10, které zdokumentujeme jako první.
+
+Ke každému procesu se mě zeptej (po jednom, stručně):
+1. Kolik lidí ho dnes umí udělat celý, bez pomoci? (bus factor)
+2. Co se stane, když ten člověk 14 dní nebude — proces počká, převezme
+   ho někdo napůl, nebo se zastaví a vzniká škoda?
+3. Jak často se proces spouští?
+4. Stál už někdy tenhle proces peníze tím, že se udělal špatně nebo
+   pozdě? Kolik zhruba — řádově?
+
+Z odpovědí sestav tabulku: proces, bus factor, dopad výpadku
+(zastaví se / zpomalí / počká), frekvence, historie průšvihů.
+Navrhni pořadí dokumentace: nejvýš procesy s bus factorem 1, které se
+při výpadku zastaví a běží často. Pořadí zdůvodni u každého řádku
+jednou větou — rozhodnu já.
+```
+
+Vrátí seřazenou tabulku a u zámečnické dílny bude horní desítka vypadat nějak takhle — u vás jinak, ale vzorec bude stejný: nahoře skoro vždycky skončí peníze a klíčoví lidé.
+
+1. **Cenová nabídka a kalkulace** — umí jen Petr; když stojí, firma přichází o zakázky.
+2. **Příjem zakázky a založení do výroby** — co se domluví, musí se správně předat dál; dnes ústně.
+3. **Plánování týdne výroby** — Frantova hlava; nikdo jiný neví, proč je pořadí, jaké je.
+4. **Nákup hutního materiálu** — kdo, u koho, za jakých podmínek, kdy se vyplatí předzásobit.
+5. **Kooperace se zinkovnou** — termíny, balení, co zkontrolovat při vratce; zdroj dvou dražších reklamací.
+6. **Výstupní kontrola a expedice** — co se kontroluje, co se fotí, co podepisuje zákazník.
+7. **Montáž u zákazníka** — příprava, co vézt s sebou, předávací protokol.
+8. **Fakturace a upomínky** — umí jen Jana; třítýdenní výpadek už firma zažila.
+9. **Reklamace** — kdo rozhoduje, co je oprávněná, jak rychle se reaguje.
+10. **Nástup nového člověka** — dnes „choď s partou a koukej“; půl roku a tři reklamace.
+
+Zbytek seznamu nevyhazujte — uložte ho, ve fázi 4 z něj bude zásobník znalostní báze. Ale příštích šest týdnů existuje jen desítka.
+
+### Plán zpovědí: kalendář místo odhodlání
+
+Poslední krok fáze 1 je banální a rozhodující: přeložit desítku na termíny. Odhodlání „budeme to dělat, až bude čas“ znamená nikdy; dva rozhovory týdně po 45–60 minutách znamenají hotovo za pět až šest týdnů.
+
+```text
+Máme seřazený seznam 10 procesů k dokumentaci [vložit] a tři lidi,
+kteří je mají v hlavě: majitel (nabídky, reklamace, nákup), mistr
+(výroba, plánování, kooperace, expedice), účetní (fakturace,
+upomínky). Nováčkovský proces známe všichni po kouskách.
+
+Sestav plán zpovědí na 6 týdnů: 2 rozhovory týdně, každý 45–60 minut.
+U každého uveď: proces, kdo bude zpovídaný, co si má předem nachystat
+(poslední konkrétní případ, podklady — sešit, tabulky, vzorové
+dokumenty) a kdo rozhovor zkontroluje (druhý člověk, který proces
+zná aspoň zčásti). Rozhovory jednoho člověka rozlož v čase, ať nemá
+tři večery za sebou. Výstup chci jako tabulku, kterou vytisknu
+na nástěnku do dílny.
+```
+
+Poznámka k položce „co si má předem nachystat“: je důležitější, než vypadá. Zpověď ve fázi 2 stojí na konkrétním posledním případu — poslední nabídce, poslední reklamaci — a na artefaktech: Petrův kalkulační sešit, Janina tabulka faktur, fotka tabule ve výrobě. Claude umí číst obrázky včetně rukopisu, takže „nachystat“ znamená klidně jen vyfotit. Nechystejte nic nového; noste, co existuje.
+
+Tím je inventura hotová: víte, co máte, vybrali jste desítku podle rizika, máte kalendář. Teď to nejzajímavější — rozhovory.
+
+## Fáze 2: AI zpověď — strukturovaný rozhovor o procesu
+
+Tady se láme celý projekt. Kvalita map a stránek, které vzniknou později, je přesně tak dobrá, jak dobrá byla zpověď — Lucid ani Notion nezachrání rozhovor, který zůstal na povrchu. Dobrá zpráva: vést dobrou procesní zpověď je řemeslo s jasnými pravidly a AI je umí držet za vás. Vaše práce je mluvit pravdu — včetně té neuklizené.
+
+### Anatomie zpovědi: šest věcí, které o procesu potřebujete vědět
+
+Každý proces se dá vyzpovídat stejnou strukturou. Vyplatí se ji znát, i když otázky bude klást AI — poznáte podle ní, jestli rozhovor někam vede.
+
+- **Spouštěč.** Čím proces začíná? Přišel e-mail s poptávkou, zazvonil telefon, je pondělí ráno, přišla vratka ze zinkovny. Bez jasného spouštěče lidé nepoznají, že proces právě začal a je jejich.
+- **Kroky.** Co se děje, v jakém pořadí, a čím každý krok končí. Ne „udělá se nabídka“, ale „změří se to na místě, spočítá materiál, přičte práce podle sazby, přirážka podle typu zákazníka, pošle se PDF do tří dnů“.
+- **Kdo.** Role u každého kroku — a poctivě: kdo to dělá oficiálně a kdo to dělá doopravdy. Rozdíl mezi papírem a praxí je přesně to, co chcete zachytit.
+- **Systémy a artefakty.** Kde co žije: tabulka, sešit, e-mail, program, šanon, tabule. I „Franta to má v diáři“ je systém — jen špatný, a teď to aspoň víte.
+- **Výjimky.** Kdy to jde jinak. Spěchá to, zákazník je velký, materiál není skladem, je červenec a půlka dílny na dovolené. Výjimky jsou obvykle větší část know-how než hlavní cesta.
+- **Co se pokazí.** Kde proces historicky selhal, co bylo nejdráž, na co se přijde pozdě. Průšvihy jsou nejkoncentrovanější poučení, jaké firma má — a v žádné příručce nikdy nebyly.
+
+### Hlavní zpovědní prompt
+
+Tohle je nejdůležitější prompt článku. Vyplatí se ho uložit do knihovny promptů a používat pro každý proces znovu — jednotná struktura rozhovorů znamená jednotné mapy a stránky.
+
+```text
+Povedeš se mnou strukturovaný rozhovor o jednom firemním procesu.
+Jsem [majitel zámečnické dílny, 12 lidí] a proces je [cenová nabídka
+na zakázkovou výrobu]. Cíl: zachytit, jak se to u nás DOOPRAVDY dělá,
+aby to podle záznamu zvládl šikovný nový člověk. Později z rozhovoru
+vznikne diagram a stránka znalostní báze.
+
+Pravidla rozhovoru:
+- Ptej se po JEDNÉ otázce a čekej na odpověď. Žádné dotazníky.
+- Začni spouštěčem: čím proces začíná a jak poznám, že začal.
+- Pak mě proveď kroky. U každého chtěj: co se udělá, kdo to udělá,
+  v čem / kde (systém, tabulka, papír), čím krok končí a jak se
+  výsledek předává dál.
+- Když řeknu něco vágního („prostě to spočítám“), zastav mě a chtěj
+  konkrétum: podle čeho, odkud beru čísla, co když chybí.
+- Po hlavní cestě se ptej na výjimky: „Kdy to jde jinak?“ — spěch,
+  velký zákazník, chybějící materiál, dovolené. U každé výjimky:
+  jak ji poznám a co se dělá místo standardu.
+- Nakonec: co se v tomhle procesu historicky pokazilo, co to stálo
+  a co se od té doby dělá jinak.
+- Průběžně si veď strukturované poznámky. Když si budu protiřečit,
+  upozorni mě.
+
+Až řeknu „hotovo“, rozhovor ukonči a shrň, co ti pořád chybí.
+Začni první otázkou.
+```
+
+Takový rozhovor trvá 30–60 minut a je překvapivě příjemný — pro zpovídaného je to poprvé, co se ho někdo systematicky ptá na věc, ve které je dobrý. Dvě upozornění z praxe. Model má tendenci po pár otázkách sklouznout k „děkuji, myslím, že mám vše“ — nemá; věta „pokračuj, ještě jsme neprobrali výjimky“ ho vrátí do práce. A odpovídejte jazykem dílny, ne jazykem, o kterém si myslíte, že patří do dokumentace: „jekl“, „vypálit“, „hodit to na zinek“ — přesnost je v konkrétnosti, učesat to půjde později.
+
+### Jak zpověď vypadá v praxi
+
+Aby bylo jasné, o čem mluvíme, krátký výřez z Petrovy zpovědi nabídkového procesu — zhruba z desáté minuty:
+
+```
+AI: Říkáte, že k ceně materiálu přičtete práci. Podle čeho odhadnete
+počet hodin?
+Petr: Z hlavy. Vím, jak dlouho co trvá.
+AI: Zkusme to rozložit. Poslední nabídka bylo zábradlí do bytového
+domu. Jak jste u něj došel k hodinám?
+Petr: No… dvanáct metrů zábradlí, to je tak den v dílně na přípravu
+a svařování, den lakovna — vlastně ne, to šlo na zinek a prášek,
+takže tam počítám jen manipulaci — a den montáž pro dva lidi.
+AI: Takže odhadujete přes vzorce typu „metr zábradlí = X hodin
+přípravy“? Jaké další takové převody používáte?
+Petr: Vlastně jo. Vrata mám za kus podle typu, schodiště podle
+počtu stupňů… a pak přihazuju rezervu, když je to do starého baráku,
+protože tam nikdy nic není rovné.
+AI: Kolik je ta rezerva a kdy přesně ji dáváte?
+Petr: Tak deset patnáct procent. Když je to rekonstrukce, když je
+zákazník od architekta — ti mění zadání — a když se dělá v zimě
+venku.
+AI: To jsou tři konkrétní pravidla, která zatím nikde nejsou
+zapsaná. Zapíšu je do kalkulačních pravidel. Další otázka: co
+z toho, co jste popsal, umí spočítat i někdo jiný než vy?
+```
+
+Tohle je prokletí znalosti v přímém přenosu: „počítám to z hlavy“ se během čtyř otázek rozpadlo na převodové vzorce a tři pravidla rezervy — tedy na věci, které se dají zapsat, naučit a předat. Žádná z těch otázek není rafinovaná; jsou jen položené postupně a trpělivě, což je přesně to, co unavený kolega u piva neudělá a AI ano. Po hodině takového rozhovoru má protokol nabídkového procesu obsah, ze kterého se obchodní referentka opravdu naučí běžné nabídky počítat.
+
+### Kotva v posledním případu: „vezmi včerejší zakázku“
+
+Nejčastější selhání procesní zpovědi: zpovídaný popisuje, jak by proces měl vypadat, ne jak vypadá. Ne že by lhal — obecná otázka prostě vyvolá obecnou, idealizovanou odpověď. Protilék je epizodická paměť: konkrétní poslední případ si člověk pamatuje i s odbočkami, které by v obecném popisu zamlčel.
+
+```text
+Změna techniky: místo obecného popisu projdeme JEDEN konkrétní
+poslední případ. Vezmi poslední [cenovou nabídku], kterou jsem dělal
+— [zábradlí pro bytový dům, minulý týden] — a veď mě jí krok za
+krokem: co přesně jsem udělal nejdřív, co potom, kde jsem co hledal,
+komu jsem volal, co mě zdrželo.
+
+Ptej se na časovou osu a fakta, ne na názory. Když popíšu krok, který
+se v té zakázce lišil od běžného postupu, zeptej se, co je běžnější
+varianta a jak často nastává. Na konci porovnej: takhle proběhl
+poslední případ vs. takhle vypadá standard — a vypiš rozdíly.
+Rozdíly nejsou chyba, to je to nejcennější.
+```
+
+Ten závěrečný rozdíl mezi „posledním případem“ a „standardem“ berte vážně. Někdy je to náhoda. Častěji je to signál, že standard existuje jen na papíře — a dokumentovat máte realitu. Zlepšovat proces můžete potom; **nejdřív zachyťte, co je, teprve pak měňte, co má být.** Kdo obě věci smíchá, dostane mapu, podle které nikdo nechodí.
+
+### Zpověď hlasem: projít proces nohama
+
+Pro lidi, kterým psaní nesedí — a mistr Franta je přesně ten případ — je nejlepší formát zpovědi hlas. Claude má [hlasový režim](/tipy/ai-hlasovy-rezim) v mobilní aplikaci: Franta si může s telefonem v ruce projít dílnu a proces odvyprávět tam, kde se odehrává. U ohýbačky si vzpomene na věci, na které by si v kanceláři nevzpomněl — paměť řemeslníka je vázaná na místo a materiál.
+
+```text
+Povedeme rozhovor hlasem. Jsem mistr ve výrobě a budu ti při chůzi
+po dílně vyprávět, jak plánuju týden výroby a pouštím zakázky na
+stroje. Ptej se mě podle struktury: spouštěč, kroky, kdo, systémy,
+výjimky, průšvihy — ale po jedné krátké otázce, mluvíme, nepíšeme.
+Když zmíním stroj, tabuli nebo papír, zeptej se, co přesně na něm je
+a kdo do něj smí psát. Neshrnuj mi po každé odpovědi, co jsem řekl —
+jen se ptej dál. Celkové shrnutí udělej, až řeknu „konec“.
+```
+
+Praktická rada: nechte Frantu u toho fotit — tabuli s plánem, štítky na regálech, seřizovací hodnoty napsané fixou na stroji. Fotky pak nahrajte do stejné konverzace; Claude z nich přečte i rukopis a čísla, a tabule ve výrobě se tak poprvé v historii firmy dostane do dokumentace. Přepis hlasového rozhovoru zůstává v chatu jako text, takže s ním další fáze pracují stejně jako s psaným.
+
+### Křížové ověření: dva lidé, jeden proces, dvě pravdy
+
+U procesů, které prochází více rukama, vyzpovídejte oba konce zvlášť — a pak nechte AI verze porovnat. Tohle je nejrychlejší detektor tichých nedorozumění, jaký znám.
+
+```text
+Tady jsou dva přepisy rozhovorů o TOMTÉŽ procesu [příjem zakázky
+a předání do výroby]: verze majitele [vložit] a verze mistra [vložit].
+
+Porovnej je a vrať tři seznamy:
+1. Shody — co oba popisují stejně (jen stručně).
+2. Rozpory — kde si verze protiřečí: kdo co dělá, pořadí kroků,
+   kdo za co odpovídá. U každého rozporu cituj obě verze.
+3. Slepá místa — co jedna verze popisuje a druhá vůbec nezmiňuje.
+
+Nehodnoť, kdo má pravdu — připrav ke každému rozporu jednu otázku,
+kterou si to vyjasníme společně u stolu.
+```
+
+Počítejte s tím, že rozporů bude víc, než je příjemné — a že to je dobrá zpráva. Každý rozpor je buď nedorozumění, které dosud stálo čas a nervy (Petr myslel, že termín zákazníkovi potvrzuje Franta; Franta myslel, že Petr), nebo skryté know-how, které jedna strana považovala za samozřejmost. Vyjasnění u stolu zabere dvacet minut a často je to nejužitečnější porada roku. Do dokumentace jde až vyjasněná verze.
+
+Vyjasňovací schůzka končí u každého rozporu jedním ze tří výsledků a vyplatí se je pojmenovat dopředu, protože každý znamená jiný zápis do dokumentace:
+
+- **Jedna verze vyhrává.** Druhá vznikla tichým driftem — někdo si postup časem zjednodušil a nikdo si toho nevšiml. Do protokolu jde vítězná verze; drift stojí za poznámku v sekci rizik, protože kde k němu došlo jednou, dojde k němu znovu.
+- **Obě verze jsou pravda.** Proces má legitimně dvě varianty — Petr popisoval zakázky pro koncové zákazníky, Franta rámcové zakázky pro stavební firmy, a obě cesty jsou správně. Pak se nedokumentuje kompromis, ale obě varianty s jasnou podmínkou, kdy platí která („zakázka přes rámcovou smlouvu → varianta B“). Slepení dvou pravd do jedné průměrné je nejjistější způsob, jak vyrobit postup, podle kterého nepracuje nikdo.
+- **Žádná verze není dobrá.** Schůzka odhalí, že proces je prostě rozbitý — každý ho lepí po svém a oba o tom vědí. Nepodléhejte pokušení vymyslet u stolu nový proces a zapsat ho jako platný: zachyťte poctivě současný stav (včetně věty „tady to skřípe“), dejte věc do otevřených otázek s vlastníkem a termínem — a nový proces navrhněte jako samostatný krok, až na něj bude klid.
+
+A jedno varování k roli AI: model má u rozporů sklon „rozhodnout“ sám — vybrat pravděpodobnější verzi a tu tiše zapsat. Proto prompt výše výslovně říká „nehodnoť, kdo má pravdu“. Rozpor mezi dvěma lidmi, kteří proces žijí, je rozhodnutí pro ty dva lidi (a v případě sporu pro majitele) — AI ho má zviditelnit a připravit otázky, ne zamést.
+
+### Protokol procesu: z rozhovoru standardní záznam
+
+Poslední krok fáze: převést syrový rozhovor do jednotného strukturovaného protokolu. Protokol je mezistanice — z něj bude ve fázi 3 vznikat diagram a ve fázi 4 stránka v Notionu, takže jednotný formát znamená, že všech deset procesů dopadne konzistentně.
+
+```text
+Z celého našeho rozhovoru o procesu [cenová nabídka] sestav
+strukturovaný protokol v markdownu:
+
+## Základ
+Název procesu, jednou větou účel, spouštěč, čím proces končí
+(definice hotového), jak často běží.
+## Role
+Kdo v procesu vystupuje a co dělá — reálná jména doplň funkcí.
+## Kroky hlavní cesty
+Číslovaný seznam: krok, kdo, v čem/kde, výstup kroku. Stručně —
+detaily patří do poznámek pod tím.
+## Rozhodovací místa
+Kde se proces větví, podle čeho se rozhoduje, kdo rozhoduje.
+## Výjimky
+Situace mimo standard: jak ji poznám → co se dělá jinak.
+## Systémy a artefakty
+Kde co žije (tabulky, sešity, programy, šanony) — bez hesel.
+## Známá rizika a minulé průšvihy
+Co se pokazilo, co to stálo, jaká pojistka od té doby existuje.
+## Otevřené otázky
+Co z rozhovoru nevyplynulo nebo kde si protiřečím.
+
+Piš jen to, co v rozhovoru zaznělo — nic nedomýšlej. Kde ti chybí
+informace, napiš OTEVŘENÉ místo toho, abys doplnil pravděpodobnou
+odpověď.
+```
+
+Poslední odstavec promptu je klíčový a platí pro celý návod: **model nesmí díry ve zpovědi zaplnit věrohodnou fikcí.** Zní to jako drobnost, ale je to rozdíl mezi dokumentací a beletrií — vymyšlený krok v postupu je horší než chybějící, protože vypadá stejně důvěryhodně jako ty pravé. Sekce „Otevřené otázky“ není ostuda, je to seznam práce pro příští revizi.
+
+Protokol si přečtěte nahlas — vy i zpovídaný. Deset minut, a odhalí věci, které se v rozhovoru zamluvily. Schválený protokol uložte; máte surovinu pro obě následující fáze.
+
+## Fáze 3: z protokolu mapa — procesní diagramy přes Lucid
+
+Text je přesný, ale pomalý; do diagramu se člověk podívá a za deset vteřin ví, kudy proces teče a kde se láme. Proto procesy kreslíme — a proto historicky procesní mapy ve firmách nevznikaly: kreslení bylo drahé a překreslování ještě dražší. Konektor Lucid obojí mění: diagram vznikne z textové specifikace promptem a upraví se dalším promptem.
+
+Nejdřív fakta, s čím pracujete. Lucid (známý hlavně díky Lucidchart) provozuje oficiální MCP server; připojuje se jako vzdálený konektor — na claude.ai ho přidáte v nastavení konektorů a přihlásíte se ke svému účtu Lucid, podrobný obecný postup popisuje [přehled MCP nástrojů](/tipy/mcp-konektory-nastroje). V době psaní konektor umí: **vytvořit diagram z textové specifikace** — vývojové diagramy s konkrétními tvary a spoji, dráhy rolí (swimlanes), kontejnery, tabulky, prvky BPMN 2.0 — dále **org chart** z textového popisu nebo z CSV, **myšlenkovou mapu**, **sekvenční diagram** a **ERD** (databázové schéma, pro naši úlohu okrajové). Kromě tvorby umí dokumenty prohledávat a číst, upravovat jednotlivé prvky, mazat je, exportovat stránku jako PNG a vytvářet odkazy ke sdílení. Dvě poctivé poznámky: vzniklý diagram je běžný dokument Lucid — dál ho upravíte ručně v editoru i promptem — ale **není datově napojený**, sám se neaktualizuje, když se změní realita; o to se stará fáze 6. A konektory se vyvíjejí rychle, takže konkrétní repertoár si ověřte v aktuální dokumentaci Lucid; princip návodu — z protokolu specifikace, ze specifikace diagram, iterace promptem — na detailech nestojí.
+
+### První mapa: hlavní cesta a rozhodovací místa
+
+Zlaté pravidlo první verze: **jedna obrazovka, jedna cesta.** Nesnažte se do prvního diagramu dostat všechno, co protokol obsahuje — vznikne pavučina, kterou nikdo nebude číst. První verze je hlavní cesta se zásadními rozhodovacími místy; výjimky a detaily přijdou do textu stránky, ne do mapy.
+
+```text
+Z přiloženého protokolu procesu [cenová nabídka] vytvoř přes konektor
+Lucid nový dokument [Proces: cenová nabídka] s vývojovým diagramem.
+
+Zásady:
+- Jen hlavní cesta a rozhodovací místa z protokolu — žádné výjimky,
+  ty budou v textové dokumentaci. Cíl je max 12–15 kroků.
+- Začátek: spouštěč (přijde poptávka). Konec: definice hotového
+  (odeslaná nabídka zapsaná v evidenci).
+- Kroky jako obdélníky, rozhodnutí jako kosočtverce s otázkou
+  a popisky větví (ano/ne, do 50 tisíc / nad 50 tisíc).
+- Text v krocích: sloveso + předmět („změřit na místě“, „spočítat
+  materiál“), žádné odstavce.
+- Kde protokol říká, kdo krok dělá, přidej roli do závorky pod text
+  kroku.
+- Nic si nedomýšlej — když ti pro některý spoj chybí informace,
+  vypiš mi otázku místo tichého doplnění.
+
+Až bude hotovo, pošli mi odkaz na dokument a stručný výčet, co jsi
+z protokolu do diagramu NEzařadil, ať to zkontroluju.
+```
+
+Vrátí odkaz na nový dokument v Lucidu a — díky poslednímu odstavci — seznam vynechaného. Ten výčet čtěte pozorně: je to kontrola, že se do „zjednodušení“ nepropadlo něco podstatného. Diagram si otevřete a projděte s prstem na obrazovce, krok za krokem, jako byste proces šli poprvé. Nesedí-li pořadí nebo formulace, neopravujte to teď ručně v editoru — schovejte si poznámky do jedné dávky pro iterační prompt; důvod hned vysvětlím.
+
+### Swimlanes: kdo co drží a kde se to předává
+
+Jakmile hlavní cesta sedí, přidejte druhý pohled: stejný proces v drahách podle rolí. Swimlane diagram odpovídá na otázku, kterou vývojový diagram neumí — **kde si proces předávají lidé.** A předávky jsou přesně ta místa, kde se procesy v malých firmách lámou: co si Petr s Frantou předávali ústně na chodbě, to v mapě poprvé dostane čáru, na kterou jde ukázat.
+
+```text
+Ve stejném dokumentu Lucid vytvoř druhou verzi procesu [příjem
+zakázky a předání do výroby] jako swimlane diagram.
+
+- Dráhy podle rolí: majitel, obchodní referentka, mistr, výroba,
+  účetní. Jen role, které v procesu skutečně vystupují.
+- Každý krok umísti do dráhy toho, kdo ho DĚLÁ (ne kdo za něj
+  formálně odpovídá — pokud se to liší, řekni mi to jako poznámku).
+- Šipky mezi dráhami = předání. U každého předání popisek, CO se
+  předává (papír, e-mail, záznam v tabulce, ústně).
+- Předání s popiskem „ústně“ zvýrazni barvou — to jsou naše riziková
+  místa.
+Pak mi vypiš všechna ústní předání jedním seznamem.
+```
+
+Seznam ústních předávek je vedlejší produkt, který stojí za samostatnou poradu: každá položka je kandidát na ztracenou informaci. Nemusíte hned budovat systém — někdy stačí dohoda, že se předávka zapíše do zakázkového listu. Ale bez mapy jste ta místa neviděli.
+
+### Iterace: mapa se ladí promptem, ne překreslováním
+
+Teď důvod, proč jsem radil neopravovat ručně. Diagram budete v příštích letech měnit mnohokrát — a chcete si od začátku vybudovat návyk, že **změna mapy je prompt, ne hodina v editoru.** Ruční úpravy fungují a na kosmetiku (posunout tvar, zalomit čáru) jsou v pořádku; obsahové změny ale zadávejte textem, protože pak je zvládne kdokoli z firmy, ne jen ten, kdo umí s editorem.
+
+```text
+Uprav diagram [Proces: cenová nabídka] v Lucidu podle revize
+s mistrem:
+- Krok „spočítat materiál“ rozděl na dva: „vypsat položky materiálu“
+  a „ověřit skladem, co máme, zbytek nacenit u dodavatele“.
+- Za rozhodnutí „zakázka nad 50 tisíc?“ přidej u větve ANO krok
+  „záloha 30 % před zahájením“ (dělá účetní).
+- Přejmenuj „poslat nabídku“ na „poslat nabídku a zapsat do evidence
+  nabídek“.
+- Odstraň krok „konzultace s výrobou“ — v praxi se nedělá, byla to
+  idealizace.
+Nic jiného neměň. Potom mi vypiš seznam změn, které jsi provedl,
+ať je odsouhlasím proti svým poznámkám.
+```
+
+Všimněte si posledního bodu revize: „v praxi se nedělá, byla to idealizace.“ Přesně takové škrty se objeví, když diagram poprvé uvidí druhý člověk — a jsou znak zdravého procesu dokumentace, ne selhání. První verze mapy je hypotéza; pravda vzniká revizí s lidmi, kteří proces žijí. Osvědčený rituál: vytisknout (nebo exportovat PNG — konektor to umí — a poslat), dát Frantovi červenou fixu, druhý den zanést změny jedním promptem.
+
+### Org chart: kdo vlastně za co odpovídá
+
+K procesním mapám patří ještě jedna mapa, kterou malé firmy skoro nikdy nemají nakreslenou: organizační struktura. Ne kvůli formalitě — kvůli tomu, že se k ní budou vztahovat vlastníci procesů ve znalostní bázi a zaučování nováčka. V dvanáctičlenné dílně je to práce na deset minut.
+
+```text
+Vytvoř přes konektor Lucid org chart naší firmy do nového dokumentu
+[Organizace]. Struktura:
+majitel (obchod, nabídky, klíčoví zákazníci) → mistr výroby (plánování,
+výroba, kooperace, expedice) → [seznam lidí ve výrobě s profesí:
+2 svářeči, 2 zámečníci, obsluha ohýbačky…]; vedle mistra montážní
+parta [vedoucí montáží + 2 montéři]; přímo pod majitelem účetní
+(fakturace, mzdy, upomínky) a obchodní referentka (poptávky,
+evidence nabídek).
+U každého člověka uveď do druhého řádku 2–3 hlavní odpovědnosti,
+ne pracovní pozici z papíru. Nikoho nevynechávej, i brigádník sem
+patří.
+```
+
+V době psaní umí konektor org chart postavit i z CSV souboru — pro dvanáct lidí je textový popis rychlejší, pro padesát už sáhněte po exportu z docházky nebo mezd (bez citlivých sloupců — jméno, pozice, nadřízený stačí). Až budete org chart za rok měnit, protože přibude druhá montážní parta, platí totéž co u procesů: úprava je prompt.
+
+### Kdy se hodí ostatní typy diagramů
+
+Konektor Lucid umí v době psaní víc typů než vývojové diagramy a swimlanes; pro pořádek, kdy které dávají v procesní dokumentaci smysl — a kdy ne.
+
+**Myšlenková mapa** se hodí na jedinou, zato užitečnou věc: vizuální přehled celé inventury. Strom „firma → domény → procesy“ na jedné obrazovce je nejrychlejší způsob, jak výsledek fáze 1 ukázat týmu a jak při roční revizi vidět, co je zmapované a co čeká v zásobníku.
+
+```text
+Vytvoř přes konektor Lucid myšlenkovou mapu [Mapa procesů firmy]:
+uprostřed název firmy, první úroveň naše domény [vložit], druhá
+úroveň procesy z inventury [vložit seznam]. Procesy z horní desítky
+zvýrazni. U procesů, které už mají hotovou mapu a stránku, přidej
+za název fajfku. Nic dalšího nepřidávej — je to přehled, ne obsah.
+```
+
+**Sekvenční diagram** kreslí komunikaci mezi účastníky v čase — kdo komu co posílá a v jakém pořadí. V softwarovém světě je to standard; v malé firmě se hodí na procesy, kde je podstatná právě výměna zpráv s vnějším světem: u Petrovy kooperace se zinkovnou (objednávka → potvrzení termínu → avízo svozu → dodací list → kontrola vratky → případná reklamace do 24 hodin) řekne sekvenční diagram víc než vývojový, protože problém toho procesu je právě v tom, co si strany kdy potvrzují. Pro vnitřní procesy bez takové výměny je zbytečný.
+
+**ERD** (schéma databáze) v procesní dokumentaci potřebovat nebudete — zmiňuji ho pro úplnost a pro chvíli, kdy se rozhodnete některý proces podepřít vlastní aplikací; jak taková cesta vypadá, ukazuje fáze CRM v [návodu o značce jako systému](/tipy/firma-brand-voice-brozura-web-crm).
+
+**BPMN, nebo obyčejný flowchart?** Konektor zvládne v době psaní i prvky BPMN 2.0 — standardizované notace pro byznys procesy — a tak se nabízí otázka, jestli „to dělat pořádně“. Pro většinu map v malé firmě je odpověď ne: obdélník, kosočtverec a šipka jsou slovník, který přečte každý v dílně bez školení, a čitelnost pro vlastní lidi je hlavní měna celého projektu. BPMN se vyplatí sáhnout ve třech situacích. Když je jádrem procesu výměna s externím partnerem a čekání na něj — u kooperace se zinkovnou řeknou BPMN události a toky zpráv přesně to podstatné: kde proces stojí a čeká na potvrzení termínu, kde běží lhůta „vratku zkontrolovat do 24 hodin“. Když v procesu hrají roli časovače a lhůty — upomínky po splatnosti jsou proces řízený časem, ne kroky. A když mapu budete ukazovat ven — větší odběratel, integrace, certifikační audit — kde je standardní notace společný jazyk. I pak ale platí: verze pro dílnu smí zůstat jednoduchá a BPMN verze být „exportní“ pohled; a pokud BPMN použijete interně, přidejte do rohu diagramu legendu, protože notace, kterou tým neumí číst, není pořádnost — je to bariéra. Rozhodnutí je tedy o čtenáři, ne o nástroji: nástroj umí obojí.
+
+Obecné pravidlo: typ diagramu vybírejte podle otázky, na kterou má odpovídat — tok a větvení (vývojový), předávky mezi rolemi (swimlane), výměna zpráv v čase (sekvenční), kdo je čí (org chart), přehled celku (myšlenková mapa). Když nevíte, začněte vývojovým; je to univerzální dělník procesní dokumentace.
+
+### Co patří do diagramu a co do textu
+
+Nejčastější spor při zavádění: „dáme to do mapy, nebo do textu?“ Odpověď má jednoduchý princip — **diagram odpovídá na „kudy to teče a kdo to drží“, text odpovídá na „jak přesně se udělá krok a proč“.** Diagram, který se pokouší nést oboje, neunese nic: třicet kroků s odstavci textu v rámečcích nikdo nečte. Konkrétně:
+
+| Informace | Do diagramu (Lucid) | Do textu (Notion) |
+| --- | --- | --- |
+| Pořadí kroků a větvení | Ano — od toho tam je | Jen jako číslovaný přehled |
+| Předávky mezi rolemi | Ano — swimlane se šipkami | Doplňkově (kdo komu co posílá) |
+| Rozhodovací kritéria („kdy je zakázka velká“) | Jen otázka a větve | Ano — přesná kritéria, tabulky sazeb |
+| Návod ke kroku (jak vyplnit, kde kliknout) | Ne | Ano — postup, screenshoty, fotky |
+| Výjimky a vzácné situace | Jen ty časté (větev navíc) | Ano — seznam „když…, tak…“ |
+| Konkrétní hodnoty (sazby, lhůty, limity) | Ne — zastarávají nejrychleji | Ano — na jednom místě, s datem |
+| Kontakty a odpovědnosti | Role v závorce | Ano — jména, zástupy, na koho se obrátit |
+| Minulé průšvihy a poučení | Ne | Ano — nejcennější sekce stránky |
+
+Pravidlo s hodnotami podtrhuji: sazba za hodinu práce nebo výše zálohy do diagramu nepatří ani do popisku — změní se dvakrát do roka a nikoho nenapadne ji hledat v mapě. Hodnoty žijí v textu stránky (nebo v tabulce, na kterou stránka odkazuje) a diagram říká jen „spočítat podle aktuálního sazebníku“. Tak se mapa mění jen tehdy, když se změní tok procesu — což je správně: mapa má vydržet roky, hodnoty měsíce.
+
+Po fázi 3 má Petrova dílna deset map a org chart. Jsou hezké, ale zatím visí ve vzduchu — potřebují domov, kontext a všechno to, co do diagramu nepatří. To je fáze 4.
+
+## Fáze 4: znalostní báze v Notionu — jeden zdroj pravdy
+
+Diagram říká kudy, text říká jak. Druhá polovina systému je znalostní báze: místo, kde každý proces má stránku s podrobnostmi, výjimkami, hodnotami a poučeními — a kde se dá hledat. Stavíme ji v Notionu, protože je na tenhle typ dokumentace stavěný (stránky, databáze, propojení) a protože má oficiální MCP konektor, takže stránky nebude nikdo vypisovat ručně — vzniknou z protokolů zpovědí promptem.
+
+Opět nejdřív fakta. Notion provozuje oficiální MCP server; na claude.ai se připojuje jako vzdálený konektor s přihlášením k vašemu workspace. V době psaní konektor umí: **prohledávat workspace** (stránky i databáze), **číst obsah stránek**, **vytvářet nové stránky** — pod jinou stránkou nebo jako záznam v databázi — **upravovat obsah stránek**, **zakládat databáze** s vlastnostmi, **dotazovat se do databází** s filtry a řazením, pracovat s komentáři a stránky přesouvat či duplikovat. Prakticky to znamená, že celou strukturu níže postaví Claude na váš pokyn a vy ji jen zkontrolujete. I tady platí: přesný repertoár se vyvíjí, ověřte v aktuální dokumentaci Notionu.
+
+Jedna zásadní věc, než začnete klikat: **báze musí vzniknout ve firemním workspace, ne v osobním účtu majitele.** Zní to jako detail, je to rozdíl mezi firemním aktivem a osobní poznámkou — osobní účet odejde s člověkem, nedá se řídit přístup a při prodeji firmy se špatně předává. Totéž ostatně platí o Lucidu.
+
+### Struktura: domény, procesy, postupy, šablony
+
+Strukturu báze nevymýšlejte od nuly — osvědčená hierarchie má čtyři patra:
+
+- **Domény** — oblasti firmy z inventury: obchod, zakázky a výroba, nákup a sklad, montáže a servis, ekonomika, lidé, provoz. Pět až osm položek, víc ne.
+- **Procesy** — v každé doméně stránky jednotlivých procesů. Jádro báze; každá stránka má stejnou šablonu (níže) a odkazuje na svou mapu v Lucidu.
+- **Postupy** — krokové návody k jednotlivým činnostem, na které se procesní stránky odkazují: „jak vystavit fakturu v programu“, „jak vyplnit předávací protokol“. Rozdíl proti procesu: postup je jeden úkon jednoho člověka, proces je tok přes více lidí.
+- **Šablony** — vzorové dokumenty: text nabídky, předávací protokol, checklist expedice, e-mail upomínky. To, co se kopíruje, když proces běží.
+
+K tomu jedna průřezová databáze — registr procesů — která drží pořádek nad vším (za chvíli). Nejdřív nechte strukturu navrhnout a teprve po schválení postavit; stejný rytmus „návrh, schválení, výroba“, který se osvědčil u diagramů:
+
+```text
+Přes konektor Notion budeme stavět znalostní bázi firmy [zámečnická
+dílna, 12 lidí]. Zatím NIC nevytvářej — navrhni strukturu:
+- kořenová stránka [Jak to u nás děláme]
+- sekce domén podle tohoto seznamu z naší inventury: [vložit domény]
+- v každé doméně místo pro stránky procesů, postupů a šablon
+- databáze [Registr procesů] s vlastnostmi: název, doména, vlastník
+  (osoba), stav (zpověď / mapa / stránka / ověřeno), kritičnost
+  (bus factor 1 / důležitý / běžný), poslední revize (datum), příští
+  revize (datum), odkaz na diagram v Lucidu (URL)
+Vypiš návrh jako strom, ať vidím, co kde bude, a polož mi otázky,
+kde si nejsi jistý zařazením. Po mém schválení strukturu založíš.
+```
+
+Vrátí strom a typicky pár dobrých otázek („servis je doména, nebo proces v doméně montáže?“). Rozhodněte podle toho, jak o věcech mluvíte v dílně — báze má kopírovat jazyk firmy, ne učebnici managementu. Po schválení nechte strukturu založit a zkontrolujte ji v Notionu očima: je to pět minut a odhalíte nedorozumění, dokud je báze prázdná.
+
+### Stránka procesu: jednotná šablona
+
+Každý proces dostane stránku podle stejné šablony. Jednotnost není estetika — je to důvod, proč se v bázi za rok někdo vyzná: kdo přečetl jednu stránku, umí číst všechny. Šablona vychází z protokolu zpovědi, takže převod je mechanický — přesně ten druh práce, který patří AI:
+
+```text
+Z přiloženého protokolu procesu [cenová nabídka] vytvoř přes konektor
+Notion stránku v doméně [Obchod] podle naší šablony:
+
+1. Shrnutí — 3 věty: k čemu proces je, čím začíná, čím končí.
+2. Mapa procesu — sem vlož odkaz na diagram v Lucidu [vložit URL]
+   a poznámku „Detailní tok viz mapa; tahle stránka nese podrobnosti.“
+3. Kroky — číslovaný seznam hlavní cesty; u každého kroku kdo, v čem,
+   a odkaz na postup, pokud existuje samostatný návod.
+4. Rozhodovací pravidla — přesná kritéria z protokolu (limity, sazby
+   odkazem na sazebník, kdo schvaluje).
+5. Výjimky — „když…, tak…“ seznam z protokolu, včetně toho, kdo smí
+   výjimku povolit.
+6. Kde co žije — systémy a artefakty: co je v jaké tabulce, šanonu,
+   programu. Bez hesel — kde je potřeba přístup, napiš „přístup:
+   viz správce hesel“.
+7. Co se historicky pokazilo — poučení z průšvihů z protokolu.
+8. Otevřené otázky — nezodpovězené body; u každého kdo je má vyřešit.
+
+Zachovej formulace z protokolu, neuhlazuj je do korporátní češtiny —
+„hodit to na zinek“ je u nás termín. Na konec stránky přidej řádek:
+Vlastník: [jméno] · Poslední revize: [datum] · Zdroj: zpověď [datum].
+Potom založ řádek v Registru procesů a propoj ho s touto stránkou.
+```
+
+Věta o korporátní češtině je z praxe: model má silný sklon „vylepšit“ jazyk dílny do jazyka směrnic — a tím dokumentaci odcizit lidem, pro které vzniká. Frantovi patří stránka, která zní jako Franta. Kontrolujte i čísla a limity proti protokolu; převod je mechanický, ale důvěřuj a prověřuj — jedna posunutá sazba v dokumentaci je horší než žádná.
+
+Aby bylo vidět, k čemu se míří, výřez z hotové stránky — sekce 4 a 5 nabídkového procesu po Petrově kontrole:
+
+```
+Rozhodovací pravidla
+- Nabídku do 30 tisíc připraví a odešle referentka sama; nad 30 tisíc
+  ji před odesláním schvaluje Petr.
+- Hodiny se počítají převodem: zábradlí podle metrů, vrata podle
+  typu, schodiště podle stupňů — převody viz Sazebník (odkaz).
+- Rezerva 10–15 %: rekonstrukce starších budov, zakázky přes
+  architekta, venkovní práce listopad–březen. Rozhoduje ten, kdo
+  nabídku počítá; do nabídky se nepíše zvlášť.
+- Termín odeslání: do 3 pracovních dnů od zaměření. Když to nejde,
+  zákazníkovi se do 3 dnů aspoň ozveme s termínem.
+
+Výjimky
+- Spěchá to (zákazník chce cenu na počkání) → orientační cena ústně
+  jen od Petra; referentka nikdy nestřílí cenu od boku, posílá
+  termín, kdy nabídku dostane.
+- Stálý velkoobchodní zákazník → sazby podle rámcové dohody, viz
+  stránka Klíčoví zákazníci; sleva mimo dohodu jen Petr.
+- Poptávka mimo náš záběr (hliník, sklo) → do 2 dnů slušně odmítnout
+  a doporučit [partnerská firma]; šablona odpovědi ve složce Šablony.
+```
+
+Všimněte si tří vlastností, které dělají stránku použitelnou: čísla jsou konkrétní (30 tisíc, 3 dny — a žijí v textu, ne v mapě), u každého pravidla je jasné kdo (referentka sama / jen Petr) a výjimky mají tvar „jak to poznám → co udělám“. Přesně tohle by v diagramu bylo nečitelné a v hlavě nepředatelné.
+
+### Propojení diagram ↔ stránka: dva systémy, jeden celek
+
+Mapa v Lucidu a stránka v Notionu popisují tentýž proces a musí být propojené obousměrně: stránka odkazuje na mapu (sekce 2 šablony) a mapa na stránku — do diagramu přidejte poznámku či tvar s odkazem na stránku v Notionu, ať se člověk, který dostal jen odkaz na mapu, dostane jedním klikem k detailům. Kdo chce o krok dál, může vedle odkazu vložit do stránky i exportované PNG mapy (konektor Lucid export umí): stránka je pak čitelná i bez přeskakování, za cenu, že PNG je momentka a při změně mapy se musí vyměnit — do promptu změnového postupu ve fázi 6 to patří jako jeden řádek navíc.
+
+Obousměrnost se snadno rozbije, proto si ji nechte hlídat:
+
+```text
+Zkontroluj konzistenci naší dokumentace procesů:
+1. Projdi Registr procesů v Notionu a u každého záznamu ověř, že
+   odkaz na diagram v Lucidu vede na existující dokument.
+2. Prohledej naši složku v Lucidu a vypiš diagramy, které nemají
+   odpovídající stránku v Notionu (sirotci).
+3. U procesů se stavem „ověřeno“ porovnej kroky v diagramu se sekcí
+   Kroky na stránce: vypiš rozdíly (krok v mapě chybí na stránce
+   nebo naopak, jiné pořadí, jiné názvy).
+Vrať přehlednou tabulku nálezů. Nic neopravuj — opravy schválím
+po jednom.
+```
+
+### Báze, ve které se dá hledat
+
+Poslední řemeslný detail fáze 4: báze je k ničemu, když v ní lidé nenajdou, co hledají — a lidé nehledají slovy dokumentace, hledají slovy dílny. Nikdo nenapíše do vyhledávání „kooperace povrchové úpravy“; napíše „zinek“. Tři návyky, které hledání zachrání:
+
+- **Názvy stránek podle otázek, ne podle kategorií.** „Cenová nabídka: jak ji spočítat a poslat“ najde i člověk, který neví, že hledá „proces obchodního případu“. U postupů to platí dvojnásob: „Jak vystavit fakturu“ je lepší název než „Fakturace — postup č. 3“.
+- **Synonyma přímo do textu.** Do shrnutí stránky patří slova, kterými se o věci mluví: pokud se u vás říká „hodit to na zinek“, ať to na stránce o kooperaci doslova je — vyhledávání i AI odpovídání z báze pak trefí správnou stránku.
+- **Jedna věc, jedno místo.** Když stejná informace (třeba výše zálohy) žije na třech stránkách, za půl roku se rozjede. Hodnota bydlí na jedné stránce a ostatní na ni odkazují — stejné pravidlo jediného zdroje pravdy, jen o patro níž.
+
+Test je jednoduchý a udělejte ho s někým, kdo bázi nestavěl: řekněte mu pět situací („přišla reklamace vrat, co teď?“) a dívejte se, jestli odpověď najde do minuty. Kde hledal jinými slovy, než jaké stránka používá, doplňte ta slova na stránku — báze se má učit jazyk lidí, ne naopak.
+
+### Registr procesů: přístrojová deska celého systému
+
+Databáze Registr procesů je nenápadná, ale drží celý systém pohromadě. Je to jediné místo, kde vidíte stav projektu (kolik procesů je ve které fázi), odpovědnost (každý řádek má vlastníka — člověka, ne oddělení) a termíny revizí, na kterých stojí údržba ve fázi 6. Dotazy do ní kladete přirozeným jazykem — „které procesy vlastní Franta a kdy mají revizi?“ — a konektor je přeloží na filtr do databáze. Pro Petra je registr i odpověď na otázku „jak je na tom projekt“: jeden pohled místo obcházení lidí.
+
+A tím se dostáváme k pointě celé fáze. Až dosud know-how žilo v hlavách a jeho jedinou „zálohou“ byla přítomnost konkrétních lidí v práci. Teď existuje **jeden zdroj pravdy: báze v Notionu s mapami v Lucidu.** Jeden zdroj pravdy neznamená jen „je to na jednom místě“ — znamená to, že **nad tímhle místem se dějí všechna rozhodnutí**: kdo chce vědět, jak se co dělá, čte bázi; kdo tvrdí, že se něco dělá jinak, má pravdu jen tehdy, když prosadí změnu stránky. Stejný princip, na kterém stál [brand voice v gitu](/tipy/firma-brand-voice-brozura-web-crm) — jen tam šlo o to, jak firma mluví, a tady o to, jak firma pracuje.
+
+## Fáze 5: odvozené výstupy — báze začne vydělávat
+
+Zdroj pravdy sám o sobě nikoho neuživí; hodnota vzniká z výstupů, které se z něj odvozují. Stejně jako se ze značky v gitu odvozovala brožura a web, z procesní báze se odvozují tři věci, které Petrova dílna pocítí okamžitě: zaučování nováčka, odpovědi místo telefonátů a provozní dokumenty.
+
+### Nováček, který se zaučuje sám
+
+Vzpomeňte na půl roku odkoukávání a tři reklamace. S bází vypadá nástup svářeče Ondřeje jinak: první den dostane přístup do báze a vygenerovaný plán zaučení — odvozený z procesů, u kterých bude figurovat.
+
+```text
+Z naší znalostní báze v Notionu sestav plán zaučení pro nového
+svářeče-zámečníka [Ondřej], nástup [datum]. Bude dělat ve výrobě
+pod mistrem, časem i montáže.
+
+1. Projdi Registr procesů a vyber procesy, kde vystupuje role výroba
+   nebo montáž.
+2. Sestav plán na první 3 týdny: co si který den přečíst (odkazy na
+   konkrétní stránky), co si prohlédnout v mapách, co si má nechat
+   ukázat fyzicky v dílně a od koho (jména z org chartu).
+3. Ke každému týdnu přidej 5 kontrolních otázek, na které má po
+   týdnu umět odpovědět — mistr je s ním projde v pátek.
+4. Zvlášť vypiš, co v bázi k jeho roli chybí (proces, kde je jeho
+   role zmíněná, ale nemá stránku nebo postup) — to je náš dluh,
+   ne jeho problém.
+Založ z toho stránku [Zaučení: Ondřej] v doméně Lidé.
+```
+
+A protože mapy z fáze 3 nesou informaci, kterou stránky nemají tak hustou — předávky — odvoďte z nich ještě jednu věc: zaučovací kolečko. Swimlane diagramy přesně říkají, se kterými lidmi si bude Ondřej předávat práci a co si předávají; to je hotový plán, koho a u čeho má první týdny stínovat.
+
+```text
+Projdi swimlane diagramy našich procesů v Lucidu a najdi všechny
+dráhy s rolí [výroba] nebo [montáž] — to bude role nováčka [Ondřej].
+Z map odvoď jeho zaučovací kolečko:
+1. Vypiš každou předávku, které se bude účastnit: od koho co přebírá,
+   komu co předává, v jaké podobě (papír, záznam, ústně) — s odkazem
+   na proces.
+2. Z toho sestav checklist „projdi si naživo“: u každé předávky
+   s kým si ji má jednou projít fyzicky v dílně a co si při tom
+   nechat ukázat.
+3. Předávky označené v mapách jako ústní dej na začátek — tam se
+   nováčkovi nejsnáz ztratí informace a nikdo si toho nevšimne.
+Výstup ulož jako podstránku stránky [Zaučení: Ondřej] v Notionu.
+```
+
+Rozdíl proti plánu zaučení výše: plán říká, co si přečíst a naučit; kolečko říká, s kým si podat ruce a u čeho stát. Obojí vzniká ze stejného zdroje pravdy, takže když se za rok proces změní, další nováček dostane kolečko už podle nové mapy — žádný zastaralý zaučovací dokument, který někdo kdysi sepsal a od té doby lže.
+
+Bod 4 je tichý poklad: nováček je nejlepší detektor děr v dokumentaci, protože jako jediný čte bázi očima člověka, který nic neví. Zaveďte pravidlo, že každá otázka, na kterou Ondřej nenašel odpověď, se zapisuje — a jednou týdně se z těch otázek doplní báze. Celý postup, jak z dokumentace udělat Projekt, který nováčkovi odpovídá — včetně instrukce „odpovídej jen z dokumentů a při nejistotě odkaž na člověka“ — rozpracovává samostatný návod na [onboarding nováčka](/tipy/onboarding-novacka-ai-projekt); procesní báze z tohoto článku je přesně ten obsah, který se do takového Projektu nahrává. Oba návody do sebe zapadají: tady báze vzniká, tam se z ní stává trpělivý kolega, který odpoví i na otázku položenou popáté.
+
+### Odpovědi z báze místo telefonátu majiteli
+
+Druhý výstup míří přímo na Petrových pět telefonátů denně. Většina z nich má odpověď, která teď v bázi je — jen je potřeba, aby se lidi ptali báze dřív než Petra. Technicky: konverzace s konektorem Notion (nebo Projekt s nahranou bází) a instrukce, která je jádrem věci:
+
+```text
+Odpovídáš na provozní otázky naší firmy VÝHRADNĚ ze znalostní báze
+v Notionu. Pravidla:
+- U každé odpovědi uveď odkaz na stránku, ze které čerpáš.
+- Když odpověď v bázi není nebo je nejednoznačná, řekni to výslovně
+  a odkaž na vlastníka procesu z Registru procesů — nikdy odpověď
+  nedomýšlej.
+- Když se otázka týká hodnot (ceny, sazby, limity), cituj hodnotu
+  i datum poslední revize stránky, ať je vidět, jak je čerstvá.
+- Otázky, na které báze neuměla odpovědět, průběžně sbírej; na požádání
+  je vypíšeš jako seznam k doplnění.
+Otázka: [kdy se u zakázky bere záloha a kolik?]
+```
+
+Zákaz domýšlení je tu ještě důležitější než jinde: špatná odpověď s sebejistým tónem je horší než „nevím, zeptej se Jany“. Otestujte to hned po nasazení otázkou, na kterou odpověď v bázi není — pokud dostanete věcnou odpověď místo přiznání, instrukce nedrží a je potřeba ji zpřísnit. A sekce „otázky bez odpovědi“ je stejný audit děr jako Ondřejův seznam — báze roste tam, kde ji provoz skutečně potřebuje.
+
+### Šablony a checklisty: dokumenty, které proces vykonávají
+
+Třetí výstup: z procesních stránek se odvozují provozní dokumenty. Proces expedice říká, co se kontroluje — tak ať existuje checklist, který jde vytisknout a pověsit k vratům. Proces montáže říká, co se předává zákazníkovi — tak ať existuje předávací protokol.
+
+```text
+Ze stránky procesu [výstupní kontrola a expedice] v naší bázi vytvoř
+checklist expedice: jedna strana A4, položky v pořadí, v jakém se
+kontrola reálně dělá, u každé položky čtvereček a prostor na poznámku.
+Poslední řádky: kdo kontroloval, datum, podpis. Jazyk dílny, žádné
+úřední formulace. Ulož ho do sekce Šablony v Notionu a na stránku
+procesu přidej odkaz. Do hlavičky checklistu dej verzi a datum —
+při změně procesu se musí přegenerovat i checklist.
+```
+
+Poznámka o verzi v hlavičce je malý, ale důležitý zvyk: papírové odvozeniny zastarávají tiše. Verze na papíře umožní komukoli u vrat poznat, že drží checklist k předloňské verzi procesu — a říct si o nový.
+
+### Manuál zastupování: dovolená jako produkt báze
+
+A čtvrtý výstup, ten, kvůli kterému to Petr celé začal. Čtrnáct dní u moře nezajistí báze sama o sobě — zajistí je konkrétní dokument: manuál zastupování, odvozený z báze pro konkrétní období a konkrétního zástupce.
+
+```text
+Majitel bude [3.–17. srpna] nedostupný, zastupuje ho mistr [Franta]
+s podporou účetní [Jana]. Z naší znalostní báze sestav manuál
+zastupování na toto období:
+
+1. Projdi Registr procesů a vypiš procesy, kde je majitel jedinou
+   rolí — u každého: co konkrétně za něj v srpnu udělá kdo, s odkazem
+   na stránku a příslušný krok.
+2. Rozhodovací pravomoci: z rozhodovacích pravidel stránek vytáhni
+   všechna místa „schvaluje majitel“ a navrhni pro každé srpnový
+   režim — smí rozhodnout zástupce do limitu / počká to / volá se
+   majiteli. Návrhy majitel projde a upraví.
+3. Sestav seznam „volejte majiteli jen když“ — situace, které podle
+   báze nikdo jiný vyřešit nesmí nebo neumí.
+4. Na konec: kontakty, termíny splatné v tom období (z registru
+   a stránek), a co se schválně odkládá na po dovolené.
+Ulož jako stránku [Zastupování srpen] a nasdílej Frantovi a Janě.
+```
+
+Bod 2 je jádro: dovolenou nezachrání dokumentace, ale předem rozdané pravomoci — „nabídky do 30 tisíc posílá referentka, do 100 tisíc schvaluje Franta, nad to počká“. Báze k tomu dodává podklad (všechna schvalovací místa na jednom seznamu, nic se nezapomene) a jistotu, že zástupce má ke každé situaci kudy — stránku s postupem. První dovolená s manuálem bývá napůl test: Petr si vede čárky, s čím mu přesto volali, a každá čárka je bod do příští revize báze. Druhá dovolená už bývá dovolená.
+
+## Fáze 6: editovatelnost a údržba — proč to tentokrát nezastará
+
+Tady se rozhoduje, jestli jste postavili systém, nebo pomník. Každá firma, která někdy měla wiki, zná ten cyklus: nadšení, sepsání, půl roku klidu, první zastaralá stránka, ztráta důvěry, smrt. Cyklus se láme na jediném místě — na ceně změny. Když aktualizace znamená „najít, kdo umí s editorem, a hodinu překreslovat“, neudělá se; když znamená jeden prompt, udělá se hned. **Editovatelnost není vlastnost navíc, je to důvod, proč tenhle systém přežije tam, kde wiki umřely.** Proto jsme celou dobu trvali na tom, že mapy se mění promptem a stránky mají jednotnou strukturu.
+
+### Změna procesu = změna dokumentace, jedním tahem
+
+V říjnu Petrova dílna změnila dodavatele hutního materiálu — jiné objednávkové okno, jiné minimální množství, místo telefonu portál. Starý svět: mapa i stránka tiše zastarají a za rok jim nikdo nevěří. Nový svět:
+
+```text
+Změnil se proces [nákup hutního materiálu]: [nový dodavatel — 
+objednávky přes portál místo telefonu, objednáváme do středy 12:00,
+minimální odběr se změnil, ceník má portál]. 
+
+Proveď změnu v celé dokumentaci:
+1. Uprav diagram v Lucidu: krok „objednat telefonicky“ nahraď kroky
+   pro portál, uprav časovou poznámku.
+2. Uprav stránku v Notionu: sekce Kroky, Kde co žije (přidej portál,
+   přístup „viz správce hesel“) a Rozhodovací pravidla (nové minimum).
+3. Do stránky přidej řádek do historie změn: datum, co se změnilo,
+   proč, kdo schválil [Petr].
+4. V Registru procesů aktualizuj datum poslední revize.
+5. Zkontroluj, jestli na starý postup neodkazuje jiná stránka nebo
+   šablona — vypiš, co je ještě potřeba změnit.
+Než začneš, shrň mi změny, které se chystáš udělat — schválím je.
+```
+
+Celá operace je na deset minut včetně schválení — a přesně proto se stane. Bod 5 nepodceňujte: procesy na sebe odkazují a změna v jednom místě umí tiše zneplatnit checklist jinde. A bod 3 dělá z dokumentace i kroniku: za dva roky bude historie změn vyprávět, jak se firma vyvíjela — což ocení nový mistr i kupující při prověrce.
+
+### Vlastník procesu: jméno, ne oddělení
+
+Technika údržbu zlevní, ale neudělá. Každý proces v registru má vlastníka a vlastnictví znamená jediné: **odpovídám za to, že stránka a mapa říkají pravdu.** Vlastník nemusí být ten, kdo proces vykonává — fakturaci dělá Jana a vlastní ji Jana, ale proces montáže může vlastnit vedoucí montáží, i když montuje celá parta. Důležité je, že je to jméno, ne „výroba“: kolektivní odpovědnost je nikdo. Ve dvanáctičlenné firmě připadnou na člověka dva tři procesy — to není úvazek, to je hlídka. A když se v provozu ukáže, že se něco dělá jinak, než říká stránka, jde zpráva vlastníkovi — a ten buď opraví stránku (realita je nová pravda), nebo provoz (stránka platí, děláme to špatně). Obě odpovědi jsou legitimní; nelegitimní je jen mlčení.
+
+### Čtvrtletní revize jedním promptem
+
+A poslední mechanismus: rytmus. Bez termínu se i levná údržba odkládá donekonečna, proto má registr sloupec „příští revize“ a firma čtvrtletní rituál — půl hodiny, jeden prompt:
+
+```text
+Čtvrtletní revize dokumentace. Projdi Registr procesů v Notionu a:
+1. Vypiš procesy, kterým prošel termín příští revize, seřazené podle
+   kritičnosti, s vlastníkem u každého.
+2. Každému vlastníkovi připrav krátký kontrolní dotazník (max 5
+   otázek) šitý na jeho proces: „Platí ještě krok X? Změnilo se Y?
+   Přibyla výjimka?“ — vycházej z obsahu stránky.
+3. Vypiš stránky se stavem jiným než „ověřeno“ starší než měsíc —
+   to jsou rozpracované resty.
+4. Vypiš otevřené otázky ze všech stránek na jednom místě.
+Z bodů 1–4 sestav program revizní schůzky na 30 minut: co probrat,
+v jakém pořadí, co může proběhnout jen potvrzením „beze změny“.
+```
+
+Vlastník na dotazník odpoví za pět minut; kde je změna, spustí se změnový prompt z předchozí podsekce. Aby rituál nestál na Petrově paměti, nastavte si na něj plánovanou úlohu — Claude umí spouštět úlohy podle rozvrhu, takže první pracovní den čtvrtletí revizní přehled vznikne sám a Petrovi přistane jako připravený podklad. Všimněte si, co se právě stalo s klasickým „nikdo nemá čas na údržbu wiki“: údržba se smrskla na čtvrthodinu odpovědí na míru položené otázky. I odpověď „beze změny“ má hodnotu — aktualizuje datum revize, a datum u stránky je pro čtenáře signál důvěryhodnosti.
+
+Jednou za rok k tomu přidejte velký úklid: audit konzistence z fáze 4 (sirotci, rozpory mezi mapou a stránkou) plus otázka, jestli horní desítka pořád platí — firma se vyvíjí a s ní i to, které procesy jsou kritické. Ze zásobníku z inventury povyšte další dva tři procesy a zopakujte na ně fáze 2 až 4. Systém roste přírůstkově; nikdy nebudete „hotovi“ a to je v pořádku — firma taky není nikdy hotová.
+
+## Kolik času to stojí a jak projekt nezabít
+
+Poctivá kalkulace času, aby nikdo nekupoval zajíce v pytli. Čísla jsou z modelové dílny a berte je jako řád, ne slib — složitější procesy si řeknou o víc.
+
+- **Fáze 0–1 (přípravy a inventura):** jeden večer na konektory a Projekt, jeden večer na inventuru a výběr desítky. Dělá majitel.
+- **Fáze 2 (zpovědi):** 45–60 minut na proces plus 20 minut na kontrolu protokolu; při dvou procesech týdně pět až šest týdnů. Dělají zpovídaní — každý u svých procesů, nikdo nesedí u cizích.
+- **Fáze 3–4 (mapy a stránky):** na proces zhruba půlhodina čistého času — diagram promptem, revize s fixou, stránka promptem, kontrola. Dá se dělat v dávkách; klidně to celé může držet jeden pověřený člověk, který nemusí být expert na procesy — expertem je protokol.
+- **Fáze 5 (odvozené výstupy):** vznikají podle potřeby; plán zaučení nebo checklist je záležitost na čtvrt hodiny, protože zdroj už existuje.
+- **Fáze 6 (údržba):** čtvrthodina na vlastníka jednou za kvartál plus změny průběžně — které jsou levné, a proto se dějí.
+
+Celkem: **projekt na šest až osm týdnů po večerech, žádný měsíc mimo provoz.** A tři rady, jak ho nezabít, protože zabít se dá — vždycky stejným způsobem.
+
+Za prvé, **první proces dotáhněte celý za první týden**: zpověď, mapa, stránka, hotovo. Nic nepřesvědčí tým (ani vás) tolik jako jedna kompletní ukázka — mapa nabídkového procesu vytištěná na nástěnce udělá pro projekt víc než jakýkoli proslov. Projekty tohoto typu umírají na „všechno rozpracované, nic hotové“.
+
+Za druhé, **nedělejte z toho tajný projekt majitele.** Petr může celou bázi postavit sám po večerech — a vyrobí tím přesně to, co měl: know-how v jedné hlavě, jen s hezčím rozhraním. Zpovědi patří lidem, kteří procesy žijí, vlastnictví stránek se rozdává hned, a báze se od prvního týdne používá nahlas: když se někdo zeptá na věc, která je v bázi, odpověď zní „je to v bázi, tady je odkaz — a kdyby tam něco nesedělo, řekni, opravíme to“. Druhá půlka té věty je důležitější než první: báze, které se nedá nic vytknout, je báze, kterou nikdo nečte.
+
+Za třetí, **nečekejte na klid.** Klid nebude. Projekt je navržený tak, aby běžel vedle provozu — dva večery týdně — a aby každý dokončený proces měl hodnotu sám o sobě, i kdyby se dál nepokračovalo. Pět zmapovaných procesů je pětkrát lepší než nula; perfekcionismus („uděláme to pořádně, až bude čas“) je tu jen vznešené jméno pro nikdy.
+
+## Bezpečnost: koncentrované know-how se musí chránit
+
+Celým návodem se táhla jedna nenápadná změna: know-how, které bylo rozptýlené a nedobytné (v hlavách), je teď koncentrované a přenositelné (v bázi). To je celý smysl — a zároveň nové riziko, protože co se dá předat nováčkovi, dá se i odnést. Bezpečnost tu proto není kapitola pro paranoiky, ale součást návrhu. Širší rámec dává [průvodce firemními znalostmi](/prirucka/firemni-znalosti); tady je konkrétní minimum pro procesní bázi.
+
+**Co do báze nepatří — nikdy:**
+
+- **Hesla, PINy, přístupové kódy, API klíče.** Báze smí říct, kde přístup najdete („přístup k portálu dodavatele: viz správce hesel, položka Hutní portál“), nikdy jaký je. Správce hesel je nástroj s řízeným přístupem a auditem; stránka v Notionu není ani jedno. Tohle pravidlo se nejčastěji poruší bezelstně — heslo „jen dočasně“ v poznámce postupu — a proto ho hlídá revizní prompt níže.
+- **Osobní údaje zákazníků nad rámec nezbytného.** Procesní stránka popisuje, jak se řeší reklamace — ne rodná čísla, adresy a historie konkrétních zákazníků. Kde stránka potřebuje příklad, ať je smyšlený nebo anonymizovaný. Skutečná zákaznická data patří do systémů k tomu určených, s vlastním řízením přístupu.
+- **Mzdy, hodnocení lidí, zdravotní informace.** Org chart nese jména a odpovědnosti; všechno citlivější o lidech do procesní báze nepatří vůbec.
+
+**Kdo se do báze dostane:** Přístupy nastavujte podle rolí, ne plošně. Většina báze má být čitelná pro celý tým — to je její smysl — ale kalkulační pravidla a marže (proces cenové nabídky) můžou být jen pro Petra a obchodní referentku. Notion i Lucid umí oprávnění na úrovni stránek, složek a hostů; externímu montážníkovi na sezónu dejte hosta na tři stránky, ne účet s přístupem všude. A dvě provozní pravidla: při odchodu zaměstnance je odebrání přístupů položka výstupního checklistu (mimochodem — i ten je proces do báze); u sdílených odkazů z Lucidu pozor na rozdíl mezi „kdokoli s odkazem“ a sdílením konkrétním lidem — mapy procesů nejsou pro internet.
+
+**Kde báze žije:** Ve firemním workspace na placeném účtu se smluvní ochranou dat — platí pro Notion, Lucid i Claude. A protože jde o koncentrované aktivum, jednou za čas záloha exportem (Notion i Lucid export umí): ne kvůli nedůvěře k cloudu, ale proto, že aktivum firmy nemá existovat jen v jednom systému jednoho dodavatele.
+
+**AI navrhuje, člověk schvaluje** platí i tady, v konkrétní podobě: konektory smějí číst a navrhovat volně, ale hromadné zásahy — mazání stránek, přesuny struktury, změny oprávnění, sdílení mimo firmu — schvaluje člověk po jednom. Proto mají prompty v tomhle návodu na konci větu „nic neměň, dokud neschválím“; není to folklor, je to pojistka proti tichému úklidu, který smaže půl báze.
+
+A jednou za kvartál bezpečnostní revize — klidně jako součást té procesní:
+
+```text
+Udělej bezpečnostní revizi znalostní báze v Notionu:
+1. Prohledej všechny stránky a hledej, co vypadá jako heslo, PIN,
+   přístupový kód, API klíč nebo přihlašovací údaje — i v poznámkách
+   a historii změn stránek.
+2. Hledej osobní údaje zákazníků: jména ve spojení s adresou,
+   telefonem, e-mailem, rodná čísla, SPZ. Vzorové příklady na
+   stránkách mají být smyšlené — označ ty, které vypadají skutečně.
+3. Vypiš stránky sdílené mimo firemní workspace nebo veřejným
+   odkazem.
+4. Vypiš hosty a externí účty s přístupem a ke kterým stránkám.
+Vrať nálezy v tabulce: kde, co, závažnost, návrh řešení (přesunout
+do správce hesel / anonymizovat / zrušit sdílení). Nic nemaž a nikam
+nezasahuj — každý nález vyřešíme ručně.
+```
+
+## Nejčastější chyby
+
+- **Začít nástrojem místo zpovědí.** Den stavění krásné struktury v Notionu, barevné ikonky, prázdné stránky — a nadšení je pryč dřív, než vznikl první obsah. Pořadí je: rozhovor, protokol, mapa, stránka. Struktura slouží obsahu, ne obráceně.
+- **Mapovat všech čtyřicet procesů najednou.** Projekt umře na vyčerpání kolem dvanáctého. Deset kritických podle bus factoru, zbytek do zásobníku; další vlna až po roce provozu.
+- **Dokumentovat ideál místo reality.** „Takhle by to mělo být“ vytvoří mapu, podle které nikdo nechodí, a lidé se naučí bázi ignorovat. Nejdřív zachyťte, co je — kotva v posledním případu pomáhá — zlepšujte až druhým krokem, a pak změňte i mapu.
+- **Nechat AI domýšlet díry.** Vymyšlený krok vypadá stejně důvěryhodně jako pravý; proto všechny prompty obsahují „nedomýšlej, označ jako otevřenou otázku“. Sekce otevřených otázek je pracovní seznam, ne ostuda.
+- **Stránky bez vlastníka a bez data revize.** Přesně takhle umřela minulá wiki. Jméno u každého procesu, termín revize v registru, čtvrtletní rituál — bez těch tří věcí jste postavili pomník.
+- **Nacpat všechno do diagramu.** Třicetikrokové mapy s odstavci v rámečcích nikdo nečte a každá změna sazby by znamenala překreslovat. Mapa nese tok a předávky, text nese detaily a hodnoty — viz tabulka výše.
+- **Báze v osobním účtu majitele.** Odejde s ním, nedá se řídit přístup, při prodeji se špatně předává. Firemní workspace od prvního dne.
+
+## Nejlepší nástroje
+
+- **Claude s konektory** — dirigent celého postupu: vede zpovědi (text i [hlas](/tipy/ai-hlasovy-rezim)), čte fotky sešitů a tabulí včetně rukopisu, píše protokoly a přes konektory hýbe Lucidem i Notionem. Projekt na claude.ai drží kontext firmy, plánované úlohy hlídají čtvrtletní revize.
+- **Lucid** — mapy: v době psaní jeho MCP konektor staví diagramy z textové specifikace (vývojové diagramy, swimlanes, BPMN prvky), org charty z textu či CSV, myšlenkové a sekvenční diagramy i ERD, umí dokumenty prohledávat, upravovat po prvcích, exportovat PNG a sdílet. Diagramy jsou plně editovatelné dál — ručně i promptem.
+- **Notion** — znalostní báze: stránky, databáze s vlastnostmi a pohledy, oprávnění. Oficiální MCP konektor v době psaní umí hledat, číst, zakládat a upravovat stránky, zakládat databáze a dotazovat se do nich s filtry — takže báze vzniká a žije promptem. Který nástroj jaký konektor má a jak se připojuje, shrnuje [katalog MCP nástrojů](/tipy/mcp-konektory-nastroje).
+- **Správce hesel** (1Password, Bitwarden a podobné) — jediné správné místo pro přístupy, na které báze jen odkazuje.
+- **Alternativy pro princip, ne značky:** máte-li firmu ve světě Microsoftu či Atlassianu, tentýž postup funguje se SharePointem nebo Confluence jako bází; textové diagramy Mermaid v markdownu jsou zase cesta pro firmy, které chtějí dokumentaci verzovat v gitu. Podstata — zpověď, protokol, editovatelná mapa, jeden zdroj pravdy, vlastník, revize — je přenositelná; tenhle návod je konkrétní v Lucidu a Notionu proto, že oba mají v době psaní zralé oficiální konektory.
+
+## Co vám to přinese
+
+Sliby v číslech si tenhle web nedovoluje a u dokumentace procesů by byly obzvlášť laciné — přínos závisí na tom, jak moc dnes firma na hlavách stojí. Kvalitativně je ale účet jasný a dá se měřit na vlastních datech; tři metriky si poznamenejte před startem, ať máte za půl roku s čím srovnávat: kolikrát denně vám volá dílna, když nejste v práci; jak dlouho trvá, než je nový člověk samostatný; kolik otázek za týden dostane Franta na věci, které dělá jen on.
+
+- **Čas:** Otázky, které se ptaly Petra, se ptají báze — a Petr přestává být úzkým hrdlem nabídek, Jana faktur. Zaučení nováčka se zkracuje z odkoukávání na řízený plán s kontrolními otázkami; a čas klíčových lidí se přesouvá z odpovídání na totéž potřetí k práci, kterou umí jen oni.
+- **Peníze:** Méně chyb z improvizace — reklamace ze „kroků, které nikdo neřekl“, jsou přesně ten druh nákladů, který dokumentace srazí. A při prodeji nebo předání firmy je rozdíl hmatatelný: kupující platí za systém, který funguje bez prodávajícího; firma, kde odchodem majitele odejde půlka know-how, se prodává s výraznou srážkou, nebo vůbec. Zmapované procesy jsou jedna z prvních věcí, na které se prověrka ptá — a málokterá malá firma je má.
+- **Klid:** Dovolená bez pěti telefonátů není bonmot, je to test systému. A hlouběji: firma přestává být rukojmím výpadků — nemoc, výpověď, ten autobus z bus factoru. Franta jednou do důchodu odejde; rozdíl je, jestli s ním odejde i devatenáct let know-how.
+- **Kvalita:** Proces, který se dělá pokaždé stejně, jde zlepšovat — u procesu, který má každý v hlavě jinak, se nedá ani říct, co znamená „lépe“. Mapa navíc poprvé zviditelní předávky a rozhodovací místa, takže se o nich dá mluvit věcně, ne formou „já myslel, že to děláš ty“.
+
+## Pro tip
+
+Až bude báze pár týdnů v provozu, otestujte ji nejtvrdší zkouškou, jakou znám: **testem předání.** Nechte AI sehrát člověka, který má firmu převzít — a nesmí se zeptat nikoho živého:
+
+```text
+Máš přístup k naší znalostní bázi v Notionu a mapám v Lucidu. Hraj
+roli zkušeného provozního manažera, který od pondělí přebírá řízení
+firmy — majitel je 14 dní nedostupný. Nesmíš se ptát žádného člověka,
+jen báze.
+
+Projdi si dokumentaci a odpověz:
+1. Které běžné situace příštích 14 dní zvládneš vyřešit jen z báze?
+   (přijde poptávka, reklamace, chybí materiál, nemocný svářeč)
+2. U kterých situací bys narazil — co ti báze neřekne? Buď konkrétní:
+   která informace, na které stránce by měla být.
+3. Které tři stránky jsou nejslabší a proč?
+4. Na škále klidně přísně: dala by se podle téhle dokumentace firma
+   předat? Co by muselo existovat, aby ano?
+Nešetři nás — každá díra, kterou najdeš teď, je díra, kterou nenajde
+zástupce v srpnu nebo kupující při prověrce.
+```
+
+Výsledek bývá vystřízlivění a přesný pracovní seznam zároveň — a je to tentýž test, který jednou provede kupující, jen nanečisto a zadarmo. Spusťte ho před každou Petrovou dovolenou; až jednou vrátí „zvládnu prvních deset situací ze dvanácti“, jeďte k moři.
+
+A závěrečné pravidlo celého návodu: **mapa, kterou neumíte upravit, je jen fotka.** Hodnota není v tom, že procesy jednou někdo nakreslil a sepsal — ta vyprchá za půl roku. Hodnota je v tom, že firma vlastní editovatelné zdroje svého know-how a zvyk je udržovat: proces se změní, stránka a mapa se změní s ním, jedním promptem, s řádkem v historii. To je rozdíl mezi firmou, která má šanon s diagramy z roku, kdy přišel konzultant — a firmou, která přestala stát na tom, co má Franta v hlavě.
