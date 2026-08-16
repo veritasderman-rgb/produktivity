@@ -1,0 +1,986 @@
+---
+title: "Company know-how out of your head: AI interviews, Lucid, and Notion"
+excerpt: "A complete guide with 25 prompts: AI interviews the owner and the foreman, draws the processes into editable maps via the Lucid connector, and saves the procedures into a living knowledge base in Notion. The company stops running on what's in Franta's head."
+category: "ai"
+platform: "vsude"
+audience: ["manazer"]
+keys: []
+saves: "~weeks of writing documentation"
+date: "2026-08-16"
+updated: "2026-08-16"
+tldr: >-
+  Company procedures usually don't live in any document — they live in the owner's head
+  and in the heads of two or three key people, which is why the company can't be handed
+  over, sold, or left alone for two weeks. This guide shows a path where nobody writes
+  a wiki: AI runs a structured interview ("how do we actually do this when an order
+  comes in?"), draws a process map from the conversation via the Lucid connector, and
+  saves the procedure as a knowledge-base page in Notion. The result is editable — when
+  a process changes, you update the diagram and the page with one prompt, instead of
+  "we'll redraw it sometime." You can map ten processes that ride on one person's head,
+  a couple evenings a week, over a few weeks.
+faq:
+  - q: >-
+      Why does the classic "let's write a wiki" approach fail?
+    a: >-
+      Because writing documentation is a different job from the one you're documenting
+      — and in a fight for time, it always loses to daily operations. On top of that,
+      the expert suffers from the curse of knowledge: the steps they do automatically
+      get left out when they write, because they don't even see them. AI flips this
+      around: you talk about your work, which everyone can do, and AI asks follow-up
+      questions, structures the answers, draws, and writes.
+  - q: >-
+      What can the Lucid connector do at the time of writing?
+    a: >-
+      Build a diagram from a text specification — flowcharts, swimlanes, containers,
+      BPMN elements, tables — plus an org chart from a text description or a CSV, a
+      mind map, a sequence diagram, and an ERD; it can also search documents, edit
+      them element by element, export to PNG, and share a link. The resulting diagram
+      is an ordinary editable Lucid document; it's not data-connected and doesn't
+      update itself — keeping it current is the job of the process owner and the
+      quarterly review.
+  - q: >-
+      What if the owner "can't describe how they actually do it"?
+    a: >-
+      That's exactly why this guide is built around interviewing, not writing. A
+      structured conversation asks one question at a time about the trigger, the
+      steps, the roles, the systems, the exceptions, and what goes wrong — and keeps
+      probing at the things the expert takes for granted. It works best over the last
+      real job, not over "the general procedure": people remember a specific case
+      even where they'd never manage to state a general rule.
+  - q: >-
+      What doesn't belong in the knowledge base?
+    a: >-
+      Passwords and access codes (those belong in a password manager — the base is
+      allowed to say where to find the access, never what it is), customer personal
+      data beyond what's necessary, and people's pay and performance reviews. The
+      base describes how things are done, not the sensitive data they're done with.
+      And the whole thing belongs in a paid account with contractual data
+      protection, not an anonymous free chat.
+  - q: >-
+      How do I make sure the base doesn't go stale like every wiki before it?
+    a: >-
+      Through three mechanisms: every process has an owner responsible for the
+      page being accurate, changing a process means updating the diagram and the
+      page with one prompt (maintenance is cheap, so it actually happens), and a
+      quarterly review — one prompt lists the overdue processes and prepares check
+      questions for the owners. Editability isn't a detail, it's the entire point.
+  - q: >-
+      Will this really raise the company's sale price?
+    a: >-
+      Soberly: a buyer pays more for a company that runs without the seller than for
+      one where half the know-how walks out the door with the owner — documented
+      processes are one of the first things due diligence asks about. Nobody can
+      honestly promise you an exact number; what's certain is the opposite effect:
+      a company that runs on one person's head sells badly, or not at all.
+---
+
+Ask in a small company "how do we put together a price quote here?" and you'll get three different answers and one shrug: "the boss does that." Ask what happens when a complaint comes in, and the answer is "Franta handles that." The company works — jobs get done, invoices go out, customers come back. But it doesn't work as a system; it works as the sum of two or three heads that know. As long as those heads show up for work, nobody notices. The owner notices when they want to go on vacation and are picking up their fifth phone call on day five. The new hire notices when there's nobody free to train them for three weeks. And the buyer notices when they're about to purchase the company and due diligence reveals they wouldn't be buying a company — they'd be buying a dependency on its owner.
+
+The classic advice is "write down your processes." The classic outcome: it never happens, because writing is extra work nobody's good at and nobody has time for. This guide takes a different path, built on two ideas. First: **you talk, AI writes and draws.** A structured interview — in text or out loud — pulls out of the owner and key people how things actually get done, and AI turns that into a process map via the Lucid connector and a knowledge-base page in Notion. Second: **the output isn't a document, it's an editable asset.** When a process changes, you update the diagram and the page with one prompt — not "we'll redraw it sometime," the sentence that documentation dies by.
+
+The line of thinking is the same as in the guide on [brand as a system](/tipy/firma-brand-voice-brozura-web-crm): a model scenario, an inventory of what you have, a single source of truth, derived outputs, editability, security — and at the end a sober look at what it gets you, with no promised numbers. There, the material was brand voice; here it's the most valuable thing a company has — the know-how behind how its work gets done. You can read it phase by phase, each one stands on its own with copy-paste prompts — just fill in the brackets. It's deliberately long: it's meant to walk you through the whole path, not just tease you into starting.
+
+## A typical scenario
+
+Petr runs a metalworking workshop: twelve people, custom fabrication — gates, railings, steel structures, staircases — plus installations and service for regular customers. The company has been running for over twenty years, and running well. But when Petr once honestly tried to answer the question "what does this company actually consist of outside my own head?", here's what he got: the building, the machines, the material stockroom, and twelve employment contracts. Everything else — how a quote gets calculated, when a deposit is taken, how steel stock gets ordered, what gets checked before shipping, how the collaboration with the galvanizing shop works, who to call when a job forces a change of deadline — exists in exactly two copies: in his head and in the head of his foreman, Franta. Franta has been at the company for nineteen years and is the most reliable person Petr knows. He's also fifty-eight.
+
+Concretely, it looks like this. Price quotes are done exclusively by Petr — his markup calculations live in a notebook and in his head, nobody else can price a quote, so when Petr is off in the mountains, quotes sit for a week and two jobs go to the competition in the meantime. Franta is the only one who knows how to plan the production week, in what order jobs go onto the bending machine, and exactly what needs to be arranged with the galvanizing shop so a structure doesn't come back late or scratched. The bookkeeper, Jana, handles invoicing — but only she does; when she was in for surgery, invoices didn't go out for three weeks. And when a new installer started, "training" meant six months of tagging along with the crew and picking things up by watching, and the first three complaints came from exactly the steps nobody had told him about, because "of course everyone knows that."
+
+Petr has two goals, one big and one small. The big one: in five years he wants to sell the company, or hand it over, and he suspects that a company that only runs with him inside it sells badly. The small but more urgent one: he wants two weeks at the seaside in August without the workshop calling him five times a day. Both goals share the same solution — getting the know-how out of people's heads and into a form anyone on the team can read, look through, and edit.
+
+Six weeks later, things look different. Petr, Franta, and Jana went through a series of evening "confessions" — interviews led by AI that were spoken instead of written. Ten of the most critical processes now have a process map in Lucid — drawn from the interview, not by hand — and a page in a Notion knowledge base: steps, exceptions, who's responsible for what, where to find things. The sales rep can now put together a quote for a standard railing following the procedure, with Petr just approving it. The new welder, Ondřej, spent his first two weeks mostly training himself: the base answered the basic questions, and he saved the people for what mattered — why things are done exactly this way. And when the material-ordering procedure changed in October because the workshop switched steel suppliers, it didn't mean "redraw the map sometime": Petr updated the diagram and the page with one prompt, and a line with the date and the reason went into the change history.
+
+No magic happened. It was a sequence of steps we're about to walk through — and it works the same way for an auto shop, an accounting firm, an online store, or a medical practice. The metalworking workshop is just the model case; you fill in the brackets in the prompts with your own.
+
+## Why process documentation normally fails — and what AI changes about it
+
+Before we start, it's worth understanding why every previous attempt at "writing down the processes" ended the way it did. Not because of laziness — because of four structural reasons that apply to almost every small company.
+
+**First: writing is a different skill from doing.** Franta is an excellent foreman and a mediocre writer — and that's fine, nobody hired him to write. Asking the company's best people to write a wiki in the evenings means asking them to do work they don't know how to do, don't enjoy, and get no credit for. The usual result is one enthusiastic Saturday, three half-written documents, and a quiet end.
+
+**Second: the curse of knowledge.** An expert doesn't see their own steps. When Franta describes how he releases a job into production, he says "well, I just plan it for the week" — and skips fifteen decisions he makes automatically: that welded parts going to galvanizing have to go out on Monday, because the galvanizing shop collects on Tuesday; that for a railing going to a construction site, you call the site foreman first to check the anchoring is done; that if a job includes stainless steel, it gets scheduled for the end of the week so it doesn't contaminate the grinder. A blank page won't get these things out of him. A good question will — and that's exactly where AI is strong: asking systematically, patiently, and in depth.
+
+**Third: documentation without maintenance goes stale on the day it's created.** Even companies that have documentation — say, for ISO certification — often have manuals written for the auditor, not for daily operations: formally valid on audit day, dead in daily practice. The process changes, the document doesn't, and once people run into an outdated procedure once, they stop trusting the documentation as a whole. Maintenance fails for the same reason creation does: editing a document and redrawing a diagram is expensive manual work, so it gets put off.
+
+**Fourth: even when a document exists, nobody can find it.** The invoicing procedure is in an email from 2021, the pricing formulas are in a notebook, the org chart is in a presentation sitting on the desktop of Petr's laptop. Documentation scattered across drives and inboxes is, in practice, the same as no documentation.
+
+AI changes all four of these at once, which is why this guide makes sense right now. Writing and drawing stop being the bottleneck: **everyone can talk about their own work — and more than that, most experts enjoy talking about it.** A process confession is a more pleasant evening for Franta than writing a wiki: someone finally asked him how he actually does it. The interview's structure breaks the curse of knowledge — AI keeps probing for triggers, exceptions, and mishaps, exactly the things an expert wouldn't think to mention on their own. Maintenance is cheap: updating a diagram and a page is one prompt, so it actually gets done. And because everything is created in one place — maps in Lucid, procedures in Notion, both linked — it can also be found, searched, and asked a question.
+
+One thing AI won't change: the decision that the company means it, and the hour or two a week that the owner and key people put into it. That's the entire upfront investment. Let's get back to Petr and start where every reckoning starts: the inventory.
+
+## Before you start: two connectors and one Project
+
+Technical setup takes surprisingly little of this guide, and anyone who can install an app on their phone can handle it. Three steps.
+
+**Connect Lucid and Notion.** Both are remote connectors: on claude.ai you'll find them in the connector directory, click connect, and sign in to your Lucid or Notion account respectively. While connecting, read the permissions screen — it's the one place where you're the one deciding: which workspace you're connecting (the company one, not a personal one) and what the connector is allowed to do. For Notion, you'll also choose which pages the connector gets access to — for a start, just the future root page of the knowledge base is fine; you can expand it any time. The general connection process, how to read permissions, and an overview of other tools with connectors are covered in the [MCP tools catalog](/tipy/mcp-konektory-nastroje). You'll need accounts on both services; check with Lucid which features your account tier covers — and a reminder of the principle from phase 1: company know-how belongs in paid accounts with contractual data protection, not anonymous free tiers.
+
+**Set up a Project.** On claude.ai, create a Project — say "Company Processes" — and write persistent context into its instructions: what your company is, how many people, who's who (five lines is enough), and the rules you want held in every conversation — "ask one question at a time," "don't guess, flag open questions," "answers in the language of the shop floor." Run every interview and every step of building the base through this Project; context doesn't get lost between conversations and you don't have to repeat it.
+
+**Give people a heads-up.** Not a technical step, but it will decide more than the previous two combined: tell the team what's coming and why. Wording matters — "we're going to document our processes" sounds like an audit and people clam up; "I want this company to stop running on Franta and me holding everything in our heads — and we're starting by having AI interview us" sounds like the relief it actually is. Emphasize two things: nobody's going to write anything (everyone can talk) and documentation doesn't replace anyone — quite the opposite, it frees up key people from the questions that pester them. Franta's first reaction of "so I'm going to dictate to a robot?" is normal; after the first confession, where someone listened to him for an hour and forgot nothing, it usually turns into "so when do we do production planning?"
+
+## Phase 1: inventory — finding out what's all in your heads
+
+The first instinct is usually the wrong one: open Notion and start building a beautiful structure, or jump straight to drawing the first diagram. But until you know how many processes the company actually has, and which of them are on fire, you'd be building shelves without knowing what goes on them. Phase 1 is paper (or rather, chat) work: write down what exists in the company, and pick where to start. It takes one evening, and it decides whether the project is still alive a month from now, or already asleep.
+
+Right at the start, one principle that holds for the whole guide: processes, calculations, and internal procedures are company know-how. Work with them **in a paid account with contractual data protection**, not an anonymous free chat. And ideally in a Project on claude.ai, so the context — what your company is, who's who, how you talk — carries across every conversation.
+
+### The rough list: what actually gets done here
+
+Don't start from "the company's process map" — that's a consultant's term nobody has in their head. Start from activities: what repeats in the company. AI is good at two things here: offering an outline of areas you wouldn't have thought of on your own, and asking about what you left out.
+
+```text
+I'm the owner of a metalworking workshop with 12 people: custom
+fabrication (gates, railings, steel structures, staircases),
+on-site installations, and service. I want to list all the
+recurring processes in the company so I can pick which ones to
+document first.
+
+Walk me through it area by area: sales (inquiries, quotes,
+contracts), jobs and production, purchasing and stock, installation
+and service, finance (invoicing, payments, reminders), people
+(hiring, onboarding, attendance), operations (machines, inspections,
+workplace safety, vehicles). For each area, ask me 3-5 "what happens
+when..." questions and build a list of processes from my answers
+as we go. A process = a repeated activity with a start and an end,
+not a department.
+
+Ask me about one area at a time so I can keep up. At the end, give
+me one list: process name, what it is in one sentence, how often
+it runs (daily / weekly / monthly / occasionally), and who actually
+does it today — names, not job titles.
+```
+
+It'll come back with a list that, for a twelve-person company, typically runs 25-45 items long — and that's fine, you're not mapping them all yet. Watch two things. First, the "who actually does it today" column: insist on names. "Production handles it" is fog; "Franta does it, and if he can't, nobody does" is the information you're doing all of this for. Second, watch for the model's tendency to add processes it knows from textbooks that don't exist at your company ("supplier relationship management") — cross out what you don't recognize. It's your list, not its.
+
+### Bus factor: which processes ride on one person
+
+Now the key decision of the whole phase. There's no point documenting all forty processes — the project would die of exhaustion around number twelve. You'll pick ten. And the selection criterion isn't "what's biggest" or "what's easiest," but **what puts the company at the most risk by living in one person's head.** Developers call this the bus factor: how many people would have to fail to show up tomorrow for an activity to stop. For processes with a bus factor of one, the answer is "one" — and those are exactly the ones keeping you home from vacation and knocking down the company's sale price.
+
+```text
+Here's our list of processes from the inventory [paste the list].
+Help me pick 10 to document first.
+
+For each process, ask me (one at a time, briefly):
+1. How many people can do the whole thing today, without help?
+   (bus factor)
+2. What happens if that person is out for 14 days — does the
+   process wait, does someone half-cover it, or does it stop and
+   cause damage?
+3. How often does the process run?
+4. Has this process ever cost money because it was done wrong or
+   late? Roughly how much, order of magnitude?
+
+Build a table from the answers: process, bus factor, impact of an
+outage (stops / slows down / waits), frequency, history of mishaps.
+Propose a documentation order: process with a bus factor of 1 that
+stops completely on an outage and runs often go first. Justify each
+row's ranking in one sentence — I'll make the final call.
+```
+
+It'll come back with a ranked table, and for the metalworking workshop the top ten look something like this — yours will differ, but the pattern will be the same: money and key people almost always end up at the top.
+
+1. **Price quote and calculation** — only Petr can do it; when it stalls, the company loses jobs.
+2. **Order intake and release into production** — what gets agreed has to be handed off correctly; today it's verbal.
+3. **Production week planning** — Franta's head; nobody else knows why the order is what it is.
+4. **Steel stock purchasing** — who, from whom, on what terms, when it pays to stock up.
+5. **Galvanizing shop collaboration** — deadlines, packaging, what to check on the return trip; the source of two of the more expensive complaints.
+6. **Outbound inspection and shipping** — what gets checked, what gets photographed, what the customer signs.
+7. **On-site installation** — prep, what to bring, the handover protocol.
+8. **Invoicing and payment reminders** — only Jana can do it; the company's already had a three-week outage.
+9. **Complaints** — who decides, what's valid, how fast the response has to be.
+10. **Onboarding a new hire** — today it's "tag along with the crew and watch"; six months and three complaints.
+
+Don't throw away the rest of the list — save it, in phase 4 it becomes the knowledge base's backlog. But for the next six weeks, only the ten exist.
+
+### Interview schedule: a calendar instead of good intentions
+
+The last step of phase 1 is trivial and decisive: turn the ten into dates on a calendar. Good intentions like "we'll do it when there's time" mean never; two interviews a week for 45-60 minutes mean done in five to six weeks.
+
+```text
+We have a ranked list of 10 processes to document [paste it] and
+three people who hold them in their heads: owner (quotes,
+complaints, purchasing), foreman (production, planning,
+collaboration, shipping), bookkeeper (invoicing, reminders). We all
+know the onboarding process in bits and pieces.
+
+Build a 6-week interview schedule: 2 interviews a week, 45-60
+minutes each. For each one, note: the process, who's being
+interviewed, what they should prepare beforehand (the last concrete
+case, materials — notebook, spreadsheets, sample documents), and
+who will review the interview (a second person who knows the
+process at least partially). Spread out one person's interviews
+over time so they don't get three evenings in a row. I want the
+output as a table I can print and pin up in the workshop.
+```
+
+A note on the "what to prepare beforehand" item: it matters more than it looks. The interview in phase 2 is built on a concrete last case — the last quote, the last complaint — and on artifacts: Petr's calculation notebook, Jana's invoice spreadsheet, a photo of the whiteboard on the shop floor. Claude can read images, including handwriting, so "prepare" can simply mean taking a photo. Don't prepare anything new; bring what already exists.
+
+With that, the inventory is done: you know what you have, you've picked the top ten by risk, and you have a calendar. Now the most interesting part — the interviews.
+
+## Phase 2: the AI confession — a structured interview about a process
+
+This is where the whole project is won or lost. The quality of the maps and pages built later is exactly as good as the interview was — Lucid and Notion can't rescue an interview that stayed on the surface. The good news: running a good process interview is a craft with clear rules, and AI can hold that structure for you. Your job is to tell the truth — the messy parts included.
+
+### Anatomy of a confession: six things you need to know about a process
+
+Every process can be interviewed using the same structure. It's worth knowing it even though AI will be the one asking the questions — it tells you whether the interview is going somewhere.
+
+- **Trigger.** What starts the process? An inquiry email arrives, the phone rings, it's Monday morning, a return shipment comes back from the galvanizing shop. Without a clear trigger, people can't tell that a process has just started and is theirs to handle.
+- **Steps.** What happens, in what order, and what each step ends with. Not "a quote gets made," but "it's measured on site, the material is calculated, labor is added by rate, a markup is applied by customer type, a PDF is sent within three days."
+- **Who.** The role at each step — and honestly: who does it officially and who does it in practice. The gap between the paper version and the real one is exactly what you want to capture.
+- **Systems and artifacts.** Where things live: a spreadsheet, a notebook, an email, a program, a binder, a whiteboard. Even "Franta keeps it in his planner" is a system — just a bad one, and now at least you know.
+- **Exceptions.** When it goes differently. It's urgent, the customer is big, material isn't in stock, it's July and half the shop is on vacation. Exceptions are usually a bigger share of the know-how than the main path.
+- **What goes wrong.** Where the process has historically failed, what was the most expensive mistake, what gets caught too late. Mishaps are the most concentrated lessons a company has — and they've never once been in a manual.
+
+### The core interview prompt
+
+This is the single most important prompt in the article. It's worth saving to your prompt library and reusing for every process — a consistent interview structure means consistent maps and pages.
+
+```text
+You'll run a structured interview with me about one company
+process. I'm [the owner of a metalworking workshop, 12 people] and
+the process is [a price quote for custom fabrication]. Goal:
+capture how we ACTUALLY do this here, so a capable new hire could
+follow it from the record. A diagram and a knowledge-base page will
+be built from this interview later.
+
+Interview rules:
+- Ask ONE question at a time and wait for the answer. No
+  questionnaires.
+- Start with the trigger: what starts the process and how I'd
+  recognize that it started.
+- Then walk me through the steps. For each one, ask: what gets
+  done, who does it, in what / where (system, spreadsheet, paper),
+  what the step ends with, and how the result gets handed off.
+- When I say something vague ("I just calculate it"), stop me and
+  ask for specifics: based on what, where do the numbers come
+  from, what if something's missing.
+- After the main path, ask about exceptions: "When does it go
+  differently?" — rush jobs, a big customer, missing material,
+  vacations. For each exception: how I'd recognize it and what
+  happens instead of the standard.
+- At the end: what has historically gone wrong in this process,
+  what it cost, and what's been done differently since.
+- Keep structured notes as we go. If I contradict myself, flag it.
+
+When I say "done," end the interview and summarize what's still
+missing.
+Start with the first question.
+```
+
+An interview like this takes 30-60 minutes and is surprisingly pleasant — for the person being interviewed, it's often the first time anyone has systematically asked them about something they're good at. Two notes from practice. The model tends to drift toward "thank you, I think I have everything" after a few questions — it doesn't; the sentence "keep going, we haven't covered exceptions yet" pulls it back to work. And answer in the language of the shop floor, not the language you think belongs in documentation: "the bender," "galvanize it," "send it to zinc" — precision lives in specificity, tidying it up can happen later.
+
+### What a confession looks like in practice
+
+To make this concrete, here's a short excerpt from Petr's interview about the quoting process — around the ten-minute mark:
+
+```
+AI: You said you add labor to the cost of materials. How do you
+estimate the number of hours?
+Petr: Off the top of my head. I know how long things take.
+AI: Let's try to break that down. Your last quote was a railing for
+an apartment building. How did you arrive at the hours for that
+one?
+Petr: Well... twelve meters of railing, that's about a day in the
+shop for prep and welding, a day at the paint shop — actually no,
+that one went to galvanizing and powder coat, so I only count
+handling there — and a day of installation for two people.
+AI: So you're estimating using conversion formulas, something like
+"a meter of railing = X hours of prep"? What other conversions like
+that do you use?
+Petr: Actually, yeah. Gates I price per unit by type, staircases by
+number of steps... and then I add a buffer when it's an older
+building, because there's never anything square in those.
+AI: How big is that buffer, and exactly when do you add it?
+Petr: About ten to fifteen percent. When it's a renovation, when
+the customer's working with an architect — they change the brief —
+and when it's outdoor work in winter.
+AI: Those are three concrete rules that aren't written down
+anywhere yet. I'll put them into the calculation rules. Next
+question: of everything you've just described, what could someone
+other than you calculate?
+```
+
+This is the curse of knowledge caught in the act: "I calculate it in my head" fell apart over four questions into conversion formulas and three specific buffer rules — things that can be written down, taught, and handed off. None of those questions are clever; they're just asked patiently, one at a time, which is exactly what an exhausted colleague over a beer won't do and AI will. After an hour of a conversation like this, the quoting process record has enough content for a sales rep to genuinely learn how to price a standard quote.
+
+### Anchoring in the last case: "walk me through yesterday's job"
+
+The most common failure of a process interview: the person describes how the process is supposed to work, not how it actually works. Not that they're lying — a general question simply invites a general, idealized answer. The antidote is episodic memory: people remember a specific, recent case, side trips included, that they'd leave out of a general description.
+
+```text
+Change of technique: instead of a general description, let's walk
+through ONE concrete, recent case. Take the last [price quote] I
+did — [a railing for an apartment building, last week] — and walk
+me through it step by step: what exactly did I do first, then
+what, where did I look things up, who did I call, what slowed me
+down.
+
+Ask about the timeline and facts, not opinions. If I describe a
+step that differed from the usual procedure in that job, ask what
+the more common version is and how often it comes up. At the end,
+compare: this is how the last case went vs. this is what the
+standard looks like — and list the differences. Differences aren't
+a mistake, they're the most valuable part.
+```
+
+Take that final comparison between "the last case" and "the standard" seriously. Sometimes it's a coincidence. More often it's a signal that the standard only exists on paper — and your job is to document reality. You can improve the process afterward; **first capture what is, only then change what should be.** Mix the two together and you get a map nobody follows.
+
+### Confession by voice: walking the process on foot
+
+For people who don't take to writing — and foreman Franta is exactly that case — voice is the best interview format. Claude has [voice mode](/tipy/ai-hlasovy-rezim) in the mobile app: Franta can walk the shop floor, phone in hand, and narrate the process where it actually happens. Standing at the bending machine, he'll remember things he'd never think of in the office — a tradesperson's memory is tied to place and material.
+
+```text
+We'll do the interview by voice. I'm the production foreman, and
+as I walk through the shop I'll tell you how I plan the production
+week and release jobs onto the machines. Ask me following the
+structure: trigger, steps, who, systems, exceptions, mishaps — but
+one short question at a time, we're talking, not writing. If I
+mention a machine, a whiteboard, or a sheet of paper, ask exactly
+what's on it and who's allowed to write on it. Don't summarize what
+I said after every answer — just keep asking. Give me the full
+summary only when I say "done."
+```
+
+Practical tip: have Franta take photos as he goes — the whiteboard with the plan, shelf labels, setting values written in marker on a machine. Upload the photos into the same conversation afterward; Claude reads handwriting and numbers off them too, and the shop-floor whiteboard makes it into the company's documentation for the first time in its history. The transcript of the voice interview stays in the chat as text, so later phases work with it the same way they work with anything written down.
+
+### Cross-checking: two people, one process, two truths
+
+For processes that pass through more than one pair of hands, interview both ends separately — then have AI compare the two versions. This is the fastest detector of silent misunderstandings I know of.
+
+```text
+Here are two interview transcripts about the SAME process [order
+intake and release into production]: the owner's version [paste]
+and the foreman's version [paste].
+
+Compare them and give me three lists:
+1. Agreements — what both describe the same way (keep this brief).
+2. Contradictions — where the versions disagree: who does what,
+   order of steps, who's responsible for what. Quote both versions
+   for each contradiction.
+3. Blind spots — what one version describes and the other doesn't
+   mention at all.
+
+Don't judge who's right — for each contradiction, prepare one
+question we can clarify together at the table.
+```
+
+Expect more contradictions than is comfortable — and expect that to be good news. Each contradiction is either a misunderstanding that's already cost time and nerves (Petr thought Franta confirms the deadline with the customer; Franta thought Petr did), or hidden know-how one side took for granted. Clarifying it at the table takes twenty minutes and is often the most useful meeting of the year. Only the clarified version goes into the documentation.
+
+The clarification meeting settles each contradiction into one of three outcomes, and it's worth naming them up front, because each calls for a different kind of entry in the documentation:
+
+- **One version wins.** The other one drifted quietly — someone simplified the procedure over time and nobody noticed. The winning version goes into the record; the drift is worth a note in the risk section, because wherever it happened once, it'll happen again.
+- **Both versions are true.** The process legitimately has two variants — Petr was describing jobs for end customers, Franta was describing framework-contract jobs for construction companies, and both paths are correct. In that case you don't document a compromise, you document both variants with a clear condition for when each applies ("a job under a framework contract → variant B"). Blending two truths into one average is the surest way to produce a procedure nobody actually follows.
+- **Neither version is good.** The meeting reveals that the process is simply broken — everyone patches it their own way and both sides know it. Don't be tempted to invent a new process at the table and write it down as official: honestly capture the current state (the sentence "this is where it grinds" included), put it into open questions with an owner and a deadline — and propose the new process as a separate step, once there's room for it.
+
+And one warning about AI's role: the model tends to "decide" on contradictions itself — pick the more likely version and quietly write it down. That's exactly why the prompt above explicitly says "don't judge who's right." A contradiction between two people who live the process is a decision for those two people (and, in case of dispute, for the owner) — AI's job is to surface it and prepare the questions, not sweep it away.
+
+### The process record: turning the interview into a standard entry
+
+The last step of the phase: converting the raw interview into a uniform, structured record. The record is a waystation — it becomes a diagram in phase 3 and a Notion page in phase 4, so a consistent format means all ten processes come out consistent.
+
+```text
+Build a structured record in markdown from our whole conversation
+about the [price quote] process:
+
+## Basics
+Process name, purpose in one sentence, trigger, what the process
+ends with (definition of done), how often it runs.
+## Roles
+Who appears in the process and what they do — attach a real name to
+each role.
+## Main-path steps
+Numbered list: step, who, in what/where, output of the step. Keep
+it brief — details go in notes below.
+## Decision points
+Where the process branches, what the decision is based on, who
+decides.
+## Exceptions
+Off-standard situations: how to recognize it → what happens
+instead.
+## Systems and artifacts
+Where things live (spreadsheets, notebooks, programs, binders) — no
+passwords.
+## Known risks and past mishaps
+What went wrong, what it cost, what safeguard exists since.
+## Open questions
+What the interview didn't cover, or where I contradicted myself.
+
+Write only what came up in the interview — don't guess at anything.
+Where information is missing, write OPEN instead of filling in a
+plausible answer.
+```
+
+The last line of the prompt is the key one, and it applies to the whole guide: **the model must not fill gaps in the interview with plausible fiction.** It sounds like a small thing, but it's the difference between documentation and fiction — a made-up step in a procedure is worse than a missing one, because it looks exactly as trustworthy as the real ones. An "Open questions" section isn't an embarrassment; it's a work list for the next review.
+
+Read the record out loud — you and the person you interviewed both. Ten minutes, and it surfaces things that got glossed over in the interview. Save the approved record; you now have the raw material for both of the next phases.
+
+## Phase 3: from record to map — process diagrams via Lucid
+
+Text is precise but slow; with a diagram, you look at it and know in ten seconds where a process flows and where it breaks. That's why we draw processes — and why process maps historically never got made at companies: drawing was expensive, and redrawing was even more expensive. The Lucid connector changes both: a diagram gets built from a text specification with one prompt, and edited with another.
+
+First, the facts you're working with. Lucid (best known for Lucidchart) runs an official MCP server; it connects as a remote connector — on claude.ai you add it under connector settings and sign in to your Lucid account; the general connection process is covered in the [MCP tools overview](/tipy/mcp-konektory-nastroje). At the time of writing, the connector can: **build a diagram from a text specification** — flowcharts with specific shapes and connections, swimlanes, containers, tables, BPMN 2.0 elements — plus an **org chart** from a text description or a CSV, a **mind map**, a **sequence diagram**, and an **ERD** (a database schema, a side note for our purposes). Beyond creation, it can search and read documents, edit individual elements, delete them, export a page as PNG, and create sharing links. Two honest notes: the resulting diagram is an ordinary Lucid document — you can go on editing it by hand in the editor or by prompt — but **it's not data-connected**, it won't update itself as reality changes; that's what phase 6 is for. And connectors evolve fast, so check the current Lucid documentation for the exact feature set; the guide's core principle — record to specification, specification to diagram, iterate by prompt — doesn't depend on the details.
+
+### The first map: main path and decision points
+
+The golden rule of the first version: **one screen, one path.** Don't try to cram everything from the record into the first diagram — you'll end up with a spider web nobody reads. The first version is the main path with the essential decision points; exceptions and details go into the page's text, not the map.
+
+```text
+From the attached record of the [price quote] process, create a
+new document [Process: price quote] via the Lucid connector with a
+flowchart.
+
+Rules:
+- Only the main path and decision points from the record — no
+  exceptions, those will be in the text documentation. Target max
+  12-15 steps.
+- Start: trigger (an inquiry comes in). End: definition of done
+  (a quote sent and logged).
+- Steps as rectangles, decisions as diamonds with a question and
+  branch labels (yes/no, under 30k / over 30k).
+- Step text: verb + object ("measure on site," "calculate
+  material"), no paragraphs.
+- Where the record says who does a step, add the role in
+  parentheses under the step text.
+- Don't guess anything — where you're missing information for a
+  connection, ask me instead of quietly filling it in.
+
+When done, send me the document link and a short list of what you
+did NOT include from the record, so I can check it.
+```
+
+It'll come back with a link to the new Lucid document and — thanks to that last paragraph — a list of what got left out. Read that list carefully: it's your check that nothing important got lost in "simplifying." Open the diagram and walk through it, finger on the screen, step by step, as if you were doing the process for the first time. If the order or wording is off, don't fix it by hand in the editor right now — save your notes for a single batch to use in an iteration prompt; I'll explain why in a moment.
+
+### Swimlanes: who holds what, and where it gets handed off
+
+Once the main path holds up, add a second view: the same process laid out in lanes by role. A swimlane diagram answers a question a flowchart can't — **where people hand the process off to each other.** And handoffs are exactly where processes break down in small companies: what Petr and Franta used to agree on verbally in the hallway now gets a line in the map for the first time, one you can point at.
+
+```text
+In the same Lucid document, create a second version of the [order
+intake and release into production] process as a swimlane diagram.
+
+- Lanes by role: owner, sales rep, foreman, production, bookkeeper.
+  Only roles that actually appear in the process.
+- Put each step in the lane of whoever DOES it (not whoever's
+  officially responsible for it — if those differ, tell me as a
+  note).
+- Arrows between lanes = a handoff. Label each one with WHAT gets
+  handed off (paper, email, a spreadsheet entry, verbal).
+- Highlight handoffs labeled "verbal" in color — those are our risk
+  spots.
+Then give me one list of all the verbal handoffs.
+```
+
+The list of verbal handoffs is a byproduct worth its own meeting: every entry is a candidate for lost information. You don't need to build a system right away — sometimes just agreeing that the handoff gets logged in the job sheet is enough. But without the map, you never saw those spots.
+
+### Iteration: the map gets tuned by prompt, not by redrawing
+
+Now the reason I said not to fix things by hand. You'll be changing this diagram many times over the coming years — and you want to build the habit from day one that **changing the map is a prompt, not an hour in the editor.** Manual edits work fine and are fine for cosmetics (nudge a shape, reroute a line); but make content changes by text, because then anyone at the company can do it, not just whoever knows how to drive the editor.
+
+```text
+Update the [Process: price quote] diagram in Lucid based on the
+review with the foreman:
+- Split the "calculate material" step into two: "list material
+  items" and "check what's in stock, price the rest with the
+  supplier."
+- After the "job over 30k?" decision, on the YES branch, add a
+  step "30% deposit before starting" (done by the bookkeeper).
+- Rename "send quote" to "send quote and log in the quote
+  register."
+- Remove the "check with production" step — it doesn't happen in
+  practice, it was an idealization.
+Don't change anything else. Afterward, give me a list of the
+changes you made so I can check them off against my notes.
+```
+
+Notice the last item on the revision list: "doesn't happen in practice, it was an idealization." Cuts exactly like that show up the first time a second person sees the diagram — and they're a sign of a healthy documentation process, not a failure. First map versions are a hypothesis; the truth comes from review with the people who live the process. A tried-and-true ritual: print it (or export as PNG — the connector can do that — and send it), hand Franta a red pen, feed the changes back in one prompt the next day.
+
+### Org chart: who actually answers for what
+
+There's one more map alongside the process maps that small companies almost never have drawn: the org chart. Not as a formality — because process owners in the knowledge base and new-hire onboarding will both reference it. For a twelve-person shop, it's ten minutes of work.
+
+```text
+Create an org chart of our company via the Lucid connector in a new
+document [Organization]. Structure:
+owner (sales, quotes, key customers) → production foreman
+(planning, production, collaboration, shipping) → [list of
+production people with their trade: 2 welders, 2 metalworkers,
+bending machine operator...]; alongside the foreman, an
+installation crew [installation lead + 2 installers]; directly
+under the owner, a bookkeeper (invoicing, payroll, reminders) and
+a sales rep (inquiries, quote register).
+For each person, add 2-3 main responsibilities on the second line —
+not their job title from a contract. Don't leave anyone out, even a
+part-timer belongs here.
+```
+
+At the time of writing, the connector can also build an org chart from a CSV file — for twelve people, a text description is faster; for fifty, reach for an export from attendance or payroll instead (without sensitive columns — name, position, manager is enough). When you go to change the org chart a year from now, because a second installation crew got added, the same rule applies as for processes: the update is a prompt.
+
+### When the other diagram types make sense
+
+The Lucid connector can do more, at the time of writing, than flowcharts and swimlanes; for the record, here's when the other types make sense in process documentation — and when they don't.
+
+**Mind map** is useful for exactly one thing, but a useful one: a visual overview of the whole inventory. A tree of "company → domains → processes" on one screen is the fastest way to show the team the result of phase 1, and the fastest way to see, at the annual review, what's mapped and what's still waiting in the backlog.
+
+```text
+Create a mind map [Company process map] via the Lucid connector:
+company name in the center, our domains at the first level [paste],
+processes from the inventory at the second level [paste the list].
+Highlight the processes from the top ten. For processes that
+already have a finished map and page, add a checkmark after the
+name. Don't add anything else — this is an overview, not content.
+```
+
+**Sequence diagram** draws communication between participants over time — who sends what to whom, in what order. In the software world it's a standard; in a small company it's useful for processes where the exchange of messages with the outside world is the point — for Petr's collaboration with the galvanizing shop (order → deadline confirmation → collection notice → delivery note → check the return shipment → possible complaint within 24 hours), a sequence diagram says more than a flowchart, because that process's problem is specifically about who confirms what to whom and when. For internal processes without that kind of exchange, it's unnecessary.
+
+**ERD** (database schema) you won't need in process documentation — I mention it for completeness, and for the moment you decide to back some process with a dedicated app; what that path looks like is shown by the CRM phase in the [guide on brand as a system](/tipy/firma-brand-voice-brozura-web-crm).
+
+**BPMN, or a plain flowchart?** At the time of writing, the connector can also handle BPMN 2.0 elements — a standardized notation for business processes — which raises the question of whether to "do it properly." For most maps at a small company, the answer is no: a rectangle, a diamond, and an arrow are a vocabulary anyone on the shop floor can read without training, and readability for your own people is the main currency of the whole project. BPMN is worth reaching for in three situations. When the core of the process is an exchange with an external partner and waiting on them — for the collaboration with the galvanizing shop, BPMN events and message flows say exactly the important part: where the process stops and waits for a deadline confirmation, where the "check the return shipment within 24 hours" clock is running. When timers and deadlines play a role in the process — payment reminders are a time-driven process, not a step-driven one. And when you'll be showing the map externally — a larger client, an integration, a certification audit — where a standard notation is the shared language. Even then: the shop-floor version is allowed to stay simple, and the BPMN version can be the "export" view; and if you use BPMN internally, add a legend in the corner of the diagram, because a notation the team can't read isn't rigor — it's a barrier. The decision, then, is about the reader, not the tool: the tool can do either.
+
+General rule: pick the diagram type based on the question it needs to answer — flow and branching (flowchart), handoffs between roles (swimlane), message exchange over time (sequence), who reports to whom (org chart), an overview of the whole (mind map). When in doubt, start with a flowchart; it's the all-purpose workhorse of process documentation.
+
+### What goes in the diagram, and what goes in the text
+
+The most common dispute when rolling this out: "does this go in the map or the text?" The answer follows a simple principle — **the diagram answers "where does it flow and who holds it," the text answers "exactly how is the step done, and why."** A diagram that tries to carry both carries neither: a thirty-step map with paragraphs of text in boxes, nobody reads. Concretely:
+
+| Information | Into the diagram (Lucid) | Into the text (Notion) |
+| --- | --- | --- |
+| Order of steps and branching | Yes — that's what it's for | Only as a numbered overview |
+| Handoffs between roles | Yes — swimlane with arrows | Supplementary (who sends what to whom) |
+| Decision criteria ("what counts as a big job") | Just the question and branches | Yes — exact criteria, rate tables |
+| Step instructions (how to fill it in, where to click) | No | Yes — the procedure, screenshots, photos |
+| Exceptions and rare situations | Only the common ones (an extra branch) | Yes — a "when..., then..." list |
+| Specific values (rates, deadlines, limits) | No — these go stale fastest | Yes — in one place, with a date |
+| Contacts and responsibilities | Role in parentheses | Yes — names, backups, who to contact |
+| Past mishaps and lessons | No | Yes — the most valuable section of the page |
+
+I want to underline the rule about values: an hourly rate or a deposit percentage doesn't belong in the diagram, not even in a label — it changes twice a year and nobody will think to look for it in a map. Values live in the page's text (or in a table the page links to), and the diagram just says "calculate per the current rate sheet." That way the map only changes when the process flow changes — which is correct: a map should last years, values last months.
+
+After phase 3, Petr's workshop has ten maps and an org chart. They're nice, but they're hanging in mid-air — they need a home, context, and everything that doesn't belong in a diagram. That's phase 4.
+
+## Phase 4: the knowledge base in Notion — one source of truth
+
+The diagram says where; the text says how. The second half of the system is the knowledge base: a place where every process has a page with details, exceptions, values, and lessons learned — and where you can search. We're building it in Notion, because it's built for this kind of documentation (pages, databases, links) and because it has an official MCP connector, so nobody will be typing pages out by hand — they'll be generated from interview records by prompt.
+
+Again, the facts first. Notion runs an official MCP server; on claude.ai it connects as a remote connector, signed in to your workspace. At the time of writing, the connector can: **search the workspace** (pages and databases), **read page content**, **create new pages** — nested under another page or as a database entry — **edit page content**, **create databases** with properties, **query databases** with filters and sorting, work with comments, and move or duplicate pages. In practice, this means Claude builds the whole structure below at your instruction, and you just review it. Here too: the exact feature set evolves, so check current Notion documentation.
+
+One critical thing before you start clicking: **the base has to live in the company workspace, not the owner's personal account.** It sounds like a detail; it's the difference between a company asset and a personal note — a personal account leaves with the person, access can't be managed, and it's hard to hand over when the company gets sold. The same, incidentally, goes for Lucid.
+
+### Structure: domains, processes, procedures, templates
+
+Don't invent the base's structure from scratch — a proven hierarchy has four layers:
+
+- **Domains** — the company's areas from the inventory: sales, jobs and production, purchasing and stock, installation and service, finance, people, operations. Five to eight items, no more.
+- **Processes** — within each domain, pages for individual processes. The core of the base; every page follows the same template (below) and links to its map in Lucid.
+- **Procedures** — step-by-step guides for individual tasks that process pages link to: "how to issue an invoice in the software," "how to fill in a handover protocol." The difference from a process: a procedure is one task done by one person; a process is a flow across several people.
+- **Templates** — sample documents: quote wording, a handover protocol, a shipping checklist, a reminder email. What gets copied when the process runs.
+
+On top of that, one cross-cutting database — the process register — that holds the whole thing together (more on that shortly). Have the structure proposed first, and only build it once it's approved — the same "propose, approve, build" rhythm that worked well for diagrams:
+
+```text
+We're going to build our company's knowledge base [metalworking
+workshop, 12 people] via the Notion connector. Don't create ANYTHING
+yet — propose a structure:
+- root page [How We Do Things Here]
+- domain sections following this list from our inventory [paste
+  domains]
+- within each domain, space for process, procedure, and template
+  pages
+- a [Process register] database with properties: name, domain,
+  owner (person), status (interviewed / mapped / written / verified),
+  criticality (bus factor 1 / important / routine), last review
+  (date), next review (date), link to the Lucid diagram (URL)
+Give me the proposal as a tree, so I can see what goes where, and
+ask me questions wherever you're unsure about the placement. Build
+the structure once I approve it.
+```
+
+It'll come back with a tree and typically a few good questions ("is service a domain, or a process under installations?"). Decide based on how you talk about things on the shop floor — the base should mirror the company's language, not a management textbook. Once you approve it, have the structure built and check it in Notion with your own eyes: it's five minutes, and it surfaces misunderstandings while the base is still empty.
+
+### The process page: a consistent template
+
+Every process gets a page following the same template. Consistency isn't aesthetics — it's the reason someone can still find their way around the base a year from now: whoever reads one page can read them all. The template follows directly from the interview record, so the conversion is mechanical — exactly the kind of work that belongs to AI:
+
+```text
+From the attached record of the [price quote] process, create a
+page via the Notion connector in the [Sales] domain, following our
+template:
+
+1. Summary — 3 sentences: what the process is for, what starts it,
+   what it ends with.
+2. Process map — insert a link to the Lucid diagram here [paste
+   URL] and a note: "See the map for the detailed flow; this page
+   carries the details."
+3. Steps — a numbered list of the main path; for each step, who,
+   in what, and a link to the procedure if a separate guide exists.
+4. Decision rules — exact criteria from the record (limits, rates
+   linked to the rate sheet, who approves).
+5. Exceptions — a "when..., then..." list from the record,
+   including who's allowed to authorize the exception.
+6. Where things live — systems and artifacts: what's in which
+   spreadsheet, binder, program. No passwords — where access is
+   needed, write "access: see password manager."
+7. What's historically gone wrong — lessons from mishaps in the
+   record.
+8. Open questions — unresolved points; for each, who needs to
+   resolve it.
+
+Keep the phrasing from the record, don't polish it into corporate
+language — "send it to zinc" is our actual term. At the end of the
+page, add a line: Owner: [name] · Last review: [date] · Source:
+interview [date]. Then create a row in the Process register and
+link it to this page.
+```
+
+The line about corporate language comes from practice: the model has a strong tendency to "improve" the language of the shop floor into the language of a policy manual — and in doing so, alienate the documentation from the people it's for. Franta's page should belong to him and sound like him. Check numbers and limits against the record too; the conversion is mechanical, but trust and verify — one shifted rate in the documentation is worse than none at all.
+
+To show what this aims at, here's an excerpt from a finished page — sections 4 and 5 of the quoting process, after Petr's review:
+
+```
+Decision rules
+- The rep prepares and sends quotes under 30,000 on her own; over
+  30,000, Petr approves before it's sent.
+- Hours are estimated by conversion: railings by meter, gates by
+  type, staircases by number of steps — see the Rate Sheet (link)
+  for conversions.
+- 10-15% buffer: renovations of older buildings, jobs coming
+  through an architect, outdoor work November-March. Whoever's
+  calculating the quote decides; it's not itemized separately on
+  the quote.
+- Send deadline: within 3 business days of measuring. If that's not
+  possible, the customer at least hears back within 3 days with a
+  date.
+
+Exceptions
+- It's urgent (customer wants a price on the spot) → a ballpark
+  price given verbally only by Petr; the rep never quotes off the
+  cuff, she sends a date instead of a number.
+- A regular wholesale customer → rates per the framework agreement,
+  see the Key Customers page; any discount beyond the agreement is
+  Petr's call only.
+- An inquiry outside our scope (aluminum, glass) → politely decline
+  within 2 days and recommend [partner company]; response template
+  in the Templates folder.
+```
+
+Notice the three qualities that make a page usable: the numbers are concrete (30,000, 3 days — and they live in the text, not the map), each rule states who clearly (the rep alone / Petr only), and exceptions take the shape "how to recognize it → what to do." All of that would be unreadable in a diagram and unpassable in someone's head.
+
+### Linking diagram and page: two systems, one whole
+
+The map in Lucid and the page in Notion describe the same process, and they need to link to each other both ways: the page links to the map (section 2 of the template), and the map links to the page — add a note or a shape with a link to the Notion page in the diagram, so someone who only got the map link can reach the details in one click. Anyone who wants to go one step further can embed the exported PNG of the map (the Lucid connector can export it) alongside the link on the page: the page becomes readable without jumping around, at the cost that the PNG is a snapshot and has to be swapped out whenever the map changes — worth one extra line in the change-procedure prompt in phase 6.
+
+The two-way link breaks easily, so have something watch it for you:
+
+```text
+Check the consistency of our process documentation:
+1. Go through the Process register in Notion and, for each entry,
+   verify that the Lucid diagram link points to an existing
+   document.
+2. Search our Lucid folder and list diagrams that have no matching
+   page in Notion (orphans).
+3. For processes with status "verified," compare the diagram's
+   steps against the page's Steps section: list the differences (a
+   step missing from the page or the map, different order,
+   different names).
+Give me a clear table of findings. Don't fix anything — I'll
+approve fixes one at a time.
+```
+
+### A base you can actually search
+
+One last craft detail for phase 4: a base is useless if people can't find what they're looking for in it — and people don't search in documentation-speak, they search in shop-floor speak. Nobody types "surface treatment collaboration" into the search bar; they type "zinc." Three habits that save searchability:
+
+- **Name pages by questions, not categories.** "Price quote: how to calculate and send it" gets found even by someone who doesn't know they're looking for "the sales case process." This doubly applies to procedures: "How to issue an invoice" is a better name than "Invoicing — Procedure #3."
+- **Put synonyms straight into the text.** A page's summary should include the words people actually use: if you say "send it to zinc," that phrase should literally be on the collaboration page — search, and AI answering from the base, will then hit the right page.
+- **One thing, one place.** When the same piece of information (say, the deposit amount) lives on three pages, one of them will be out of sync within six months. The value lives on one page, and the rest link to it — the same single-source-of-truth rule, just one floor down.
+
+The test is simple, and do it with someone who didn't build the base: give them five situations ("a complaint came in about a gate, now what?") and watch whether they find the answer within a minute. Wherever they searched using different words than the page uses, add those words to the page — the base should learn the team's language, not the other way around.
+
+### The process register: the dashboard for the whole system
+
+The Process register database is unassuming, but it holds the whole system together. It's the one place you see the project's status (how many processes are at which stage), accountability (every row has an owner — a person, not a department), and the review deadlines that maintenance in phase 6 depends on. You query it in plain language — "which processes does Franta own, and when are their reviews due?" — and the connector translates that into a database filter. For Petr, the register is also the answer to "how's the project going": one view instead of going around asking people.
+
+Which brings us to the whole point of this phase. Until now, know-how lived in people's heads, and its only "backup" was those specific people showing up for work. Now there's **one source of truth: the base in Notion with the maps in Lucid.** A single source of truth doesn't just mean "it's in one place" — it means **every decision about this gets made against that place**: whoever wants to know how something's done reads the base; whoever claims something's done differently is only right once they get the page changed. The same principle behind [brand voice in git](/tipy/firma-brand-voice-brozura-web-crm) — there it was about how the company speaks, here it's about how the company works.
+
+## Phase 5: derived outputs — the base starts paying off
+
+A source of truth doesn't feed anyone on its own; value comes from the outputs derived from it. Just as a brochure and a website got derived from brand voice in git, three things get derived from the process base that Petr's workshop feels right away: onboarding, answers instead of phone calls, and operational documents.
+
+### A new hire who trains themselves
+
+Remember the six months of watching and three complaints. With the base, welder Ondřej's onboarding looks different: on day one, he gets access to the base and a generated training plan — derived from the processes he'll be part of.
+
+```text
+From our Notion knowledge base, build an onboarding plan for a new
+welder-metalworker [Ondřej], starting [date]. He'll work in
+production under the foreman, and do installations over time.
+
+1. Go through the Process register and pick the processes where the
+   production or installation role appears.
+2. Build a 3-week plan: what to read which day (links to specific
+   pages), what to look through in the maps, what to have shown to
+   him physically in the shop, and by whom (names from the org
+   chart).
+3. For each week, add 5 check questions he should be able to answer
+   by the end of it — the foreman will go through them with him on
+   Friday.
+4. Separately, list what's missing from the base for his role (a
+   process where his role is mentioned but has no page or
+   procedure) — that's our gap, not his problem.
+Create a page [Onboarding: Ondřej] in the People domain from this.
+```
+
+And because the maps from phase 3 carry a piece of information the pages don't hold as densely — handoffs — derive one more thing from them: an onboarding rounds checklist. Swimlane diagrams say exactly which people Ondřej will be handing work off with and what gets handed off; that's a ready-made plan for who he should shadow, and around what, in his first weeks.
+
+```text
+Go through our swimlane diagrams in Lucid and find all the lanes
+with the [production] or [installation] role — that'll be the new
+hire's [Ondřej] role. Derive his onboarding rounds from the maps:
+1. List every handoff he'll be part of: what he takes from whom,
+   what he hands to whom, in what form (paper, log entry, verbal) —
+   with a link to the process.
+2. Build a "walk it through in person" checklist from that: for
+   each handoff, who he should walk through it with once, in the
+   shop, and what to have shown to him.
+3. Put handoffs marked "verbal" in the maps at the top — that's
+   where a new hire most easily loses information, and nobody
+   notices.
+Save the output as a subpage of [Onboarding: Ondřej] in Notion.
+```
+
+The difference from the plan above: the plan says what to read and learn; the rounds checklist says who to shake hands with and around what. Both come from the same source of truth, so when the process changes a year from now, the next new hire gets a rounds checklist built from the new map — no outdated onboarding document someone wrote once and has been lying ever since.
+
+Item 4 is a quiet gem: a new hire is the best detector of gaps in the documentation, because they're the only one reading the base with the eyes of someone who knows nothing. Make it a rule that every question Ondřej couldn't find an answer to gets logged — and once a week, the base gets filled in from those questions. The full method for turning documentation into a Project that answers a new hire — including the instruction "answer only from the documents, and point to a person when unsure" — is covered in a separate guide on [onboarding a new hire](/tipy/onboarding-novacka-ai-projekt); the process base from this article is exactly the content that gets uploaded into a Project like that. The two guides fit together: here, the base gets built; there, it becomes a patient colleague who'll answer the same question for the fifth time without complaint.
+
+### Answers from the base instead of a phone call to the owner
+
+The second output aims straight at Petr's five daily phone calls. Most of them have an answer that now lives in the base — it just needs people to ask the base before they ask Petr. Technically: a conversation with the Notion connector (or a Project with the base uploaded), and an instruction that's the whole point of the exercise:
+
+```text
+You answer our company's operational questions EXCLUSIVELY from the
+Notion knowledge base. Rules:
+- For every answer, cite the page you're drawing from.
+- When the answer isn't in the base, or is ambiguous, say so
+  explicitly and point to the process owner from the Process
+  register — never guess an answer.
+- When the question involves values (prices, rates, limits), quote
+  the value along with the page's last review date, so it's clear
+  how fresh it is.
+- Keep collecting questions the base couldn't answer; list them for
+  me on request as items to fill in.
+Question: [when does a deposit get taken on a job, and how much?]
+```
+
+The ban on guessing matters more here than anywhere else: a confident-sounding wrong answer is worse than "I don't know, ask Jana." Test it right after rollout with a question the answer isn't in the base — if you get a confident answer instead of an admission, the instruction isn't holding and needs tightening. And the "unanswered questions" section is the same gap audit as Ondřej's list — the base grows exactly where daily operations actually need it to.
+
+### Templates and checklists: documents that carry out the process
+
+The third output: operational documents get derived from process pages. The shipping process states what gets checked — so there should be a checklist you can print and pin up by the loading dock. The installation process states what gets handed to the customer — so there should be a handover protocol.
+
+```text
+From the [outbound inspection and shipping] process page in our
+base, build a shipping checklist: one A4 page, items in the order
+the check is actually done, a checkbox and a note space next to
+each item. Last lines: who checked it, date, signature. Shop-floor
+language, no formal wording. Save it into the Templates section in
+Notion and add a link from the process page. Put a version and date
+in the checklist's header — when the process changes, the checklist
+has to be regenerated too.
+```
+
+The note about a version in the header is a small but important habit: paper derivatives go stale quietly. A version on paper lets anyone at the loading dock recognize they're holding last year's version of the checklist — and ask for a new one.
+
+### The coverage manual: a vacation as a product of the base
+
+And a fourth output — the one Petr started this whole thing for. Two weeks at the seaside doesn't get secured by the base on its own — it gets secured by a specific document: a coverage manual, derived from the base for a specific period and a specific stand-in.
+
+```text
+The owner will be unreachable [August 3-17], covered by the foreman
+[Franta] with support from the bookkeeper [Jana]. Build a coverage
+manual for that period from our knowledge base:
+
+1. Go through the Process register and list the processes where the
+   owner is the only role — for each, exactly who will do what
+   instead in August, with a link to the page and the relevant
+   step.
+2. Decision authority: pull every "owner approves" spot from the
+   pages' decision rules, and propose an August mode for each — the
+   stand-in can decide up to a limit / it waits / call the owner.
+   The owner reviews and edits the proposals.
+3. Build a "call the owner only if" list — situations that,
+   according to the base, nobody else is allowed or able to
+   resolve.
+4. At the end: contacts, deadlines falling due in that period (from
+   the register and the pages), and what's deliberately being
+   pushed to after the vacation.
+Save it as a page [Coverage: August] and share it with Franta and
+Jana.
+```
+
+Item 2 is the core of it: what saves the vacation isn't the documentation, it's the authority handed out ahead of time — "quotes under 30,000 go out from the rep, up to 100,000 Franta approves, above that it waits." The base supplies the backing (every approval spot on one list, nothing forgotten) and the confidence that the stand-in has somewhere to turn for every situation — a page with a procedure. The first vacation with a manual is usually half a test: Petr keeps tally of what he still got called about anyway, and every tally mark is an item for the next base review. The second vacation is usually just a vacation.
+
+## Phase 6: editability and maintenance — why this won't go stale this time
+
+This is where it's decided whether you built a system or a monument. Every company that's ever had a wiki knows the cycle: enthusiasm, writing, six months of calm, the first stale page, loss of trust, death. The cycle breaks at exactly one point — the cost of a change. When updating means "find whoever knows the editor, and spend an hour redrawing," it doesn't happen; when it means one prompt, it happens right away. **Editability isn't a nice-to-have feature — it's the reason this system will survive where wikis died.** That's why, this whole time, we've insisted that maps change by prompt and pages follow a consistent structure.
+
+### Change the process, change the documentation, in one move
+
+In October, Petr's workshop switched steel suppliers. New ordering window, new minimum order, a portal instead of a phone call. In the old world: the map and the page quietly go stale, and in a year nobody trusts them. In the new world:
+
+```text
+The [steel stock purchasing] process changed: [new supplier —
+orders go through a portal instead of by phone, order by Wednesday
+12:00, the minimum order changed, pricing is on the portal].
+
+Make the change across the whole documentation:
+1. Update the Lucid diagram: replace the "order by phone" step with
+   the portal steps, update the timing note.
+2. Update the Notion page: the Steps section, "Where things live"
+   (add the portal, access "see password manager"), and "Decision
+   rules" (new minimum).
+3. Add a line to the page's change history: date, what changed, why,
+   who approved it [Petr].
+4. Update the last-review date in the Process register.
+5. Check whether any other page or template still references the
+   old procedure — list what still needs to change.
+Before you start, summarize the changes you're about to make — I'll
+approve them.
+```
+
+The whole operation, approval included, is ten minutes — which is exactly why it happens. Don't skip item 5: processes reference each other, and a change in one spot can quietly invalidate a checklist somewhere else. And item 3 turns the documentation into a chronicle too: two years from now, the change history will tell the story of how the company evolved — something a new foreman, and a buyer doing due diligence, will both appreciate.
+
+### The process owner: a name, not a department
+
+Technology makes maintenance cheap, but it doesn't make it happen. Every process in the register has an owner, and owning it means exactly one thing: **I'm responsible for the page and the map telling the truth.** The owner doesn't have to be the person who runs the process — invoicing is done by Jana and owned by Jana, but the installation process might be owned by the installation lead even though the whole crew installs. What matters is that it's a name, not "production": collective responsibility is nobody's responsibility. In a twelve-person company, that works out to two or three processes per person — not a job title, a watch shift. And when operations reveal that something's being done differently from what the page says, word goes to the owner — who either fixes the page (reality is the new truth) or fixes operations (the page is right, we're doing it wrong). Both responses are legitimate; the only illegitimate one is silence.
+
+### A quarterly review in one prompt
+
+And the last mechanism: rhythm. Without a deadline, even cheap maintenance gets put off forever, which is why the register has a "next review" column and the company has a quarterly ritual — half an hour, one prompt:
+
+```text
+Quarterly documentation review. Go through the Process register in
+Notion and:
+1. List the processes whose next-review date has passed, sorted by
+   criticality, with the owner for each.
+2. For each owner, prepare a short check questionnaire (max 5
+   questions) tailored to their process: "Does step X still hold?
+   Did Y change? Any new exception?" — base it on the page's
+   content.
+3. List pages with a status other than "verified" that are older
+   than a month — those are unfinished loose ends.
+4. List the open questions from every page, in one place.
+From items 1-4, build a 30-minute review meeting agenda: what to
+cover, in what order, and what can be settled with just a "no
+change" confirmation.
+```
+
+The owner answers the questionnaire in five minutes; wherever there's a change, the change prompt from the previous subsection kicks in. So the ritual doesn't depend on Petr's memory, set up a scheduled task for it — Claude can run tasks on a schedule, so the quarterly review summary shows up on its own on the first working day of the quarter, landing on Petr's desk as a ready-made briefing. Notice what just happened to the classic "nobody has time to maintain a wiki": maintenance shrank down to fifteen minutes of answering tailored questions. Even a "no change" answer has value — it refreshes the review date, and a date on a page is a trust signal for the reader.
+
+Once a year, add a bigger cleanup on top: the consistency audit from phase 4 (orphans, mismatches between map and page), plus the question of whether the top ten still holds — the company evolves, and so does which processes are critical. Promote two or three more processes out of the inventory backlog and run phases 2 through 4 on them. The system grows incrementally; you'll never be "done," and that's fine — the company is never done either.
+
+## How much time this takes, and how not to kill the project
+
+An honest time estimate, so nobody's buying a pig in a poke. The numbers come from the model workshop and should be read as an order of magnitude, not a promise — more complex processes will ask for more.
+
+- **Phase 0-1 (setup and inventory):** one evening for connectors and the Project, one evening for the inventory and picking the ten. Done by the owner.
+- **Phase 2 (interviews):** 45-60 minutes per process plus 20 minutes to review the record; at two processes a week, five to six weeks. Done by whoever's being interviewed — each on their own processes, nobody sitting in on someone else's.
+- **Phase 3-4 (maps and pages):** roughly half an hour of hands-on time per process — diagram by prompt, review with a red pen, page by prompt, check. Can be done in batches; one designated person can hold the whole thing, and they don't need to be a process expert — the record is the expert.
+- **Phase 5 (derived outputs):** created as needed; an onboarding plan or a checklist is a fifteen-minute job, because the source already exists.
+- **Phase 6 (maintenance):** fifteen minutes per owner once a quarter, plus ongoing changes — which are cheap, and so actually happen.
+
+Total: **a six-to-eight-week project, done in evenings, no month off the floor.** And three pieces of advice for not killing it, because it can be killed — always the same way.
+
+First, **take the first process all the way through in the first week**: interview, map, page, done. Nothing convinces a team — or you — like one complete example; a quoting-process map pinned to the wall does more for the project than any speech. Projects like this die of "everything half-done, nothing finished."
+
+Second, **don't make it the owner's secret project.** Petr could build the whole base alone, evening after evening — and end up producing exactly what he started with: know-how in one head, just with a nicer interface. Interviews belong to the people who live the processes, page ownership gets handed out right away, and the base gets used out loud from week one: when someone asks about something that's in the base, the answer is "it's in the base, here's the link — and if something's off, say so, we'll fix it." That second half of the sentence matters more than the first: a base nobody's allowed to poke holes in is a base nobody reads.
+
+Third, **don't wait for a quiet moment.** It won't come. The project is designed to run alongside daily operations — two evenings a week — and every finished process has value on its own, even if you never got any further. Five mapped processes beat zero by a mile; perfectionism ("we'll do it properly once there's time") is just a fancy word for never.
+
+## Security: concentrated know-how has to be protected
+
+One quiet shift ran through this whole guide: know-how that used to be scattered and hard to steal (in people's heads) is now concentrated and portable (in the base). That's the entire point — and, at the same time, a new risk, because what can be handed to a new hire can also be walked out the door. Security here isn't a chapter for the paranoid — it's part of the design. The broader framework is covered in the [guide to company knowledge](/prirucka/firemni-znalosti); here's the concrete minimum for a process base.
+
+**What never belongs in the base:**
+
+- **Passwords, PINs, access codes, API keys.** The base is allowed to say where to find access ("supplier portal access: see password manager, Steel Portal entry"), never what it is. A password manager is a tool with controlled access and an audit trail; a Notion page is neither. This rule gets broken most often innocently — a password "just for now" in a procedure's notes — which is exactly why the review prompt below watches for it.
+- **Customer personal data beyond what's necessary.** A process page describes how a complaint gets handled — not customers' national ID numbers, addresses, and case histories. Where a page needs an example, make it fictional or anonymized. Real customer data belongs in systems built for it, with their own access controls.
+- **Pay, performance reviews, health information.** The org chart carries names and responsibilities; anything more sensitive about people has no place in the process base at all.
+
+**Who gets into the base:** Set access by role, not blanket access. Most of the base should be readable by the whole team — that's the point of it — but calculation rules and margins (the price-quote process) can be restricted to just Petr and the sales rep. Both Notion and Lucid support permissions at the page, folder, and guest level; give a seasonal external installer guest access to three pages, not an account with access to everything. And two operational rules: revoking access is an item on the offboarding checklist when someone leaves (and by the way, that's a process for the base too); and with shared Lucid links, watch the difference between "anyone with the link" and sharing with specific people — process maps aren't for the public internet.
+
+**Where the base lives:** In the company workspace, on a paid account with contractual data protection — this holds for Notion, Lucid, and Claude alike. And because this is a concentrated asset, back it up by export now and then (both Notion and Lucid support exports): not out of distrust of the cloud, but because a company asset shouldn't exist in only one system from one vendor.
+
+**AI proposes, a human approves** applies here too, in a concrete form: connectors are free to read and propose, but bulk actions — deleting pages, restructuring, changing permissions, sharing outside the company — get approved by a human, one at a time. That's why the prompts in this guide end with "don't change anything until I approve it"; it's not a formality, it's insurance against a silent cleanup that wipes out half the base.
+
+And once a quarter, a security review — it can ride along with the process review:
+
+```text
+Run a security review of the Notion knowledge base:
+1. Search all pages for anything that looks like a password, PIN,
+   access code, API key, or login credentials — including in notes
+   and page change histories.
+2. Look for customer personal data: names paired with an address,
+   phone number, email, national ID numbers, license plates. Sample
+   examples on pages should be fictional — flag any that look real.
+3. List pages shared outside the company workspace or via a public
+   link.
+4. List guests and external accounts with access, and which pages.
+Give me the findings in a table: where, what, severity, suggested
+fix (move to the password manager / anonymize / revoke sharing).
+Don't delete or touch anything — we'll resolve every finding by
+hand.
+```
+
+## Common mistakes
+
+- **Starting with the tool instead of the interview.** A day spent building a beautiful structure in Notion, colorful icons, empty pages — and the enthusiasm is gone before any content exists. The order is: interview, record, map, page. Structure serves content, not the other way around.
+- **Mapping all forty processes at once.** The project dies of exhaustion around number twelve. Ten critical ones by bus factor, the rest into the backlog; the next wave only after a year of running.
+- **Documenting the ideal instead of reality.** "This is how it's supposed to work" produces a map nobody follows, and people learn to ignore the base. Capture what is first — anchoring in the last case helps — improve as a second step, and only then update the map too.
+- **Letting AI fill in the gaps.** A made-up step looks exactly as trustworthy as a real one; that's why every prompt in this guide includes "don't guess, flag it as an open question." An open-questions section is a work list, not an embarrassment.
+- **Pages with no owner and no review date.** This is exactly how the last wiki died. A name on every process, a review date in the register, a quarterly ritual — without those three, you've built a monument.
+- **Cramming everything into the diagram.** A thirty-step map with paragraphs in boxes, nobody reads, and every rate change would mean redrawing it. The map carries the flow and the handoffs, the text carries the details and the values — see the table above.
+- **The base in the owner's personal account.** It leaves with them, access can't be managed, and it's a mess to hand over at a sale. Company workspace from day one.
+
+## The best tools
+
+- **Claude with connectors** — the conductor of the whole process: runs interviews (text and [voice](/tipy/ai-hlasovy-rezim)), reads photos of notebooks and whiteboards including handwriting, writes records, and moves both Lucid and Notion through connectors. A Project on claude.ai holds the company's context, and scheduled tasks keep an eye on the quarterly reviews.
+- **Lucid** — the maps: at the time of writing, its MCP connector builds diagrams from a text specification (flowcharts, swimlanes, BPMN elements), org charts from text or CSV, mind maps, sequence diagrams, and ERDs; it can search documents, edit them element by element, export PNGs, and share them. The diagrams stay fully editable afterward, by hand and by prompt alike.
+- **Notion** — the knowledge base: pages, databases with properties and views, permissions. At the time of writing, the official MCP connector can search, read, create, and edit pages, create databases, and query them with filters — so the base is built and kept alive by prompt.
+- **A password manager** (1Password, Bitwarden, and the like) — the one correct place for access credentials, which the base only ever points to.
+- **Alternatives for the principle, not the brand names:** if your company lives in the Microsoft or Atlassian world, the same approach works with SharePoint or Confluence as the base; text-based Mermaid diagrams in markdown are another route for companies that want to version their documentation in git. The substance — interview, record, editable map, one source of truth, an owner, a review cycle — travels; this guide is specific to Lucid and Notion because both have mature official connectors at the time of writing.
+
+## What you get out of it
+
+This site doesn't do promised numbers, and for process documentation they'd be especially cheap — the payoff depends on how much the company currently runs on people's heads. Qualitatively, though, the accounting is clear, and it's measurable on your own numbers; note down three metrics before you start, so you have something to compare six months from now: how many times a day the workshop calls you when you're not at work; how long it takes a new hire to become independent; how many questions a week Franta gets about things only he does.
+
+- **Time:** Questions that used to go to Petr now go to the base — and Petr stops being the bottleneck on quotes, Jana on invoices. Onboarding a new hire shrinks from watching-and-picking-up to a guided plan with check questions; and key people's time shifts from answering the same thing a third time to the work only they can do.
+- **Money:** Fewer mistakes from improvising — complaints caused by "steps nobody told anyone about" are exactly the kind of cost documentation cuts down. And when the company gets sold or handed over, the difference is tangible: a buyer pays for a system that runs without the seller; a company where half the know-how walks out the door with the owner sells at a steep discount, or not at all. Mapped processes are one of the first things due diligence asks about — and few small companies have them.
+- **Peace of mind:** A vacation with no five phone calls a day isn't a punchline, it's a system test. And more deeply: the company stops being hostage to outages — illness, resignation, that bus from the bus factor. Franta will retire someday; the difference is whether nineteen years of know-how retires with him.
+- **Quality:** A process done the same way every time can be improved; a process everyone holds differently in their head can't even be described as "better." The map also, for the first time, makes handoffs and decision points visible, so they can be discussed factually instead of as "I thought you were doing that."
+
+## Pro tip
+
+Once the base has been running for a few weeks, test it with the hardest exam I know: **the handover test.** Have AI play someone taking over the company — and not allowed to ask a single living person:
+
+```text
+You have access to our Notion knowledge base and our Lucid maps.
+Play the role of an experienced operations manager taking over
+running the company starting Monday — the owner is unreachable for
+14 days. You may not ask any human, only the base.
+
+Go through the documentation and answer:
+1. Which everyday situations over the next 14 days could you handle
+   from the base alone? (an inquiry comes in, a complaint, missing
+   material, a welder calls in sick)
+2. Where would you get stuck — what won't the base tell you? Be
+   specific: which piece of information, on which page, is missing.
+3. Which three pages are the weakest, and why?
+4. Be strict: could this company actually be handed over based on
+   this documentation? What would have to exist for the answer to
+   be yes?
+Don't go easy on us — every gap you find now is a gap the stand-in
+won't find in August, or the buyer won't find during due diligence.
+```
+
+The result is usually a sobering reality check and an exact work list at the same time — and it's the same test a buyer will eventually run, just as a dry run, and free. Run it before every one of Petr's vacations; once it comes back "I could handle ten out of twelve situations," go to the seaside.
+
+And the closing rule of this whole guide: **a map you can't edit is just a photograph.** The value isn't in someone having once drawn and written the processes down — that fades within six months. The value is in the company owning editable sources of its own know-how, and the habit of keeping them current: the process changes, the page and the map change with it, one prompt, with a line in the history. That's the difference between a company with a binder full of diagrams from the year a consultant came through, and a company that stopped running on what's in Franta's head.
