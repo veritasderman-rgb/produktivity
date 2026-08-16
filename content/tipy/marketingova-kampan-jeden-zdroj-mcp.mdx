@@ -1,0 +1,756 @@
+---
+title: "Marketingová kampaň z jednoho zdroje pravdy: Canva, Buffer, Meta Ads a Brevo přes MCP"
+excerpt: "Kompletní návod s 24 prompty: kampaňový dokument v gitu jako jediný zdroj pravdy, grafika z brandové šablony v Canvě, plánování přes Buffer, reklama přes Meta Ads MCP a newsletter v Brevu — šest týdnů kampaně, ve kterých změna claimu znamená jednu opravu, ne pět přepisů."
+category: "ai"
+platform: "vsude"
+audience: ["marketer", "manazer"]
+keys: []
+saves: "~dny práce na každé kampani"
+date: "2026-08-16"
+updated: "2026-08-16"
+tldr: >-
+  Většina firemních kampaní se rozpadne na hromadu jednorázových exportů: obrázky v Canvě,
+  texty v pěti dokumentech, reklama naklikaná ve správci, newsletter v dalším nástroji —
+  a když se změní claim, přepisuje se pětkrát ručně a někde se na to zapomene. Tenhle návod
+  staví kampaň jako systém: jeden kampaňový dokument v gitu (cíl, sdělení, claim, publika,
+  kanály, kalendář) je zdroj pravdy a všechny výstupy — grafika přes Canva MCP, příspěvky
+  přes Buffer MCP, reklama přes oficiální Meta Ads MCP, newsletter přes Brevo — se z něj
+  odvozují. Změna claimu je pak jedna oprava ve zdroji a řízená propagace do aktiv.
+  Celým postupem se táhnou dvě pravidla: AI navrhuje, člověk schvaluje — žádný post ani
+  reklama neodejde bez lidských očí — a rozpočtové zámky se nastavují ručně na platformě,
+  ne větou v promptu.
+faq:
+  - q: >-
+      Proč psát kampaňový dokument v markdownu do gitu, a ne do Google Docs?
+    a: >-
+      Kvůli třem vlastnostem, které sdílený dokument nemá: verzování (každá změna claimu má
+      datum, autora a zdůvodnění), čitelnost pro nástroje (Claude Code i konektory čtou
+      markdown přímo, bez kopírování) a jednoznačnost (existuje jedna verze, ne „finální_v3“).
+      Nemusíte umět git — AI ho ovládá za vás, vy schvalujete commity. Kdo už má brand voice
+      v repozitáři podle předchozího návodu, jen přidává druhý soubor vedle něj.
+  - q: >-
+      Co když konektor neumí, co článek popisuje?
+    a: >-
+      Konektory se vyvíjejí rychle — článek popisuje stav v době psaní a u každého to říká
+      výslovně. Než na některé schopnosti postavíte workflow, ověřte si ji ve vlastním účtu:
+      nechte model vypsat, jaké nástroje konektor právě nabízí, a zkuste neškodnou čtecí
+      operaci. Princip návodu — jeden zdroj pravdy, odvozené výstupy, člověk schvaluje —
+      na konkrétní verzi žádného konektoru nestojí.
+  - q: >-
+      Může AI rovnou publikovat příspěvky nebo spustit reklamu?
+    a: >-
+      Ne. Zveřejněný příspěvek nejde vzít zpět a spuštěná reklama utrácí skutečné peníze.
+      Všechno, co jde ven, prochází schvalovací smyčkou: AI připraví koncepty v Bufferu,
+      kampaň v Meta Ads vzniká pozastavená, newsletter v Brevu se posílá nejdřív jako test
+      na vlastní adresu. Publikuje, spouští a odesílá vždy člověk — jediná legitimní výjimka
+      je automatické publikování konceptů, které jste sami předem schválili a naplánovali.
+  - q: >-
+      Stačí napsat limit rozpočtu reklamy do promptu?
+    a: >-
+      Nestačí. Instrukce v promptu je pravidlo, které model může špatně pochopit nebo
+      ignorovat; nastavení na platformě je zámek. Strop útraty účtu a limity rozpočtů
+      kampaní nastavte ručně ve správci reklam Meta dřív, než konektor poprvé připojíte —
+      pak i chybný návrh narazí na strop, který AI změnit nemůže.
+  - q: >-
+      Kdo ve firmě má mít přístup ke kampaňovým konektorům?
+    a: >-
+      Co nejméně lidí a s co nejužšími právy. Konektor připojený k Bufferu, Metě nebo Brevu
+      je přístup k firemním účtům — kdo má konektor, může jménem firmy jednat. Oddělte role:
+      kdo smí připravovat koncepty (širší okruh), kdo smí publikovat a spouštět (jeden dva
+      lidé) a kdo spravuje samotné konektory a oprávnění. A odchod člověka z firmy znamená
+      okamžité odvolání jeho přístupů v každé připojené službě.
+  - q: >-
+      Co dělat, když se claim změní uprostřed běžící kampaně?
+    a: >-
+      Přesně kvůli téhle situaci celý systém stavíte. Změna se udělá jednou — v kampaňovém
+      dokumentu v gitu, s commitem a zdůvodněním — a pak se řízeně propaguje: model vypíše
+      všechna aktiva, která starý claim obsahují (naplánované posty, návrhy v Canvě, reklamní
+      kreativy, e-mailová šablona), a vy je projdete jako checklist. Bez zdroje pravdy byste
+      pětkrát ručně přepisovali a minimálně jednou zapomněli.
+---
+
+Podzimní kampaň malé firmy obvykle vzniká takhle: texty se píší do sdíleného dokumentu, grafika se kliká v Canvě, příspěvky se plánují ručně v plánovači, reklama se nastavuje ve správci reklam a newsletter se skládá v dalším nástroji. Pět prostředí, pět kopií téhož sdělení — a nikde není zapsáno, která je ta pravá. Dokud všechno sedí, nikomu to nevadí. Pak se v druhém týdnu ukáže, že claim nefunguje nebo že se změnil termín, a začne kolečko: přepsat posty, předělat grafiku, upravit reklamy, opravit e-mail. Někde se zapomene — a kampaň čtrnáct dní komunikuje dvě různé věci najednou.
+
+Tenhle návod ukazuje jinou stavbu: **kampaň jako systém s jedním zdrojem pravdy a odvozenými, editovatelnými výstupy — ne jako hromadu jednorázových exportů.** Zdrojem pravdy je obyčejný markdown soubor v git repozitáři: cíl, sdělení, claim, publika, kanály, kalendář. Všechno ostatní se z něj odvozuje přes MCP konektory: grafika vzniká v Canvě z brandové šablony, příspěvky se plánují přes Buffer, reklama se staví přes oficiální Meta Ads konektor a newsletter přes Brevo. Když se cokoli změní, mění se jednou — ve zdroji — a do výstupů se změna propaguje řízeně, s checklistem, ne po paměti.
+
+Postup navazuje na návod o [značce jako systému](/tipy/firma-brand-voice-brozura-web-crm), kde jedna modelová firma postavila brand voice dokument, dala ho do gitu a napojila na něj brožuru, web a CRM. Mentální pochod je stejný a vyplatí se ho znát: modelová situace → inventura → jeden zdroj pravdy → odvozené výstupy → editovatelnost → bezpečnost. Tady ho aplikujeme na disciplínu, kde se jednorázové exporty množí nejrychleji — na marketingovou kampaň. Číst můžete po fázích, každá stojí samostatně a má prompty k okopírování; kdo chce nejdřív pochopit, co jsou MCP konektory a jak se připojují, začne u [přehledu konektorů](/tipy/mcp-konektory-nastroje).
+
+## Vzorová situace
+
+Marta vede malou pražírnu kávy: šest lidí, e-shop pro koncové zákazníky a rostoucí velkoobchod pro kavárny. Z minulého návodu už má hotové dvě věci, které se teď ukážou jako základ: **brand voice dokument verzovaný v git repozitáři** — tón, slovník, zakázané fráze, ukázky — a web, který z něj čte. Značka už není rozsypaná po discích; teď ji čeká první ostrý test v kampani.
+
+Na říjen chystá pražírna novou podzimní směs. Plán je klasická vícekanalová kampaň: **šest týdnů, tři kanály.** Sociální sítě (Instagram a Facebook, kde má pražírna publikum), newsletter na dva okruhy adresátů (koncoví zákazníci z e-shopu a odběratelské kavárny) a k tomu placená reklama na Metě na podporu prvních dvou týdnů prodeje. Cíl je střízlivý: prodat první pražení nové směsi do konce listopadu a získat tři nové velkoobchodní odběratele.
+
+Minulou kampaň — jarní — dělala Marta postaru a přesně na ní si vylámala zuby. Grafiku klikala v Canvě po večerech, každý formát zvlášť. Texty postů psala do poznámek v mobilu, newsletter skládala v neděli v noci. V polovině kampaně změnili claim, protože ten původní si lidé pletli s konkurencí — a přepisovalo se všechno ručně: dvanáct naplánovaných postů, dvě reklamy, e-mail. Na jeden naplánovaný post se zapomnělo, takže tři týdny po změně vyjel se starým claimem. Nikdo si toho nevšiml, dokud na to neupozornila kavárna, která odebírá kávu.
+
+Letos to Marta staví jinak. Jeden večer stráví kampaňovým dokumentem — sepíše cíl, sdělení, claim, publika, kanály a kalendář do markdown souboru a dá ho do stejného repozitáře, kde už žije brand voice. Pak nechá AI přes konektory odvodit výstupy: sadu vizuálů v Canvě z brandové šablony, várky příspěvků jako koncepty v Bufferu, pozastavenou kampaň v Meta Ads, návrh newsletteru v Brevu. Sama dělá to, co automatizovat nechce a nesmí: schvaluje, publikuje, spouští. A když se něco změní — a ono se něco změní vždycky — opraví jeden soubor a nechá si vypsat, kam všude se změna musí propsat.
+
+Rozdíl proti jaru není v tom, že by letos pracovala míň pečlivě. Je v tom, kde ta pečlivost sídlí: loni v Martině hlavě a paměti, letos v systému, který se dá zkontrolovat, verzovat a příští kampaň zopakovat.
+
+## Kampaň jako systém: teze celého návodu
+
+Než začneme stavět, jedna myšlenka, která nese všechno ostatní. V návodu o značce byla teze „pixelový výstup z chatu je konečná stanice; zdrojový soubor je živé aktivum“. Pro kampaň platí totéž, jen na víc místech najednou: **kampaň složená z jednorázových exportů se nedá opravit — dá se jen znovu vyrobit.** Obrázek stažený z Canvy a nahraný do správce reklam je mrtvý; naplánovaný post, který nikde nemá zdroj, je sirotek; newsletter poskládaný ručně v editoru je jednorázovka, kterou příště skládáte znovu.
+
+Systémová kampaň má tři vrstvy, a vyplatí se je od začátku držet oddělené v hlavě:
+
+- **Zdroj pravdy** — kampaňový dokument v gitu. Jediné místo, kde se rozhoduje: co říkáme, komu, kdy a kde. Mění se přes commity, každá změna má zdůvodnění.
+- **Odvozená aktiva** — editovatelné meziprodukty v jednotlivých nástrojích: návrhy v Canvě (ne exportované PNG, ale návrh, který jde otevřít a změnit), koncepty v Bufferu, pozastavené kampaně v Meta Ads, šablona v Brevu. Každé aktivum ví, z čeho vzniklo.
+- **Publikované výstupy** — to, co skutečně odešlo ven: zveřejněný post, běžící reklama, rozeslaný e-mail. Sem se nikdy nedostane nic bez lidského schválení, a jakmile je něco venku, opravuje se přes zdroj a aktiva, ne ad hoc.
+
+MCP konektory jsou v téhle stavbě potrubí mezi vrstvami: model přečte zdroj pravdy, vyrobí nebo upraví aktivum, člověk ho promění ve výstup. Bez konektorů byste totéž dělali kopírováním mezi okny — jde to, ale právě při kopírování vznikají rozdíly mezi kopiemi, kvůli kterým celý systém stavíme.
+
+A hned na začátku jedna zásada, která platí pro celý návod stejně jako pro ten minulý: firemní podklady — kampaňové plány, ceníky, seznamy odběratelů — patří **do placeného účtu se smluvní ochranou dat**, ne do anonymního free chatu. A přístupy ke konektorům jsou přístupy k firemním účtům; k bezpečnosti se vrátíme v samostatné sekci, protože si zaslouží víc než poznámku.
+
+## Fáze 1: inventura — co už máte a co kampaň potřebuje
+
+Neběžte rovnou psát claim. První večer patří inventuře — a to dvojí: co už firma má (aktiva, kanály, publika) a co kampaň bude potřebovat (formáty, termíny, podklady). Inventura je nudná přesně do chvíle, než vám ušetří třetí týden kampaně, kdy se obvykle zjišťuje, že chybí fotky na výšku a že seznam odběratelů má půlku adres bez souhlasu s newsletterem.
+
+### Inventura aktiv
+
+Marta má výhodu: brand voice a základní podklady už žijí v repozitáři `firma-znacka`. Inventura tedy začíná tam — a Claude Code (nebo Cowork nad složkou) ji udělá za ni.
+
+```text
+Pracuj nad repozitářem firma-znacka a složkou kampan-podzim, kterou
+jsem právě založil. Připravujeme šestitýdenní podzimní kampaň na novou
+směs kávy: Instagram + Facebook, newsletter (koncoví zákazníci
+a velkoobchodní kavárny zvlášť) a placená reklama na Metě na první
+dva týdny prodeje.
+
+Udělej inventuru, nic zatím nevyráběj:
+1. Vypiš, co v repozitáři a složce už máme a kampaň to využije:
+   brand voice, loga, barvy a písma, fotky (roztřiď podle formátu
+   na výšku/na šířku/čtverec), texty o nové směsi.
+2. Vypiš, co bude kampaň potřebovat a zatím to nemáme — po kanálech:
+   jaké formáty vizuálů, kolik textů, jaké podklady (např. datum
+   začátku prodeje, cena, popis chuti, fotky balení).
+3. U každé chybějící položky napiš, kdo ji nejspíš dodá (foto, text,
+   rozhodnutí) a do kdy ji potřebujeme vzhledem k šesti týdnům.
+Výstupem je tabulka „máme / chybí / kdo / do kdy“. Neodhaduj, co
+v souborech je — otevři je a ověř.
+```
+
+Vrátí přehled, který je zároveň první úkolovník kampaně. Poslední věta promptu není okrasa: bez ní má model sklon soubory neotvírat a inventuru „odhadnout“ z názvů souborů. Zkontrolujte namátkou dvě tři položky — jestli tvrdí, že fotka je na výšku, otevřete ji.
+
+### Inventura kanálů a publik
+
+Druhá polovina inventury se dívá ven: v jakém stavu jsou kanály, kam se bude publikovat, a publika, na která se bude cílit. Tady poprvé sáhneme na konektory — zatím jen ke čtení.
+
+```text
+Přes konektory Buffer, Meta Ads a Brevo udělej inventuru kanálů
+a publik pro podzimní kampaň. Nic neměň, nic nezakládej — jen čti
+a vypiš:
+1. Buffer: které kanály jsou připojené a aktivní, jaké mají nastavené
+   časy publikování, kolik příspěvků je aktuálně ve frontě.
+2. Meta Ads: k jakému reklamnímu účtu máš přístup, jaká vlastní
+   publika v účtu existují, kdy byla naposledy aktualizovaná
+   a jak jsou velká (pokud to účet ukazuje).
+3. Brevo: jaké seznamy a segmenty kontaktů existují, kolik mají
+   kontaktů, kdy do nich naposledy přibývaly, a které šablony
+   e-mailů máme.
+Na závěr: co z toho je pro kampaň problém (mrtvý kanál, zastaralé
+publikum, prázdný segment) a co navrhuješ udělat — jen návrhy,
+rozhodnu já.
+```
+
+Tenhle prompt je zároveň test, že konektory fungují a mají správný rozsah oprávnění — víc k tomu ve fázi 3. Typické nálezy u malé firmy: v Bufferu je připojený kanál, na který se rok nepublikovalo (rozhodněte, jestli ho kampaň oživí, nebo ho vynecháte — mrtvý kanál oživený jen na kampaň působí hůř než žádný), vlastní publika v Metě jsou rok stará, a v Brevu se za dva roky nikdy neuklízely kontakty. Nic z toho není katastrofa; všechno z toho je lepší vědět v týdnu minus dva než v týdnu tři.
+
+U seznamů kontaktů jedna věc navíc, kterou za vás žádná AI nevyřeší: **posílat newsletter smíte jen lidem, kteří k tomu dali souhlas.** Jestli má seznam z e-shopu půlku adres z dob, kdy se souhlasy neřešily, je čas to vyčistit — před kampaní, ne po první stížnosti. Model vám umí segmenty připravit a označit podezřelé skupiny (kontakty bez záznamu o souhlasu, adresy s dlouhodobě nulovou aktivitou); rozhodnutí, co s nimi, je vaše a případně vašeho právníka.
+
+## Fáze 2: kampaňový dokument — jeden zdroj pravdy
+
+Teď to nejdůležitější z celého návodu. Kampaňový dokument je markdown soubor — u Marty `kampan-podzim-2026.md` v repozitáři `firma-znacka`, hned vedle `brand-voice.md` — který na jednom místě říká všechno, co o kampani platí. Není to slohové cvičení pro agenturu ani prezentace pro vedení; je to **pracovní dokument, který budou číst nástroje**: Claude při psaní postů, Canva při plnění šablon, konektor Mety při stavbě reklamy. Tomu odpovídá forma: strukturovaně, jednoznačně, žádné „uvidíme podle situace“.
+
+Struktura, která se osvědčila — a kterou budou používat všechny další fáze:
+
+```markdown
+# Kampaň: podzimní směs 2026
+
+## Cíl
+- Primární: prodat první pražení nové směsi do 30. 11.
+- Sekundární: 3 noví velkoobchodní odběratelé (kavárny)
+- Co NENÍ cíl: růst sledujících, výprodej starých směsí
+
+## Sdělení
+Jedna věta, kterou si má publikum odnést, i kdyby vidělo jediný post.
+Podpůrné body (max 3): odkud káva je, jak chutná, pro koho je.
+
+## Claim
+Přesné znění, které se objeví na vizuálech a v reklamě.
+Povolené varianty (krátká/dlouhá). Zakázané parafráze.
+
+## Publika
+- Koncoví zákazníci: kdo, co už o nás vědí, co je přesvědčí
+- Kavárny (velkoobchod): kdo rozhoduje, co ho zajímá (marže,
+  stabilita dodávek), jaký tón snese
+- Reklamní publika: která vlastní publika v Meta účtu použijeme
+
+## Kanály
+- Instagram + Facebook (Buffer): frekvence, formáty, kdo schvaluje
+- Newsletter (Brevo): 2 větve — zákazníci / kavárny, kdo schvaluje
+- Meta Ads: období, cíl kampaně, kdo schvaluje a spouští
+
+## Kalendář
+Týden po týdnu: téma týdne, co kdy vyjde, milníky (začátek
+prodeje, degustace). Formát: T1–T6 + přípravný týden T0.
+
+## Zdroje
+- Tón: brand-voice.md (jediný zdroj, neparafrázovat po paměti)
+- Fotky: složka kampan-podzim/fotky
+- Produktová fakta: kampan-podzim/smes-fakta.md (chuť, původ,
+  balení, cena — jediné místo, kde jsou čísla)
+```
+
+Tři poznámky ke struktuře, protože v nich je většina hodnoty. Za prvé sekce „Co NENÍ cíl“ — zní jako vtip, ale je to nejlevnější pojistka proti rozplizlé kampani; až model v týdnu čtyři navrhne „a co takhle post o historii pražírny“, odpověď najde v dokumentu. Za druhé **claim má povolené varianty a zakázané parafráze**: modely parafrázují rády a plíživě, a bez explicitního „tohle jsou jediná povolená znění“ se vám claim rozdrobí do pěti verzí — přesně to, čemu se snažíte zabránit. Za třetí sekce „Zdroje“ dělá z dokumentu rozcestník: čísla a fakta o produktu žijí v jednom souboru, tón v druhém — kampaňový dokument je neopisuje, jen na ně ukazuje. Opsané číslo je kopie a kopie se rozjíždějí.
+
+### První draft: AI navrhuje strukturu, vy dodáváte rozhodnutí
+
+Dokument nepište od prázdné stránky, ale nenechte ho ani celý vymyslet. Správná dělba: vy dodáte rozhodnutí (cíl, termíny, publika, rozpočet v hlavě), model dodá strukturu, formulace a upozorní na díry.
+
+```text
+Připrav první draft kampaňového dokumentu kampan-podzim-2026.md podle
+struktury, kterou používáme (cíl, sdělení, claim, publika, kanály,
+kalendář, zdroje). Vstupy:
+- inventura z minulého kroku (tabulka máme/chybí)
+- brand-voice.md jako závazný tón
+- moje rozhodnutí: [prodej směsi startuje 6. 10., kampaň běží
+  T1–T6 od 29. 9., publikum sítí jsou koncoví zákazníci, kavárny
+  oslovujeme newsletterem a osobně, reklama jen T1–T2]
+Kde ti rozhodnutí chybí, NEVYMÝŠLEJ ho — napiš na místo otazník
+s otázkou pro mě. Claim zatím nenavrhuj, jen nech místo; claim
+budeme vymýšlet zvlášť. Sdělení navrhni ve třech variantách,
+ať mám z čeho vybírat.
+```
+
+Vrátí kostru dokumentu s otazníky na místech, kde jste nerozhodli — a právě ty otazníky jsou cennější než hotové pasáže. Projděte je jako checklist; každý zodpovězený otazník je rozhodnutí, které v říjnu nebudete dělat ve spěchu.
+
+### Claim: vymýšlet s AI, rozhodnout bez ní
+
+Claim je pár slov, která se objeví všude, takže mu patří samostatná půlhodina. AI je výborný generátor variant a mizerný rozhodčí — použijte ji na to první.
+
+```text
+Vymýšlíme claim podzimní kampaně na novou směs. Podklady:
+smes-fakta.md (chuť, původ, příběh směsi) a brand-voice.md
+(tón, slovník, zakázané fráze — dodržuj je i v claimech).
+Navrhni 15 claimů ve třech skupinách po pěti:
+1. popisné (co směs je), 2. pocitové (co s vámi udělá),
+3. odvážnější (hra se slovy, ale žádné trapné slovní hříčky
+   proti brand-voice).
+Ke každému: krátká varianta do vizuálu (max 5 slov) a delší
+do reklamy (max 12 slov). Vyřaď sám všechno, co zní jako
+kterákoli jiná pražírna — a napiš, co jsi vyřadil a proč,
+ať vidím i zavržené směry.
+```
+
+Patnáct claimů proto, že prvních pět bývá k zahození — generické polohy, které by mohly patřit komukoli. Vybírejte vy, klidně kombinací („znění ze sedmičky, ale rytmus z dvanáctky“), a vítěze zapište do dokumentu včetně povolených variant. A pak už claim nikdy neupravujte jinde než tady.
+
+### Zátěžový test dokumentu
+
+Stejný trik jako u brand voice v minulém návodu: než dokument prohlásíte za hotový, obraťte role a nechte ho číst „redaktora“, který podle něj má zítra pracovat.
+
+```text
+Přečti si kampan-podzim-2026.md a chovej se jako člověk, který podle
+něj má zítra: a) napsat tři posty, b) postavit reklamu, c) připravit
+newsletter pro kavárny. Polož mi všechny otázky, na které v dokumentu
+nenajdeš odpověď — po jedné, moje odpovědi rovnou zapracovávej.
+Zvlášť mě zajímá: pozná z dokumentu člověk, který kampaň nevymyslel,
+co přesně smí slíbit (dostupnost, termíny) a co ne? A pozná, kdy má
+použít krátkou a kdy dlouhou variantu claimu?
+```
+
+Až otázky dojdou, je dokument hotový — tedy hotový k prvnímu commitu. Nechte ho commitnout se zprávou, která říká, co se rozhodlo („kampaňový dokument v1: claim X, kalendář T0–T6“). Od téhle chvíle platí pravidlo z minulého návodu i tady: **kdo chce změnu kampaně, mění dokument — ne svůj post, svou reklamu, svůj e-mail.** Změna má commit, datum a zdůvodnění, a fáze propagace (přijde na ni řada níž) ji roznese do aktiv.
+
+## Fáze 3: konektory — co v době psaní umí a jak je zapojit bezpečně
+
+Než se pustíme do výroby, poctivá zastávka u nástrojů. MCP konektory se vyvíjejí rychle — co platí v době psaní tohoto článku, nemusí platit za půl roku, a naopak: co dnes chybí, může přibýt. Proto všechno níž čtěte s výhradou „v době psaní“ a před stavbou vlastního workflow si stav ověřte. Obecný úvod do konektorů — jak se přidávají, co znamená obrazovka oprávnění, rozdíl mezi vzdáleným a lokálním serverem — má [samostatný přehled](/tipy/mcp-konektory-nastroje); tady jen to, co potřebuje tahle kampaň.
+
+### Canva
+
+Canva má oficiální AI konektor (MCP server). V době psaní umí z konverzace vytvářet editovatelné návrhy podle textového popisu, upravovat existující návrhy, prohledávat obsah účtu (návrhy, složky, assety), nahrávat podklady, komentovat a exportovat do běžných formátů (PDF, PNG, JPG, PPTX a další). Dvě schopnosti, na kterých tahle kampaň stojí, jsou vázané na tarif: **změna velikosti návrhu** (resize — z jednoho vizuálu odvodit formáty pro různé kanály) patří v době psaní k placeným tarifům a **brandové šablony s automatickým plněním obsahu** (autofill — šablona s pojmenovanými poli, která model naplní texty a obrázky) k vyšším firemním tarifům. Ověřte si ve vlastním účtu, co váš tarif nabízí; workflow níž popisuje obě cesty — se šablonami i bez nich.
+
+Podstatné je, co konektor vrací: **editovatelný návrh ve vašem účtu Canvy, ne hotový obrázek.** To je přesně rozdíl mezi aktivem a exportem, na kterém celý návod stojí — návrh za týden otevřete, opravíte v něm claim a znovu vyexportujete.
+
+### Buffer
+
+Buffer má oficiální MCP server, v době psaní dostupný na všech tarifech včetně bezplatného. Umí vypsat připojené kanály (podporuje mimo jiné Instagram, Facebook, LinkedIn, X, TikTok, YouTube, Threads, Pinterest, Bluesky či Mastodon), číst frontu naplánovaného obsahu, **vytvářet koncepty a plánovat příspěvky** do konkrétních kanálů a časů, ukládat nápady do Ideas a číst metriky výkonu příspěvků — v době psaní včetně agregovaných metrik za období (celky a průměry přes více příspěvků). Důležitý rys, který se hodí do schvalovací smyčky: příspěvky vytvořené přes konektor přistávají ve frontě jako koncepty nebo naplánované položky — do zveřejnění je vidíte a můžete je zastavit.
+
+### Meta Ads
+
+Meta provozuje oficiální MCP server na adrese mcp.facebook.com/ads — v době psaní označovaný jako beta. Přihlašujete se běžným účtem Meta Business (žádná vývojářská aplikace, žádné App Review) a odsouhlasíte, ke kterému reklamnímu účtu má nástroj přístup. Rozsah je v době psaní široký: čtení i zakládání kampaní, sad reklam a reklam, nahrávání kreativ (obrázky, videa), správa vlastních publik, náhledy reklam, A/B testy a bohatá analytika — insights s trendy výkonu, oborová srovnání i upozornění na anomálie. Podrobný návod na připojení a analytickou práci s tímhle konektorem (plus Google Analytics k tomu) má [samostatný článek o reklamě přes MCP](/tipy/mcp-reklama-analyza); tady ho použijeme na stavbu kampaně — s důrazem na to, že **všechno vzniká pozastavené a spouští člověk**.
+
+### Brevo
+
+Brevo (e-mailový a SMS marketing) je do AI napojitelné přes MCP; v době psaní jde přes konektor číst a spravovat kontakty, seznamy a segmenty, vytvářet a číst e-mailové šablony, zakládat e-mailové kampaně, posílat testovací e-maily a číst statistiky kampaní. Pro tenhle návod jsou klíčové čtyři operace: segmentace kontaktů (zákazníci vs. kavárny), tvorba šablony v brand voice, založení kampaně jako konceptu a testovací odeslání na vlastní adresu. Ostré rozeslání zůstává na člověku — v Brevu se finální odeslání potvrzuje v administraci a tak to má zůstat.
+
+### Připojení: nejdřív číst, pak psát
+
+Pořadí připojování není jedno. Osvědčený postup z přehledu konektorů platí i tady: **první týden jen čtení.** Připojte konektory, spusťte inventuru z fáze 1 a ověřte, že model vidí správné účty a správná data. Teprve když čtení sedí, má smysl povolit zápis — a i pak platí, že zápis znamená „vytvářet koncepty a pozastavené kampaně“, nikdy „publikovat“.
+
+```text
+Právě jsem připojil konektory Canva, Buffer, Meta Ads a Brevo.
+Než začneme pracovat, udělej kontrolu prostředí:
+1. U každého konektoru vypiš, jaké nástroje máš k dispozici
+   a co z toho jsou operace zápisu (zakládání, změny, mazání).
+2. Ověř čtecí operací, že vidíš správný účet: název organizace
+   v Bufferu, název reklamního účtu v Metě, název účtu v Brevu,
+   moje složky v Canvě. Vypiš je, zkontroluji, že to nejsou
+   cizí nebo osobní účty.
+3. Vypiš, které operace bys pro kampaň potřeboval a v jakém
+   rozsahu — schválím je jednotlivě.
+Nic nezakládej ani neměň.
+```
+
+Druhý bod není formalita. Kdo má víc pracovních prostorů (osobní Canva vedle firemní, dva reklamní účty), snadno připojí ten špatný — a zjistí to až ve chvíli, kdy se kampaňová grafika objeví v osobním účtu nebo reklama v cizím. Minuta kontroly na začátku.
+
+## Fáze 4: grafika — brandová šablona v Canvě, formáty odvozené, exporty až nakonec
+
+Grafika je místo, kde se jarní Martina kampaň rozpadla nejvíc: každý vizuál klikala zvlášť, takže dvanáct postů znamenalo dvanáct ručních výrob — a když se změnil claim, dvanáct ručních oprav. Systémová verze obrací pořadí: **nejdřív šablona, pak obsah, formáty se odvozují, exportuje se až úplně nakonec** — a jen tam, kde je export skutečně potřeba.
+
+### Nejdřív šablona, ne vizuál
+
+Kampaň potřebuje vizuální kostru: rozložení, do kterého se budou dosazovat obměny — fotka směsi, claim, dílčí sdělení týdne. V Canvě je na to přesně stavěný nástroj: brandová šablona s pojmenovanými poli (nadpis, text, obrázek), která se plní obsahem. Pokud váš tarif brandové šablony s automatickým plněním má, je to nejsilnější cesta; pokud ne, funguje „chudší varianta“ — jeden vzorový návrh, který se kopíruje a v kopiích se mění texty. Princip je stejný, jen s menší zárukou, že se rozložení nerozjede.
+
+```text
+Přes konektor Canva připrav vizuální kostru podzimní kampaně.
+Podklady: kampan-podzim-2026.md (claim a jeho povolené varianty),
+brand-voice.md (tón), barvy a písma z našeho brand kitu v Canvě,
+fotky jsem nahrál do složky Kampan-podzim.
+
+Vytvoř JEDEN vzorový návrh pro Instagram (čtverec) se strukturou:
+fotka na pozadí, krátká varianta claimu, malé logo, místo pro
+dílčí sdělení týdne (jedna věta). Použij výhradně barvy a písma
+z brand kitu — žádné vlastní volby. Text ber doslova z kampaňového
+dokumentu, neparafrázuj.
+Vygeneruj dvě až tři varianty rozložení a pošli mi odkazy na
+návrhy — vyberu jednu, tu pak prohlásíme za šablonu kampaně.
+Nic neexportuj.
+```
+
+Vrátí odkazy na editovatelné návrhy ve vašem účtu. Vyberte jeden a doladˇte ho ručně v editoru — tohle je přesně místo, kde se vyplatí lidské oko a deset minut klikání: posunout text, vyvážit fotku. AI umí rozložení navrhnout; cit pro to, které z nich „je vaše“, má člověk. Vybraný návrh si nechte uložit do kampaňové složky s jasným názvem (`sablona-kampan-podzim`) — od téhle chvíle je to **vizuální zdroj pravdy kampaně**: všechno další se odvozuje z něj.
+
+Dvě upozornění z praxe. Generované návrhy je nutné kontrolovat na češtinu — dlouhá slova, která se nevejdou, špatné dělení, uvozovky v cizím stylu; model ani šablona za vás salámovou typografii neuhlídá. A pokud model tvrdí, že použil brand kit, ověřte to na jednom návrhu pohledem: srovnejte barvu s manuálem. Důvěřuj, ale prověřuj — jednou na začátku, ne u každého vizuálu.
+
+### Odvození sady: obměny a formáty
+
+Teď se šablona rozmnoží. Kampaň podle kalendáře potřebuje: šest „vlajkových“ vizuálů (jeden na téma každého týdne), obměny pro Facebook, formát na výšku pro stories a dva vizuály pro reklamu. Ručně: desítky výrob. Se šablonou: jedna instrukce a kontrola.
+
+```text
+Vzorový návrh sablona-kampan-podzim je schválený. Odvoď z něj sadu
+vizuálů podle kalendáře v kampan-podzim-2026.md:
+1. Šest obměn pro Instagram (čtverec): stejné rozložení, mění se
+   jen fotka a dílčí sdělení týdne (T1–T6, texty vezmi doslova
+   z kalendáře v dokumentu; fotky navrhni ze složky Kampan-podzim
+   a u každé napiš, kterou jsi vybral a proč).
+2. Z každé obměny odvoď verzi na výšku pro stories — texty stejné,
+   rozložení přizpůsob, ale neměň pořadí informací.
+3. Zatím nevyráběj vizuály pro reklamu, ty budou mít vlastní zadání.
+Všechno ukládej do složky Kampan-podzim/vystupy jako návrhy,
+nic neexportuj. Na konec vypiš tabulku: týden → návrh → fotka
+→ text, ať to zkontroluji najednou.
+```
+
+Kontrolujte podle závěrečné tabulky, ne klikáním po jednom — na to jste si ji vyžádali. Nejčastější chyby v tomhle kroku: model vybere dvakrát stejnou fotku, parafrázuje dílčí sdělení („čerstvě upraženo“ místo „praženo tento týden“ — a už je to jiný slib), nebo při odvozování formátu na výšku přeskládá pořadí informací. Všechno se opravuje větou v chatu, protože výstupy jsou pořád editovatelné návrhy.
+
+Pokud váš tarif umí resize, odvození formátů je jedna operace nad hotovým návrhem. Pokud ne, nechte model formát na výšku postavit jako nový návrh podle vzoru — o krok pracnější, výsledek stejný.
+
+### Export: až nakonec a jen kde je potřeba
+
+Tady je snadné sklouznout zpět do starého světa: vyexportovat všechno do složky „finální grafika“. Nedělejte to. **Buffer i Meta potřebují soubor, ale zdrojem zůstává návrh v Canvě** — exportujte na vyžádání, těsně před použitím, a exporty berte jako jednorázové kopie bez vlastního života. Když se cokoli změní, mění se návrh a export se udělá znovu; nikdy se needituje exportovaný soubor.
+
+```text
+Z návrhů ve složce Kampan-podzim/vystupy vyexportuj jen to, co
+příští týden skutečně potřebujeme: obměny T1 a T2 (čtverec i verze
+na výšku) jako PNG v plné kvalitě. Soubory pojmenuj podle vzoru
+kampan-podzim-T1-ctverec.png. Ostatní týdny neexportuj — budeme
+je exportovat, až na ně přijde řada, kdyby se mezitím něco měnilo.
+Vypiš seznam vyexportovaných souborů s odkazem na zdrojový návrh,
+uložím si ho do kampaňové složky jako mapu export → zdroj.
+```
+
+Ta „mapa export → zdroj“ je drobnost, která se zaplatí při změně claimu: až budete potřebovat vědět, ze kterého návrhu vznikl obrázek běžící v reklamě, bude to jedna položka v tabulce, ne archeologie.
+
+## Fáze 5: texty a plánování — várky konceptů v Bufferu
+
+Texty postů jsou první místo, kde se potká kampaňový dokument s brand voice — a kde se ukáže, jestli jste fázi 2 udělali pořádně. Dobrý kampaňový dokument + dobrý brand voice = posty, které jdou schválit po drobných úpravách. Špatný vstup = posty, které přepisujete celé, a to je signál vrátit se ke zdroji, ne psát lepší prompty.
+
+### Várka na týden, ne kampaň najednou
+
+Lákavé je nechat vygenerovat všech třicet postů najednou. Nedělejte to ze dvou důvodů: kvalita klesá s délkou várky (dvacátý post je variace variace) a kampaň se má učit z toho, co funguje — posty na T4 chcete psát s vědomím, co se dělo v T1 a T2. Pracujte po týdnech.
+
+```text
+Připrav texty příspěvků na první týden kampaně (T1) podle
+kampan-podzim-2026.md a brand-voice.md:
+- 3 posty na Instagram (k vizuálům T1 — popisky, ne text do
+  obrázku): jeden představuje směs, jeden příběh původu, jeden
+  zve na začátek prodeje 6. 10.
+- 2 posty na Facebook: delší, ale žádné převyprávění instagramových
+  — vlastní úhel pro publikum, které nás zná déle
+- claim používej výhradně v povolených zněních z dokumentu
+- fakta o směsi (chuť, původ, termíny) ber jen ze smes-fakta.md;
+  když tam něco chybí, napiš CHYBI-FAKT a nech místo, nevymýšlej
+Ke každému postu: návrh prvního komentáře (odkaz na e-shop patří
+tam, ne do popisku) a 3–5 hashtagů podle našich zvyklostí.
+Zatím nic neposílej do Bufferu — texty projdu tady.
+```
+
+Instrukce „CHYBI-FAKT“ je pojistka proti nejnebezpečnějšímu selhání celé fáze: model si chybějící fakt vymyslí, a zní při tom naprosto věrohodně. Datum začátku prodeje, procenta složení směsi, nadmořská výška farmy — všechno tohle umí AI doplnit z ničeho. Proto fakta žijí v jednom souboru a všechno ostatní se na něj odkazuje; a proto při schvalování kontrolujete **každé číslo a každý slib proti zdroji**, i když text zní dobře. Zvlášť sliby: „doručíme do Vánoc“, „omezená edice“ — každý z nich je závazek, který někdo bude muset splnit.
+
+### Ze schválených textů koncepty v Bufferu
+
+Schválené texty odejdou do Bufferu — jako koncepty naplánované na časy z kalendáře. Tady poprvé konektor zapisuje, a proto poprvé naplno platí smyčka „AI navrhuje, člověk schvaluje“: zápis znamená koncept ve frontě, ne publikaci.
+
+```text
+Texty T1 jsou schválené v podobě, kterou jsem ti vrátil (verze
+s mými úpravami je závazná — nepoužívej své původní návrhy).
+Přes konektor Buffer je naplánuj jako KONCEPTY:
+- Instagram: po 6. 10. v 18:00, st 8. 10. v 12:00, pá 10. 10.
+  v 17:00 — přilož vyexportované vizuály T1
+- Facebook: út a čt podle časů, které má kanál nastavené jako
+  optimální
+Nic nepublikuj — všechno musí zůstat ve stavu, kdy to před
+zveřejněním vidím v Bufferu a můžu to zastavit. Až skončíš,
+vypiš frontu na T1: kanál, čas, první slova postu, přiložený
+vizuál — zkontroluji proti kalendáři.
+```
+
+Věta „verze s mými úpravami je závazná“ vypadá přehnaně, ale má důvod: modely mají tendenci se při přenosu do nástroje vracet ke své původní formulaci. Závěrečný výpis fronty je vaše kontrola — a zkontrolujte ho proti kalendáři v dokumentu, protože právě tady vznikají tiché posuny („naplánoval jsem na čtvrtek, pondělí bylo plné“), které se bez kontroly propásnou.
+
+Ke schvalování samotného publikování: Buffer v době psaní chová příspěvky od konektoru tak, že do fronty přistávají jako koncepty či naplánované položky — nic neodejde, aniž byste to viděli. Schválení tedy může mít dvě podoby a obě jsou legitimní: buď každý post ručně potvrdíte v Bufferu (začátek kampaně, citlivé posty), nebo posty schválíte v chatu, necháte je naplánovat a **schválení proběhlo předem** — publikace v naplánovaný čas už je jen provedení vašeho rozhodnutí. Co legitimní není: nechat publikovat něco, co člověk nečetl.
+
+### Ideas jako zásobník, ne skládka
+
+Během kampaně vzniká materiál, který se nehodí teď, ale hodí se pak: otázka z komentářů, fotka z pražení, věta z recenze. Buffer na to má Ideas — a konektor do nich umí zapisovat, takže zachytávání je jedna věta v chatu.
+
+```text
+Ulož do Buffer Ideas nápad: zákazník v komentářích popsal chuť
+směsi slovy [citace] — použít v T4 (téma „co říkáte vy“) jako
+podklad postu. Přidej štítek kampan-podzim, ať se to na konci
+kampaně dá najít najednou. Jen ulož, nic z toho zatím nevyráběj.
+```
+
+Zásobník se štítkem kampaně má ještě jedno využití: v týdnu T3 a T4, kdy dochází dech (vždycky dochází), z něj model vytáhne materiál, který je konkrétní a váš — místo generických „podzimních“ postů, které by jinak nabídl.
+
+## Fáze 6: reklama — pozastavená kampaň v Meta Ads a ruční zámky
+
+Reklama je jediná část kampaně, kde chyba stojí přímo peníze, a proto tu platí nejpřísnější verze všech pravidel. Dvě věci udělejte **dřív, než konektor Meta Ads vůbec připojíte**, a udělejte je ručně ve správci reklam: nastavte strop útraty na úrovni účtu a rozmyslete si limit rozpočtu kampaně. Instrukce „neutrácej víc než…“ v promptu je přání; limit nastavený na platformě je zámek, který model nemůže obejít, protože k jeho změně budete vždycky vy. Tenhle princip — limity na platformě, ne v promptu — rozebírá podrobně [článek o reklamě přes MCP](/tipy/mcp-reklama-analyza) a je to nejdůležitější věta obou článků.
+
+### Struktura kampaně: navrhnout, vysvětlit, založit pozastavené
+
+Martina reklama je malá a přehledná: podpořit začátek prodeje v T1–T2, cílit na lidi, kteří pražírnu znají (návštěvníci webu, odběratelé newsletteru), a otestovat dvě kreativy. I malá kampaň ale má strukturu (kampaň → sady reklam → reklamy) a vyplatí se nechat si ji nejdřív navrhnout a vysvětlit — zvlášť pokud správce reklam nečtete denně.
+
+```text
+Podle kampan-podzim-2026.md navrhni strukturu reklamní kampaně
+v Meta Ads na období T1–T2 (6.–19. 10.). Chci: cíl prodeje
+v e-shopu, dvě publika (návštěvníci webu za 90 dní; lidé podobní
+odběratelům newsletteru), dvě kreativy na publikum (vizuály
+z Canvy, texty odvodíš z kampaňového dokumentu — claim jen
+v povolených zněních).
+Nejdřív mi strukturu vysvětli jako člověku, který správce reklam
+otevírá dvakrát ročně: co je kampaň, co sada, co reklama, kde se
+nastavuje rozpočet a kde cílení — a co přesně navrhuješ do každé
+úrovně a proč. Ukaž i, jaká vlastní publika v účtu už existují
+a jestli se dají použít místo zakládání nových.
+Nic zatím nezakládej.
+```
+
+Vrátí strukturu s vysvětlením — a to vysvětlení čtěte, protože schvalovat něco, čemu nerozumíte aspoň na téhle úrovni, není schvalování, ale alibi. Ptejte se, dokud struktura nedává smysl: proč dvě sady a ne jedna, proč tohle publikum. Model odpovídá trpělivě a otázky jsou zadarmo; špatně postavená kampaň ne.
+
+```text
+Struktura schválena s úpravami: [poznámky]. Založ kampaň přes
+konektor Meta Ads s těmito pravidly:
+- VŠECHNO zakládej ve stavu POZASTAVENO (kampaň, sady, reklamy) —
+  nic se nesmí spustit
+- rozpočty nastav na hodnoty ze schválené struktury; denní, ne
+  celkové [doplňte vlastní rozhodnutí]
+- nahraj kreativy kampan-podzim-T1-* z exportů Canvy, texty použij
+  přesně ve znění, které jsem schválil
+- konec kampaně nastav natvrdo na 19. 10. — žádná reklama bez
+  koncového data
+Až budeš hotov, vypiš celou založenou strukturu včetně stavů
+(musí být všude „pozastaveno“), rozpočtů a náhledů reklam.
+```
+
+Pravidlo „všechno pozastavené“ je nepodkročitelné a v době psaní jde s oficiálním konektorem dodržet — entity lze zakládat pozastavené a aktivace je oddělená operace. Kontrola stavů ve výpisu je vaše pojistka; a **spuštění pak proveďte sami ve správci reklam**, ne větou v chatu. Ne proto, že by to konektor neuměl, ale proto, že spuštění reklamy je přesně ten typ rozhodnutí, které má mít lidský rituál: otevřít správce, naposledy se podívat na náhledy, rozpočty a koncové datum, kliknout.
+
+### Kontrola před spuštěním
+
+Mezi založením a spuštěním patří ještě jedna smyčka — kontrola, kterou dělá model, ale podle vašeho checklistu.
+
+```text
+Než kampaň spustím, projdi ji ve správci reklam jako kontrolor:
+1. Náhledy všech reklam: je claim v povoleném znění? Sedí vizuál
+   s textem? Nejsou v textu sliby, které nejsou v kampaňovém
+   dokumentu (doprava zdarma, sleva)?
+2. Cílení: odpovídají publika schválené struktuře? Není někde
+   omylem široké cílení bez omezení?
+3. Rozpočty a termíny: denní rozpočty podle plánu, koncové datum
+   19. 10. všude, měna správně
+4. Cílová URL: vede na stránku směsi, ne na homepage, a funguje
+Vrať nález po bodech: v pořádku / problém + co s ním. Nic
+neopravuj bez schválení.
+```
+
+Typické nálezy: reklama vedoucí na homepage místo produktu (klasika, která tiše zabíjí výkon), chybějící koncové datum u jedné sady, kreativa s claimem v „vylepšené“ parafrázi. Všechno levné teď, drahé po spuštění.
+
+Během běhu reklamy pak platí režim, který zná čtenář článku o MCP reklamě: model smí číst insights a navrhovat úpravy („kreativa B má výrazně horší výsledky, navrhuju ji vypnout“), změny v účtu potvrzuje člověk. U šestitýdenní kampaně s reklamou na dva týdny bohatě stačí dvě tři kontrolní zastávky — reklamě je potřeba dát pár dní, než má smysl ji hodnotit, a denní mikrooptimalizace malé kampani spíš škodí.
+
+## Fáze 7: newsletter — dvě větve v Brevu, test na vlastní adresu
+
+Newsletter je v Martině kampani nejcennější kanál — jde na lidi, kteří už koupili nebo odebírají, a na kavárny, se kterými má vztah. Zároveň je to kanál, kde chyba bolí nejvíc: špatně rozeslaný e-mail nejde vzít zpět a nevhodný tón vůči odběratelským kavárnám poškozuje obchodní vztah, ne jen metriku. Proto tu schvalovací smyčka dostane ještě jeden stupeň navíc: testovací odeslání.
+
+### Segmenty: komu co
+
+Kampaňový dokument říká, že newsletter má dvě větve — koncoví zákazníci a kavárny. V Brevu to znamená mít čisté segmenty, a to je práce pro inventuru z fáze 1 plus jeden krok navíc.
+
+```text
+Přes konektor Brevo připrav segmenty pro kampaňový newsletter:
+1. Vypiš existující seznamy a segmenty a navrhni mapování na dvě
+   větve kampaně: „zákazníci e-shopu“ a „velkoobchod kavárny“.
+2. Zkontroluj překryvy: kontakty, které jsou v obou skupinách,
+   patří pro kampaň jen do větve kavárny (dostanou obchodní verzi,
+   ne zákaznickou) — vypiš jich seznam, rozhodnu o výjimkách.
+3. Označ podezřelé kontakty: bez záznamu o souhlasu, dlouhodobě
+   neaktivní adresy [doplňte vlastní kritérium]. Ty do kampaně
+   nezařazuj — vypiš je zvlášť, rozhodnu, co s nimi.
+Nic nemaž a segmenty zatím nevytvářej — navrhni, schválím.
+```
+
+Bod s překryvy je detail, který odlišuje kampaň promyšlenou od kampaně rozeslané: majitel kavárny, který od vás odebírá pytle kávy, nemá dostat e-mail „kup si 250g balení“. Působí to, jako byste ho neznali — a přitom je to váš nejdůležitější adresát.
+
+### Šablona a obsah: brand voice i v patičce
+
+E-mail se v Brevu skládá ze šablony (rozložení, hlavička, patička) a obsahu kampaně. Šablonu vyplatí se udělat jednou pořádně — bude sloužit i po kampani.
+
+```text
+Vytvoř v Brevu e-mailovou šablonu pro naši pražírnu: jednoduchá,
+jednosloupcová, logo v hlavičce, barvy a písmo webu (bezpečné
+fallbacky pro e-mailové klienty), patička se zákonnými náležitostmi
+a odhlašovacím odkazem. Texty šablony (hlavička, patička, tlačítka)
+piš podle brand-voice.md — i „Odhlásit odběr“ má znít jako my,
+ne jako právní oddělení.
+Pak připrav obsah prvního kampaňového e-mailu pro větev zákazníci
+podle kampan-podzim-2026.md: představení směsi, claim v dlouhé
+variantě, jedno tlačítko na stránku směsi. Předmět navrhni ve třech
+variantách, vybírat budu já. Fakta jen ze smes-fakta.md.
+Kampaň založ jako KONCEPT a pošli testovací e-mail na moji adresu.
+Nic neodesílej na segmenty.
+```
+
+A pak druhá větev — ne jako kopie s vyměněným oslovením, ale jako vlastní e-mail:
+
+```text
+Připrav obsah kampaňového e-mailu pro větev velkoobchod kavárny.
+Stejná šablona, stejný claim, ale jiný obsah podle sekce Publika
+v kampaňovém dokumentu: kavárnu nezajímá „kupte si“, ale co směs
+udělá v jejich nabídce — profil chuti pro jejich zákazníky,
+stabilita dodávek přes podzim, vzorek na vyzkoušení zdarma
+[ověřte, že tohle kampaňový dokument slibuje — pokud ne, nenabízej].
+Tón: obchodní partner, ne zákazník; podle brand-voice.md sekce
+o velkoobchodní komunikaci. Založ jako samostatný koncept a pošli
+mi test na moji adresu.
+```
+
+Testovací e-mail na vlastní adresu je stupeň schvalování, který u newsletteru nikdy nepřeskakujte: e-mail vypadá jinak v editoru a jinak ve schránce (rozbité rozložení v tmavém režimu, obrázky, které se nenačtou, předmět uříznutý v půlce). Otevřete test na počítači i v mobilu. A ostré odeslání — nebo naplánování na termín z kalendáře — proveďte v administraci Brevo sami: u kanálu, kde jedno kliknutí osloví celou databázi, patří finální krok člověku bez výjimky a bez debat.
+
+Načasování říká kalendář v dokumentu: zákaznická větev v den začátku prodeje (T2 pondělí), kavárenská o týden dřív — kavárny potřebují náskok, aby stihly objednat a měly směs v nabídce, až ji jejich hosté uvidí na sítích. Tahle drobná choreografie kanálů je přesně důvod, proč má kalendář žít v jednom dokumentu: v pěti nástrojích by ji nikdo neuhlídal.
+
+## Týden po týdnu: jak kampaň skutečně běží
+
+Fáze 1–7 popisují stavbu; teď provoz. Takhle vypadá Martina kampaň rozložená do času — sedm týdnů včetně přípravného. Nepřebírejte kalendář doslova (váš produkt a rytmus budou jiné), přebírejte princip: **každý týden má jedno téma, jasné výstupy a jednu provozní rutinu.** A všechno, co tu je popsáno, se odvolává na kampaňový dokument — pokud si při čtení říkáte „a kde se rozhodlo tohle?“, odpověď je vždycky „v dokumentu, ve fázi 2“.
+
+### T0: přípravný týden
+
+Poslední týden před startem se dokončuje výroba a zamykají rozhodnutí. Konkrétně: doladit vzorovou šablonu v Canvě a odvodit sadu T1–T2; napsat a schválit texty T1 a poslat je jako koncepty do Bufferu; založit pozastavenou reklamní kampaň a projít předspouštěcí kontrolu; připravit oba kampaňové e-maily jako koncepty s odeslaným testem; a rozeslat kavárenskou větev newsletteru (ta jde o týden napřed). Na konci T0 si udělejte generálku — jeden prompt, který celý systém projde naposledy:
+
+```text
+Zítra startuje kampaň. Projdi všechno a vrať kontrolní přehled:
+1. Buffer: vypiš frontu na T1 — kanál, čas, text, vizuál. Srovnej
+   s kalendářem v kampan-podzim-2026.md a označ odchylky.
+2. Meta Ads: vypiš strukturu kampaně, stavy (vše pozastaveno?),
+   rozpočty, koncová data, náhledy.
+3. Brevo: stavy obou kampaní (koncepty?), naplánované termíny,
+   velikosti segmentů.
+4. Canva: které návrhy jsou hotové (T1–T2) a které týdny ještě
+   nemají vizuály.
+5. Křížová kontrola: je všude stejné znění claimu? Je všude datum
+   začátku prodeje 6. 10.? Vypiš každý výskyt a odchylku.
+Nic neměň — jen hlaš. Odchylky opravíme jednotlivě.
+```
+
+Bod 5 je nejcennější: křížová kontrola konzistence napříč nástroji je přesně ta práce, kterou člověk dělá špatně (nudná, mechanická, spousta míst) a model dobře. Jestli se někde skrývá stará verze claimu nebo překlep v datu, vypluje teď.
+
+### T1–T2: start a prodej — nejhustší období
+
+První dva týdny běží všechno najednou: posty podle fronty, reklama (spuštěná v pondělí T1 ručně, po generálce), zákaznický newsletter v den začátku prodeje. Provozní pravidlo pro tohle období: **ráno kontrola, večer zachytávání.** Ráno se podívat, co dnes vychází a co se událo (komentáře, první prodeje, doručitelnost e-mailu); večer uložit do Ideas, co den přinesl. Na obojí stačí dohromady dvacet minut — protože nevyrábíte, jen řídíte.
+
+V T2, když má reklama za sebou pár dní, přichází první kontrolní zastávka nad insights — ne dřív. Denní hodnocení dvoudenní reklamy je čtení šumu; nechte data usadit.
+
+### T3–T4: střed kampaně — údržba rytmu
+
+Střed je nejnebezpečnější část každé kampaně: startovní energie vyprchala, finále je daleko a přesně tady se kampaně tiše rozpadají. Systém pomáhá dvojím způsobem. Výroba dalších várek je levná — texty T3 se píší stejným promptem jako texty T1, jen s jiným tématem týdne, a vizuály se odvozují z hotové šablony. A zásobník Ideas z prvních týdnů dodává konkrétní materiál: reakce zákazníků, první recenze, fotky z provozu. Tady se také poprvé pořádně hodí týdenní report (sekce o měření níž) — v T3 už říká, který typ postů funguje, a várka na T4 se podle toho může přiklonit k tomu, co žije.
+
+Konec reklamy 19. 10. znamená v T2/T3 jednu ruční povinnost: zkontrolovat, že opravdu doběhla a nic v účtu nezůstalo aktivní. Model to ověří výpisem, vy pohledem do správce.
+
+### T5–T6: finále a dojezd
+
+Poslední dva týdny patří druhé vlně newsletteru (připomínka pro ty, kdo nekoupili — a poděkování s praktickým obsahem pro ty, kdo koupili, pokud takové větvení váš seznam umí), postům z materiálu nasbíraného během kampaně a velkoobchodní lince: follow-up kavárnám, které dostaly vzorek a neozvaly se. Ten follow-up je mimochodem přesně úloha pro čtecí režim nad CRM z minulého návodu — agent připraví seznam a návrhy e-mailů v brand voice, Marta rozhodne a odešle. Kruh nástrojů se uzavírá: kampaň čte z CRM, CRM se plní z kampaně.
+
+### Pondělní rutina: jeden prompt na celý provoz
+
+Celý provoz kampaně se vejde do jedné pondělní rutiny — promptu, který se každý týden opakuje se stejnou strukturou. Uložte si ho; a kdo chce, nastaví si ho jako plánovanou úlohu, aby přehled v pondělí ráno čekal v konverzaci sám.
+
+```text
+Pondělní provoz kampaně, týden [T3]. Projdi a připrav:
+1. Co tento týden vychází: fronta v Bufferu proti kalendáři
+   v kampan-podzim-2026.md — sedí? Chybí něco?
+2. Co je potřeba vyrobit: texty a vizuály na příští týden [T4],
+   podle šablony a tématu týdne z dokumentu. Připrav návrhy,
+   schválím je dnes odpoledne.
+3. Co říkají čísla: metriky postů minulého týdne z Bufferu
+   (dosah, interakce, prokliky) a stav reklamy z Meta insights,
+   pokud běží. Tři věty, co z toho plyne — žádné tabulky o ničem.
+4. Co čeká na rozhodnutí: nezodpovězené otázky, návrhy z Ideas,
+   věci označené CHYBI-FAKT.
+Formát: čtyři krátké sekce, odkazy na koncepty. Nic nepublikuj,
+nic nespouštěj.
+```
+
+Na téhle rutině je vidět, jak se změnila povaha práce: Marta v pondělí neklikne stokrát, ale jednou si přečte přehled a udělá pět rozhodnutí. Výroba, přenosy a kontroly konzistence — všechno, co je mechanické — dělá systém. Rozhodování, vkus a odpovědnost — všechno, co je podstatné — zůstává jí.
+
+## Změna claimu: editovatelnost v praxi
+
+A teď scéna, kvůli které se celý systém stavěl. Je úterý v T2. Reklama běží týden, posty vycházejí — a Marta z komentářů a dvou rozhovorů v kavárně pochopí, že claim nefunguje: lidé si ho vykládají jinak, než zamýšlela, a dvě kavárny se zeptaly, jestli je to narážka na konkurenční pražírnu. Není. Claim se musí změnit — uprostřed běžící kampaně, se spuštěnou reklamou, naplánovanými posty a rozeslaným prvním e-mailem.
+
+Na jaře by tohle byla noční můra a tři večery přepisování po paměti. Teď je to řízený proces o třech krocích.
+
+**Krok 1: změna ve zdroji.** Nový claim se vymyslí (klidně promptem z fáze 2, s poučením, proč starý selhal), rozhodne a zapíše do `kampan-podzim-2026.md` — nové znění, nové povolené varianty, starý claim se přesune do zakázaných parafrází, ať se nikdy nevrátí zadními vrátky. Commit se zdůvodněním: „claim v2: původní znění si publikum vykládalo jako narážku na konkurenci“. Za rok, až se bude plánovat další kampaň, bude tohle zdůvodnění zlato.
+
+**Krok 2: propagace do aktiv — podle vypsaného checklistu, ne po paměti.**
+
+```text
+V kampan-podzim-2026.md se změnil claim (commit „claim v2“). Projdi
+všechna kampaňová aktiva a vypiš KAŽDÝ výskyt starého claimu nebo
+jeho parafrází:
+1. Buffer: naplánované koncepty a fronta (T2–T6) — které posty ho
+   obsahují v textu
+2. Canva: návrhy ve složce Kampan-podzim (šablona, obměny T1–T6,
+   vizuály reklam) — kde je v grafice
+3. Meta Ads: běžící i pozastavené reklamy — texty a kreativy
+4. Brevo: koncepty druhé vlny newsletteru, šablona
+5. Mapa export → zdroj: které vyexportované soubory jsou teď
+   zastaralé
+Vrať tabulku: nástroj → aktivum → kde přesně → navrhovaná oprava.
+Nic neměň, opravy budeme schvalovat po skupinách. Nezapomeň
+na první komentáře u postů a na cílové stránky — claim může být
+i na webu.
+```
+
+Vrátí kompletní seznam zásahů — typicky se ukáže, že starý claim žije na víc místech, než by kdo čekal (první komentáře, alt texty, jedna stránka webu). Opravy pak jdou po skupinách: texty v Bufferu upraví konektor v konceptech (a vy je zkontrolujete), návrhy v Canvě se opraví ve zdrojové šabloně a obměnách — **proto se exportovalo až nakonec a jen co bylo potřeba**: neopravujete dvanáct PNG, opravujete šablonu a pár návrhů, a re-export uděláte jen u vizuálů, které teprve poběží. U reklamy je oprava nejcitlivější: nové kreativy se založí pozastavené, zkontrolují, a výměna běžící reklamy je ruční rozhodnutí ve správci — se zvážením, že výměna kreativy restartuje učení reklamního systému; u dvoutýdenní reklamy v polovině běhu může být rozumnější nechat starou doběhnout a vyměnit jen to, co poběží dál. Model vám nabídne obě varianty s argumenty; rozhodnutí je obchodní, ne technické.
+
+**Krok 3: kontrola, že propagace doběhla.** Tentýž křížový prompt jako v generálce T0 — „vypiš každý výskyt claimu napříč nástroji“ — jen teď hledáte, jestli někde nepřežil ten starý. Doběhla-li propagace, vrátí se čistý seznam s jediným zněním.
+
+Celé to trvá večer — a hlavně: **je to úplné.** Žádný zapomenutý naplánovaný post, který za tři týdny vyjede se starým claimem. Ne proto, že by Marta byla letos pozornější než na jaře, ale proto, že úplnost nezajišťuje paměť, nýbrž systém: zdroj pravdy říká, co platí, a checklist vypsaný strojem říká, kde všude se to musí projevit. Tohle je hlavní výnos celé stavby a důvod, proč se vyplatila i pro šestitýdenní kampaň malé pražírny.
+
+## Schvalovací smyčka: kde přesně sedí člověk
+
+Pravidlo „AI navrhuje, člověk schvaluje“ zaznělo v každé fázi; teď si ho poskládejme do jednoho obrázku, protože v kampani má víc pater a každé patro jiný práh. Zásada zní: **čím nevratnější a čím veřejnější akce, tím tvrdší schválení.** A druhá, méně zjevná: schválení musí být skutečné — člověk věc viděl a rozuměl jí — ne rituální odkliknutí, které si nikdo nepamatuje.
+
+- **Návrhy a koncepty** (texty v chatu, návrhy v Canvě, nápady v Ideas): volné pásmo. Tady smí AI tvořit bez ptaní — nic z toho nikdo nevidí a všechno jde zahodit. Schvaluje se výběrem: co projde dál.
+- **Aktiva ve frontě** (koncepty v Bufferu s časem publikace, pozastavená reklama, koncept kampaně v Brevu): pásmo kontroly. Sem smí AI zapisovat, ale každý zápis končí výpisem, který člověk čte. Tady se chytá parafrázovaný claim, vymyšlený fakt, posunutý čas.
+- **Publikace** (zveřejnění postu, spuštění reklamy, rozeslání e-mailu): pásmo člověka. Post smí odejít automaticky jen tehdy, když ho člověk předem četl a naplánoval — schválení proběhlo, jen s časovým odstupem. Spuštění reklamy a ostré rozeslání newsletteru se provádí ručně na platformě, vždy. U reklamy proto, že teče do peněz; u newsletteru proto, že jedno kliknutí oslovuje celou databázi najednou.
+- **Mazání a zásahy do běžícího** (smazat publikovaný post, vypnout běžící reklamu, odstranit segment): opět člověk — a s rozmyslem, protože i „oprava“ může škodit víc než chyba.
+
+Kdo schvaluje, říká kampaňový dokument v sekci Kanály — a u firmy o šesti lidech to typicky znamená: koncepty smí připravovat kdokoli z marketingu, publikuje a spouští jeden určený člověk (u Marty ona sama), zástup na dovolenou je jmenovaný předem. Zní to byrokraticky na malou firmu; je to jedna řádka v dokumentu a ušetří přesně tu situaci, kdy „to pustil brigádník, mysleli jsme, že to je schválené“.
+
+A ještě jedna poznámka k psychologii schvalování, protože na ní smyčka stojí a padá: po dvou týdnech bezchybných návrhů přijde pokušení číst zběžně. Tomu se braňte strukturou, ne vůlí — proto všechny prompty v tomhle návodu končí „vypiš tabulku“, „vrať přehled“, „vypiš každý výskyt“. Tabulku o osmi řádcích zkontrolujete poctivě i v pátek odpoledne; dvanáct rozklikaných konceptů ne.
+
+## Měření: co číst, co ignorovat a jak vypadá týdenní report
+
+Kampaň, která se neměří, se nedá řídit — ale platí i opak: kampaň, která se měří špatně, se řídí špatně. Malé firmě hrozí druhé víc. Čísel je všude spousta, konektory je umí vytáhnout jedním promptem, a tak vzniká pokušení sledovat všechno. Výsledek je znám: dashboard, na který se nikdo nedívá, a rozhodnutí, která se stejně dělají pocitem.
+
+Systémová odpověď: **měřit málo věcí, ale pravidelně a pořád stejně.** Kampaňový dokument definuje cíl (prodat první pražení, tři nové kavárny) — a metriky se vybírají tak, aby k cíli vedly stopou, ne aby byly zajímavé.
+
+### Co číst v Bufferu
+
+Metriky příspěvků z Bufferu (v době psaní včetně agregovaných přehledů za období) čtěte na dvou úrovních. Týdenní: dosah a interakce postů minulého týdne — ne kvůli číslům samotným, ale kvůli porovnání mezi posty: který typ obsahu žije (příběh původu vs. produktová fotka vs. citace zákazníka) a co z toho plyne pro další várku. Kampaňová: na konci agregát za celé období proti běžnému provozu — zvedla kampaň celkovou úroveň, nebo jen přeskupila pozornost? Ignorujte počty sledujících v týdenním rytmu (šum) a lajky jako hlavní metriku (nejlacinější interakce s nejmenší vypovídací hodnotou — prokliky a uložení říkají víc).
+
+### Co číst v Meta insights
+
+U reklamy je princip stejný, jen s ostřejším rozpočtovým hlediskem. Zajímá vás: kolik reklama přivedla relevantních návštěv na stránku směsi a co stály (trend, ne absolutní hodnota jednoho dne), rozdíl mezi kreativami a publiky (na to jste stavěli strukturu dvou sad — teď odpovídá na otázku, kdo reaguje) a frekvence (když stejní lidé vidí reklamu popáté, přestává fungovat a začíná obtěžovat). Oficiální konektor v době psaní nabízí i trendové přehledy, oborová srovnání a detekci anomálií — hezké na kontext, ale rozhodnutí malé kampaně stojí na základních číslech.
+
+A zásadní upozornění, podrobně rozebrané v [článku o reklamě a analytice](/tipy/mcp-reklama-analyza): **čísla z Mety, z Bufferu a z vašeho e-shopu nikdy nebudou sedět navzájem** — jiná atribuce, jiná okna, blokované měření. Není to chyba, kterou má AI „opravit“; je to vlastnost. Prakticky: uvnitř každého nástroje sledujte trend, mezi nástroji porovnávejte pořadí a poměry, a celkový úspěch kampaně suďte podle vlastních čísel (objednávky v e-shopu, poptávky kaváren), ne podle reportu platformy, která má vlastní motivaci vypadat úspěšně.
+
+### Týdenní report jedním promptem
+
+Report je součást pondělní rutiny, ale zaslouží samostatný prompt — protože dobrý report není výpis čísel, ale odpověď na tři otázky: co se stalo, co to znamená, co s tím uděláme.
+
+```text
+Týdenní report kampaně, týden [T2]. Zdroje: metriky postů z Bufferu
+za minulý týden, Meta insights reklamní kampaně, [počet objednávek
+směsi z e-shopu doplním: X].
+Struktura — maximálně jedna obrazovka:
+1. Tři čísla týdne proti minulému týdnu (vyber ta, která souvisejí
+   s cílem kampaně z kampan-podzim-2026.md, ne ta nejlichotivější)
+2. Co fungovalo a co ne: nejlepší a nejslabší post s hypotézou proč;
+   rozdíl mezi reklamními kreativami/publiky, pokud je průkazný —
+   pokud je rozdíl malý, napiš, že je malý, nevymýšlej příběh
+3. Návrhy na tento týden: max 3, konkrétní, s odhadem pracnosti
+4. Na co si dát pozor: anomálie, klesající trend, frekvence reklamy
+Nesrovnávej absolutní čísla mezi platformami. Kde je dat málo na
+závěr, řekni to.
+```
+
+Věty „pokud je rozdíl malý, napiš, že je malý“ a „kde je dat málo, řekni to“ jsou v promptu proto, že modely mají silný sklon vyprávět příběhy i nad šumem — dva týdny malé kampaně prostě často průkazný rozdíl nedají, a report, který to přizná, je cennější než report, který si vymyslí trend. Zdravá nedůvěra k příliš hladkým interpretacím patří k řízení kampaně stejně jako ke čtení jakéhokoli AI výstupu.
+
+### Závěrečné vyhodnocení
+
+Po T6 si kampaň zaslouží tečku — vyhodnocení proti cílům z dokumentu, ne proti pocitu:
+
+```text
+Kampaň skončila. Připrav závěrečné vyhodnocení proti cílům
+z kampan-podzim-2026.md:
+1. Cíle: prodej prvního pražení (číslo dodám: X z Y), noví
+   velkoobchodní odběratelé (dodám: X ze 3) — splněno/nesplněno
+   a co k tomu čísla z kanálů říkají
+2. Kanály: agregované metriky z Bufferu za T1–T6 proti šesti týdnům
+   před kampaní; celkové výsledky reklamy z Meta insights; výsledky
+   obou větví newsletteru z Breva (doručení, otevření, prokliky —
+   zákazníci vs. kavárny zvlášť)
+3. Co se osvědčilo v procesu: které prompty a rutiny fungovaly,
+   kde jsme improvizovali (projdi historii commitů kampaňového
+   dokumentu — každá změna byla improvizace nebo oprava)
+4. Doporučení pro příští kampaň: 5 bodů, konkrétních
+Piš střízlivě. Tam, kde výsledek nejde připsat kampani s jistotou,
+to napiš — nepotřebuju oslavný report, potřebuju se příště
+rozhodovat líp.
+```
+
+Bod 3 je možný jen díky gitu: historie commitů kampaňového dokumentu je upřímný deník kampaně — každá změna má datum a zdůvodnění, takže se dá zpětně přečíst, co se plánovalo a co přineslo skutečnost. Žádná paměť a žádné „myslím, že jsme tenkrát…“.
+
+## Bezpečnost: konektor je klíč od firemních účtů
+
+Bezpečnostní poznámky byly rozeseté po fázích; tady jsou pohromadě a s jedním zarámováním, které stojí za zapamatování: **připojený konektor je klíč od firemního účtu.** Kdo může mluvit s modelem, který má konektor do Bufferu, může připravovat obsah jménem firmy; kdo má konektor do Mety, dotýká se účtu, který utrácí peníze; kdo má konektor do Breva, sahá na databázi kontaktů — tedy na osobní údaje. To není důvod konektory nepoužívat; je to důvod zacházet s nimi jako s klíči, ne jako s pluginy.
+
+- **Oddělte, kdo smí co.** Konektory připojujte k pracovním účtům konkrétních lidí, ne k jednomu sdílenému „firemnímu loginu“, který zná půlka firmy. Práva odstupňujte podle schvalovací smyčky: připravovat koncepty může širší okruh, publikační a spouštěcí práva drží jeden dva lidé. Většina platforem má role (Buffer tým, Meta Business role, Brevo uživatelé) — použijte je, místo abyste všem dali admina, protože to bylo rychlejší.
+- **Rozpočtové limity ručně a předem.** Ještě jednou, protože je to nejdůležitější bod: strop útraty účtu a limity kampaní v Metě se nastavují ručně na platformě dřív, než se konektor poprvé připojí. Prompt není zámek.
+- **Nejmenší potřebný rozsah.** Při připojování konektoru čtěte obrazovku oprávnění a berte užší variantu, kde existuje. Konektor na čtení metrik nepotřebuje právo zakládat kampaně. A konektory, které kampaň skončila a nepoužívá je, odpojte — klíč, který nikde neleží, se nedá ztratit.
+- **Odchod člověka = odvolání přístupů.** Do offboardingu přidejte řádek: odvolat přístup v Bufferu, Metě, Brevu, Canvě i v samotném AI účtu. U konektorů přes OAuth se přístup odvolává v nastavení dané služby — projděte je všechny.
+- **Data kontaktů jsou osobní údaje.** Seznamy z Breva nepatří do promptů ve větším rozsahu, než úloha potřebuje — model má s databází pracovat přes konektor (data zůstávají ve službě), ne kopírováním tisíců adres do konverzace. A exporty kontaktů nepatří do git repozitáře, ani do kampaňové složky „na chvilku“.
+- **Placený účet se smluvní ochranou dat** pro všechno firemní — platí z minulého návodu beze změny, pro kampaňové plány, ceníky i výsledky prodeje.
+
+A jednou za kampaň audit — na konci, nebo kdykoli máte pocit, že přístupů přibylo:
+
+```text
+Udělej audit přístupů kolem kampaně:
+1. Vypiš všechny konektory připojené k tomuto účtu a u každého:
+   ke kterému firemnímu účtu vede, jaká má oprávnění (čtení/zápis),
+   kdy se naposledy použil
+2. Navrhni, co odpojit nebo zúžit: konektory nepoužité déle než
+   měsíc, zápisová práva tam, kde stačí čtení
+3. Připrav checklist pro kontrolu na platformách (tam nevidíš):
+   kdo má v Bufferu/Metě/Brevu/Canvě jaké role, které OAuth
+   aplikace mají přístup, kde chybí dvoufaktor
+Nic neodpojuj sám — vrať přehled, rozhodnu.
+```
+
+Třetí bod je poctivý: model přes konektor nevidí správu rolí na platformách, a nemá předstírat, že ano. Umí ale připravit checklist, se kterým to za deset minut projdete sami — a to je přesně dělba práce, která bezpečnosti sluší: stroj připraví úplný seznam, člověk klikne a rozhodne.
+

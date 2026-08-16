@@ -1,0 +1,698 @@
+---
+title: "Zázračný doplněk, nebo marketing? Ověřování zdravotních tvrzení s AI a PubMedem"
+excerpt: "Kompletní návod s 22 prompty: jak si tvrzení z reklamy, řetězového e-mailu nebo Instagramu proběhnout proti skutečným studiím přes PubMed konektor, jak s AI číst abstrakty, poznat slabou studii od silné — a jak z toho udělat rodinný registr ověřených tvrzení místo věčného googlení."
+category: "ai"
+platform: "vsude"
+audience: ["rodic", "student"]
+keys: []
+saves: "~hodiny dohadů a útraty za věci bez důkazů"
+date: "2026-08-16"
+updated: "2026-08-16"
+tldr: >-
+  Sdílený titulek není studie — mezi „vědci zjistili" a tím, co vědci skutečně
+  zjistili, stojí tisková zpráva, relativní riziko a často i myši místo lidí.
+  Návod ukazuje, jak si zdravotní tvrzení proběhnout proti skutečné literatuře:
+  PubMed konektor najde studie, AI přeloží abstrakt do lidštiny a vy tvrzení
+  zařadíte na hierarchii důkazů od kazuistiky po metaanalýzu. Výsledky
+  ukládáte do rodinného registru ověřených tvrzení — živého dokumentu, díky
+  kterému příště nezačínáte od nuly. Jedno ale platí nad celým textem: tohle
+  je mediální gramotnost, ne medicína — o léčbě, lécích a diagnózách
+  rozhoduje lékař.
+faq:
+  - q: >-
+      Nahradí mi tenhle postup lékaře?
+    a: >-
+      Ne, a nemá to ani zkoušet. Návod učí číst studie a nenaletět marketingu —
+      pomáhá vám klást lékaři lepší otázky, ne odpovídat si místo něj. Jakmile
+      jde o příznaky, léčbu, dávkování nebo vysazení léků, patří rozhodnutí
+      výhradně do ordinace. AI ani PubMed nemají váš zdravotní kontext a nenesou
+      odpovědnost.
+  - q: >-
+      Musím umět anglicky a rozumět statistice, abych to zvládl?
+    a: >-
+      Ne — přesně tohle za vás dělá AI. Abstrakty jsou anglicky a psané odborným
+      jazykem, ale necháte si je přeložit a vysvětlit po větách, včetně toho, co
+      znamená relativní riziko nebo velikost vzorku. Vaše práce není překládat,
+      ale ptát se: kdo byl zkoumán, co přesně se měřilo a co studie neříká.
+  - q: >-
+      Co když je studie za paywallem?
+    a: >-
+      Abstrakt je na PubMedu zdarma vždy a na první posouzení obvykle stačí.
+      Plné texty jsou v době psaní dostupné jen u článků v PubMed Central —
+      zhruba u čtvrtiny. Když plný text nemáte, pracujte s abstraktem, hledejte
+      přehledové studie (bývají častěji otevřené) a v registru poctivě uveďte,
+      že jste četli jen abstrakt.
+  - q: >-
+      Dá se věřit tomu, co mi AI o studiích řekne?
+    a: >-
+      Jen s ověřením. Jazykové modely si umí studii vymyslet — přesvědčivě,
+      s autory a rokem. Proto je jádrem návodu konektor: každé tvrzení musí mít
+      PMID (identifikátor v PubMedu), který si můžete rozkliknout. Citace bez
+      dohledatelného PMID do registru nepatří, ať zní jakkoli dobře.
+  - q: >-
+      Jak poznám silnou studii od slabé?
+    a: >-
+      Hierarchií důkazů: kazuistika je zajímavost, observační studie ukazuje
+      souvislost, randomizovaná kontrolovaná studie testuje příčinu a metaanalýza
+      shrnuje všechny dohromady. K tomu velikost vzorku, lidé versus myši
+      a střet zájmů. Článek obsahuje tabulku s lidským vysvětlením každé úrovně
+      — a prompty, které zařazení udělají s vámi.
+  - q: >-
+      Co říct babičce, která zázračnému doplňku věří?
+    a: >-
+      Ne „to je hloupost". Technika mostu: začněte tím, co máte společné (oba
+      chcete, aby byla zdravá), oceňte, že se o zdraví zajímá, a teprve pak
+      nabídněte, co jste našli — jako společné pátrání, ne jako opravu. Lidé
+      nemění názor, když prohrávají spor; mění ho, když neztrácejí tvář.
+---
+
+Každá rodina to zná. Babička přepošle e-mail o zázračném doplňku, „který lékaři nechtějí, abyste znali". Kamarád u piva prohlásí, že káva ničí srdce, protože „to četl". Influencer s milionem sledujících prodává detoxikační kúru a mává u toho „studií z Harvardu". A vy stojíte mezi tím vším s telefonem v ruce a děláte to, co všichni: vygooglíte titulek, najdete pět článků, které si protiřečí, a za týden řešíte totéž znovu.
+
+Tenhle návod nabízí jinou cestu: **místo googlení titulků se naučit chodit rovnou ke zdroji — do databáze skutečných studií — a z každého ověření si nechat trvalý zápis, ke kterému se rodina vrací.** Technicky to umožňuje PubMed konektor pro Claude, který v době psaní zdarma prohledává přes 36 milionů záznamů lékařské literatury. Ale technika je ta menší polovina. Ta větší je řemeslo: vědět, proč sdílený titulek není studie, umět z mlhavého tvrzení udělat zodpověditelnou otázku, přečíst abstrakt s AI jako překladatelem, zařadit studii na hierarchii důkazů a odlišit vědecký konsenzus od jedné osamocené práce. Přesně tohle se tu naučíte, krok za krokem, s prompty k okopírování.
+
+A hned na začátku to nejdůležitější vymezení, které se bude textem vracet záměrně často: **tohle je návod na mediální a vědeckou gramotnost, ne zdravotní poradna.** AI ani PubMed nenahrazují lékaře. O léčbě, nasazování a vysazování léků a o diagnózách rozhoduje lékař — vždycky, bez výjimky. Co vám tenhle postup dá, je něco jiného a taky cenného: schopnost nenaletět marketingu, rozeznat silný důkaz od slabého a přijít do ordinace s lepšími otázkami místo s vytištěným řetězovým e-mailem. Číst můžete po fázích; kdo spěchá, ať skočí na fázi 1 a vrací se pro souvislosti.
+
+## Vzorová situace
+
+Jana má osmiletého syna, mámu v důchodu a bratra, který uběhne maraton pod čtyři hodiny. Zní to jako začátek vtipu, ale je to začátek tří situací, které se jí sešly v jednom týdnu — a na kterých celý návod postavíme, protože dohromady pokrývají skoro všechno, co vás v běžném životě potká.
+
+**Situace první: reklama na doplněk pro dítě.** Janě se na sociálních sítích zobrazila reklama na sirup „pro dětskou imunitu a soustředění", s obrázkem usměvavého školáka a větou „klinicky prokázáno". Syn je pořád nemocný — jako každý osmiletý kluk v listopadu — a Jana cítí to, s čím reklama přesně počítá: co kdyby to pomohlo? Stojí to nemálo, ale co je to proti zdraví dítěte. Dřív by koupila, nebo nekoupila, podle nálady a diskuze na mateřském fóru. Teď si otevře Claude s PubMed konektorem a za dvacet minut ví: „klinicky prokázáno" se opírá o jednu studii se čtyřiceti dětmi, placenou výrobcem, která měřila něco jiného, než reklama slibuje. To není důkaz, že sirup škodí — je to důkaz, že za těch pár set korun kupuje naději, ne účinek. Rozhodne se sama a informovaně; a kdyby ji trápila synova nemocnost sama o sobě, je to otázka na pediatra, ne na doplněk z reklamy.
+
+**Situace druhá: řetězový e-mail u nedělního oběda.** Janina máma Věra přeposlala e-mail: „Vědci zjistili, že [běžná potravina] způsobuje rakovinu — sdílejte, než to smažou!" U nedělního oběda o tom mluví vážně a s obavou; přestala tu potravinu kupovat a nabádá k tomu celou rodinu. Janin první impulz je oči v sloup a „mami, to je hoax". Ví ale, že tenhle tah nikdy nefunguje — máma se zatvrdí a příště e-mail prostě přepošle jen sestřenici. Místo toho Jana večer tvrzení proběhne PubMedem, zjistí, co za titulkem skutečně je (observační studie na hlodavcích, dávky tisíckrát vyšší než realita), a hlavně si připraví, jak o tom s mámou mluvit bez povýšenosti — technikou mostu, ke které se dostaneme. A tvrzení uloží do registru, protože tenhle konkrétní hoax se vrací každé dva roky v novém kabátě.
+
+**Situace třetí: „studie" z fitness Instagramu.** Janin bratr Martin běhá a sleduje účty o výživě sportovců. Jeden z nich tvrdí, že „studie prokázala", že konkrétní suplement zlepšuje výkon o 15 procent — a v dalším příspěvku ho prodává se slevovým kódem. Martin není naivní, ale patnáct procent je patnáct procent. Poprosí Janu, ať mu ukáže, jak se to dělá. Společně najdou původní práci: osm trénovaných mužů, jeden týden, měřilo se něco jen volně souvisejícího s během — a těch 15 procent je relativní změna u jednoho z pěti měřených ukazatelů, u ostatních nevyšlo nic. Martin suplement nekoupí; koupí si místo toho o hodinu delší spánek, u kterého důkazy drží líp.
+
+**A co je na tom to podstatné:** za měsíc přijde další reklama, další e-mail, další příspěvek. Rozdíl mezi rodinou, která každé tvrzení řeší od nuly, a rodinou, která má systém, je jeden markdown soubor — registr ověřených tvrzení, kam Jana všechna tři ověření zapsala: tvrzení, verdikt, síla důkazů, datum, odkazy na studie. Když teta o Vánocích vytáhne tentýž detox, Jana neotvírá vyhledávač — otevře registr. A když se za rok objeví nová velká studie, jeden řádek se aktualizuje. Přesně takhle se z jednorázového „vygooglím to" stává návyk, který v rodině zůstane.
+
+## Proč sdílený titulek není studie
+
+Než sáhneme po nástrojích, potřebujete šest pojmů. Ne kvůli zkoušce — kvůli tomu, že každý z nich je jedno konkrétní místo, kde se z opatrného vědeckého výsledku stává bombastický titulek. Kdo těch šest míst zná, pozná osmdesát procent problémů ještě dřív, než otevře PubMed. Projdeme je na příkladech, které uvidíte dnes večer na sociálních sítích.
+
+### Tisková zpráva není paper
+
+Mezi studií a vaším telefonem stojí řetěz: vědci napíšou odborný článek (paper) → univerzitní PR oddělení z něj udělá tiskovou zprávu → novinář z tiskové zprávy článek → editor k článku titulek → někdo titulek sdílí s vlastním komentářem. Každý článek řetězu má motivaci přitvrdit. Vědci píšou „naznačuje souvislost u sledované populace", PR oddělení „průlomový objev", novinář „vědci zjistili", titulek „TOHLE způsobuje rakovinu" a komentář „já to vždycky říkal". Původní studie přitom klidně může být poctivá a opatrná — jenže vy čtete až pátý článek řetězu.
+
+Praktický důsledek: **sdílený titulek nikdy neberte jako informaci o vědě, ale jako tip, že někde možná existuje studie.** Vaše práce je najít ji — a na to je zbytek návodu. Mimochodem, věta „sdílejte, než to smažou" je spolehlivý signál, že žádná studie neexistuje; skutečné studie nikdo nemaže, leda by byly staženy pro chyby (i to se dá ověřit, ukážeme si jak).
+
+### Relativní versus absolutní riziko
+
+Nejmocnější trik zdravotních titulků vůbec. „Konzumace X zvyšuje riziko nemoci Y o 50 procent" zní děsivě. Jenže pokud je základní riziko 2 lidé z 10 000 a zvedne se na 3 z 10 000, je to nárůst o 50 procent relativně — a o jednoho člověka z deseti tisíc absolutně. Obě čísla jsou matematicky pravdivá; jen jedno vám pomůže rozhodnout se rozumně. Titulky téměř vždy uvádějí relativní změnu, protože je větší. Totéž funguje i obráceně u slibů: „o 40 procent lepší usínání" může znamenat usnutí o sedm minut dřív.
+
+Otázka, kterou si osvojte: **kolik lidí ze sta se to reálně týká — před a po?** Když v abstraktu absolutní čísla nejsou (a často nejsou), je to samo o sobě informace: autoři, nebo tisková zpráva, si vybrali to působivější číslo. AI je na tenhle přepočet skvělý pomocník, protože čísla z abstraktu vytáhne a přepočítá na „lidi ze sta" — uvidíte ve fázi 3.
+
+### Korelace není kauzalita
+
+Lidé, kteří pijí hodně kávy, mají v některých studiích jiné zdravotní výsledky než ti, kdo kávu nepijí. Znamená to, že za to může káva? Nemusí: kávu pijí častěji lidé, kteří pracují v kanceláři, kouří, spí méně, mají jiný příjem… Každá z těch věcí může být skutečnou příčinou a káva jen nevinným spolucestujícím. Říká se tomu zavádějící proměnná a je to důvod, proč observační studie („podívali jsme se, kdo co dělá, a srovnali výsledky") umí ukázat souvislost, ale ne příčinu.
+
+Příčinu testuje jiný design: randomizovaná kontrolovaná studie (RCT), kde se účastníci náhodně rozdělí a jedna skupina dostane zkoumanou látku, druhá placebo. Náhodné rozdělení zajistí, že kuřáci, spáči i kancelářské krysy jsou v obou skupinách stejně — a rozdíl ve výsledku pak jde přičíst zkoumané látce. Rozdíl mezi „souvisí" a „způsobuje" je nejčastější místo, kde titulky lžou, aniž by technicky lhaly: studie našla korelaci, titulek napsal kauzalitu.
+
+### Myši nejsou lidé
+
+Obrovská část „průlomových objevů" z titulků se odehrála v Petriho misce nebo na hlodavcích. To není výsměch — tak věda začíná a jinak to nejde. Ale cesta od „funguje na buňkách" přes „funguje na myších" k „funguje a je bezpečné u lidí" trvá roky a většina kandidátů po ní nedojde. Látka, která v laboratoři zabíjí nádorové buňky, je dlouhý seznam — patří na něj i savo. K tomu se přidává otázka dávky: efekty na zvířatech se často dosahují dávkami, které by u člověka odpovídaly kilogramům dané potraviny denně.
+
+Otázka k osvojení: **na kom nebo na čem se to zkoumalo?** Odpověď je v abstraktu vždycky, obvykle hned v části „methods". „In vitro" znamená buňky ve skle, „murine model" myši. Pokud titulek mluví o lidech a studie o myších, máte hotovo — ne proto, že by studie byla špatná, ale proto, že tvrzení říká něco, co studie netvrdí.
+
+### Velikost vzorku a délka sledování
+
+Studie s dvanácti účastníky může být poctivá pilotní práce — a zároveň je téměř nemožné z ní cokoli vyvodit pro vás. Malé vzorky dávají divoké výsledky: hoďte si dvanáctkrát korunou a klidně vám padne devět orlů; hoďte si tisíckrát a bude to půl na půl. Proto jeden ohromující výsledek na malém vzorku tak často zmizí, když studii někdo zopakuje ve velkém. Podobně délka: doplněk testovaný dva týdny vám neřekne nic o tom, co dělá po roce užívání — ani v dobrém, ani ve zlém.
+
+Neexistuje magická hranice „dost velkého" vzorku (závisí na velikosti efektu), ale orientačně: desítky účastníků = pilotní signál, stovky = začíná to být zajímavé, tisíce = solidní základ. A vždycky se ptejte, kolik lidí studii dokončilo — když z 200 účastníků polovina odpadla, výsledek se počítá z té poloviny, která vydržela, a to bývají jiní lidé než ti, co odpadli.
+
+### Střet zájmů
+
+Studii o účinku doplňku zaplatil výrobce doplňku. Neznamená to automaticky podvod — průmyslem financovaný výzkum je běžný a často kvalitní. Znamená to ale systematický náklon: studie financované výrobcem docházejí k příznivým výsledkům častěji, mimo jiné proto, že nepříznivé výsledky se tiše nepublikují. Serióznì časopisy proto vyžadují sekci „conflicts of interest" a „funding" — a vy se do ní vždycky podívejte, respektive nechte podívat AI. Červená kontrolka nesvítí u „financoval výrobce", ale u kombinace: financoval výrobce + malý vzorek + měkký výsledek + prodává se to o tři příspěvky dál se slevovým kódem.
+
+Tady je první prompt návodu — rychlá „předletová kontrola" titulku ještě před hledáním studií. Je to třídička: řekne vám, jestli tvrzení vůbec stojí za dvacet minut s PubMedem, nebo jestli spadne už na první pohled.
+
+```text
+Tady je zdravotní tvrzení, které se ke mně dostalo:
+[vložit titulek, text řetězového e-mailu nebo přepis reklamy]
+
+Zatím nic nehledej, jen tvrzení rozeber jako mediální analytik:
+1. Co přesně se tvrdí? Přepiš to do jedné střízlivé věty bez emocí.
+2. Jaká čísla tvrzení obsahuje — a jsou relativní, nebo absolutní?
+   Pokud relativní bez základu, napiš, co by bylo potřeba doplnit.
+3. Tvrdí se souvislost, nebo příčina? Cituj slova, ze kterých to poznáš.
+4. Jaké signály marketingu nebo hoaxu v textu vidíš (naléhavost,
+   „lékaři nechtějí, abyste věděli", slevový kód, anonymní „vědci")?
+5. Co by musela ukázat studie, aby tvrzení podpořila? Formuluj to
+   jako otázku, kterou pak půjdeme ověřit.
+Buď skeptický, ale férový — nepiš „hoax", dokud jsme nic neověřili.
+```
+
+Vrátí střízlivý rozbor a hlavně bod 5 — otázku k ověření, se kterou budeme pracovat ve fázi 1. Pozor na jedno selhání: model občas rovnou „ví", jestli je tvrzení pravdivé, a napíše verdikt bez zdrojů. Nenechte se — verdikt bez dohledatelných studií je jen názor, byť názor jazykového modelu. Právě proto pokračujeme do PubMedu.
+
+A druhý prompt téhle sekce — cvičení, které stojí za to udělat jednou s celou rodinou, klidně s dospívajícími dětmi. Vezměte skutečný zdravotní titulek z dnešních zpráv a nechte si ukázat celý řetěz ředění:
+
+```text
+Vezmi tenhle skutečný zdravotní titulek: [vložit titulek a odkaz]
+a rozehraj mi „tichou poštu vědy" — rekonstruuj, jak asi vypadaly
+jednotlivé kroky mezi studií a titulkem:
+1. Jak nejspíš zněl opatrný závěr v původní studii (typickým
+   vědeckým jazykem, s výhradami)
+2. Co z toho udělala univerzitní tisková zpráva
+3. Co novinový článek
+4. Co titulek a co sdílení na sociálních sítích
+U každého kroku vyznač, co přesně se ztratilo nebo přitvrdilo.
+Na konec napiš 3 otázky, které bych si měl položit, než titulek
+pošlu dál. Je to cvičení mediální gramotnosti — smyšlené kroky
+jasně označ jako rekonstrukci, ne jako fakta o téhle konkrétní studii.
+```
+
+Skvělé na tomhle cvičení je, že funguje i preventivně: kdo jednou viděl, jak se z „naznačuje mírnou souvislost u mužů nad 60 let" stane „TOHLE vás zabíjí", už titulky nikdy nečte stejně. Jak s dětmi a AI pracovat šířeji — od pohádek po kritické myšlení — popisuje návod o [AI v rodině](/tipy/ai-v-rodine-vychova-hry-pohadky).
+
+## Co je PubMed a co umí konektor
+
+PubMed je veřejná databáze biomedicínské literatury, kterou provozuje americká Národní lékařská knihovna (National Library of Medicine). V době psaní obsahuje přes 36 milionů záznamů — od kazuistik po velké metaanalýzy — a je zdarma, bez registrace, pro kohokoli. Není to „nějaký web o zdraví": je to ta samá databáze, ve které hledají lékaři a vědci. Když se řekne „studie ukázala", tak pokud ta studie existuje, s vysokou pravděpodobností má záznam právě tady, s unikátním identifikátorem PMID.
+
+Důležité upřesnění hned na start: **PubMed je katalog, ne knihovna plných textů.** U každého záznamu najdete abstrakt (strukturované shrnutí studie), ale plný text je věc jiná — zdarma je dostupný jen u článků uložených v PubMed Central (PMC), což je v době psaní zhruba 8 milionů z těch 36. Zbytek je u vydavatelů, často za paywallem. Zní to jako velké omezení, ale pro náš účel je menší, než vypadá: na posouzení „co studie zkoumala, na kom a co našla" abstrakt většinou stačí — a přehledové články, které nás budou zajímat nejvíc, bývají otevřené častěji.
+
+A teď konektor. V době psaní existuje oficiální PubMed konektor pro Claude — najdete ho v adresáři konektorů (v nastavení claude.ai v sekci konektorů) a funguje na claude.ai, v týmových a firemních účtech i v Claude Code. Zapnutí je na pár kliknutí a nic se u něj neplatí navíc — PubMed sám je veřejná služba. Co konektor podle dokumentace v době psaní umí:
+
+- **Hledat články** podle klíčových slov, autorů, časopisů i pokročilé syntaxe — Claude formuluje dotaz za vás, včetně anglických odborných termínů, které byste sami nedali dohromady.
+- **Stáhnout metadata a abstrakt**: autoři, časopis, rok, typ studie, abstrakt. To je surovina pro celou fázi 3.
+- **Načíst plný text** u článků, které jsou v PubMed Central — tedy u otevřeně dostupné části literatury.
+- **Najít související články** — od jedné studie se rozejít k dalším, což je základ kontroly konsenzu ve fázi 5.
+- **Dohledat citaci**: z útržku typu „Novák, 2021, nějaký žurnál" najít konkrétní záznam a PMID. Neocenitelné, když influencer „cituje studii" bez odkazu.
+- **Převádět identifikátory** mezi PMID, PMC ID a DOI — hodí se, když máte odkaz z jiného webu a chcete záznam v PubMedu.
+
+Konkrétní podoba konektorů se vyvíjí, proto všude píšu „v době psaní" — než začnete, mrkněte do adresáře konektorů na aktuální stav. Obecný princip, jak konektory fungují a jak se připojují (a proč jsou pro AI tím, čím je USB-C pro hardware), vysvětluje [přehled MCP konektorů](/tipy/mcp-konektory-nastroje). A jedna poznámka k soukromí, důležitá právě u zdravotních témat: vaše dotazy do PubMedu jsou hledání v literatuře, ne zdravotní záznamy — přesto do promptů nepište diagnózy a údaje konkrétních lidí („moje máma s cukrovkou 2. typu bere lék X") tam, kde to není nutné. Ptejte se obecně („co říkají studie o X u seniorů") a citlivé rodinné detaily nechte mimo chat, ideálně v duchu zásad z [kapitoly o etické a bezpečné AI](/prirucka/ai-eticky-a-bezpecne).
+
+První prompt s konektorem je zkouška spojení — minutová kontrola, že všechno běží, a zároveň ukázka, jak vypadá výstup:
+
+```text
+Máš připojený PubMed konektor. Vyzkoušej ho na neutrálním dotazu:
+najdi 3 nejcitovanější systematické přehledy o vlivu spánku
+na imunitu u dospělých z posledních 10 let.
+U každého vrať: název, autory, časopis, rok, PMID a dvouvětné
+shrnutí abstraktu v češtině. Nic si nedomýšlej — pokud konektor
+nevrátí výsledky, napiš mi to na rovinu i s chybovou hláškou.
+Na konci stručně popiš, jaký dotaz jsi do PubMedu poslal.
+```
+
+Poslední věta je zvyk, který se vyplatí od začátku: chtít vidět, jak se AI ptala. Jednak se u toho učíte (uvidíte anglické termíny a filtry, které použila), jednak odhalíte, když se hledání nepovedlo — třeba když model hledal příliš úzce a vrátil „nic neexistuje" o tématu, o kterém existují stovky prací.
+
+### Trvalé prostředí: projekt na ověřování
+
+Než se pustíme do fází, jedna investice na pět minut, která se vrátí u každého dalšího ověření. Založte si na claude.ai Projekt — třeba „Ověřování tvrzení" — a do jeho instrukcí dejte pravidla hry, ať je nemusíte opakovat v každém chatu:
+
+```text
+Jsi můj asistent pro ověřování zdravotních a vědeckých tvrzení.
+Pravidla, která platí v každé konverzaci v tomhle projektu:
+1. Nejsi lékař a neradíš o léčbě. Když se moje otázka stočí
+   k dávkování, nasazení nebo vysazení léků či k příznakům,
+   zastav se a připomeň mi, že tohle patří k lékaři.
+2. Každé tvrzení o studii dokládáš PMID z PubMed konektoru.
+   Studie bez dohledatelného PMID neexistuje.
+3. Vždy uvádíš typ studie (kazuistika, observační, RCT,
+   metaanalýza), velikost vzorku a na kom se zkoumalo
+   (lidé/zvířata/buňky).
+4. Aktivně hledáš protiargumenty: u každého závěru zmíníš
+   nejsilnější studii nebo argument PROTI němu.
+5. Rozlišuješ „souvisí" a „způsobuje" a přepočítáváš relativní
+   čísla na absolutní („X lidí ze 100"), kdykoli to data dovolí.
+6. Mluvíš česky, odborné termíny vysvětluješ na první použití.
+```
+
+Tohle je zároveň první pojistka proti přitakávání (bod 4 — vrátíme se k němu ve fázi 5) a proti tichému sklouznutí od gramotnosti k „poradně" (bod 1). Do projektu později nahrajete i registr ověřených tvrzení, takže každý nový chat bude vědět, co už jste ověřili.
+
+## Mentální postup: stejná kuchařka jako u firemní značky
+
+Možná to zní překvapivě, ale postup, který se tu učíme, není vynález pro zdravotní témata. Je to tentýž myšlenkový vzorec, který na tomhle webu používá [návod na značku jako systém](/tipy/firma-brand-voice-brozura-web-crm) — tam se z rozsypaných podkladů staví brand voice, brožura a CRM, tady se z rozsypaných titulků staví rodinná znalost. Kroky jsou identické a stojí za to je vidět pojmenované, protože se vám budou hodit i u třetího a čtvrtého tématu, na které je použijete:
+
+1. **Modelová situace** — nezačíná se nástrojem, ale konkrétním problémem konkrétního člověka. U nás: Jana a sirup, Věra a e-mail, Martin a suplement.
+2. **Inventura** — co vlastně máme? Tam podklady firmy, tady přesné znění tvrzení a jeho rozklad na ověřitelnou otázku (fáze 1).
+3. **Jeden zdroj pravdy** — tam brand voice v gitu, tady primární literatura v PubMedu místo pátého převyprávění v médiích (fáze 2–5).
+4. **Odvozené výstupy** — tam web a brožura čtou brand voice, tady se z ověření odvozuje verdikt, odpověď babičce i rozhodnutí o nákupu — všechno z téhož ověření, ne třikrát od nuly (fáze 6).
+5. **Editovatelnost** — tam soubor .af místo vygenerovaného obrázku, tady registr jako živý dokument: nová studie nepřepisuje vaši paměť, ale jeden řádek v souboru.
+6. **Náklady a limity poctivě** — tam kapitola o tom, co nedělat v chatu, tady celá sekce o paywallech, publikačním biasu a o tom, kdy PubMed zavřít a objednat se k lékaři.
+
+Jestli jste firemní návod četli, bude vám následujících šest fází povědomých. Jestli ne, nevadí — ale až budete příště stavět cokoli jiného s AI, vzpomeňte si, že kuchařka je pořád jedna: situace, inventura, zdroj pravdy, odvozené výstupy, editovatelnost, limity.
+
+## Fáze 1: inventura — z tvrzení udělat otázku
+
+Nejčastější důvod, proč ověřování ztroskotá, není nedostatek studií — je to mlhavé tvrzení. „Kurkuma je zdravá" se ověřit nedá; není řečeno pro koho, na co, v jaké formě a proti čemu se srovnává. Vědci na tenhle problém mají nástroj jménem PICO a my si ho vypůjčíme, protože je geniálně jednoduchý: každou zdravotní otázku jde rozložit na **P**opulaci (kdo?), **I**ntervenci (co se dělá nebo čemu je vystaven?), **C**omparison — srovnání (proti čemu? placebo, nic, jiná látka?) a **O**utcome — výsledek (co přesně se měří?).
+
+Rozdíl je dramatický. „Pomáhá vitamin D?" je nezodpověditelné. „Snižuje užívání vitaminu D u jinak zdravých dospělých v zimě počet respiračních infekcí oproti placebu?" je otázka, na kterou existuje literatura a dá se najít. Nemusíte si PICO pamatovat jako zkratku — stačí si pamatovat, že se ptáte: kdo, co, proti čemu, a co přesně se měří.
+
+### Rozklad tvrzení s AI
+
+V praxi rozklad neděláte ručně — je to první, co v novém chatu (v projektu z předchozí sekce) zadáte. Vezměme Janin sirup:
+
+```text
+Ověřuji tvrzení z reklamy na doplněk stravy pro děti. Reklama říká:
+[vložit doslovně text reklamy, např. „sirup s extraktem X podporuje
+imunitu a soustředění vašeho dítěte — klinicky prokázáno"].
+Složení podle e-shopu: [vypsat deklarované účinné látky].
+
+Rozlož to na ověřitelné otázky metodou PICO (populace, intervence,
+srovnání, výsledek) — lidsky, ne akademicky:
+1. Kolik různých tvrzení reklama ve skutečnosti obsahuje?
+   („imunita" a „soustředění" jsou dvě různá tvrzení)
+2. Pro každé tvrzení sestav PICO otázku v jedné české větě
+   a k ní anglická klíčová slova pro hledání v PubMedu.
+3. Označ, které tvrzení je formulováno tak mlhavě, že se ověřit
+   nedá — a co by reklama musela říct, aby se dalo.
+Zatím nehledej, jen připrav otázky. Jsem rodič, ne vědec —
+vysvětluj bez žargonu.
+```
+
+Typický výstup: z jedné reklamní věty se vyklubou tři čtyři samostatná tvrzení a u poloviny z nich se ukáže, že jsou právně nenapadnutelná právě proto, že nic konkrétního netvrdí („podporuje imunitu" nic neměří). To je samo o sobě zjištění: **čím mlhavější slib, tím menší šance, že za ním něco je** — konkrétní účinky se prodávají konkrétně. Zkontrolujte, že navržená klíčová slova odpovídají deklarované látce, ne obchodnímu názvu výrobku; podle obchodního názvu v PubMedu skoro nikdy nic nenajdete a model to občas přehlédne.
+
+### Co když tvrzení nemá žádný zdroj
+
+Věřin řetězový e-mail se od reklamy liší v jednom: netvrdí „klinicky prokázáno", tvrdí „vědci zjistili" — bez jmen, bez roku, bez časopisu. I tak se dá pracovat, jen jinak: místo dohledávání konkrétní studie hledáte, jestli o tématu vůbec existuje literatura a co říká.
+
+```text
+Dostal jsem řetězový e-mail s tvrzením: [vložit tvrzení, např.
+„vědci zjistili, že ohřívání jídla v mikrovlnce ničí živiny
+a vytváří karcinogeny"]. E-mail neuvádí žádný zdroj.
+
+1. Rozděl tvrzení na dílčí ověřitelné otázky (PICO, lidsky).
+2. U každé otázky odhadni, jak by vypadal svět, kdyby tvrzení
+   platilo: co bychom čekali v literatuře? (velké studie, oficiální
+   stanoviska, přehledy)
+3. Připrav hledací dotazy do PubMedu — jak pro potvrzení, tak
+   PRO VYVRÁCENÍ: formuluj i dotaz, který by našel studie
+   ukazující opak.
+4. Zkus dohledat, odkud tvrzení historicky pochází — bývá to
+   dezinterpretace konkrétní staré studie. Pokud to nevíš jistě,
+   napiš to.
+```
+
+Bod 3 je drobnost s velkým dopadem. Když hledáte jen potvrzení, najdete ho — na skoro cokoli existuje aspoň jedna slabá studie. Když od začátku hledáte oběma směry, dostanete obraz místo munice. K tomu se vrátíme ve fázi 5, protože je to nejdůležitější návyk celého návodu.
+
+### Martinův případ: když zdroj je, ale schovaný
+
+Fitness Instagram je zvláštní žánr: „studie" se zmiňuje, občas i se screenshotem grafu, ale bez odkazu. Tady nastupuje dohledání citace — konektor umí z útržků najít konkrétní záznam:
+
+```text
+Influencer tvrdí: [vložit tvrzení, např. „nová studie: suplement X
+zlepšuje vytrvalostní výkon o 15 %"]. V příspěvku je screenshot
+grafu s popiskem [opsat, co je čitelné: příjmení autora, rok,
+název časopisu, cokoliv].
+
+1. Zkus přes PubMed konektor dohledat, o kterou studii jde
+   (hledej podle autora, roku a tématu). Vrať kandidáty s PMID
+   a u každého napiš, jak moc si odpovídá s tím screenshotem.
+2. Pokud studii najdeš, porovnej: co přesně tvrdí abstrakt
+   versus co tvrdí příspěvek? Vypiš rozdíly.
+3. Pokud ji nenajdeš, napiš to jasně — a vysvětli, co to znamená
+   (možná preprint, možná konferenční poster, možná neexistuje).
+   Nespekuluj o výsledcích studie, kterou jsi neviděl.
+```
+
+Tři možné výsledky a všechny jsou užitečné. Studie existuje a říká, co příspěvek tvrdí — dobře, jdete ji posoudit do fáze 3. Studie existuje a říká něco jiného — nejčastější případ, máte hotovo a máte i co odpovědět. Studie není k nalezení — a „studii, kterou nikdo nemůže najít" je fér tak i pojmenovat. Pozor na past: model má někdy tendenci vybrat „nejbližší podobnou" studii a tvářit se, že to je ona. Proto chceme kandidáty s mírou jistoty, ne jednu sebejistou odpověď.
+
+Výstupem fáze 1 je jedna až pět konkrétních otázek s anglickými klíčovými slovy. Trvá to pět deset minut a je to nejlépe investovaný čas celého postupu — se špatnou otázkou se i v nejlepší databázi najde jen šum.
+
+## Fáze 2: hledání — najít správné studie, ne první studii
+
+Teď konektor zapřáhneme naplno. Cíl fáze 2 není najít „nějakou studii" — to je právě chyba, kterou dělají řetězové e-maily. Cíl je zjistit, **jak vypadá krajina důkazů kolem otázky**: kolik toho existuje, jakého typu a jestli existují souhrnné práce, které to už poskládaly za nás.
+
+### Nejdřív shora: přehledy a metaanalýzy
+
+Zlaté pravidlo hledání: nezačínejte u jednotlivých studií, začněte u systematických přehledů a metaanalýz. To jsou práce, jejichž autoři udělali přesně to, co vy teď zkoušíte — našli všechny relevantní studie k otázce, vyhodili ty nekvalitní a zbytek statisticky shrnuli. Když k vaší otázce existuje slušná metaanalýza z posledních let, máte devadesát procent práce hotové. Když neexistuje, i to je informace: téma je buď příliš nové, nebo příliš okrajové — a jedna izolovaná studie, na kterou narazíte, je tím pádem sama, bez opory.
+
+```text
+Použij PubMed konektor. Moje otázka (z PICO rozkladu):
+[vložit otázku, např. „snižuje extrakt X u dětí školního věku
+počet respiračních infekcí oproti placebu?"]
+Klíčová slova: [vložit anglická klíčová slova z fáze 1]
+
+Hledej v tomhle pořadí a po každém kroku se zastav:
+1. Systematické přehledy a metaanalýzy k otázce z posledních
+   10 let. Vrať max 5 nejrelevantnějších: název, rok, PMID,
+   kolik studií a účastníků zahrnují, hlavní závěr jednou větou.
+2. Pokud žádné nejsou, největší randomizované kontrolované studie.
+3. Pokud nejsou ani ty, řekni mi to — a vypiš, co k tématu
+   existuje (observační studie? zvířata?), ať vidím, v jaké fázi
+   poznání téma je.
+U každého výsledku uveď, jak přesně odpovídá mé otázce: stejná
+populace? stejná forma látky? stejný měřený výsledek? Rozdíly
+vypiš — „skoro stejné" mi nestačí.
+```
+
+Poslední odstavec promptu hlídá past jménem „skoro stejná studie". Klasický příklad: ptáte se na děti, studie zkoumala dospělé; ptáte se na sirup s extraktem, studie zkoumala injekčně podávanou čistou látku v nemocnici. Model rád podá „nejbližší nález" jako odpověď — a rozdíl v populaci nebo formě podání přitom může být celý příběh. Chtějte rozdíly explicitně vypsané a rozhodněte sami, jestli jsou podstatné.
+
+### Číst mapu, ne jen výsledky
+
+Druhý krok hledání je krátký, ale mění perspektivu: místo seznamu studií si nechte popsat terén.
+
+```text
+Zůstaň u mé otázky. Než se ponoříme do jednotlivých studií,
+popiš mi krajinu důkazů — jako kdybys mi kreslil mapu:
+1. Kolik toho k otázce zhruba existuje? (řádově: jednotky studií,
+   desítky, stovky?)
+2. Jaké typy převažují — buňky/zvířata, observační, RCT, přehledy?
+3. Shodují se výsledky, nebo je pole rozdělené? Pokud rozdělené,
+   podle čeho (starší vs. novější, financované vs. nezávislé,
+   různé populace)?
+4. Je vidět vývoj v čase? (nadšené malé studie na začátku,
+   střízlivější velké později — to je častý vzorec)
+Všechna tvrzení opři o konkrétní PMID, které jsi našel v kroku 1,
+nebo dohledej další. Kde si nejsi jistý, řekni to.
+```
+
+Bod 4 popisuje vzorec, který uvidíte znovu a znovu, a stojí za to ho znát jménem: **decline effect**, slábnoucí efekt. První malé studie nového doplňku bývají nadšené (malé vzorky, publikační bias, nadšení autoři), a čím větší a přísnější studie přicházejí, tím víc se efekt scvrkává — často až k nule. Když vám mapa ukáže tenhle tvar, je to silné vodítko: nadšený titulek nejspíš cituje ranou fázi křivky.
+
+### Když hledání nic nenajde
+
+„K tomuhle nic není" má dvě velmi různé příčiny a vyplatí se je rozlišit. Buď je špatně dotaz — příliš úzký, špatné termíny, obchodní název místo látky. Nebo literatura opravdu neexistuje. Rozseknout to pomůže rozšiřovací prompt:
+
+```text
+Hledání k otázce [otázka] nevrátilo skoro nic. Než uzavřeme,
+že literatura neexistuje, zkus systematicky rozšířit:
+1. Přeformuluj dotaz 3 způsoby: obecnější termíny, synonyma
+   účinné látky (chemický název, běžný název, názvy v starší
+   literatuře), příbuzné výsledky (místo „soustředění" třeba
+   kognitivní testy).
+2. Rozvolni populaci: pokud nic o dětech, co dospělí?
+   Řekni mi ale jasně, že jde o jinou populaci.
+3. Podívej se po souvisejících článcích u toho mála, co jsme
+   našli.
+Pokud ani pak nic — napiš závěr: „tvrzení není podložené, protože
+k němu literatura prakticky neexistuje", a vysvětli, proč je to
+jiný verdikt než „studie prokázaly, že to nefunguje".
+```
+
+Ten závěrečný rozdíl je jemný, ale poctivý: „není důkaz, že to funguje" a „je důkaz, že to nefunguje" jsou dvě různé věty. Do registru se zapisují různě a různě se o nich mluví s babičkou. Marketing žije právě v té mezeře — „nebylo vyvráceno!" — a vy ji umíte pojmenovat.
+
+Mimochodem, pro rozsáhlejší otázky, kde chcete místo dialogu jeden důkladný elaborát s citacemi, se hodí hloubková rešerše — režim, kdy AI samostatně projde desítky zdrojů a vrátí strukturovanou zprávu. Jak s ní pracovat, ukazuje [návod na hloubkovou rešerši](/tipy/deep-research-reserse-trhu) na příkladu průzkumu trhu; princip je stejný, jen zdroje jsou tady studie. Pro běžné rodinné ověření je ale dialog s konektorem lepší: vidíte každý krok a učíte se u toho.
+
+## Fáze 3: čtení abstraktu — AI jako překladatel odborného jazyka
+
+Máte pět studií s PMID. Teď je potřeba je přečíst — a tady většina lidí skončí, protože abstrakt vypadá jako tohle: „In this double-blind, placebo-controlled trial, 120 participants were randomized…" Dobrá zpráva: abstrakt je nejstrukturovanější text na světě. Skoro vždycky má čtyři části — proč se studie dělala (background), jak (methods), co vyšlo (results) a co si o tom autoři myslí (conclusions) — a AI ho umí rozložit a přeložit tak, že mu porozumí každý, kdo zvládne přečíst recept na svíčkovou.
+
+Jedno pravidlo předem: **abstrakt čtete kvůli methods a results, ne kvůli conclusions.** Závěry píšou autoři a autoři mají své studie rádi; formulace v conclusions bývá o odstín optimističtější, než co ukazují čísla v results. Tisková zpráva pak cituje conclusions a titulek přitvrdí ještě jednou. Vy jdete opačným směrem: k číslům.
+
+### Strukturovaný překlad
+
+Základní pracovní prompt fáze 3 — použijete ho na každou studii, kterou berete vážně:
+
+```text
+Načti přes PubMed konektor abstrakt studie PMID [číslo]
+(pokud je plný text v PubMed Central, načti i ten).
+Přelož mi ji do lidštiny, strukturovaně:
+
+1. OTÁZKA: Na co se studie ptala? (jedna věta)
+2. KDO: Kolik účastníků, jací (věk, zdraví, země), lidé/zvířata/
+   buňky? Kolik jich studii dokončilo?
+3. JAK: Typ studie (vysvětli, co ten typ znamená). Co přesně
+   dostávali/dělali, jak dlouho, s čím se to srovnávalo?
+4. CO VYŠLO: Hlavní výsledky ČÍSLY. Relativní údaje přepočítej
+   na absolutní („ze 100 lidí…"), pokud to data umožňují.
+   Co vyšlo a co NEvyšlo — vypiš i měřené výsledky bez rozdílu.
+5. HÁČKY: Velikost vzorku, délka sledování, kdo studii platil,
+   uvádění střetu zájmů, cokoli, co autoři sami přiznávají
+   v limitations.
+6. JEDNOU VĚTOU: Co tahle studie říká k mému tvrzení [tvrzení]
+   — a co k němu neříká.
+Drž se toho, co je v textu. Kde abstrakt informaci neobsahuje,
+napiš „abstrakt neuvádí" — nedomýšlej.
+```
+
+Dvě místa, kde buďte ve střehu. Zaprvé bod 4: „co NEvyšlo" je zásadní. Studie často měří pět věcí, vyjde jedna a mluví se jen o ní — tomu se říká cherry-picking výsledků a z abstraktu bývá vidět (v methods je výčet měřeného, v results se o půlce mlčí). Zadruhé závěrečná instrukce: bez ní má model sklon díry v abstraktu tiše zaplnit obecnými znalostmi, a vy pak nevíte, co je z téhle studie a co z „paměti" modelu. „Abstrakt neuvádí" je plnohodnotná a důležitá odpověď.
+
+### Čísla pod lupou
+
+U studie, na které stojí rozhodnutí (Janin sirup, Martinův suplement), stojí za to jít o vrstvu hloub — právě sem patří přepočet relativního na absolutní a otázka, jestli je efekt vůbec prakticky významný:
+
+```text
+Zůstaň u studie PMID [číslo]. Teď jen čísla, pomalu a polopatě:
+1. Jaký byl výsledek v KONTROLNÍ skupině a jaký v INTERVENČNÍ?
+   Uveď obě čísla vedle sebe, ne jen rozdíl.
+2. Přepočítej efekt na absolutní vyjádření: „Ze 100 dětí, které
+   sirup braly, se X vyhnulo jedné infekci navíc" nebo podobně.
+   Pokud to z abstraktu nejde spočítat, řekni to.
+3. Statistická vs. praktická významnost: i kdyby byl výsledek
+   statisticky průkazný, je ten rozdíl velký natolik, aby ho
+   člověk v běžném životě poznal? Srovnej s něčím hmatatelným.
+4. Interval spolehlivosti, pokud je uveden: co nejhoršího
+   a nejlepšího je s daty slučitelné? Vysvětli mi to na tomhle
+   konkrétním případě, žádná učebnicová definice.
+Jsem laik — každé číslo doprovoď větou, co znamená pro rozhodnutí
+„koupit/nekoupit", ale samotné rozhodnutí nech na mně.
+```
+
+Bod 3 je perla, kterou vám žádný titulek nedá. „Statisticky významné" znamená jen „nejspíš to není náhoda" — neříká nic o tom, jestli je efekt velký. Zkrácení rýmy o šest hodin může být statisticky průkazné a prakticky bezcenné; u velkých vzorků vyjde průkazně i titěrný rozdíl. Otázka „poznal bych to?" vrací čísla na zem.
+
+### Co studie neříká
+
+Třetí prompt fáze 3 je krátký a je to moje nejoblíbenější otázka v celém návodu — protože přesně v mezeře mezi „co studie říká" a „co se z ní tvrdí" žije skoro všechen zdravotní marketing:
+
+```text
+Mám tvrzení: [původní tvrzení z reklamy/e-mailu/Instagramu].
+Mám studii PMID [číslo], kterou jsme rozebrali.
+Postav je proti sobě do dvou sloupců:
+- Co přesně tvrdí reklama/příspěvek
+- Co přesně ukázala studie
+A pak vypiš VŠECHNY skoky, které mezi nimi jsou. Typicky:
+jiná populace (dospělí vs. děti), jiná dávka nebo forma, jiný
+měřený výsledek (krevní ukazatel vs. skutečná nemoc), jiná délka,
+souvislost vydávaná za příčinu, jeden výsledek z mnoha měřených.
+Ke každému skoku napiš, jak velký problém to je: kosmetický
+rozdíl / podstatný rozdíl / tvrzení stojí na vodě.
+```
+
+U Janina sirupu vypadl z tohohle promptu celý verdikt: studie měřila hladinu jednoho krevního ukazatele u čtyřiceti dospělých po dobu tří týdnů — reklama slibuje méně nemocí a lepší soustředění u dětí. Mezi tím jsou čtyři skoky a každý sám o sobě by stačil. „Klinicky prokázáno" tedy technicky nelže: nějaká klinická studie existuje. Jen neprokazuje to, co si pod tím větou představí rodič. Přesně tohle je gramotnost, kterou se tu učíte — a všimněte si, že jsme k ní nepotřebovali žádné lékařské vzdělání, jen správné otázky ve správném pořadí.
+
+### Plný text: kdy se vyplatí
+
+U většiny rodinných ověření abstrakt stačí. Plný text (když je v PMC dostupný — konektor ho v době psaní umí načíst) sáhněte ve třech případech: když se rozhoduje o penězích a abstrakt je nejednoznačný; když potřebujete tabulku všech měřených výsledků (kvůli cherry-pickingu); a když vás zajímá sekce limitations, kde autoři sami přiznávají slabiny — bývá překvapivě upřímná a v abstraktu z ní zbude půl věty. Ptát se pak můžete stejnými prompty, jen s bohatším materiálem. A když plný text není? Nezoufejte a poctivě si do registru zapište „hodnoceno z abstraktu" — u verdiktu na rodinné úrovni to skoro vždycky stačí, jen to o tom vědomí stojí za zaznamenání.
+
+## Fáze 4: hierarchie důkazů — proč metaanalýza přebíjí kazuistiku
+
+Ne všechny studie jsou si rovné a věda na to má žebřík, kterému se říká hierarchie důkazů. Není to dogma — špatně udělaná metaanalýza je horší než výborná kohortová studie — ale jako první orientace funguje spolehlivě: čím výš na žebříku, tím hůř se výsledek dá vysvětlit náhodou, zkreslením nebo přáním autorů. Tady je celý žebřík s lidským vysvětlením:
+
+| Úroveň | Co to je | Lidsky řečeno | Co s tím |
+| --- | --- | --- | --- |
+| Buňky a zvířata (in vitro, myši) | Pokusy v laboratoři, na buněčných kulturách nebo hlodavcích | „V misce/na myších se stalo něco zajímavého" | Startovní čára vědy, ne důkaz pro lidi. Titulek o lidech + studie na myších = konec ověřování |
+| Kazuistika (case report) | Popis jednoho pozoruhodného pacienta nebo pár případů | „Stalo se tohle jednomu člověku a stálo to za zapsání" | Zajímavost a hypotéza, nikdy důkaz. „Sousedce to pomohlo" v odborném kabátě |
+| Průřezová studie | Snímek populace v jednom okamžiku: kdo co dělá a jak na tom je | „Vyfotili jsme dav a hledáme vzory" | Ukáže souvislost, neřekne, co bylo dřív — jestli nemocní pijí čaj, nebo pijáci čaje stonají |
+| Případová-kontrolní studie | Nemocné srovnáme se zdravými a koukáme zpětně, čím se lišili | „Pátrání pozpátku v paměti lidí" | Užitečné u vzácných nemocí, ale paměť klame a zkreslení číhá všude |
+| Kohortová studie | Velkou skupinu sledujeme roky dopředu a zapisujeme, co se stane | „Dlouhodobá reality show s tisíci účastníky" | Nejsilnější observační design; pořád ale ukazuje souvislosti, ne příčiny |
+| Randomizovaná kontrolovaná studie (RCT) | Náhodné rozdělení na skupinu s látkou a s placebem, ideálně zaslepené | „Poctivý souboj proti placebu za stejných podmínek" | První úroveň, která umí říct „způsobuje". Síla závisí na velikosti a délce |
+| Systematický přehled a metaanalýza | Souhrn všech kvalitních studií k otázce, často se společnou statistikou | „Rozhodčí, který viděl všechny zápasy, ne jen ten včerejší" | Nejsilnější dostupný důkaz — pokud jsou vstupní studie kvalitní a nezávislé |
+
+Tři poznámky, které z tabulky nejsou vidět a dělají rozdíl mezi mechanickým a chytrým používáním žebříku.
+
+**Zaprvé: žebřík se čte spolu s otázkou.** Na otázku „způsobuje X u lidí Y?" je RCT král. Ale RCT nejde udělat vždycky — nikdo nebude třicet let randomizovat lidi ke kouření. U otázek o dlouhodobých rizicích jsou velké kohortové studie to nejlepší, co kdy mít budeme, a je fér je tak brát. Naopak u doplňku stravy, který jde snadno testovat proti placebu, je absence RCT výmluvná: kdyby efekt existoval a výrobci si věřili, studie by byla.
+
+**Zadruhé: metaanalýza je tak dobrá, jak dobré studie shrnuje.** Metaanalýza deseti malých mizerných studií je mizerná se vznešeným názvem — říká se tomu „garbage in, garbage out". Proto se i u metaanalýzy ptejte: kolik studií, kolik účastníků celkem, jak kvalitní vstupy (dobré přehledy kvalitu vstupů samy hodnotí a píšou o tom).
+
+**Zatřetí: jedna úroveň navíc přebíjí hromadu úrovní níž.** Tisíc kazuistik nedá dohromady jednu RCT. Tenhle princip je protijed na argument „ale existuje TOLIK studií!" — otázka nikdy nezní kolik, ale jakých.
+
+### Zařazení s AI
+
+V praxi žebřík nepoužíváte ručně — je to prompt, který navazuje na fázi 3:
+
+```text
+Pro studie, které jsme k tvrzení [tvrzení] našli (PMID: [seznam]),
+udělej tabulku hierarchie důkazů:
+| studie | typ | úroveň na žebříku | vzorek | délka | populace | financování |
+Pod tabulku napiš:
+1. Jaká je NEJVYŠŠÍ úroveň důkazu, kterou tvrzení má? (jedna věta)
+2. Co na žebříku chybí — a je to podezřelé? (např. látka se prodává
+   20 let, snadno by se testovala proti placebu, a RCT neexistuje)
+3. Kdyby tvrzení platilo v síle, v jaké se prodává, jak by
+   krajina důkazů vypadala? Srovnej s realitou.
+U typu studie se opírej o abstrakt a metadata, ne o dojem —
+pokud typ není jasný, napiš „nejasné z abstraktu".
+```
+
+Bod 2 a 3 jsou verze slavné otázky „kde je pes zakopaný": u skutečně účinných věcí krajina důkazů časem houstne směrem nahoru (od myší k RCT a přehledům), u marketingových se roky recykluje pár prací dole. Když látka existuje dvacet let a nejvyšší důkaz je pořád observační studie se stovkou lidí, něco to znamená.
+
+### Rychlá kalibrace: kolik důkazů „stačí"
+
+Poslední prompt fáze 4 pomáhá s otázkou, kterou si položí každý: dobře, a co z toho? Odpověď závisí na tom, co je v sázce — a tenhle rámec je užitečné mít explicitně:
+
+```text
+Shrň sílu důkazů pro tvrzení [tvrzení] podle toho, co jsme našli,
+a pak ji nasvěť třemi různými prahy nároků:
+1. „Zajímavé ke sledování" — stačil by konzistentní signál
+   z observačních studií. Splňuje?
+2. „Utratil bych za to peníze" — chtěl bych aspoň jednu solidní
+   RCT na populaci podobné té mojí. Splňuje?
+3. „Změnil bych kvůli tomu chování dlouhodobě" — chtěl bych
+   přehled/metaanalýzu nebo víc nezávislých RCT. Splňuje?
+Ke každému prahu jedna věta proč ano/ne. Připomínám: nejde
+o léčbu ani o rady — jde o kalibraci, jak silné důkazy mám,
+vůči tomu, co bych na jejich základě dělal. Rozhodnutí je moje
+a u čehokoli zdravotního patří konzultace lékaři.
+```
+
+Tohle je zároveň jemná, ale důležitá pointa: **neexistuje jedna odpověď na „je to dokázané?" — existuje odpověď „na co to stačí".** Na zvědavost stačí málo, na peněženku víc, na změnu životosprávy hodně a na cokoli, co se týká léčby, nestačí žádná vaše rešerše — tam je práh jménem lékař. Když se tenhle rámec naučíte, přestanou vás rozčilovat věčné mediální kotrmelce „káva prospívá/škodí": většinou jde o observační signály poskakující kolem prahu 1, které titulky prezentují, jako by přeskočily práh 3.
+
+## Fáze 5: konsenzus, protiargumenty — a jak nedovolit AI přitakávat
+
+Jedna studie není věda; věda je rozhovor tisíců studií, které se opravují a doplňují. Titulek stojí skoro vždy na jedné práci — vy chcete vědět, co říká rozhovor jako celek. A zároveň tady číhá past přímo v nástroji, který používáte: jazykové modely mají zabudovaný sklon souhlasit. Když se zeptáte „viď, že ten detox je nesmysl?", dostanete horlivé přitakání; když se táž otázka položí „viď, že detox funguje?", dostane tazatel vstřícnější odpověď taky. Model zrcadlí vaše ladění — a při ověřování je tohle smrtelné, protože si jen dražším způsobem potvrdíte, co jste si mysleli.
+
+Obrana má tři vrstvy: neutrální formulace otázek (ptát se „co říkají důkazy o X", ne „viď, že X"), explicitní vyžádání protiargumentů (v instrukcích projektu už to máme, ale u důležitých verdiktů to chtějte zvlášť) a oddělení rolí — nechat AI jednou argumentovat pro a jednou proti, jako u soudu. Tady jsou všechny tři v akci.
+
+### Advokát protistrany
+
+Než uzavřete verdikt, nechte ho napadnout. Tenhle prompt použijte na každé ověření, kde vám na výsledku záleží — a schválně na verdikt, ke kterému se kloníte vy:
+
+```text
+K tvrzení [tvrzení] se po dosavadní rešerši kloním k verdiktu:
+[váš pracovní verdikt, např. „slabé důkazy, spíš marketing"].
+
+Teď buď advokát protistrany. Tvůj úkol je můj verdikt rozbít:
+1. Najdi přes PubMed konektor nejsilnější studie, které mluví
+   PROTI mému verdiktu. Ne slámové panáky — to nejlepší, co
+   druhá strana má. S PMID.
+2. Vypiš slabiny mé dosavadní rešerše: co jsem mohl přehlédnout,
+   jakou populaci nebo formulaci jsem nezohlednil, kde jsem
+   možná sklouzl k potvrzování vlastního názoru.
+3. Za jakých okolností by měl pravdu ten, kdo tvrzení šíří?
+   Formuluj nejsilnější poctivou verzi jeho pozice (steelman).
+Na konci NEpiš smířlivé „obě strany mají kus pravdy" — napiš,
+jestli tvé protiargumenty můj verdikt reálně ohrožují, nebo ne,
+a proč.
+```
+
+Poslední instrukce je důležitá dvakrát. Bez ní model po skvělé kritice často otočí do bezzubého „je to složité" — a vy potřebujete vědět, jestli kritika verdikt potopila, poškrábala, nebo se odrazila. A pokud advokát protistrany skutečně najde silnou RCT, kterou jste minuli, je to nejlepší možný výsledek: registr dostane lepší verdikt, než by měl bez něj. Prohrát spor sám se sebou je levné; prohrát ho před babičkou drahé.
+
+### Je to konsenzus, nebo osamocený výkřik?
+
+Druhý krok: zjistit, kde vaše nálezy stojí vůči zbytku pole. Konektor umí od každé studie najít související práce — a to je přesně nástroj na otázku „souhlasí s tím ostatní?":
+
+```text
+Vezmi klíčovou studii našeho ověření (PMID [číslo]) a zmapuj
+její okolí:
+1. Najdi související články a novější práce na stejnou otázku.
+   Replikoval výsledek někdo nezávislý? S PMID.
+2. Existují studie se stejnou otázkou a OPAČNÝM výsledkem?
+   Aktivně je hledej — formuluj dotaz tak, aby je našel
+   (např. „no effect", „failed to replicate" a podobné obraty).
+3. Zmiňují novější přehledy tuhle studii? A jak s ní nakládají —
+   jako s oporou, nebo s výhradami?
+4. Verdikt o pozici: je tahle studie součást proudu (víc
+   nezávislých týmů, podobné výsledky), nebo osamocený výkřik
+   (jedna skupina, nikdo nereplikoval, přehledy ji ignorují)?
+Pokud jsou nálezy smíšené, popiš, PODLE ČEHO se dělí — to bývá
+informativnější než skóre 3:2.
+```
+
+Bod 2 stojí za podtržení: studie s negativním výsledkem se hůř publikují a hůř hledají (publikační bias, víc o něm v sekci limitů), takže je potřeba hledat aktivně a jinými slovy, než jakými se hledají pozitivní nálezy. A překlad bodu 4 do životní praxe: **na jedné studii nikdy nestojí rozumné rozhodnutí — na jedné studii stojí titulky.** Když někdo argumentuje „ale TAHLE studie ukázala…", správná odpověď není hádat se o tu studii, ale zeptat se, co ukázaly ostatní.
+
+### Kontrola pozadí: retrakce a střety zájmů
+
+Poslední kontrola před verdiktem je rychlá a občas dramaticky výnosná. Studie se někdy stahují (retrakce) — kvůli chybám, i kvůli podvodům — a stažená studie klidně dál koluje po internetu jako důkaz; nejslavnější zdravotní hoaxy stojí právě na stažených pracích. A střet zájmů, o kterém jsme mluvili v úvodu, se u konkrétní práce dá zkontrolovat cíleně:
+
+```text
+Pro klíčové studie našeho ověření (PMID: [seznam]) udělej
+kontrolu pozadí:
+1. Není některá z nich stažena (retracted) nebo opatřena
+   varováním/opravou (correction, expression of concern)?
+   Zkontroluj v metadatech záznamu; pokud to z konektoru
+   nejde poznat, řekni mi to a poraď, kde to ověřím ručně.
+2. Kdo studie financoval a jaké střety zájmů autoři deklarují?
+   Cituj, co je v záznamu; kde údaj chybí, napiš „neuvedeno".
+3. Publikoval tým hlavního autora k tématu nápadně mnoho
+   podobných prací? (jedna skupina umí vytvořit dojem
+   konsenzu sama se sebou)
+Nic z toho samo o sobě studii nediskvalifikuje — vypiš nálezy
+neutrálně a označ, které stojí za zmínku v registru.
+```
+
+Formulace „pokud to z konektoru nejde poznat, řekni mi to" tam není náhodou. Schopnosti konektoru se vyvíjejí a je lepší dostat poctivé „tohle ověřit neumím, podívejte se na web časopisu nebo na Retraction Watch" než sebejistou odpověď vycucanou z prstu. Obecně platí, že nejužitečnější věta, kterou můžete od AI při ověřování slyšet, je „nevím" — a prompty v celém návodu jsou psané tak, aby ji model směl říct.
+
+Tím je ověřovací práce hotová. Máte rozklad tvrzení, mapu literatury, přeložené klíčové studie, jejich místo na žebříku důkazů, otestovaný verdikt a kontrolu pozadí. Celé to — po pár opakováních, až si postup sedne — zabere u běžného tvrzení dvacet až čtyřicet minut. Zbývá to nejcennější: aby ta půlhodina nezmizela v historii chatu.
+
+## Fáze 6: registr ověřených tvrzení — živý dokument místo věčného googlení
+
+Tady se návod láme z „jak ověřit tvrzení" na „jak z toho udělat návyk". Bez téhle fáze jste udělali dobrou jednorázovou rešerši — a za půl roku, až teta pošle tentýž detox v novém obalu, začnete od nuly, protože závěry leží kdesi v historii chatů. S touhle fází máte **registr ověřených tvrzení: jeden markdown soubor, který je pamětí rodiny.** Je to tentýž princip „jednoho zdroje pravdy", na kterém firemní návod staví brand voice — jen aktivum tady není tón značky, ale to, co jste si dali práci zjistit.
+
+Proč obyčejný markdown soubor, a ne nástěnka, appka nebo poznámky v telefonu? Ze stejných důvodů jako u brand voice: je to prostý text, který přežije jakýkoli nástroj; jde verzovat a sdílet; a hlavně ho umí číst AI — nahrajete ho do Projektu a každé nové ověření začíná tím, co už víte. Kde soubor žije, je na vás: sdílený disk rodiny, poznámková aplikace, klidně git repozitář, pokud je vám blízký. Důležité je jediné: **existuje jedna verze a všichni vědí kde.**
+
+### Struktura záznamu
+
+Formát si samozřejmě přizpůsobíte, ale tenhle se osvědčil — každé tvrzení je jedna sekce s pevnými poli:
+
+```markdown
+# Registr ověřených tvrzení — rodina Novákových
+
+## Sirup XY „na imunitu a soustředění dětí"
+- **Tvrzení:** extrakt v sirupu snižuje nemocnost a zlepšuje
+  soustředění dětí školního věku
+- **Verdikt:** nepodložené (marketing předbíhá důkazy)
+- **Síla důkazů:** 1 malá RCT na dospělých (n=40, 3 týdny,
+  financoval výrobce), měřila krevní ukazatel, ne nemocnost;
+  o dětech ani soustředění žádná studie
+- **Skoky mezi studií a reklamou:** dospělí→děti, krevní
+  ukazatel→nemocnost, 3 týdny→trvalé užívání
+- **Ověřeno:** 2026-08-16 (z abstraktu; plný text za paywallem)
+- **Zdroje:** PMID 12345678; hledáno i „extract X children
+  respiratory" — bez nálezu
+- **Znovu otevřít, když:** vyjde RCT na dětech, nebo přehled
+- **Poznámka pro rodinu:** neškodný, ale kupujeme naději;
+  o synově nemocnosti mluvit s pediatrem, ne s e-shopem
+```
+
+Všimněte si tří polí, která nejsou samozřejmá. **„Síla důkazů"** není známka, ale věta — za rok si z ní vybavíte celé ověření. **„Znovu otevřít, když"** dělá z registru živý dokument: verdikt není rozsudek navěky, ale stav poznání k datu, s podmínkou, kdy ho přehodnotit. A **„Poznámka pro rodinu"** je překlad do praktického jazyka — právě ji přečtete nahlas u nedělního oběda. K verdiktům používejte stálou škálu, ať jsou záznamy srovnatelné; osvědčila se pětistupňová: **podpořeno silnými důkazy — smíšené/nejisté — slabé důkazy — nepodložené — vyvráceno.** Plus zvláštní kategorie „nelze posoudit z dostupného" pro případy paywallů a chybějící literatury.
+
+### Zápis jedním promptem
+
+Ruční přepisování by návyk zabilo — proto zápis dělá AI ze závěru ověřovacího chatu:
+
+```text
+Ověření je hotové. Vytvoř záznam do registru tvrzení přesně
+v téhle markdown struktuře: [vložit šablonu, nebo ji máš
+v instrukcích projektu].
+Pravidla:
+- Verdikt vyber z naší škály (podpořeno silnými důkazy /
+  smíšené / slabé důkazy / nepodložené / vyvráceno / nelze
+  posoudit) a zdůvodni ho jednou větou v poli síla důkazů.
+- Do zdrojů dej všechna PMID, se kterými jsme pracovali,
+  a stručně i to, co jsme hledali a NEnašli.
+- Pole „znovu otevřít, když" formuluj konkrétně — jaký typ
+  studie nebo události by verdikt změnil.
+- Poznámku pro rodinu napiš normální řečí, bez odborných slov,
+  max dvě věty, žádné zdravotní doporučení — jen co víme
+  o důkazech.
+Vrať čistý markdown k vložení do souboru, nic okolo.
+```
+
+Záznam si přečtěte, než ho vložíte — je to vaše jméno pod verdiktem, ne modelu. Nejčastější oprava: verdikt bývá o stupeň přísnější nebo mírnější, než odpovídá vaší škále, protože model škálu interpretuje po svém; srovnejte s předchozími záznamy. Aktualizovaný soubor pak nahrajte do Projektu (nahrazujte starou verzi, ať v něm nežijí dvě) — od té chvíle každý nový chat ví, co už rodina ověřila, a umí odpovědět na „tohle už jsme někdy řešili?".
+
+### Návrat k tématu: editovatelnost v praxi
+
+Za rok přijde totéž tvrzení znovu — nový výrobek, stejný extrakt. Bez registru: hodina práce znovu. S registrem:
+
+```text
+V registru (máš ho v projektu) máme záznam „Sirup XY". Narazil
+jsem na nový výrobek se stejným extraktem a tvrzením: [vložit].
+1. Řekni mi, co jsme tehdy zjistili a s jakým verdiktem —
+   stručně, vlastními slovy záznamu.
+2. Zkontroluj přes PubMed konektor, co k tématu přibylo od data
+   ověření [datum]. Zajímají mě hlavně studie, které naplňují
+   podmínku „znovu otevřít, když" ze záznamu.
+3. Pokud nic podstatného nepřibylo, navrhni jen aktualizaci data
+   kontroly. Pokud přibylo, projdeme to znovu od fáze 3
+   a záznam přepíšeme.
+```
+
+Tohle je editovatelnost, kvůli které celý registr existuje: nová studie nepřepisuje vaši hlavu ani nespouští paniku — změní jeden řádek v souboru, s datem a důvodem. A dvojnásob to platí pro nepříjemný, ale poctivý případ: když nová velká studie ukáže, že váš starý verdikt byl špatně. Registr, ve kterém je vidět „2025: slabé důkazy → 2026: podpořeno, vyšla velká RCT", není selhání — je to přesně to, jak vypadá poctivé poznání. Mimochodem, tímhle se váš rodinný dokument liší od řetězových e-mailů nejvíc: umí změnit názor.
+
+### Rutina: registr se hlídá sám
+
+Poslední krok dělá z dokumentu systém. Claude umí plánované úlohy — konverzace, které se spouštějí samy podle rozvrhu. Jednou za čtvrt roku nechte projít registr:
+
+```text
+Čtvrtletní revize registru tvrzení (soubor máš v projektu):
+1. Projdi všechny záznamy a u každého zkontroluj přes PubMed
+   konektor pole „znovu otevřít, když" — přibylo od data
+   ověření něco, co podmínku naplňuje?
+2. Vrať tabulku: tvrzení | verdikt | beze změny / K REVIZI
+   | proč.
+3. U položek K REVIZI přidej PMID nových prací a jednu větu,
+   co mění.
+Nic v registru sám nepřepisuj — soubor edituju já po kontrole.
+Pokud je všechno beze změny, stačí jedna věta a datum.
+```
+
+Poslední pravidlo za zmínku: **do registru zapisuje člověk, ne agent.** Není to technická nutnost, je to pojistka kvality — verdikty, které nikdo nečte, degradují. Pět minut nad čtvrtletní tabulkou je celá údržba; srovnejte s alternativou, kterou je věčné „už si nepamatuju, co jsme tehdy našli".
+
+<!-- POKRACOVANI -->

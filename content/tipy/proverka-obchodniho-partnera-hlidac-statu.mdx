@@ -1,0 +1,713 @@
+---
+title: "Prověrka obchodního partnera přes Hlídač státu: rizikový profil před podpisem"
+excerpt: "Kompletní návod s 23 prompty: přes MCP server Hlídače státu proženete protistranu registrem smluv, insolvenčním rejstříkem, trestními záznamy firem, dotacemi i sponzoringem politických stran — a výsledek uložíte jako verzovaný rizikový profil, který před další zakázkou aktualizujete jedním promptem."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "freelancer"]
+keys: []
+saves: "~hodiny rešerší a riziko neuhrazené faktury"
+date: "2026-08-16"
+updated: "2026-08-16"
+tldr: >-
+  Nejdražší informace o obchodním partnerovi je ta, kterou se dozvíte až po podpisu.
+  Přitom velká část z nich je veřejná: insolvence, trestní záznamy firem, smlouvy se
+  státem, dotace, sponzoring politických stran. MCP server Hlídače státu tahle data
+  připojí přímo do Claude, takže prověrka není odpoledne klikání po rejstřících, ale
+  řízený rozhovor: název → IČO → série kontrol → jednostránkový rizikový profil.
+  Klíčový krok je uložit výsledek jako verzovaný dokument v gitu nebo Notionu — živé
+  aktivum, které před další zakázkou aktualizujete jedním promptem, ne jednorázovou
+  odpověď v chatu. A druhý klíčový krok je interpretace: data jsou veřejná, ale závěry
+  dělá člověk. Stará ukončená insolvence není rozsudek a čistý rejstřík není záruka.
+faq:
+  - q: >-
+      Co je MCP server Hlídače státu a co potřebuji k připojení?
+    a: >-
+      Rozhraní, přes které si AI asistent (Claude, ale i další klienti) sám čte data
+      Hlídače státu: registr smluv, insolvence, trestní záznamy firem, dotace, sponzoring
+      stran a další. Potřebujete účet na hlidacstatu.cz; v claude.ai pak server přidáte
+      jako vlastní konektor s adresou mcp.api.hlidacstatu.cz a přihlásíte se přes OAuth,
+      ve starších klientech se používá API token z profilu. Detaily se vyvíjejí, ověřte
+      aktuální dokumentaci Hlídače.
+  - q: >-
+      Je legální si takhle prověřovat obchodní partnery?
+    a: >-
+      Ano. Všechna data, se kterými návod pracuje, jsou veřejná ze zákona — registr smluv,
+      insolvenční rejstřík, rejstřík trestů právnických osob, evidence dotací i výroční
+      zprávy stran existují právě proto, aby do nich kdokoli mohl nahlédnout. Etická
+      hranice nevede u čtení dat, ale u závěrů: presumpce neviny, rozlišování faktu od
+      interpretace a zásada, že profil je interní podklad, ne materiál k šíření.
+  - q: >-
+      Co znamená, když má firma záznam v insolvenčním rejstříku?
+    a: >-
+      Samo o sobě skoro nic — záznam musíte přečíst. Rozhoduje, jestli firma vystupuje
+      jako dlužník, nebo jen jako věřitel (přihlásila pohledávku za někým jiným), jestli
+      řízení běží, nebo je roky ukončené, a jak dopadlo. Běžící úpadek je stopka, deset
+      let stará ukončená událost je otázka k vysvětlení, řada záznamů v roli věřitele
+      vypovídá spíš o tom, komu firma dodává.
+  - q: >-
+      Co je K-index a platí i pro soukromé firmy?
+    a: >-
+      Index klíčových (korupčních) rizik, kterým Hlídač státu známkuje úřady a veřejné
+      instituce od A po F podle toho, jak hospodaří se smlouvami — skryté ceny, koncentrace
+      dodavatelů, dodatky. Soukromou s.r.o. neznámkuje; při prověrce ho použijete nepřímo:
+      podíváte se, jaké známky mají zadavatelé, pro které partner pracuje, a jestli jeho
+      obrat nestojí na institucích s nejhorším hodnocením.
+  - q: >-
+      Proč rizikový profil ukládat do gitu nebo Notionu, a ne ho nechat v chatu?
+    a: >-
+      Protože odpověď v chatu je jednorázová: za půl roku ji nenajdete, nezjistíte, co se
+      od té doby změnilo, a prověrku uděláte celou znovu — nebo spíš neuděláte vůbec.
+      Verzovaný dokument je živé aktivum: před další zakázkou ho jedním promptem
+      aktualizujete, vidíte rozdíl proti minulému stavu a historie změn je sama o sobě
+      informace — třeba že partner začal nabírat dluhy postupně.
+  - q: >-
+      Co přes Hlídač státu nezjistím a musím jinam?
+    a: >-
+      Exekuce (centrální evidence exekucí je zpoplatněná), účetní závěrky a sbírku listin
+      (justice.cz), skutečné majitele (evidence skutečných majitelů), dluhy vůči správě
+      sociálního zabezpečení a pojišťovnám (nejsou veřejné — chtějte potvrzení o
+      bezdlužnosti), majetek v katastru a samozřejmě všechno soukromé: závazky mezi
+      firmami, rozjednané spory, pověst v oboru. Návod má pro tyhle případy samostatnou
+      sekci a srovnávací tabulku.
+---
+
+Nejdražší věty v byznysu zní nevinně: „Je to prověřená firma, dělají toho hodně" a „Velká společnost, ta snad zaplatí." Obě se obvykle říkají před podpisem — a obě se dají za necelou hodinu nahradit fakty, protože o českých firmách je veřejně dostupné překvapivé množství informací: kdo je vlastní, jestli na ně běží insolvence, jestli byly trestně stíhány, kolik berou od státu a komu sponzorují politickou stranu. Problém nikdy nebyl v dostupnosti dat. Problém je, že leží v šesti různých rejstřících, každý má jiné vyhledávání a nikdo se v pátek odpoledne, kdy se smlouva „musí podepsat", nejde probírat soudními spisy.
+
+Přesně tenhle problém řeší MCP server Hlídače státu: připojí data Hlídače přímo do Claude, takže se neproklikáváte rejstříky, ale vedete řízený rozhovor — jméno firmy, IČO, série kontrol, interpretace. Jenže samotné připojení je jen půlka příběhu. **Druhá půlka je, že výstupem prověrky nemá být odpověď v chatu, ale dokument: jednostránkový rizikový profil, verzovaný a aktualizovatelný jedním promptem před každou další zakázkou.** Odpověď v chatu za půl roku nenajdete; dokument v gitu nebo Notionu otevřete, necháte aktualizovat a uvidíte, co se změnilo. To je stejný myšlenkový postup, jakým jsme v návodu o [značce jako systému](/tipy/firma-brand-voice-brozura-web-crm) stavěli brand voice a brožuru: jedna modelová situace, inventura, jeden zdroj pravdy, odvozené výstupy, editovatelné aktivum — a bezpečnost s náklady poctivě na konci.
+
+Číst můžete celé, nebo po fázích — každá stojí samostatně a má prompty k okopírování, stačí doplnit hranaté závorky. Fáze 1 až 6 jsou prověrka jedné firmy od inventury po hotový profil, pak následuje sekce o ručních zdrojích mimo Hlídač, pravidelná re-prověrka celého portfolia dodavatelů a limity s etikou, které v téhle disciplíně nejsou poznámka pod čarou, ale součást řemesla.
+
+## Vzorová situace
+
+Roman je spolumajitel menší stavební firmy: dvanáct lidí, okolí Hradce Králové, zakázky pro obce a soukromé investory. V úterý mu přišla nabídka, jaká se neodmítá snadno: neznámá s.r.o. — říkejme jí Omega Stav, jméno je smyšlené — nabízí subdodávku fasád a zateplení na dvou rozjetých zakázkách. Kapacitu Roman zoufale potřebuje, termíny hoří a cena je o kus pod tím, co platí současným partám. Háček je v detailech: firma chce zálohu na materiál a nikdo z Romanových známých o ní neslyšel. Dřív by to Roman řešil postaru — obvolal by dva kamarády z oboru, mrkl na web firmy, a kdyby nic nesmrdělo, podepsal. Jednou už ho to stálo skoro tři sta tisíc: subdodavatel v půlce zakázky zmizel i se zálohou a insolvenční návrh, který na něj tou dobou už dva měsíce běžel, by Roman našel za tři minuty — kdyby věděl, kde hledat.
+
+Tentokrát to udělá jinak. Večer si sedne ke claude.ai s připojeným MCP serverem Hlídače státu a nechá Omega Stav projet celou sérií kontrol: identifikace a stáří firmy, insolvence, trestní záznamy, spolehlivost plátce DPH, smlouvy se státem, dotace, sponzoring stran, historie jednatele. Za tři čtvrtě hodiny má jednostránkový rizikový profil se semaforem. Výsledek není černobílý — a právě proto je cenný: Omega Stav je čistá v insolvenčním i trestním rejstříku, ale existuje teprve dva roky, se státem nikdy neobchodovala (ačkoli obchodní zástupce mluvil o „zakázkách pro kraj") a její jediný jednatel figuroval do minulého roku ve firmě, která skončila v konkursu. Roman smlouvu nepodepíše, ani neroztrhá — podepíše ji jinak: bez zálohy, s platbami po etapách a zádržným, a s vysvětlením, které jednateli klidně řekne na rovinu. Profil uloží do firemního gitu vedle smlouvy. Za čtyři měsíce, před druhou etapou, ho jedním promptem nechá aktualizovat.
+
+Druhá linka téže situace, menší měřítko: Jana je grafička na volné noze. Ozval se jí nový klient — obchodní firma, zní seriózně, chce web a produktový katalog. Potud dobré. Pak přijde návrh smlouvy: splatnost faktur 60 dní. Pro Janu to znamená dva měsíce práce na vlastní riziko; neuhrazená faktura za takový projekt je pro ni existenční problém, ne účetní položka. Janina prověrka je kratší než Romanova — čtvrt hodiny, čtyři kontroly — a dopadne obráceně: klient má v insolvenčním rejstříku dva záznamy, ale v roli věřitele (krachovali jeho odběratelé, ne on), se státem obchoduje dlouhodobě a bez skandálů, firma stojí patnáct let na stejné adrese. Jana šedesátidenní splatnost přijme — ale díky profilu vyjednává z pozice faktů: záloha třetina předem a jasno v tom, že to není ústupek ze slabosti. Obě linky se návodem táhnou dál; Romanova je hlavní, Janina ukazuje, jak stejný postup zeštíhlit.
+
+## Co je Hlídač státu a co umí jeho MCP server
+
+Než začneme prověřovat, krátce k nástroji — bez toho by zbytek návodu visel ve vzduchu.
+
+### Hlídač státu: watchdog, který data spojuje
+
+Hlídač státu je česká nezisková organizace, která od roku 2016 shromažďuje, propojuje a zveřejňuje data o hospodaření českého státu. Začala nad registrem smluv — zákonnou databází, do které musí veřejné instituce publikovat smlouvy nad zákonný limit, jinak smlouva pozbývá účinnosti — a postupně nabalila další zdroje: státní a evropské dotace, veřejné zakázky, insolvenční rejstřík, rejstřík trestů právnických osob, sponzorské dary politickým stranám z výročních zpráv, platy politiků a vysokých úředníků, rozhodnutí Úřadu pro ochranu hospodářské soutěže i legislativu v přípravě (VeKLEP). Klíčové slovo je propojuje: jednotlivé rejstříky existují i samostatně, ale Hlídač je indexuje přes IČO a jména osob, takže se dá ptát „ukaž mi všechno o téhle firmě" — což je přesně otázka, kterou si klade člověk před podpisem smlouvy.
+
+Pro naši prověrku je podstatná ještě jedna vlastnost: Hlídač data nejen zrcadlí, ale počítá nad nimi vlastní analýzy. Nejznámější je K-index — Index klíčových rizik, roční známka A až F pro úřady a veřejné instituce podle toho, jak rizikově nakládají se smlouvami. K jeho čtení se dostaneme ve fázi 4, včetně toho, co neříká.
+
+### MCP server: data přímo v konverzaci
+
+MCP (Model Context Protocol) je otevřený standard, kterým se AI asistenti připojují k externím datům a nástrojům — podrobně ho rozebírá [přehled MCP konektorů](/tipy/mcp-konektory-nastroje). Podstata v jedné větě: místo abyste data kopírovali do chatu, dostane model nástroje, kterými si je čte sám, a vy vidíte, na co se ptal.
+
+V létě 2025 spustil Hlídač státu vlastní MCP server na adrese mcp.api.hlidacstatu.cz. Rozdíl proti „zeptám se chatbota na firmu XY" je zásadní a stojí za to ho pochopit hned na začátku. Jazykový model bez připojených dat odpovídá z paměti — tedy z tréninkových dat, která jsou stará, neúplná a u malé české s.r.o. nejspíš žádná; výsledkem bývá sebevědomá halucinace. S MCP serverem model volá konkrétní nástroje nad živou databází Hlídače: každý údaj v odpovědi má dohledatelný původ a vy v konverzaci vidíte, které nástroje se volaly a s jakými parametry. Prověrka tak není „AI si myslí", ale „registr říká" — a to je rozdíl, na kterém stojí celý tenhle návod. Neznamená to slepou důvěru: model může výsledek špatně shrnout nebo přiřadit k jiné firmě se stejným jménem, proto budeme důsledně pracovat s IČO a klíčové nálezy ověřovat proklikem do zdroje.
+
+### Jak server připojit do Claude
+
+Předpoklad je účet na hlidacstatu.cz — registrace je otevřená komukoli. Připojení má v době psaní dvě cesty; obě se mohou vyvíjet, takže berte následující jako stav v době psaní a detaily si ověřte v aktuální dokumentaci na mcp.api.hlidacstatu.cz/doc.
+
+První a pohodlnější cesta je OAuth, doporučená pro moderní klienty: v claude.ai (funguje na webu i v desktopové aplikaci) otevřete Nastavení → Konektory → Přidat vlastní konektor, vložíte adresu serveru a při prvním použití vás prohlížeč provede přihlášením účtem Hlídače. Žádný token nikam nekopírujete — klient si autorizaci domluví sám a pracuje s krátkodobými tokeny.
+
+Druhá cesta je API token pro klienty, kteří OAuth neumějí nebo kde chcete konfiguraci držet v souboru — typicky Claude Desktop s konfigurací mcpServers. Token najdete po přihlášení v profilu na api.hlidacstatu.cz v sekci autorizačního tokenu (historicky se přístup domlouval e-mailem s týmem Hlídače; aktuální postup říká dokumentace). Konfigurace pak vypadá takhle:
+
+```json
+{
+  "mcpServers": {
+    "hlidac-statu": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.api.hlidacstatu.cz",
+        "--header",
+        "Authorization: Token VAS-API-TOKEN"
+      ]
+    }
+  }
+}
+```
+
+K tokenu jedna zásada, ke které se vrátíme v sekci o bezpečnosti: je to klíč k vašemu účtu — patří do konfigurace klienta nebo správce hesel, nikdy do promptu, do sdíleného dokumentu ani do git repozitáře s profily. Server podle dokumentace funguje kromě Claude i v ChatGPT, Cursoru, VS Code a dalších MCP klientech; návod dál počítá s claude.ai, protože tam nejlépe navážeme Projekty a plánované úlohy.
+
+### Co server umí: nástroje po skupinách
+
+Konkrétní seznam nástrojů se může měnit, ale v době psaní pokrývá server tyhle oblasti — uvádím i technické názvy nástrojů, protože se vám budou hodit, když budete chtít v promptu být přesní:
+
+- **Identifikace subjektů:** vyhledání firmy či instituce podle názvu (`find_legal_entity_by_name`), základní obchodní informace o subjektu (`get_legal_entity_business_info`), dceřiné společnosti (`get_subsidiaries_of_legal_entity`), vyhledání osob a politiků podle jména (`find_persons_by_name`, `find_politicians_by_name`) a detail osoby s jejími angažmá ve firmách a funkcích (`get_person_detail`).
+- **Registr smluv:** fulltextové a strukturované vyhledávání smluv (`search_contracts`), detail konkrétní smlouvy včetně dodatků (`get_contract_detail`), kategorie smluv (`list_contract_categories`) a souhrn obchodů subjektu se státem (`get_business_with_government`).
+- **Existenční rizika:** insolvenční záznamy podle IČO (`find_insolvency_records_by_ico`), záznamy o trestních řízeních firem podle IČO (`find_criminal_records_by_ico`) a status nespolehlivého plátce DPH (`get_unreliable_vat_payer_status`).
+- **Peníze od státu:** vyhledávání dotací (`search_subsidies`) a detail konkrétní dotace (`get_subsidy_detail`).
+- **Politické vazby:** sponzoring stran konkrétní firmou (`find_party_sponsoring_by_company`), konkrétní osobou (`find_party_sponsoring_by_person`), dary přijaté stranou (`find_party_sponsors`) a obecné vyhledávání ve sponzorských záznamech (`find_party_sponsoring_records`).
+- **Kontext veřejného sektoru:** K-index instituce (`get_kindex_for_legal_entity`), platy politiků (`get_politician_salaries`), rozhodnutí ÚOHS (`search_uohs_decisions`, `get_uohs_decision_detail`), legislativa v přípravě (`search_veklep_legislation`, `get_veklep_legislation_detail`) a seznamy úřadů podle typu (`list_government_offices_by_type`).
+
+Pár konvencí, které platí napříč nástroji a ušetří vám zmatek: data jsou česky, takže i fulltextové dotazy pište česky. IČO je osmimístné číslo a je to jediný spolehlivý identifikátor — názvy firem se opakují. Výsledky vyhledávání jsou stránkované, takže „našel jsem tři smlouvy" může znamenat „na první stránce". Částky jsou v korunách, data ve formátu rok-měsíc-den. A některé analytické nástroje (třeba žebříčky smluv s největším nárůstem ceny) jsou omezené na zvláštní role — běžný účet je neuvidí, což pro naši prověrku nevadí.
+
+### Co server neumí
+
+Stejně důležité jako seznam schopností: Hlídač státu vidí to, co je ve veřejných rejstřících, které indexuje. Nevidí exekuce (centrální evidence exekucí je samostatná a zpoplatněná), nevidí účetní závěrky a další dokumenty ze sbírky listin, nevidí dluhy vůči zdravotním pojišťovnám a správě sociálního zabezpečení (ty nejsou veřejné vůbec), nevidí katastr, soukromé spory ani pověst v oboru. Prověrka přes MCP je proto první a nejrychlejší vrstva, ne vrstva jediná — sekce „Kdy MCP nestačí" a srovnávací tabulka níže říkají přesně, co kde dohledat ručně.
+
+## Mentální model: dokument, ne odpověď
+
+Než spustíme první kontrolu, srovnejme si postup — protože právě postup odlišuje prověrku, která něco změní, od zábavné konverzace s chatbotem, na kterou do týdne zapomenete.
+
+Použijeme stejný myšlenkový oblouk jako návod o [značce jako systému](/tipy/firma-brand-voice-brozura-web-crm), který na tomhle webu razí jednu tezi: výstup z chatu je konečná stanice, zdrojový soubor je živé aktivum. Tam šlo o brand voice a brožuru; tady jde o znalost protistrany, ale logika je identická a vyplatí se ji pojmenovat krok za krokem:
+
+1. **Jedna konkrétní situace.** Neprověřujeme „nějakou firmu pro jistotu", ale Omega Stav před podpisem konkrétní subdodávky. Konkrétní situace určuje, co je relevantní riziko — u subdodavatele se zálohou je to schopnost přežít a dodat, u klienta s dlouhou splatností schopnost zaplatit. Stejná data, jiné otázky.
+2. **Inventura.** Nejdřív sepsat, co už víme a co tvrdí protistrana — protože prověrka není jen sběr dat, ale hlavně konfrontace tvrzení s rejstříky. „Děláme zakázky pro kraj" je tvrzení; registr smluv je test.
+3. **Jeden zdroj pravdy.** Výstupem je jeden dokument — rizikový profil — a všechna rozhodnutí se dějí nad ním. Ne pět chatů, tři screenshoty a poznámka v telefonu.
+4. **Odvozené výstupy.** Z profilu se odvozuje to, co skutečně potřebujete: rozhodnutí ano/ne/za podmínek, konkrétní úpravy smlouvy (zálohy, zádržné, splatnost), argumenty pro jednání. Profil není cíl, je to zdroj, ze kterého se cíle odvozují.
+5. **Editovatelné aktivum.** Profil je verzovaný soubor v gitu nebo stránka v Notionu. Před další zakázkou ho jedním promptem aktualizujete a — to je celá pointa — vidíte rozdíl proti minulému stavu. Že se něco nezměnilo, je taky informace.
+6. **Bezpečnost.** API token mimo prompty a repozitáře, profily jako interní dokumenty s vlastním režimem zacházení, citlivé úvahy jen v placeném účtu se smluvní ochranou dat.
+7. **Náklady poctivě.** Co je zdarma, co stojí peníze a co stojí čas — kvalitativně a bez iluzí, na konci návodu.
+
+Jestli si z celého článku odnesete jednu věc, ať je to bod 5. Prověrka jako jednorázová akce má mizernou návratnost: uděláte ji jednou, se zápalem, u největšího partnera — a pak nikdy. Prověrka jako živý dokument má návratnost složenou: první vytvoření stojí hodinu, každá aktualizace minuty, a portfolio profilů se časem stane firemní pamětí, kterou nejde koupit. K té složené návratnosti se vrátíme v sekci o re-prověrce portfolia.
+
+## Fáze 1: inventura a založení profilu
+
+První fáze se obejde bez MCP serveru — a přesto rozhoduje o kvalitě celé prověrky. Jde v ní o dvě věci: sepsat, co víte a co vám protistrana tvrdí, a založit dokument, do kterého všechno poteče.
+
+### Inventura: co víte a co vám tvrdí
+
+Zní to banálně, ale udělejte to písemně. Důvod je psychologický: dokud jsou informace „v hlavě", splývá v nich fakt („poslali nabídku s cenou X") s dojmem („působí solidně") a tvrzením protistrany („máme za sebou zakázky pro kraj"). Prověrka je z velké části právě třídění těchhle tří kategorií — a tvrzení protistrany jsou její nejcennější vstup, protože se dají testovat proti rejstříkům. Firma, o které nevíte nic, je neznámá; firma, jejíž tvrzení nesedí s registrem smluv, je varování.
+
+```text
+Připravuji si prověrku obchodního partnera. Tady je všechno, co o něm
+zatím vím — pomoz mi to roztřídit, než začneme ověřovat.
+
+Situace: [subdodávka fasád na dvou zakázkách, chtějí zálohu na materiál,
+podpis má být do dvou týdnů]
+Co vím: [název firmy, jak se ozvali, kdo je kontaktní osoba, co nabízejí,
+cena je cca 15 % pod obvyklou úrovní]
+Co tvrdí oni: [dělali zakázky pro kraj, mají 20 lidí, fungují 10 let]
+Můj dojem: [profesionální komunikace, ale tlačí na rychlý podpis]
+
+Roztřiď to do tří kategorií: ověřitelný fakt / tvrzení protistrany,
+které půjde testovat proti veřejným datům / můj dojem. U každého
+tvrzení napiš, kterým rejstříkem se dá ověřit. Nakonec doplň otázky,
+na které bych měl znát odpověď a nemám ji — ptej se po jedné.
+```
+
+Vrátí roztříděný seznam a — což je cennější — seznam testovatelných tvrzení: „zakázky pro kraj" prověří registr smluv, „fungujeme deset let" datum vzniku, „dvacet lidí" aspoň řádově účetní závěrka (ta je mimo Hlídač, poznamenáme si ji do ručních kontrol). Pozor na jednu věc: model má tendenci dojmy povyšovat na fakta, protože zní konkrétně. „Tlačí na rychlý podpis" je dojem — relevantní, ale dojem; v profilu bude mít vlastní kolonku, ne místo mezi fakty.
+
+### Šablona rizikového profilu
+
+Teď dokument. Formát je markdown — čitelný člověkem, verzovatelný gitem, vložitelný do Notionu i do Projektu na claude.ai. Šablona je schválně jednostránková: profil, který má šest stran, nikdo před podpisem nečte, a profil, který nejde přečíst za tři minuty, neplní svou funkci. Tady je celá; hned pod ní si řekneme, proč vypadá právě takhle.
+
+```markdown
+# Rizikový profil: [název firmy], IČO [12345678]
+
+Stav: [semafor: zelená / žlutá / červená]
+Účel prověrky: [subdodávka fasád, zakázky A a B, záloha na materiál]
+Datum prověrky: [2026-08-16] | Prověřil: [jméno] | Verze: [1]
+
+## Verdikt (3 věty)
+[Souhrn: největší riziko, největší uklidnění, doporučení k podpisu.]
+
+## Identifikace
+- Právní forma, vznik, sídlo, základní kapitál: [...]
+- Statutární orgán a vlastníci: [...]
+- Vazby osob na další firmy: [...]
+
+## Nálezy z veřejných dat (Hlídač státu, [datum])
+| Kontrola | Výsledek | Poznámka |
+| --- | --- | --- |
+| Insolvence (dlužník) | [čistá / nález] | [detail, spisová značka] |
+| Insolvence (věřitel) | [počet záznamů] | [co to vypovídá] |
+| Trestní záznamy firmy | [čistá / nález] | [detail] |
+| Nespolehlivý plátce DPH | [ne / ANO] | [od kdy] |
+| Smlouvy se státem | [počet, objem] | [hlavní zadavatelé] |
+| Dotace | [počet, objem] | [programy] |
+| Sponzoring stran | [ne / nález] | [strana, rok, částka] |
+| ÚOHS | [nic / nález] | [detail] |
+
+## Ruční kontroly mimo Hlídač
+- Sbírka listin (poslední závěrka za rok): [rok, stav]
+- Exekuce (CEE): [neověřeno / výsledek]
+- Skuteční majitelé: [výsledek]
+- Reference / pověst: [koho jsem se ptal, co řekl]
+
+## Rozpory tvrzení vs. data
+- [Tvrzení protistrany] → [co říkají data]
+
+## Dojmy a měkké signály (odděleně od faktů)
+- [...]
+
+## Doporučené podmínky do smlouvy
+- [zálohy, zádržné, splatnost, milníky, pojistky]
+
+## Historie verzí
+- v1 [datum]: první prověrka, [závěr]
+```
+
+Tři konstrukční rozhodnutí stojí za vysvětlení. Za prvé, **verdikt je nahoře a má tři věty** — profil čte i kolega, který u prověrky nebyl, a musí pochopit závěr dřív, než se rozhodne, jestli číst dál. Za druhé, tabulka nálezů má vždy **všechny řádky, i ty čisté**: „insolvence — čistá" je záznam o tom, že kontrola proběhla; chybějící řádek je nejednoznačný (neprovedeno, nebo nic nenalezeno?). Za třetí, **rozpory a dojmy mají vlastní sekce** — rozpor mezi tvrzením a daty je nejsilnější signál celé prověrky a zaslouží si viditelnost; dojmy do profilu patří, ale označené jako dojmy.
+
+### Kde bude dokument žít
+
+Dvě dobré odpovědi, jedna past. Dobrá odpověď pro firmy, které už verzují jiné dokumenty: **git repozitář** — třeba `firma-partneri` se strukturou jedna složka na partnera, v ní `profil.md` a případné přílohy. Commit historie zadarmo řeší otázku „kdy jsme to věděli": každá verze profilu má datum a autora, což se hodí nejen provozně, ale i když po letech rekonstruujete, na základě čeho jste rozhodovali. S gitem vám pomůže Claude Code, nemusíte ho umět — a jestli git ve firmě zavádíte poprvé, návod o [značce jako systému](/tipy/firma-brand-voice-brozura-web-crm) ukazuje úplně stejný vzor na brand dokumentech. Dobrá odpověď pro netechnické týmy: **Notion** (nebo jiné firemní wiki) — databáze „Partneři", jedna stránka na firmu, profil jako obsah stránky, verze jako záznamy v historii. Přes konektor Notionu pak Claude umí profily číst i aktualizovat přímo.
+
+Past je nechat profily v chatu nebo v e-mailu. Ne proto, že by tam nebyly — ale protože tam nejsou k nalezení. Test je jednoduchý: až za půl roku přijde druhá zakázka od Omega Stavu, najde kdokoli z firmy profil do minuty? Pokud ne, nemáte systém, máte vzpomínku.
+
+```text
+Založ mi strukturu pro rizikové profily obchodních partnerů.
+Pracujeme v [gitu / Notionu]. Chci:
+1. Složku/databázi partneri, v ní na ukázku prvního partnera:
+   [Omega Stav s.r.o.]
+2. Soubor/stránku profil s touhle šablonou: [vložit šablonu výše]
+3. Soubor/stránku README s pravidly: profil se aktualizuje před každou
+   novou zakázkou nad [úroveň, např. „nad rámec běžné objednávky"],
+   verze se nemažou, semafor smí měnit jen člověk po přečtení nálezů
+4. Vyplň do profilu Omega Stavu zatím jen hlavičku a sekci Rozpory
+   z téhle inventury: [vložit výstup inventury]
+Nic dalšího nevyplňuj — data budeme teprve zjišťovat, nechci
+v dokumentu žádné odhady vydávané za nálezy.
+```
+
+Poslední věta není okrasa. Model rád „pomůže" a předvyplní tabulku pravděpodobnými hodnotami — a předvyplněný profil je horší než prázdný, protože vypadá hotově. Prázdná kolonka říká „nevíme"; vymyšlená kolonka lže. Až budete mít strukturu založenou, vložte šablonu i README do Projektu na claude.ai — od té chvíle je má každá prověrka automaticky v kontextu a nemusíte je připomínat.
+
+## Fáze 2: identifikace — od názvu k IČO
+
+Teprve teď zapneme MCP server. A první úkol není žádná z těch zajímavých kontrol — je to nuda, na které stojí všechno ostatní: zjistit, koho vlastně prověřujete.
+
+### Proč je IČO jediná pevná půda
+
+Názvy českých firem se opakují, podobají a mění. „Omega Stav" může být s.r.o. v Hradci, jiná s.r.o. v Brně založená loni a třetí firma v likvidaci, která se do 2019 jmenovala jinak. Když prověrku povedete přes název, riskujete nejhorší možný výsledek: **správnou odpověď o špatné firmě.** Čistý rejstřík konkurenta se stejným jménem vám dá falešný klid; cizí insolvence naopak potopí nevinnou protistranu. Proto celá prověrka stojí na IČO — osmimístném identifikačním čísle, které je unikátní, nemění se a všechny nástroje Hlídače ho berou jako vstup.
+
+IČO protistrany najdete v nabídce, v návrhu smlouvy nebo v patičce webu; seriózní firma ho uvádí. Pokud ho nemáte, je prvním krokem vyhledání podle názvu — a to je zároveň první červená vlajka na cestě: firma, která vám poslala nabídku bez IČO a nejde jednoznačně dohledat, má co vysvětlovat dřív, než cokoli začnete kontrolovat.
+
+```text
+Prověřuji obchodního partnera. Najdi přes Hlídač státu právnickou
+osobu podle názvu: [Omega Stav]. Očekávám, že sídlí v [Hradci Králové
+nebo okolí] a podniká ve [stavebnictví].
+
+Pokud najdeš víc subjektů s podobným názvem, vypiš všechny
+s IČO, sídlem a předmětem podnikání a označ, který nejspíš odpovídá
+mému popisu — ale nevybírej za mě, rozhodnu sám. Pokud si nebudeš
+jistý, řekni to. Od chvíle, kdy potvrdím IČO, používej ve všech
+dalších dotazech výhradně IČO, ne název.
+```
+
+Ta poslední věta je pravidlo pro celou konverzaci a vyplatí se ji říct explicitně: model jinak může v pozdějším kroku sáhnout po fulltextovém hledání názvu a přimíchat cizí firmu. Když vyhledávání vrátí víc kandidátů, rozhodněte podle sídla a předmětu podnikání — a když se nabídka jménem firmy neshoduje s tím, co protistrana tvrdí (jiné město, jiná právní forma), máte první položku do sekce Rozpory.
+
+### Základní profil: stáří, sídlo, lidé, struktura
+
+S potvrzeným IČO přichází první skutečný sběr dat: základní obchodní informace o subjektu a — často přehlížené — dceřiné a propojené společnosti.
+
+```text
+Pracujeme s IČO [12345678]. Sestav základní identifikační profil:
+1. Právní forma, datum vzniku, sídlo, základní kapitál, předmět
+   podnikání
+2. Statutární orgán: kdo za firmu jedná a od kdy
+3. Dceřiné a propojené společnosti, pokud existují
+4. Souhrn obchodů se státem: obchoduje firma s veřejnými institucemi?
+   (jen souhrn, detaily smluv budeme řešit zvlášť)
+
+Výstup dej jako vyplněnou sekci Identifikace z naší šablony profilu.
+U každého údaje uveď, ze kterého nástroje/zdroje pochází. Co se
+nepodařilo zjistit, označ jako NEZJIŠTĚNO — nedoplňuj to odhadem.
+```
+
+Jak výsledky číst? Samotná čísla jsou málo; význam jim dává kontext situace — vzpomeňte na mentální model, bod 1. Několik vodítek, která se osvědčila:
+
+- **Stáří firmy vs. tvrzená historie.** Omega Stav „funguje deset let", ale vznikla před dvěma roky? To nemusí být lež — lidé často počítají historii party, ne s.r.o. Ale znamená to, že právnická osoba, se kterou podepisujete, žádnou desetiletou historii nemá: ručení, reference i vymahatelnost se vážou na to IČO, ne na vyprávění. Mladá firma + požadavek zálohy = kombinace, která si říká o platby po etapách.
+- **Sídlo.** Adresa, na které sídlí stovky firem (virtuální sídlo), není sama o sobě problém — pro freelancery a malé s.r.o. je to normální úspora. Signálem se stává v kombinaci: stavební firma s dvaceti zaměstnanci a stroji, která nemá žádnou dohledatelnou provozovnu, je otázka k položení.
+- **Základní kapitál.** Symbolická částka je u nových s.r.o. standard, nic neznamená. Zajímavější je opačný extrém — nedávné navýšení může vypovídat o přípravě na větší zakázky, ale i o snaze vypadat důvěryhodně.
+- **Změny v čase.** Časté střídání jednatelů, sídla nebo názvu je klasický vzor firem, které za sebou zametají. Jedna změna je život; tři změny za dva roky jsou vzor.
+
+### Lidé za firmou
+
+U malých s.r.o. neprověřujete firmu, ale člověka — firma dvouletá, jednatel třicetiletý v podnikání patnáct let. Historie jednatele a společníků je často výmluvnější než historie firmy samotné, a přesně tady Hlídač září, protože propojuje osoby napříč subjekty.
+
+```text
+Zůstáváme u prověrky IČO [12345678]. Teď lidé:
+1. Vyhledej detail každé osoby ze statutárního orgánu a mezi
+   společníky: [jméno, jméno]
+2. U každé osoby vypiš všechna známá angažmá v dalších firmách —
+   současná i minulá, s obdobím
+3. U minulých angažmá zjisti, jak firma dopadla: existuje dál,
+   je v likvidaci, prošla insolvencí?
+4. Zkontroluj, jestli některá z osob nefiguruje v politice nebo
+   ve veřejných funkcích
+
+Pozor na shodu jmen: pokud najdeš víc osob stejného jména, vypiš je
+odděleně a označ, u kterých si vazbu na naši firmu nemůžeš potvrdit.
+Nespojuj osoby jen podle jména.
+```
+
+Upozornění na shodu jmen je u osob ještě důležitější než u firem — Jan Novák podnikatel a Jan Novák v konkursu mohou být dva různí lidé a model má sklon je slepit do jednoho příběhu. Hlídač interně používá identifikátory osob, ale kontrola „opravdu je to tentýž člověk?" (datum narození v obchodním rejstříku, adresa) zůstává na vás; u vážných nálezů ji udělejte ručně na justice.cz.
+
+Co s nálezem typu „jednatel figuroval ve firmě, která skončila v konkursu"? Zapište ho, ale nevynášejte rozsudek — to je přesně případ pro etickou zásadu, kterou rozvineme v závěru: **jeden podnikatelský neúspěch v minulosti není diskvalifikace; vzor opakovaných úpadků s převlékáním IČO ano.** Rozdíl mezi nimi poznáte podle frekvence (jednou za patnáct let vs. třikrát za pět), podle časování (firma padla a hned vedle vznikla nová se stejným byznysem?) a podle role (jednatel, který u úpadku jen seděl ve statutárním orgánu velké firmy, vs. jediný společník, který firmu řídil). Romanův nález u Omega Stavu — jednatel byl do loňska ve firmě, která je dnes v konkursu, a Omega Stav vznikla dva měsíce po jeho odchodu — je žlutá, ne červená: legitimní nový začátek vypadá úplně stejně jako fénix z popela. Rozhodne zbytek prověrky a přímá otázka jednateli; jak takové jednání připravit, umí dobře [příprava na jednání s AI](/tipy/ai-priprava-na-jednani).
+
+## Fáze 3: existenční rizika — insolvence, trestní záznamy, DPH
+
+Tři kontroly v téhle fázi odpovídají na nejtvrdší otázku prověrky: může tahle firma v horizontu zakázky přestat existovat, nebo mě její problémy mohou stáhnout s sebou? Jsou rychlé, binární na první pohled — a záludné v interpretaci, proto u každé rozebereme, co nález skutečně znamená.
+
+### Insolvence: nejdřív role, pak čas, pak výsledek
+
+Insolvenční rejstřík je veřejný seznam řízení o úpadku. Hlídač z něj umí vytáhnout záznamy k IČO — jenže „firma má záznam v insolvenčním rejstříku" je věta, která bez tří upřesnění neznamená nic:
+
+**Role.** V insolvenčním řízení vystupují dlužníci a věřitelé — a rejstřík eviduje oboje. Firma jako **dlužník** je ta špatná zpráva. Firma jako **věřitel** znamená, že přihlásila pohledávku za někým, kdo padl — což o ní samotné neříká nic špatného; říká to něco o jejích zákaznících. Janin klient měl v rejstříku právě tohle: dva záznamy věřitele. Pro Janu je to dokonce užitečný kontext — klientovi krachují odběratelé, takže jeho cash flow může být napjaté a šedesátidenní splatnost má možná právě tenhle důvod; o důvod víc chtít zálohu, o důvod míň se bát podvodu.
+
+**Čas.** Běžící řízení a řízení ukončené před deseti lety jsou dvě různé planety. Běžící insolvenční řízení s firmou v roli dlužníka je pro novou zakázku se zálohou stopka bez diskuse — nikoli morální odsudek, ale prostá aritmetika: záloha zaplacená firmě v úpadku je pohledávka, kterou uvidíte možná za roky a možná z části. Naproti tomu dávno ukončené řízení je historická událost, která si zaslouží jedinou věc: otázku „co se tehdy stalo?" — ideálně položenou protistraně přímo. Firmy, které ustály úpadek a jedou dál, existují a bývají poučené.
+
+**Výsledek.** I ukončená řízení se liší: insolvenční návrh mohl být odmítnut jako šikanózní (někdo se firmu pokusil poškodit — stává se, a je to spíš bod pro ni), úpadek mohl skončit reorganizací (firma přežila a splácí podle plánu), konkursem (majetek rozprodán, firma končí), nebo bylo řízení zastaveno pro nedostatek majetku — což je paradoxně jeden z nejhorších signálů, pokud se týká firmy, jejíž jednatel dnes stojí za vaší protistranou: znamená, že věřitelé nedostali prakticky nic.
+
+```text
+Pokračujeme v prověrce IČO [12345678]. Zkontroluj insolvenční
+záznamy — a u každého nalezeného záznamu rozliš:
+1. Roli firmy: dlužník, nebo věřitel?
+2. Stav řízení: běží, nebo je ukončené? Od kdy do kdy?
+3. Výsledek u ukončených: odmítnutý návrh, reorganizace, konkurs,
+   zastavení pro nedostatek majetku?
+4. Spisovou značku, ať si detail můžu ověřit v isir.justice.cz
+
+Stejnou kontrolu udělej pro IČO firem z minulých angažmá jednatele:
+[IČO, IČO]. Výstup jako řádky do tabulky nálezů v profilu, zvlášť
+řádek „insolvence dlužník" a „insolvence věřitel". Pokud nenajdeš
+nic, napiš výslovně „bez záznamu ke dni [datum]" — ne jen prázdno.
+```
+
+Formulace „bez záznamu ke dni" není puntičkářství. Insolvenční návrh může přijít zítra — proto profil datuje každou kontrolu a proto existuje re-prověrka. A ještě jedna past: nepřítomnost záznamu v odpovědi modelu není totéž co nepřítomnost záznamu v rejstříku. U kontroly, na které stojí rozhodnutí o zakázce za statisíce, si klíčový výsledek ověřte proklikem — buď na Hlídači, nebo přímo v isir.justice.cz podle spisové značky. AI navrhuje, člověk schvaluje; tady to platí doslova.
+
+### Trestní záznamy firem
+
+Méně známý fakt: právnické osoby mají v Česku vlastní trestní odpovědnost (od roku 2012) a pravomocná odsouzení firem jsou veřejná — na rozdíl od rejstříku trestů fyzických osob, do kterého vám protistrana nahlédnout nedá. Hlídač tahle data indexuje po IČO. Typický repertoár firemní kriminality: krácení daně, dotační podvod, legalizace výnosů z trestné činnosti, sjednání výhody při zadání veřejné zakázky, poškození věřitele.
+
+```text
+Dál v prověrce IČO [12345678]: zkontroluj trestní záznamy firmy.
+Pokud existuje záznam, vypiš:
+1. O jaký trestný čin šlo a v jakém stavu věc je — pravomocné
+   odsouzení, nebo jen vedené řízení?
+2. Kdy se skutek stal a kdy padlo rozhodnutí
+3. Jaký trest firma dostala (pokuta, zákaz plnění veřejných zakázek,
+   zveřejnění rozsudku…)
+4. Týká se věc oboru, ve kterém spolu máme obchodovat?
+
+Totéž pro firmy z minulých angažmá jednatele: [IČO, IČO].
+Nález formuluj neutrálně jako fakt se zdrojem — žádná hodnotící
+adjektiva, hodnocení si udělám sám. Bez nálezu zapiš „bez záznamu
+ke dni [datum]".
+```
+
+Interpretace vyžaduje chladnou hlavu ve dvou směrech. Prvně: **vedené řízení není odsouzení.** Presumpce neviny platí pro firmy stejně jako pro lidi, a šikanózní trestní oznámení jsou v konkurenčním boji reálná věc. Záznam o běžícím řízení patří do profilu jako fakt s otazníkem, ne jako verdikt. Druhak: u pravomocného odsouzení čtěte skutek a čas. Firma odsouzená před osmi lety za krácení daně, s novým vedením a od té doby čistá, je jiný příběh než firma odsouzená loni za poškození věřitele — tedy přesně za to, čeho se jako věřitel bojíte. A pro dodavatele veřejných zakázek je kritický trest zákazu plnění veřejných zakázek: pokud vaše spolupráce stojí na tom, že partner smí dodávat státu, tenhle trest ji zabíjí přímo.
+
+### Nespolehlivý plátce DPH: nenápadná kontrola s přímým dopadem na vás
+
+Třetí kontrola je ze všech nejrychlejší a jako jediná se vás týká přímo finančně, i kdyby partner nikdy nezkrachoval. Finanční správa vede veřejný seznam nespolehlivých plátců DPH — firem, které závažně porušily povinnosti při správě daně. Pointa pro vás: **kdo obchoduje s nespolehlivým plátcem, ručí za DPH, kterou tento plátce neodvede.** To není abstraktní riziko — je to mechanismus, kterým se cizí daňový dluh může stát vaším.
+
+```text
+Poslední existenční kontrola pro IČO [12345678]: je firma vedená
+jako nespolehlivý plátce DPH? Pokud ano, od kdy?
+
+Doplň mi k tomu do profilu i praktický důsledek: co pro nás jako
+odběratele znamená ručení za neodvedenou DPH a jaká opatření
+připadají v úvahu [platba na zveřejněný účet, zvláštní způsob
+zajištění daně]. Připomeň mi také, že aktuální stav a zveřejněné
+bankovní účty si máme před platbou ověřit přímo v registru plátců
+DPH finanční správy — tvůj údaj je k datu prověrky, ne k datu platby.
+```
+
+Nález „ANO, nespolehlivý plátce" je jedna z mála jednoznačně červených vlajek celé prověrky: nejde o historii, ale o aktuální status s přímým finančním dopadem na vás. Pokud přes něj chcete spolupráci přesto uzavřít (existují situace, kdy to dává smysl — třeba firma v ozdravném režimu s novým vlastníkem), patří k tomu tvrdá hygiena plateb: platit výhradně na účet zveřejněný v registru plátců a zvážit zajištění daně. To už je téma pro účetní — profil má obsahovat nález a doporučení „řešit s účetní před první fakturou".
+
+### Rychlá triage: tři kontroly jedním promptem
+
+Jakmile postup jednou projdete poctivě po krocích, budete chtít zkratku pro příště — a pro situace jako Janina, kde celá prověrka musí stihnout čtvrthodinu. Tři existenční kontroly se dají složit do jednoho promptu se semaforovým výstupem:
+
+```text
+Rychlá existenční kontrola obchodního partnera, IČO [12345678],
+kontext: [nový klient, chce splatnost 60 dní, projekt za cca
+dvouměsíční kapacitu].
+
+Proveď: insolvence (rozliš dlužník/věřitel, běžící/ukončené),
+trestní záznamy firmy, status nespolehlivého plátce DPH.
+
+Výstup: tabulka kontrola / výsledek / datum, pod ní semafor
+s odůvodněním — červená jen při běžící insolvenci v roli dlužníka,
+pravomocném odsouzení relevantním pro platební morálku, nebo
+statusu nespolehlivého plátce. U všeho uveď zdroj. Pokud některá
+kontrola selže nebo nevrátí data, napiš to výslovně — tichý
+nezdar kontroly nesmí vypadat jako čistý výsledek.
+```
+
+Věta o tichém nezdaru je z praxe: když nástroj nevrátí data (výpadek, limit, překlep v IČO), model má sklon pokračovat, jako by kontrola dopadla čistě. U triage, kde se díváte jen na semafor, by vás to mohlo stát přesně ten nález, kvůli kterému prověrku děláte.
+
+## Fáze 4: vztahy se státem — registr smluv, dotace, K-index
+
+Existenční kontroly hledaly problémy. Čtvrtá fáze hledá něco jemnějšího: **obraz toho, jak firma skutečně podniká.** Registr smluv a evidence dotací jsou jediná místa, kde se dá zvenku vidět reálný byznys firmy — s kým obchoduje, v jakých objemech, jak dlouho a jak čistě. Pro firmy, které se státem neobchodují, vyjde tahle fáze naprázdno — a i to je výsledek, jak uvidíme u Omega Stavu.
+
+### Registr smluv: co všechno říká jedna tabulka smluv
+
+Připomeňme mechaniku: veřejné instituce musí od poloviny roku 2016 zveřejňovat smlouvy nad zákonný limit v registru smluv, jinak jsou neúčinné. Pro prověrku z toho plyne zlaté pravidlo i jeho mez. Zlaté pravidlo: **tvrzení o zakázkách pro stát je stoprocentně testovatelné.** Mez: registr obsahuje jen smlouvy s veřejnými institucemi nad limit — o byznysu partnera se soukromými firmami neříká nic, a menší plnění pod limitem v něm také nejsou. Nepřítomnost v registru tedy není nález sama o sobě; nález je nepřítomnost v registru v kombinaci s tvrzením „děláme pro kraj".
+
+```text
+Prověrka IČO [12345678] pokračuje: registr smluv. Vyhledej všechny
+smlouvy, kde firma vystupuje jako dodavatel, a sestav přehled:
+1. Celkový počet smluv a součet hodnot; pozor na stránkování —
+   projdi všechny stránky výsledků a napiš, kolik záznamů jsi
+   skutečně zpracoval
+2. Časová osa: od kdy do kdy smlouvy vznikaly, jsou nějaké letos?
+3. Zadavatelé: kdo je největší, kolik procent objemu na něj připadá
+4. Kolik smluv má skrytou (začerněnou) hodnotu
+5. Kolik smluv má dodatky a u kterých dodatky výrazně zvedly cenu
+
+Zvlášť ověř tvrzení protistrany: [„realizovali jsme zakázky pro
+kraj"]. Najdi smlouvy s krajem nebo krajskými organizacemi —
+pokud nejsou, zapiš to do sekce Rozpory v profilu.
+```
+
+Instrukce ke stránkování je u smluv kritická — u firmy se stovkami smluv model bez ní shrne první stránku a tváří se, že vidí celek. Chtějte číslo „zpracoval jsem X záznamů z Y nalezených".
+
+Jak číst výsledek? Čtyři vrstvy, od povrchu dolů:
+
+- **Objem a trvání.** Firma, která státu dodává deset let v stabilních objemech, prošla desítkami přejímek, kontrol a fakturací — to je forma reference, kterou nejde koupit. Naopak nárazový vzestup z nuly na velké objemy během roku je důvod podívat se, kdo je zadavatel a co se změnilo.
+- **Koncentrace.** Jeden zadavatel s většinou objemu znamená závislost: pokud vaše subdodávka souvisí právě s tou zakázkou, sdílíte riziko, o kterém nevíte. Pro Janu je koncentrace klientových odběratelů (byť ji vidí jen u těch veřejných) vodítkem, jak stabilní jsou jeho příjmy.
+- **Skryté ceny.** Zákon umožňuje část hodnot nezveřejnit (obchodní tajemství), ale systematicky začerňované částky jsou v datech Hlídače dlouhodobě jeden z hlavních rizikových indikátorů — ostatně jde o parametr K-indexu. U dodavatele je vysoký podíl smluv se skrytou cenou přinejmenším otázka k položení.
+- **Dodatky.** Smlouva vysoutěžená za jednu cenu a dodatky nafouknutá o desítky procent je klasický vzor českého veřejného zadávání. U vašeho partnera v roli dodavatele to čtěte střízlivě: může to znamenat šikovné vícepráce, ale vzor „vyhraje levně, dodatky dožene" vypovídá o obchodní kultuře, se kterou se potkáte i vy — třeba ve chvíli, kdy vám na stavbě začne chodit jeden „nutný vícenáklad" za druhým.
+
+U podezřelé smlouvy jděte do detailu — tam se z čísel stává příběh:
+
+```text
+Ukaž mi detail smlouvy [ID smlouvy z předchozího výstupu]:
+smluvní strany, předmět, původní hodnota, všechny dodatky
+s daty a změnami hodnoty, odkaz na záznam v registru.
+
+Pak mi pomoz s interpretací: o kolik procent dodatky změnily
+původní hodnotu, v jakém časovém odstupu přišly a jak je
+formulovaný předmět dodatků [vícepráce, prodloužení, změna
+rozsahu]? Drž se faktů ze záznamu; kde záznam důvod dodatku
+neuvádí, napiš „důvod neuveden", nedomýšlej ho.
+```
+
+### Dotace: peníze, závislost a citlivá historie
+
+Evidence dotací říká, kolik firma čerpá od státu a z evropských fondů. Pro prověrku má tři čtení. První je prosté: dotace jsou příjem — firma stojící na dotačních projektech je zranitelná vůči změně programů, což je informace o stabilitě. Druhé čtení je křížové: dotační historie se potkává s trestní kontrolou z fáze 3 — dotační podvod je jeden z nejčastějších firemních trestných činů, takže velké čerpání + trestní záznam v této oblasti je kombinace, kterou nechcete přehlédnout. Třetí čtení je pozitivní: úspěšně ukončené dotační projekty znamenají, že firma prošla přísnými kontrolami poskytovatele — administrativní disciplínu, kterou dotace vynucují, poznáte i na běžné fakturaci.
+
+```text
+Prověrka IČO [12345678]: dotace. Vyhledej všechny dotace, které
+firma čerpala, a shrň:
+1. Celkový objem a počet, rozdělení podle let a programů
+2. Největší jednotlivé dotace — u top 3 vytáhni detail: účel,
+   poskytovatel, částka
+3. Poměr k velikosti firmy, pokud ho z dostupných dat jde odhadnout —
+   a pokud ne, napiš to
+4. Křížová kontrola: souvisí některá dotace časově nebo věcně
+   s trestním záznamem z předchozí kontroly?
+
+Do profilu zapiš řádek Dotace s celkovým objemem a poznámkou,
+jestli z dat plyne závislost na dotačních příjmech.
+```
+
+### K-index: čí známky vlastně čtete
+
+K-index je nejznámější analytický produkt Hlídače — a nejčastěji špatně chápaný, proto přesně: je to roční Index klíčových rizik, kterým Hlídač známkuje **úřady, obce a veřejné instituce** (dostatečně velké, měřeno počtem a objemem smluv) na stupnici A až F. Skládá se z parametrů jako podíl smluv se skrytou cenou, koncentrace dodavatelů, podíl smluv se zásadními nedostatky nebo soutěžení u limitu — a sám Hlídač zdůrazňuje, že špatná známka není důkaz korupce, ale míra rizikových praktik, které korupci usnadňují.
+
+Z toho plyne pro prověrku klíčová věc: **vaši soukromou s.r.o. K-index neznámkuje.** Použití je nepřímé, ale cenné dvojím způsobem. Za prvé, pokud prověřujete subjekt, který sám je veřejnou institucí nebo městskou/státní firmou — což se stává, obce a jejich technické služby jsou běžní obchodní partneři — má vlastní známku a ta patří do profilu. Za druhé, u soukromého partnera se podívejte na známky jeho zadavatelů: firma, jejíž obrat stojí na institucích s hodnocením E a F, podniká v rizikovém prostředí — a vy chcete vědět, jestli je jeho úspěch postavený na kvalitě, nebo na prostředí, kde se kvalita nesoutěží.
+
+```text
+Prověrka IČO [12345678], kontext ze smluv: hlavní zadavatelé firmy
+jsou [názvy/IČO institucí z výstupu registru smluv].
+
+1. Pokud je prověřovaný subjekt veřejnou institucí nebo veřejnou
+   firmou, zjisti jeho K-index a vývoj známky po letech
+2. Zjisti K-index jeho tří největších zadavatelů
+3. Vysvětli mi u každé známky, které parametry ji táhnou dolů —
+   a připomeň, že jde o míru rizika, ne o důkaz
+
+Do profilu: známky zadavatelů jako kontext k řádku Smlouvy
+se státem. Žádný závěr typu „firma je napojená na zkorumpované
+úřady" — jen fakta a známky.
+```
+
+U Omega Stavu vyšla celá čtvrtá fáze prázdná: žádné smlouvy v registru, žádné dotace. Do profilu se to zapíše dvěma řádky — a jedním záznamem v sekci Rozpory, protože obchodní zástupce mluvil o „zakázkách pro kraj". Možná myslel subdodávky pro generálního dodavatele kraje (v registru by figuroval generální dodavatel, ne subdodavatel — to je legitimní vysvětlení a férová otázka na jednání). Ale právě proto se rozpor zapisuje: aby otázka na jednání zazněla a odpověď se dala zaznamenat.
+
+## Fáze 5: politické vazby a širší kontext
+
+Pátá fáze je nejjemnější — a u běžné subdodávky klidně volitelná. Hledá kontext, který se týká hlavně firem obchodujících se státem: sponzoring politických stran, rozhodnutí antimonopolního úřadu a politická angažmá lidí kolem firmy. U Janina klienta ji lze přeskočit; u partnera, jehož byznys stojí na veřejných zakázkách, je to naopak fáze, kde se schovávají nejzajímavější souvislosti.
+
+### Sponzoring politických stran
+
+Dary politickým stranám jsou veřejné — strany je musí vykazovat ve výročních zprávách a Hlídač je indexuje po dárcích, firmách i stranách. Nejdřív férově: **sponzorovat stranu je legální a samo o sobě to není červená vlajka.** Firmy i lidé mají právo podporovat politiku, ke které se hlásí. Do prověrky sponzoring patří kvůli vzorům, ne kvůli existenci: dary načasované kolem zisku veřejných zakázek, dary více stranám najednou (nákup přízně napříč spektrem, ne přesvědčení) nebo výrazný nepoměr mezi velikostí firmy a velikostí darů.
+
+```text
+Prověrka IČO [12345678], širší kontext: sponzoring politických stran.
+1. Daroval prověřovaný subjekt někdy politické straně? Kdy, komu,
+   kolik?
+2. Totéž pro fyzické osoby z vedení a mezi společníky: [jména] —
+   u shody jmen postupuj obezřetně a nejistotu označ
+3. Pokud najdeš dary, polož vedle sebe časovou osu darů a časovou
+   osu smluv se státem z dřívější kontroly — jen fakta vedle sebe,
+   žádné závěry o kauzalitě
+
+Do profilu zapiš nález neutrálně: kdo, komu, kdy, kolik. Formulaci
+„dary v časové blízkosti zakázek" použij jen tehdy, když je odstup
+menší než [6 měsíců] — a i pak jako pozorování, ne obvinění.
+```
+
+Ta zdrženlivost v zadání je záměr a dobře ilustruje etiku celé prověrky: časová souslednost není kauzalita a profil, který z darů rovnou vyrábí „korupční napojení", je pomluva s tabulkou. Fakta vedle sebe, závěr člověk — a závěr může klidně znít „vidím vzor, který se mi nelíbí, a nechci ho ve svém dodavatelském řetězci". To je legitimní obchodní rozhodnutí, na které nepotřebujete nikoho odsuzovat.
+
+### Rozhodnutí ÚOHS
+
+Úřad pro ochranu hospodářské soutěže rozhoduje o přezkumech veřejných zakázek a o kartelových dohodách; Hlídač jeho sbírku rozhodnutí indexuje od konce devadesátých let. Pro prověrku dodavatele jsou zajímavé dva typy nálezů: firma jako účastník řízení o zakázané dohodě (bid rigging — domluvené nabídky ve výběrových řízeních) a firma opakovaně figurující v přezkumech zakázek, které vyhrála. První je vážný nález, druhý spíš kontext — návrhy na přezkum podávají neúspěšní konkurenti běžně a samotný přezkum nic špatného neznamená.
+
+```text
+Prověrka IČO [12345678]: rozhodnutí ÚOHS. Vyhledej rozhodnutí,
+ve kterých firma figuruje, a rozděl je:
+1. Řízení o zakázaných dohodách nebo zneužití dominance, kde je
+   firma účastníkem — u nálezu vytáhni detail: čeho se týkal,
+   jak dopadl, jaká padla sankce
+2. Přezkumy veřejných zakázek, kde firma figuruje jako vybraný
+   dodavatel — kolik jich je a jak dopadly
+3. U všeho odliš: pravomocné rozhodnutí o porušení vs. řízení
+   zastavené či návrh zamítnutý
+
+Bez nálezu zapiš „bez záznamu ke dni [datum]". S nálezem v bodě 1
+označ profil minimálně žlutě a připiš, že detail chci číst sám.
+```
+
+### Osoby v politice a VeKLEP: kontext na okraj
+
+Dvě poslední kontroly z rodiny nástrojů Hlídače zmiňme stručně, protože do standardní prověrky vstupují jen okrajově. Zaprvé osoby: pokud fáze 2 ukázala, že společník je zároveň komunální politik, dává smysl to vědět — ne jako diskvalifikaci, ale jako kontext (střet zájmů při zakázkách obce, politická expozice firmy). Nástroje na platy politiků tu slouží jen k dokreslení, kdo je ve veřejných funkcích; pro prověrku obchodního partnera je to spíš zajímavost. Zadruhé VeKLEP — databáze legislativy v přípravě: s prověrkou partnera nesouvisí přímo, ale jakmile máte MCP server připojený, nabízí se bonusové použití, které si necháme do sekce Pro tip. Za zmínku stojí i proto, aby bylo vidět, že server není jednoúčelová prověrková mašina, ale obecné okno do dat o státu.
+
+## Fáze 6: syntéza — z nálezů jednostránkový profil
+
+Máte za sebou osm až deset kontrol a konverzaci plnou tabulek. Teď přichází krok, který odděluje prověrku od hromady dat: syntéza do jedné stránky s verdiktem. A hned na začátek nejdůležitější pravidlo téhle fáze: **syntézu píše model, verdikt píše člověk.** Model umí nálezy poskládat, zvážit a navrhnout formulace — ale rozhodnutí „podepíšeme za těchto podmínek" je obchodní rozhodnutí s vaší odpovědností, a tak má být v profilu i podepsané.
+
+### Sestavení profilu
+
+```text
+Uzavíráme prověrku IČO [12345678]. Sestav kompletní rizikový profil
+podle šablony z Projektu — vezmi všechny nálezy z této konverzace.
+
+Pravidla syntézy:
+1. Do tabulky nálezů zapiš KAŽDOU provedenou kontrolu, i čistou,
+   vždy s datem a zdrojem
+2. Sekci Rozpory sestav z konfrontace tvrzení protistrany
+   (z inventury) s daty — každý rozpor jako pár tvrzení/data
+3. Navrhni semafor s odůvodněním, ale označ ho jako NÁVRH —
+   finální semafor doplním já
+4. Do sekce Doporučené podmínky navrhni 3–5 konkrétních smluvních
+   opatření úměrných nálezům [zálohy, milníky, zádržné, splatnost,
+   ověření účtu plátce DPH]
+5. Sekci Ruční kontroly mimo Hlídač vyplň jako checklist s odkazy,
+   co mám ještě ověřit sám — nic z toho neoznačuj za hotové
+
+Verdikt formuluj věcně: největší riziko, největší uklidnění,
+doporučení. Žádná dramatizace, žádné „zaručeně".
+```
+
+Výstup si přečtěte pomalu a s tužkou — tohle je těch pět minut, kvůli kterým celá prověrka existuje. Kontrolujte tři věci: že v tabulce nechybí žádná kontrola, kterou jste provedli (a žádná nepřebývá — model občas „dopíše" kontrolu, která neproběhla), že rozpory odpovídají skutečné inventuře, a že doporučené podmínky jsou úměrné — profil se dvěma žlutými nálezy nemá končit doporučením „nespolupracovat", ale ani „vše v pořádku".
+
+Jak kalibrovat semafor? Osvědčila se nám tahle hrubá mapa, kterou si upravte podle vlastního apetitu k riziku: **červená** = běžící insolvence v roli dlužníka, status nespolehlivého plátce DPH, pravomocné odsouzení za čin proti věřitelům či v oboru spolupráce, pravomocný nález ÚOHS o kartelové dohodě. **Žlutá** = mladá firma bez historie tam, kde se tvrdí historie; úpadky v minulosti jednatele; výrazné rozpory tvrzení vs. data; vzor dodatků a skrytých cen; kombinace drobných signálů. **Zelená** = kontroly čisté nebo s nálezy, které mají nevinné vysvětlení potvrzené z druhého zdroje. A jedna pojistka: žlutá není „skoro zelená" — žlutá znamená „podepsat jde, ale smlouva musí riziko ošetřit a otázky z profilu musí zaznít nahlas".
+
+### Oponentura: nechte profil napadnout
+
+Než profil prohlásíte za hotový, otočte model proti němu. Je to nejlevnější kontrola kvality, jakou máte k dispozici — a u dokumentu, podle kterého se rozhodne o penězích, se vyplatí dvojnásob.
+
+```text
+Tady je hotový rizikový profil [vložit]. Zahraj si na dvě role
+po sobě:
+
+1. Advokát protistrany: projdi profil a najdi každé místo, kde
+   ze slabých dat děláme silný závěr, kde interpretace předbíhá
+   fakta, nebo kde by se firma mohla oprávněně ohradit. U každého
+   místa navrhni opatrnější formulaci.
+
+2. Skeptický společník: naopak najdi místa, kde jsme příliš mírní —
+   riziko zmíněné v datech, které se do verdiktu nepropsalo,
+   kombinace signálů, kterou jsme nevyhodnotili společně, chybějící
+   kontrolu.
+
+Výstup: dva seznamy s konkrétními citacemi z profilu. Neměň
+dokument sám — změny schválím po jedné.
+```
+
+Dvojrole je záměr: profil má typicky obě vady najednou — někde přestřeluje (z jednoho daru straně dělá „politické napojení"), jinde podstřeluje (tři žluté signály hodnotí izolovaně, přestože dohromady tvoří vzor). Po zapracování připomínek doplňte finální semafor, své jméno a commit — u gitu s poctivou zprávou typu „v1: první prověrka před subdodávkou, žlutá, podmínky viz profil".
+
+### Druhá linka: Janina čtvrthodinová verze
+
+Slíbili jsme, že Janina prověrka klienta bude celá — tady je, jako ukázka, že postup škáluje dolů. Jana nepotřebuje šest fází; potřebuje odpověď na jednu otázku: „unesu riziko, že tenhle klient zaplatí pozdě nebo vůbec?" Její postup: IČO z návrhu smlouvy (fáze 2 v jednom kroku — ověřit, že IČO patří firmě, se kterou jedná), rychlá triage existenčních rizik (prompt z fáze 3), pohled na smlouvy se státem jako náhrada reference (platí stát firmě dlouhodobě? pak firma umí fakturovat a přežívá přejímky) — a syntéza do minimálního profilu:
+
+```text
+Prověřuji si nového klienta před podpisem: IČO [12345678] z návrhu
+smlouvy. Jsem na volné noze, projekt zabere dva měsíce kapacity,
+klient chce splatnost faktur 60 dní.
+
+1. Ověř, že IČO odpovídá firmě [název z e-mailu] — pokud ne, stop
+2. Existenční triage: insolvence (dlužník vs. věřitel!), trestní
+   záznamy, nespolehlivý plátce DPH
+3. Smlouvy se státem jako nepřímá reference: dodává firma veřejným
+   institucím opakovaně a dlouhodobě?
+4. Výstup: půlstránkový profil — tabulka kontrol s daty, semafor
+   jako návrh, a doporučení k vyjednávání: jakou zálohu a jaké
+   platební milníky dávají u tohohle nálezu smysl
+
+Nezapomeň: záznamy insolvence v roli věřitele interpretuj jako
+informaci o klientových odběratelích, ne o něm.
+```
+
+Janin výsledek jsme viděli ve vzorové situaci: dva záznamy věřitele, čistá existenční rizika, patnáct let smluv s veřejnými institucemi. Semafor zelený, ale s poznámkou — klientovi krachují odběratelé, takže záloha třetina předem není paranoia, ale kyslíková maska. Celý profil si Jana uloží do Notionu; až za rok přijde další projekt, aktualizace zabere dvě minuty. I sólo freelancer si tak staví portfolio profilů — a přesně tahle drobná disciplína je rozdíl mezi „fakturuju a doufám" a řízením rizika, které si velké firmy platí jako službu.
+
+## Kdy MCP nestačí a kam dál ručně
+
+Poctivá prověrka ví, kde končí její data. Hlídač státu pokrývá impozantní kus veřejných rejstříků, ale ne všechny — a některé z těch zbývajících jsou pro rozhodnutí o smlouvě zásadní. Tady je mapa ručních kroků, seřazená podle užitečnosti na vynaloženou minutu.
+
+### Justice.cz: obchodní rejstřík a hlavně sbírka listin
+
+Veřejný rejstřík na justice.cz je primární zdroj pro právní stav firmy — úplný výpis ukáže historii jednatelů, společníků, sídel a přeměn včetně vymazaných údajů, což se hodí k potvrzení nálezů z fáze 2 (a ke kontrole shody osob přes datum narození). Zdarma, bez registrace.
+
+Skutečný poklad je ale **sbírka listin**: účetní závěrky, výroční zprávy, zakladatelské dokumenty. Dvě otázky, které v ní zodpovíte a nikde jinde nezjistíte: Jak je na tom firma finančně? (rozvaha a výsledovka — aspoň hrubě: tržby, zisk/ztráta, vlastní kapitál, závazky; záporný vlastní kapitál u partnera, který chce zálohu, je tvrdá červená) A plní firma povinnost závěrky zakládat? Významná část českých firem sbírku listin ignoruje — **chybějící závěrky za poslední roky jsou samy o sobě signál**: firma neplní zákonnou povinnost, jejíž jediný smysl je transparentnost vůči obchodním partnerům, tedy vůči vám. Stažené PDF závěrky mimochodem umí Claude přečíst a shrnout — to je legitimní kombinace ruční a AI práce: dokument stáhnete ručně, analýzu deleguje prompt.
+
+### ARES: rychlá křížová kontrola
+
+ARES ministerstva financí agreguje základní údaje ze všech rejstříků (obchodní, živnostenský, DPH…) pod jedním IČO. Zdarma, s otevřeným API. Pro prověrku slouží jako druhý zdroj k potvrzení identifikace — a jako rychlá kontrola živnostenských oprávnění: má partner vůbec oprávnění k činnosti, kterou vám nabízí? U řemesel a vázaných živností to není formalita.
+
+### Centrální evidence exekucí: jediná placená položka základní prověrky
+
+Exekuce jsou slepé místo celé dosavadní prověrky — nejsou v insolvenčním rejstříku ani na Hlídači. Centrální evidenci exekucí vede Exekutorská komora a nahlédnutí je zpoplatněné (za jednotlivý dotaz; konkrétní sazby najdete na webu evidence). Jestli si placený dotaz zaslouží každá prověrka, je na vás; prakticky se osvědčuje pravidlo úměrnosti — u zakázky, kde protistraně svěřujete zálohu nebo dva měsíce práce, je to levná pojistka, u drobné objednávky ne. Běžící exekuce u firmy, která od vás chce peníze předem, je nález kategorie červená.
+
+### Evidence skutečných majitelů
+
+Kdo firmu doopravdy vlastní? U jednoduchých s.r.o. to řekne obchodní rejstřík, ale u vícepatrových struktur je odpovědí evidence skutečných majitelů (esm.justice.cz) — částečný výpis je veřejně dostupný zdarma. Zajímá vás hlavně: je skutečný majitel dohledatelná osoba, nebo řetěz končí v neprůhledné zahraniční struktuře? Neprůhlednost není zločin, ale u partnera, po kterém byste jednou mohli něco vymáhat, je dobré vědět, že vymáhat bude kde.
+
+### Registr plátců DPH a zveřejněné účty
+
+Status nespolehlivého plátce jsme kontrolovali přes Hlídač; před první platbou se ale podívejte přímo do registru plátců DPH finanční správy — jednak pro aktuální stav ke dni platby, jednak kvůli **zveřejněným bankovním účtům**: platba na účet, který plátce nezveřejnil, zakládá ručení za jeho DPH i u jinak spolehlivého plátce. Faktura s číslem účtu, které v registru není, je provozní červená vlajka, kterou má znát i vaše účetní.
+
+### Co nezjistíte nikde — a musíte si o to říct
+
+Dluhy vůči okresní správě sociálního zabezpečení a zdravotním pojišťovnám veřejné nejsou. U větších kontraktů je standard vyžádat si od protistrany **potvrzení o bezdlužnosti** (vydává ČSSZ, finanční správa a pojišťovny) — seriózní firma je doloží bez uražení. Stejně tak reference: dva telefonáty na minulé zákazníky, které si vyberete vy (ne ty, které nabídne protistrana), doplní rejstříky o rozměr, který žádná databáze nemá. A u staveb specificky: pohled do katastru, komu patří zázemí firmy, řekne o stabilitě víc než výroční zpráva.
+
+```text
+Z rizikového profilu [vložit] mi připrav checklist ručních kontrol
+mimo Hlídač státu, seřazený podle poměru přínos/úsilí pro moji
+situaci [subdodávka se zálohou na materiál]:
+1. U každé položky: kde přesně ji ověřím (název registru), co tam
+   hledám a jaký nález by změnil semafor
+2. Označ, co je zdarma a co zpoplatněné
+3. U sbírky listin konkrétně: za které roky mají být závěrky
+   a co v nich číst jako laik [vlastní kapitál, závazky vs. tržby]
+4. Přidej formulaci e-mailu protistraně s žádostí o potvrzení
+   o bezdlužnosti a vysvětlením, že jde o standardní postup —
+   e-mail odešlu sám
+
+Checklist vlož do profilu do sekce Ruční kontroly, položky budu
+odškrtávat postupně.
+```
+
+### Srovnávací tabulka: co zjistí Hlídač státu vs. co musíte jinde
+
+| Co zjišťujete | Hlídač státu přes MCP | Kde jinde a jak |
+| --- | --- | --- |
+| Identifikace firmy, IČO, vazby osob | Ano — vyhledání subjektů, detail osob, dceřiné firmy | Křížově ověřit: justice.cz (úplný výpis vč. historie), ARES (zdarma) |
+| Insolvence | Ano — záznamy po IČO, role, stav | Detail spisu: isir.justice.cz (zdarma) |
+| Trestní záznamy firem | Ano — po IČO | Primární zdroj: veřejný rejstřík trestů právnických osob (zdarma) |
+| Nespolehlivý plátce DPH | Ano — status | Před platbou: registr plátců DPH vč. zveřejněných účtů (zdarma) |
+| Smlouvy se státem, dodatky | Ano — silná stránka: fulltext, detaily, souhrny | Primární zdroj: registr smluv (zdarma), ale hůř se v něm hledá |
+| Dotace | Ano — vyhledávání i detaily | Zdroje poskytovatelů — roztříštěné, Hlídač je agreguje |
+| Sponzoring stran, K-index, ÚOHS, platy, VeKLEP | Ano — unikátní agregace, jinde dohromady nejsou | Prakticky bez náhrady v jednom místě |
+| Exekuce | Ne | Centrální evidence exekucí — zpoplatněný dotaz |
+| Účetní závěrky, finanční zdraví | Ne | Sbírka listin na justice.cz (zdarma); analýzu PDF zvládne Claude |
+| Skuteční majitelé | Ne | esm.justice.cz — částečný výpis zdarma |
+| Živnostenská oprávnění | Jen okrajově | ARES / živnostenský rejstřík (zdarma) |
+| Dluhy na sociálním a zdravotním pojištění | Ne — nejsou veřejné | Potvrzení o bezdlužnosti od protistrany |
+| Majetek, nemovitosti | Ne | Katastr nemovitostí (nahlížení zdarma, výstupy zpoplatněné) |
+| Pověst, reference, kvalita práce | Ne | Telefonáty, oborové kontakty, vlastní úsudek |
+
+Tabulku čtěte i jako obhajobu pořadí celého návodu: MCP vrstva je první, protože za nejmíň úsilí pokryje nejvíc řádků — ale řádky „Ne" obsahují některé z nejtvrdších nálezů (exekuce, záporný vlastní kapitál), takže u vážných kontraktů prověrka bez ruční vrstvy hotová není.

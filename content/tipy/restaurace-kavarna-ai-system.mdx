@@ -1,0 +1,336 @@
+---
+title: "Restaurace jako systém: jedno menu, ze kterého se odvozuje všechno ostatní"
+excerpt: "Kompletní návod s 24 prompty: z jídelního lístku strukturovaný zdroj pravdy a z něj tištěné menu, QR menu na webu, příspěvky na sítě i tahák pro obsluhu. Konec přepisování téže polévky na čtyři místa."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "freelancer"]
+keys: []
+saves: "~hodiny každé pondělí a konec rozjetých ceníků"
+date: "2026-08-16"
+updated: "2026-08-16"
+tldr: >-
+  Týdenní obědové menu je nejlepší důkaz, proč mají mít i malé podniky data
+  na jednom místě: mění se každý týden, a kdo ho přepisuje ručně do Wordu,
+  na Facebook a na web, dřív nebo později rozjede ceny a naštve hosty.
+  Návod ukazuje, jak z jídel, cen, alergenů a štítků udělat jeden
+  strukturovaný soubor — zdroj pravdy — a z něj nechat AI odvozovat tištěné
+  menu, QR menu na webu, příspěvky na sítě i tahák pro personál. Oprava
+  jedné položky se pak propíše všude. Alergeny určuje vždy člověk, který
+  vaří, fotky jídel musí odpovídat realitě a na recenze AI jen navrhuje
+  odpovědi — schvaluje majitel.
+faq:
+  - q: >-
+      Proč nestačí psát menu rovnou do Wordu a kopírovat ho na Facebook a web?
+    a: >-
+      Protože tím vznikají čtyři nezávislé kopie téže informace a každá změna
+      se musí udělat čtyřikrát. Jednou se jedna kopie zapomene — a host
+      u pokladny drží telefon s jinou cenou, než je na účtence. Strukturovaný
+      zdroj, ze kterého se všechny výstupy odvozují, tuhle třídu chyb ruší:
+      oprava se dělá na jednom místě a propíše se všude.
+  - q: >-
+      Co znamená „menu jako strukturovaná data" — musím umět programovat?
+    a: >-
+      Ne. Jde o obyčejný textový soubor (YAML nebo tabulka v markdownu),
+      kde má každé jídlo název, popis, cenu, alergeny a štítky na svém
+      řádku. Čte se to jako přehledný seznam a upravuje v poznámkovém bloku;
+      programátorská je jen myšlenka, že z tohoto souboru se všechno ostatní
+      odvozuje, místo aby se přepisovalo ručně.
+  - q: >-
+      Může AI určit alergeny v jídle?
+    a: >-
+      Nesmí to být ona, kdo rozhodne. AI umí z receptury navrhnout kandidáty
+      („smetana — mléko, jíška — lepek") a hlídat, aby čísla alergenů byla
+      ve všech výstupech stejná. Ale co v jídle skutečně je, ví jen člověk,
+      který ho vaří — a právní odpovědnost za uvedené alergeny nese
+      provozovatel, ne nástroj.
+  - q: >-
+      Můžu si nechat fotky jídel vygenerovat AI?
+    a: >-
+      Ne — host si objednává podle fotky a vygenerované jídlo, které se
+      na talíři nekoná, je klamání zákazníka. Foťte vlastní jídla telefonem
+      a AI používejte jen na jednotnou úpravu skutečných fotek: ořez, jas,
+      barevná teplota, konzistentní styl. Jídlo na fotce musí odpovídat
+      tomu, co kuchyně opravdu vydává.
+  - q: >-
+      Smí AI sama odpovídat na Google recenze?
+    a: >-
+      Navrhovat ano, odesílat ne. Odpověď na recenzi je veřejný text
+      podepsaný podnikem — AI připraví návrh v hlasu podniku (poděkovat,
+      reagovat konkrétně, nikdy se nehádat) a majitel ho přečte, upraví
+      a odešle sám. U kritických recenzí dvojnásob: špatná odpověď škodí
+      víc než špatná recenze.
+  - q: >-
+      Potřebuju git, nebo stačí sdílená složka?
+    a: >-
+      Fungují obě cesty. Sdílená složka (Drive, Dropbox) je jednodušší
+      na začátek a Claude Cowork nad ní umí pracovat rovnou. Git navíc dává
+      historii změn (kdo kdy změnil kterou cenu a proč), možnost změny
+      schvalovat a zálohu zadarmo — a Claude Code ho ovládá za vás. Pro
+      podnik o dvou lidech stačí složka; jakmile smí menu měnit víc lidí,
+      git se rychle zaplatí klidem.
+---
+
+V každém menším podniku existuje jedna polévka, která se každé pondělí píše čtyřikrát: jednou do Wordu pro tisk, jednou do administrace webu, jednou do příspěvku na Facebook a jednou na tabuli přede dveřmi. Čtyři kopie téže věty, čtyři místa, kde může být jinak. A protože týdenní menu se mění každý týden, není otázka, jestli se kopie někdy rozjedou — jen kdy. Pak u pokladny stojí host s telefonem, na kterém je jiná cena než na účtence, a diskuse, která z toho vznikne, stojí víc nervů než celé pondělní přepisování.
+
+Tenhle návod ukazuje jinou cestu: **menu není dokument, menu jsou data — a dokumenty se z nich odvozují.** Jídla, popisy, ceny, alergeny a štítky žijí v jednom strukturovaném souboru, který je jediným zdrojem pravdy. Tištěné menu, QR menu na webu, příspěvky na sítě i tahák pro obsluhu jsou jen různé pohledy na tentýž zdroj — a když se změní cena polévky, změní se v jednom souboru a propíše se všude. Právě proto je gastro nejpřesvědčivější případ celého principu: kde se data mění jednou za rok, ušetří systém málo; kde se mění každé pondělí, ušetří ho každé pondělí.
+
+Myšlenkový postup je stejný jako v návodu o [značce jako systému](/tipy/firma-brand-voice-brozura-web-crm) — inventura, jeden zdroj pravdy, odvozené výstupy, editovatelnost, bezpečnost — jen aplikovaný na podnik, kde se zdroj mění týdně místo ročně. Oba texty se doplňují: tam najdete do hloubky sazbu tiskovin a stavbu webu, tady rytmus podniku, který žije z týdenního koloběhu. Číst můžete po fázích, každá stojí samostatně a má prompty k okopírování — stačí doplnit hranaté závorky.
+
+## Vzorová situace
+
+Jana vede rodinné bistro U Lípy: třicet míst, denní obědové menu, odpoledne káva a domácí koláče. V kuchyni její muž a jeden kuchař, na place dvě servírky. Každou neděli večer se s mužem domluví, co se příští týden vaří; každé pondělí ráno pak Jana sedí u počítače a hodinu a půl přepisuje: jídla do wordové šablony, vytisknout, nastříhat do stojánků; přefotit telefonem na Facebook; přepsat do administrace webu, která se ovládá hůř než traktor; a nakonec křídou na tabuli. V úterý se změní příloha, protože nedorazily brambory — a oprava proběhne na tabuli a v tisku, na webu už ne. Jednou za čas se rozjedou ceny: na webu visí tři týdny stará verze menu, host se ohradí, Jana se omlouvá a účtuje starou cenu. Alergeny dopisuje do tištěného menu ručně z paměti a jednou týdně ji zamrazí, jestli u těch halušek opravdu nemá být i vejce.
+
+Po přechodu na systém z tohoto návodu vypadá Janino pondělí jinak. V neděli večer nadiktuje týdenní menu do telefonu — obyčejný hlasový záznam, žádný formulář. V pondělí ráno otevře Claude, nechá záznam převést do strukturovaného souboru s menu, zkontroluje ceny a alergeny (na to má checklist z kuchyně, ne paměť) a schválí. Z jednoho souboru se pak odvodí: tisková verze menu podle šablony, aktualizace QR menu na webu, návrhy tří příspěvků na sítě na pondělí, středu a pátek a jednostránkový tahák pro servírky s alergeny a popisy jídel. Celé to trvá pod půl hodiny, z toho většinu času Jana kontroluje a schvaluje — nepřepisuje. A když ve středu dojde svíčková, změní jeden řádek ve zdroji a všechny digitální výstupy se srovnají; jen tabule přede dveřmi zůstává na křídě.
+
+Rozdíl není jen v čase. Je v tom, že přestala existovat otázka „která verze platí?" — platí ta ve zdroji, vždycky, a všechno ostatní se z ní odvozuje. Zbytek návodu je cesta od Janina starého pondělí k novému, krok za krokem.
+
+## Fáze 1: inventura podniku
+
+Než začnete stavět, zjistěte, co máte. Každý podnik za roky provozu nastřádal materiály, které jsou rozsypané po discích, e-mailech a šuplících — a přesně z nich se bude systém stavět. Inventura je jeden večer práce a vyplatí se udělat ji pořádně, protože všechno další z ní čerpá.
+
+Co posbírat do jedné složky (třeba `podnik-ulipa`):
+
+- **Recepty a kalkulace** — v jakékoli podobě: sešit, excel, fotky ručně psaných karet. Nebudou se zveřejňovat; poslouží jako zdroj popisů jídel a jako podklad pro alergenový checklist.
+- **Jídelní lístky, staré i současné** — stálý lístek, sezónní vložky, wordové soubory týdenních menu za poslední měsíce. Z nich se vydestiluje struktura dat i hlas podniku.
+- **Fotky jídel a interiéru** — všechno, co kdy kdo vyfotil, včetně nepovedených. Třídit budete později a s pomocí.
+- **Logo a grafika** — logo v křivkách, pokud existuje (od grafika, který dělal ceduli), staré letáky, vizitky. I ošklivý starý leták je informace: ukazuje, jaká písma a barvy podnik používal.
+- **Texty, které podnik napsal** — příspěvky z Facebooku a Instagramu za poslední rok, text „o nás" z webu, odpovědi na recenze, pokud nějaké byly.
+- **Recenze** — export nebo aspoň screenshoty recenzí z Googlu a dalších platforem. Recenze jsou nejupřímnější popis podniku, jaký existuje: hosté v nich říkají, co na podniku vidí a čím ho popisují.
+
+Jedna zásada hned na začátku a platí pro celý návod: recepty, kalkulace a interní čísla jsou firemní podklady — nahrávejte je **do placeného účtu se smluvní ochranou dat**, ne do anonymního free chatu.
+
+### Inventura s Coworkem nad složkou
+
+Claude Cowork (desktopový režim, který pracuje nad složkou souborů) je na inventuru stavěný: dáte mu složku a necháte ho zmapovat, co v ní je. První prompt nic nevyrábí — jen popisuje a navrhuje.
+
+```text
+Pracuj nad složkou podnik-ulipa. Je v ní všechno, co jsem posbírala
+o našem bistru: recepty, staré jídelní lístky a týdenní menu ve Wordu,
+fotky, logo, staré letáky, texty z Facebooku a screenshoty recenzí.
+
+Udělej inventuru:
+1. Sepiš, co ve složce je, po kategoriích, s počty souborů
+2. U týdenních menu z Wordu vypiš, jakou mají strukturu (co se opakuje:
+   polévka, 2-3 hlavní jídla, dezert?) a jestli je struktura konzistentní
+3. U fotek jídel odhadni, kolik jich je použitelných (ostré, jídlo
+   poznat) a kolik ne — zatím jen odhad, třídit budeme později
+4. Vypiš, co chybí: logo v křivkách? popisy jídel? aktuální ceník?
+5. Navrhni strukturu složek, do které to celé přeuspořádáme
+
+Nic nepřesouvej a nemaž, čekám na tvůj návrh.
+```
+
+Vrátí mapu podniku v souborech. Nejcennější bývá bod 2: uvidíte černé na bílém, jak nekonzistentní vaše dosavadní menu byla („svíčková na smetaně" vs. „svíčková", ceny jednou s korunami, jednou bez), a bod 4 — seznam děr, které je potřeba zaplnit, než se pojede naostro.
+
+### Hlas podniku: jak U Lípy mluví
+
+Druhá půlka inventury není o souborech, ale o tónu. Příspěvky na sítě, odpovědi na recenze i popisy jídel budou znít podle toho, jak podnik mluví — a to je potřeba jednou zachytit, aby to AI nemusela pokaždé hádat. Obecnou metodiku destilace tónu z vlastních textů popisuje tip o [značce a tónu hlasu](/tipy/znacka-ton-hlasu-ai); tady stačí zkrácená verze šitá na gastro.
+
+```text
+Ve složce podnik-ulipa/texty jsou naše příspěvky z Facebooku za rok,
+text o nás z webu a pár odpovědí na recenze. Ve složce recenze jsou
+screenshoty recenzí od hostů.
+
+Vytvoř soubor hlas-podniku.md:
+1. Kdo jsme, jak nám hosté říkají a co na nás podle recenzí oceňují
+   (cituj konkrétní obraty hostů — „jako u babičky", „poctivé porce")
+2. Tón: 4-5 vlastností s ukázkovou větou (např. srdečný, ale ne
+   familiární; tykáme/vykáme?)
+3. Slovník: jak říkáme věcem my — „polévka" nebo „polívka"? „denní
+   menu" nebo „obědy"? Názvy jídel, jak je píšeme
+4. Zakázané fráze: korporátní a marketingový balast, který k nám
+   nepatří („gastronomický zážitek", „prémiová kvalita")
+5. Tři páry „takhle ne / takhle ano": příspěvek o novém menu,
+   odpověď na pochvalnou recenzi, odpověď na kritickou recenzi
+
+Vycházej z našich skutečných textů, ne z představy o bistru obecně.
+Kde si nejsi jistý, polož mi otázku místo odhadu.
+```
+
+Výsledný `hlas-podniku.md` je krátký dokument — stránka, dvě — a ponese všechny textové výstupy dál. Zkontrolujte hlavně ukázkové věty: model má sklon sklouznout k obecnému „gastro tónu" plakátů obchodních center, který zní profesionálně a nepatří nikomu. Pokud vaše bistro píše „polívka je dneska kulajda a je jí hodně", má to tak být i v dokumentu.
+
+### Doptání: situace, které v textech nejsou
+
+Starý Facebook neodpoví na všechno. Nechte se doptat na situace, které písemně ještě nenastaly — přesně ty vás jinak zaskočí v provozu.
+
+```text
+Projdi hlas-podniku.md a chovej se jako člověk, který má zítra začít
+psát naše příspěvky a odpovědi na recenze: polož mi otázky, na které
+v dokumentu nenajde odpověď. Zajímá mě hlavně:
+- jak oznamujeme nepříjemnosti: zavřeno kvůli nemoci, zdražení,
+  vyprodané jídlo v půlce oběda
+- jak reagujeme na nespravedlivou recenzi (host si stěžuje na něco,
+  co se nestalo)
+- kolik humoru snese příspěvek a kolik odpověď na recenzi
+- co nikdy neslibujeme (rychlost? dietní úpravy na počkání?)
+Ptej se po jedné otázce a odpovědi rovnou zapracuj do dokumentu.
+```
+
+Tahle půlhodina se vrátí mnohonásobně: až přijde první kritická recenze, nebude se hlas podniku vymýšlet ve stresu, ale bude v dokumentu. Odpovídejte vlastními slovy — dokument má znít jako vy za pultem, ne jako model.
+
+## Fáze 2: menu jako strukturovaná data
+
+Teď jádro celého systému. Menu přestane být dokument (word, PDF, příspěvek) a stane se **strukturovanými daty**: jeden textový soubor, kde má každé jídlo svoje pole — název, popis, cenu, alergeny, štítky. Všechno ostatní — tisk, web, sítě, tahák — se z tohoto souboru odvozuje a nikdy se needituje ručně.
+
+Zní to techničtěji, než to je. Strukturovaný soubor ve formátu YAML je obyčejný text s odsazením, který se čte jako přehledný seznam a upravuje v poznámkovém bloku. Takhle vypadá kousek stálého lístku bistra U Lípy:
+
+```yaml
+# stale-menu.yaml — stálý lístek, meni se par krat rocne
+polevky:
+  - nazev: Kulajda
+    popis: s koprem, zastreným vejcem a lesními houbami
+    cena: 65
+    alergeny: [1, 3, 7]
+    stitky: [vegetarianske, bez-orechu]
+    foto: kulajda.jpg
+
+hlavni:
+  - nazev: Svíčková na smetaně
+    popis: hovězí zadní, houskový knedlík, brusinky
+    cena: 189
+    alergeny: [1, 3, 7, 9, 10]
+    stitky: [klasika]
+    foto: svickova.jpg
+
+  - nazev: Smažený sýr
+    popis: eidam v trojobalu, vařené brambory, domácí tatarka
+    cena: 145
+    alergeny: [1, 3, 7]
+    stitky: [vegetarianske]
+    foto: smazak.jpg
+```
+
+A takhle týdenní menu — samostatný soubor na každý týden, pojmenovaný podle data, aby historie zůstávala:
+
+```yaml
+# tyden-2026-34.yaml — obedove menu 17.-21. 8. 2026
+platnost: 17.-21. 8. 2026
+polevka_tydne:
+  nazev: Rajská s rýží
+  cena: 55
+  alergeny: [9]
+  stitky: [vegetarianske, bez-lepku]
+
+pondeli:
+  - nazev: Kuřecí steak na grilu
+    popis: pečené brambory, bylinkové máslo
+    cena: 165
+    alergeny: [7]
+    stitky: [bez-lepku]
+  - nazev: Čočka na kyselo
+    popis: sázené vejce, kyselá okurka, chléb
+    cena: 135
+    alergeny: [1, 3]
+    stitky: [vegetarianske]
+
+utery:
+  - nazev: Vepřo knedlo zelo
+    popis: pečená plec, houskový knedlík
+    cena: 155
+    alergeny: [1, 3, 7]
+    stitky: [klasika]
+```
+
+Tři vlastnosti dělají z tohoto souboru zdroj pravdy. Za prvé **úplnost**: každé jídlo tu má všechno, co kterýkoli výstup potřebuje — tisk si vezme název, popis a cenu, web navíc štítky a fotku, tahák pro obsluhu alergeny a popis. Za druhé **jednoznačnost**: existuje právě jedna cena kulajdy a je tady; když se web a tisk liší, je to chyba odvození, ne otázka „která verze platí". Za třetí **kontrolovatelnost**: nad strukturovanými daty jdou psát kontroly — chybí někde cena? má každé jídlo alergeny? — které nad wordovým dokumentem napsat nejdou.
+
+Čísla alergenů odpovídají evropskému seznamu čtrnácti povinně značených alergenů (1 lepek, 3 vejce, 7 mléko, 9 celer, 10 hořčice…) — víc v samostatné kapitole níže; teď stačí, že jsou to data jako každá jiná.
+
+### Převod starých menu na strukturu
+
+Nezačínáte na zelené louce — máte měsíce starých wordových menu z inventury. Nechte je převést, jednak kvůli stálému lístku, jednak proto, že se z nich model naučí vaši strukturu.
+
+```text
+Ve složce podnik-ulipa/stara-menu jsou wordové soubory týdenních menu
+za poslední tři měsíce a PDF stálého lístku.
+
+1. Převeď stálý lístek do souboru stale-menu.yaml se strukturou:
+   nazev, popis, cena, alergeny (čísla dle EU seznamu, POKUD jsou
+   ve zdrojovém lístku uvedená — nikdy je nedoplňuj odhadem, chybějící
+   označ TODO-ALERGENY), stitky, foto (zatím prázdné)
+2. Z týdenních menu vytvoř šablonu tyden-VZOR.yaml: polévka týdne
+   plus dvě až tři jídla na každý den, stejná pole
+3. Vypiš nekonzistence, které jsi při převodu našel: stejné jídlo
+   s různými cenami v různých týdnech, různé psaní téhož názvu,
+   jídla bez alergenů
+4. Navrhni seznam štítků, které dávají u naší nabídky smysl
+   (vegetarianske, bez-lepku, klasika, sezonni…) — schválím ho,
+   než ho použiješ
+
+Ceny přepisuj přesně po znacích, nic nezaokrouhluj.
+```
+
+Dvě věci pohlídejte. Bod o alergenech je zásadní: model **nesmí** alergeny doplňovat podle názvu jídla („svíčková, tak asi lepek") — buď byly ve zdroji, nebo je tam TODO a doplní je kuchyně. A projděte seznam nekonzistencí z bodu 3 — je to bezplatný audit toho, co se za měsíce ručního přepisování rozjelo; často tam najdete i cenové rozdíly, o kterých jste nevěděli.
+
+### Kde má zdroj žít: git, nebo sdílená složka
+
+Soubor musí někde bydlet — tak, aby k němu mohl každý, kdo ho potřebuje, a nikdo ho omylem nezničil. Dvě rozumné možnosti:
+
+- **Sdílená složka** (Google Drive, Dropbox, OneDrive). Jednodušší start: složku znáte, Claude Cowork nad ní umí pracovat, telefon do ní dosáhne. Nevýhoda: historie změn je omezená a „kdo přepsal cenu a proč" se zpětně dohledává špatně. Pro podnik, kde menu mění jeden člověk, to stačí.
+- **Git repozitář** (soukromý, třeba na GitHubu). Zní to jako věc pro programátory, ale nemusíte umět git — Claude Code ho ovládá za vás a vy schvalujete. Výhody jsou tři a v gastru citelné: **historie** (každá změna ceny má datum, autora a zdůvodnění — za půl roku dohledáte, kdy a proč zdražila svíčková), **schvalování** (kuchař navrhne změnu, majitelka schválí — víc o tom v kapitole o bezpečnosti) a **záloha zadarmo** (repozitář je kopie mimo váš počítač).
+
+Prakticky se osvědčuje kombinace: zdroj v gitu, pracovní soubory (fotky před tříděním, hlasové záznamy) ve složce. Založení repozitáře je jeden prompt:
+
+```text
+Založ soukromý git repozitář ulipa-menu se strukturou:
+- stale-menu.yaml (vlož převedený stálý lístek)
+- tydenni/ (sem budou přibývat soubory tyden-RRRR-TT.yaml)
+- tyden-VZOR.yaml (šablona týdenního menu)
+- hlas-podniku.md (z fáze 1)
+- fotky/ (vybrané fotky jídel, názvy podle pole foto v menu)
+- README.md: k čemu repozitář je a pravidlo, že menu se mění JEN
+  tady — kdo chce změnit cenu nebo jídlo, mění tento repozitář,
+  všechno ostatní se odvozuje
+
+Přidej .gitignore na pracovní soubory a exporty. Před prvním commitem
+mi vypiš úplný seznam souborů — zkontroluji, že tam nejsou recepty,
+kalkulace ani nic interního. Ty do tohoto repozitáře nepatří.
+```
+
+Poslední odstavec promptu je důležitý: repozitář s menu je kandidát na pozdější napojení na web, a proto v něm od začátku nemá být nic, co by nesneslo cizí oči. Recepty a kalkulace — vaše know-how a marže — držte v oddělené složce, která se nikam nenapojuje.
+
+### Kontrola zdroje: validace jedním promptem
+
+Síla strukturovaných dat je v tom, že se dají kontrolovat strojově. Udělejte si z téhle kontroly rituál — poběží každé pondělí po zapsání nového menu, než se cokoli odvodí.
+
+```text
+Zkontroluj soubor tydenni/tyden-2026-34.yaml proti pravidlům:
+1. Každé jídlo má nazev, cenu a alergeny (i prázdný seznam [] je
+   v pořádku — znamená „ověřeno, bez alergenů"; CHYBĚJÍCÍ pole je chyba)
+2. Ceny jsou celá čísla v rozumném rozsahu pro obědové menu
+3. Alergeny jsou čísla 1-14, nic jiného
+4. Štítky jen ze schváleného seznamu ve stale-menu.yaml
+5. Jídlo, které je zároveň ve stálém lístku, má STEJNOU cenu jako
+   tam — pokud ne, vypiš rozdíl, je to buď překlep, nebo zapomenuté
+   přecenění
+6. Named jídla proti minulým týdnům: stejné jídlo, jiná cena nebo
+   jiné alergeny než minule — vypiš k ruční kontrole
+Vrať výsledek jako checklist: co prošlo, co ne, co doporučuješ
+opravit. Nic neopravuj sám.
+```
+
+Vrátí kontrolní zprávu. Body 5 a 6 jsou přesně ty chyby, které se v ručním režimu nedaly chytit vůbec — teď je chytá stroj dřív, než je uvidí host. Všimněte si rozdílu mezi „prázdné alergeny" a „chybějící alergeny": prázdný seznam znamená, že se kuchyně podívala a alergeny nejsou; chybějící pole znamená, že se nepodíval nikdo. Ten rozdíl dělá z tabulky systém.
+
+### Neděle večer: diktát místo psaní
+
+Zbývá vyřešit vstup: jak se nové menu do zdroje dostane. Psát YAML v neděli večer nikdo nechce — a nemusí. Jana nadiktuje menu do telefonu, jak jí to jde od pusy, a převod je práce pro AI.
+
+```text
+Tady je přepis hlasové zprávy s menu na příští týden [vložit přepis
+nebo rovnou nahrávku]: „...v pondělí bude kuřecí steak s pečenýma
+bramborama a pak čočka na kyselo s vejcem, polívka celý týden rajská...
+v úterý vepřo knedlo zelo..."
+
+Převeď to do tyden-2026-35.yaml podle šablony tyden-VZOR.yaml:
+1. Názvy a popisy jídel uprav do podoby na lístek (podle stylu
+   stale-menu.yaml — spisovně, ale ne škrobeně)
+2. Ceny: kde jsem cenu neřekla, použij cenu stejného jídla
+   z minulých týdnů a OZNAČ ji otazníkem k potvrzení; nové jídlo
+   nech bez ceny s TODO
+3. Alergeny: NEVYPLŇUJ. Ke každému jídlu dej TODO-ALERGENY
+   a vygeneruj mi kontrolní seznam pro kuchyni
+4. Vypiš, co ti v diktátu chybělo (čtvrtek jsem možná přeskočila)
+
+Výsledek mi ukaž ke kontrole, nikam ho zatím neukládej.
+```
+
+Tenhle prompt je pondělní vstupní brána celého systému. Znovu si všimněte dělby práce u alergenů: AI strukturuje a hlídá úplnost, ale hodnoty dodává kuchyně. A bod 4 je typický zisk z převodu přes AI — model si všimne, že čtvrtek v diktátu chybí, což by kopírování z Wordu nikdy neudělalo.
