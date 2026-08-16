@@ -1,6 +1,6 @@
 ---
 title: "An internal CRM with Supabase: a detailed guide from data to deployment"
-excerpt: "A continuation of Marta the roastery owner’s story: a complete guide with 14 prompts showing how to turn contacts in your phone and orders in spreadsheets into a real CRM — a data model in SQL, roles and Row Level Security, a newsletter connected through Brevo, and deployment on Vercel."
+excerpt: "A continuation of Marta the roastery owner’s story: a complete beginner’s guide to turning contacts in your phone and orders in spreadsheets into your own CRM — from explaining what a database even is, through click-by-click Supabase setup and deployment on Vercel, to a cost reckoning with real numbers against off-the-shelf CRMs."
 category: "ai"
 platform: "vsude"
 audience: ["manazer", "freelancer"]
@@ -9,17 +9,22 @@ saves: "~months of custom development"
 date: "2026-08-16"
 updated: "2026-08-16"
 tldr: >-
-  A homemade internal CRM isn’t a software-company-sized project — it’s five
+  A homemade internal CRM isn’t a project for a software company — it’s five
   tables in PostgreSQL, a handful of security policies, and a simple web app
-  you can build with Claude Code over a few evenings. This guide walks
-  through the whole build: an inventory and cleanup of the data you already
-  have (contacts, business cards, spreadsheets of orders), a data model with
-  a SQL schema, admin/sales/viewer roles enforced directly in the database
+  you can build with Claude Code over a few evenings, even if you’ve never
+  seen a line of SQL. The guide walks complete beginners through the whole
+  build: a glossary of terms, a database explained as a filing cabinet with
+  drawers, an inventory and cleanup of the data you already have (contacts,
+  business cards, spreadsheets of orders), a data model with a SQL schema
+  explained sentence by sentence, click-by-click setup of a Supabase project
+  in the EU, admin/sales/viewer roles enforced directly in the database
   through Row Level Security — never only in the UI — a newsletter connected
-  through Brevo with GDPR columns built into the schema, an honest cost
-  reckoning (free tiers cover the build, not ongoing operation), and
-  deployment on Vercel with mandatory sign-in. A human always approves every
-  write to live data.
+  through Brevo with GDPR columns built into the schema, deployment on Vercel
+  including environment variables and backups, and a cost reckoning with
+  real numbers: running your own CRM comes out to the low thousands of
+  crowns a month for the whole company, while an off-the-shelf CRM lands in
+  the higher end of that range for just five people. A human always
+  approves every write to live data.
 faq:
   - q: >-
       Why build your own CRM when off-the-shelf ones already exist?
@@ -36,10 +41,10 @@ faq:
     a: >-
       Being able to read it, yes; write it, no. Claude Code drafts the SQL
       migrations and policies; your job is to have each one explained in
-      plain language and to approve it. This guide walks through every
-      column and every policy sentence by sentence for exactly that reason —
-      so you approve with real understanding. Don’t run anything you don’t
-      understand, at least at that level.
+      plain language and to approve it. The guide walks through every
+      column and every policy sentence by sentence for exactly that reason
+      — so you approve with real understanding. Don’t run anything you
+      don’t understand, at least at that level.
   - q: >-
       What is Row Level Security, and why isn’t hiding buttons in the app
       enough?
@@ -78,6 +83,28 @@ faq:
       use only. For company operation, budget for paid tiers — it’s still
       a fraction of the cost of an off-the-shelf CRM billed per user, and
       nowhere near as much as one lost wholesale customer.
+  - q: >-
+      How much does running your own CRM cost per month?
+    a: >-
+      As of August 2026, the stack — Supabase Pro (25 USD), Vercel Pro
+      (20 USD), Brevo Starter (from 9 USD), a Claude Pro subscription
+      (20 USD), and a domain — comes out to roughly 74 USD a month, or
+      around 1,600 CZK a month at 21 CZK to the dollar, for the whole
+      company regardless of how many people use it. Free tiers cover the
+      build and testing, so the first few months you’re only paying for
+      the Claude subscription. Prices change, so check current pricing
+      before you decide.
+  - q: >-
+      Who shouldn’t bother building their own CRM?
+    a: >-
+      A company where nobody wants to be responsible for the system —
+      a homemade CRM needs its own person: someone who runs backups,
+      manages access, and gives it an evening of maintenance every so
+      often. And a company that needs advanced off-the-shelf CRM features
+      right away: a sales pipeline with automations, telephony, advanced
+      reporting. You can build those in over time, but the first version
+      is five tables and a couple of views — if you need more on day one,
+      an off-the-shelf solution saves both time and money.
 ---
 
 In the [guide on the brand as a system](/tipy/firma-brand-voice-brozura-web-crm), the model roastery went through five phases — and the last one, an internal CRM with Supabase, only got the basic outline: an EU region, Row Level Security from the first migration, an agent that reads and suggests. But between “I know I need to lock down the CRM” and “I have a CRM the team actually writes to” lies an entire build: what data to start from, what the tables look like, how roles get enforced, where the newsletter fits, and what it will cost. This guide walks through that build step by step.
@@ -85,6 +112,32 @@ In the [guide on the brand as a system](/tipy/firma-brand-voice-brozura-web-crm)
 The core idea: **a small company doesn’t need a CRM with a hundred features — it needs five tables that match how it actually operates, and a database that enforces on its own who’s allowed to do what.** Everything else is a bonus layer. That’s exactly what makes building your own CRM realistic even for a company with no developer: Claude Code drafts the SQL, the policies, and the app; you decide and approve.
 
 Read it phase by phase — they follow the order you build in: data, locks, integrations, cost reckoning, the build itself. Every phase has copy-paste prompts; replace the brackets with your own details. And the principle from the previous guide holds from the very first line: company and personal data belong only in a paid account with contractual data protection, never in an anonymous free chat.
+
+One more thing before we start: this guide is written for someone who has never seen SQL, never set up a database, and hears the word “migration” and thinks of birds. Before every block of code and every prompt there’s a sentence explaining what’s about to happen and what you’ll see — so you never run anything blind. Readers with more experience can skip the explanatory passages; the code and the prompts work the same for both groups. If you need to get comfortable working with Claude first, start with the [beginner’s guide](/tipy/ai-zacatecnik-instalace-a-rozdily) and come back here.
+
+How much time to set aside, phase by phase and soberly: the data inventory and cleanup takes one or two evenings plus ongoing follow-up (the most time-consuming phase — and deliberately the first one, because without it the rest is a build on sand), the data model and roles are an evening of reading and approving, the newsletter is an evening, the cost reckoning is an hour, building and deploying the app is one to two evenings, and the import with views is another evening. All told, the four evenings and a weekend already mentioned — comfortably spread across three weeks; there’s no need to rush, and the phases will wait for you. The worst plan is “let’s do the whole thing in one weekend”: cleaning data needs a fresh head, and approving policies can’t be hurried.
+
+## A glossary: fifteen terms you’ll meet in this guide
+
+Reading a guide full of unfamiliar words is exhausting. Here’s a glossary — you don’t need to memorize it, just know it’s here, and come back to it. Every term is explained in one sentence, the way you’ll need it in this guide, not the way a textbook would define it.
+
+- **Database** — a program that keeps data more reliably than a pile of spreadsheets: it makes sure nothing gets lost, that several people can access the same data at once, and that the rules you set actually hold. Picture a filing cabinet with drawers — we’ll go through it in detail in phase one.
+- **Table** — one drawer of that filing cabinet: it holds records of one kind (companies, contacts, orders). A row is one card, a column is one field on that card.
+- **PostgreSQL** — the specific database program, often just called Postgres. It’s free, has been developed for over thirty years, runs half the internet, and Supabase is built on top of it.
+- **Supabase** — a service that rents you PostgreSQL as a ready-made thing: you click around in a dashboard, they run the servers. They bolt on user sign-in and an API — which is why it’s the heart of this build.
+- **SQL** — the language you use to talk to a database. It reads like English for robots: “create table companies” means exactly that. In this guide you’ll never write it, only read and approve it.
+- **Migration** — one documented building step for the database, saved as a file of SQL commands: “add a table,” “add a column.” The database is never changed by manual poking around, always by a migration — which is exactly why you can always look up who changed what, and when.
+- **Schema** — the sum of all the tables and their columns; the floor plan of the whole filing cabinet. It’s built up gradually by running migrations.
+- **Foreign key** — a column that points to a record in another table: an order doesn’t carry a full copy of the company, just its identifier. The database then makes sure that reference always points to a record that actually exists.
+- **Row Level Security (RLS)** — rules written directly into the database, deciding who’s allowed to read, change, and delete which row. A gatekeeper who checks ID at every single row — covered in detail in phase two.
+- **Supabase Auth** — built-in sign-in: email and password, invitations, sign-out. You never store passwords yourself; Supabase does that for you.
+- **Anon key** — the public key your app uses to talk to the database’s API. On its own it grants no rights to data — that’s decided by RLS, based on who’s signed in.
+- **Service role key** — a master key that bypasses RLS. It belongs only on the server, never in the browser or in git; in this guide only import scripts and webhooks will use it.
+- **Environment variable** — a way to give a running app secrets (keys, passwords) without writing them into the code. On Vercel it’s a form in the project settings — we’ll show you exactly where.
+- **Vercel** — the service that will host your CRM’s web app. It connects to GitHub and redeploys the app automatically every time the code changes.
+- **CSV** — the simplest spreadsheet format: plain text, values separated by commas. The universal language between spreadsheets, contact exports, and databases — every import in this guide goes through CSV.
+
+Terms like dry run, webhook, or JWT get explained right where you first meet them — pulled out of context here, they’d just be scary.
 
 ## A typical scenario
 
@@ -94,21 +147,48 @@ The consequences are concrete. The café U Mlýna hadn’t ordered in three mont
 
 After the rebuild this guide describes, the same operation looks like this: one database in the EU that Marta, Petr, and the bookkeeper each sign into with their own account and a role matching their job. Orders get imported from spreadsheets, meeting notes get written against the company, not stored in someone’s head. The Monday view of “who hasn’t ordered in over six weeks” flags three cafés before they get a chance to leave. And the newsletter only goes to contacts with a dated consent record in the database. The build took four evenings and a weekend; the longest part, as always, was cleaning the data.
 
+One thing worth saying up front: Marta isn’t technical. Before the build she couldn’t read a line of SQL, pictured a database as “something big companies have,” and heard the word deployment for the first time from Claude. She didn’t need to learn any of it in advance — she learned it in exactly the order and exactly the depth the build called for, and this guide is sequenced the same way. Her real qualification was something else entirely, and irreplaceable: she knows her business. She knows the cafés order on a roughly six-week rhythm, that trade-show business cards are half dead contacts, and that the bookkeeper needs to see orders but has no business editing contacts. No AI knows any of that — which is exactly why the division of labor this whole guide rests on works: Marta decides what the system should do and who’s allowed to do what; Claude Code knows how that turns into SQL and code.
+
 ## Phase 1: a data inventory — what to actually build the CRM from
 
 The biggest mistake at the start is to begin with the technology: set up a project, generate tables, and then discover you have nothing to put in them. The right order is the reverse: first an inventory of what the company already has, then cleanup — and only then does the data model emerge from the cleaned data.
 
+### A database in plain terms: a filing cabinet with drawers
+
+Before we touch any data, let’s get straight on what we’re actually building. If you’ve never seen a database before, this picture will carry you through the whole guide; if you have, skip to the next subsection.
+
+Picture an old paper filing cabinet — a cupboard full of drawers, the kind a doctor’s office used to have. The whole cupboard is the **database**. Each drawer is a **table**: one drawer for companies, another for contact people, a third for orders. Inside a drawer are cards — each card is one **row**: one specific company, one specific person. And each card has preprinted fields — **columns**: name, tax ID, city. The preprinted fields are the important detail: you can’t write anything on the card outside those fields, and that’s exactly what sets a database apart from a spreadsheet. In a spreadsheet you can type “ask Petr” into a cell meant for an amount and nobody stops you; a database refuses that write outright, because a field for an amount only accepts numbers.
+
+How does the cupboard differ from the pile of spreadsheets you have today? Four ways you’ll appreciate every day. First, **one truth**: the card for café U Mlýna exists exactly once, not in three files with three different versions of its phone number. Second, **rules**: the cabinet checks that a tax ID has eight digits, that an order always belongs to a company that actually exists, and that a second card with the same tax ID simply won’t fit in the drawer. Third, **concurrent work**: Marta and Petr can read and write at the same time and never overwrite each other’s file the way a shared spreadsheet lets you. And fourth, **a gatekeeper at the door**: the cabinet knows who’s asking and shows or hides cards accordingly — that’s Row Level Security, covered in phase two.
+
+You talk to the cabinet in **SQL**. It sounds off-putting, but it’s the most readable programming language there is — the commands read almost like English sentences. Here’s what happens now and what you’ll see: the example below is read-only, don’t paste it anywhere — it’s here to show you that you can read SQL even without a course.
+
+```sql
+select name, city, tax_id
+from companies
+where city = 'Brno'
+order by name;
+```
+
+Translated literally: “pick name, city, and tax ID from the companies drawer, only cards with city Brno, sort by name.” That’s it. `select` says which fields you want to see, `from` says which drawer, `where` is a condition, and `order by` is the sort order. Eighty percent of the SQL you’ll ever run into is a variation on this exact sentence. The remaining twenty percent are the commands that build the cabinet — `create table` manufactures a new drawer with preprinted fields, and you’ll meet it shortly in the data model section, where we’ll go through it sentence by sentence.
+
+And one last term: **migration**. The cabinet is never secretly remodeled — every change (“add a drawer,” “add a field for newsletter consent”) gets written down as a numbered file of SQL commands, and that file gets run. The payoff is huge: after a year of running the system, you have a complete history of how the cabinet grew, and if you build a second one (for testing), you run the same migrations and get an exact copy. That’s why you’ll never hear “click around in the dashboard and add a column” in this guide — always “write a migration.” Claude Code writes them; you read and approve.
+
 ### What you already have, you just don’t know it
+
+One more question before we go on, the one everyone asks: why isn’t one solid shared spreadsheet or a Google Sheet enough? For up to about two people and a few hundred rows, it honestly is — that’s fair to say. The breaking point comes with the third person and the first need for rules: a spreadsheet doesn’t check that an order belongs to a company that exists, doesn’t distinguish who’s allowed to delete versus only read, doesn’t keep a change history (“who overwrote that phone number?”), and at eighty companies and three years of orders it becomes exactly what it is today — a file called “FINAL v3” that nobody trusts. A database is a spreadsheet that grew up: the same rows and columns, but with rules, roles, and one truth. If you’re at two people and ten customers, save this article for later; if you recognize yourself in Marta’s situation, keep reading.
 
 Almost no company starts from zero. The typical sources worth exporting:
 
-- **Contacts in your phone and email.** Both phones and Gmail/Outlook can export to CSV or vCard — have every team member who talks to customers do it. Expect duplicates and half-complete records; that’s normal, and gets handled in the next step.
+- **Contacts in your phone and email.** Both phones and Gmail/Outlook can export to CSV or vCard — have every team member who talks to customers do it. Specifically for Google: contacts.google.com → select contacts → Export → Google CSV; for an iPhone, iCloud.com → Contacts → export vCard. Expect duplicates and half-complete records; that’s normal, and gets handled in the next step.
 - **Business cards.** A box from trade shows is a goldmine, handwritten margin notes included — how Claude Cowork turns it into a table, transcribing the handwriting along the way, is covered in a separate guide on [business cards into a CRM](/tipy/vizitky-do-crm-claude-cowork). Its output CSV is exactly the format you need right now.
 - **Orders in spreadsheets.** Even inconsistent spreadsheets spanning three years are history that a “who’s ordering less” view will later grow out of. Gather every version, even the ugly ones.
 - **Invoices.** Your invoicing tool can export data — and invoices are the most reliable source of tax IDs, billing addresses, and actual amounts. Where the spreadsheets and the invoices disagree, trust the invoices.
 - **Communication history.** Don’t import whole email threads; pull out only the facts about the relationship — when the last meeting happened, what was agreed. Leave the rest in your inbox; a CRM isn’t an email archive.
 
-The first prompt doesn’t clean anything — it just maps the terrain. Working with data rewards the same rhythm as the brochure in the previous guide: draft, approve, only then build.
+Where do you upload these exports? The most comfortable option is Claude Cowork — a desktop mode that works over a folder of files: set up a folder called “crm-source-data,” drop every export into it, and Cowork sees them all at once. Alternatively, you can upload files one by one into a conversation on claude.ai. Either way, the rule from the introduction applies: customer personal data only in a paid account.
+
+Here’s what happens now and what you’ll see: the first prompt doesn’t clean anything — it just maps the terrain. It returns a summary table (file, number of records, columns, problems) and a list of findings; none of your files change. Working with data rewards the same rhythm as the brochure in the previous guide: draft, approve, only then build.
 
 ```text
 I'm preparing data for our company's internal CRM [a small coffee
@@ -136,6 +216,8 @@ You’ll get back a map of the terrain — and almost always a surprise along th
 
 Dirty data in a CRM is worse than no data — three records for the same café mean orders get split among them and no view shows the truth. AI speeds up cleanup considerably; the decision to merge records stays with you.
 
+Here’s what happens now and what you’ll see: this prompt returns two things — a cleaned version of your data (new files, the originals stay untouched) and, separately, a list of suspected duplicates as pairs: “record A — record B — why I think they’re the same.” You’ll work through that list by hand, pair by pair.
+
 ```text
 Clean up the uploaded contacts and companies data using these rules:
 1. Convert phone numbers to international format [+420 and nine
@@ -155,7 +237,7 @@ Return the cleaned table and, separately, the list of proposed merges.
 
 Point 4 is the core of it: **AI proposes deduplication, a human approves it** — automatically merging two branches of the same chain into one record is a mistake that takes months to notice. For tax IDs, a second pass is worth it: have uncertain ones verified against the public ARES business register and have the official name and registered address filled in — but the model has to state, for every record, that it actually verified it, not just claim it checks out.
 
-When the duplicates are resolved, all that’s left is reshaping the data into the future tables’ format:
+When the duplicates are resolved, all that’s left is reshaping the data into the future tables’ format. Here’s what happens now and what you’ll see: the prompt produces four CSV files named exactly after the CRM tables, plus one file of leftovers (unmatched orders), and prints checksums at the end. Save those files — they won’t get imported until phase five, they’re just being created now.
 
 ```text
 From the approved, cleaned data, produce import CSV files that match
@@ -176,6 +258,8 @@ Checksums aren’t a formality — they’re the only place you’ll notice that
 ### The data model: five tables is enough
 
 Now, finally, the schema. Five tables are enough for a small company — resist the urge to add more “just in case”; every extra table is a table someone will have to keep filling in.
+
+Here’s what happens now and what you’ll see: the following two SQL blocks are a schema proposal — for now you just read and approve it; it won’t actually run until phase five, in Supabase’s SQL editor (we’ll show exactly where, click by click). Once you run it, the editor prints the laconic “Success. No rows returned” — that’s fine, `create table` doesn’t return any data, it just builds a drawer. A sentence-by-sentence explanation follows each block; read it alongside the code.
 
 ```sql
 create table companies (
@@ -199,14 +283,22 @@ create table contacts (
 );
 ```
 
-In plain terms: `id` is a random identifier the database generates — you never make one up by hand. `name` is required (`not null` — a company without a name doesn’t make sense), `tax_id` is `unique`, so the database itself refuses a second company with the same tax ID — a safeguard against future duplicates. `category` (café, hotel, online shop) is plain text; turn it into a lookup table once you actually have a reason to. On the contact, `company_id` is the link to a company: `on delete set null` means deleting a company doesn’t delete the contact, it just orphans it — contacts are relationships with people, and people change companies. `source` answers the question “where did we get this from” — useful operationally and for GDPR. And `created_at` with `timestamptz` stores the moment of creation including the time zone.
+Let’s go through the first block literally, line by line — thoroughly, once, so the rest of the tables read themselves. `create table companies (` says: build a new drawer named companies; everything between the parentheses is the list of its columns, one per line, separated by commas. A column line always has the same shape: name first, then a data type (what the column is allowed to hold), then any constraints.
+
+First column: `id uuid primary key default gen_random_uuid()`. The name is `id`, the type is `uuid` — a long random identifier that looks roughly like “a1b2c3d4-…”, practically impossible to generate twice the same. `primary key` means primary key: the card’s main, guaranteed-unique label, the one other drawers will use to point back to it. And `default gen_random_uuid()` says: if you don’t supply an id when creating a record, the database generates one itself. In practice you never make one up yourself — why risk a typo when a machine can do it flawlessly.
+
+The rest of the columns you can already read: `name text not null` is a text field that can’t be left empty — a company without a name doesn’t make sense, and the database rejects a write without one with an error. `tax_id text unique` is text (deliberately not a number — a tax ID can start with a zero, and a numeric type would silently drop a leading zero) with the `unique` constraint: the drawer won’t accept a second card with the same tax ID. That’s a safeguard against future duplicates — all the hard work of cleanup from the previous subsection would be pointless if duplicates could still creep back in. `city text` and `category text` are ordinary optional text fields; category (café, hotel, online shop) could eventually become a lookup with an approved list of values, but build that once you actually have a reason to. And `created_at timestamptz not null default now()` is a creation timestamp: the type `timestamptz` stores the moment including its time zone (without that, daylight saving and backups crossing midnight turn into a mystery), and `default now()` fills it in automatically.
+
+The `contacts` table adds one new thing — the most important one in the whole schema: `company_id uuid references companies (id)`. That’s a **foreign key** — a column that only accepts the id of a company that actually exists. Let’s see why that’s priceless, using an order as the example. In a spreadsheet, an order has the text “U Mlýna” in a “customer” column — and another row has “Café U Mlýna,” and a third has “u mlyna.” Are those three customers, or one? Nobody knows. In the database, an order carries a `company_id` pointing to a specific id — and the database checks, on write, that a card with that id really exists in the companies drawer. An order for a nonexistent company simply can’t be saved; a typo in a name stops being possible, because nothing gets linked by name anymore. The `on delete set null` addition then answers the question “what happens to a contact if I delete their company”: the contact doesn’t disappear, its link just gets emptied out — it’s orphaned. That’s a deliberate choice: contacts are relationships with people, and people change companies; deleting all of a company’s people along with the company would be erasing memory. What’s left is `source text` — the answer to “where did we get this from,” useful both operationally and for GDPR — and `position text` for the person’s role at the company.
+
+Here’s what happens now and what you’ll see: the second block builds the remaining three drawers — orders, interactions, and notes. Running it again just prints “Success. No rows returned”; there are three new things in it, and we’ll go through them below the block.
 
 ```sql
 create table orders (
   id uuid primary key default gen_random_uuid(),
   company_id uuid not null references companies (id),
   date date not null,
-  amount_czk numeric(12,2) not null,
+  amount numeric(12,2) not null,
   items text,
   source text,
   created_at timestamptz not null default now()
@@ -232,19 +324,31 @@ create table notes (
 );
 ```
 
-An order stores its amount as `numeric(12,2)` — an exact decimal number, never `float`, which rounds. `items` is plain text for now (“3× Ethiopia 1 kg, 2× espresso blend”); breaking it out into line items is a classic case of over-engineering a first version. `interactions` is a relationship diary — one row per call or meeting; `check` restricts the type to an approved list, so “meeting” can’t end up spelled five different ways in the data. `notes` are free-form notes on a company. The `author` column on both is reserved for now — it gets filled in during phase 2, once user accounts exist. And notice what’s missing from the schema: no newsletter columns. Those arrive in phase 3 as their own migration — the schema evolves step by step, and every step is a documented migration, not a quiet manual change to the database.
+New thing number one: an order’s amount is `numeric(12,2)` — an exact decimal number, twelve digits total, two of them after the decimal point. Never the `float` type: it stores numbers only approximately, and once you’ve summed thousands of orders, the tiny rounding errors add up into whole-crown discrepancies — your bookkeeper will thank you for avoiding that trap. Next to the amount, notice `date date not null` — the `date` type is just a day with no time, which is all an order needs — and `company_id uuid not null references companies (id)`: here the foreign key is required too, because an order without a company doesn’t make sense (unlike a contact, which is allowed to end up orphaned). `items` is plain text for now (“3× Ethiopia 1 kg, 2× espresso blend”); breaking it out into line items is a classic case of over-engineering a first version.
+
+New thing number two: `check` on the interactions table. `interactions` is a relationship diary — one row per phone call, per meeting — and the `check (type in (…))` constraint is a list of approved values: the database rejects a write with a type outside that list. Without it, six months in you’d have “meeting,” “Meeting,” and “call/meeting” scattered through the data, and filtering by type would stop working. New thing number three: the `author` column of type `uuid`, on both interactions and notes, is just reserved for now — it gets filled in during phase 2, once user accounts exist, and will hold the id of whoever signed in and logged the record. `notes` are free-form notes on a company; unlike interactions they have no type or event date — they’re observations (“they want to switch to a decaf offering next year”), not a diary.
+
+And notice what’s missing from the schema: no newsletter columns. Those arrive in phase 3 as their own migration — the schema evolves step by step, and every step is a documented migration, not a quiet manual change to the database. This is exactly how your CRM keeps growing after this guide ends too: a new requirement, a new migration, history in git.
 
 ## Phase 2: roles and locks — who’s allowed to do what
 
 The previous guide laid down the principle: RLS from the first migration, an EU region, no homemade cryptography. Now we’ll turn that principle into concrete policies for the three roles a small company needs: **admin** (Marta — can do everything, including delete), **sales** (Petr — reads and writes, doesn’t delete), and **viewer** (the bookkeeper and the part-timer — read only).
 
-### Signing in: Supabase Auth, and nothing homemade
+But first, Row Level Security itself, in plain terms, because the whole phase rests on it. Picture a gatekeeper who doesn’t stand at the door to the building, but at every single drawer of the cabinet — and more than that, at every single card. Whenever anyone asks for anything, the gatekeeper checks their ID (who are you? what’s your role?) and the rules (is this role allowed to read this card? change it? delete it?) — and only then hands the card over, or doesn’t. What matters is where the gatekeeper stands: **inside the database, not in the app.** It doesn’t matter whether you’re asking through the web app, through a clever script, or whether an attacker connects to the database entirely outside your app — the gatekeeper is always in the way, because the rules are evaluated on every single query, right where the data lives. The rules are called policies, and they’re written in SQL; we’ll go through them sentence by sentence shortly.
 
-Supabase Auth handles the entire login flow: email and password, or a magic link — a link sent to your inbox that signs you in the moment you click it, no password needed, which non-technical teams often find friendlier. You don’t create accounts by hand; the admin panel has invitations, so you invite the roastery’s six people by email, and an employee leaving is a single click — a deactivated account gets cut off from everything at once by the policies. The rule from last time holds unchanged: never roll your own password storage; that’s exactly the part you’re buying off the shelf.
+### Signing in: Supabase Auth and nothing homemade
+
+For the gatekeeper to be able to check IDs, someone has to issue them — that’s sign-in. Supabase Auth handles the whole thing: email and password, or a magic link — a link sent to your inbox that signs you in the moment you click it, no password needed; non-technical teams often find it friendlier. The rule from last time holds unchanged: never roll your own password storage; that’s exactly the part you’re buying off the shelf.
+
+What this looks like in the Supabase dashboard, once you’ve set up a project in phase five: the left-hand menu has an **Authentication** item. Under it you’ll find **Sign In / Providers** — a list of sign-in methods, where **Email** is the only one turned on from the moment the project is created; check that it shows “Enabled,” and don’t turn anything else on (an internal CRM has no need for Google or Apple sign-in, and every disabled provider is one less thing to worry about). The same page has a “Confirm email” setting — leave it on, so nobody can register with someone else’s address.
+
+You invite your first user by clicking too: **Authentication → Users**, and the **Invite user** button top right. Enter an email, Supabase sends an invite link, the person sets their password after clicking it — and a row with their account identifier appears in the Users list. That’s exactly how you invite all six people from the roastery; no manually creating accounts, no passwords sent over Slack. And an employee leaving? Three dots next to their row → Delete user — the policies cut them off from everything at once, because without a valid sign-in the gatekeeper hands over nothing.
+
+Password, or magic link? Practical advice for a small team: offer both in the app and let people choose. Passwords suit people who have a password manager; magic links suit people who’d save the password in their browser anyway or, worse, write it on a sticky note. Magic links have one catch worth knowing: account security becomes equal to inbox security, since whoever reads the mail can sign in. For a team, that means one extra rule: a company email with two-factor authentication, no shared inboxes used for signing into the CRM.
 
 ### The profiles table: where roles live
 
-Supabase Auth keeps users in its own system table, one you don’t touch directly. So roles live in your own `profiles` table, linked to the user through their `id`:
+Supabase Auth keeps users in its own system table, one you don’t touch directly. So roles live in your own `profiles` table, linked to the user through their `id`. Here’s what happens now and what you’ll see: the following migration creates the profiles table, turns on RLS for it, and adds a helper function; in the SQL editor you’ll see the usual “Success. No rows returned,” and profiles appears in the table list. This is the first block where you’ll meet the `alter table`, `create policy`, and `create function` commands — we’ll go through all three below it.
 
 ```sql
 create table profiles (
@@ -272,11 +376,13 @@ as $$
 $$;
 ```
 
-Sentence by sentence. `id ... references auth.users` says: a profile only exists for a real account, and `on delete cascade` means deleting the account deletes the profile too. A new profile has `default 'viewer'`: **every newly invited person starts with the lowest privilege**, and an admin raises their role from there; the opposite default is a security hole. `check` makes sure the role is one of exactly three approved values. The policy on `profiles` grants signed-in users read access only — and because no write policy exists, writes through the regular API are simply forbidden: nobody can promote their own role, only an admin can change it from the Supabase dashboard. The `my_role()` function returns the role of whoever is currently signed in (`auth.uid()` is their identity, verified from the token), and every policy will call it; `security definer` and an empty `search_path` are safeguards that make the function always read the right table and never get caught in an RLS loop.
+Sentence by sentence, including the three new commands. You already know `create table profiles`; inside it, `id ... references auth.users` is a foreign key into the system table of accounts, so a profile only ever exists for a real account, and `on delete cascade` means deleting the account deletes the profile too (correct here: a profile with no account has nothing to do; compare with contacts, where we deliberately left records alive when a company gets deleted). A new profile has `default 'viewer'`: **every newly invited person starts with the lowest privilege**, and an admin raises their role from there; the opposite default would be a security hole. `check` makes sure the role is one of exactly three approved values.
+
+New command number one: `alter table profiles enable row level security` — this is where a gatekeeper gets posted at the drawer; before this moment there was none. New command number two: `create policy` writes the gatekeeper one rule — it has a name in quotes, a table, an operation (`for select` = reading), and a condition. This particular policy grants signed-in users read access only — and because no write policy exists, writes through the regular API are simply forbidden: nobody can promote their own role, only an admin can change it from the Supabase dashboard. New command number three: `create function` manufactures a named shortcut — the `my_role()` function returns the role of whoever is currently signed in (`auth.uid()` is their identity, verified from the token), and every policy will call it, so the same lookup doesn’t get rewritten twenty-five times over; `security definer` and an empty `search_path` are safeguards that make the function always read the right table and never get caught in a loop with RLS.
 
 ### RLS policies for three roles, sentence by sentence
 
-Now, the locks on the data. Here’s the pattern for `contacts` — the same pattern applies to the other tables:
+Now, the locks on the data — the rules the gatekeeper decides by. Here’s what happens now and what you’ll see: the block below is the pattern for the `contacts` table; the same pattern applies to the other tables (a prompt a little further down generates it). Running it in the SQL editor prints “Success” again — but the change is fundamental: from this moment the table won’t hand over a single row to anyone the policies don’t explicitly let in. If you want to browse policies by clicking later, they live under **Authentication → Policies** in the dashboard — for each table you can see the list of policies and whether RLS is turned on.
 
 ```sql
 alter table contacts enable row level security;
@@ -303,9 +409,11 @@ create policy "only admin can delete"
   using (public.my_role() = 'admin');
 ```
 
-The first statement turns RLS on — and from that moment the golden rule applies: **whatever no policy explicitly allows is forbidden.** A signed-out visitor therefore sees nothing, without you writing a single line for them — every policy targets `to authenticated`, i.e. signed-in users only. The `select` policy with `using (true)` says: any signed-in user may read every row — in a small team, transparency is a feature. The `insert` policy uses `with check`: the condition is evaluated against the row being inserted and only passes for the sales or admin role — a viewer gets an error straight from the database, no matter which app they try it from. `update` carries two conditions: `using` decides which existing rows a user may even touch, and `with check` makes sure the row doesn’t break the rules after the edit either. And `delete` is granted to a single role: deletion is irreversible, so make it rare. If the roastery later wanted a finer-grained rule — say, “only a note’s author may edit it” — the policy would just need to compare the `author` column with `auth.uid()`; that’s exactly why we added it back in phase 1.
+The first statement turns RLS on — and from that moment the golden rule applies: **whatever no policy explicitly allows is forbidden.** The gatekeeper doesn’t start with a list of things to refuse, it starts with the doors closed; policies are the exceptions that open them. A signed-out visitor therefore sees nothing, without you writing a single line for them — every policy targets `to authenticated`, i.e. signed-in users only.
 
-Have the migrations generated — and, above all, explained:
+Four policies correspond to the four things you can do with a card: read (`select`), create a new one (`insert`), edit (`update`), delete (`delete`). The `select` policy with `using (true)` says: every signed-in user may read every row — the condition “true” is always satisfied, the door’s wide open, but only for people carrying ID. In a small team, that transparency is a feature — a salesperson needs to see a colleague’s companies too. The `insert` policy uses `with check`: the condition is evaluated against the row being inserted and only passes for the sales or admin role — a viewer gets an error straight from the database, no matter which app they try it from. `update` carries two conditions, and the difference between them is worth remembering: `using` decides which existing rows a user may even touch (which rows the gatekeeper lets them near), `with check` makes sure the row doesn’t break the rules after the edit either (what state they’re allowed to leave the card in). And `delete` is granted to a single role: deletion is irreversible, so make it rare. If the roastery later wanted a finer-grained rule — say, “only a note’s author may edit it” — the policy would just need to compare the `author` column with `auth.uid()`; that’s exactly why we added it back in phase 1.
+
+Have the migrations for the remaining tables generated — and, above all, explained. Here’s what happens now and what you’ll see: the prompt returns a set of SQL files (RLS turned on plus four policies per the matrix, for every table) and a plain-language explanation for each one. Nothing runs yet — you read and approve migration by migration:
 
 ```text
 Generate SQL migrations for the CRM: the companies, contacts, orders,
@@ -328,11 +436,17 @@ You’ll get back migrations with comments. Don’t rush the explanations — th
 
 It’s tempting: just hide the Save button from viewers in the app and call it solved. It isn’t. Your app is only one of many clients that can talk to the database — the anon key sits in the page’s code, so it’s public, and anyone holding it can send the database a request directly, completely outside your UI. A hidden button is cosmetic, good manners for honest users; an RLS policy is a lock for everyone, because it’s evaluated in the database on every single query. A well-built app does both — the UI hides what a user isn’t allowed to do, the database enforces it. But whenever you have to choose where a rule actually lives, the answer is: in the database.
 
+It’s worth picturing the attack concretely, since “call the API directly” sounds abstract. The part-timer, with the viewer role, opens the CRM in her browser. Her browser downloaded the app’s code, which necessarily contains the anon key and the API address; pressing F12 reveals both. With those two pieces of information and a freely available tool, she can now send the database a request that says “delete company U Mlýna” — no button needed, it goes around your whole app. The only thing standing between her request and the data is the gatekeeper in the database: it checks her token (signed in as a viewer), checks the policies (only admin can delete), and answers with an error. If the rule lived only in a hidden button, café U Mlýna would have just vanished. This isn’t about suspecting the part-timer — a system resting on the good manners of everyone holding a public key isn’t a secure system.
+
 ### The anon key, the service role key, and what the JWT carries
 
 Three terms that decide the security of the whole build. The **anon key** identifies your project and is public — assume everyone has it; on its own it grants no rights to data, it just opens the door to the API, behind which RLS stands guard. The **JWT** is a signed token a user gets when they sign in; it carries their identity, and the database reads `auth.uid()` from it — the signature guarantees nobody forged it themselves. Policies look up the role in `profiles`; you can also embed it in the token as a custom claim (faster, but then the role only updates on the next sign-in — an unnecessary optimization for six people). The **service role key** bypasses RLS entirely — a master key for server-side jobs like a data import. It belongs exclusively in server-side environment variables, never in the browser and never in git; a key that was ever committed to a repository is compromised even after you delete it.
 
-Before you let colleagues loose on the system, actually test the role matrix:
+Exactly where to find both keys in the dashboard: left-hand menu, bottom, **Project Settings** (the gear icon), then **API Keys**. The page shows two rows. The first, `anon` `public`, is a long string starting with “eyJ,” with a Copy button next to it — that’s the anon key, the one allowed into your app’s code. The second, `service_role` `secret`, is hidden behind a Reveal button — deliberately: only uncover it the moment you’re pasting it into a server-side environment variable, and never print it anywhere, not even into a chat with Claude. Right next to it, in the **Data API** section of the same Project Settings, is the **Project URL** — your project’s API address, shaped like “your-project-address.supabase.co”; the app needs exactly that pair. If the page doesn’t match this description (Supabase reshuffles its dashboard now and then), search the project settings for “API” and “keys” — the two keys are always kept together.
+
+Newer projects offer a different naming instead of the anon/service_role pair: **publishable key** and **secret key** — the logic is identical: publishable is the public one that goes in the app, secret is the server-side one that must never leave it. This guide sticks with the established anon and service role names, since you’ll see them in older documentation and in most other guides.
+
+Before you let colleagues loose on the system, actually test the role matrix. Here’s what happens now and what you’ll see: the prompt below has Claude Code set up three test accounts and try every operation with each one; the output is a color-coded matrix of allowed/denied. It takes a few minutes and it’s the single most important test in the whole build:
 
 ```text
 In a test project, create three test accounts: test-admin, test-sales,
@@ -348,13 +462,21 @@ data.
 
 The output is a table even a non-technical person can read — and every red cell is a bug caught in five minutes instead of six months. It complements the red-team exercise from the previous guide: there, the attack came from outside; here, you systematically walk through who’s allowed to do what from the inside.
 
+### A test project and a live project: two filing cabinets
+
+The prompt above says “in a test project” — worth pausing on, since it’s a habit that will protect you more than every policy combined. A test project is a second, separate filing cabinet: its own Supabase project (the free tier allows two — exactly for this), built with the same migrations as the live one, but filled with made-up data. Because the schema is built through migrations, the copy is cheap: run the same files and you get an identical structure — the practical payoff of never changing a database by manual poking around.
+
+The rule of use is simple: **everything new gets tried in the test project first.** A new policy, a new migration, the role-matrix test, a backup-restore rehearsal, a “what happens if…” experiment — test project. The live database only ever sees steps that already passed in testing. Have made-up data generated for it (“create 30 fictional companies with contacts and orders that look realistically Czech”) — never copy live customer data into the test project; test environments tend to be secured more loosely, and personal data has no business there.
+
 ## Phase 3: the newsletter — the CRM is the truth, Brevo delivers
 
 The roastery sends cafés a monthly newsletter and occasional promotions to end customers. It’s tempting to send them “from the CRM” — and that’s exactly what not to do. Sending email is a craft of its own: deliverability, templates, unsubscribe links, statistics. Specialized tools exist for that; we’ll use **Brevo** as the main example because it has a generous free tier to start with and a usable API. A one-line note on alternatives: MailerLite is simpler to get started with, Ecomail is a Czech option with local-language support, Mailchimp is the best-known but often needlessly complex for a small company — the division of labor with the CRM is the same across all of them.
 
+Setting up a Brevo account is an ordinary email sign-up — no payment card to get started. After signing in, a wizard asks where you’ll be sending from: fill in your company details honestly, since they end up in the footer of every email (a legal requirement for commercial messages). Two spots in the dashboard you’ll need: **Contacts → Lists**, where you’ll set up “wholesale” and “end customers” lists, and the API key — under your name, top right, under **SMTP & API → API Keys**, with a Generate a new API key button. The key is shown only once, so save it right where it belongs: an environment variable (exactly where, in phase five) — no business in code or in a chat, same hygiene as the service role key.
+
 ### What belongs in the CRM and what belongs in the newsletter tool
 
-A fundamental architectural decision: **the CRM is the single source of truth about customers, Brevo is the delivery engine.** The moment that boundary blurs, you end up six months later with two parallel records and nobody knows which one is right.
+A fundamental architectural decision: **the CRM is the single source of truth about customers, Brevo is the delivery engine.** The moment that boundary blurs, you end up six months later with two parallel records and nobody knows which one is right. The table below is that dividing line, question by question. Pin it to the wall; it’ll settle any “where does this go” argument in five seconds.
 
 | Question | CRM (Supabase) | Newsletter tool (Brevo) |
 | --- | --- | --- |
@@ -368,7 +490,7 @@ A fundamental architectural decision: **the CRM is the single source of truth ab
 
 ### Consent belongs in the schema, not in a notes field
 
-GDPR shows up in the database as more columns — another migration, exactly as promised back in phase 1:
+GDPR shows up in the database as more columns — another migration, exactly as promised back in phase 1. Here’s what happens now and what you’ll see: the `alter table … add column` command doesn’t rebuild the drawer from scratch, it just prints four new fields onto the existing cards; nothing about existing records is lost, and the new columns get default values on old records. The SQL editor shows “Success” again, and four columns appear on the contacts table:
 
 ```sql
 alter table contacts
@@ -378,11 +500,15 @@ alter table contacts
   add column unsubscribed_at timestamptz;
 ```
 
-`newsletter_consent`, with `default false`, means: **whoever hasn’t explicitly opted in doesn’t get the newsletter** — the exact opposite of how it plays out in spreadsheets where “addresses just get added.” `consent_date` and `consent_source` (a form on the website, verbal consent at a tasting...) are your answer to “where did you get my address and who told you it was okay to write to me” — one you need to be able to answer specifically. `unsubscribed_at` is the unsubscribe date: the record doesn’t get deleted, because “this person opted out, don’t write to them again” is information you need to hold onto. And watch out for the trap from the previous guide’s business-card chapter: neither a business card nor an order is newsletter consent — a one-to-one business email is a different thing from a bulk send.
+`newsletter_consent`, with `default false`, means: **whoever hasn’t explicitly opted in doesn’t get the newsletter** — the exact opposite of how it plays out in spreadsheets where “addresses just get added.” `consent_date` and `consent_source` (a form on the website, verbal consent at a tasting...) answer “where did you get my address and who told you it was okay to write to me” — one you need to answer specifically. `unsubscribed_at` is the unsubscribe date: the record doesn’t get deleted, because “this person opted out, don’t write to them again” is information you need to hold onto. And watch out for the trap from the previous guide’s business-card chapter: neither a business card nor an order is newsletter consent — a one-to-one business email is a different thing from a bulk send.
+
+How does consent actually get collected, so there’s something for those columns to hold: a sign-up form on the website (recording consent with a date on its own), a paper sheet or tablet at tastings and trade shows with a clear sentence explaining what the address will be used for, and a consent checkbox and source picker when a salesperson creates a contact in the CRM. What about the historical list that “has always gotten sent to”? For contacts where you can document consent, backfill the date and source. For everyone else, there’s only one honest path: either ask them to opt in again with one polite email, or leave them with `newsletter_consent = false` — the list shrinks, and that’s fine; a hundred addresses with real consent are worth more than five hundred “sort of” ones.
 
 ### Sync: from the CRM to Brevo, and only unsubscribes flow back
 
-Brevo keeps contacts in lists (wholesale, end customers) and, on each contact, attributes — name, city, category — for personalization. The sync over the API is one-way: the CRM is the source, Brevo is the destination.
+Brevo keeps contacts in lists (wholesale, end customers) and, on each contact, attributes — name, city, category — for personalization. The sync is one-way: the CRM is the source, Brevo is the destination.
+
+Here’s what happens now and what you’ll see: the prompt below has Claude Code write a sync script that carries contacts with consent over into Brevo. It first runs in dry-run mode, printing what it would do (add 63 contacts to the wholesale list, remove 2…) without actually doing anything. Once that output checks out, you run the script for real, and Brevo’s Contacts shows the lists populated:
 
 ```text
 Write a script that syncs contacts from our Supabase CRM to Brevo
@@ -402,7 +528,7 @@ Also write a short guide on how to run the script, and what each line
 of output means. We'll do the first run together in dry-run mode.
 ```
 
-Dry-run mode is the “AI drafts, a human approves” rule translated into code: first you look at what would happen, only then do you actually let it run. The reverse direction — unsubscribes — is handled by webhooks: when someone unsubscribes, Brevo calls your endpoint and the CRM records `unsubscribed_at`.
+Dry-run mode is the “AI drafts, a human approves” rule translated into code: first you look at what would happen, only then do you actually let it run. The reverse direction — unsubscribes — is handled by webhooks. A webhook is “call me when something happens”: you give Brevo an address in your app, and Brevo sends it a message every time someone unsubscribes — the CRM then records `unsubscribed_at` on its own. Here’s what happens now and what you’ll see: the prompt returns the code for a server-side endpoint (that address), explained block by block; it won’t get deployed until the app goes live in phase five:
 
 ```text
 Set up the return flow of unsubscribes from Brevo to the CRM:
@@ -420,11 +546,11 @@ Show me the code and walk me through it block by block before we
 deploy it.
 ```
 
-On point 3: a webhook has no signed-in user, so RLS would block its write — hence the server-side code and the service role key. And point 4 isn’t paranoia: an unprotected webhook is an address anyone can send a fake unsubscribe to.
+On point 3: a webhook has no signed-in user — it doesn’t come from Marta or Petr, it comes from a machine at Brevo — so the gatekeeper in the database has nothing to check against, and RLS would block the write. Hence server-side code and the service role key: it’s exactly the kind of job the master key exists for, and at the same time a demonstration of why it must never leave the server — whoever holds it writes to the database with no gatekeeper. And point 4 isn’t paranoia: an unprotected webhook is a public address anyone can send a fake unsubscribe to, quietly emptying your subscriber list. Verification (Brevo can sign requests, or you can embed a secret token in the address) makes sure the CRM only listens to the real Brevo — Claude Code will explain exactly how alongside the code; your job is to confirm that check is actually there.
 
 ### The right to erasure: a process, not a button
 
-When a customer asks for their personal data to be erased, it has to disappear everywhere — from the CRM and from Brevo. What you’re allowed to keep (invoicing records, say, for accounting-law reasons) is a legal question; the broader framework is covered in the [chapter on ethics and safety](/prirucka/ai-eticky-a-bezpecne). Technically, prepare the process in advance:
+When a customer asks for their personal data to be erased, it has to disappear everywhere — from the CRM and from Brevo. What you’re allowed to keep (invoicing records, say, for accounting-law reasons) is a legal question; the broader framework is covered in the [chapter on ethics and safety](/prirucka/ai-eticky-a-bezpecne). Technically, prepare the process in advance. Here’s what happens now and what you’ll see: the prompt doesn’t delete anything — it returns a proposal log (what to delete, what to anonymize, what to keep and why) that you approve; only after approval does actual SQL get generated:
 
 ```text
 Design a "right to erasure" process for our CRM and Brevo:
@@ -444,21 +570,69 @@ Deletion is irreversible, so I approve each step individually.
 
 Notice the logic in point 2: erasing a person doesn’t mean erasing the company’s business history — the café’s orders stay, they just get disconnected from the specific individual. That exact nuance is why erasure is a process with approvals, not a button.
 
-## Phase 4: what it will cost — an honest reckoning
+## Phase 4: what it will cost — an honest reckoning with real numbers
 
-This whole system can be run for free — and it’s only fair to say up front exactly where that stops being enough. We won’t quote specific amounts here (they change; the current price lists for Supabase, Vercel, and Brevo are always the authoritative source), but the limits themselves can be described.
+Elsewhere on this site we deliberately avoid quoting prices for services — they change faster than articles do. Here we’re making an exception, because a cost reckoning is half the decision when it comes to a homemade CRM, and “you’ll find it somewhere in a price list” isn’t a reckoning. So here’s the deal: **every amount below is current as of August 2026, comes from each service’s public price list, and you should verify it before making your own decision** — the structure of the reasoning will hold for years, the numbers won’t. We convert dollar prices at a sober rate of **21 CZK to the dollar** (the rate hovered around twenty and a half crowns through 2026; we’d rather round the wrong way on the safe side), and all figures are excluding VAT, the same way the price lists quote them.
 
-**What’s free, and what it’s enough for.** The Supabase free tier can carry the entire build, and comfortably the first few months of a small company running on it: an EU database, Auth, RLS — everything this guide uses. Brevo’s free tier handles a monthly newsletter to dozens of contacts, and Vercel Hobby is enough for development and testing. In other words: **the build phase costs you nothing but time** — and that’s as it should be, because during the build you don’t yet know whether you’ll stick with the system.
+### What’s free, and exactly what it’s enough for
 
-**Where you’ll hit a wall.** Three walls a growing company runs into, as of this writing (verify against the current terms):
+The Supabase free tier can carry the entire build, and comfortably the first few months of a small company running on it: an EU database up to 500 MB (eighty companies with three years of orders fit into that many times over), two active projects — exactly enough for a live one and a test one — plus Auth and RLS with no restrictions, i.e. everything this guide uses. Brevo’s free tier sends up to 300 emails a day, roughly 9,000 a month — a monthly newsletter to eighty cafés clears that with plenty of room to spare. Vercel Hobby is enough for development and testing. In other words: **the build phase costs you nothing but time and your Claude subscription** — and that’s as it should be, because during the build you don’t yet know whether you’ll stick with the system.
 
-- **Idle-project pausing.** A low-activity Supabase free project auto-pauses after roughly a week — you can wake it up from the dashboard, but a CRM that “won’t wake up” on a Monday morning is exactly the kind of small thing that makes a team stop trusting the system. A paid tier doesn’t pause projects.
-- **Backups.** The free tier doesn’t do automatic backups — as long as you’re on it, backups are your job (a regular export, easily set up as a scheduled task). A paid tier adds automatic daily backups; once the CRM is the only place holding your relationship history, this is the strongest argument for upgrading.
-- **Daily email limits and commercial use.** Brevo’s free tier caps daily sends in the low hundreds — enough for a monthly newsletter to eighty cafés, not enough for a send to thousands of end customers; paid tiers remove the cap. And Vercel Hobby is, per its terms, for non-commercial personal use — a company CRM is commercial operation, so budget for a paid tier before going live.
+### Where you’ll hit a wall: three walls
 
-**Why the paid tiers are worth it.** Compare three numbers, each from its own price list: the sum of the paid tiers in this stack is a fixed monthly amount for the whole company. Off-the-shelf CRMs typically charge per user — with six people, that multiplies. And one wholesale customer who quietly left because nobody noticed them going quiet costs more per year than this entire infrastructure. The point isn’t “free,” it’s an order-of-magnitude lower fixed cost, and your data in your own hands.
+The three walls a growing company runs into, as of August 2026, look like this:
 
-Have the reckoning run on your own numbers — verified against current price lists, not from the model’s memory:
+- **Idle-project pausing.** A low-activity Supabase free project auto-pauses after seven days — you can wake it up from the dashboard, but a CRM that “won’t wake up” on a Monday morning is exactly the kind of small thing that makes a team stop trusting the system. A paid tier doesn’t pause projects.
+- **Backups.** The free tier doesn’t do automatic backups — as long as you’re on it, a backup is your own job (how to do it by hand is covered in phase five). The Pro tier adds automatic daily backups kept for seven days back; once the CRM is the only place holding your relationship history, this is the strongest argument for upgrading.
+- **Daily email limits and commercial use.** Brevo free’s 300-email daily cap is enough for a newsletter to cafés, not for a send to two thousand end customers — that would get spread out over a week. And Vercel Hobby is, per its terms, for non-commercial personal use only — a company CRM is commercial operation, so budget for a Pro tier before going live.
+
+### The monthly cost of running your own CRM, line by line
+
+The stack for running the roastery live — six users, one project, a newsletter once a month:
+
+- **Supabase Pro: 25 USD a month** (about 525 CZK) per project. Adds daily backups, no pausing, an 8 GB database, and email support. This is the one line item we consider non-negotiable for live company operation — because of the backups.
+- **Vercel Pro: 20 USD a month** (about 420 CZK) per user. “User” here means a developer with deploy access, not a CRM user — the roastery only needs one account to deploy through, so it pays for one seat, not six.
+- **Brevo Starter: from 9 USD a month** (about 190 CZK) for 5,000 emails a month; higher volumes run 18 USD for 20,000. As long as the free limit covers you, this line item is zero — for the roastery’s monthly newsletter to 80 addresses, quite possibly forever, though budget for it once you’re looking at thousands of end customers.
+- **Claude Pro: 20 USD a month** (about 420 CZK). Plenty for the build and for routine maintenance — the odd evening “add a column and a view.” Higher tiers (Max at 100 or 200 USD) make sense only once someone’s using Claude Code daily across several projects. And this subscription probably isn’t something you’re paying for because of the CRM anyway — anyone who’s made it this far is already using it for half their other work, so it’s only fair to count it into the reckoning partially.
+- **Domain: roughly 200 to 400 CZK a year** for a .cz domain depending on the registrar (the wholesale price from the CZ.NIC registry is 160 CZK excluding VAT), so under 35 CZK a month. Not required — the app runs fine on a Vercel address too — but “crm.yourcompany.cz” sticks in the team’s memory better. For a country TLD elsewhere, budget roughly 10 to 20 USD a year.
+
+The total: **74 USD plus the domain, roughly 1,600 CZK a month — around 19,000 CZK a year — for the whole company**, whether you have five users or fifteen. That’s the key feature of the whole stack: the cost is fixed, it doesn’t grow with every person you hire. And the minimal setup for the first months of live operation (Brevo on the free tier, and you’re already paying for Claude anyway) is Supabase Pro plus Vercel Pro: 45 USD, under a thousand crowns a month.
+
+### Against that: off-the-shelf CRMs and agency implementations
+
+Off-the-shelf CRMs charge per user per month. A rough price list as of August 2026, at Czech market rates (21 CZK to the dollar), for the Czech CRM vendors a small company runs into first: Raynet CRM runs 449 to 1,199 CZK per user per month depending on the tier — roughly 21 to 57 USD, or 19 to 48 USD with annual billing — eWay-CRM starts at 300 CZK (about 14 USD) per user per month with annual billing, Pipedrive runs 14 to 79 USD per user per month with annual billing, and HubSpot has a cheap starter tier on paper, but the features people actually buy a CRM for live in the Professional tier at roughly 90 USD per user per month, plus paid onboarding running into the tens of thousands of crowns one-time.
+
+For a team of five, that means: **roughly 18,000 CZK (about 860 USD) a year at the cheapest tiers, around 24,000 CZK for Raynet Start — and 48,000 to 100,000 CZK a year for mid-tier plans**, the ones that actually include reporting and automations comparable to what you build here with views. Add what the price lists don’t print in bold: surcharges for API access, storage, advanced features — and, above all, growth: a seventh employee means a seventh license.
+
+The second comparison figure is **implementing an off-the-shelf CRM through an agency or a vendor**: for a small Czech company, a one-time deployment and customization runs roughly 20,000 to 80,000 CZK, and well over 100,000 CZK for more complex integrations — and that’s just the implementation, the monthly license runs alongside it. Custom CRM development from a software company is an entirely different league, typically in the hundreds of thousands. Against that stands your version: four evenings and a weekend of your own time, plus a Claude subscription.
+
+### The time you save: what manual record-keeping costs you today
+
+Costs are only half the reckoning — the other half is what you’re paying today without seeing it on an invoice. A sober estimate for a company the roastery’s size: everyone who works with customers spends 2 to 3 hours a week hunting down and retyping information — who called him last, which spreadsheet has the current price list, did they even order this year, retyping an order from an email into a spreadsheet, assembling a newsletter address list. For three people doing this daily, that’s **25 to 40 hours a month**; even valuing an hour of work modestly at 400 CZK, that’s 10,000 to 16,000 CZK a month dissolved into daily operation. A homemade CRM doesn’t erase all of that time, but it shrinks searching from minutes and hours down to seconds, and, crucially, makes the work **portable**: if Petr gets sick, the relationship history is in the database, not in his head.
+
+And there’s one more line item that’s hard to put in a spreadsheet but decides everything: **the ability to react internally.** When Marta realizes on a Tuesday that she needs to track a “preferred delivery day” per company, that’s an evening with Claude Code: a migration adding a column, a form tweak, done the same day, at zero cost. With an off-the-shelf CRM it’s either “can’t be done,” or a customization in the admin panel if the tier supports it; with a vendor solution, a change request means thousands to tens of thousands of crowns and weeks of waiting. This asymmetry doesn’t show up in the first month — it shows up a year in, once your CRM exactly mirrors how you operate while the boxed one still only approximates it.
+
+### And, to be honest, the other side too: what ownership costs
+
+For the reckoning to not be a sales pitch, let’s admit the costs an off-the-shelf CRM doesn’t have. A homemade system needs an administrator’s time: soberly, **2 to 4 hours a month** — checking backups, inviting and removing accounts, the occasional dependency update for the app (Claude Code will flag it itself if you ask “is anything in the project outdated or has known vulnerabilities?”), and the occasional evening on a new feature, which tends to be more of a pleasure than a chore. You also carry the risk of your own mistakes: a badly written policy or a deleted table is on you, no customer support is coming to fix it — the habits from this guide (a test project, backups, approving migrations) reduce that risk, but don’t erase it. And expect the services themselves to evolve: once a year a price list changes or a dashboard gets reorganized, and the guide you built from goes stale — the system doesn’t, because it’s yours. Anyone who read these three paragraphs with a sinking feeling has their answer: buy an off-the-shelf CRM. Anyone who thought “I can handle that” should keep reading.
+
+### The reckoning in one table
+
+A comparison for a team of five to six people, prices as of August 2026, 21 CZK to the dollar:
+
+| Criterion | Homemade CRM (this guide) | Off-the-shelf CRM for 5 people | Agency implementation |
+| --- | --- | --- | --- |
+| One-time, to start | 0 CZK + 4 evenings and a weekend of work | 0 CZK (onboarding on higher tiers can run into the tens of thousands) | roughly 20,000-80,000 CZK |
+| Monthly | about 1,600 CZK for the whole company | about 1,500-8,300 CZK depending on tier | CRM license + possible support |
+| Annually | about 19,000 CZK | about 18,000-100,000 CZK | implementation + annual license |
+| Sixth and further users | 0 CZK | a full extra license | a full extra license |
+| A new column or view | same day, an evening with Claude | depends on what the tier allows | a change request: thousands of CZK, weeks |
+| Data and jurisdiction | your own database in the EU | at the vendor, per contract | at the vendor, per contract |
+| Who runs operations | you (backups, access, maintenance) | the vendor | the vendor/agency |
+
+Read it honestly both ways. The cheapest off-the-shelf tiers are cost-comparable with a homemade CRM — the case for building your own there isn’t savings, it’s owning your data and being able to shape it. Against mid-tier plans and agency implementation, the gap is already a multiple. And the last row is also the most important warning: **a homemade CRM isn’t worth it for a company where nobody wants to look after it.** It needs its own person, someone who enjoys giving it an evening of maintenance now and then and keeps an eye on backups and access. If no such person exists, or if you need advanced features from day one (a sales pipeline with automations, telephony, advanced reporting), buy an off-the-shelf solution with a clear conscience — this table isn’t a sales pitch, it’s a reckoning.
+
+Have the reckoning run on your own numbers — verified against current price lists, not from the model’s memory or from this article. Here’s what happens now and what you’ll see: the prompt returns a comparison with dated source citations; copy the numbers from it into your own table:
 
 ```text
 Help me put together a cost analysis for a self-built CRM. Our
@@ -483,7 +657,52 @@ Point 4 is a safeguard against a confidently stated but outdated figure — pric
 
 You have clean data, an approved schema, and roles and integrations worked out. Only now does the project actually get created — and Claude Code handles all the mechanical work, while you keep the rhythm from last time: draft, approve, build.
 
-### Setting up the project and migrations
+### First, three accounts: Supabase, GitHub, Vercel
+
+Before you start building, set up three accounts — all three free, all three by email, a quarter hour of clicking altogether. **GitHub** (github.com) will hold the code and the migration history. **Supabase** (supabase.com) is the database — sign up straight through GitHub, with a “Sign in with GitHub” button, and have one fewer password to manage. **Vercel** (vercel.com) will host the app — sign in through GitHub here too, since it will end up linking to it anyway for deployment. Turn on two-factor authentication for all three the moment you set them up — this system is going to hold your customers’ personal data, and a password alone is weak protection these days.
+
+Now, setting up the Supabase project, click by click, because there’s one decision here you can’t change later. After signing in, you’ll see your organization dashboard and a green **New project** button. The form asks for four things:
+
+1. **Organization** — leave the one created with your account.
+2. **Project name** — something like “crm-roastery.” Just a descriptive label, you can rename it any time.
+3. **Database password** — the password to the database itself. Pay attention here: you won’t enter this password for everyday work (you sign into the dashboard with your Supabase account), but you will need it for direct connections to the database — for a manual backup, for instance. Click **Generate a password**, let it generate a long random one, and **save it in a password manager** (Bitwarden, 1Password — the same one we recommend everywhere else). Not in your phone’s notes, not on a sticky note. If you lose it, it can be reset in the project settings, but that’s an adventure worth avoiding.
+4. **Region** — and this is the decision. A dropdown of cities around the world; pick **Central EU (Frankfurt)**, or another region marked EU. This is where your database will physically live — and since it’ll hold customer personal data, you want EU jurisdiction and GDPR without any legal gymnastics around transferring data outside the EU. The region can’t be simply changed once the project exists — that’s why you pick it now, and why it’s flagged in every prompt in this guide.
+
+Click **Create new project** and wait a minute or two — Supabase is carving out a slice of server for your company somewhere in Frankfurt. Once the page switches to the project overview, you’ll see a dashboard with charts (empty for now) and a left-hand menu you’ll use mainly for four items: **Table Editor** (the cabinet’s drawers, clicked into tables), **SQL Editor** (where you talk to the database — more shortly), **Authentication** (users and policies, from phase 2), and **Project Settings** (keys and configuration, also from phase 2).
+
+### The SQL editor: where a migration goes, and what you’ll see
+
+The SQL editor is an ordinary large text box with a **Run** button — the simplest tool in the whole dashboard, and yet the one beginners are most wary of. Open it from the left menu (SQL Editor), click **New query**, and you get a blank page. This is where migrations get pasted: copy a SQL block — from this article or from Claude Code — paste it into the box, and press Run (or Ctrl+Enter, Cmd+Enter on a Mac).
+
+Here’s what happens now and what you’ll see when you paste the first migration, the schema from phase 1, into the editor: a results panel appears below the box. For commands that build something (`create table`, `create policy`), it just prints **“Success. No rows returned”** — no table of data, since building commands don’t return any; this trips up everyone the first time. For commands that ask questions (`select`), a table of results appears. And if there’s an error in the SQL, the panel turns red with an error message and a position — nothing got built in that case, since the database runs migrations all-or-nothing. Copy the error to Claude Code and have it explained; a truncated ending is the most common cause with copied blocks.
+
+Confirm a migration succeeded two ways: click through the Table Editor, where new tables matching the schema now appear, or ask the database itself with this query — a select, returning a table listing your tables and whether RLS is on for each:
+
+```sql
+select tablename, rowsecurity
+from pg_tables
+where schemaname = 'public'
+order by tablename;
+```
+
+The `rowsecurity` column must read `true` on every row once phase 2 is done. Any `false` means a table with no gatekeeper — this exact query is the “check after every migration” the rest of the guide keeps referring to. Save it as a named query called “RLS check,” so it’s always within reach.
+
+One more thing about the SQL editor: it’s the sharpest knife in the drawer. It runs anything, including `delete` and `drop table` — so only run migrations you understand, ones Claude Code has explained and you’ve approved. Destructive commands always go through the test project first.
+
+### When something goes wrong: error messages are your friend
+
+An error message frightens a beginner; in reality it’s the database doing exactly its job — refusing to break the rules you gave it. Four messages you’ll almost certainly run into:
+
+- **“violates foreign key constraint”** — you tried to create an order for a company that isn’t in companies (or delete a company that orders still point to). The fix is to create the parent before the child, or fix the matching in an import.
+- **“duplicate key value violates unique constraint”** — a second company with the same tax ID, or a second contact with the same email, where `unique` applies. That’s your safeguard against duplicates doing its job; decide which record is the real one.
+- **“new row violates row-level security policy”** — the gatekeeper in action: a signed-in user tried a write their role has no policy for. When it happens to a viewer, the system is working. When it happens to you on an operation that should have gone through, you have a hole in a policy — exactly what the role-matrix test from phase 2 catches.
+- **“column … does not exist”** — a typo in a column name, or the query is running against a database where the relevant migration hasn’t run yet.
+
+For everything else: copy the whole error message and paste it to Claude Code with the question “what exactly does this error mean for our database, and what do I do about it.” PostgreSQL’s error messages are precise, and Claude Code will almost always nail the cause on the first try.
+
+### Setting up the project and running the migrations
+
+You can now populate the project two ways, and both are correct. The manual way: create the project by clicking through the previous subsection, and paste migrations into the SQL editor one at a time — recommended for the first time, since you see every step with your own eyes. Or Claude Code drives the whole thing: through a Supabase connection (an MCP connector or the command line), it can create the project and run migrations itself — you approve. The prompt below is for that second path; if you went manual, only use points 3 and 4. Claude Code will proceed step by step and pause before each one; after every migration it prints the state, and at the end, the RLS check result — both numbers in point 4 must be zero:
 
 ```text
 We're setting up a Supabase project for the internal CRM. Go step by
@@ -505,7 +724,9 @@ The final check in point 4 is a one-line safeguard against the single most commo
 
 ### The app: an internal table UI, no design
 
-An internal CRM doesn’t need to be beautiful, it needs to be fast to use. Resist the urge to think “since we’re building it anyway, let’s make it look nice” — every hour spent on design is an hour the system never pays back. How to build and deploy a web app with Claude Code in general is covered in a [separate guide](/tipy/web-claude-code-vercel); here’s the brief tailored to a CRM:
+An internal CRM doesn’t need to be beautiful, it needs to be fast to use. Resist the urge to think “since we’re building it anyway, let’s make it look nice” — every hour spent on design is an hour the system never pays back. How to build and deploy a web app with Claude Code in general, including the basics of installing Claude Code and how to talk to it, is covered in a [separate guide](/tipy/web-claude-code-vercel) — if you’ve never run it before, go there first and come back.
+
+The prompt below kicks off the biggest chunk of the build. Claude Code sets up the app project, builds the pages one at a time, and pauses after each one — you’ll run the app on your own computer at a local address it prints out, click through the page, and say “keep going” or what to change. Budget one to two evenings, and don’t be shy about small complaints (“the button’s too small on mobile”) — cheaper now than later:
 
 ```text
 Build a simple internal app on top of our Supabase CRM (Next.js):
@@ -526,7 +747,28 @@ Go page by page, and show me each one before starting the next.
 
 Point 4 is the phase 2 principle in practice: the UI adapts to the role for convenience, the database enforces the role for security. Both layers, each for its own reason.
 
+Why Next.js, when we haven’t mentioned it once so far? It’s a framework — a ready-made skeleton for a web app that you fill in only with your own part: pages, forms, the database connection. We pick it for the same reason as Supabase: it’s the most well-trodden path, Claude Code knows it inside out, and it deploys to Vercel with one click. It’s the material Claude Code builds with, not something you need to learn.
+
+And what does the finished app actually look like? Deliberately plain. A sign-in page. After signing in, a table of companies with a search box — Marta types “mlyn” and lands on the café’s card. A company’s card: name, tax ID, and category up top, contacts with phone numbers below, orders newest first, a history of interactions and notes, and an “add a note” form with two fields. No charts on the home screen, no dashboard full of pie slices — those questions get answered by the Overview page’s views, coming up shortly. An internal tool proves itself by how fast “log a phone call” goes — ten seconds; everything else is decoration.
+
 ### Deployment: locked down from minute one
+
+Right now the app only runs on your computer — deployment means getting it onto a server so the team can open it from anywhere. The click-through path in Vercel: first, the code has to be on GitHub (Claude Code can push it there, just ask — create the repository **private**, this is an internal system). Then, in Vercel, click **Add New → Project**, and click **Import** next to the repository with the CRM. Vercel recognizes it’s a Next.js app on its own and pre-fills the settings — leave it alone, except for one section you must not skip: **Environment Variables**.
+
+It’s a collapsible section right on the import screen (and you’ll find it anytime later under the project’s **Settings → Environment Variables**). The form has two fields, **Key** (the variable’s name) and **Value**, plus an Add button. This is where every secret goes — exactly the ones that must never appear in code. For our CRM, you’ll enter four, one at a time:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL        # Project URL from Supabase (Project Settings -> Data API)
+NEXT_PUBLIC_SUPABASE_ANON_KEY   # anon key (Project Settings -> API Keys)
+SUPABASE_SERVICE_ROLE_KEY       # service role key -- WARNING, no NEXT_PUBLIC_ prefix
+BREVO_API_KEY                   # Brevo API key (SMTP & API -> API Keys)
+```
+
+That prefix is the whole secret behind the difference between public and secret: Next.js bundles any variable starting with `NEXT_PUBLIC_` into the page’s code and ships it to the browser — which is exactly why only the project URL and the anon key, public by their very nature, are allowed to carry it. The service role key and the Brevo key must **not** carry that prefix — they stay on the server only, the browser never sees them. This is exactly what the checklist prompt below will check for you too; now you know why.
+
+Once the variables are filled in, click **Deploy** — Vercel builds for a minute or two and then shows confetti and an address shaped like “project-name.vercel.app,” where the app now lives. From this point on, a pleasant automation kicks in: every change Claude Code pushes to GitHub deploys to Vercel on its own. Attach your own domain (crm.yourcompany.cz) under **Settings → Domains** by entering it and updating the DNS record per Vercel’s instructions — another ten-minute click-through.
+
+Here’s what happens now and what you’ll see: a final security checklist. The prompt returns a table of checks with results — and you’ll repeat the last item with your own hands, in an incognito browser window:
 
 ```text
 Deploy the CRM to Vercel using this security checklist:
@@ -544,7 +786,13 @@ Return a checklist with the result of every point, not just "done".
 
 The incognito-window test is the cheapest security audit in the world — do it after every major deployment. An internal CRM shouldn’t have a single public pixel; the sign-in page is the only thing a signed-out visitor is allowed to see.
 
+On point 3: preview deployments are a Vercel feature where every work-in-progress change gets its own temporary address you can review before it goes live — great for trying things out, except that address exists publicly. For a website with a coffee price list, that’s harmless; for a CRM, a work-in-progress version with a live database connection would sit at a guessable address. Preview protection (under **Settings → Deployment Protection**) hides those addresses behind a Vercel sign-in — turn it on and forget about it.
+
 ### Data import: checksums, for the third and last time
+
+The moment the CSV files from phase 1 have been waiting for arrives — populating the live database. It matters to understand how the import works, since it’s the one step in this guide where you write to live data in bulk. The script reads the CSVs row by row and tries to create a record for each one; companies first, then contacts and orders, which point back to companies — dictated by the foreign keys, a child can’t exist before its parent.
+
+And once again, a dry run first: the script goes through every file, checks everything, but writes nothing — instead it prints a summary along the lines of “I’d insert 78 companies, 214 contacts, 1,892 orders; I’d reject 11 orders (company doesn’t exist) and 2 contacts (duplicate email).” Read that report as a human, not as a technician: do the counts match what you saw back in phase 1? Are the rejections a handful, or a quarter of everything? Have the rejected rows printed out and decide what to do with them — and only once the report checks out do you say “run it for real.” After the live run, the script prints final counts and the Table Editor shows tables full of data — and then comes the most important check, point 4 of the prompt:
 
 ```text
 Import the cleaned data from phase 1 (companies.csv, contacts.csv,
@@ -563,11 +811,41 @@ The import must never run twice: propose a safeguard against a
 duplicate run and explain it to me.
 ```
 
-The manual spot check in point 4 looks old-fashioned and is irreplaceable: ten random companies checked against the source records catch a systemic import bug (shifted columns, mangled diacritics) more reliably than any automated test.
+The manual spot check in point 4 looks old-fashioned and is irreplaceable: ten random companies checked against the source records catch a systemic import bug more reliably than any automated test.
+
+### Backups: make one before you need it
+
+From the moment of the live import, the database is the only place the history of your customer relationships exists — and the only thing that turns that into peace of mind instead of a risk is a backup. How you do it depends on your tier.
+
+On the Pro tier, it’s handled for you: Supabase runs automatic daily backups and keeps them for seven days back, under **Database → Backups** with a Restore button next to each. Your only job is to check in every so often and confirm backups are actually being made; a backup nobody has ever looked at is just hope.
+
+On the free tier there are no automatic backups, and a backup is your own manual work. The simplest honest way: export every table to CSV files, stored outside Supabase (a company drive, two copies for anything important). You can click through it table by table in the Table Editor, but you won’t keep doing that by hand for long — so have a script written instead. Every run creates a dated folder with a CSV file per table, plus a row-count check:
+
+```text
+Write a backup script for our Supabase CRM:
+1. It downloads the full contents of every table (companies, contacts,
+   orders, interactions, notes, profiles) into CSV files, in a folder
+   named backup-YYYY-MM-DD after today's date
+2. Connect using the service role key from an environment variable --
+   the script runs on my computer, the key must not be in the code
+3. After downloading, print a check: the row count in each file
+   compared against the row count directly in the database -- the
+   numbers must match
+4. If the target folder already exists, stop with an error, don't
+   overwrite anything
+5. Add a short guide: how I run the script, where to store the files,
+   and how to get the data back into the database in an emergency
+Explain every step of the script to me -- it's a safeguard, I need to
+understand it.
+```
+
+A routine to go with it: run the script every Friday (a recurring reminder, or, more elegantly, have Claude Code schedule it as a scheduled job) and once a month, rehearse a restore on the test project: load the latest backup into the test database. If it works, you know the backup isn’t just a file, it’s an actual safeguard. And once this ritual starts to feel like a chore, that’s a healthy signal it’s time for the Pro tier — exactly the “cost of not worrying” the phase 4 reckoning talked about.
 
 ### The first views: make the CRM pay off in week one
 
-A system that gives back nothing gets abandoned by the team. So right after the import, set up two views that answer the questions the CRM was built to answer in the first place:
+A system that gives back nothing gets abandoned by the team. So right after the import, set up two views that answer the questions the CRM was built to answer in the first place.
+
+A view, in plain terms: a saved question. You write the query “which companies haven’t ordered in over six weeks” once and save it under a name — from then on you ask by name, as if it were another table, except it recalculates fresh from the current data every time. Nothing gets copied anywhere; a view has no content of its own, it’s a window you look at the tables through, from a particular angle. In the queries below you’ll meet a few new words too: `join` glues two drawers together (attaching a company’s orders to it through the foreign key), `group by` collapses rows by company, `max` and `sum` pull the newest date and the total out of each group, and `having` filters the collapsed groups. Running this in the SQL editor prints “Success” again, and two views appear in the Table Editor’s left panel, behaving like read-only tables:
 
 ```sql
 create view dormant_customers
@@ -585,7 +863,7 @@ create view top_customers
 with (security_invoker = on) as
 select
   c.id, c.name,
-  sum(o.amount_czk) as revenue_last_year,
+  sum(o.amount) as revenue_last_year,
   count(*) as order_count
 from companies c
 join orders o on o.company_id = c.id
@@ -612,6 +890,14 @@ The weekly routine from the previous guide can then grow out of these views too 
 
 The rule from the previous guide — the agent may read and suggest, a human approves every write — can now rest on architecture instead of good intentions. An agent that proposes data additions doesn’t get the service role key, only an account with the viewer role — so the database itself refuses its writes. It hands over its suggestions as a list, a human clicks through them in the app, and the write happens under that person’s account, with their name in the `author` column. The difference from “we promised ourselves the agent wouldn’t write” is fundamental: here, promising isn’t enough — it’s structurally impossible.
 
+### The first week: rollout, not construction
+
+Technically, you’re done — but a CRM doesn’t die from technical bugs, it dies from the team never actually starting to use it. So dedicate the first week to rollout, and take it just as seriously as the build itself.
+
+Day one: invite the team (Authentication → Users → Invite user, and set everyone’s role in the profiles table) and hold a half-hour session together at one screen. Not a training session with slides — just walk through, together, the three things everyone will actually do: find a company, read its history, log a note from a phone call. The app doesn’t do much more than that, and that’s its strength. One rule holds for the rest of the week: **everything new goes into the CRM only.** Don’t delete the old spreadsheets — they’re source material and a backup of the history — but lock them for writing, or at least rename them to “ARCHIVE — do not write.” Running two records in parallel is death: as long as Petr can log an order “into the spreadsheet for now, I’ll copy it over later,” the system isn’t really running.
+
+And at the end of the week, a short retro, fifteen minutes: what was annoying, and where did five clicks stand in for what should take one? Write it down and hand it to Claude Code as the next evening’s assignment. That loop — use it, notice something, fix it the same week — is exactly why you built your own system; with a boxed one you’d be writing an email to a vendor right now instead. After the first week, the pace of tweaks slows on its own, and the CRM becomes what it’s meant to be: boring, reliable infrastructure.
+
 ## The most common mistakes
 
 - **Starting with the technology instead of the data.** Setting up a project and designing tables from an armchair leads to a schema that doesn’t match what the company actually has. The order is: inventory, cleanup, and only then a schema built from the cleaned data.
@@ -620,25 +906,27 @@ The rule from the previous guide — the agent may read and suggest, a human app
 - **Adding a table later and forgetting RLS.** The single most common hole out there: a pristine first migration, then a table added a month later with no policies. Run the “tables without RLS = zero” check after every migration.
 - **Keeping newsletter consent in Brevo instead of the CRM.** The moment the truth about consent lives in the delivery tool, you no longer control it — and switching tools means losing it. Both consent and unsubscribes belong in the CRM schema; Brevo only gets a copy.
 - **Relying on the free tier in live production.** A project paused on a Monday morning and missing backups aren’t savings, they’re risk. Free for building and testing; once the CRM is the only place holding your relationship history, it belongs on a paid tier with backups.
+- **Running SQL you don’t understand.** This guide rests on approving every migration yourself — and you can only approve what you’ve actually understood. If Claude Code’s explanation doesn’t make sense, keep asking (“explain it again, as if I’d never seen SQL before”); running something blind is a loan you repay, with interest, the moment it goes wrong. And destructive commands always go through the test project first.
+- **Letting two records run in parallel.** The quietest way to kill a CRM: new orders “for now” get logged in the old spreadsheet, and the system goes stale day by day until nobody trusts it. From the moment of the live import, everything new goes into the CRM only — old spreadsheets become read-only archives.
 
 ## The best tools
 
-- **Supabase** — managed PostgreSQL with built-in authentication and Row Level Security; the heart of the build, in an EU region because of the personal data.
-- **Claude Code** — builds the whole CRM: drafts migrations and policies, writes the app and the import scripts, and explains every step in plain language; you approve.
+- **Supabase** — managed PostgreSQL with built-in authentication and Row Level Security; the heart of the build, in an EU region because of the personal data. The free tier covers the build and a test project; Pro (25 USD a month as of August 2026) covers live operation, for the backups.
+- **Claude Code** — builds the whole CRM: drafts migrations and policies, writes the app and the import and backup scripts, and explains every step in plain language; you approve. A Claude Pro subscription covers the build and routine maintenance.
 - **Claude Cowork** — data prep over a folder of files: business cards, contact exports, old spreadsheets; the output is clean CSVs ready to import.
-- **Brevo** — newsletter delivery: lists, templates, statistics, unsubscribe webhooks; connected via API to the CRM as the source of truth. Alternatives: MailerLite, Ecomail, Mailchimp.
-- **Vercel** — hosts the app, with server-side variables for keys and preview-deployment protection; on a paid tier for company use.
-- **GitHub** — history for migrations and code; the schema deserves the same traceable change history as the brand voice document from the previous guide.
+- **Brevo** — newsletter delivery: lists, templates, statistics, unsubscribe webhooks; connected via API to the CRM as the source of truth. Free up to 300 emails a day. Alternatives: MailerLite, Ecomail, Mailchimp.
+- **Vercel** — hosts the app, with server-side variables for keys and preview-deployment protection; for company use, the Pro tier (20 USD per seat a month — one seat is enough for the roastery).
+- **GitHub** — history for migrations and code; the schema deserves the same traceable change history as the brand voice document from the previous guide. Keep the CRM’s repository private, always.
 
 ## What you get out of it
 
-- **Time:** no more hunting for “which is the current spreadsheet” or retyping contacts between files. The dormant-customers overview is ready in seconds instead of an hour of digging through spreadsheets — and, crucially, it actually gets done.
-- **Money:** a fixed infrastructure cost instead of paying per user for an off-the-shelf CRM — plus caught departures: one wholesale customer reached in time pays for the system for the year. To be sober about it: the savings show up only once it’s bedded in; the first month costs you evenings.
+- **Time:** no more hunting for “which is the current spreadsheet” and retyping contacts between files — for a team the roastery’s size, a sober 25 to 40 hours a month dissolved into searching. The dormant-customers overview is ready in seconds instead of an hour of digging through spreadsheets — and, crucially, it actually gets done.
+- **Money:** a fixed cost of around 1,600 CZK a month for the whole company (at August 2026 prices) instead of a per-user license for an off-the-shelf CRM, which for five people runs 18,000 to 100,000 CZK a year depending on the tier — plus caught departures: one wholesale customer reached in time pays for the system for the year. To be sober about it: the savings show up only once it’s bedded in; the first month costs you evenings.
 - **Peace of mind:** data in a single EU database, roles enforced by the database, consent with a date and a source, keys nowhere near git. When a customer or an authority asks, you answer from records, not from memory.
 - **Quality:** customer relationships stop depending on what’s in someone’s head and phone. Illness, vacation, or a salesperson leaving no longer carries off half the company’s memory.
 
 ## Pro tip
 
-Once the system is running, give it a quarterly check-up — a scheduled task that checks the health of both the data and the locks in a single run: tables without RLS (must be zero), contacts with consent but no consent date, companies with zero interactions in the past year (archiving candidates), the share of orders with no link to a company. The output is a short report with suggested fixes — and, naturally, a human approves the fixes. That turns the CRM from a project that got built once into a system that flags its own maintenance.
+Once the system is running, give it a quarterly check-up — a scheduled task that checks the health of both the data and the locks in a single run: tables without RLS (must be zero), contacts with consent but no consent date, companies with zero interactions in the past year (archiving candidates), the share of orders with no link to a company. The output is a short report with suggested fixes — and, naturally, a human approves the fixes. That turns the CRM from a project that got built once into a system that flags its own maintenance. And once a year, fold a review of the phase 4 reckoning into the check-up too: check the price lists the stack was built on against current ones — the numbers from this article will have moved on by then, the structure of the reasoning won’t.
 
 And a closing rule: **a CRM is only as good as how honestly people log into it.** Every piece of technique in this guide only supports one human habit: one row in interactions after every meeting and call. Build the system so that row is as cheap as possible to add — and guard that habit as strictly as you guard the locks on the database. Anyone rolling AI out more broadly across a company will find the overall framework in the [complete guide](/tipy/ai-ve-firme-kompletni-pruvodce); this CRM is its most tangible building block.
