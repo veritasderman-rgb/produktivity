@@ -66,3 +66,725 @@ K tomu se přidávají tři typické jevy, které zná každý organizátor:
 Všimněte si, že ani jeden z těch problémů není o množství práce — všechny jsou o **architektuře informací.** A přesně proto na ně pomáhá AI až ve druhém kroku. Kdo nasadí AI na chaos („napiš mi post o akci“ do chatu, který o akci nic neví), dostane rychleji vyráběné kopie, které se rozjíždějí stejně, jen svižněji. Kdo nejdřív postaví zdroj pravdy a AI nasadí na odvozování výstupů z něj, dostane systém. Rozdíl mezi těmi dvěma přístupy je celý tenhle článek.
 
 Ještě jedna poznámka, než se pustíme do fází: nic z toho, co následuje, nevyžaduje, abyste byli vývojáři. Vyžaduje to ochotu strávit první večer stavbou struktury místo výroby plakátu — což je proti instinktu, protože plakát je vidět a struktura ne. Vydržte ten instinkt; vrátí se vám to i s úroky v každém dalším týdnu příprav.
+
+## Fáze 1: inventura a program jako jediný zdroj pravdy
+
+První večer se nevyrábí nic, co by šlo pověsit na zeď. Vyrábí se dvě věci, které ponesou všechno ostatní: seznam výstupů, které akce potřebuje, a datová struktura programu, ze které se ty výstupy budou odvozovat.
+
+### Inventura: co všechno má vzniknout
+
+Začněte tím, že si necháte vypsat úplný seznam výstupů — včetně těch, na které se u prvního ročníku typicky zapomíná (cedule s wifi heslem, slide „za chvíli začínáme“, e-mail s dopravními pokyny). Smysl inventury není seznam sám o sobě, ale dvě věci, které z něj vyplynou: u každého výstupu **z čeho se odvozuje** a **dokdy musí existovat.**
+
+```text
+Pořádáme první ročník jednodenního oborového setkání: [120] účastníků,
+[2] sály, [12] řečníků, [10] programových bloků, datum [doplnit],
+místo [doplnit]. Organizujeme to dva ve volném čase, bez agentury.
+
+Vypiš úplný seznam výstupů, které taková akce potřebuje, od oslovení
+řečníků po follow-up e-mail. U každého uveď:
+1. Z jakých dat se odvozuje (program, seznam registrovaných, texty
+   o akci, mapa místa…)
+2. Deadline vůči dni akce (např. „tisk: D-5, protože tiskárna
+   potřebuje 3 pracovní dny“)
+3. Formát (web, PDF na tisk, obrázek na sítě, e-mail, slidy)
+4. Co se stane, když se program změní po vyrobení tohohle výstupu
+
+Seřaď podle deadlinu. Zvlášť označ výstupy, které se po vytištění
+už nedají změnit — u těch budu plánovat rezervu.
+```
+
+Vrátí seznam o dvaceti až třiceti položkách — delší, než byste čekali, a to je dobře: teď ho vidíte celý najednou, místo aby na vás jednotlivé položky vyskakovaly po večerech. Zkontrolujte deadliny proti realitě (tiskárna, uzávěrka registrace) a seznam si uložte; v závěru článku z něj uděláme tabulku, která bude viset nad celou přípravou. A hlavně si všimněte sloupce 1: skoro u všeho je napsáno „program“. To je ten soubor, který teď postavíme.
+
+### Struktura dat: řečníci a bloky
+
+Program akce má dvě přirozené entity. **Řečník** — člověk se jménem, biem, fotkou, tématem a souhlasy. **Blok** — položka v čase: od kdy do kdy, v jakém sále, jaký typ (přednáška, workshop, přestávka, networking) a kdo v ní vystupuje. Oddělit je od sebe je klíčové rozhodnutí: řečník může mít dva bloky, blok může mít dva řečníky (panel) a přestávka nemá žádného — kdyby bylo všechno v jedné tabulce, tyhle případy ji rozbijí.
+
+```text
+Navrhni datovou strukturu programu pro jednodenní akci se dvěma sály.
+Potřebuji dvě entity:
+
+Řečník: id, jméno, firma/role, krátké bio (400–600 znaků), fotka
+(název souboru), téma vystoupení, anotace (500–800 znaků), kontakt,
+souhlas s fotografováním a natáčením (ano/ne), souhlas se zveřejněním
+podkladů po akci (ano/ne), stav komunikace (osloven / potvrzen /
+podklady dodány / kompletní).
+
+Blok: id, začátek, konec, sál, typ (přednáška / workshop / panel /
+přestávka / organizační), název, seznam id řečníků (může být prázdný
+i vícečlenný), poznámka pro moderátora.
+
+Navrhni to jako YAML soubory pro git repozitář (program.yaml plus
+složka recnici/ s jedním souborem na řečníka) a ukaž mi vyplněný
+příklad jednoho řečníka a tří bloků včetně přestávky. Vysvětli,
+proč je lepší mít řečníky odděleně od bloků. Navrhni i pravidla:
+co je povinné pole a co se smí doplnit později.
+```
+
+Výsledkem je struktura, která může vypadat třeba takhle (zkrácený příklad — váš návrh se může v detailech lišit a to je v pořádku, důležité je oddělení entit a povinná pole):
+
+```yaml
+# recnici/jana-svobodova.yaml
+id: jana-svobodova
+jmeno: Jana Svobodová
+firma: Ateliér Podklad
+bio: >-
+  Deset let vede studio zaměřené na… (400–600 znaků, psáno ve třetí
+  osobě, jednotný formát pro všechny řečníky)
+foto: jana-svobodova.jpg
+tema: Jak se dělá obsah, který přežije rok
+anotace: >-
+  Co si z přednášky odnesete… (500–800 znaků)
+souhlas_foto: ano
+souhlas_zverejneni_podkladu: ano
+stav: podklady-dodany
+
+# program.yaml (výřez)
+- id: blok-04
+  zacatek: "10:30"
+  konec: "11:10"
+  sal: velky
+  typ: prednaska
+  nazev: Jak se dělá obsah, který přežije rok
+  recnici: [jana-svobodova]
+  poznamka_moderator: po přednášce 10 minut na otázky, má ráda těžší
+```
+
+Nenechte se odradit tím, že to vypadá „technicky“. YAML je obyčejný text s odsazením — čte se jako strukturovaný seznam a editovat ho umí kdokoli, kdo umí psát. A pokud je i tohle moc, celá struktura funguje i jako **dvě listy ve sdílené tabulce** (Řečníci a Program): princip „jeden zdroj, všechno ostatní odvozené“ nezávisí na formátu. O tom hned.
+
+Dvě pole si zaslouží zvláštní pozornost, protože se na ně u prvních ročníků zapomíná a pak chybí v nejhorší moment. **Souhlasy** — s fotografováním a se zveřejněním podkladů — patří do dat od začátku, protože se na ně budete odvolávat při publikaci fotek a slidů po akci; sbírat je zpětně je nepříjemné pro obě strany. A **stav komunikace** — uvidíte ve fázi 2, že je to motor celé koordinace s řečníky: dokud existuje řečník ve stavu „osloven“ tři týdny, systém to vidí a připomene.
+
+### Git, nebo tabulka?
+
+Poctivá odpověď: obojí funguje, a rozdíl je v tom, co dostanete navíc.
+
+**Sdílená tabulka** (dva listy: Řečníci, Program) je nejnižší práh vstupu — oba organizátoři ji umí editovat z telefonu, vidí ji naráz a Claude s ní umí pracovat přes export nebo konektor. Pro akci, kterou dělají dva lidé jednou, je to legitimní volba a zbytek návodu s ní jde projít taky: kde píšeme „soubor v repozitáři“, čtěte „list v tabulce“.
+
+**Git repozitář** přidává tři věci, které se u akce hodí víc, než by se zdálo. Historii: každá změna programu má datum, autora a popis — „přesunut blok 6, Novák stíhá až odpolední vlak“ — takže se za týden nedohadujete, proč je program jinak, než si ho pamatujete. Jednoznačnost: existuje jedna verze, žádné `program_v2_final`. A napojení: Claude Code pracuje nad repozitářem přímo — čte program, generuje z něj web i podklady a změny dělá jako navržené úpravy, které schvalujete. Nemusíte přitom git umět; jak taková spolupráce vypadá v praxi, ukazuje [návod na web s Claude Code](/tipy/web-claude-code-vercel). Petra s Markem volí git právě kvůli webu ve fázi 4 — a tabulku používají jen na registrace účastníků, kde se hodí formulářový sběr (fáze 5).
+
+Jedno pravidlo platí pro obě varianty: **do zdroje pravdy nepatří nic, co tam nemá být vidět.** Kontakty na řečníky a souhlasy ano (repozitář je soukromý), ale hesla, API klíče ani exporty registrací s osobními údaji účastníků ne. Registrace žijí odděleně (fáze 5) a mají vlastní pravidla mazání (sekce o GDPR).
+
+A jestli váháte, začněte tabulkou — rozhodnutí není nevratné. Struktura z tohohle návodu (oddělení řečníků a bloků, povinná pole, stavy) je stejná v obou formátech, takže přechod z tabulky do gitu je jednorázový převod, který za vás udělá Claude za pár minut, ne přestavba. Typický vývoj u akcí, které přežijí první ročník: první ročník v tabulce, druhý v gitu — protože mezitím přibyl web a chuť mít historii. Důležité je jediné rozhodnutí, a to hned: **že zdroj pravdy je jeden a všechno ostatní se z něj odvozuje.** Formát je detail; disciplína ne.
+
+### Konzistenční kontrola: program, který si neprotiřečí
+
+Jakmile struktura žije a plní se skutečnými daty, přibude povinnost, kterou tabulkám i souborům musí někdo dělat: kontrola, že program dává smysl jako celek. Tohle je přesně mechanická práce pro AI — a první ukázka toho, proč se strukturovaná data vyplatí: nad e-mailovým vláknem by tahle kontrola nebyla možná.
+
+```text
+Tady je program.yaml a složka recnici/ [vložit obsah nebo nechat
+načíst z repozitáře]. Zkontroluj konzistenci a vypiš každý nález
+s konkrétním místem:
+1. Časy: překrývají se bloky ve stejném sále? Navazují na sebe,
+   nebo jsou mezi nimi neplánované díry? Sedí součet stopáží
+   s časem od–do každého sálu?
+2. Řečníci: je někdo ve dvou blocích, které se překrývají nebo na
+   sebe těsně navazují v různých sálech (nestihne přejít)?
+   Odkazuje program na id řečníka, který neexistuje?
+3. Úplnost: kterým řečníkům chybí bio, fotka, anotace nebo souhlasy?
+   Které bloky nemají řečníka, ačkoli podle typu mají mít?
+4. Přestávky: je někde víc než 120 minut programu bez přestávky?
+Nic neopravuj — vrať seznam nálezů, opravím je sám a pak kontrolu
+spustíme znovu.
+```
+
+Tuhle kontrolu spouštějte po každé větší změně programu a povinně před každým generováním výstupů. Typické nálezy z praxe: dva čtyřicetiminutové bloky nacpané do sedmdesáti minut, workshop odkazující na starý id přejmenovaného řečníka, tři hodiny odpoledního programu bez přestávky. Každý z nich je za minutu opravený teď — a za hodně nervů opravovaný na místě v den akce.
+
+## Fáze 2: komunikace s řečníky — šablony a evidence stavu
+
+Dvanáct řečníků znamená dvanáct paralelních konverzací, z nichž každá projde stejnými kroky: oslovení, potvrzení, sběr podkladů, organizační informace před akcí. Bez systému se tyhle konverzace rozsypou do schránky a minimálně jedna z nich zapadne — poznáte to tak, že týden před akcí zjistíte, že od jednoho řečníka nemáte fotku a od jiného vlastně ani potvrzení. Systém má dvě části: šablony (aby se stejný e-mail nepsal dvanáctkrát) a stav (aby bylo vidět, kdo kde vázne).
+
+### Oslovení, které není spam
+
+Oslovovací e-mail řečníkovi je nejdůležitější text celé přípravy — rozhoduje o tom, jestli akce bude mít program. Šablona promptem neznamená neosobní: znamená, že struktura a fakta jsou jednou promyšlené a personalizace se dělá vědomě, ne vyčerpaně v jedenáct večer.
+
+```text
+Připrav šablonu oslovení řečníka pro naši akci. Kontext: [první
+ročník oborového setkání pro koho, datum, místo, 120 účastníků,
+2 sály]. Nemůžeme nabídnout honorář, nabízíme [cestovné, oběd,
+publikum složené z…, nahrávku vystoupení, …].
+
+Struktura:
+1. Jedna věta, proč oslovujeme právě tohoto člověka — nechám v ní
+   placeholder [KONKRETNI DUVOD], který u každého vyplním ručně,
+   protože tahle věta se nesmí generovat
+2. Co je akce zač a pro koho (stručně, bez superlativů)
+3. Co konkrétně od řečníka chceme: formát, stopáž, termín
+4. Co nabízíme — na rovinu včetně toho, že honorář není
+5. Jasná otázka na konec s termínem odpovědi [datum]
+Tón: kolegiální, stručný, žádné „dovolujeme si Vás oslovit“.
+Připrav i variantu pro řečníka, kterého osobně známe.
+```
+
+Všimněte si bodu 1: věta „proč právě vy“ je jediná část, kterou šablonovat nesmíte — je to důvod, proč pozvání není spam, a řečníci poznají generickou lichotku na první pohled. Napište ji sami, u každého jinak, klidně jedním řádkem („vaše přednáška z Brna nás donutila přepsat půlku našeho onboardingu“). Zbytek e-mailu smí být z šablony; nikoho neurazí, že organizační fakta jsou u všech stejná. A pravidlo z celého webu platí i tady: **AI napíše návrh, odesíláte vy** — po přečtení, pod vlastním jménem.
+
+### Stavová tabulka: kdo kde vázne
+
+Pole `stav` u každého řečníka teď dostane smysl. Stavy jsou čtyři: osloven → potvrzen → podklady dodány → kompletní (má i organizační informace před akcí). Jednou týdně — Petra to má jako nedělní rituál ke kávě — se nad daty spustí přehled:
+
+```text
+Projdi soubory ve složce recnici/ a vrať přehled komunikace:
+1. Tabulka: řečník, stav, datum poslední změny, co konkrétně chybí
+   (bio / fotka / anotace / souhlasy / potvrzení)
+2. Kdo je ve stavu „osloven“ déle než 10 dní → navrhni text
+   připomínky; zdvořilý, krátký, s konkrétním termínem, po kterém
+   budeme hledat náhradu (formulované bez výčitky)
+3. Kdo je „potvrzen“ déle než 14 dní bez podkladů → navrhni
+   připomínku se seznamem přesně těch položek, které od něj chybí
+4. Spočítej: kolik řečníků je kompletních, kolik bloků programu
+   ještě nemá potvrzeného řečníka
+Návrhy e-mailů mi vypiš k odsouhlasení — odešlu je sám.
+```
+
+Tenhle přehled je deset minut týdně a je to nejlevnější pojistka celé akce: žádná konverzace nezapadne, protože stav není v hlavě, ale v datech. Připomínky odcházejí včas a slušně — což je mimochodem přesný opak toho, co se děje bez systému, kdy se na zapomenutého řečníka vzpomene pozdě a připomínka je panická. Řečníci s vámi jednají poprvé; způsob, jakým komunikujete před akcí, je pro ně ochutnávka celé akce.
+
+### Sběr podkladů: jednou, strukturovaně, s termínem
+
+Potvrzený řečník potřebuje dodat podklady — a tady vzniká druhé klasické bahno: bia přijdou v pěti formátech (jedno v první osobě, jedno na dvě stránky, jedno „napište to za mě“), fotky v rozlišení na jmenovku i na billboard, a polovina odpovědí nepřijde vůbec. Řešení: jeden strukturovaný e-mail, který říká přesně co, v jakém formátu a dokdy — a normalizace došlého na vaší straně.
+
+```text
+Napiš e-mail potvrzenému řečníkovi se žádostí o podklady. Chceme:
+1. Bio 400–600 znaků, třetí osoba („Jana vede…“), zaměřené na to,
+   co je relevantní pro naše publikum
+2. Fotku na šířku i výšku použitelnou, ideálně [min. rozlišení],
+   bez výrazného pozadí
+3. Název vystoupení (max 60 znaků kvůli tisku) a anotaci 500–800
+   znaků — co si posluchač odnese, ne osnovu
+4. Souhlas se dvěma větami, které vypiš přesně: fotografování
+   a natáčení během vystoupení; zveřejnění slidů po akci
+5. Technické požadavky (vlastní notebook? zvuk? cokoliv dalšího)
+Termín: [datum]. Přidej větu, že bio i anotaci rádi zredigujeme,
+stačí poslat hrubý text — chceme snížit bariéru odpovědi.
+```
+
+Ta poslední věta je malý trik s velkým efektem: nejčastější důvod, proč řečník podklady nepošle, je, že „na to potřebuje klid“. Nabídka, že pošle syrový odstavec a redakci uděláte vy, mění úkol na dvě minuty. Redakce je pak přesně práce pro AI s vaším dohledem: sjednotit všechna bia do třetí osoby, stejné délky a struktury — a **poslat každému řečníkovi jeho upravené bio ke schválení**, protože je to jeho jméno a jeho věta. Došlé podklady rovnou ukládejte do struktury z fáze 1 (soubor řečníka, fotka do složky `foto/`), ne do schránky. Schránka je doručovací kanál, ne úložiště.
+
+### Partneři: stejná logika, jiná entita
+
+Většina komunitních akcí má i partnery — firmu, která půjčila prostor, dodavatele kávy, mediálního partnera. A partneři jsou přesně tentýž koordinační problém jako řečníci v malém: každý má logo, domluvené protiplnění („logo na webu a plakátu, zmínka na zahájení, stolek u registrace“) a stav komunikace. Proto dostanou v repozitáři vlastní entitu vedle řečníků: soubor na partnera s logem (v křivkách i PNG — vyžádejte si obojí hned, dodatečné shánění tiskového loga je klasický zdržovač tisku), seznamem slíbených protiplnění a kontaktem.
+
+Odměna za tu trochu struktury je stejná jako u programu: výstupy se odvozují. Pás log na webu, na plakátu i na slidech přestávek se generuje ze složky partnerů — když v půlce příprav přibude čtvrtý partner, přidá se jeden soubor a pás log se přegeneruje všude, místo aby Marek otevíral tři návrhy a doufal, že si vzpomene na všechny. A slíbená protiplnění fungují jako checklist: před akcí se z dat vypíše „co jsme komu slíbili a kde to je splněné“ — poděkování na zahájení se pak čte z moderátorských podkladů, kam se propsalo samo. Partner, kterému se splní všechno slíbené bez upomínání, je partner i pro druhý ročník; i tohle je výstup systému, ne náhody.
+
+## Fáze 3: vizuální identita akce z jedné rodiny šablon
+
+Akce potřebuje vypadat jednotně: plakát, tištěný program, jmenovky, cedule na dveře sálů, směrovky, slidy s přestávkami. U agenturní akce to zajišťuje grafický manuál a člověk, který ho hlídá; u dobrovolnické akce to musí zajistit **jedna rodina šablon, ze které se všechno odvozuje.** Ne proto, že by jednotný vizuál byl estetický rozmar — proto, že je to další zdroj pravdy: když jsou barvy, písma a logo definované jednou, nemůže se stát, že plakát je modrý, cedule tyrkysová a jmenovky „přibližně“ obojí.
+
+Petra s Markem na to jdou přes Canvu, a to ze střízlivého důvodu: je to nástroj, který budou umět ovládat i dobrovolníci, kteří v den akce budou potřebovat rychle vyrobit ceduli navíc. V době psaní má Canva oficiální konektor pro AI asistenty (MCP): z Claude jde vytvářet návrhy podle popisu, plnit šablony obsahem, měnit velikosti návrhů, prohledávat vlastní knihovnu a exportovat do PDF, PNG i dalších formátů. Pokročilejší práce s brandovými šablonami a firemními sadami barev je vázaná na vyšší tarify a možnosti konektoru se průběžně mění — ověřte si aktuální stav v dokumentaci Canvy, než na něm postavíte plán. A pokud konektor nemáte nebo nefunguje podle očekávání, celá fáze jde projít i ručně v editoru Canvy — AI pak pomáhá s texty, strukturou a s přípravou dat pro hromadné výstupy (fáze 6). Co jsou konektory a jak se připojují, shrnuje [přehled MCP nástrojů](/tipy/mcp-konektory-nastroje).
+
+### Základ: tři rozhodnutí místo třiceti
+
+Vizuální identita malé akce jsou tři rozhodnutí: barvy (dvě, maximálně tři), písmo (jedno pro nadpisy, jedno pro text — klidně systémové, licence na tisk si ověřte) a jeden vizuální motiv, který se opakuje (tvar, ilustrace, způsob ořezu fotek). Všechno ostatní jsou důsledky. Nechte si nejdřív navrhnout směry — a teprve vybraný směr proměňte v šablony:
+
+```text
+Navrhni tři vizuální směry pro identitu naší akce: [název, obor,
+datum, jednodenní setkání pro 120 lidí]. Charakter akce: [komunitní,
+praktická, žádný korporát — doplňte vlastními slovy]. U každého
+směru popiš:
+1. Dvojici barev (konkrétní hex kódy) a proč funguje i v černobílém
+   tisku — cedule se budou tisknout na obyčejné tiskárně
+2. Dvojici písem s bezplatnou licencí pro tisk
+3. Vizuální motiv, který se dá opakovat na plakátu, jmenovce
+   i slidu, a je jednoduchý natolik, že ho v Canvě udrží amatér
+4. Jednu větu, jaký dojem má směr vyvolat
+Žádný směr nesmí stát na fotografiích, které nemáme. Vyber sám
+jeden, který bys doporučil pro první ročník, a zdůvodni to.
+```
+
+Bod 1 vypadá jako detail a není: půlka výstupů akce projde černobílou kancelářskou tiskárnou a identita, která stojí na jemných barevných přechodech, se v ní rozpadne. Vybraný směr si zapište do repozitáře jako `vizual.md` — hex kódy, názvy písem, pravidla motivu. Je to miniaturní brand manuál akce a stejně jako program je to zdroj pravdy: kdokoli (včetně AI v každém dalším promptu) z něj čte, nikdo si barvy nepamatuje „od oka“.
+
+### Rodina šablon: jednou vyrobit, všude plnit
+
+Teď vzniká šest šablon, všechny ze stejného základu: plakát (na výšku, tisk i verze na sítě), tištěný program (skládaný leták nebo A5), jmenovka (rozměr podle zakoupených pouzder — změřte je, než začnete), cedule na dveře sálu (na výšku, velký název sálu + program bloku), směrovka (šipka, piktogram, jeden účel) a slide s přestávkou (na projektory v obou sálech). V době psaní tohle jde zadat konektoru přímo; návrhy vzniknou ve vašem účtu Canvy jako editovatelné soubory — což je přesně ten rozdíl mezi výstupem a aktivem, na kterém stojí celý přístup ke značce jako systému: obrázek vygenerovaný v chatu za týden neopravíte, návrh v Canvě ano.
+
+```text
+Přes konektor Canva vytvoř rodinu šablon pro naši akci podle
+přiloženého vizual.md (barvy, písma, motiv):
+1. Plakát na výšku — velký název akce, datum, místo, prostor pro
+   6–8 jmen řečníků, QR kód (zástupný symbol) a web
+2. Tištěný program A5 — titulní strana + vnitřní dvoustrana se
+   dvěma sloupci (velký sál / workshopy), řádek programu: čas,
+   název, řečník
+3. Jmenovka [šířka x výška podle pouzder] — velké křestní jméno,
+   menší příjmení a firma, barevný pruh podle role
+4. Cedule na dveře sálu A4 na výšku — název sálu a seznam bloků
+5. Směrovka A4 na šířku — šipka a jeden řádek textu
+6. Slide 16:9 pro přestávky — velký čas, „další blok začíná v…“
+Do všech dej zástupné texty v hranatých závorkách, žádná smyšlená
+jména. Pošli mi odkazy na návrhy — doladím je v editoru sám.
+```
+
+Dvě věci pohlídejte při kontrole návrhů. Zástupné texty: šablona musí mít placeholder všude, kde se budou plnit data z programu — když si konektor nebo editor „pomůže“ smyšleným jménem, dřív nebo později prosákne do tisku (stalo se; jmenovka s neexistujícím řečníkem je oblíbený suvenýr prvních ročníků). A délky: do řádku programu se musí vejít nejdelší skutečný název přednášky, ne ten testovací — vezměte nejdelší z `program.yaml` a zkuste ho tam vložit hned teď, ne v den tisku.
+
+Barevný pruh na jmenovce podle role (účastník, řečník, organizátor, dobrovolník) je mimochodem nejlevnější organizační vychytávka celé akce: v davu je na tři metry vidět, koho se zeptat na cestu k sálu a kdo má za deset minut přednášet.
+
+### Slidy s přestávkami: malý výstup, velký dojem
+
+Slidy, které běží na projektorech o přestávkách, jsou přesně ten výstup, který se u prvních ročníků vyrábí v panice na místě — a přitom se dá celý vygenerovat z programu předem:
+
+```text
+Z přiloženého program.yaml vygeneruj obsah slidů pro přestávky,
+pro každý sál zvlášť. Pro každou přestávku jeden slide s textem:
+1. „Přestávka do [čas]“
+2. „V tomto sále pak: [název bloku] — [řečník] v [čas]“
+3. „Ve vedlejším sále: [název bloku] — [řečník]“
+4. Wifi síť a heslo, hashtag akce
+Přidej jeden slide „Za chvíli začínáme“ na ráno a jeden závěrečný
+s poděkováním a QR kódem na dotazník. Vrať to jako tabulku
+(sál, pořadí, řádky textu) — nalije se do Canva šablony slidu.
+Zkontroluj časy proti programu a upozorni, pokud přestávky
+v obou sálech nezačínají stejně.
+```
+
+Poslední věta promptu je typ kontroly, kterou budete chtít u každého generovaného výstupu: model nemá jen vyrobit, má nahlásit, co mu při výrobě nesedělo. Přestávky, které v obou sálech nezačínají stejně, nejsou nutně chyba — ale chcete o nich vědět dřív, než se dav ze dvou sálů potká u jednoho kávovaru v různou dobu.
+
+## Fáze 4: web akce, který se generuje z programu
+
+Web je pro účastníky hlavní zdroj informací — a u klasicky dělané akce taky první místo, kde se pozná, že koordinace selhává: visí tam program starý tři týdny, protože „ten, kdo umí web“, neměl čas. Řešení není lepší disciplína; řešení je web, který **nemá vlastní obsah** — program, řečníky i časy čte ze stejných dat jako všechno ostatní, takže nemůže být pozadu.
+
+Celý postup stavby webu s Claude Code — od prvního promptu přes git jako záchrannou síť po nasazení a doménu — má na tomhle webu [samostatný podrobný návod](/tipy/web-claude-code-vercel) a platí beze zbytku i tady; nebudeme ho opisovat. Soustředíme se na to, co je u webu akce jinak: obsah negeneruje člověk, ale build z programových dat.
+
+### Stavba: web bez vlastního obsahu
+
+Web akce pro 120 lidí je záměrně jednoduchý: jedna stránka, čtyři sekce (co je to za akci, program, řečníci, praktické informace s mapou a registrací). Žádný redakční systém — redakčním systémem je `program.yaml`.
+
+```text
+V repozitáři akce postav jednoduchý web (jedna stránka, statický,
+poběží na Vercelu). Klíčové pravidlo: veškerý obsah o programu
+a řečnících se při buildu načítá z program.yaml a složky recnici/
+— v kódu webu nesmí být natvrdo napsané žádné jméno, čas ani název
+přednášky. Struktura:
+1. Úvod: název, datum, místo, jednovětné „pro koho to je“, tlačítko
+   na registraci [odkaz]
+2. Program: dva sloupce podle sálů, řádek = čas, název, řečník;
+   přestávky vizuálně odlišené
+3. Řečníci: mřížka karet z recnici/ — fotka, jméno, firma, téma;
+   po rozkliknutí bio a anotace
+4. Praktické info: adresa s mapou, MHD, wifi, kontakt
+Vzhled podle vizual.md. Řečníky bez dodané fotky zobraz
+s jednotným zástupným obrázkem, ne s rozbitým rámečkem.
+```
+
+Ten zvýrazněný požadavek — žádné jméno natvrdo v kódu — je celá pointa fáze. Až se ve fázi 7 změní program den před akcí, web se opraví tím, že se opraví data a web se přegeneruje; nikdo nebude v noci hledat, ve kterém souboru je zapsané jméno řečníka. Nasazení na Vercel znamená, že každá změna dat propsaná do repozitáře se na webu objeví automaticky po buildu — bezplatná úroveň na web tohoto rozsahu v době psaní bez problémů stačí.
+
+### Předletová kontrola webu
+
+Před zveřejněním (a pak před akcí znovu) jedna kontrola, která spojí obě strany — data i web:
+
+```text
+Zkontroluj web proti zdrojovým datům, než ho zveřejníme:
+1. Porovnej vykreslený program na webu s program.yaml — každý blok,
+   čas, sál a jméno. Vypiš každý rozdíl.
+2. Ověř, že na webu není žádný řečník, který v datech nemá stav
+   „potvrzen“ nebo lepší — nikdo nesmí být zveřejněný dřív,
+   než potvrdil účast.
+3. Projdi všechny odkazy (registrace, mapa, kontakty) a vypiš,
+   kam vedou; rozbité nebo zástupné odkazy označ.
+4. Zkontroluj zobrazení na mobilu: program se čte na telefonu
+   ve frontě na kávu — dva sloupce se musí složit pod sebe.
+Nehlas „vše v pořádku“, dokud nevypíšeš, kolik bloků a řečníků
+jsi skutečně porovnal.
+```
+
+Ještě jeden důsledek webu generovaného z dat stojí za vytěžení: web je jediný výstup, který je aktuální **vždycky** — a proto na něj mají ukazovat všechny ostatní. QR kód na plakátu, v tištěném programu i na cedulích u sálů vede na web; tištěný program tak smí být stručný (časy, názvy, sály), protože detail — anotace, bia, případné změny na poslední chvíli — žije na adrese, kterou má každý účastník v kapse. U prvního ročníku to má i psychologický efekt: změna programu přestane být trapas („na plakátu je to jinak!“) a stane se normální provozní informací („aktuální program je na webu, jako vždycky“). Vytiskněte tu větu drobným písmem na všechno, co jde do tisku brzy.
+
+Bod 2 je pravidlo, které si stanovte hned: **na web (a do jakéhokoli veřejného výstupu) jdou jen potvrzení řečníci.** Zveřejnit jednání „v dobré víře“ a pak tiše mazat odřeknuvšího je horší než mít na webu o kartu míň. Struktura dat to hlídá za vás — stav řečníka je pole jako každé jiné a build ho umí respektovat. A poslední věta promptu je pojistka známá z každé kontrolní práce s modelem: kontrolní prompt bez vykázaného rozsahu má tendenci zkontrolovat tři položky a odmávnout zbytek. Chtějte číslo.
+
+## Fáze 5: registrace účastníků — formulář, kapacita, prezence
+
+Registrace je první místo, kde do systému vstupují osobní údaje cizích lidí, a proto má dvě roviny: technickou (jak sbírat, hlídat kapacitu a odbavovat u vchodu) a právní (co sbírat, co s tím říct a kdy to smazat — tomu patří samostatná sekce o GDPR níž). Tady je technika, poctivě od nejjednodušší varianty.
+
+### Formulář: sbírejte míň, než chcete
+
+Možnosti jsou v zásadě dvě a obě jsou v základu zdarma. **Formulář napojený na tabulku** (Google Forms nebo podobná služba): postavené za večer, odpovědi padají do tabulky, kterou umí číst Claude i mail merge ve fázi 6. Pro první ročník se 120 lidmi je to úplně legitimní řešení a Petra s Markem ho volí. **Vlastní formulář na webu se Supabase**: víc práce, ale registrace žijí v databázi vedle webu, kapacita se hlídá sama a odbavení u vchodu může číst stejná data; bezplatná úroveň Supabase na 120 registrací v době psaní stačí s velkou rezervou. Kdy se to vyplatí: když plánujete další ročníky, placené vstupné nebo víc akcí — pak se podívejte na zásady zabezpečení databáze v [článku o firemním CRM](/tipy/firma-brand-voice-brozura-web-crm), platí tu jedna ku jedné (EU region, zamčené řádky, žádné klíče v kódu webu).
+
+U obou variant platí stejné pravidlo obsahu: **sbírejte nejmenší množinu údajů, se kterou akci uspořádáte.** Každé pole formuláře je závazek — budete ho chránit, spravovat a mazat.
+
+```text
+Navrhni registrační formulář pro jednodenní oborové setkání
+(120 míst, vstupné [částka/zdarma]). Chci nejmenší možnou sadu polí
+— u každého pole napiš, k čemu konkrétně ho při organizaci použiju,
+a pokud použití nenajdeš, vyřaď ho. Zvaž: jméno, e-mail, firma/role
+(na jmenovku), stravovací omezení, „odkud jste se o nás dozvěděli“,
+souhlas s fotografováním, cokoli dalšího obvyklého.
+Dále navrhni:
+1. Text nad formulářem: kdo údaje zpracovává, k čemu, jak dlouho
+   je držíme a kdy je smažeme — srozumitelnou češtinou, ne právničinou
+2. Chování při naplnění kapacity: text pro náhradníky a postup,
+   jak je oslovit, když se místo uvolní
+3. Text potvrzovacího e-mailu (viz níže) 
+Ke každému bodu přidej poznámku, co bych neměl podcenit.
+```
+
+Typický výsledek téhle úvahy: jméno a e-mail ano (bez nich akce nejde), firma a role ano, pokud je chcete na jmenovky — ale s vědomím, že je to volitelný údaj, stravovací omezení jen pokud opravdu řešíte catering (a po akci se maže první), telefonní číslo skoro jistě ne. „Odkud jste se o nás dozvěděli“ je jediné marketingové pole, které si první ročník smí dovolit — při vyhodnocování budete rádi, že ho máte.
+
+Kapacitu hlídejte poctivě: u formuláře s tabulkou je to ruční kontrola počtu řádků a včasné zavření formuláře (nastavte si připomínku, ne „budu to sledovat“), u Supabase varianty limit hlídá databáze. Náhradnický režim se u komunitních akcí vyplatí vždycky — bezplatné vstupenky mají vysokou míru nedorazivších a týden před akcí budete uvolněná místa nabízet pořadníku.
+
+K nedorazivším ještě jedna poctivá poznámka, protože první ročníky na ni pravidelně narážejí: u bezplatných akcí je běžné, že dorazí výrazně méně lidí, než se registrovalo — registrace zdarma nic nestojí, takže nic neváže. Máte tři mírné páky, žádnou stoprocentní: symbolické vstupné (i malá částka dramaticky zvedne poměr dorazivších — a mimochodem zaplatí kávu), e-mail pár dní před akcí s prosbou „pokud nemůžete, uvolněte místo náhradníkům“ (kupodivu funguje, lidé nechtějí být ti, kdo blokují židli), a lehký overbooking — pustit registrace o něco přes kapacitu sálu s vědomím, že plný počet nikdy nedorazí. Míru overbookingu volte konzervativně a spočítejte si ji ze skutečných dat po prvním ročníku; do té doby je bezpečnější kombinace prvních dvou pák. Ať zvolíte cokoli, rozhodnutí je vaše a patří do poznámek k vyhodnocení — je to přesně ten typ znalosti, který se jinak ztratí a druhý ročník ho objevuje znovu.
+
+### Potvrzení a e-mail před akcí
+
+Účastník dostane dva e-maily: potvrzení hned po registraci a organizační e-mail dva až tři dny před akcí. Oba se odvozují — první z registrace, druhý z programu a praktických informací, takže se nemůže stát, že v e-mailu je jiný čas začátku než na webu (klasika ručně psaných e-mailů).
+
+```text
+Připrav dva e-maily pro účastníky, data ber z program.yaml
+a z webu akce — žádný čas ani adresu nepiš z hlavy:
+1. Potvrzení registrace: potvrzení místa, datum a adresa, odkaz
+   na web s programem, informace o zpracování údajů jednou větou
+   s odkazem, kontakt na nás. Krátké — pět vět.
+2. E-mail 3 dny před akcí: začátek registrace u vchodu a začátek
+   programu (dva různé časy, zdůrazni to), jak se k nám dostat
+   [MHD, parkování], co si vzít, wifi, hashtag, odkaz na program,
+   a větu o fotografování na akci s možností odmítnout
+   (viz naše GDPR poznámky).
+U obou: tón přátelský, žádné vykřičníky, předmět do 50 znaků.
+Vrať jako šablony s poli [JMENO] pro hromadné odeslání.
+```
+
+K rozesílce: potvrzení po registraci umí formulářové služby samy; hromadný e-mail před akcí pošlete přes svůj mailový nástroj s hromadnou korespondencí, ne po jednom. A zásadní pravidlo, které na tomhle webu platí všude: **rozesílku spouští člověk.** AI připraví šablonu, vygeneruje personalizované verze, zkontroluje seznam příjemců proti registracím — ale tlačítko odeslat je vaše, po kontrole náhodného vzorku. Hromadný e-mail se špatným datem se nedá odvolat.
+
+### Prezence u vchodu: poctivě o QR kódech
+
+U vchodu potřebujete odbavit 120 lidí za zhruba třicet minut a vědět, kdo skutečně dorazil. Poctivé pořadí řešení podle složitosti:
+
+- **Abecední papírový seznam a fajfky.** Nula techniky, funguje vždycky, na 120 lidí se dvěma odbavovacími místy úplně stačí. Jediná AI práce: vygenerovat z registrací přehledný seznam řazený podle příjmení, velkým písmem, se sloupcem na fajfku.
+- **Vyhledávání v tabulce na tabletu.** O krok pohodlnější, zvlášť když se registrace mění do poslední chvíle; prezence se zapisuje rovnou do dat, takže večer víte přesnou účast bez přepisování fajfek.
+- **QR kód v potvrzovacím e-mailu.** Každý účastník dostane v e-mailu před akcí unikátní QR kód (vygenerovaný z id registrace), u vchodu ho ukáže a odbavovací zařízení — stačí telefon s čtečkou a jednoduchá stránka napojená na data — ho označí jako přítomného. Je to nejrychlejší a nejpřesnější varianta a se Supabase v pozadí ji Claude Code postaví jako malou interní stránku; počítejte ale s večerem práce navíc a s tím, že **záložní papírový seznam musí ležet u vchodu stejně** — vybitý telefon účastníka ani výpadek wifi nesmí zastavit frontu.
+
+```text
+Postav jednoduchou prezenci pro vchod. Registrace jsou v [tabulce /
+Supabase]. Chci:
+1. Ke každé registraci vygenerovat unikátní kód a QR obrázek,
+   který se vloží do e-mailu před akcí
+2. Interní stránku /prezence (jen pro přihlášené organizátory):
+   načtení QR kamerou nebo ruční vyhledání jména, jedním klepnutím
+   označit příchod, počítadlo odbavených nahoře
+3. Ošetři: opakované načtení stejného kódu (upozornit, ne zapsat
+   dvakrát), registrace na místě (tlačítko „nová registrace“
+   s minimem polí), fungování na telefonu
+4. Export: po akci chci seznam kdo dorazil / nedorazil pro
+   vyhodnocení a follow-up
+K tomu vygeneruj záložní abecední seznam do PDF pro případ
+výpadku. Stránka nesmí být veřejně přístupná — vysvětli mi,
+jak je zabezpečená.
+```
+
+Rada z praxe prvních ročníků: ať zvolíte cokoli, **odbavení musí zvládnout dobrovolník, kterého jste zaškolili pět minut.** Vy dva budete v osm ráno řešit ozvučení a ztracený prodlužovák, ne stát u vchodu. Napište si pro dobrovolníky u vchodu kartičku s postupem — i tu vygenerujete z dat: co dělat, když člověk není v seznamu, kde jsou jmenovky řečníků, na koho se obrátit.
+
+## Fáze 6: jmenovky, cedule a tisk — hromadně z dat
+
+Tisková příprava je místo, kde se zdroj pravdy potká s fyzickým světem — a kde ruční práce bolí nejvíc, protože 120 jmenovek se ručně nevyplňuje, ono se to jen tak říká. Logika je u všech tiskovin stejná a jmenuje se hromadná korespondence (mail merge): šablona z fáze 3 plus tabulka dat rovná se sada hotových kusů. Canva má v době psaní na hromadné plnění šablony z tabulky funkci Bulk create (dostupnost se liší podle tarifu — ověřte si ji ve svém účtu); alternativně tu práci odvede skript, který nechá Claude Code vygenerovat PDF přímo, bez grafického editoru. Důležitější než nástroj je příprava dat.
+
+### Data na jmenovky: nudná práce, kterou nechcete dělat ručně
+
+Jmenovky se plní ze dvou zdrojů: registrace účastníků a data řečníků a organizátorů. Než se nalijí do šablony, potřebují projít úklidem — a to je přesně mechanická práce pro AI s vaší kontrolou:
+
+```text
+Připrav data pro tisk jmenovek. Zdroje: export registrací [vložit],
+soubory recnici/ a seznam organizátorů a dobrovolníků [vložit].
+1. Sjednoť formát: Jméno PŘÍJMENÍ, firma/role. Oprav zjevné
+   překlepy velikosti písmen (jan novák → Jan Novák), ale u
+   nejednoznačných případů (McDonald, dvojitá příjmení, jména
+   s předložkou) nic neměň a vypiš mi je k ručnímu rozhodnutí.
+2. Diakritiku neopravuj ani nedoplňuj — jméno je, jak si ho člověk
+   napsal. Vypiš mi jen podezřelé případy (Novak vedle Nováková).
+3. Přidej sloupec role: ucastnik / recnik / organizator / dobrovolnik
+   — podle něj šablona barví pruh.
+4. Vyhoď duplicitní registrace (stejný e-mail) a vypiš je.
+5. Seřaď podle příjmení a vrať CSV pro hromadné plnění šablony
+   plus počty kusů podle rolí.
+Nic v datech tiše neopravuj — všechno, co změníš, vypiš.
+```
+
+Dvě zásady z toho promptu stojí za zapamatování obecně. **Jméno je, jak si ho člověk napsal** — jmenovka s „opraveným“ jménem je drobnost, která umí pokazit celý první dojem; AI má překlepy hlásit, ne mlčky normalizovat. A **všechno, co model v datech změní, musí vypsat** — tichá oprava je u dat totéž co tichá chyba. Po vygenerování PDF s jmenovkami zkontrolujte tři věci: náhodný vzorek proti registracím, nejdelší jméno v sadě (vejde se?) a diakritiku ve zvoleném písmu (chybějící české znaky se poznají až v exportu). A nechte vytisknout **dvacet prázdných jmenovek** se stejným designem — registrace na místě, náhradníci, přepsané role; fix u vchodu je součást systému.
+
+### Cedule, směrovky a tiskový kontrolní seznam
+
+Zbytek tiskovin se odvozuje z programu a z půdorysu místa: cedule na dveře obou sálů (název sálu + jeho bloky s časy — generují se z `program.yaml` stejně jako web), směrovky od vchodu a od výtahu, cedule na registraci, šatnu, toalety, ceduli „tudy ne“ na dveře, kam lidi spolehlivě půjdou. K tomu informační cedule s wifi a hashtagem — a všechno v rodině šablon z fáze 3, takže výroba je plnění, ne vymýšlení.
+
+```text
+Z program.yaml a popisu místa [popsat: vchod, schodiště, patro,
+dva sály, šatna, toalety] vygeneruj:
+1. Obsah cedulí na dveře sálů: název sálu, dopolední a odpolední
+   bloky s časy a řečníky
+2. Seznam směrovek: odkud kam, jaký text a jaký směr šipky —
+   projdi cestu účastníka od vchodu ke každému cíli a najdi místa,
+   kde zaváhá
+3. Tiskový kontrolní seznam: každá tiskovina, počet kusů, formát,
+   barevně/černobíle, kde se tiskne [domácí tiskárna / copy
+   centrum], deadline vůči akci a kdo ji věší kam
+Ke každé ceduli přidej i „kdy ji sundat“ — po akci musíme prostor
+vrátit čistý.
+```
+
+Tiskový kontrolní seznam je nenápadný hrdina dne D: ráno akce se z něj stane jediný úkolovník („velká cedule na vchod — Marek — 7:40“). A deadlinová logika z inventury ve fázi 1 tu dostane ostří: **všechno, co jde do copy centra, musí být hotové několik dní předem; všechno, co se může změnit, tiskněte co nejpozději a doma.** Program se změní — proto tištěný program u vchodu tiskne Marek doma večer před akcí z aktuálních dat, zatímco plakáty visely týdny. Které výstupy patří do které kategorie, řeší tabulka na konci článku.
+
+## Krizový scénář: řečník odřekl den předem
+
+Tohle je kapitola, kvůli které se celý systém stavěl. Není otázka, jestli se něco pokazí — u dvanácti řečníků je pravděpodobnost, že všichni dorazí přesně podle plánu, prostě nízká. Otázka je, kolik vás oprava bude stát. Projděme to na konkrétní situaci: čtvrtek 20:47, akce je v pátek, volá řečnice odpoledního bloku ve velkém sále — chřipka, nepřijede. U klasicky vedené akce teď začíná noc: vzpomínání, kde všude je její jméno, a ruční opravy do rána. U systému z tohohle návodu vypadá večer takhle.
+
+**Krok 1: rozhodnutí (10 minut, bez počítače).** Nejdřív obsah, pak výstupy. Možnosti jsou vždycky čtyři: náhradní řečník (máte v zásobě někoho, kdo nabízel téma a nevešel se?), prohození bloků (workshop z malého sálu povýší do velkého), prodloužení sousedních bloků o diskuzi, nebo prodloužená přestávka s networkingem (u komunitní akce nejmíň špatná nouzovka — lidi si stejně chtějí povídat). Petra volí prohození: workshopistka z malého sálu téma ráda přednese velkému, do malého sálu se posune moderovaná diskuze. Tohle rozhodnutí za vás AI neudělá a nemá dělat — je to úsudek o lidech a o tom, co akce unese.
+
+**Krok 2: oprava zdroje pravdy (2 minuty).** Změna se zapíše do `program.yaml` a do souborů dvou řečníků — a nikam jinam. To je celé kouzlo: v tuhle chvíli je změna hotová, zbytek je propagace.
+
+**Krok 3: dopadová analýza (2 minuty).** Teď se zúročí inventura z fáze 1 — místo vzpomínání se ptáte dat:
+
+```text
+V program.yaml jsem provedl tuto změnu: [blok 07 — odřekla Jana
+Svobodová, místo ní téma Terezy Malé z bloku 09; do bloku 09
+v malém sále nově moderovaná diskuze, vede Marek].
+Projdi inventuru výstupů a vypiš VŠECHNY výstupy, kterých se změna
+týká, rozdělené na:
+1. Digitální — dají se přegenerovat hned (web, slidy přestávek,
+   naplánované posty, moderátorské podklady, …): u každého co
+   přesně se v něm mění
+2. Vytištěné nebo odeslané — nejdou vzít zpět (plakáty, program,
+   jmenovky, potvrzené e-maily): u každého navrhni zmírnění
+   (dotisk, cedulka s opravou, oznámení ráno na místě)
+3. Lidé, kterým je třeba změnu aktivně říct (oba dotčení řečníci,
+   moderátoři obou sálů, člověk na registraci) — ke každému
+   navrhni krátkou zprávu
+Nic neměň a nic neodesílej, vrať seznam k odbavení.
+```
+
+Výstupem je odškrtávací seznam místo nočního vzpomínání. Typicky: web (přegenerovat — build to udělá z opravených dat sám), slidy přestávek (přegenerovat tabulku, přelít do šablony), páteční naplánovaný post „těšíme se na…“ (přepsat — jinak ráno automat zveřejní odřeknuvší řečnici, klasická past naplánovaného obsahu), moderátorské podklady velkého sálu (přegenerovat medailonek a otázky), tištěný program (tiskne se stejně až ráno doma — proto se tiskl až ráno), plakát u vchodu (vytištěný — cedulka „změna programu“ k němu, vyrobená ze šablony směrovky), jmenovka odřeknuvší řečnice (vyřadit, Terezy zůstává platná).
+
+**Krok 4: regenerace a kontrola (10–15 minut).** Digitální výstupy se generují znovu stejnými prompty jako poprvé — v tom je půvab odvozených výstupů: postup výroby je zopakovatelný, ne jednorázový výkon. Po regeneraci jedna kontrola: nechte si vypsat, kde všude se ve výstupech ještě vyskytuje jméno odřeknuvší řečnice, a u každého výskytu rozhodněte (na webu v sekci řečníků může zůstat s poznámkou, pokud si to přeje; v programu ne).
+
+**Krok 5: komunikace (10 minut, odesílá člověk).** Zprávy dotčeným lidem z kroku 3 — osobně, ne automaticky. Účastníkům hromadný e-mail jen tehdy, když změna mění něco podstatného pro jejich rozhodování (zrušený workshop s omezenou kapacitou ano; prohozené bloky stačí oznámit ráno na zahájení a na sítích). A odřeknuvší řečnici lidská odpověď s přáním brzkého uzdravení a pozváním na příští ročník — systém šetří čas právě proto, aby na tohle zbyl.
+
+Sečteno: rozhodnutí stranou, samotné propsání změny je zhruba **dvacet minut u počítače** — a hlavně: s jistotou, že se nezapomnělo na žádný výstup, protože seznam nedávala paměť, ale data. Marek jde spát. Tenhle scénář si mimochodem klidně vyzkoušejte nanečisto týden před akcí: vymyšlená změna, stopky, projít kroky. Generálka krize je hodina času a v den D se nevyplácí ničím líp.
+
+Odřeknuvší řečník je nejčastější krize, ale zdaleka ne jediná — a stojí za to vidět, že postup je pokaždé stejný, jen s jiným obsahem kroku 1. Odpadne malý sál (havárie, revize): rozhodnutí je nový jednoproudý program, změna se zapíše do `program.yaml` a dopadová analýza vypíše totéž co vždycky — jen jí přibude řádek „cedule sálu 2 sundat“. Posune se začátek kvůli dopravní situaci: mění se pole časů, regenerují se slidy, e-mail účastníkům tentokrát ano, protože změna mění jejich rozhodování o ránu. Onemocní jeden z organizátorů: tady se zúročí, že systém nemá bus factor jedna — druhý otevře repozitář, checklist a stavovou tabulku a ví všechno, co věděl ten první, kromě věcí, které zůstaly v hlavě (proto je pravidlo „všechno do dat“ i pojistka proti chřipce, ne jen proti chaosu). Krize se liší; disciplína „nejdřív oprav zdroj pravdy, pak nech vypsat dopady, pak odbav seznam“ je pořád stejná — a po druhé krizi ji budete dělat automaticky.
+
+## Fáze 7: sociální sítě před akcí a během ní
+
+Sítě jsou pro první ročník hlavní marketingový kanál — a zároveň výstup, který se u vytížených organizátorů odkládá nejsnáz, protože „to počká do večera“ a večer už není síla. Řešení je stejné jako u všeho ostatního: posty se neodvozují z inspirace, ale z programu, a plánují se dopředu v dávce.
+
+V době psaní má Buffer — nástroj na plánování příspěvků — oficiální MCP server nad svým API: po připojení konektoru jde z Claude číst kanály a fronty, zakládat koncepty a plánovat příspěvky, a základní použití je dostupné i v bezplatném tarifu (rozsah se může měnit, ověřte v dokumentaci Bufferu). Prakticky to znamená, že dávka postů vzniklá z programu nekončí jako text ke kopírování, ale rovnou jako naplánované koncepty ve frontě. Pokud Buffer nepoužíváte, stejná logika funguje s ručním vkládáním do libovolného plánovače — jen odpadne poslední pohodlný krok.
+
+### Kampaň před akcí: z programu, v dávce
+
+Dvanáct řečníků je dvanáct hotových témat na posty — každé oznámení řečníka je obsah, který jste už jednou vyrobili (bio, téma, anotace, fotka). Kampaň se navrhne jednou a celá:
+
+```text
+Z program.yaml a složky recnici/ navrhni plán postů na [6] týdnů
+do akce pro [LinkedIn a X / doplňte kanály]:
+1. Oznámení řečníků: po jednom nebo po dvojicích, text z bia
+   a anotace — ne kopie, ale jedna konkrétní věc, kterou si
+   posluchač odnese; ať se formulace mezi posty neopakují
+2. Milníky: zveřejnění programu, spuštění registrace, „zbývá
+   20 míst“, poslední týden
+3. Praktické: týden před akcí post s programem, den před akcí
+   „na co se těšíme + praktické info“
+Ke každému postu: kanál, navrhované datum a čas, text, jaký
+obrázek k němu vyrobit z Canva šablony (co na něm bude).
+Posty s řečníky plánuj jen pro ty se stavem „potvrzen“ a lepším.
+Vrať jako tabulku k mému schválení — nic zatím neplánuj.
+```
+
+Po schválení (a po případném doladění formulací — posty mají znít jako vy, ne jako tisková zpráva) přijde druhý krok: založit schválené posty přes konektor jako **koncepty nebo naplánované příspěvky ve frontě**. I tady platí „AI navrhuje, člověk schvaluje“ — dávku si před ostrým naplánováním projděte v Bufferu, zvlášť data a přiložené obrázky. A jedno pravidlo si zapište tučně do checklist dne D: **naplánované posty jsou vytištěný papír.** Když se změní program, patří fronta postů do dopadové analýzy krizového scénáře stejně jako plakát — automat, který v pátek ráno radostně oznámí odřeknuvší řečnici, je ostuda, které se dá předejít jedním řádkem v checklistu.
+
+### Během akce: připravené kostry, živé detaily
+
+Postovat v reálném čase z akce, kterou zároveň řídíte, je iluze — v jednu chvíli budete řešit mikrofon, ne vtipný caption. Trik je připravit kostry předem a na místě jen doplňovat:
+
+```text
+Připrav kostry postů na den akce, z program.yaml:
+1. Ráno: „začínáme“ — s programem dne a hashtagem
+2. Ke každému bloku volitelná kostra: řečník, téma, prázdné místo
+   na [CITAT NEBO MOMENT] — doplní se na místě jednou větou
+3. Přestávky: poděkování partnerům [seznam], připomínka hashtagu
+4. Závěr: poděkování, oznámení, kdy budou slidy a fotky,
+   výzva „napište nám, co si odnášíte“
+Krátké texty, žádný korporátní tón. Ulož jako koncepty do Bufferu
+seřazené podle času bloků — publikovat je budu ručně podle toho,
+jak den poběží.
+```
+
+Publikování ručně podle skutečného průběhu je záměr, ne nedodělek: bloky se zpozdí, citát z přednášky je jiný, než jste čekali, a post „právě začíná workshop“ dvacet minut po jeho začátku je horší než žádný. Kostra vám dává rychlost (doplnit větu, zveřejnit), realita dává obsah. A pokud máte dobrovolníka navíc, dejte mu roli „oči na sítích“ — s koncepty ve frontě je to práce, kterou zvládne z telefonu mezi bloky.
+
+## Moderátorské podklady: z bio řečníků, ne z paměti
+
+Moderátor je nejpodceňovanější role malých akcí. Dobrý moderátor drží čas, uvádí lidi tak, že se publikum těší, a v diskuzi zachraňuje ticho první otázkou. Špatný moderátor čte bio z papíru, který dostal před minutou. Rozdíl přitom není v talentu, ale v podkladech — a ty se celé odvozují z dat, která už máte: bia, anotace, poznámky u bloků.
+
+```text
+Z program.yaml a recnici/ vygeneruj moderátorské podklady, pro
+každý sál zvlášť, jeden list na blok:
+1. Hlavička: čas od–do, název, řečník, tvrdý konec (kdy musí
+   skončit diskuze, aby držel program)
+2. Uvedení řečníka na 20–30 sekund: z bia vytáhni jednu konkrétní
+   zajímavost, žádné čtení životopisu; napiš to mluvenou řečí
+   (bude se to říkat nahlas, ne číst)
+3. Výslovnost: u jmen a názvů firem, kde může moderátor zaváhat,
+   napiš návod [ověřím u řečníků]
+4. Tři otázky do diskuze pro případ ticha: z anotace, konkrétní,
+   žádné „a co byste poradil začátečníkům“
+5. Přechod: jedna věta, co následuje (další blok / přestávka
+   do kdy / přesun do druhého sálu)
+Na konec každého listu: poznámka_moderator z programu, pokud
+existuje. Formát na tisk, velké písmo — čte se to ve tmě vestoje.
+```
+
+Dva body z toho promptu rozhodují o kvalitě. **Mluvená řeč:** uvedení psané jako text vypadá dobře a říká se špatně; chtějte formulace, které jdou vyslovit na jeden nádech. A **otázky z anotace:** generická otázka zabije diskuzi spolehlivěji než ticho — otázka, která se opírá o konkrétní slib z anotace („v anotaci píšete, že většina firem měří špatně — co měří vaše?“), ji nastartuje. Otázky si moderátor samozřejmě může položit vlastní; podklady jsou záchranná síť, ne scénář. Vytiskněte je večer před akcí z aktuálních dat — po krizovém scénáři se přegenerují jedním promptem, což je přesně ten důvod, proč se nepíšou ručně ve Wordu. A půl hodiny před začátkem dejte moderátorům čas si listy projít a doptat se řečníků na výslovnost; je to jediná část systému, která se odehrává mezi lidmi, a podklady ji mají podepřít, ne nahradit. Kdo si chce roli moderátora natrénovat i s otázkami publika, najde samostatný postup v tipu o [otázkách publika](/tipy/ai-otazky-publika).
+
+## Follow-up po akci: dvě dávky a jedno vyhodnocení
+
+Akce nekončí úklidem sálu. To, co se stane do 48 hodin po ní, rozhoduje o dvou věcech: jestli si účastníci akci zapamatují jako profesionální, a jestli bude druhý ročník — protože poděkování, slidy a dotazník jsou zároveň jediný moment, kdy máte pozornost všech naráz. U klasicky vedené akce follow-up nikdy nedopadne celý, protože organizátoři jsou vyčerpaní a „to dopošleme“ zůstane viset. V systému je follow-up jen další odvozený výstup: texty se generují z programu a ze seznamu prezence, vy je čtete, doplňujete a odesíláte.
+
+### Poděkování po skupinách, ne jedno pro všechny
+
+Po akci existují čtyři skupiny lidí a každá si zaslouží jiný e-mail: účastníci, kteří dorazili; registrovaní, kteří nedorazili; řečníci; partneři a dobrovolníci. Jeden „univerzální děkovací e-mail všem“ je promarněná příležitost — nedorazivším děkujete za účast, kterou neodvedli, a řečníkům píšete totéž co divákům.
+
+```text
+Připrav follow-up e-maily po akci, čtyři varianty. Data: prezence
+z registrace (kdo dorazil), program.yaml, odkazy [slidy, fotogalerie,
+dotazník]:
+1. Účastníci (dorazili): poděkování, odkaz na slidy (jen přednášky,
+   kde řečník souhlasil se zveřejněním — zkontroluj pole souhlasu
+   a vypiš mi, čí slidy zveřejnit nesmíme), fotogalerie, dotazník
+   (jedna věta proč a jak dlouho zabere), zmínka o příštím ročníku
+   s možností přihlásit se k odběru novinek
+2. Registrovaní bez prezence: krátce, bez výčitek — co jim uteklo
+   (dva highlighty), slidy a dotazník neposílat, novinky nabídnout
+3. Řečníci: osobní poděkování s konkrétním momentem z jejich bloku
+   [doplním ke každému větu sám], prosba o zpětnou vazbu na
+   organizaci, informace kdy a kde budou slidy a fotky
+4. Partneři a dobrovolníci: poděkování s čísly (účast, zaplněnost)
+   a fotkou, u partnerů nabídka krátkého shrnutí pro jejich interní
+   komunikaci
+Všechny varianty mi vrať k úpravám — odešlu je do 48 hodin po akci.
+```
+
+Všimněte si kontroly souhlasů u slidů: pole `souhlas_zverejneni_podkladu` z fáze 1 tady odvede svou práci — a je to přesně ten typ detailu, který se bez struktury zapomene a pak se řeší trapným dodatečným mazáním. U řečníků platí totéž co u oslovení: jedna osobní věta („to, jak jste ustáli výpadek projektoru, bylo lepší než půlka TED talků“) dělá z šablony dopis; napište ji sami. A dotazník držte krátký — pět otázek, z toho dvě otevřené („co bylo nejlepší“, „co příště jinak“), jedna hodnotící škála, výběr nejužitečnějšího bloku a „přišli byste znovu?“. Delší dotazníky mají u komunitních akcí návratnost blízkou nule.
+
+### Vyhodnocení: čísla plus hlasy plus retro
+
+Za týden po akci, až se vyspíte, přijde poslední odvozený výstup: vyhodnocení. Není to formalita pro nikoho — je to zdroj pravdy pro druhý ročník, a když se neudělá teď, v lednu si nikdo nic nepamatuje.
+
+```text
+Vyhodnoť akci ze tří zdrojů: export dotazníku [vložit], data
+prezence (registrovaní vs. dorazivší, zdroj „odkud o nás víte“)
+a naše poznámky z akce [vložit v bodech, co si pamatujeme].
+1. Čísla: účast a zaplněnost, návratnost dotazníku, rozložení
+   hodnocení, nejčastější zdroj registrací — každé číslo s jednou
+   větou interpretace, žádné grafy pro grafy
+2. Hlasy: shrň otevřené odpovědi do témat, u každého tématu počet
+   zmínek a jeden doslovný citát; pochvaly odděl od výtek
+   a výtky neuhlazuj
+3. Rozpory: kde si dotazník a naše dojmy protiřečí (nám se blok
+   líbil, hodnocení je vlažné) — jen označ, závěr uděláme my
+4. Návrh dokumentu „co příště“: zachovat / změnit / vypustit /
+   zkusit, každý bod s odůvodněním ze zdrojů výše
+Dokument uložíme do repozitáře akce vedle programu — je to první
+soubor, který otevřeme při přípravě druhého ročníku.
+```
+
+Bod 3 je důležitý proti dvěma zkreslením najednou: dojmy organizátorů (kteří celý den hasili a přednášky neviděli) i hlasitým jednotlivcům v dotazníku. A dokument „co příště“ patří do repozitáře akce ze stejného důvodu jako všechno ostatní: druhý ročník nezačne od nuly, ale od dat — programová struktura, šablony, šablonové e-maily i poučení jsou na místě a připravené k použití. Samotné povídání nad vyhodnocením si s Markem dejte jako pořádnou retrospektivu, ne jako povzdech u piva; jak vést schůzku, ze které vypadnou rozhodnutí, popisuje [systém porad s AI](/tipy/porady-system-s-ai).
+
+## GDPR: registrace jsou osobní údaje, fotky taky
+
+Tahle sekce je střízlivá, ne strašidelná — a začíná větou, kterou si komunitní organizátoři říkají neradi: **i akce pro 120 lidí dělaná zadarmo po večerech je správcem osobních údajů.** Jména, e-maily, firmy, stravovací omezení, fotky tváří — to všechno jsou osobní údaje a pravidla pro ně neplatí méně proto, že nikdo nemá na starosti compliance. Dobrá zpráva: u akce téhle velikosti se dá slušné zacházení s daty shrnout do několika návyků, které systém z tohohle návodu dělá skoro mimochodem. (Poznámka na rovinu: tohle je organizační návod, ne právní rada — v nejasné situaci, třeba u akcí pro děti nebo se zdravotními údaji, se zeptejte právníka.)
+
+**Sbírejte minimum a řekněte proč.** Fáze 5 to už udělala: každé pole formuláře má důvod, u formuláře je lidskou řečí napsáno, kdo údaje zpracovává, k čemu a jak dlouho. Tím je splněná větší část informační povinnosti — a hlavně je splněná doopravdy, ne odkazem na deset stran právního textu, který nikdo nečte.
+
+**Oddělte účely.** Registrace na akci je jeden účel; newsletter o dalším ročníku je druhý. Chcete-li účastníkům psát i po akci, potřebujete zaškrtávací políčko navíc (nepředzaškrtnuté) — a follow-up e-mail z předchozí sekce pak novinky posílá jen těm, kdo je chtěli. Je lákavé to obejít („vždyť je to zajímá“); neobcházejte, je to přesně ten drobný podvod, kterým se z komunitní akce stává spammer.
+
+**Fotky: informovat předem, umožnit odmítnout, mazat na žádost.** Reportážní fotografování na veřejné akci se obvykle opírá o oprávněný zájem pořadatele — ale ten stojí na tom, že účastníci o focení vědí a mají reálnou možnost se mu vyhnout. Prakticky: věta v e-mailu před akcí, viditelná cedule u registrace („na akci se fotí; nechcete-li být na fotkách, řekněte u registrace“), domluvený vizuální signál pro fotografa (jiná barva šňůrky na jmenovce je osvědčená) a ochota fotku po žádosti smazat i z galerie. U řečníků je situace jiná — jejich vystoupení chcete publikovat cíleně, proto se souhlas s fotografováním a natáčením sjednává výslovně v podkladech (fáze 2) a je uložený v datech, kde se dá kdykoli doložit.
+
+**Data v nástrojích.** Osobní údaje účastníků a řečníků procházejí AI nástroji v celém návodu — normalizace jmenovek, follow-upy, vyhodnocení. Proto platí zásada z celého webu: **osobní údaje jen do placeného účtu se smluvní ochranou dat,** nikdy do anonymního free chatu. Databáze registrací (u varianty se Supabase) patří do EU regionu. A do git repozitáře akce exporty registrací nepatří vůbec — repozitář je na program a šablony, ne na osobní údaje účastníků; git si pamatuje historii, takže jednou commitnutý export tam zůstane, i když ho smažete.
+
+**Po akci smazat, co není potřeba.** Tohle je nejčastěji zanedbaný krok — data po akci nikdo aktivně nezneužije, jen navždy leží v tabulkách a discích, dokud neuniknou. Udělejte z mazání plánovaný úkol se stejnou vážností jako tisk jmenovek:
+
+```text
+Měsíc po akci: projdi, kde všude žijí osobní údaje z akce, a navrhni
+úklid. Zdroje: registrační tabulka/databáze, e-mailové šablony
+a rozesílky, exporty na jmenovky, prezence, dotazník, fotogalerie,
+repozitář akce.
+1. Vypiš každé místo, jaká data obsahuje a k čemu ještě jsou
+2. Navrhni: smazat hned (stravovací omezení, exporty na jmenovky,
+   QR kódy) / anonymizovat a nechat pro statistiku (počty, zdroje
+   registrací, hodnocení bez identifikace) / nechat s důvodem
+   (kontakty s odběrem novinek — jen ti se souhlasem; podklady
+   řečníků pro příští ročník — zeptat se jich)
+3. Zkontroluj, že v repozitáři nejsou commitnuté žádné exporty
+   s osobními údaji — projdi i historii
+4. Vrať checklist mazání; mazat budu já ručně, ne ty
+Výsledek: po úklidu umíme jednou větou říct, čí údaje držíme a proč.
+```
+
+Ta poslední věta je dobrý interní test celé sekce: kdykoli se vás někdo zeptá „co o mně máte a proč“, odpověď má existovat — a po tomhle úklidu existuje. Mazání provádí člověk; AI inventarizuje a navrhuje, protože nevratné operace nad daty jsou přesně ta kategorie, kde automat nemá mít poslední slovo.
+
+## Tabulka: výstup → odvozeno z čeho → deadline
+
+Slíbený přehled z inventury, doplněný o zkušenost všech předchozích fází. Sloupec „po vyrobení změnitelný?“ je ten, který řídí krizový scénář: co je „ano“, se přegenerovává bez řečí; co je „ne“, potřebuje deadline s rezervou a plán zmírnění.
+
+| Výstup | Odvozeno z | Deadline | Po vyrobení změnitelný? |
+| --- | --- | --- | --- |
+| Web akce | program + řečníci + vizuál | průběžně, build z dat | ano, přegenerování |
+| Plakát (tisk i sítě) | program + vizuál | D-21 (visí předem) | ne — cedulka s opravou |
+| Oznámení řečníků na sítích | řečníci (bio, foto, stav) | průběžně po potvrzení | částečně — smazat/opravit |
+| Naplánované posty | program + řečníci | D-7 dávka | ano — ale hlídat v krizi! |
+| Potvrzovací e-mail | texty + registrace | při spuštění registrace | odeslané ne |
+| E-mail před akcí | program + praktické info | D-3 | odeslaný ne |
+| Jmenovky | registrace + řečníci + vizuál | D-2 (po uzávěrce) | ne — prázdné + fix |
+| Tištěný program | program + vizuál | D-1 večer, tisk doma | dotisk ráno |
+| Cedule a směrovky | program + půdorys + vizuál | D-2, tisk doma | dotisk |
+| Slidy přestávek | program + vizuál | D-1 | ano, do rána |
+| Moderátorské podklady | program + řečníci | D-1 večer | ano, do rána |
+| Prezence (seznam/QR) | registrace | D-1 po uzávěrce | doplňuje se na místě |
+| Posty v den akce | program (kostry) | D-1 koncepty | ano — publikuje člověk |
+| Follow-up e-maily | program + prezence + souhlasy | D+2 | odeslané ne |
+| Dotazník | program (názvy bloků) | D+1 v follow-upu | ne |
+| Vyhodnocení + „co příště“ | dotazník + prezence + poznámky | D+7 | žije dál v repozitáři |
+| Úklid osobních údajů | všechna úložiště | D+30 | — |
+
+Dvě čtení téhle tabulky. Před akcí je to plán: deadliny si přeneste do kalendáře s připomínkami — s tím, že D-2 a D-1 položky jsou schválně pozdě, aby nasály poslední změny programu. A v krizi je to mapa: dopadová analýza z krizového scénáře jde řádek po řádku a ptá se „týká se tě změna?“ — což je přesně ten rozdíl mezi systémem a pamětí ve tři ráno.
+
+## Den D: systém už jen slouží
+
+Krátká kapitola o dni akce — krátká proto, že v dobře postaveném systému se v den D nic nevyrábí. Všechno, co šlo připravit, je připravené a vygenerované z aktuálních dat; zbývá provoz. Ráno začíná tiskovým kontrolním seznamem z fáze 6 přetaveným do úkolovníku: kdo věší kterou ceduli, kdo zapíná projektory a pouští slide „za chvíli začínáme“, kdo přebírá krabici jmenovek. U vchodu leží prezence, dvacet prázdných jmenovek a fix, kartička s postupem pro dobrovolníky. Moderátoři mají listy z večera, fotograf ví o šňůrkách lidí, kteří nechtějí být na fotkách, koncepty postů čekají ve frontě.
+
+A pak přijde to hlavní: **věci se pokazí a systém na tom nesmí stát.** Zpozdí se řečník z rána, káva dojde dřív, mikrofon píská. Nic z toho není selhání příprav — je to normální den akce. Rozdíl, který systém udělal, je jinde: všechny tyhle problémy jsou dnešní a řeší se rukama a úsměvem, zatímco u klasicky vedené akce se k nim přidávají problémy včerejška (nesouhlasící program, chybějící jmenovky, nikdo neví, kde co je), které se rukama vyřešit nedají. Petra s Markem mají hlavu na to, co se děje v sále — a to je celý smysl těch večerů se strukturou.
+
+Jedna věc se v den D přece jen dělá u počítače, a stojí za vlastní odstavec: **poznámky.** Založte si v repozitáři soubor `den-d-poznamky.md` a během dne do něj kdokoli z týmu hází jednořádkové postřehy z telefonu — „registrace: špička 8:40–9:00, jedna fronta nestačila“, „oběd: vegetariánské došlo první“, „blok 5: přetáhl 8 minut, moderátor to ustál“. Večer je to nejcennější soubor dne: syrová paměť, ze které vyhodnocení ve fázi follow-upu vytáhne to, co by za týden nikdo nedal dohromady. Pamatujte: dotazník vám řekne, jak akci viděli účastníci; poznámky, jak doopravdy běžela. A protože soubor žije v repozitáři vedle programu, druhý ročník ho najde přesně tam, kde bude hledat — u dat, ke kterým patří. Drobnost, která ilustruje celý přístup: i paměť akce je strukturovaný, verzovaný soubor, ne vzpomínky a screenshoty rozeseté po telefonech dvou vyčerpaných lidí.
+
+## Co je zadarmo, co vlastníte a co se stane, až se nástroje změní
+
+Sekce o nákladech — schválně beze všech částek, protože ceníky služeb se mění rychleji než tenhle text a konkrétní čísla by lhala už za půl roku. Kvalitativní obrázek je ale stabilní a příznivý: akce tohohle rozsahu se dá postavit prakticky celá v bezplatných úrovních nástrojů.
+
+- **Zadarmo obvykle je:** hosting webu (bezplatná úroveň Vercelu na statický web akce stačí), git repozitář (soukromý repozitář na GitHubu), formulář s tabulkou na registrace, malá databáze (bezplatná úroveň Supabase), základní Canva i základní Buffer. Limity bezplatných úrovní si před akcí ověřte — mění se, a u dvou z nich (počet naplánovaných postů, funkce hromadného plnění šablon) narazíte nejpravděpodobněji.
+- **Za co se platit vyplatí:** AI účet se smluvní ochranou dat — v celém návodu procházejí nástroji osobní údaje řečníků a účastníků a tohle je podmínka, ne komfort. Případně vyšší tarif Canvy, pokud chcete hromadné plnění a správu značky přímo v ní; a doména, pokud web nemá žít na vygenerované adrese.
+- **Co stojí čas, ne peníze:** stavba systému je zhruba pět večerů — inventura a struktura, šablony, web, registrace, generování výstupů. To není nula a nemá smysl to zastírat. Srovnávejte ale se správnou alternativou: ne s „nedělat nic“, ale s desítkami hodin ruční synchronizace, které klasický přístup rozpustí do celé přípravy tak nenápadně, že je nikdo nesečte — plus noční směna, když se něco pokazí.
+
+A teď ta důležitější polovina úvahy, která se do ceníků nevejde: **co z té práce vlastníte.** Program v YAML, texty e-mailů, vizuální pravidla, kód webu, dokument „co příště“ — to všechno jsou obyčejné soubory ve vašem repozitáři. Až se za rok změní nástroje — konektor přibude nebo zmizí, plánovač zdraží, editor šablon se přejmenuje — data a postupy zůstanou vaše a přenositelné. To je stejný princip, na kterém stojí [značka jako systém](/tipy/firma-brand-voice-brozura-web-crm): nástroje jsou vyměnitelné, zdroje pravdy ne. Druhý ročník akce nezačne na zelené louce, ale otevřením repozitáře — a to je majetek, který se v žádném ceníku neobjeví.
+
+## Nejčastější chyby
+
+- **Začít plakátem, ne strukturou.** Plakát je vidět, struktura ne — proto se první večer skoro vždycky utopí v grafickém editoru. Jenže plakát vyrobený před stabilizací programu se předělává tolikrát, kolikrát se program změní. Struktura první, výstupy z ní; plakát bude za večer stejně hezký, jen ho uděláte jednou.
+- **Vést program v e-mailech a hlavě.** E-mail je doručovací kanál, ne databáze. Každé potvrzení, bio a časová preference se okamžitě přepisuje do zdroje pravdy — jinak sestavujete program archeologií schránky a bus factor akce je jedna.
+- **Zveřejnit řečníka před potvrzením.** „Jednáme s ním, určitě to dopadne“ na webu je časovaná bomba: mazání ohlášeného řečníka je horší než pozdější oznámení. Pole stavu v datech to hlídá samo — když ho build respektuje.
+- **Vytisknout brzy, co se ještě změní.** Tisknout jmenovky týden před akcí „ať je klid“ znamená tisknout je dvakrát. Deadlinová logika je opačná: co je levné dotisknout doma, tiskne se co nejpozději; do copy centra jde jen to, co se nemění (a proto tam nesmí být detailní program).
+- **Zapomenout na naplánované posty při změně programu.** Fronta v plánovači je „vytištěný papír“, který se umí zveřejnit sám — post s odřeknuvším řečníkem ráno v den akce je nejzbytečnější ostuda celého žánru. Fronta postů patří do každé dopadové analýzy.
+- **Nechat AI tiše „opravovat“ data.** Normalizace jmenovek, redakce bio, úklid registrací — všude platí: model vypisuje, co změnil, nejednoznačnosti nechává člověku a jména nechává tak, jak si je lidé napsali. Tichá oprava je tichá chyba.
+- **Odložit GDPR na „po akci“.** Souhlasy se sbírají v podkladech a ve formuláři — tedy na začátku; zpětné doprošování o souhlas se zveřejněním je nepříjemné a zbytečné. A mazání dat po akci je úkol s termínem, ne dobrý úmysl.
+
+## Nejlepší nástroje
+
+- **Claude Code** — motor odvozování: čte program a data řečníků z repozitáře, generuje web, podklady, tabulky pro tisk a kontroluje konzistenci; změny navrhuje, vy schvalujete. Pro tenhle typ práce („z jedněch dat mnoho výstupů“) je to nejsilnější nástroj celé sestavy.
+- **Git + GitHub** — zdroj pravdy s historií: program, texty, šablony i vyhodnocení na jednom místě, každá změna s datem a důvodem. Soukromý repozitář zdarma; bez osobních údajů účastníků.
+- **Canva (v době psaní s MCP konektorem)** — rodina šablon pro všechny tiskoviny a grafiku; návrhy zůstávají editovatelné ve vašem účtu a zvládne je upravit i dobrovolník v den akce. Hromadné plnění z tabulky si ověřte ve svém tarifu.
+- **Vercel** — hosting webu akce: build z repozitáře po každé změně dat, bezplatná úroveň na web akce stačí. Postup v [samostatném návodu](/tipy/web-claude-code-vercel).
+- **Formulář + tabulka, případně Supabase** — registrace: formulář s tabulkou je poctivé minimum, Supabase (EU region) je krok navíc pro kapacitu, QR prezenci a další ročníky.
+- **Buffer (v době psaní s MCP konektorem)** — fronta postů: kampaň navržená z programu se založí jako koncepty, publikaci schvaluje člověk. Základní použití i zdarma.
+- **Claude s placeným účtem** — všechna práce s osobními údaji (jmenovky, follow-upy, vyhodnocení) patří do účtu se smluvní ochranou dat; přehled konektorů a jejich možností v [průvodci MCP nástroji](/tipy/mcp-konektory-nastroje).
+
+## Co vám to přinese
+
+- **Čas:** změny programu se propisují za minuty, ne za večery — a to je u prvního ročníku, kde se program změní mnohokrát, největší jednotlivá úspora. Výstupy (web, jmenovky, podklady, follow-upy) vznikají generováním z dat místo ručním přepisováním; střízlivým odhadem desítky hodin za přípravu.
+- **Peníze:** akce bez agentury a bez grafika na výplatní pásce, v bezplatných úrovních nástrojů — platí se výběrově (AI účet s ochranou dat, případně tarif Canvy, doména). A druhý ročník je levnější než první, protože systém už stojí.
+- **Klid:** krize „řečník odřekl“ je dvacetiminutový postup se seznamem, ne noc. Nikdo není nenahraditelný nosič informací — všechno podstatné je v datech, takže výpadek jednoho organizátora akci nepoloží. A GDPR není strašák na pozadí, ale sada splněných návyků.
+- **Kvalita:** konzistence, kterou u ručně vedených akcí nezajistí ani pečlivost — web, tiskoviny, jmenovky a e-maily si nikdy neprotiřečí, protože říkají totéž z téhož místa. Řečníci dostávají komunikaci včas a strukturovaně, moderátoři podklady, ze kterých se dobře uvádí. Účastníci nic z toho nevidí — vidí akci, která působí, jako by ji dělal tým s agenturou.
+
+## Pro tip
+
+Až systém pojede, přidejte mu vlastní paměť na příští ročník: po akci nechte AI projít celý repozitář — program, šablony e-mailů, poznámky ze dne D, vyhodnocení — a vygenerovat „runbook druhého ročníku“: časovou osu příprav s reálnými deadliny (opravenými o to, co letos nevyšlo), šablony připravené k naplnění novými daty a seznam rozhodnutí, která se nemusí dělat znovu, s odkazy, proč byla učiněna. Z prvního ročníku, který jste protrpěli, se stane produkt: postup, který příště zvládnete za polovinu času — nebo předáte dalším dvěma nadšencům, až budete chtít jen přijít jako účastníci.
+
+A závěrečné pravidlo celého návodu: **údaj, který existuje dvakrát, je chyba, která se ještě nestala.** Kdykoli budete v pokušení „jen rychle přepsat“ jméno, čas nebo sál přímo do plakátu, webu nebo e-mailu, zastavte se: oprava patří do programu, výstup se odvodí. Jedna změna, jedno místo, propsáno všude — to je celý systém a důvod, proč budete v noci před akcí spát.
