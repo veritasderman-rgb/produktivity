@@ -105,6 +105,7 @@ export const shelves: Shelf[] = [
     href: { cs: "/pro/rodice", en: "/for/parents" },
     slugs: [
       "ai-v-rodine-vychova-hry-pohadky",
+      "omalovanky-na-prani-gemini-chatgpt",
       "svatba-velka-akce-ai-system",
       "spolek-klub-ai-system",
       "osobni-rozpocet-z-bankovniho-vypisu",
