@@ -1,6 +1,6 @@
 ---
 title: "Interní CRM se Supabase: detailní návod od dat po nasazení"
-excerpt: "Pokračování příběhu pražírny Marty: kompletní návod se 14 prompty, jak z kontaktů v mobilu a objednávek v Excelu postavit vlastní CRM — datový model v SQL, role a Row Level Security, napojení newsletteru přes Brevo a nasazení na Vercel."
+excerpt: "Pokračování příběhu pražírny Marty: kompletní návod pro úplné začátečníky, jak z kontaktů v mobilu a objednávek v Excelu postavit vlastní CRM — od vysvětlení, co je vůbec databáze, přes klikací založení Supabase a nasazení na Vercel až po rozvahu nákladů s konkrétními čísly proti hotovým CRM."
 category: "ai"
 platform: "vsude"
 audience: ["manazer", "freelancer"]
@@ -11,12 +11,16 @@ updated: "2026-08-16"
 tldr: >-
   Vlastní interní CRM není projekt pro softwarovou firmu — je to pět tabulek
   v PostgreSQL, pár bezpečnostních politik a jednoduchá webová aplikace, kterou
-  s Claude Code postavíte za pár večerů. Návod provede celou stavbou: inventura
-  a vyčištění dat, která už máte (kontakty, vizitky, Excel s objednávkami),
-  datový model se SQL schématem, role admin/obchod/čtenář vymáhané přímo
-  v databázi přes Row Level Security — nikdy jen v UI — napojení newsletteru
-  přes Brevo s GDPR sloupci ve schématu, poctivá rozvaha nákladů (free tiery
-  stačí na start, ne na provoz) a nasazení na Vercel s povinným přihlášením.
+  s Claude Code postavíte za pár večerů, i když jste nikdy neviděli SQL.
+  Návod provede celou stavbou pro úplné začátečníky: slovníček pojmů, databáze
+  vysvětlená jako kartotéka se zásuvkami, inventura a vyčištění dat, která už
+  máte (kontakty, vizitky, Excel s objednávkami), datový model se SQL schématem
+  vysvětleným větu po větě, klikací založení Supabase projektu v EU, role
+  admin/obchod/čtenář vymáhané přímo v databázi přes Row Level Security —
+  nikdy jen v UI — napojení newsletteru přes Brevo s GDPR sloupci ve schématu,
+  nasazení na Vercel včetně proměnných prostředí a záloh, a rozvaha nákladů
+  s konkrétními čísly: provoz vlastního CRM vychází na nižší tisíce korun
+  měsíčně za celou firmu, hotová CRM na vyšší jednotky tisíc za pět lidí.
   Zápisy do ostrých dat schvaluje vždy člověk.
 faq:
   - q: >-
@@ -68,6 +72,25 @@ faq:
       Pro firemní provoz počítejte s placenými tarify — pořád je to zlomek
       ceny hotového CRM placeného za každého uživatele a nesrovnatelně méně
       než jeden ztracený velkoobchodní zákazník.
+  - q: >-
+      Kolik stojí provoz vlastního CRM měsíčně?
+    a: >-
+      V srpnu 2026 vychází sestava Supabase Pro (25 USD), Vercel Pro (20 USD),
+      Brevo Starter (od 9 USD), předplatné Claude Pro (20 USD) a doména
+      zhruba na 74 USD měsíčně — při kurzu 21 Kč za dolar asi 1 600 Kč
+      měsíčně za celou firmu, bez ohledu na počet uživatelů. Na stavbu
+      a zkoušení stačí free tarify, takže první měsíce platíte jen předplatné
+      Claude. Ceny se mění, před rozhodnutím je ověřte v aktuálních cenících.
+  - q: >-
+      Pro koho se vlastní CRM nevyplatí?
+    a: >-
+      Pro firmu, kde se o systém nechce nikdo starat — vlastní CRM potřebuje
+      svého člověka, který dělá zálohy, spravuje přístupy a jednou za čas
+      věnuje večer údržbě. A pro firmu, která hned potřebuje pokročilé
+      funkce hotových CRM: obchodní pipeline s automatizacemi, telefonii,
+      pokročilý reporting. Dostavět je časem jde, ale první verze je pět
+      tabulek s pohledy — kdo potřebuje víc hned první měsíc, ušetří čas
+      i peníze hotovým řešením.
 ---
 
 V [návodu o značce jako systému](/tipy/firma-brand-voice-brozura-web-crm) prošla modelová pražírna pěti fázemi — a ta poslední, interní CRM se Supabase, dostala jen základní obrysy: EU region, Row Level Security od první migrace, agent čte a navrhuje. Jenže mezi „vím, že CRM potřebuju zamknout“ a „mám CRM, do kterého tým opravdu píše“ leží celá stavba: z jakých dat vyjít, jak vypadají tabulky, jak se vymáhají role, kam patří newsletter a co to bude stát. Tenhle návod tu stavbu provádí krok za krokem.
@@ -75,6 +98,32 @@ V [návodu o značce jako systému](/tipy/firma-brand-voice-brozura-web-crm) pro
 Klíčová myšlenka: **malá firma nepotřebuje CRM se sto funkcemi — potřebuje pět tabulek odpovídajících jejímu provozu a databázi, která sama vymáhá, kdo smí co.** Všechno ostatní je nadstavba. Právě proto je stavba vlastního CRM realistická i pro firmu bez vývojáře: SQL, politiky i aplikaci navrhne Claude Code, vy rozhodujete a schvalujete.
 
 Čtěte po fázích — jdou v pořadí, ve kterém se staví: data, zámky, napojení, rozvaha nákladů, stavba. Každá fáze má prompty k okopírování; hranaté závorky nahraďte vlastními údaji. A zásada z předchozího dílu platí od prvního řádku: firemní a osobní údaje patří jen do placeného účtu se smluvní ochranou dat, ne do anonymního free chatu.
+
+Ještě jedna věc, než začneme: tenhle návod je psaný pro člověka, který nikdy neviděl SQL, nikdy nezakládal databázi a slovo „migrace“ mu evokuje leda stěhovavé ptáky. Před každým blokem kódu a před každým promptem stojí věta „co se teď stane a co uvidíte“ — abyste nikdy nespouštěli nic naslepo. Pokročilí čtenáři můžou vysvětlující pasáže přeskakovat; kód a prompty fungují stejně pro obě skupiny. Kdo si potřebuje nejdřív osahat samotnou práci s Claude, začne u [průvodce pro začátečníky](/tipy/ai-zacatecnik-instalace-a-rozdily) a vrátí se sem.
+
+Kolik času si vyhradit, střízlivě a po fázích: inventura a čištění dat jeden až dva večery plus průběžné dohledávání (nejpracnější fáze — a schválně je první, protože bez ní je zbytek stavba na písku), datový model a role večer čtení a schvalování, newsletter večer, rozvaha nákladů hodina, stavba aplikace s nasazením večer až dva a import s pohledy večer. Dohromady zmíněné čtyři večery a víkend — rozložené klidně do tří týdnů; nikam se nespěchá a fáze na sebe počkají. Nejhorší plán je „uděláme to celé o víkendu naráz“: čištění dat potřebuje čerstvou hlavu a schvalování politik se nedá uhnat.
+
+## Slovníček: patnáct pojmů, které v návodu potkáte
+
+Číst návod plný neznámých slov je vyčerpávající. Tady je slovníček — nemusíte se ho učit, stačí vědět, že tu je, a vracet se k němu. Každý pojem je vysvětlený jednou větou tak, jak ho budete potřebovat v tomhle návodu, ne jak by ho definovala učebnice.
+
+- **Databáze** — program, který uchovává data spolehlivěji než hromada excelových souborů: hlídá, aby se nic neztratilo, aby na stejná data mohlo sáhnout víc lidí najednou a aby platila pravidla, která si stanovíte. Představte si kartotéku se zásuvkami — podrobně hned v první fázi.
+- **Tabulka** — jedna zásuvka té kartotéky: drží záznamy jednoho druhu (firmy, kontakty, objednávky). Řádek je jedna karta, sloupec je jedna kolonka na kartě.
+- **PostgreSQL** — konkrétní databázový program, kterému se často říká jen Postgres. Je zdarma, vyvíjí se přes třicet let a běží na něm půlka internetu; Supabase je na něm postavené.
+- **Supabase** — služba, která vám PostgreSQL pronajme jako hotovou věc: vy klikáte v administraci, oni se starají o servery. K databázi přidávají přihlašování uživatelů a API — proto je srdcem téhle stavby.
+- **SQL** — jazyk, kterým se s databází mluví. Vypadá jako angličtina pro roboty: „create table companies“ znamená „vytvoř tabulku companies“. V tomhle návodu ho nebudete psát, jen číst a schvalovat.
+- **Migrace** — jeden zdokumentovaný stavební krok databáze uložený jako soubor se SQL příkazy: „přidej tabulku“, „přidej sloupec“. Databáze se nikdy nemění ručním šťouráním, vždycky migrací — proto se dá kdykoli dohledat, kdo co kdy změnil.
+- **Schéma** — souhrn všech tabulek a jejich sloupců; půdorys celé kartotéky. Vzniká postupným spouštěním migrací.
+- **Cizí klíč** — sloupec, který odkazuje na záznam v jiné tabulce: objednávka v sobě nenese celý opis firmy, jen její identifikátor. Databáze pak hlídá, že odkaz vždycky vede na existující záznam.
+- **Row Level Security (RLS)** — pravidla zapsaná přímo v databázi, kdo smí který řádek číst, měnit a mazat. Vrátný, který u každého jednotlivého řádku kouká do občanky — podrobně ve fázi 2.
+- **Supabase Auth** — vestavěné přihlašování: e-mail a heslo, pozvánky, odhlášení. Vy nikdy neukládáte hesla, to dělá Supabase za vás.
+- **Anon klíč** — veřejný klíč, kterým se vaše aplikace hlásí k API databáze. Sám o sobě nedává práva k datům — o těch rozhoduje RLS podle přihlášeného uživatele.
+- **Service role klíč** — služební generální klíč, který RLS obchází. Patří jen na server, nikdy do prohlížeče ani do gitu; v návodu ho použijí jen importní skripty a webhooky.
+- **Proměnná prostředí** — způsob, jak dát běžící aplikaci tajemství (klíče, hesla), aniž by bylo zapsané v kódu. Ve Vercelu je to formulář v nastavení projektu — ukážeme přesně kde.
+- **Vercel** — služba, na které poběží webová aplikace vašeho CRM. Propojí se s GitHubem a při každé změně kódu aplikaci sama znovu nasadí.
+- **CSV** — nejjednodušší tabulkový formát: prostý text, hodnoty oddělené čárkami. Univerzální řeč mezi Excelem, exporty kontaktů a databází — importy v tomhle návodu jedou přes CSV.
+
+Pojmy jako dry-run, webhook nebo JWT vysvětlíme přímo v místě, kde je poprvé potkáte — vytržené z kontextu by tady jen strašily.
 
 ## Vzorová situace
 
@@ -84,21 +133,48 @@ Důsledky jsou konkrétní. Kavárna U Mlýna neobjednala tři měsíce a nikdo 
 
 Po přestavbě, kterou tenhle návod popisuje, vypadá stejný provoz takhle: jedna databáze v EU, do které se Marta, Petr i účetní přihlašují vlastním účtem s rolí odpovídající jejich práci. Objednávky se importují z Excelu, poznámky ze schůzek se píšou k firmě, ne do hlavy. Pondělní pohled „kdo neobjednal přes šest týdnů“ vyplivne tři kavárny dřív, než stihnou odejít. A newsletter jde jen na kontakty, u kterých je v databázi souhlas s datem. Stavba zabrala čtyři večery a víkend; nejdéle trvalo — jako vždycky — čištění dat.
 
+Jedna věc, kterou je fér říct hned: Marta není technička. Před stavbou neuměla přečíst řádek SQL, databázi si představovala jako „něco, co mají velké firmy“, a slovo deployment slyšela poprvé od Claude. Nepotřebovala se to učit dopředu — učila se to přesně v tom pořadí a přesně v té hloubce, v jaké to stavba vyžadovala, a přesně tak je seřazený i tenhle návod. Její skutečná kvalifikace byla jiná a nenahraditelná: zná svůj provoz. Ví, že kavárny objednávají v šestitýdenním rytmu, že vizitky z veletrhu jsou napůl mrtvé kontakty a že účetní potřebuje vidět objednávky, ale nemá co editovat kontakty. Tohle žádná AI neví — a právě proto funguje dělba, na které celý návod stojí: Marta rozhoduje, co má systém umět a kdo smí co; Claude Code ví, jak se to zapíše do SQL a kódu.
+
 ## Fáze 1: inventura dat — z čeho CRM vlastně postavit
 
 Největší chyba na startu je začít technologií: založit projekt, vygenerovat tabulky a pak zjistit, že do nich nemáte co dát. Správné pořadí je opačné: nejdřív inventura toho, co ve firmě už existuje, pak vyčištění — a teprve z vyčištěných dat vyplyne datový model.
 
+### Databáze lidsky: kartotéka se zásuvkami
+
+Než sáhneme na data, srovnejme si, co vlastně stavíme. Jestli jste databázi nikdy neviděli, tenhle obrázek vám vydrží celý návod; jestli ano, přeskočte na další podsekci.
+
+Představte si starou papírovou kartotéku — skříň se zásuvkami, jakou mívaly ordinace. Celá skříň je **databáze**. Každá zásuvka je **tabulka**: jedna zásuvka na firmy, druhá na kontaktní osoby, třetí na objednávky. V zásuvce jsou karty — každá karta je jeden **řádek**: jedna konkrétní firma, jeden konkrétní člověk. A na kartě jsou předtištěné kolonky — **sloupce**: název, IČO, město. Předtištěné kolonky jsou důležitý detail: na kartu nejde napsat nic mimo kolonky, a to je přesně to, co odlišuje databázi od Excelu. V Excelu můžete do buňky s částkou napsat „zeptat se Petra“ a nikdo vás nezastaví; databáze takový zápis odmítne, protože kolonka na částku bere jen čísla.
+
+Čím se skříň liší od hromady excelových souborů, kterou dnes máte? Čtyřmi vlastnostmi, které se vám budou hodit každý den. Za prvé **jedna pravda**: karta kavárny U Mlýna existuje právě jednou, ne ve třech souborech se třemi verzemi telefonu. Za druhé **pravidla**: kartotéka sama hlídá, že IČO má osm číslic, že objednávka vždycky patří existující firmě a že druhá karta se stejným IČO se do zásuvky prostě nevejde. Za třetí **souběžná práce**: Marta a Petr můžou číst i zapisovat současně a nikdy si nepřepíšou soubor, jak se to stává se sdíleným Excelem. A za čtvrté **vrátný u dveří**: kartotéka ví, kdo se ptá, a podle toho ukáže nebo schová karty — to je Row Level Security, ke které se dostaneme ve fázi 2.
+
+S kartotékou se mluví jazykem **SQL**. Zní to odstrašivě, ale je to nejčitelnější programovací jazyk, jaký existuje — příkazy se čtou skoro jako anglické věty. Co se teď stane a co uvidíte: následující ukázka je jen na čtení, nikam ji nevkládejte — je tu proto, abyste viděli, že SQL přečtete i bez kurzu.
+
+```sql
+select nazev, mesto, ico
+from companies
+where mesto = 'Brno'
+order by nazev;
+```
+
+Přeloženo doslova: „vyber název, město a IČO ze zásuvky companies, jen karty s městem Brno, seřaď podle názvu.“ To je celé. `select` říká, které kolonky chcete vidět, `from` říká ze které zásuvky, `where` je podmínka a `order by` řazení. Osmdesát procent SQL, které v životě potkáte, je obměna téhle věty. Zbylých dvacet procent jsou příkazy, které kartotéku staví — `create table` vyrábí novou zásuvku s předtištěnými kolonkami a potkáte ho za chvíli u datového modelu, kde ho rozebereme větu po větě.
+
+A poslední pojem: **migrace**. Kartotéka se nikdy nepřestavuje potajmu — každá změna („přidej zásuvku“, „přidej kolonku na souhlas s newsletterem“) se zapíše jako očíslovaný soubor se SQL příkazy a ten se spustí. Výhoda je obrovská: po roce provozu máte úplnou historii, jak kartotéka rostla, a když stavíte druhou (testovací), spustíte stejné migrace a máte přesnou kopii. V tomhle návodu proto nikdy neuslyšíte „klikněte v administraci a přidejte sloupec“ — vždycky „napište migraci“. Píše je Claude Code, vy je čtete a schvalujete.
+
 ### Co už máte, jen o tom nevíte
+
+Ještě předtím jedna otázka, kterou si položí každý: proč vlastně nestačí jeden pořádný sdílený Excel nebo tabulka Google? Do zhruba dvou lidí a pár set řádků klidně stačí — a je fér to říct. Zlom nastává se třetím člověkem a první potřebou pravidel: tabulka nepohlídá, že objednávka patří existující firmě, nerozliší, kdo smí mazat a kdo jen číst, neudrží historii změn („kdo přepsal ten telefon?“) a při osmdesáti firmách a třech letech objednávek se stane tím, čím je dnes — souborem „FINAL v3“, kterému nikdo nevěří. Databáze je Excel, který dospěl: stejné řádky a sloupce, ale s pravidly, rolemi a jednou pravdou. Pokud jste u dvou lidí a deseti zákazníků, uložte si tenhle článek na později; pokud se poznáváte v Martině situaci, čtěte dál.
 
 Skoro žádná firma nezačíná od nuly. Typické zdroje, které stojí za export:
 
-- **Kontakty v mobilu a e-mailu.** Telefon i Gmail/Outlook umí export do CSV nebo vCard — udělejte ho každý člen týmu, který se zákazníky mluví. Čekejte duplicity a poloviční záznamy; to je normální, řeší se v dalším kroku.
+- **Kontakty v mobilu a e-mailu.** Telefon i Gmail/Outlook umí export do CSV nebo vCard — udělejte ho každý člen týmu, který se zákazníky mluví. Konkrétně u Googlu: contacts.google.com → vybrat kontakty → Exportovat → Google CSV; u iPhonu přes iCloud.com → Kontakty → export vCard. Čekejte duplicity a poloviční záznamy; to je normální, řeší se v dalším kroku.
 - **Vizitky.** Krabice z veletrhů je zlatý důl včetně ručních poznámek na okrajích — jak z ní Claude Cowork udělá tabulku i s přepisem rukopisu, popisuje samostatný návod na [vizitky do CRM](/tipy/vizitky-do-crm-claude-cowork). Jeho výstupní CSV je přesně formát, který se vám teď hodí.
 - **Objednávky v Excelu.** I nekonzistentní tabulky za tři roky jsou historie, ze které později poroste pohled „kdo přestává objednávat“. Posbírejte všechny verze, i ty ošklivé.
 - **Faktury.** Fakturační nástroj umí export — a faktury jsou nejspolehlivější zdroj IČO, fakturačních adres a skutečných částek. Kde se Excel a faktury rozcházejí, věřte fakturám.
 - **Historie komunikace.** E-mailová vlákna nepřenášejte celá; vytáhněte z nich jen fakta o vztahu — kdy proběhla poslední schůzka, co bylo dohodnuto. Zbytek nechte v poště, CRM není archiv e-mailů.
 
-První prompt nic nečistí — jen mapuje. U práce s daty se vyplatí stejný rytmus jako u brožury v předchozím dílu: návrh, schválení, teprve pak výroba.
+Kam ty exporty nahrát? Nejpohodlnější je Claude Cowork — desktopový režim, který pracuje nad složkou souborů: založte složku „crm-podklady“, nasypte do ní všechny exporty a Cowork je uvidí najednou. Alternativně jde soubory nahrávat po jednom do konverzace na claude.ai. V obou případech platí zásada z úvodu: osobní údaje zákazníků jen v placeném účtu.
+
+Co se teď stane a co uvidíte: první prompt nic nečistí — jen mapuje. Vrátí vám přehledovou tabulku (soubor, počet záznamů, sloupce, problémy) a seznam nálezů; žádný váš soubor se nezmění. U práce s daty se vyplatí stejný rytmus jako u brožury v předchozím dílu: návrh, schválení, teprve pak výroba.
 
 ```text
 Připravuji data pro interní CRM naší firmy [malá pražírna kávy, 6 lidí,
@@ -122,6 +198,8 @@ Vrátí mapu terénu — a skoro vždycky překvapení typu „tatáž kavárna 
 
 Špinavá data v CRM jsou horší než žádná — tři záznamy téže kavárny znamenají, že se objednávky rozpadnou mezi ně a žádný pohled neukáže pravdu. Čištění AI výrazně zrychlí; rozhodnutí o sloučení zůstává na vás.
 
+Co se teď stane a co uvidíte: tenhle prompt vrátí dvě věci — vyčištěnou verzi vašich dat (nové soubory, originály zůstávají netknuté) a zvlášť seznam podezřelých duplicit ve formě párů „záznam A — záznam B — proč si myslím, že jsou totéž“. Ten seznam budete procházet ručně, pár po páru.
+
 ```text
 Vyčisti nahraná data kontaktů a firem podle těchto pravidel:
 1. Telefony převeď na mezinárodní formát [+420 a devět číslic bez
@@ -140,7 +218,7 @@ Vrať vyčištěnou tabulku a zvlášť seznam navržených sloučení.
 
 Bod 4 je jádro: **deduplikaci AI navrhuje, člověk schvaluje** — automatické sloučení dvou poboček téhož řetězce do jednoho záznamu je chyba, která se hledá měsíce. U IČO se vyplatí druhé kolo: nechte si nejistá IČO ověřit proti veřejnému registru ARES a doplnit oficiální název a sídlo — model ale musí u každého záznamu uvést, že ho skutečně ověřil, ne jen tvrdit, že sedí.
 
-Když jsou duplicity vyřešené, zbývá data přeskládat do tvaru budoucích tabulek:
+Když jsou duplicity vyřešené, zbývá data přeskládat do tvaru budoucích tabulek. Co se teď stane a co uvidíte: prompt vyrobí čtyři CSV soubory pojmenované přesně podle tabulek CRM plus jeden soubor odpadu (nespárované objednávky) a na konci vypíše kontrolní součty. Ty soubory si uložte — budou se importovat až v páté fázi, teď jen vznikají.
 
 ```text
 Ze schválených vyčištěných dat vytvoř importní CSV soubory přesně podle
@@ -160,6 +238,8 @@ Kontrolní součty nejsou formalita — je to jediné místo, kde uvidíte, že 
 ### Datový model: pět tabulek stačí
 
 Teď teprve schéma. Malé firmě stačí pět tabulek — odolejte pokušení přidávat další „pro jistotu“; každá tabulka navíc je tabulka, kterou bude někdo muset plnit.
+
+Co se teď stane a co uvidíte: následující dva bloky SQL jsou návrh schématu — zatím ho jen čtete a schvalujete, spouštět se bude až v páté fázi v SQL editoru Supabase (kde přesně, ukážeme klik po kliku). Po spuštění vám editor vypíše lakonické „Success. No rows returned“ — to je v pořádku, příkaz `create table` nic nevrací, jen postaví zásuvku. Pod bloky následuje vysvětlení větu po větě; čtěte je souběžně s kódem.
 
 ```sql
 create table companies (
@@ -183,7 +263,15 @@ create table contacts (
 );
 ```
 
-Lidsky: `id` je náhodný identifikátor, který generuje databáze — nikdy ho nevymýšlíte ručně. `nazev` je povinný (`not null` — firma beze jména nedává smysl), `ico` je `unique`, takže databáze sama odmítne druhou firmu se stejným IČO — pojistka proti duplicitám do budoucna. `kategorie` (kavárna, hotel, e-shop) je obyčejný text; číselník z toho dělejte, až budete mít důvod. U kontaktu je `company_id` vazba na firmu: `on delete set null` znamená, že smazáním firmy kontakt nezmizí, jen osiří — kontakty jsou vztahy s lidmi a lidé firmy mění. `zdroj` odpovídá na otázku „odkud tenhle údaj máme“ — hodí se provozně i kvůli GDPR. A `created_at` s `timestamptz` ukládá okamžik vzniku včetně časové zóny.
+Rozeberme první blok doslova, řádek po řádku — jednou pořádně, ať se ostatní tabulky už čtou samy. `create table companies (` říká: postav novou zásuvku jménem companies; všechno mezi závorkami je seznam jejích kolonek, každá na svém řádku, oddělené čárkami. Řádek kolonky má vždycky stejný tvar: nejdřív jméno, pak datový typ (co do kolonky smí), pak případná omezení.
+
+První kolonka: `id uuid primary key default gen_random_uuid()`. Jméno je `id`, typ `uuid` — dlouhý náhodný identifikátor ve tvaru zhruba „a1b2c3d4-…“, prakticky nemožné vygenerovat dvakrát stejný. `primary key` znamená primární klíč: hlavní, zaručeně jedinečné označení karty, podle kterého se na ni budou odkazovat ostatní zásuvky. A `default gen_random_uuid()` říká: když při zakládání záznamu žádné id nedodáš, databáze si ho vygeneruje sama. V praxi ho nevymýšlíte nikdy — proč riskovat překlep, když to stroj udělá bezchybně.
+
+Další kolonky už přečtete: `nazev text not null` je textová kolonka, kterou nejde nechat prázdnou — firma beze jména nedává smysl a databáze zápis bez názvu odmítne s chybou. `ico text unique` je text (schválně ne číslo — IČO může začínat nulou a nulu na začátku by číselný typ tiše zahodil) s omezením `unique`: druhou kartu se stejným IČO zásuvka nepřijme. To je pojistka proti duplicitám do budoucna — všechna dřina s čištěním z předchozí podsekce by byla zbytečná, kdyby duplicity mohly vznikat dál. `mesto text` a `kategorie text` jsou obyčejné nepovinné texty; kategorie (kavárna, hotel, e-shop) by časem mohla být číselník s povolenými hodnotami, ale dělejte ho, až budete mít důvod. A `created_at timestamptz not null default now()` je časové razítko vzniku záznamu: typ `timestamptz` ukládá okamžik včetně časové zóny (bez toho se letní čas a zálohy přes půlnoc mění v detektivku) a `default now()` ho vyplní automaticky.
+
+Tabulka `contacts` přidává jednu novinku, a to tu nejdůležitější v celém schématu: `company_id uuid references companies (id)`. To je **cizí klíč** — kolonka, do které se smí zapsat jen id existující firmy. Ukažme si na objednávce, proč je to k nezaplacení. V Excelu má objednávka ve sloupci „zákazník“ text „U Mlýna“ — a jiná „Kavárna U Mlýna“ a třetí „u mlyna“. Jsou to tři zákazníci, nebo jeden? Nikdo neví. V databázi objednávka nese `company_id` s konkrétním id — a databáze při zápisu zkontroluje, že karta s tímhle id v zásuvce companies opravdu existuje. Objednávka pro neexistující firmu prostě nejde uložit; překlep v názvu přestává být možný, protože názvem se nic nepropojuje. Dodatek `on delete set null` pak řeší otázku „co s kontaktem, když firmu smažu“: kontakt nezmizí, jen se mu vazba vyprázdní — osiří. To je vědomé rozhodnutí: kontakty jsou vztahy s lidmi a lidé firmy mění; smazat s firmou i všechny její lidi by bylo škrtání paměti. Zbývá `zdroj text` — odpověď na otázku „odkud tenhle údaj máme“, provozně i kvůli GDPR — a `pozice text` pro funkci člověka ve firmě.
+
+Co se teď stane a co uvidíte: druhý blok staví zbylé tři zásuvky — objednávky, interakce a poznámky. Po spuštění zase jen „Success. No rows returned“; novinky v něm jsou tři a rozebereme je pod blokem.
 
 ```sql
 create table orders (
@@ -216,19 +304,31 @@ create table notes (
 );
 ```
 
-Objednávka má částku jako `numeric(12,2)` — přesné desetinné číslo, nikdy ne `float`, který zaokrouhluje. `polozky` je zatím prostý text („3× Etiopie 1 kg, 2× směs espresso“); rozpad na řádkové položky je klasické přeinženýrování první verze. `interactions` je deník vztahu — každý telefonát a schůzka jeden řádek, `check` omezuje typ na povolený seznam, takže se do dat nedostane „schůzka“ pěti různými způsoby zapsaná. `notes` jsou volné poznámky k firmě. Sloupec `autor` v obou zatím jen rezervujeme — naplní ho až fáze 2, kde vzniknou uživatelské účty. A všimněte si, co ve schématu není: žádné sloupce pro newsletter. Ty přibudou ve fázi 3 vlastní migrací — schéma se vyvíjí po krocích a každý krok je zdokumentovaná migrace, ne tichý ruční zásah do databáze.
+Novinka první: částka objednávky je `numeric(12,2)` — přesné desetinné číslo s dvanácti číslicemi celkem a dvěma za desetinnou čárkou. Nikdy ne typ `float`: ten ukládá čísla přibližně a při sčítání tisíců objednávek se haléřové odchylky sečtou do korunových — účetní vám poděkuje, že jste se téhle pasti vyhnuli. Vedle částky si všimněte `datum date not null` — typ `date` je jen den bez času, u objednávky víc nepotřebujete — a `company_id uuid not null references companies (id)`: tady je cizí klíč navíc povinný, protože objednávka bez firmy nedává smysl (na rozdíl od kontaktu, který osiřet smí). `polozky` je zatím prostý text („3× Etiopie 1 kg, 2× směs espresso“); rozpad na řádkové položky je klasické přeinženýrování první verze.
+
+Novinka druhá: `check` u tabulky interactions. `interactions` je deník vztahu — každý telefonát a schůzka jeden řádek — a omezení `check (typ in (…))` je seznam povolených hodnot: zápis s typem mimo seznam databáze odmítne. Bez něj by za půl roku v datech byla „schůzka“, „schuzka“, „Schůzka“ a „meeting“ a filtr podle typu by nefungoval. Novinka třetí: sloupec `autor` typu `uuid` v interactions i notes zatím jen rezervujeme — naplní ho až fáze 2, kde vzniknou uživatelské účty, a bude držet id přihlášeného člověka, který záznam pořídil. `notes` jsou volné poznámky k firmě; proti interactions nemají typ ani datum události — jsou to postřehy („chtějí příští rok přejít na bezkofeinovou nabídku“), ne deník.
+
+A všimněte si, co ve schématu není: žádné sloupce pro newsletter. Ty přibudou ve fázi 3 vlastní migrací — schéma se vyvíjí po krocích a každý krok je zdokumentovaná migrace, ne tichý ruční zásah do databáze. Přesně takhle bude vaše CRM růst i po skončení návodu: nový požadavek, nová migrace, historie v gitu.
 
 ## Fáze 2: role a zámky — kdo smí co
 
 Předchozí díl stanovil princip: RLS od první migrace, EU region, žádná vlastní kryptografie. Teď ten princip rozpracujeme do konkrétních politik pro tři role, které malé firmě stačí: **admin** (Marta — smí všechno včetně mazání), **obchod** (Petr — čte a zapisuje, nemaže) a **čtenář** (účetní a brigádnice — jen čtou).
 
+Nejdřív ale samotné Row Level Security lidsky, protože na něm stojí celá fáze. Představte si vrátného, který nestojí u dveří do budovy, ale u každé jednotlivé zásuvky kartotéky — a co víc, u každé jednotlivé karty. Kdykoli se kdokoli na cokoli zeptá, vrátný se mu podívá do občanky (kdo jste? jakou máte roli?) a do pravidel (smí tahle role tuhle kartu číst? měnit? mazat?) — a teprve pak kartu vydá, nebo nevydá. Podstatné je, kde vrátný stojí: **uvnitř databáze, ne v aplikaci.** Je jedno, jestli se ptáte přes webovou aplikaci, přes chytrý skript, nebo jestli se k databázi připojí útočník úplně mimo vaši aplikaci — vrátný stojí vždycky v cestě, protože pravidla se vyhodnocují u každého dotazu přímo tam, kde data leží. Pravidlům se říká politiky a píšou se v SQL; za chvíli si je rozebereme větu po větě.
+
 ### Přihlašování: Supabase Auth a nic vlastního
 
-Supabase Auth řeší celé přihlašování: e-mail a heslo, nebo magic link — odkaz poslaný na e-mail, po jehož rozkliknutí je člověk přihlášen bez hesla; pro netechnický tým často příjemnější. Účty nezakládáte ručně; administrace má pozvánky, takže šest lidí z pražírny pozvete e-mailem, a odchod zaměstnance je jedno kliknutí — deaktivovaný účet politiky odříznou od všeho najednou. Pravidlo z minula platí beze změny: vlastní ukládání hesel nikdy; to je přesně ta část, kterou si kupujete hotovou.
+Aby vrátný mohl koukat do občanek, musí občanky někdo vydávat — to je přihlašování. Supabase Auth ho řeší celé: e-mail a heslo, nebo magic link — odkaz poslaný na e-mail, po jehož rozkliknutí je člověk přihlášen bez hesla; pro netechnický tým často příjemnější. Pravidlo z minula platí beze změny: vlastní ukládání hesel nikdy; to je přesně ta část, kterou si kupujete hotovou.
+
+Jak to vypadá v administraci Supabase, až budete mít v páté fázi založený projekt: v levém menu je položka **Authentication**. Pod ní najdete **Sign In / Providers** — seznam způsobů přihlášení, kde je **Email** jako jediný zapnutý už od založení projektu; zkontrolujte, že u něj svítí „Enabled“, a nic dalšího nezapínejte (přihlašování přes Google nebo Apple interní CRM nepotřebuje a každý vypnutý provider je jedna starost míň). Na stejné stránce je i volba „Confirm email“ — nechte zapnutou, ať se nikdo nemůže zaregistrovat s cizí adresou.
+
+Prvního uživatele pozvete také klikáním: **Authentication → Users**, vpravo nahoře tlačítko **Invite user**. Zadáte e-mail, Supabase pošle pozvánkový odkaz, člověk si po rozkliknutí nastaví heslo — a v seznamu Users mu naskočí řádek s identifikátorem účtu. Přesně takhle pozvete všech šest lidí z pražírny; žádné zakládání účtů ručně, žádné rozesílání hesel po Slacku. A odchod zaměstnance? Tři tečky u jeho řádku → Delete user — politiky ho odříznou od všeho najednou, protože bez platného přihlášení vrátný nevydá nic.
+
+Heslo, nebo magic link? Praktická rada pro malý tým: nabídněte v aplikaci obojí a nechte lidi vybrat. Heslo vyhovuje těm, kdo mají správce hesel; magic link těm, kdo by si heslo stejně nechali uložit v prohlížeči nebo — hůř — napsali na lísteček. Magic link má jeden háček, který je fér znát: bezpečnost účtu se rovná bezpečnosti e-mailové schránky, protože kdo čte poštu, přihlásí se. Pro tým to znamená jediné pravidlo navíc: firemní e-mail s dvoufaktorovým ověřením, žádné sdílené schránky pro přihlašování do CRM.
 
 ### Tabulka profiles: kde bydlí role
 
-Supabase Auth vede uživatele ve vlastní systémové tabulce, do které se nezasahuje. Role proto bydlí ve vaší tabulce `profiles`, spojené s uživatelem přes jeho `id`:
+Supabase Auth vede uživatele ve vlastní systémové tabulce, do které se nezasahuje. Role proto bydlí ve vaší tabulce `profiles`, spojené s uživatelem přes jeho `id`. Co se teď stane a co uvidíte: následující migrace založí tabulku profiles, zapne na ní RLS a přidá pomocnou funkci; v SQL editoru po ní uvidíte obvyklé „Success. No rows returned“ a v seznamu tabulek přibude profiles. Je to první blok, kde potkáte příkazy `alter table`, `create policy` a `create function` — všechny tři rozebereme pod ním.
 
 ```sql
 create table profiles (
@@ -256,11 +356,13 @@ as $$
 $$;
 ```
 
-Větu po větě. `id ... references auth.users` říká: profil existuje jen k reálnému účtu, a `on delete cascade` — smaže-li se účet, zmizí i profil. Nový profil má `default 'ctenar'`: **každý nově pozvaný člověk začíná s nejnižším oprávněním** a roli mu zvedá admin; opačný default je bezpečnostní díra. `check` hlídá, že role je jen jedna ze tří povolených hodnot. Politika na `profiles` povoluje přihlášeným pouze čtení — a protože žádná politika pro zápis neexistuje, je zápis přes běžné API prostě zakázaný: nikdo si nemůže sám povýšit roli, mění ji jen admin v administraci Supabase. Funkce `moje_role()` vrací roli právě přihlášeného uživatele (`auth.uid()` je jeho identita ověřená z tokenu) a budou ji volat všechny politiky; `security definer` a prázdná `search_path` jsou pojistky, aby funkce četla vždy správnou tabulku a nezacyklila se s RLS.
+Větu po větě, včetně tří nových příkazů. `create table profiles` už znáte; uvnitř je `id ... references auth.users` — cizí klíč do systémové tabulky účtů, takže profil existuje jen k reálnému účtu, a `on delete cascade` — smaže-li se účet, zmizí i profil (u profilu je to správně: bez účtu nemá co dělat; srovnejte s kontakty, kde jsme smazáním firmy záznamy schválně nechávali žít). Nový profil má `default 'ctenar'`: **každý nově pozvaný člověk začíná s nejnižším oprávněním** a roli mu zvedá admin; opačný default je bezpečnostní díra. `check` hlídá, že role je jen jedna ze tří povolených hodnot.
+
+Nový příkaz první: `alter table profiles enable row level security` — tímhle se u zásuvky staví vrátný; do té chvíle na ní žádný nebyl. Nový příkaz druhý: `create policy` zapisuje vrátnému jedno pravidlo — má jméno v uvozovkách (česky bez diakritiky, ať se dobře čte v přehledech), tabulku, operaci (`for select` = čtení) a podmínku. Tahle konkrétní politika povoluje přihlášeným pouze čtení — a protože žádná politika pro zápis neexistuje, je zápis přes běžné API prostě zakázaný: nikdo si nemůže sám povýšit roli, mění ji jen admin v administraci Supabase. Nový příkaz třetí: `create function` vyrábí pojmenovanou zkratku — funkce `moje_role()` vrací roli právě přihlášeného uživatele (`auth.uid()` je jeho identita ověřená z tokenu) a budou ji volat všechny politiky, ať se stejný dotaz neopisuje pětadvacetkrát; `security definer` a prázdná `search_path` jsou pojistky, aby funkce četla vždy správnou tabulku a nezacyklila se s RLS.
 
 ### RLS politiky pro tři role, větu po větě
 
-Teď zámky na datech. Ukázka pro `contacts` — na ostatní tabulky se aplikuje stejný vzor:
+Teď zámky na datech — pravidla, podle kterých vrátný rozhoduje. Co se teď stane a co uvidíte: blok níže je ukázka pro tabulku `contacts`; na ostatní tabulky se aplikuje stejný vzor (vygeneruje ho prompt o kousek dál). Po spuštění v SQL editoru zase jen „Success“ — ale změna je zásadní: od téhle chvíle tabulka nevydá ani řádek nikomu, koho politiky výslovně nepustí. Jestli si politiky chcete později prohlédnout klikáním, v administraci jsou pod **Authentication → Policies** — u každé tabulky vidíte seznam politik a jestli má RLS zapnuté.
 
 ```sql
 alter table contacts enable row level security;
@@ -287,9 +389,11 @@ create policy "mazani jen admin"
   using (public.moje_role() = 'admin');
 ```
 
-První příkaz RLS zapíná — a od té chvíle platí zlaté pravidlo: **co žádná politika výslovně nepovolí, je zakázané.** Nepřihlášený návštěvník proto nevidí nic, aniž byste pro něj psali jediný řádek — všechny politiky cílí na `to authenticated`, tedy jen na přihlášené. Politika pro `select` s `using (true)` říká: každý přihlášený smí číst všechny řádky — v malém týmu je průhlednost výhoda. Politika pro `insert` používá `with check`: podmínka se kontroluje na vkládaném řádku a projde jen s rolí obchod nebo admin — čtenář dostane od databáze chybu, ať se snaží z jakékoli aplikace. `update` má podmínky dvě: `using` určuje, na které existující řádky smí uživatel vůbec sáhnout, `with check` hlídá, že ani po úpravě řádek neporuší pravidla. A `delete` povoluje jediné roli: mazání je nevratné, tak ať je vzácné. Kdyby pražírna později chtěla jemnější pravidlo — třeba „poznámky smí editovat jen jejich autor“ — stačí v politice porovnat sloupec `autor` s `auth.uid()`; přesně pro tohle jsme ho ve fázi 1 založili.
+První příkaz RLS zapíná — a od té chvíle platí zlaté pravidlo: **co žádná politika výslovně nepovolí, je zakázané.** Vrátný nezačíná se seznamem zákazů, začíná se zavřenými dveřmi; politiky jsou výjimky, které je otevírají. Nepřihlášený návštěvník proto nevidí nic, aniž byste pro něj psali jediný řádek — všechny politiky cílí na `to authenticated`, tedy jen na přihlášené.
 
-Migrace si nechte vygenerovat a hlavně vysvětlit:
+Čtyři politiky odpovídají čtyřem věcem, které se s kartou dají dělat: číst (`select`), založit novou (`insert`), upravit (`update`), smazat (`delete`). Politika pro `select` s `using (true)` říká: každý přihlášený smí číst všechny řádky — podmínka „true“ je vždycky splněná, dveře dokořán, ale jen pro lidi s občankou. V malém týmu je tahle průhlednost výhoda; obchodník potřebuje vidět i firmy kolegy. Politika pro `insert` používá `with check`: podmínka se kontroluje na vkládaném řádku a projde jen s rolí obchod nebo admin — čtenář dostane od databáze chybu, ať se snaží z jakékoli aplikace. `update` má podmínky dvě a rozdíl mezi nimi stojí za zapamatování: `using` určuje, na které existující řádky smí uživatel vůbec sáhnout (koho pustí vrátný k zásuvce), `with check` hlídá, že ani po úpravě řádek neporuší pravidla (v jakém stavu smí kartu vrátit). A `delete` povoluje jediné roli: mazání je nevratné, tak ať je vzácné. Kdyby pražírna později chtěla jemnější pravidlo — třeba „poznámky smí editovat jen jejich autor“ — stačí v politice porovnat sloupec `autor` s `auth.uid()`; přesně pro tohle jsme ho ve fázi 1 založili.
+
+Migrace pro zbylé tabulky si nechte vygenerovat a hlavně vysvětlit. Co se teď stane a co uvidíte: prompt vrátí sadu SQL souborů (pro každou tabulku zapnutí RLS a čtyři politiky podle matice) a ke každému lidský výklad. Nic se zatím nespouští — výstup čtete a schvalujete migraci po migraci:
 
 ```text
 Vygeneruj SQL migrace pro CRM: tabulky companies, contacts, orders,
@@ -311,11 +415,17 @@ Vrátí migrace s komentáři. Nespěchejte u vysvětlení — tohle je místo, 
 
 Láká to: v aplikaci prostě čtenáři schovat tlačítko Uložit a je vyřešeno. Není. Vaše aplikace je jen jeden z klientů databáze — anon klíč je v kódu stránky, tedy veřejný, a kdokoli s ním může poslat databázi požadavek napřímo, úplně mimo vaše UI. Skryté tlačítko je kosmetika pro poctivé; RLS politika je zámek pro všechny, protože se vyhodnocuje v databázi u každého dotazu. Správná aplikace dělá obojí — UI schovává, co uživatel nesmí, databáze to vymáhá. Ale kdykoli si musíte vybrat, kde pravidlo bydlí, odpověď je: v databázi.
 
+Pro netechnika stojí za to si ten útok představit konkrétně, protože „volat API napřímo“ zní abstraktně. Brigádnice s rolí čtenář si otevře CRM v prohlížeči. Prohlížeč si stáhl kód aplikace — a v něm, nutně, anon klíč a adresu API; stačí stisknout F12 a obojí si přečíst. S těmi dvěma údaji a volně dostupným nástrojem teď může poslat databázi požadavek „smaž firmu U Mlýna“ — žádné tlačítko k tomu nepotřebuje, obchází celou vaši aplikaci. Jediné, co mezi jejím požadavkem a daty stojí, je vrátný v databázi: podívá se do jejího tokenu (je přihlášená jako čtenář), do politik (mazat smí jen admin) a odpoví chybou. Kdyby pravidlo bydlelo jen ve schovaném tlačítku, firma U Mlýna by právě zmizela. Nejde o to podezírat brigádnici — jde o to, že systém, který stojí na slušnosti všech držitelů veřejného klíče, není zabezpečený systém.
+
 ### Anon klíč, service role klíč a co nese JWT
 
 Tři pojmy, které rozhodují o bezpečnosti celé stavby. **Anon klíč** identifikuje váš projekt a je veřejný — počítejte s tím, že ho má každý; sám o sobě nedává práva k datům, jen otevírá dveře k API, za kterými stojí RLS. **JWT** je podepsaný token, který uživatel dostane při přihlášení; nese jeho identitu a databáze z něj čte `auth.uid()` — podpis zaručuje, že si ho nikdo nevyrobil sám. Roli si politiky dohledávají v `profiles`; jde ji do tokenu i vkládat jako vlastní claim (rychlejší, ale role se pak mění až s novým přihlášením — pro šest lidí zbytečná optimalizace). **Service role klíč** RLS úplně obchází — generální klíč pro serverové úlohy jako import dat. Patří výhradně do proměnných prostředí na serveru, nikdy do prohlížeče ani do gitu; klíč, který kdy byl v repozitáři, je prozrazený i po smazání.
 
-Než pustíte do systému kolegy, otestujte matici rolí doopravdy:
+Kde přesně oba klíče v administraci najdete, až je budete potřebovat: v levém menu dole klikněte na **Project Settings** (ikona ozubeného kola) a v něm na **API Keys**. Stránka ukazuje dva řádky. První se jmenuje `anon` `public` — dlouhý řetězec začínající „eyJ“, u něj tlačítko Copy; to je anon klíč, ten smí do kódu aplikace. Druhý řádek `service_role` `secret` je skrytý za tlačítkem Reveal — a to je záměr: odkrývejte ho jen v okamžiku, kdy ho vkládáte do proměnných prostředí na serveru, a nikdy ho nikam nevypisujte, ani do chatu s Claude. Hned vedle, v sekci **Data API** týchž Project Settings, je i **Project URL** — adresa API vašeho projektu ve tvaru „https-adresa-projektu.supabase.co“; aplikace bude potřebovat právě dvojici Project URL plus anon klíč. Kdyby se vám stránka nezdála (Supabase administraci občas přeskládá), hledejte v nastavení projektu slova „API“ a „keys“ — oba klíče jsou vždycky pohromadě.
+
+Novější projekty nabízejí místo dvojice anon/service_role nové pojmenování **publishable key** a **secret key** — logika je totožná: publishable je ten veřejný do aplikace, secret ten serverový, který nesmí ven. Návod zůstává u zavedených názvů anon a service role, protože je uvidíte ve starší dokumentaci i ve většině návodů.
+
+Než pustíte do systému kolegy, otestujte matici rolí doopravdy. Co se teď stane a co uvidíte: prompt níže nechá Claude Code založit tři testovací účty a zkusit za každý všechny operace; výstupem je barevná matice povoleno/zamítnuto. Trvá to pár minut a je to nejdůležitější test celé stavby:
 
 ```text
 Založ v testovacím projektu tři testovací účty: test-admin, test-obchod
@@ -330,13 +440,21 @@ projektu se smyšlenými daty, ne proti ostrým.
 
 Výstupem je tabulka, kterou přečte i netechnický člověk — a každá červená buňka je chyba nalezená za pět minut místo za půl roku. Doplňuje červený tým z předchozího dílu: tam se útočilo zvenčí, tady se systematicky prochází, co smí kdo zevnitř.
 
+### Testovací a ostrý projekt: dvě kartotéky
+
+V promptu výše padlo „v testovacím projektu“ — zastavme se u toho, protože je to návyk, který vás ochrání víckrát než všechny politiky dohromady. Testovací projekt je druhá, oddělená kartotéka: samostatný Supabase projekt (free tier povoluje dva — přesně na tohle), postavený stejnými migracemi jako ostrý, ale naplněný smyšlenými daty. Protože se schéma staví migracemi, je kopie levná: spustíte stejné soubory a máte identickou strukturu — tohle je ten slíbený praktický důvod, proč se databáze nikdy nemění ručním šťouráním.
+
+Pravidlo užívání je jednoduché: **všechno nové se zkouší nejdřív v testovacím projektu.** Nová politika, nová migrace, test matice rolí, zkouška obnovy ze zálohy, experiment „co se stane, když…“ — testovací. Ostrá databáze vidí jen kroky, které v testovací prošly. Smyšlená data si nechte vygenerovat („vytvoř 30 smyšlených firem s kontakty a objednávkami, ať vypadají realisticky česky“) — nikdy nekopírujte ostrá data zákazníků do testovacího projektu; testovací prostředí bývá zabezpečené volněji a osobní údaje tam nemají co dělat.
+
 ## Fáze 3: newsletter — CRM je pravda, Brevo doručuje
 
 Pražírna posílá kavárnám měsíční novinky a koncovým zákazníkům občasné akce. Nabízí se posílat je „z CRM“ — a to je přesně to, co nedělat. Rozesílání e-mailů je řemeslo samo o sobě: doručitelnost, šablony, odhlašovací odkazy, statistiky. Na to existují specializované nástroje; my použijeme **Brevo** jako hlavní příklad, protože má štědrý start zdarma a použitelné API. Jednou větou k alternativám: MailerLite je jednodušší na začátek, Ecomail je česká volba s podporou v češtině, Mailchimp nejznámější, ale pro malou firmu často zbytečně složitý — dělba práce s CRM je u všech stejná.
 
+Založení Brevo účtu je obyčejná registrace e-mailem na jejich webu — žádná platební karta na start. Po přihlášení vás čeká průvodce, který chce vědět, odkud budete posílat: vyplňte firemní údaje poctivě, patří pak do patičky každého e-mailu (zákonná povinnost u obchodních sdělení). Dvě místa v administraci, která budete potřebovat: **Contacts → Lists**, kde založíte listy „velkoobchod“ a „koncoví zákazníci“, a API klíč — ten se schovává pod vaším jménem vpravo nahoře, položka **SMTP & API → API Keys**, tlačítko Generate a new API key. Klíč se zobrazí jen jednou, hned ho uložte tam, kam patří: do proměnných prostředí (kam přesně, ukážeme ve fázi 5) — v kódu ani v chatu nemá co dělat, platí pro něj stejná hygiena jako pro service role klíč.
+
 ### Co patří do CRM a co do newsletteru
 
-Zásadní architektonické rozhodnutí: **CRM je jediný zdroj pravdy o zákaznících, Brevo je doručovací stroj.** Jakmile tahle hranice zmizí, máte za půl roku dvě rozjeté evidence a nikdo neví, která platí.
+Zásadní architektonické rozhodnutí: **CRM je jediný zdroj pravdy o zákaznících, Brevo je doručovací stroj.** Jakmile tahle hranice zmizí, máte za půl roku dvě rozjeté evidence a nikdo neví, která platí. Tabulka níže je dělicí čára otázku po otázce — vlevo to, co se ptáte, a v obou sloupcích odpověď, kde ta informace bydlí. Pověste si ji klidně na zeď; každý spor „kam to zapsat“ rozsoudí za pět sekund.
 
 | Otázka | CRM (Supabase) | Nástroj na newsletter (Brevo) |
 | --- | --- | --- |
@@ -350,7 +468,7 @@ Zásadní architektonické rozhodnutí: **CRM je jediný zdroj pravdy o zákazn�
 
 ### Souhlas patří do schématu, ne do poznámek
 
-GDPR se do databáze promítá dalšími sloupci — další migrace, přesně jak jsme si slíbili ve fázi 1:
+GDPR se do databáze promítá dalšími sloupci — další migrace, přesně jak jsme si slíbili ve fázi 1. Co se teď stane a co uvidíte: příkaz `alter table … add column` nepřestavuje zásuvku od nuly, jen na existující karty dotiskne čtyři nové kolonky; stávající záznamy o nic nepřijdou a nové kolonky budou mít u starých záznamů výchozí hodnoty. V SQL editoru zase „Success“, v tabulce contacts přibudou čtyři sloupce:
 
 ```sql
 alter table contacts
@@ -362,9 +480,13 @@ alter table contacts
 
 `newsletter_consent` s `default false` znamená: **kdo výslovně nesouhlasil, newsletter nedostává** — přesně obráceně, než jak to dopadá v tabulkách, kam se „prostě přidávají adresy“. `consent_date` a `consent_source` (formulář na webu, osobní souhlas na degustaci…) jsou vaše odpověď na otázku „odkud máte moji adresu a kdo vám dovolil psát“ — na tu musíte umět odpovědět konkrétně. `unsubscribed_at` je datum odhlášení: záznam se nemaže, protože „tenhle člověk se odhlásil a už mu nepiš“ je informace, kterou potřebujete držet. A pozor na past z minulého dílu o vizitkách: vizitka ani objednávka nejsou souhlas s newsletterem — obchodní e-mail jednomu člověku je něco jiného než hromadná rozesílka.
 
+Jak se souhlasy reálně sbírají, aby měly sloupce co držet: na webu přihlašovací formulář k newsletteru (ten zapisuje souhlas s datem sám), na degustacích a veletrzích papírový arch nebo tablet s jasnou větou, k čemu adresa poslouží — a při zakládání kontaktu v CRM pak obchodník zaškrtne souhlas a vybere zdroj. Co s historickým seznamem, na který se „vždycky posílalo“? U kontaktů, kde souhlas doložit umíte, doplňte datum a zdroj zpětně. U ostatních je poctivá cesta jedna: buď jim souhlas znovu vyžádat jedním slušným e-mailem, nebo je nechat s `newsletter_consent = false` — seznam se tím zmenší a to je v pořádku; sto adres se souhlasem je cennějších než pět set „nějakých“.
+
 ### Synchronizace: z CRM do Brevo, zpátky jen odhlášení
 
 Brevo drží kontakty v listech (velkoobchod, koncoví zákazníci) a u kontaktu atributy — jméno, město, kategorie — pro personalizaci. Synchronizace přes API je jednosměrná: CRM je zdroj, Brevo cíl.
+
+Co se teď stane a co uvidíte: prompt níže nechá Claude Code napsat synchronizační skript — program, který spustíte na svém počítači a který přenese kontakty se souhlasem do Brevo. Poprvé poběží v režimu dry-run, tedy „nasucho“: vypíše, co by udělal (přidal bych 63 kontaktů do listu velkoobchod, odebral bych 2…), ale nic doopravdy neprovede. Až výpis zkontrolujete a bude sedět, spustíte skript naostro a v Brevo pod Contacts uvidíte naplněné listy:
 
 ```text
 Napiš skript, který synchronizuje kontakty z našeho CRM v Supabase
@@ -381,7 +503,7 @@ Napiš i stručný návod, jak skript spouštět, a co znamená každý řádek
 výstupu. První spuštění uděláme spolu v dry-run režimu.
 ```
 
-Dry-run režim je pravidlo „AI navrhuje, člověk schvaluje“ přeložené do kódu: nejdřív se díváte, co by se stalo, pak to teprve pustíte doopravdy. Opačný směr — odhlášení — řeší webhooky: když se někdo odhlásí, Brevo zavolá vaši adresu a CRM si zapíše `unsubscribed_at`.
+Dry-run režim je pravidlo „AI navrhuje, člověk schvaluje“ přeložené do kódu: nejdřív se díváte, co by se stalo, pak to teprve pustíte doopravdy. Opačný směr — odhlášení — řeší webhooky. Webhook je „zavolej mi, až se něco stane“: dáte Brevu adresu ve své aplikaci a Brevo na ni pošle zprávu pokaždé, když se někdo odhlásí — CRM si pak samo zapíše `unsubscribed_at`. Co se teď stane a co uvidíte: prompt vrátí kód serverového endpointu (tedy té adresy) s vysvětlením po blocích; nasazovat se bude až s aplikací ve fázi 5:
 
 ```text
 Nastav zpětný tok odhlášení z Brevo do CRM:
@@ -395,11 +517,11 @@ Nastav zpětný tok odhlášení z Brevo do CRM:
 Ukaž mi kód a vysvětli ho po blocích, než ho nasadíme.
 ```
 
-K bodu 3: webhook nemá přihlášeného uživatele, takže RLS by mu zápis zakázalo — proto serverový kód a service role klíč. A bod 4 není paranoia: nechráněný webhook je adresa, na kterou může kdokoli poslat falešné odhlášení.
+K bodu 3: webhook nemá přihlášeného uživatele — nepřichází od Marty ani od Petra, přichází od stroje v Brevo — takže vrátný v databázi nemá do čeho koukat a RLS by zápis zakázalo. Proto serverový kód a service role klíč: je to přesně ten typ úlohy, pro který generální klíč existuje, a zároveň ukázka, proč nesmí nikam ven — kdo ho má, píše do databáze bez vrátného. A bod 4 není paranoia: nechráněný webhook je veřejná adresa, na kterou může kdokoli poslat falešné odhlášení a tiše vám vyprazdňovat seznam odběratelů. Ověření (Brevo umí požadavky podepisovat, případně se do adresy vloží tajný token) zajistí, že CRM poslouchá jen skutečné Brevo — jak přesně, vám Claude Code vysvětlí u kódu; vaše práce je zkontrolovat, že tam to ověření je.
 
 ### Právo na výmaz: proces, ne tlačítko
 
-Když zákazník požádá o výmaz osobních údajů, musí zmizet odevšad — z CRM i z Brevo. Co smíte podržet (třeba fakturační údaje kvůli účetním zákonům), je právní otázka; širší rámec dává [kapitola o etice a bezpečnosti](/prirucka/ai-eticky-a-bezpecne). Technicky si připravte proces předem:
+Když zákazník požádá o výmaz osobních údajů, musí zmizet odevšad — z CRM i z Brevo. Co smíte podržet (třeba fakturační údaje kvůli účetním zákonům), je právní otázka; širší rámec dává [kapitola o etice a bezpečnosti](/prirucka/ai-eticky-a-bezpecne). Technicky si připravte proces předem. Co se teď stane a co uvidíte: prompt nic nemaže — vrátí protokol návrhu (co smazat, co anonymizovat, co podržet a proč), který schvalujete; teprve po schválení vznikne konkrétní SQL:
 
 ```text
 Navrhni proces „právo na výmaz“ pro naše CRM a Brevo:
@@ -417,21 +539,69 @@ Mazání je nevratné, proto každý krok schvaluji jednotlivě.
 
 Všimněte si logiky bodu 2: výmaz osoby neznamená výmaz obchodní historie firmy — objednávky kavárny zůstávají, jen se odpojí od konkrétního člověka. Přesně kvůli téhle jemnosti je výmaz proces se schvalováním, ne tlačítko.
 
-## Fáze 4: co to bude stát — poctivá rozvaha
+## Fáze 4: co to bude stát — poctivá rozvaha s konkrétními čísly
 
-Celý tenhle systém jde rozjet zdarma — a je fér říct dopředu, kde přesně to přestane stačit. Konkrétní částky tu neuvádíme (mění se; směrodatné jsou vždy aktuální ceníky Supabase, Vercelu a Brevo), ale hranice se popsat dají.
+Jinde na tomhle webu ceny služeb záměrně neuvádíme — mění se rychleji než články. Tady děláme výjimku, protože rozvaha nákladů je u vlastního CRM půlka rozhodnutí a „někde v ceníku to najdete“ není rozvaha. Takže dohoda: **všechny částky níže platí k srpnu 2026, jsou z veřejných ceníků jednotlivých služeb a před vlastním rozhodnutím si je ověřte** — struktura úvahy vydrží roky, čísla ne. Dolarové ceny přepočítáváme střízlivým kurzem **21 Kč za dolar** (kurz se v roce 2026 pohyboval kolem dvaceti a půl koruny; počítáme radši o kousek hůř) a jsou bez DPH, stejně jako je uvádějí ceníky.
 
-**Co je zdarma a na co to stačí.** Supabase free tier unese celý vývoj a klidně i první měsíce provozu malé firmy: databáze v EU, Auth, RLS — všechno, co návod používá. Brevo zdarma zvládne měsíční newsletter na desítky kontaktů, Vercel Hobby postačí na vývoj a zkoušení. Jinými slovy: **fáze stavby vás nestojí nic než čas** — a to je správně, protože během stavby ještě nevíte, jestli u systému vydržíte.
+### Co je zdarma a na co to přesně stačí
 
-**Kde narazíte.** Tři zdi, na které rostoucí firma najede, v době psaní vypadají takhle (ověřte v aktuálních podmínkách):
+Supabase free tier unese celý vývoj a klidně i první měsíce provozu malé firmy: databáze v EU do 500 MB (osmdesát firem s objednávkami za tři roky se do toho vejde mnohokrát), dva aktivní projekty — přesně dost na ostrý a testovací — plus Auth a RLS bez omezení, tedy všechno, co návod používá. Brevo zdarma pošle až 300 e-mailů denně, což je zhruba 9 000 měsíčně — měsíční newsletter na osmdesát kaváren tedy zvládne s obrovskou rezervou. Vercel Hobby postačí na vývoj a zkoušení. Jinými slovy: **fáze stavby vás nestojí nic než čas a předplatné Claude** — a to je správně, protože během stavby ještě nevíte, jestli u systému vydržíte.
 
-- **Pauza neaktivního projektu.** Supabase free projekt s nízkou aktivitou se po zhruba týdnu automaticky pozastaví — jde obnovit z administrace, ale CRM, které se v pondělí ráno „neprobudí“, je přesně ten druh drobnosti, kvůli které tým přestane systému věřit. Placený tarif projekty nepozastavuje.
-- **Zálohy.** Free tier automatické zálohy nedělá — dokud jedete zdarma, je záloha vaše práce (pravidelný export, klidně jako naplánovaná úloha). Placený tarif přidává automatické denní zálohy; v okamžiku, kdy je CRM jediné místo s historií vztahů, je tohle nejsilnější argument pro přechod.
-- **Denní limit e-mailů a komerční užití.** Brevo má na free tarifu denní strop odeslaných e-mailů v řádu nižších stovek — na měsíční newsletter osmdesáti kavárnám stačí, na rozesílku tisícům koncových zákazníků ne; placené tarify strop ruší. A Vercel Hobby je podle podmínek pro nekomerční osobní použití — firemní CRM je komerční provoz, do ostrého nasazení počítejte s placeným tarifem.
+### Kde narazíte: tři zdi
 
-**Proč se placené tarify vyplatí.** Srovnejte tři čísla, každé ze svého ceníku: součet placených tarifů téhle skladby je fixní částka za celou firmu měsíčně. Hotová CRM se typicky platí za každého uživatele — u šesti lidí to násobí. A jeden velkoobchodní odběratel, který potichu odešel, protože si jeho útlumu nikdo nevšiml, stojí ročně víc než celá tahle infrastruktura. Pointa není „zadarmo“, ale řádově nižší fixní náklad a data ve vlastních rukou.
+Tři zdi, na které rostoucí firma najede, v srpnu 2026 vypadají takhle:
 
-Rozvahu si nechte spočítat na vlastních číslech — s ověřením proti aktuálním ceníkům, ne z paměti modelu:
+- **Pauza neaktivního projektu.** Supabase free projekt s nízkou aktivitou se po sedmi dnech automaticky pozastaví — jde obnovit z administrace, ale CRM, které se v pondělí ráno „neprobudí“, je přesně ten druh drobnosti, kvůli které tým přestane systému věřit. Placený tarif projekty nepozastavuje.
+- **Zálohy.** Free tier automatické zálohy nedělá — dokud jedete zdarma, je záloha vaše práce (jak na ni ručně, ukazuje fáze 5). Tarif Pro přidává automatické denní zálohy držené sedm dní zpětně; v okamžiku, kdy je CRM jediné místo s historií vztahů, je tohle nejsilnější argument pro přechod.
+- **Denní limit e-mailů a komerční užití.** Strop 300 e-mailů denně u Brevo free na newsletter kavárnám stačí, na rozesílku dvěma tisícům koncových zákazníků ne — ta by se rozkouskovala na týden. A Vercel Hobby je podle podmínek jen pro nekomerční osobní použití — firemní CRM je komerční provoz, do ostrého nasazení počítejte s tarifem Pro.
+
+### Měsíční provoz vlastního CRM, položka po položce
+
+Sestava pro ostrý provoz pražírny — šest uživatelů, jeden projekt, newsletter jednou měsíčně:
+
+- **Supabase Pro: 25 USD měsíčně** (asi 525 Kč) za projekt. Přidává denní zálohy, žádné pozastavování, 8 GB databázi a e-mailovou podporu. Tohle je jediná položka, kterou pro ostrý firemní provoz považujeme za nepodkročitelnou — kvůli zálohám.
+- **Vercel Pro: 20 USD měsíčně** (asi 420 Kč) za uživatele. Uživatelem se tu myslí vývojář s přístupem k nasazování, ne uživatel CRM — pražírně stačí jeden účet, přes který se nasazuje, takže platí jedno sedadlo, ne šest.
+- **Brevo Starter: od 9 USD měsíčně** (asi 190 Kč) za 5 000 e-mailů měsíčně; vyšší objemy 18 USD za 20 000. Dokud vám stačí free limit, je tahle položka nula — u pražírny s měsíčním newsletterem na 80 adres klidně napořád, s výhledem na tisíce koncových zákazníků s ní ale počítejte.
+- **Claude Pro: 20 USD měsíčně** (asi 420 Kč). Na stavbu i běžnou údržbu — večerní „přidej sloupec a pohled“ — bohatě stačí; vyšší tarify (Max za 100 nebo 200 USD) mají smysl, až kdyby Claude Code používal někdo denně na víc projektů. Tohle předplatné navíc nejspíš neplatíte kvůli CRM — kdo došel až sem, používá ho na půlku ostatní práce taky, takže je fér ho do rozvahy počítat jen částečně.
+- **Doména: zhruba 200 až 400 Kč ročně** za .cz doménu podle registrátora (velkoobchodní cena registru CZ.NIC je 160 Kč bez DPH), tedy do 35 Kč měsíčně. Není nutná — aplikace poběží i na adrese od Vercelu — ale „crm.vasefirma.cz“ se týmu pamatuje líp.
+
+Součet: **74 USD plus doména, tedy zhruba 1 600 Kč měsíčně — kolem 19 000 Kč ročně — za celou firmu**, ať máte uživatelů pět nebo patnáct. To je klíčová vlastnost celé skladby: náklad je fixní, neroste s každým přijatým člověkem. A minimalistická varianta pro první měsíce ostrého provozu (Brevo na free, Claude už platíte tak jako tak) je Supabase Pro plus Vercel Pro: 45 USD, tedy pod tisícovkou měsíčně.
+
+### Proti tomu: hotová CRM a agenturní implementace
+
+Hotová CRM se platí za uživatele a měsíc. Orientační ceník k srpnu 2026 u řešení, na která malá česká firma narazí nejdřív: česká Raynet CRM stojí podle tarifu 449 až 1 199 Kč za uživatele měsíčně (při roční platbě zhruba 399 až 999 Kč), eWay-CRM začíná na 300 Kč za uživatele měsíčně při roční platbě, Pipedrive vyjde na 14 až 79 USD za uživatele měsíčně při roční platbě (tedy zhruba 300 až 1 660 Kč) a HubSpot má sice startovní tarif levný, ale funkce, kvůli kterým se CRM kupuje, žijí v tarifu Professional za zhruba 90 USD za uživatele měsíčně s povinným placeným zaškolením v řádu vyšších desítek tisíc korun jednorázově.
+
+Pro tým pěti lidí to znamená: **zhruba 18 000 Kč ročně u nejlevnějších tarifů (eWay, Pipedrive Lite), kolem 24 000 Kč u Raynet Start — a 48 000 až 100 000 Kč ročně u středních tarifů**, které teprve obsahují reporting a automatizace srovnatelné s tím, co si v návodu stavíte pohledy. K tomu připočtěte, co ceníky nepíšou tučně: příplatky za API, úložiště a pokročilé funkce, a hlavně růst — sedmý zaměstnanec znamená sedmou licenci.
+
+Druhá srovnávací cena je **implementace CRM agenturou či dodavatelem na míru**: pro malou firmu v Česku se jednorázové nasazení a přizpůsobení hotového CRM pohybuje orientačně mezi 20 000 a 80 000 Kč, u složitějších integrací klidně přes 100 000 Kč — a to je jen implementace, měsíční licence běží vedle toho. Vývoj CRM na míru od softwarové firmy je pak úplně jiná liga, řádově stovky tisíc. Proti tomu stojí vaše varianta: čtyři večery a víkend vlastního času plus předplatné Claude.
+
+### Úspora času: co dnes stojí ruční evidence
+
+Náklady jsou jen půlka rozvahy — druhá půlka je, co platíte dnes, aniž to vidíte na faktuře. Střízlivý odhad pro firmu velikosti pražírny: každý, kdo se zákazníky pracuje, stráví dohledáváním a přepisováním 2 až 3 hodiny týdně — „kdo mu naposledy volal?“, „ve které tabulce je aktuální ceník?“, „objednali letos vůbec?“, přepsání objednávky z e-mailu do Excelu, sestavení seznamu adres na newsletter. U tří lidí, kteří tohle dělají denně, je to **25 až 40 hodin měsíčně**; i při skromném ocenění hodiny práce na 400 Kč jde o 10 000 až 16 000 Kč měsíčně rozpuštěných v provozu. Vlastní CRM tenhle čas nesmaže celý — zápis do systému taky něco stojí — ale dohledávání zkracuje z minut a hodin na sekundy, a hlavně dělá práci **přenositelnou**: když Petr onemocní, historie vztahů je v databázi, ne v jeho hlavě.
+
+A je tu ještě jedna položka, která se do tabulek špatně píše, ale rozhoduje: **schopnost reagovat interně.** Když Marta v úterý zjistí, že potřebuje u firem evidovat „preferovaný den závozu“, je to večer s Claude Code: migrace s novým sloupcem, úprava formuláře, hotovo týž den, náklad nula. U hotového CRM je to buď „nejde to“, nebo přizpůsobení v administraci (když ho tarif umí), a u dodavatelského řešení změnový požadavek: jednotky až desítky tisíc korun a týdny čekání. Tahle asymetrie se neprojeví první měsíc — projeví se za rok, až bude vaše CRM přesně kopírovat váš provoz, zatímco krabicové by ho pořád jen aproximovalo.
+
+### A poctivě i druhá strana: co stojí vlastnictví
+
+Aby rozvaha nebyla agitka, přiznejme i náklady, které hotová CRM nemají. Vlastní systém potřebuje čas správce: střízlivě **2 až 4 hodiny měsíčně** — kontrola záloh, pozvání a odebrání účtu, jednou za čas aktualizace závislostí aplikace (řekne si o ni Claude Code sám, když se zeptáte „je v projektu něco zastaralého nebo děravého?“), a občasný večer nad novou funkcí, který je ale spíš radost než povinnost. Dál nesete riziko vlastní chyby: špatně napsaná politika nebo smazaná tabulka je vaše, žádná zákaznická podpora nepřijede — zmírňují ho návyky z návodu (testovací projekt, zálohy, schvalování migrací), ne nula. A počítejte s tím, že služby se vyvíjejí: jednou za rok se změní ceník nebo administrace přeskládá menu a návod, podle kterého jste stavěli, zestárne — systém ne, ten je váš. Kdo tyhle tři odstavce četl s nechutí, má odpověď: kupte si hotové CRM. Kdo si řekl „to zvládnu“, čte dál.
+
+### Rozvaha v jedné tabulce
+
+Srovnání pro tým pěti až šesti lidí, ceny k srpnu 2026, kurz 21 Kč za dolar:
+
+| Kritérium | Vlastní CRM (tento návod) | Hotové CRM pro 5 lidí | Implementace agenturou |
+| --- | --- | --- | --- |
+| Jednorázově na start | 0 Kč + 4 večery a víkend práce | 0 Kč (u vyšších tarifů zaškolení i desítky tisíc) | orientačně 20 000–80 000 Kč |
+| Měsíčně | cca 1 600 Kč za celou firmu | cca 1 500–8 300 Kč podle tarifu | licence CRM + případná podpora |
+| Ročně | cca 19 000 Kč | cca 18 000–100 000 Kč | implementace + roční licence |
+| Šestý a další uživatel | 0 Kč | plná další licence | plná další licence |
+| Nový sloupec či pohled | týž den, večer s Claude | podle možností tarifu | změnový požadavek: tisíce Kč, týdny |
+| Data a jurisdikce | vlastní databáze v EU | u dodavatele, dle smlouvy | u dodavatele, dle smlouvy |
+| Kdo se stará o provoz | vy (zálohy, přístupy, údržba) | dodavatel | dodavatel/agentura |
+
+Čtěte ji poctivě oběma směry. Nejlevnější hotové tarify jsou s vlastním CRM cenově srovnatelné — argument pro vlastní stavbu tam není úspora, ale data ve vlastních rukou a přizpůsobitelnost. Proti středním tarifům a agenturní implementaci už je rozdíl násobný. A poslední řádek tabulky je zároveň nejdůležitější upozornění: **vlastní CRM se nevyplatí firmě, kde se o něj nechce nikdo starat.** Potřebuje svého člověka — někoho, koho baví jednou za čas věnovat večer údržbě, kdo pohlídá zálohy a přístupy. Když takový člověk ve firmě není, nebo když potřebujete hned od začátku pokročilé funkce (obchodní pipeline s automatizacemi, telefonii integrovanou do CRM, pokročilý reporting), kupte si hotové řešení s čistým svědomím — tahle tabulka není agitka, je to rozvaha.
+
+Rozvahu si nechte spočítat na vlastních číslech — s ověřením proti aktuálním ceníkům, ne z paměti modelu ani z tohohle článku. Co se teď stane a co uvidíte: prompt vrátí srovnání s citacemi zdrojů a datem; čísla z něj si přepište do vlastní tabulky:
 
 ```text
 Pomoz mi s rozvahou nákladů na vlastní CRM. Naše čísla: [6] uživatelů,
@@ -454,7 +624,52 @@ Bod 4 je pojistka proti sebejistému zastaralému údaji — ceníky a limity se
 
 Máte vyčištěná data, schválené schéma, promyšlené role i napojení. Teprve teď se zakládá projekt — a celou mechanickou práci odvede Claude Code, zatímco vy držíte rytmus známý z minula: návrh, schválení, výroba.
 
+### Nejdřív tři účty: Supabase, GitHub, Vercel
+
+Než se pustíte do stavby, založte si tři účty — všechny tři zdarma, všechny tři na e-mail, dohromady čtvrt hodiny klikání. **GitHub** (github.com) bude držet kód a historii migrací; při registraci volíte jen uživatelské jméno a heslo. **Supabase** (supabase.com) je databáze — registrovat se můžete rovnou přihlášením přes GitHub, tlačítkem „Sign in with GitHub“, a máte o heslo méně. **Vercel** (vercel.com) bude hostit aplikaci — i tady se přihlaste přes GitHub; Vercel se s ním stejně bude propojovat kvůli nasazování. U všech tří si hned v nastavení účtu zapněte dvoufaktorové ověření — tenhle systém bude držet osobní údaje vašich zákazníků a heslo samotné je dnes slabá ochrana.
+
+Teď založení Supabase projektu, klik po kliku, protože tady se dělá jedno rozhodnutí, které pak nejde změnit. Po přihlášení do Supabase uvidíte nástěnku organizace a zelené tlačítko **New project**. Formulář chce čtyři věci:
+
+1. **Organizace** — nechte tu, která se založila s účtem.
+2. **Project name** — třeba „crm-prazirna“. Jen popisný štítek, jde kdykoli přejmenovat.
+3. **Database password** — heslo k samotné databázi. Tady zpozorněte: tohle heslo nebudete zadávat při běžné práci (do administrace se hlásíte účtem Supabase), ale budete ho potřebovat pro přímé připojení k databázi — třeba při ruční záloze. Klikněte na **Generate a password**, nechte si vygenerovat dlouhé náhodné, a **uložte ho do správce hesel** (Bitwarden, 1Password — stejného, jaký doporučujeme všude jinde). Ne do poznámek v mobilu, ne na lísteček. Když ho ztratíte, jde v nastavení projektu resetovat, ale je to zbytečné dobrodružství.
+4. **Region** — a tohle je to rozhodnutí. Rozbalovací nabídka s městy světa; vyberte **Central EU (Frankfurt)**, případně jiný region označený EU. Tady bude vaše databáze fyzicky ležet — a protože do ní půjdou osobní údaje zákazníků, chcete evropskou jurisdikci a GDPR bez právní gymnastiky kolem přenosů dat mimo EU. Region se po založení projektu nedá jednoduše změnit — proto se vybírá teď a proto je v každém promptu tohohle návodu připomenutý.
+
+Klik na **Create new project** a minutu dvě se čeká — Supabase někde ve Frankfurtu vyhrazuje vaší firmě kus serveru. Až se stránka přepne na přehled projektu, uvidíte nástěnku s grafy (zatím prázdnými) a levé menu, ze kterého budete používat hlavně čtyři položky: **Table Editor** (zásuvky kartotéky naklikané do tabulek — tady se na data budete dívat), **SQL Editor** (tady se s databází mluví — hned k němu), **Authentication** (uživatelé a politiky, znáte z fáze 2) a **Project Settings** (klíče a nastavení, znáte taky).
+
+### SQL editor: kam se vkládá migrace a co uvidíte
+
+SQL editor je obyčejné velké textové pole s tlačítkem **Run** — nejjednodušší nástroj v celé administraci, a přitom ten, ze kterého mají začátečníci největší respekt. Otevřete ho v levém menu (položka SQL Editor), klikněte na **New query** a máte prázdnou stránku. Sem se vkládají migrace: zkopírujete SQL blok — z tohohle článku nebo od Claude Code — vložíte ho do pole a stisknete Run (nebo Ctrl+Enter, na Macu Cmd+Enter).
+
+Co se teď stane a co uvidíte, když do editoru vložíte první migraci se schématem z fáze 1: pod polem se objeví panel výsledku. U příkazů, které něco staví (`create table`, `create policy`), vypíše jen **„Success. No rows returned“** — žádná tabulka s daty, protože stavební příkazy žádná data nevracejí; to mate úplně každého poprvé. U příkazů, které se ptají (`select`), se objeví tabulka s výsledky. A když je v SQL chyba, panel zčervená a vypíše chybovou hlášku s pozicí — v tom případě nic nevzniklo, databáze migrace provádí stylem všechno, nebo nic, takže polovičaté stavby se bát nemusíte. Chybovou hlášku zkopírujte Claude Code a nechte si ji vysvětlit; nejčastější příčina u kopírovaných bloků je useknutý konec.
+
+Že se migrace povedla, si ověříte dvěma způsoby. Klikací: v Table Editoru se objeví nové tabulky se sloupci přesně podle schématu — projděte si je, je to hezký pocit vidět kartotéku postavenou. A druhý způsob, kterým se zeptáte databáze samotné — vložte do SQL editoru tenhle dotaz. Co se teď stane a co uvidíte: tentokrát select, takže dostanete opravdovou tabulku výsledků — seznam vašich tabulek a u každé informace, jestli má zapnuté RLS:
+
+```sql
+select tablename, rowsecurity
+from pg_tables
+where schemaname = 'public'
+order by tablename;
+```
+
+Sloupec `rowsecurity` musí po dokončení fáze 2 ukazovat `true` u všech řádků. Jakékoli `false` znamená tabulku bez vrátného — a přesně tenhle dotaz je ta „kontrola po každé migraci“, o které mluví zbytek návodu. Uložte si ho v SQL editoru tlačítkem uložení jako pojmenovaný dotaz „kontrola RLS“, ať je vždycky po ruce.
+
+Ještě jedna věc k SQL editoru: je to nejostřejší nůž v domě. Spouští cokoli, včetně `delete` a `drop table` — proto platí disciplína z celého návodu: spouštíte jen migrace, kterým rozumíte, protože vám je Claude Code vysvětlil a vy jste je schválili. A destruktivní příkazy (mazání, přejmenování) navíc nejdřív na testovacím projektu — od toho ho máte.
+
+### Když něco nejde: chybové hlášky jsou přítel
+
+Začátečníka chybová hláška vyděsí; ve skutečnosti je to databáze, jak dělá přesně svou práci — odmítá porušit pravidla, která jste jí dali. Čtyři hlášky, které potkáte skoro jistě, a co doopravdy říkají:
+
+- **„violates foreign key constraint“** — porušení cizího klíče: zkusili jste založit objednávku pro firmu, která v companies není (nebo smazat firmu, na kterou se ještě odkazují objednávky). Databáze chrání provázanost dat; řešení je založit rodiče dřív než dítě, u importu spravit párování.
+- **„duplicate key value violates unique constraint“** — druhá firma se stejným IČO nebo druhý kontakt se stejným e-mailem tam, kde platí `unique`. To není porucha, to je vaše pojistka proti duplicitám v akci; rozhodněte, který záznam je ten pravý.
+- **„new row violates row-level security policy“** — vrátný v akci: přihlášený uživatel zkusil zápis, na který jeho role nemá politiku. Když se to stane čtenáři, systém funguje. Když se to stane vám u operace, která projít měla, máte díru v politice — a přesně tohle odhalí matice testů z fáze 2.
+- **„column … does not exist“** — překlep ve jméně sloupce, nebo se dotaz spouští proti databázi, kde ještě neběžela příslušná migrace (klasicky: v testovacím projektu ano, v ostrém ne).
+
+Univerzální postup pro všechno ostatní: hlášku zkopírujte celou (i s částí, která vypadá jako šum) a vložte Claude Code s otázkou „co přesně tahle chyba znamená u naší databáze a co s ní“. Chybové hlášky PostgreSQL jsou přesné a Claude Code z nich skoro vždycky určí příčinu na první pokus — hádání z paměti „co by to tak mohlo být“ nechte minulosti.
+
 ### Založení projektu a migrace
+
+Projekt teď můžete naplnit dvěma cestami a obě jsou správně. Ruční: založit projekt klikáním podle předchozí podsekce a migrace vkládat do SQL editoru jednu po druhé — pro poprvé ji doporučujeme, protože u ní vidíte každý krok na vlastní oči. Anebo to celé řídí Claude Code: přes napojení na Supabase (MCP konektor nebo příkazová řádka) umí projekt založit i migrace spustit sám — vy schvalujete. Prompt níže je pro tu druhou cestu; kdo jel ručně, použije z něj jen body 3 a 4. Co se teď stane a co uvidíte: Claude Code bude postupovat po krocích a před každým se zastaví; po každé migraci vypíše stav a na konci výsledek kontroly RLS — obě čísla v bodu 4 musí být nula:
 
 ```text
 Zakládáme Supabase projekt pro interní CRM. Postupuj po krocích
@@ -476,7 +691,9 @@ Závěrečná kontrola v bodu 4 je jednořádková pojistka proti nejčastějš�
 
 ### Aplikace: interní tabulkové UI, žádný design
 
-Interní CRM nepotřebuje být krásné, potřebuje být rychlé na použití. Odolejte pokušení „když už to stavíme, ať to vypadá“ — každá hodina designu je hodina, kterou systém nevrací. Jak se s Claude Code staví a nasazuje webová aplikace obecně, ukazuje [samostatný návod](/tipy/web-claude-code-vercel); tady je zadání šité na CRM:
+Interní CRM nepotřebuje být krásné, potřebuje být rychlé na použití. Odolejte pokušení „když už to stavíme, ať to vypadá“ — každá hodina designu je hodina, kterou systém nevrací. Jak se s Claude Code staví a nasazuje webová aplikace obecně, ukazuje [samostatný návod](/tipy/web-claude-code-vercel) — včetně základů, jak Claude Code nainstalovat a jak s ním mluvit; jestli jste ho ještě nikdy nespustili, odskočte si tam a vraťte se.
+
+Co se teď stane a co uvidíte: prompt níže spustí největší kus stavby. Claude Code založí projekt aplikace (složku s kódem), postupně vytvoří jednotlivé stránky a po každé se zastaví — aplikaci si pustíte na svém počítači na lokální adrese, kterou vám vypíše, proklikáte stránku a řeknete „pokračuj“ nebo co změnit. Počítejte s jedním až dvěma večery a nebojte se říkat i drobnosti („tlačítko je moc malé na mobil“) — je to levnější teď než potom:
 
 ```text
 Postav jednoduchou interní aplikaci nad naším Supabase CRM (Next.js):
@@ -495,7 +712,28 @@ Postupuj po stránkách, každou mi ukaž, než začneš další.
 
 Bod 4 je princip z fáze 2 v praxi: UI se přizpůsobuje roli kvůli pohodlí, databáze roli vymáhá kvůli bezpečnosti. Obě vrstvy, každá ze svého důvodu.
 
+K čemu tu je Next.js, když jsme o něm celou dobu nemluvili? Je to framework — hotová kostra webové aplikace, do které se doplňuje jen to vaše: stránky, formuláře, napojení na databázi. Vybíráme ho ze stejného důvodu jako Supabase: je to nejprošlapanější cesta, Claude Code ho zná do detailu a na Vercel se nasazuje jedním kliknutím. Vy o něm nepotřebujete vědět víc, než že existuje — je to materiál, ze kterého Claude Code staví, ne něco, co se musíte učit.
+
+A jak hotová aplikace vypadá? Schválně přízemně. Přihlašovací stránka. Po přihlášení tabulka firem s vyhledávacím polem — Marta napíše „mlýn“ a je na kartě kavárny. Karta firmy: nahoře název, IČO, kategorie, pod tím kontakty s telefony, objednávky od nejnovější, historie interakcí a poznámek, formulář „přidat poznámku“ se dvěma poli. Žádné grafy na úvodní obrazovce, žádný dashboard s koláči — na otázky odpovídají pohledy na stránce Přehled, která přijde za chvíli. Interní nástroj se pozná podle toho, že úkon „zapsat telefonát“ trvá deset sekund; všechno ostatní je okrasa.
+
 ### Nasazení: zamčené od první minuty
+
+Zatím aplikace běží jen na vašem počítači — nasazení znamená dostat ji na server, aby ji tým otevřel odkudkoli. Klikací postup ve Vercelu: nejdřív musí být kód na GitHubu (Claude Code ho tam nahraje, stačí říct — repozitář založte jako **private**, je to interní systém). Pak ve Vercelu klikněte na **Add New → Project**; uvidíte seznam svých GitHub repozitářů, u toho s CRM klikněte **Import**. Vercel sám pozná, že jde o Next.js aplikaci, a předvyplní nastavení — nechte ho být, až na jednu sekci, kterou přeskočit nesmíte: **Environment Variables**, proměnné prostředí.
+
+Je to rozbalovací sekce přímo na importní obrazovce (a kdykoli později ji najdete v **Settings → Environment Variables** projektu). Formulář má dvě pole: **Key** (jméno proměnné) a **Value** (hodnota) a tlačítko Add. Sem patří všechna tajemství — přesně ta, která nesmí do kódu. Pro naše CRM vložíte postupně čtyři:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL        # Project URL ze Supabase (Project Settings → Data API)
+NEXT_PUBLIC_SUPABASE_ANON_KEY   # anon klíč (Project Settings → API Keys)
+SUPABASE_SERVICE_ROLE_KEY       # service role klíč — POZOR, bez prefixu NEXT_PUBLIC_
+BREVO_API_KEY                   # API klíč Brevo (SMTP & API → API Keys)
+```
+
+Ten prefix je celé tajemství rozdílu mezi veřejným a tajným: proměnné začínající `NEXT_PUBLIC_` Next.js zabalí do kódu stránky a pošle do prohlížeče — proto ho smí mít jen URL projektu a anon klíč, které jsou veřejné z povahy věci. Service role klíč a klíč Brevo prefix mít **nesmí** — zůstanou jen na serveru, prohlížeč je nikdy neuvidí. Přesně tohle po vás bude kontrolovat i checklist v promptu níže; teď víte proč.
+
+Po vyplnění proměnných klik na **Deploy** — Vercel minutu dvě staví a pak ukáže konfety a adresu ve tvaru „nazev-projektu.vercel.app“, na které aplikace žije. Od téhle chvíle platí příjemná automatika: každá změna, kterou Claude Code pošle na GitHub, se na Vercel nasadí sama — nasazování už nikdy neřešíte ručně. Vlastní adresu (crm.vasefirma.cz) připojíte v **Settings → Domains** zadáním domény a úpravou DNS záznamu podle instrukcí, které Vercel vypíše — i tohle je klikačka na deset minut.
+
+Co se teď stane a co uvidíte: závěrečný bezpečnostní checklist. Prompt vrátí tabulku kontrol s výsledky — a poslední bod si pak zopakujete vlastníma rukama v anonymním okně prohlížeče:
 
 ```text
 Nasaď CRM na Vercel s tímhle bezpečnostním checklistem:
@@ -513,7 +751,13 @@ Vrať checklist s výsledkem každého bodu, ne jen „hotovo“.
 
 Test v anonymním okně je nejlevnější bezpečnostní audit na světě — dělejte ho po každém větším nasazení. Interní CRM nemá jediný veřejný pixel; přihlašovací stránka je to jediné, co smí nepřihlášený vidět.
 
+K bodu 3 pro netechniky: preview nasazení je vlastnost Vercelu, kdy každá rozpracovaná změna dostane vlastní dočasnou adresu, na které si ji prohlédnete před nasazením naostro — skvělá věc na zkoušení, ale ta adresa existuje veřejně. U webu s ceníkem kávy to nevadí; u CRM by rozpracovaná verze s ostrým napojením na databázi visela na uhodnutelné adrese. Ochrana preview (v nastavení projektu **Settings → Deployment Protection**) schová tyhle adresy za přihlášení do Vercelu — zapněte ji a zapomeňte na ni.
+
 ### Import dat: potřetí a naposledy kontrolní součty
+
+Přichází chvíle, na kterou čekají CSV soubory z fáze 1 — naplnění ostré databáze. Pro netechnika je důležité rozumět, jak import probíhá, protože je to jediný krok návodu, kde se do ostrých dat zapisuje hromadně. Skript (napíše ho Claude Code) čte CSV řádek po řádku a pro každý zkusí založit záznam; nejdřív firmy, pak kontakty a objednávky, které se na firmy odkazují — pořadí je dané cizími klíči, dítě nemůže vzniknout před rodičem.
+
+A zase dry-run: první spuštění je nasucho. Skript projde všechny soubory, všechno zkontroluje, ale nezapíše nic — místo toho vypíše zprávu ve stylu „vložil bych 78 firem, 214 kontaktů, 1 892 objednávek; odmítl bych 11 objednávek (neexistující firma) a 2 kontakty (duplicitní e-mail)“. Tuhle zprávu čtete jako člověk, ne jako technik: sedí počty s tím, co jste viděli ve fázi 1? Je odmítnutých pár, nebo čtvrtina? Odmítnuté řádky si nechte vypsat a rozhodněte o nich — a teprve když zpráva sedí, řeknete „spusť naostro“. Co se teď stane a co uvidíte: po ostrém běhu vypíše skript finální počty, v Table Editoru uvidíte tabulky plné dat — a přijde nejdůležitější kontrola, bod 4 promptu:
 
 ```text
 Naimportuj vyčištěná data z fáze 1 (companies.csv, contacts.csv,
@@ -532,9 +776,36 @@ spuštění a vysvětli mi ji.
 
 Namátková ruční kontrola v bodu 4 vypadá staromódně a je nenahraditelná: deset náhodných firem proti podkladům odhalí systémovou chybu importu (posunuté sloupce, rozbitá diakritika) spolehlivěji než automatické testy.
 
+### Záloha: udělejte ji dřív, než ji budete potřebovat
+
+Od chvíle ostrého importu je databáze jediné místo, kde historie vztahů s odběrateli existuje — a jediná věc, která z „jediného místa“ dělá klid místo rizika, je záloha. Jak na ni, závisí na tarifu.
+
+Na tarifu Pro je to vyřešené za vás: Supabase dělá automatické denní zálohy a drží je sedm dní zpětně. Najdete je v administraci pod **Database → Backups** — je tam seznam záloh s daty a tlačítko Restore u každé. Jediná vaše práce je jednou za čas se tam podívat, že zálohy opravdu vznikají; záloha, kterou nikdo nikdy neviděl, je jen doufání.
+
+Na free tieru žádné automatické zálohy nejsou a záloha je vaše ruční práce. Nejjednodušší poctivý způsob: export všech tabulek do CSV souborů, uložený mimo Supabase (firemní disk, u důležitých věcí dvě kopie). Jde to naklikat v Table Editoru tabulku po tabulce (tlačítko Export), ale ručně to vydržíte dělat tak dva týdny — proto si na to nechte napsat skript. Co se teď stane a co uvidíte: prompt vrátí zálohovací skript s návodem ke spuštění; po každém běhu vznikne složka s datem v názvu a CSV souborem pro každou tabulku, plus kontrolní výpis počtu řádků:
+
+```text
+Napiš zálohovací skript pro naše CRM v Supabase:
+1. Stáhne kompletní obsah všech tabulek (companies, contacts, orders,
+   interactions, notes, profiles) do CSV souborů ve složce
+   zaloha-RRRR-MM-DD podle dnešního data
+2. Připojení přes service role klíč z proměnné prostředí — skript
+   poběží na mém počítači, klíč nesmí být v kódu
+3. Po stažení vypiš kontrolu: počet řádků v každém souboru a srovnání
+   s počtem řádků přímo v databázi — čísla se musí rovnat
+4. Když cílová složka už existuje, skonči s chybou, nic nepřepisuj
+5. Přidej krátký návod: jak skript spustím, kam soubory ukládat
+   a jak z nich data v nouzi dostanu zpátky do databáze
+Vysvětli mi každý krok skriptu — je to pojistka, musím jí rozumět.
+```
+
+Zálohovací rutina k tomu: spouštějte skript každý pátek (klidně si na to dejte opakující se připomínku — nebo, elegantněji, nechte Claude Code zálohu zařadit jako naplánovanou úlohu) a jednou za měsíc si udělejte zkoušku obnovy na testovacím projektu: vezměte poslední zálohu a nechte si ji nahrát do testovací databáze. Když obnova projde, máte jistotu, že záloha není jen soubor, ale skutečná pojistka. A až vás tenhle rituál začne obtěžovat, je to zdravý signál, že nastal čas na tarif Pro — přesně tohle je ta „cena za starost“, o které mluvila rozvaha ve fázi 4.
+
 ### První pohledy: ať se CRM zaplatí první týden
 
-Systém, ze kterého nic nekouká, tým opustí. Hned po importu proto založte dva pohledy odpovídající na otázky, kvůli kterým CRM vzniklo:
+Systém, ze kterého nic nekouká, tým opustí. Hned po importu proto založte dva pohledy odpovídající na otázky, kvůli kterým CRM vzniklo.
+
+Pohled (view) lidsky: uložená otázka. Napíšete jednou dotaz „které firmy neobjednaly přes šest týdnů“ a uložíte ho pod jménem — a od té chvíle se ptáte jen jménem, jako by to byla další tabulka, jenže se pokaždé spočítá čerstvě z aktuálních dat. Nic se nikam nekopíruje, pohled nemá vlastní obsah; je to okno, kterým se na tabulky díváte z určitého úhlu. V dotazech níže potkáte i pár nových slov: `join` spojuje dvě zásuvky dohromady (k firmě přilepí její objednávky přes cizí klíč), `group by` sbaluje řádky po firmách, `max` a `sum` z každé skupiny vytáhnou nejnovější datum a součet, `having` filtruje až sbalené skupiny. Co se teď stane a co uvidíte: po spuštění v SQL editoru zase „Success“ — a v levém panelu Table Editoru přibudou dva pohledy, které se tváří jako tabulky jen ke čtení:
 
 ```sql
 create view spici_odberatele
@@ -579,6 +850,14 @@ Na těchhle pohledech pak vyroste i týdenní rutina z předchozího dílu — a
 
 Pravidlo z minulého dílu — agent smí číst a navrhovat, zápis schvaluje člověk — teď můžete opřít o architekturu místo o dobrou vůli. Agent, který navrhuje doplnění dat, nedostane service role klíč, ale účet s rolí čtenář — takže mu zápis zakáže sama databáze. Návrhy odevzdá jako seznam, člověk je v aplikaci odklikne a zápis proběhne pod jeho účtem, s jeho jménem ve sloupci `autor`. Rozdíl proti „slíbili jsme si, že agent nezapisuje“ je zásadní: tady to slíbit nestačí, tady to nejde.
 
+### První týden provozu: zavedení, ne stavba
+
+Technicky je hotovo — ale CRM neumírá na technické chyby, umírá na to, že ho tým nezačne používat. První týden proto věnujte zavedení a počítejte s ním stejně vážně jako se stavbou.
+
+Den první: pozvěte tým (Authentication → Users → Invite user, roli každému nastavíte v tabulce profiles) a udělejte půlhodinové společné sezení u jedné obrazovky. Ne školení s prezentací — prostě spolu projděte tři úkony, které bude každý dělat: najdi firmu, přečti si historii, zapiš poznámku z telefonátu. Víc aplikace stejně neumí a to je její síla. Zbytek týdne platí jediné pravidlo: **všechno nové jen do CRM.** Staré Excely nemažte — jsou to podklady a záloha historie — ale zamkněte je pro zápis, nebo aspoň přejmenujte na „ARCHIV — nezapisovat“. Dvojí evidence je smrt: dokud může Petr zapsat objednávku „zatím do Excelu, pak to tam přepíšu“, systém reálně neběží.
+
+A na konci týdne krátká retrospektiva, patnáct minut: co bylo otravné? Kde jste museli klikat pětkrát tam, kde by to mělo být jednou? Sepište to a dejte Claude Code jako zadání na další večer. Právě tahle smyčka — používat, všimnout si, upravit týž týden — je důvod, proč jste stavěli vlastní systém; u krabice byste teď psali e-mail dodavateli. Po prvním týdnu se tempo úprav samo zpomalí a CRM se stane tím, čím má být: nudnou, spolehlivou infrastrukturou.
+
 ## Nejčastější chyby
 
 - **Začít technologií místo daty.** Založit projekt a vymýšlet tabulky od stolu vede ke schématu, které neodpovídá tomu, co firma reálně má. Pořadí je: inventura, čištění, a teprve z vyčištěných dat schéma.
@@ -587,25 +866,27 @@ Pravidlo z minulého dílu — agent smí číst a navrhovat, zápis schvaluje �
 - **Přidat tabulku později a zapomenout na RLS.** Nejčastější díra vůbec: první migrace vzorná, tabulka přidaná za měsíc bez politik. Po každé migraci spouštějte kontrolu „tabulky bez RLS = nula“.
 - **Vést souhlas s newsletterem v Brevo místo v CRM.** Jakmile pravda o souhlasu žije v doručovacím nástroji, nemáte ji pod kontrolou — a při změně nástroje o ni přijdete. Souhlas i odhlášení patří do schématu CRM, Brevo dostává jen kopii.
 - **Spoléhat na free tier v ostrém provozu.** Pozastavený projekt v pondělí ráno a chybějící zálohy nejsou úspora, ale riziko. Free na stavbu a zkoušení; jakmile je CRM jediné místo s historií vztahů, patří na placený tarif se zálohami.
+- **Spouštět SQL, kterému nerozumíte.** Návod stojí na tom, že každou migraci schvalujete — a schválit jde jen to, co jste pochopili. Když vysvětlení od Claude Code nedává smysl, ptejte se dál („vysvětli mi to znova, jako bych SQL viděl poprvé“); spuštění naslepo je půjčka, kterou splatíte při první chybě i s úroky. A destruktivní příkazy vždycky nejdřív na testovacím projektu.
+- **Nechat běžet dvojí evidenci.** Nejtišší způsob, jak CRM zabít: nové objednávky se „zatím“ píšou do starého Excelu a systém den po dni zastarává, dokud mu nikdo nevěří. Od ostrého importu platí všechno nové jen do CRM — staré tabulky jsou archiv jen pro čtení.
 
 ## Nejlepší nástroje
 
-- **Supabase** — spravovaná PostgreSQL s vestavěným přihlašováním a Row Level Security; srdce stavby, v EU regionu kvůli osobním údajům.
-- **Claude Code** — staví celé CRM: navrhuje migrace a politiky, píše aplikaci i importní skripty a vysvětluje každý krok lidsky; vy schvalujete.
+- **Supabase** — spravovaná PostgreSQL s vestavěným přihlašováním a Row Level Security; srdce stavby, v EU regionu kvůli osobním údajům. Free tier na stavbu a testovací projekt, Pro (25 USD měsíčně v srpnu 2026) na ostrý provoz kvůli zálohám.
+- **Claude Code** — staví celé CRM: navrhuje migrace a politiky, píše aplikaci i importní a zálohovací skripty a vysvětluje každý krok lidsky; vy schvalujete. S předplatným Claude Pro pokryje stavbu i běžnou údržbu.
 - **Claude Cowork** — příprava dat nad složkou souborů: vizitky, exporty kontaktů, staré Excely; výstupem jsou čistá CSV pro import.
-- **Brevo** — doručování newsletterů: listy, šablony, statistiky, webhooky pro odhlášení; přes API napojené na CRM jako na zdroj pravdy. Alternativy: MailerLite, Ecomail, Mailchimp.
-- **Vercel** — hosting aplikace se serverovými proměnnými pro klíče a ochranou preview nasazení; pro firemní provoz na placeném tarifu.
-- **GitHub** — historie migrací a kódu; schéma má mít stejnou dohledatelnost změn jako brand voice z předchozího dílu.
+- **Brevo** — doručování newsletterů: listy, šablony, statistiky, webhooky pro odhlášení; přes API napojené na CRM jako na zdroj pravdy. Free do 300 e-mailů denně. Alternativy: MailerLite, Ecomail, Mailchimp.
+- **Vercel** — hosting aplikace se serverovými proměnnými pro klíče a ochranou preview nasazení; pro firemní provoz tarif Pro (20 USD za sedadlo měsíčně — pražírně stačí jedno).
+- **GitHub** — historie migrací a kódu; schéma má mít stejnou dohledatelnost změn jako brand voice z předchozího dílu. Repozitář s CRM vždy privátní.
 
 ## Co vám to přinese
 
-- **Čas:** konec hledání „kde je aktuální tabulka“ a přepisování kontaktů mezi soubory. Přehled spících odběratelů je hotový za sekundy místo za hodinu probírání Excelu — a hlavně se skutečně dělá.
-- **Peníze:** fixní náklad za infrastrukturu místo platby za každého uživatele hotového CRM — a zachycené odchody: jeden včas oslovený velkoobchodní odběratel ročně systém zaplatí. Střízlivě: úspora se dostaví až po zaběhnutí, první měsíc stojí večery.
+- **Čas:** konec hledání „kde je aktuální tabulka“ a přepisování kontaktů mezi soubory — u týmu velikosti pražírny střízlivě 25 až 40 hodin měsíčně rozpuštěných v dohledávání. Přehled spících odběratelů je hotový za sekundy místo za hodinu probírání Excelu — a hlavně se skutečně dělá.
+- **Peníze:** fixní náklad kolem 1 600 Kč měsíčně za celou firmu (v cenách ze srpna 2026) místo licence za každého uživatele hotového CRM, která u pěti lidí dělá 18 000 až 100 000 Kč ročně podle tarifu — a zachycené odchody: jeden včas oslovený velkoobchodní odběratel ročně systém zaplatí. Střízlivě: úspora se dostaví až po zaběhnutí, první měsíc stojí večery.
 - **Klid:** data v jedné databázi v EU, role vymáhané databází, souhlasy s datem a zdrojem, klíče mimo git. Když se zeptá zákazník nebo úřad, odpovídáte z evidence, ne z paměti.
 - **Kvalita:** vztahy se zákazníky přestávají záviset na tom, co má kdo v hlavě a v mobilu. Nemoc, dovolená ani odchod obchodníka neodnesou půlku firemní paměti.
 
 ## Pro tip
 
-Až systém poběží, přidejte mu čtvrtletní prohlídku — naplánovanou úlohu, která zkontroluje zdraví dat i zámků jedním během: tabulky bez RLS (musí být nula), kontakty se souhlasem bez data souhlasu, firmy bez jediné interakce za rok (kandidáti na archivaci), podíl objednávek bez vazby na firmu. Výstup je krátký protokol s návrhy oprav — a opravy, jak jinak, schvaluje člověk. CRM tím přestává být projekt, který se jednou postavil, a stává se systémem, který se sám hlásí o údržbu.
+Až systém poběží, přidejte mu čtvrtletní prohlídku — naplánovanou úlohu, která zkontroluje zdraví dat i zámků jedním během: tabulky bez RLS (musí být nula), kontakty se souhlasem bez data souhlasu, firmy bez jediné interakce za rok (kandidáti na archivaci), podíl objednávek bez vazby na firmu. Výstup je krátký protokol s návrhy oprav — a opravy, jak jinak, schvaluje člověk. CRM tím přestává být projekt, který se jednou postavil, a stává se systémem, který se sám hlásí o údržbu. A jednou ročně k prohlídce přibalte i revizi rozvahy z fáze 4: ceníky, na kterých sestava stojí, projděte proti aktuálním — čísla z tohohle článku budou za rok jinde, struktura úvahy ne.
 
 A závěrečné pravidlo: **CRM je tak dobré, jak poctivě se do něj zapisuje.** Všechna technika z tohohle návodu je jen podpora pro jeden lidský návyk: po každé schůzce a telefonátu jeden řádek do interakcí. Stavte systém tak, aby ten řádek byl co nejlevnější — a hlídejte si ho stejně přísně jako zámky na databázi. Kdo zavádí AI ve firmě šířeji, najde celkový rámec v [kompletním průvodci](/tipy/ai-ve-firme-kompletni-pruvodce); tohle CRM je jeho nejhmatatelnější stavební kámen.
