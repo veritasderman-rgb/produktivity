@@ -38,10 +38,22 @@ def check(path, min_len=18000, max_len=100000):
 def main():
     all_problems = []
     for slug in sys.argv[1:]:
+        # Přijímáme slug i přímou cestu k .mdx — cesta, která neexistuje, je chyba,
+        # ne tiché „vše v pořádku“.
+        if slug.endswith(".mdx"):
+            if os.path.exists(slug):
+                all_problems += check(slug)
+            else:
+                all_problems.append(f"{slug}: soubor neexistuje")
+            continue
+        found = False
         for base in ("content/tipy", "content/en/tipy"):
             p = f"{base}/{slug}.mdx"
             if os.path.exists(p):
+                found = True
                 all_problems += check(p)
+        if not found:
+            all_problems.append(f"{slug}: nenalezen v content/tipy ani content/en/tipy")
     if all_problems:
         print("\nPROBLÉMY:")
         for p in all_problems:
