@@ -22,6 +22,10 @@ export function GET(req: NextRequest) {
   const lines = [
     "User-Agent: *",
     "Allow: /",
+    // Náhledové obrázky (og:image) se generují v /api/og — musí zůstat
+    // dostupné, jinak je Search Console hlásí jako blokované robots.txt.
+    // Delší pravidlo vyhrává nad obecným Disallow níž.
+    "Allow: /api/og",
     "Disallow: /api/",
     "",
     ...AI_BOTS.flatMap((bot) => [`User-Agent: ${bot}`, "Allow: /", ""]),
