@@ -8,6 +8,7 @@ import { NewsletterForm } from "@/components/NewsletterForm";
 import { DataDisclaimer } from "@/components/DataDisclaimer";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { annotateGlossary } from "@/lib/annotate";
+import { ogImage } from "@/lib/og";
 import { Pojem } from "@/components/Pojem";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
@@ -62,6 +63,11 @@ export async function generateMetadata({
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,
       languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
+    },
+    openGraph: {
+      title: n.title,
+      description: n.excerpt,
+      images: [ogImage(n.title, locale)],
     },
   };
 }

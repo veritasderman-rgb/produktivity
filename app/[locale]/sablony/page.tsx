@@ -4,6 +4,7 @@ import { NewsletterForm } from "@/components/NewsletterForm";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { getTemplates } from "@/lib/templates";
+import { ogImage } from "@/lib/og";
 
 const CS_URL = "https://www.produktivni.cz/sablony";
 const EN_URL = "https://www.productive.tips/sablony";
@@ -115,7 +116,7 @@ export async function generateMetadata({
     openGraph: {
       title: t.metaTitle,
       description: t.description,
-      images: [`/api/og?title=${encodeURIComponent(t.metaTitle)}`],
+      images: [ogImage(t.metaTitle, locale)],
     },
   };
 }

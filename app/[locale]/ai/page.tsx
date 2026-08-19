@@ -5,6 +5,7 @@ import { getAllTips } from "@/lib/tips";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { TipCard } from "@/components/TipCard";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { ogImage } from "@/lib/og";
 
 const T = {
   cs: {
@@ -78,6 +79,11 @@ export async function generateMetadata({
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,
       languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
+    },
+    openGraph: {
+      title: t.title,
+      description: t.description,
+      images: [ogImage(t.title, locale)],
     },
   };
 }

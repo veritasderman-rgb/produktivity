@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getAllInterviews, interviewTitle } from "@/lib/interviews";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { ogImage } from "@/lib/og";
 
 const EMAIL = "josef@josefpavlovic.cz";
 
@@ -140,6 +141,11 @@ export async function generateMetadata({
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,
       languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
+    },
+    openGraph: {
+      title: t.title,
+      description: t.description,
+      images: [ogImage(t.title, locale)],
     },
   };
 }

@@ -9,6 +9,7 @@ import {
   tipsForAudience,
 } from "@/lib/audiences";
 import { getDict, type Locale } from "@/lib/i18n";
+import { ogImage } from "@/lib/og";
 
 const CS_BASE = "https://www.produktivni.cz";
 const EN_BASE = "https://www.productive.tips";
@@ -23,6 +24,11 @@ export function audienceIndexMetadata(locale: Locale): Metadata {
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,
       languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
+    },
+    openGraph: {
+      title: t.hubMetaTitle,
+      description: t.hubDescription,
+      images: [ogImage(t.hubMetaTitle, locale)],
     },
   };
 }

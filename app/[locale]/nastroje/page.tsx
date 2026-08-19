@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { ogImage } from "@/lib/og";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
 const CS_URL = "https://www.produktivni.cz/nastroje";
@@ -139,7 +140,7 @@ export async function generateMetadata({
     openGraph: {
       title: t.metaTitle,
       description: t.description,
-      images: [`/api/og?title=${encodeURIComponent(t.metaTitle)}`],
+      images: [ogImage(t.metaTitle, locale)],
     },
   };
 }

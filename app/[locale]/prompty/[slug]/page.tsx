@@ -5,6 +5,7 @@ import { CopyPre } from "@/components/CopyPre";
 import { PromptStar } from "@/components/PromptStar";
 import { getArticlePrompts, getPromptArticles } from "@/lib/prompts";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
+import { ogImage } from "@/lib/og";
 
 const T = {
   cs: {
@@ -57,6 +58,11 @@ export async function generateMetadata({
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,
       languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
+    },
+    openGraph: {
+      title: t.metaTitle(article.title),
+      description: t.description(article.prompts.length, article.title),
+      images: [ogImage(t.metaTitle(article.title), locale)],
     },
   };
 }

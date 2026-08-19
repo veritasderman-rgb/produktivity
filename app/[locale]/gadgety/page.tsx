@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { gadgetCategories } from "@/lib/gadgets";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { ogImage } from "@/lib/og";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
 const T = {
@@ -53,7 +54,7 @@ export async function generateMetadata({
     openGraph: {
       title: t.title,
       description: t.description,
-      images: [`/api/og?title=${encodeURIComponent(t.title)}`],
+      images: [ogImage(t.title, locale)],
     },
   };
 }

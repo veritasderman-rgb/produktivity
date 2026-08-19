@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getAllChanges, type ChangeAction, type ChangeItem } from "@/lib/changes";
 import { getAllTips } from "@/lib/tips";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { ogImage } from "@/lib/og";
 
 const T = {
   cs: {
@@ -101,7 +102,7 @@ export async function generateMetadata({
     openGraph: {
       title: t.title,
       description: t.description,
-      images: [`/api/og?title=${encodeURIComponent(t.title)}`],
+      images: [ogImage(t.title, locale)],
     },
   };
 }

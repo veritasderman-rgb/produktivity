@@ -12,6 +12,7 @@ import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { Reveal } from "@/components/Reveal";
 import { tipOfTheDay } from "@/lib/related";
 import { formatCount, getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
+import { ogImage } from "@/lib/og";
 
 export async function generateMetadata({
   params,
@@ -31,7 +32,7 @@ export async function generateMetadata({
     openGraph: {
       title: dict.siteTitle,
       description: dict.siteDescription,
-      images: [`/api/og?title=${encodeURIComponent(dict.siteTitle)}`],
+      images: [ogImage(dict.siteTitle, locale)],
     },
   };
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { formatDuration, formatStepCount, getPaths } from "@/lib/paths";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { ogImage } from "@/lib/og";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
 const CS_URL = "https://www.produktivni.cz/cesty";
@@ -56,6 +57,11 @@ export async function generateMetadata({
     alternates: {
       canonical: locale === "en" ? EN_URL : CS_URL,
       languages: { cs: CS_URL, en: EN_URL, "x-default": CS_URL },
+    },
+    openGraph: {
+      title: t.metaTitle,
+      description: t.description,
+      images: [ogImage(t.metaTitle, locale)],
     },
   };
 }

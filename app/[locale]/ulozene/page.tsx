@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SavedLists } from "@/components/SavedLists";
 import { isLocale, type Locale } from "@/lib/i18n";
+import { ogImage } from "@/lib/og";
 
 /* Stránka je statická: server kreslí jen kostru a texty, seznamy dokreslí
    klient z localStorage (SavedLists). */
@@ -40,6 +41,11 @@ export async function generateMetadata({
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,
       languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
+    },
+    openGraph: {
+      title: t.title,
+      description: t.description,
+      images: [ogImage(t.title, locale)],
     },
   };
 }

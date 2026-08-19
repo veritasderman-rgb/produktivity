@@ -5,6 +5,7 @@ import { getAllNews } from "@/lib/news";
 import { getAllInterviews, interviewTitle } from "@/lib/interviews";
 import { SearchAll, type SearchDoc } from "@/components/SearchAll";
 import { isLocale, type Locale } from "@/lib/i18n";
+import { ogImage } from "@/lib/og";
 
 const T = {
   cs: {
@@ -37,6 +38,11 @@ export async function generateMetadata({
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,
       languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
+    },
+    openGraph: {
+      title: t.title,
+      description: t.description,
+      images: [ogImage(t.title, locale)],
     },
   };
 }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PromptBuilder, type PromptSample } from "@/components/PromptBuilder";
 import { getAllPrompts, type PromptEntry } from "@/lib/prompts";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { ogImage } from "@/lib/og";
 
 /**
  * Skládačka promptů. lib/prompts.ts čte soubory přes node:fs, takže celá
@@ -154,6 +155,11 @@ export async function generateMetadata({
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,
       languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
+    },
+    openGraph: {
+      title: t.title,
+      description: t.description,
+      images: [ogImage(t.title, locale)],
     },
   };
 }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getAllTipMetas } from "@/lib/tips";
 import { QuickPick } from "@/components/QuickPick";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { ogImage } from "@/lib/og";
 
 /* „Mám 10 minut" — vstup pro čtenáře, jehož filtr není téma, ale čas.
    Server jen staticky vybere kandidáty (rychlé tipy do 10 minut čtení,
@@ -46,6 +47,11 @@ export async function generateMetadata({
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,
       languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
+    },
+    openGraph: {
+      title: t.title,
+      description: t.description,
+      images: [ogImage(t.title, locale)],
     },
   };
 }

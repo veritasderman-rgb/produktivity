@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getResourcesByCategory } from "@/lib/resources";
 import { isLocale, type Locale } from "@/lib/i18n";
+import { ogImage } from "@/lib/og";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
 const T = {
@@ -56,7 +57,7 @@ export async function generateMetadata({
     openGraph: {
       title: t.title,
       description: t.description,
-      images: [`/api/og?title=${encodeURIComponent(t.heading)}`],
+      images: [ogImage(t.heading, locale)],
     },
   };
 }
