@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { cachedByLocale } from "@/lib/content-cache";
 
 export type Chapter = {
   slug: string;
@@ -48,7 +49,7 @@ function chaptersDir(locale: string = "cs") {
     : path.join(process.cwd(), "content", "prirucka");
 }
 
-export function getAllChapters(locale: string = "cs"): Chapter[] {
+function loadAllChapters(locale: string = "cs"): Chapter[] {
   const DIR = chaptersDir(locale);
   if (!fs.existsSync(DIR)) return [];
   const files = fs.readdirSync(DIR).filter((f) => f.endsWith(".mdx"));
@@ -69,6 +70,9 @@ export function getAllChapters(locale: string = "cs"): Chapter[] {
   });
   return chapters.sort((a, b) => a.order - b.order);
 }
+
+/** Čtení z disku je cachované — viz lib/content-cache.ts. */
+export const getAllChapters: (locale?: string) => Chapter[] = cachedByLocale(loadAllChapters);
 
 export function getChapter(slug: string, locale: string = "cs"): Chapter | undefined {
   return getAllChapters(locale).find((c) => c.slug === slug);

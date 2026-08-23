@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { cachedByLocale } from "@/lib/content-cache";
 
 /**
  * Rubrika „Z praxe“ — workflow od čtenářů: jak reálně používají AI ve své práci.
@@ -38,7 +39,7 @@ function practiceDir(locale: string = "cs") {
     : path.join(process.cwd(), "content", "z-praxe");
 }
 
-export function getAllPracticePosts(locale: string = "cs"): PracticePost[] {
+function loadAllPracticePosts(locale: string = "cs"): PracticePost[] {
   const dir = practiceDir(locale);
   if (!fs.existsSync(dir)) return [];
   const files = fs.readdirSync(dir).filter((f) => f.endsWith(".mdx"));
@@ -60,6 +61,9 @@ export function getAllPracticePosts(locale: string = "cs"): PracticePost[] {
   });
   return items.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
+
+/** Čtení z disku je cachované — viz lib/content-cache.ts. */
+export const getAllPracticePosts: (locale?: string) => PracticePost[] = cachedByLocale(loadAllPracticePosts);
 
 export function getPracticePost(slug: string, locale: string = "cs"): PracticePost | undefined {
   return getAllPracticePosts(locale).find((p) => p.slug === slug);

@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { cachedList } from "@/lib/content-cache";
 
 /**
  * Rubrika „Co se změnilo" — changelog dopadů, ne novinek. Každý záznam říká:
@@ -44,7 +45,7 @@ function tipExists(slug: string): boolean {
   return fs.existsSync(path.join(process.cwd(), "content", "tipy", `${slug}.mdx`));
 }
 
-export function getAllChanges(): ChangeItem[] {
+function loadAllChanges(): ChangeItem[] {
   const dir = changesDir();
   if (!fs.existsSync(dir)) return [];
   const files = fs.readdirSync(dir).filter((f) => f.endsWith(".md") && f.toLowerCase() !== "readme.md");
@@ -79,6 +80,9 @@ export function getAllChanges(): ChangeItem[] {
   });
   return items.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
+
+/** Čtení z disku je cachované — viz lib/content-cache.ts. */
+export const getAllChanges: () => ChangeItem[] = cachedList(loadAllChanges);
 
 /** Záznamy changelogu, které se týkají daného tipu — pro odkaz „Historie změn" na detailu tipu. */
 export function changesForSlug(slug: string): ChangeItem[] {

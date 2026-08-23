@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { cachedByLocale } from "@/lib/content-cache";
 
 export type FaqItem = { q: string; a: string };
 
@@ -50,9 +51,12 @@ export function tipMeta(tip: Tip): TipMeta {
   return meta;
 }
 
-export function getAllTipMetas(locale: string = "cs"): TipMeta[] {
+function loadAllTipMetas(locale: string = "cs"): TipMeta[] {
   return getAllTips(locale).map(tipMeta);
 }
+
+/** Čtení z disku je cachované — viz lib/content-cache.ts. */
+export const getAllTipMetas: (locale?: string) => TipMeta[] = cachedByLocale(loadAllTipMetas);
 
 const FENCE_RE = /```[\s\S]*?```/g;
 const MEGA_CHARS = 15000;
@@ -76,7 +80,7 @@ function tipsDir(locale: string = "cs") {
     : path.join(process.cwd(), "content", "tipy");
 }
 
-export function getAllTips(locale: string = "cs"): Tip[] {
+function loadAllTips(locale: string = "cs"): Tip[] {
   const dir = tipsDir(locale);
   if (!fs.existsSync(dir)) return [];
   const files = fs.readdirSync(dir).filter((f) => f.endsWith(".mdx"));
@@ -112,6 +116,9 @@ export function getAllTips(locale: string = "cs"): Tip[] {
   });
   return tips.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
+
+/** Čtení z disku je cachované — viz lib/content-cache.ts. */
+export const getAllTips: (locale?: string) => Tip[] = cachedByLocale(loadAllTips);
 
 export function getTip(slug: string, locale: string = "cs"): Tip | undefined {
   return getAllTips(locale).find((t) => t.slug === slug);

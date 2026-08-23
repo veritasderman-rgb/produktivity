@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { cachedByLocale } from "@/lib/content-cache";
 
 /**
  * Rubrika „Jak pracuje…" — písemné rozhovory se skutečnými lidmi.
@@ -36,7 +37,7 @@ function interviewsDir(locale: string = "cs") {
     : path.join(process.cwd(), "content", "rozhovory");
 }
 
-export function getAllInterviews(locale: string = "cs"): Interview[] {
+function loadAllInterviews(locale: string = "cs"): Interview[] {
   const dir = interviewsDir(locale);
   if (!fs.existsSync(dir)) return [];
   const files = fs.readdirSync(dir).filter((f) => f.endsWith(".mdx"));
@@ -58,6 +59,9 @@ export function getAllInterviews(locale: string = "cs"): Interview[] {
   });
   return items.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
+
+/** Čtení z disku je cachované — viz lib/content-cache.ts. */
+export const getAllInterviews: (locale?: string) => Interview[] = cachedByLocale(loadAllInterviews);
 
 export function getInterview(slug: string, locale: string = "cs"): Interview | undefined {
   return getAllInterviews(locale).find((i) => i.slug === slug);
