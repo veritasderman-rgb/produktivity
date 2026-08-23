@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { headers } from "next/headers";
 import { localePath, type Locale } from "@/lib/i18n";
 
 const T = {
@@ -23,12 +22,17 @@ const T = {
   },
 };
 
-/** Zábavná 404 v identitě webu: tři velké klávesy, které jdou zmáčknout. */
-export default async function NotFound() {
-  // not-found nedostává params — jazyk se pozná podle domény (stejně jako middleware).
-  const host = ((await headers()).get("host") ?? "").toLowerCase();
-  const enDomain = process.env.EN_DOMAIN ?? "productive.tips";
-  const locale: Locale = host === enDomain || host === `www.${enDomain}` ? "en" : "cs";
+/**
+ * Zábavná 404 v identitě webu: tři velké klávesy, které jdou zmáčknout.
+ *
+ * Jazyk je natvrdo český. Dřív se poznával z hlavičky Host, jenže sáhnutí po
+ * `headers()` tady přepnulo celý strom [locale] do dynamického režimu a žádná
+ * z 1 400 stránek webu se nepředgenerovala — jedna stránka, kterou skoro nikdo
+ * nevidí, tak brzdila všechny ostatní. Odkazy fungují na obou doménách,
+ * stránka je noindex a anglická mutace na ní uvidí češtinu.
+ */
+export default function NotFound() {
+  const locale: Locale = "cs";
   const t = T[locale];
   const p = (path: string) => localePath(locale, path);
 
