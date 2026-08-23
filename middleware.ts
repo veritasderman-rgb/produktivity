@@ -73,13 +73,15 @@ export function middleware(req: NextRequest) {
   }
 
   // Čeština: interní rewrite na /cs/*
+  //
+  // Cookie tu schválně NENASTAVUJEME. Zapsaná cookie dělá z odpovědi soukromý
+  // obsah (private, no-store), takže by se žádná česká stránka neuložila do
+  // CDN cache a každý požadavek by musel na server. Volbu jazyka si ukládá
+  // přepínač v LangSwitch a auto-detekce výš na cookii jen kouká — stačí, že
+  // ji zapíše přesměrování na anglickou doménu.
   const url = req.nextUrl.clone();
   url.pathname = `/cs${pathname === "/" ? "" : pathname}`;
-  const res = NextResponse.rewrite(url);
-  if (req.cookies.get("NEXT_LOCALE")?.value !== "cs") {
-    res.cookies.set("NEXT_LOCALE", "cs", { path: "/", maxAge: 60 * 60 * 24 * 365 });
-  }
-  return res;
+  return NextResponse.rewrite(url);
 }
 
 export const config = {

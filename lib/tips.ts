@@ -43,11 +43,18 @@ export type Tip = {
  * komponentám a výpisům. Tělo (MDX) má u velkých návodů desítky kB;
  * 307 těl v props klientské komponenty nafouklo /tipy na 3,6 MB HTML.
  */
-export type TipMeta = Omit<Tip, "body">;
+/**
+ * Tip bez obsahu, který se posílá do prohlížeče (karty, filtry, výběry).
+ *
+ * Kromě těla vynecháváme i `tldr` a `faq`: karta ani filtry je nezobrazují,
+ * ale u stovek tipů na jedné stránce z nich naroste serializovaná data
+ * o víc než 150 kB. Detail článku si plný tip načítá přes `getTip()`.
+ */
+export type TipMeta = Omit<Tip, "body" | "tldr" | "faq">;
 
 export function tipMeta(tip: Tip): TipMeta {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- rest destrukturing odděluje tělo
-  const { body: _body, ...meta } = tip;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- rest destrukturing odděluje data pro server
+  const { body: _body, tldr: _tldr, faq: _faq, ...meta } = tip;
   return meta;
 }
 
