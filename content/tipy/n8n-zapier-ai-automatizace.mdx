@@ -81,7 +81,9 @@ faq:
 
 Chat s AI je ruční práce: vy nosíte data dovnitř a výsledky ven. Automatizační platforma tuhle chůzi zruší — data doputují k modelu sama a výsledek skončí tam, kde ho potřebujete. Nemusíte umět programovat, skládáte kroky jako stavebnici. **Celý trik je v tom, že AI není celý automat, ale jeden krok uprostřed:** něco ho spustí, model z toho něco vytáhne nebo napíše, a výsledek putuje dál do tabulky, CRM nebo do složky Koncepty.
 
-Návod můžete číst s otevřeným editorem scénářů. Začíná otázkou, kterou většina lidí přeskočí — jestli vůbec potřebujete platformu, nebo jestli stačí rutina přímo v Claude. Pak rozebere anatomii scénáře, ukáže tři kompletní příklady krok za krokem, vysvětlí, proč se prompt v AI kroku píše jinak než v chatu, a skončí u toho nejméně zábavného: co dělat, když se scénář rozbije, a kdy je správná odpověď neautomatizovat vůbec.
+Návod je stavěný tak, aby se dal číst od nuly i přeskakovat. Začíná úplným začátkem pro netechniky — co je trigger, akce, větvení a běh a proč se běhy počítají — a slovníčkem pojmů, které uvidíte v každém editoru. Pak přijde otázka, kterou většina lidí přeskočí (jestli vůbec potřebujete platformu, nebo stačí naplánovaná rutina), srovnání Zapieru, Make, n8n, Power Automate a Apple Zkratek, anatomie scénáře a kapitola o procesní automatizaci ve firmě: jak vybrat, co automatizovat první, a kdo za proces odpovídá. Jádrem je **deset hotových automatizací krok za krokem** — od poptávky do CRM přes faktury, newsletter, přepis schůzky a hlídání termínů až po zálohu příloh. Konec patří tomu nejméně zábavnému a nejdůležitějšímu: co dělat, když se scénář rozbije, jak ošetřit přístupy a osobní údaje, a kdy je správná odpověď neautomatizovat vůbec.
+
+Pokud automatizujete poprvé, čtěte popořadě a stavějte až od kapitoly s deseti scénáři. Pokud už scénáře máte, jděte rovnou na srovnání platforem, procesní automatizaci a kapitolu o rozbití — tam je většina toho, co v návodech chybí.
 
 A protože se bavíme o automatu, který sahá na vaši poštu, faktury a klientská data, platí od první minuty jedno pravidlo: **AI navrhuje, člověk schvaluje.** Odeslání, platba, smazání, podpis — vždycky člověk. Všechny scénáře tady končí návrhem ke kontrole, nikdy hotovým činem.
 
@@ -589,11 +591,17 @@ Tři čísla, změřená před a po, a žádné dojmy:
 
 K tomu jedno měkčí, ale důležité: **kolikrát se scénář zastavil a nikdo si toho nevšiml.** Tohle se měří jedině tak, že si jednou měsíčně schválně pustíte umělý případ a čekáte, jestli projde. Bez toho testu nevíte nic, jen doufáte.
 
-## Scénář 1: nový lead → obohacení AI → CRM
+## Deset hotových automatizací krok za krokem
+
+Následuje deset scénářů, které se dají postavit na kterékoli platformě z předchozí kapitoly. U každého najdete spouštěč, kroky v pořadí, prompty k okopírování a poznámku, na čem to nejčastěji spadne. Nejsou seřazené podle užitečnosti, ale zhruba podle náročnosti stavby — první tři jsou dobrý první projekt, poslední tři počítají s tím, že už víte, co děláte.
+
+Přes všechny deset platí totéž pravidlo: **poslední krok je vždycky návrh, ne čin.** Koncept místo odeslaného mailu, úkol se štítkem „ke schválení“ místo úkolu v ostrém projektu, nový řádek místo přepsání existujícího.
+
+### 1. Příchozí poptávka → záznam v CRM a koncept odpovědi
 
 Cíl: z každé nové poptávky vznikne strukturovaný záznam se známkou kvality a koncept odpovědi, aniž by se toho do chvíle schválení dotkla lidská ruka.
 
-### Kroky scénáře
+**Kroky scénáře**
 
 1. **Trigger:** webhook z webového formuláře (nebo nový řádek v tabulce, kam formulář zapisuje).
 2. **Filtr:** jen když je vyplněný e-mail a text má aspoň dvacet znaků. Tím odpadnou spamy a nedokončená odeslání.
@@ -603,7 +611,7 @@ Cíl: z každé nové poptávky vznikne strukturovaný záznam se známkou kvali
 6. **Akce 2:** založ úkol se štítkem „ke schválení“ a lhůtou do 24 hodin.
 7. **Akce 3:** vytvoř koncept odpovědi v poště. Nikdy neodesílej.
 
-### AI krok A: extrakce
+**AI krok A: extrakce**
 
 ```text
 Jsi extraktor údajů z poptávek. Dostaneš surový text poptávky
@@ -629,7 +637,7 @@ Pravidla:
 
 Vrátí čistý JSON, který v platformě rozparsujete do polí. Hlídejte dvě věci: jestli model vrací opravdu jen JSON (občas přidá vysvětlující větu a rozbije parser — pomůže krok, který vezme jen text mezi první a poslední složenou závorkou) a jestli respektuje `neuvedeno` u rozpočtu, kde je pokušení domýšlet největší.
 
-### AI krok B: obohacení a známka
+**AI krok B: obohacení a známka**
 
 ```text
 Dostaneš strukturovaná data o poptávce a informace o mém podnikání.
@@ -658,7 +666,7 @@ jak asi zakázka vypadá.
 
 Vrátí hodnocení, které rozhoduje o pořadí ve frontě. Známky nepoužívejte na automatické odmítání — céčko znamená „podívej se na to jako na poslední“, ne „zahoď“. Model nezná kontext, který máte vy.
 
-### Akce: koncept odpovědi
+**Akce: koncept odpovědi**
 
 Poslední krok skládá odpověď z toho, co zjistily kroky před ním — a záměrně počítá s tím, že data budou neúplná:
 
@@ -687,11 +695,11 @@ Vrať jen text mailu, žádné vysvětlování.
 
 Vrátí koncept, který většinou odešlete po jedné úpravě. Nejdůležitější řádek je zákaz uvádět cenu a termín: to je informace, kterou model rád doplní přijatelně znějícím odhadem — a která vás pak drží v pasti při vyjednávání.
 
-## Scénář 2: formulář → kategorizace → notifikace
+### 2. Příchozí požadavky a pošta → kategorie, priorita, notifikace
 
 Druhý scénář je jednodušší a nasazuje se nejčastěji: příchozí požadavky roztřídit a poslat správnému člověku. Funguje na interní helpdesk, reklamace i požadavky z výroby.
 
-### Kroky scénáře
+**Kroky scénáře**
 
 1. **Trigger:** nová odpověď ve formuláři (webhook nebo nový řádek).
 2. **AI krok:** kategorizace, priorita a shrnutí do dvou vět.
@@ -700,7 +708,7 @@ Druhý scénář je jednodušší a nasazuje se nejčastěji: příchozí požad
 5. **Akce 2:** zápis do tabulky pro statistiku.
 6. **Akce 3 (jen u vysoké priority):** upozornění služebnímu telefonu.
 
-### AI krok: kategorizace
+**AI krok: kategorizace**
 
 ```text
 Jsi třídič příchozích požadavků. Kategorie jsou pevně dané, žádné
@@ -733,7 +741,7 @@ velkými písmeny nebo použil slovo urgentní.
 
 Vrátí zařazení přesnější, než jaké svede unavený člověk v pátek odpoledne. Poslední odstavec brání eskalaci podle tónu — bez něj se z každé rozčilené zprávy stane vysoká priorita. A klíč `citlivost` je pojistka: když je `ano`, ať scénář do kanálu pošle jen zprávu „přišel citlivý požadavek, otevři ho v systému“.
 
-### Akce: notifikace, kterou jde přečíst na mobilu
+**Akce: notifikace, kterou jde přečíst na mobilu**
 
 ```text
 Ze zařazeného požadavku sestav zprávu do týmového kanálu.
@@ -757,11 +765,52 @@ Pravidla:
 
 Vrátí zprávu, kterou tým skutečně čte, protože je krátká. Zákaz pozdravů a emotikonů tam není z nevrlosti — notifikace, která začíná „Ahoj týme, přišel nám nový požadavek“, se po dvacáté přeskakuje očima.
 
-## Scénář 3: RSS → shrnutí → newsletter draft
+**Varianta pro poštu místo formuláře**
 
-Třetí scénář ukazuje jiný vzorec: sběr přes celý týden a jeden souhrnný výstup na konci. Právě tady se nejvíc vyplatí rozdělit AI práci na dva kroky v různém čase.
+Tentýž scénář se dá postavit nad příchozí poštou a je to jedno z nejvděčnějších použití vůbec — schránka je jediné místo, kam vám chodí všechno naráz. Spouštěčem je nový mail v určité složce nebo se štítkem, filtr odsune newslettery a automatické zprávy, AI krok zařadí a shrne, a výsledkem je štítek plus řádek v přehledu. Nikdy odpověď.
 
-### Kroky scénáře
+Dvě odlišnosti proti formuláři: mail obsahuje patičku, podpis a často celou citovanou historii, takže do AI kroku posílejte jen tělo poslední zprávy — jinak model odpovídá na něco, co se řešilo před měsícem. A štítkování je jediná změna, kterou smí scénář v poště provést; přesouvání do archivu, mazání ani odpovídání do scénáře nepatří. Kompletní postup ručního třídění, ze kterého se dá vyjít, je v tipu [třídění inboxu s AI](/tipy/ai-trideni-inboxu).
+
+```text
+Jsi třídič příchozí pošty. Dostaneš jednu zprávu a zařadíš ji.
+
+ZPRÁVA:
+Od: [jméno a adresa odesílatele]
+Předmět: [předmět]
+Tělo poslední zprávy (bez citované historie a bez patičky):
+[text]
+Má přílohy: [ano/ne, názvy]
+
+Kategorie (jiné nevymýšlej): [poptávka, dotaz existujícího klienta,
+faktura nebo účetnictví, smluvní a právní, schůzka a termín,
+newsletter nebo oznámení, osobní, spam]
+
+Vrať JSON s klíči:
+- kategorie
+- vyzaduje_odpoved (ano/ne)
+- do_kdy (dnes / do dvou dnů / bez lhůty / lhůta uvedená v textu)
+- shrnuti (max 20 slov, věcně, bez opisování předmětu)
+- pozadovana_akce (co konkrétně po mně odesílatel chce, jednou větou)
+- prilohy_dulezite (ano/ne — jestli je v příloze něco, co si musím
+  uložit: faktura, smlouva, podklad)
+- citlivost (ano/ne — osobní údaje, zdravotní informace, mzdy,
+  obchodní tajemství)
+
+Pravidla:
+- Automatické zprávy ze systémů zařaď podle obsahu, ne podle
+  odesílatele.
+- Lhůtu uveď jen tehdy, když je v textu opravdu napsaná.
+  Neodvozuj ji z tónu.
+- Když si nejsi jistý kategorií, dej osobní a do shrnutí napiš proč.
+```
+
+Vrátí zařazení, které v platformě převedete na štítek a na řádek v přehledu. Nejčastější problém je klíč `do_kdy`: bez posledního pravidla model rád vyrobí lhůtu z formulace „co nejdřív“, a vy pak máte v přehledu deset falešných termínů na dnešek.
+
+### 3. Sledované zdroje → draft newsletteru
+
+Třetí scénář ukazuje jiný vzorec: sběr přes celý týden a jeden souhrnný výstup na konci. Právě tady se nejvíc vyplatí rozdělit AI práci na dva kroky v různém čase. Automatizace newsletteru je zároveň nejčastěji poptávaný scénář vůbec a jediný z desítky, u kterého bývá pokušení nechat automat i odeslat. Nedělejte to: jedna vymyšlená věta ve veřejném textu napáchá víc škody než měsíc nevydaných čísel. Postup od začátku je v tipu [newsletter od nuly](/tipy/newsletter-od-nuly-ai).
+
+**Kroky scénáře**
 
 1. **Trigger A (průběžně):** nová položka v RSS kanálech, které sledujete.
 2. **Filtr:** jen položky s vašimi klíčovými slovy v titulku nebo perexu. Bez filtru se scénář utopí v objemu.
@@ -771,7 +820,7 @@ Třetí scénář ukazuje jiný vzorec: sběr přes celý týden a jeden souhrnn
 6. **AI krok B:** z nasbíraných položek sestav draft newsletteru.
 7. **Akce:** ulož draft jako koncept — do rozesílky, dokumentu nebo pošty. Nikdy neodesílat.
 
-### AI krok A: shrnutí jedné položky
+**AI krok A: shrnutí jedné položky**
 
 ```text
 Shrň jeden článek pro potřeby mého newsletteru.
@@ -799,7 +848,7 @@ Pravidla:
 
 Vrátí hodnocení, podle kterého tabulka sama seřadí kandidáty. Klíč `zdroj_typ` je tam schválně: bez něj se do newsletteru dostanou tiskové zprávy, protože znějí informativně. Čísla z druhé ruky pak ověřujte v původním zdroji, viz [ověřování faktů](/tipy/ai-overovani-faktu).
 
-### AI krok B: draft newsletteru
+**AI krok B: draft newsletteru**
 
 ```text
 Sestav draft newsletteru z nasbíraných položek za tento týden.
@@ -829,6 +878,377 @@ Pravidla:
 ```
 
 Vrátí draft, který přepíšete a doplníte vlastním komentářem — a hlavně seznam KONTROLA na konci, díky kterému vám v newsletteru nezůstane špatné číslo. Nikdy nerozesílejte bez čtení: jedna vymyšlená věta je ve veřejném textu vidět víc než deset dobrých.
+
+### 4. Faktury z pošty → složka, tabulka a kontrola
+
+Přijaté faktury jsou učebnicový případ: chodí v příloze, obsahují vždycky stejné údaje na vždycky jiném místě a přepisují se ručně do tabulky. Scénář z nich udělá pojmenovaný soubor ve složce a řádek v přehledu. Co scénář neudělá nikdy: nezaplatí, neschválí a nepošle do účetnictví jako hotové.
+
+**Kroky scénáře**
+
+1. **Trigger:** nový mail s přílohou v určité složce nebo se štítkem.
+2. **Filtr:** má přílohu ve formátu dokumentu a odesílatel není na seznamu ignorovaných.
+3. **Smyčka:** projdi všechny přílohy jednu po druhé, ne jen první.
+4. **AI krok:** přečti dokument a vrať údaje z faktury jako JSON.
+5. **Kontrola rozumnosti:** je částka číslo v očekávaném rozsahu? Je datum splatnosti v budoucnosti nebo v posledních měsících? Je vyplněné číslo faktury? Když ne, položka jde do ruční fronty, ne do tabulky.
+6. **Kontrola duplicity:** existuje už řádek se stejným dodavatelem a číslem faktury? Pak nic nezapisuj a jen upozorni.
+7. **Akce 1:** ulož soubor do složky podle roku a měsíce, s názvem podle jednotného vzoru.
+8. **Akce 2:** zapiš řádek do přehledu se stavem „k odsouhlasení“.
+9. **Akce 3:** jednou denně souhrn: co přibylo, co spadlo do ruční fronty.
+
+```text
+Jsi extraktor údajů z přijaté faktury. Dostaneš text nebo obrázek
+dokumentu.
+
+DOKUMENT:
+[obsah přílohy]
+
+Vrať výhradně JSON s klíči: dodavatel, ico, dic, cislo_faktury,
+datum_vystaveni, datum_splatnosti, datum_zdanitelneho_plneni,
+castka_bez_dph, sazba_dph, castka_dph, castka_celkem, mena,
+variabilni_symbol, cislo_uctu, predmet_plneni (max 100 znaků),
+je_to_faktura (ano/ne), chybi (pole názvů klíčů, které v dokumentu
+nebyly).
+
+Pravidla:
+- Data piš ve tvaru RRRR-MM-DD. Když je v dokumentu jiný formát,
+  převeď ho, ale nedomýšlej chybějící část.
+- Částky piš jako číslo s tečkou jako desetinným oddělovačem,
+  bez měny a bez mezer v tisících.
+- Když údaj v dokumentu není, napiš neuvedeno a přidej klíč
+  do pole chybi. NIC nepočítej dopředu: když chybí DPH,
+  nedopočítávej ji z celkové částky.
+- Když dokument není faktura (dodací list, upomínka, nabídka,
+  potvrzení objednávky), nastav je_to_faktura na ne, vyplň jen
+  dodavatele a předmět a zbytek nech jako neuvedeno.
+- Když je na dokumentu víc faktur, zpracuj jen tu první a napiš
+  to do predmet_plneni.
+```
+
+Vrátí strukturovaná data, která zapíšete do tabulky. Dvě věci hlídejte od prvního dne: **částky si nikdy nenechávejte dopočítávat modelem** (od toho je vzorec v tabulce a rozdíl mezi „přečti“ a „spočítej“ je tady rozdíl mezi spolehlivostí a náhodou) a **klíč `je_to_faktura`** — bez něj se vám do přehledu dostanou upomínky a zálohové listy a měsíční součet nebude sedět. Skeny nižší kvality bývají problém u variabilního symbolu; když je v `chybi`, ať položka jde do ruční fronty automaticky.
+
+Druhý prompt pusťte jednou měsíčně nad hotovým přehledem. Nehledá chyby v přepisu, hledá věci, které v tabulce nemají být:
+
+```text
+Přikládám přehled přijatých faktur za měsíc. Chovej se jako
+pečlivý účetní, který kontroluje, jestli něco nesedí.
+
+PŘEHLED:
+[vlož řádky: dodavatel, číslo faktury, datum vystavení, splatnost,
+částka celkem, předmět plnění, stav]
+
+Obvyklé měsíční náklady vypadají takhle: [popiš, co je normální —
+pravidelní dodavatelé a přibližná úroveň částek]
+
+Vrať mi:
+1. Faktury, které vypadají jako duplicita (stejný dodavatel,
+   podobná částka, blízké datum)
+2. Faktury od dodavatelů, kteří se v předchozích měsících
+   neobjevovali
+3. Částky, které jsou výrazně mimo obvyklou úroveň u daného
+   dodavatele
+4. Faktury po splatnosti nebo se splatností kratší než obvyklou
+5. Předplatná a opakující se platby, které v přehledu vidíš —
+   a otázku, jestli je všechna ještě používáme
+
+Nepočítej součty, ty mám v tabulce. Hledej podivnosti.
+```
+
+Vrátí seznam podezřelých položek, ze kterého bývá polovina planý poplach a druhá polovina užitečná. Bod 5 je vedlejší efekt, kvůli kterému se prompt vyplatí sám o sobě — nepoužívaná předplatná se jinak nacházejí těžko. Podobnou logiku nad výpisem z účtu popisuje tip [rozpočet z bankovního výpisu](/tipy/osobni-rozpocet-z-bankovniho-vypisu).
+
+### 5. Hlídání zmínek o značce
+
+Scénář, který nahradí ruční googlení sebe sama. Sbírá zmínky ze sledovaných zdrojů, roztřídí je podle tónu a typu, a místo nekonečného proudu upozornění vám dá jedno denní shrnutí plus okamžité upozornění na to, co opravdu hoří.
+
+**Kroky scénáře**
+
+1. **Trigger:** nová položka ve sledovaném zdroji — vyhledávací upozornění, kanál z diskusního fóra, sledovaný hashtag, přehled recenzí.
+2. **Filtr:** obsahuje název značky nebo jméno; vyřaď vlastní kanály, aby se scénář nechytal na vaše vlastní příspěvky.
+3. **AI krok:** ověř, že jde opravdu o vás, a zařaď zmínku.
+4. **Větvení:** negativní zmínka nebo stížnost jde okamžitě člověku; ostatní se jen zapíšou.
+5. **Akce 1:** řádek do tabulky zmínek.
+6. **Akce 2:** denní souhrn v jedné zprávě.
+
+```text
+Jsi analytik zmínek o značce. Dostaneš jednu nalezenou zmínku
+a zařadíš ji.
+
+NAŠE ZNAČKA: [název] — [obor a jednou větou, čím se zabýváme]
+Slova, která se s naší značkou pletou: [vypiš homonyma, podobné
+názvy, běžná slova]
+
+ZMÍNKA:
+Zdroj: [web, síť, diskuse]
+Titulek nebo úvod: [text]
+Obsah: [text]
+Odkaz: [odkaz]
+
+Vrať JSON s klíči:
+- je_to_o_nas (ano / ne / nejisté) a jednou větou proč
+- typ (recenze / stížnost / doporučení / zpráva v médiích /
+  dotaz / porovnání s konkurencí / náhodná zmínka)
+- ton (pozitivní / neutrální / negativní)
+- naléhavost (vysoká — vyžaduje reakci dnes / střední /
+  žádná)
+- shrnuti (max 25 slov)
+- konkretni_vytka (když je zmínka negativní, co přesně jí vadí;
+  jinak prázdný řetězec)
+- doporuceny_dalsi_krok (jedna věta, co bych měl udělat já —
+  nikdy ne text odpovědi)
+
+Pravidla:
+- Vysokou naléhavost dej jen tehdy, když je zmínka negativní
+  a veřejná zároveň. Rozčilený tón sám o sobě není naléhavost.
+- Když si nejsi jistý, jestli jde o nás, dej nejisté. Radši
+  víc nejistých než falešný poplach.
+```
+
+Vrátí zařazení, které vám z proudu upozornění udělá jeden čitelný přehled. Největší past je shoda jmen: bez vypsaných homonym vám scénář bude hlásit každou zmínku běžného slova. A druhé pravidlo: **odpověď na negativní zmínku nikdy nenechte psát scénář.** Veřejná odpověď na stížnost je vztah, ne přenos dat — patří do kapitoly o tom, kdy neautomatizovat.
+
+### 6. Přepis schůzky → zápis a úkoly
+
+Nejrychlejší návratnost ze všech deseti scénářů, protože zápis ze schůzky nikdo nechce psát a všichni ho chtějí mít. Vstupem je textový přepis, výstupem zápis a seznam úkolů — pořád ještě ke schválení, ne v ostrém projektu.
+
+**Kroky scénáře**
+
+1. **Trigger:** nový soubor s přepisem ve sledované složce.
+2. **Filtr:** delší než pár set znaků a název odpovídá vzoru pro schůzky.
+3. **AI krok A:** zápis — rozhodnutí, otevřené otázky, kontext.
+4. **AI krok B:** úkoly jako strukturovaná data.
+5. **Filtr:** úkoly s nízkou jistotou nezakládej, jen je vypiš na konec zápisu.
+6. **Akce 1:** ulož zápis jako dokument ke schválení.
+7. **Akce 2:** založ úkoly se štítkem „ze schůzky, ke kontrole“.
+
+```text
+Z přepisu schůzky udělej zápis. Píšeš pro lidi, kteří na schůzce
+nebyli.
+
+PŘEPIS:
+[vlož přepis]
+Účastníci a jejich role: [vypiš]
+Téma schůzky podle pozvánky: [téma]
+
+Struktura zápisu:
+1. Tři věty: o čem to bylo a k čemu se došlo
+2. ROZHODNUTÍ — odrážky, u každého: co bylo rozhodnuto a kdo to
+   rozhodl. Jen věci, o kterých padlo jasné slovo.
+3. OTEVŘENÉ OTÁZKY — co zůstalo nedořešené a na kom to visí
+4. KONTEXT — informace, které na schůzce zazněly a hodí se
+   zapamatovat, ale nejsou rozhodnutí ani úkol
+5. NEJISTÉ — věci, u kterých z přepisu nepoznám, jestli byly
+   rozhodnuté, nebo se o nich jen mluvilo
+
+Pravidla:
+- Nic nedoplňuj z toho, jak schůzky obvykle probíhají.
+  Když to v přepisu není, není to.
+- Když si nejsi jistý, kdo co řekl, napiš „někdo z účastníků“.
+  Nehádej podle role.
+- Zdvořilostní úvod a rozloučení vynech úplně.
+- Sekce NEJISTÉ nesmí být prázdná jen proto, aby zápis vypadal
+  hotově — když je opravdu prázdná, napiš „nic“.
+```
+
+Vrátí zápis, který po přečtení upravíte za pár minut. Sekce NEJISTÉ je tam schválně: v přepisu se špatně pozná rozdíl mezi „uděláme to“ a „mohli bychom to udělat“, a bez téhle sekce z druhého vznikne rozhodnutí. Druhý prompt vytáhne úkoly:
+
+```text
+Ze stejného přepisu vytáhni úkoly. Zajímají mě jen věci, které
+někdo někomu zadal nebo které si někdo vzal.
+
+PŘEPIS:
+[vlož přepis]
+Účastníci: [vypiš jména a role]
+Datum schůzky: [datum]
+
+Vrať JSON — pole objektů s klíči:
+- ukol (co se má udělat, sloveso na začátku, max 12 slov)
+- kdo (jméno účastníka, nebo neuvedeno)
+- do_kdy (datum ve tvaru RRRR-MM-DD, nebo neuvedeno —
+  „příští týden“ převeď podle data schůzky, „brzy“ ne)
+- jistota (vysoká — bylo to řečeno jednoznačně / střední /
+  nízká — spíš to jen zaznělo v diskusi)
+- doslovna_veta (věta z přepisu, ze které úkol vychází)
+
+Pravidla:
+- Úkoly s nízkou jistotou taky vrať, jen je označ. Nefiltruj je.
+- Nikdy nedoplňuj, kdo by to logicky měl dělat. Když jméno
+  nepadlo, je to neuvedeno.
+- Nevymýšlej termíny. Bez termínu je to neuvedeno.
+```
+
+Vrátí úkoly i s doslovnou větou, ze které vycházejí — to je ten klíč, který z kontroly dělá práci na deset vteřin místo hledání v přepisu. **Přiřazení lidem je nejméně spolehlivá část**, proto úkoly zakládejte se štítkem ke kontrole a nikdy je nepřiřazujte automaticky. Kompletní workflow kolem přepisů rozebírá tip [zápisy schůzek automaticky](/tipy/ai-zapisy-schuzek-automaticky).
+
+### 7. Report z čísel → komentář pro vedení
+
+Měsíční report je ze dvou třetin mechanika (načíst, spočítat, vykreslit) a z jedné třetiny komentář, proč se čísla pohnula. Automatizuje se ta mechanika — a komentář zůstane návrhem, který přepíšete.
+
+**Kroky scénáře**
+
+1. **Trigger:** rozvrh, první pracovní den v měsíci ráno.
+2. **Akce:** načti hodnoty z tabulky nebo z přehledu, kde už jsou spočítané.
+3. **Kontrola:** jsou data kompletní? Chybějící měsíc ať scénář zastaví, ne dopočítá.
+4. **AI krok:** napiš komentář ke změnám.
+5. **Akce:** ulož jako koncept dokumentu a pošli odkaz ke schválení. Nerozesílat.
+
+```text
+Napiš komentář k měsíčním číslům. Píšu pro [komu: vedení, majitel,
+tým] a chtějí vědět, co se změnilo a co s tím.
+
+ČÍSLA ZA TENTO MĚSÍC:
+[vlož tabulku: ukazatel, hodnota tento měsíc, hodnota minulý
+měsíc, hodnota stejný měsíc loni, plán]
+
+CO SE TENTO MĚSÍC DĚLO:
+[vypiš známé události: kampaň, výpadek, dovolené, nový klient,
+změna ceny — klidně stručně]
+
+Napiš:
+1. Tři věty na začátek: co je hlavní zpráva tohoto měsíce
+2. U každého ukazatele, který se pohnul o víc než [hranice]:
+   jednu větu co se stalo a jednu větu možné vysvětlení
+3. Co vypadá jako trend přes víc měsíců a co je jednorázový výkyv
+4. Tři otázky, na které z těchhle dat neumíme odpovědět
+   a měli bychom si je začít měřit
+
+Pravidla:
+- NIC nepočítej. Všechna čísla, která použiješ, musí být
+  v podkladech; procenta a rozdíly ber odtud, neodvozuj je.
+- Vysvětlení označ jako hypotézu, ne jako fakt. Nemáš data
+  na to, abys znal příčinu.
+- Žádné fráze o silném růstu a výborných výsledcích.
+  Popisuj, nehodnoť.
+```
+
+Vrátí komentář, který doplníte tím, co víte jen vy. Zásadní je zákaz počítání: **výpočty patří do tabulky, model je od psaní.** Když ho necháte spočítat meziroční změnu, dostanete číslo, které vypadá správně a nemusí být. Širší postup reportingu popisuje tip [reporting pro vedení](/tipy/reporting-pro-vedeni-ai).
+
+### 8. Hlídání termínů a lhůt
+
+Zmeškaná lhůta je nejlevnější chyba na odstranění a nejdražší, když se stane. Scénář hlídá jednu tabulku termínů a včas otravuje — a je to jeden z mála případů, kdy je otravování žádoucí.
+
+**Kroky scénáře**
+
+1. **Příprava:** jedna tabulka se sloupci co, kdy (jako datum, ne text), kdo je odpovědný, jaký typ (smlouva, výpověď, revize, zkušební verze, úřední lhůta), odkaz na podklad.
+2. **Trigger:** rozvrh, každý pracovní den ráno.
+3. **Akce:** spočítej v tabulce, kolik dní zbývá — vzorcem, ne modelem.
+4. **Filtr:** jen řádky, kde zbývá třicet, sedm nebo jeden den.
+5. **AI krok:** napiš, co je konkrétně potřeba udělat.
+6. **Akce 1:** jedna souhrnná zpráva denně, seřazená podle naléhavosti.
+7. **Akce 2:** u jednodenní lhůty navíc úkol s vysokou prioritou.
+
+```text
+Z přehledu blížících se termínů udělej jednu ranní zprávu.
+
+TERMÍNY:
+[vlož řádky: co, datum, kolik dní zbývá, typ, odpovědný, odkaz]
+Dnešní datum: [datum]
+
+Formát zprávy:
+- Nejdřív blok DNES A ZÍTRA, pak DO TÝDNE, pak DO MĚSÍCE.
+  Prázdné bloky úplně vynech.
+- Každý řádek: název, počet dní, odpovědný, a jedna věta
+  „první krok, který to posune“.
+- Na konec jedna věta: kolik termínů celkem je v přehledu
+  a kdy je nejbližší po tomhle seznamu.
+
+Pravidla:
+- Počet dní ber z podkladů, nepočítej ho sám.
+- U typu smlouva nebo výpověď připiš upozornění, že lhůta
+  může být počítána jinak, než jak vypadá v tabulce, a že to
+  má ověřit člověk.
+- Žádné povzbuzování, žádné emotikony. Je to ranní seznam,
+  ne motivační zpráva.
+```
+
+Vrátí zprávu, kterou přečtete za deset vteřin. Dvě věci rozhodují o tom, jestli scénář funguje: **datum musí být v tabulce jako datum**, ne jako text (jinak se dny počítají nesmyslně), a lhůty typu výpovědní doba nebo odvolací lhůta ať scénář jen připomíná, nikdy nepočítá — právní lhůty mají vlastní pravidla, která se do vzorce nevejdou.
+
+### 9. Onboarding nového klienta
+
+Když podepíšete, spustí se sled úkonů, které jsou pokaždé stejné a pokaždé se na jeden zapomene. Scénář je nepošle za vás, ale připraví je všechny naráz.
+
+**Kroky scénáře**
+
+1. **Trigger:** změna stavu v CRM na „podepsáno“ (nebo nový řádek v tabulce klientů).
+2. **Akce 1:** založ složku z šablony a přejmenuj ji podle klienta.
+3. **Akce 2:** založ sadu úkolů z checklistu, s termíny odvozenými od data začátku.
+4. **AI krok:** připrav uvítací mail a seznam podkladů na míru typu zakázky.
+5. **Akce 3:** ulož mail jako koncept.
+6. **Akce 4:** připomínka za sedm dní: dorazily podklady?
+
+```text
+Připrav uvítací balíček pro nového klienta. Nic neodesílej,
+píšeš koncept, který si přečtu.
+
+KLIENT:
+Jméno a firma: [údaje]
+Typ zakázky: [popis]
+Co jsme si dohodli: [rozsah, termín, forma spolupráce]
+Jak se seznámili s námi: [zdroj]
+
+MŮJ STANDARDNÍ POSTUP:
+[vypiš, co od klienta na začátku potřebuješ a co mu posíláš]
+
+Vrať tři části:
+1. UVÍTACÍ MAIL — max 200 slov, [tón], vykání. Poděkuj,
+   shrň jednou větou, na čem jsme se dohodli, popiš, co bude
+   následovat, a řekni, co od klienta potřebuju.
+2. SEZNAM PODKLADŮ — odrážky, u každé položky jedna věta,
+   proč ji potřebuju a v jakém formátu. Jen položky, které
+   dávají smysl pro tenhle typ zakázky.
+3. INTERNÍ POZNÁMKA — na co si u téhle zakázky dát pozor podle
+   toho, co je v zadání, a co si musím ověřit hned na začátku.
+
+Pravidla:
+- V mailu neuváděj žádné číslo ani termín, který není v tom,
+  co jsme si dohodli.
+- Nic neslibuj za mě. Formulace typu „vždy odpovídáme do
+  hodiny“ nepoužívej.
+```
+
+Vrátí tři použitelné části, z nichž nejzajímavější bývá ta třetí — interní poznámka občas upozorní na nesrovnalost v zadání, které jste si při podpisu nevšimli. Sledujte, aby se do uvítacího mailu nedostaly sliby: model má sklon dodávat servisní fráze, které pak musíte dodržet. Sousední scénář pro nástup nového člena týmu je v tipu [onboarding nováčka](/tipy/onboarding-novacka-ai-projekt).
+
+### 10. Záloha důležitých příloh
+
+Poslední scénář nic nevytváří, jen uklízí — a ze všech deseti se nejvíc cení ve chvíli, kdy něco hledáte pod tlakem. Bere přílohy, které vám chodí poštou, dává jim jednotný název a ukládá je na jedno místo, ke kterému se dostanete i bez schránky.
+
+**Kroky scénáře**
+
+1. **Trigger:** nový mail s přílohou od odesílatelů ze seznamu, nebo se štítkem, který přidáváte ručně.
+2. **Filtr:** typ souboru je dokument nebo obrázek a velikost je nad hranicí, která vyloučí podpisové obrázky z patiček.
+3. **Smyčka:** projdi všechny přílohy.
+4. **AI krok:** urči, co to je, a navrhni název podle jednotného vzoru.
+5. **Akce 1:** ulož do složky podle roku a typu, s navrženým názvem.
+6. **Akce 2:** zapiš řádek do rejstříku: původní název, nový název, odesílatel, datum, odkaz na původní zprávu.
+7. **Kontrola:** existuje už soubor se stejným názvem? Přidej pořadové číslo, nikdy nepřepisuj.
+
+```text
+Urči, co je přiložený dokument, a navrhni pro něj název souboru
+podle mého vzoru.
+
+DOKUMENT:
+Původní název souboru: [název]
+Odesílatel: [jméno a adresa]
+Předmět zprávy: [předmět]
+Obsah dokumentu: [text nebo popis]
+
+MŮJ VZOR NÁZVU:
+RRRR-MM-DD_typ_protistrana_kratkypopis
+Typy, které používám (jiné nevymýšlej): [faktura, smlouva,
+dodatek, potvrzeni, vypis, protokol, nabidka, ostatni]
+
+Vrať JSON s klíči: typ, datum (RRRR-MM-DD, z obsahu dokumentu,
+ne z data mailu — když v dokumentu žádné není, napiš neuvedeno),
+protistrana (název firmy nebo jméno, bez právní formy a bez
+diakritiky), kratky_popis (max tři slova bez diakritiky, spojená
+pomlčkami), navrzeny_nazev, jistota (vysoká/střední/nízká),
+duvod (jednou větou, podle čeho jsi to určil).
+
+Pravidla:
+- Do názvu nepiš nic, co v dokumentu není.
+- Když je jistota nízká nebo je datum neuvedeno, navrzeny_nazev
+  začni předponou KONTROLA_, ať to nezapadne.
+- Nikdy nenavrhuj název, který obsahuje osobní údaje typu
+  rodné číslo, číslo účtu nebo adresu.
+```
+
+Vrátí návrh názvu i s odůvodněním, podle kterého poznáte, kdy se model spletl. **Původní název vždycky zapisujte do rejstříku** — přejmenování je jediná nevratná věc, kterou tenhle scénář dělá, a bez rejstříku ztratíte možnost dohledat, odkud soubor přišel. Kam soubory ukládat a jak z toho udělat skutečnou zálohu, řeší tipy [záloha na externí disk](/tipy/zaloha-externi-disk) a [digitální lékárnička dokumentů](/tipy/digitalni-lekarnicka-dokumentu).
 
 ## Prompt v AI kroku: proč se píše jinak než v chatu
 
@@ -862,7 +1282,7 @@ Nepřepisuj celý prompt, chci cílené úpravy s odůvodněním.
 
 Vrátí seznam děr a hraniční případy, na které byste sami nepřišli — první skutečný pád scénáře v provozu bývá právě „dvě poptávky v jedné zprávě“ nebo „formulář odeslaný prázdný“.
 
-## Testování a ošetření chyb
+## Když se to rozbije: testování, monitoring a opravy
 
 Scénář, který se tiše rozbil, je horší než žádný — spoléháte na něj a nevíte, že neběží. Nudná sekce, která rozhoduje o tom, jestli automatizaci za dva měsíce vypnete.
 
@@ -906,19 +1326,196 @@ Buď konkrétní, obecná doporučení typu „monitorujte“ mi nepomůžou.
 
 Vrátí plán, který naklikáte za hodinu a který vám zachrání den, kdy se něco pokazí. Bod 5 nepřeskakujte — pravidelný umělý test je jediný způsob, jak poznat rozdíl mezi „nic se nestalo“ a „scénář týden neběžel“.
 
+### Monitoring: tři věci, které musíte vidět
+
+Monitoring zní jako slovo pro serverovnu, ale prakticky to jsou tři čísla, která se dají mít za odpoledne. Bez nich provozujete automatizaci poslepu.
+
+- **Kdy scénář naposledy doběhl úspěšně.** Nejdůležitější údaj vůbec, protože rozlišuje „dnes nic nepřišlo“ od „scénář je vypnutý“. Prakticky: poslední krok každého scénáře zapíše čas do jedné tabulky a druhý, hlídací scénář jednou denně zkontroluje, jestli tam není nic staršího než dvacet čtyři hodin.
+- **Kolik běhů skončilo chybou.** Absolutní číslo nestačí, zajímá vás podíl a jeho trend. Tři chyby ze čtyř set je provoz, tři chyby z deseti je rozbité.
+- **Kolik výstupů člověk opravil.** Tohle platforma nezměří, tohle musíte zaznamenat vy — jedno zaškrtávátko „schváleno beze změny“ ve frontě ke kontrole. Je to jediné číslo, které měří kvalitu, ne dostupnost.
+
+Nad tím vším postavte jednu stránku nebo jednu tabulku: řádek za scénář, sloupce poslední úspěšný běh, počet chyb za týden, podíl oprav. Pět minut týdně na její přečtení je celá údržba, kterou běžný provoz potřebuje.
+
+### Upozornění, které se opravdu čte
+
+Upozornění na chybu má dvě smrtelné podoby. První je **záplava**: e-mail při každém neúspěšném běhu. Po týdnu si na ně uděláte filtr a přestanete je vidět. Druhá je **ticho**: nastavíte je tak opatrně, že se neozvou nikdy, a vy si to vyložíte jako důkaz, že vše běží.
+
+Funkční nastavení vypadá takhle:
+
+- **Okamžité upozornění jen u toho, co má následek dnes** — scénář, který hlídá lhůty, nebo krok, po kterém někdo čeká. Jedna zpráva, jeden kanál, jméno scénáře v prvním řádku.
+- **Denní souhrn u všeho ostatního**, seřazený podle počtu výskytů, ne podle času. Deset stejných chyb je jedna položka s číslem u sebe.
+- **Týdenní hlídač nečinnosti**, který se ozve, když nějaký scénář za celý týden neběžel ani jednou. Právě on chytá tiché úmrtí.
+- **Do každého upozornění patří odkaz** na konkrétní běh v historii. Bez něj strávíte pět minut hledáním, o co šlo.
+
+```text
+Napiš z chybových záznamů denní souhrn, který přečtu za deset vteřin.
+
+CHYBY ZA POSLEDNÍCH 24 HODIN:
+[vlož řádky: čas, scénář, krok, chybová hláška, vstupní data
+zkráceně, odkaz na běh]
+
+Formát:
+1. První řádek: kolik chyb celkem, kolik různých druhů, jestli
+   je mezi nimi něco, co blokuje práci
+2. Pak skupiny podle druhu chyby, seřazené podle počtu:
+   název scénáře, kolikrát, jednou větou co se stalo lidsky
+   (ne technická hláška), a co s tím mám udělat já
+3. Na konec: scénáře, které za posledních 24 hodin neběžely
+   ani jednou, ačkoli měly
+
+Pravidla:
+- Chybové hlášky přelož do češtiny a do lidské řeči.
+- Když se stejná chyba opakuje, je to jedna položka s počtem,
+  ne deset položek.
+- Nenavrhuj opravu, pokud si nejsi jistý příčinou. Radši napiš,
+  co si mám ověřit.
+- Žádné uklidňování a žádné omluvy. Je to provozní hlášení.
+```
+
+Vrátí souhrn, který se dá číst na mobilu při ranní kávě. Bod 3 je ten, kvůli kterému se to celé staví — chybějící běh se v žádném seznamu chyb neobjeví, protože chyba nenastala.
+
+### Opakování běhů a co s frontou
+
+Když scénář spadne, existují tři možnosti a je dobré vědět dopředu, kterou používáte.
+
+**Automatické opakování** je správná odpověď na dočasné výpadky cizích služeb. Dva až tři pokusy s odstupem minut, ne vteřin. Pozor na jednu věc: opakovat se smí jen krok, který se dá zopakovat bez následku. Zápis nového řádku ano, odeslání zprávy ne — jinak si vyrobíte trojité oznámení.
+
+**Ruční opakování z historie** je nejčastější zásah v běžném provozu. Platformy umí spadlý běh spustit znovu se stejnými daty; naučte se, kde to ve vaší platformě je, ještě než to budete potřebovat.
+
+**Fronta k ručnímu zpracování** je poslední záchrana a nejdůležitější z celé trojice. Cokoli, co neprošlo kontrolou rozumnosti nebo se nedalo rozparsovat, ať skončí v jedné tabulce se čtyřmi sloupci: čas, scénář, původní data, důvod. Tahle tabulka je jediné místo, kde se nesmí ztratit nic — protože v ní končí přesně ty případy, které by jinak zmizely.
+
+Jedno pravidlo, které se v praxi porušuje nejčastěji: **když scénář neví, co s položkou, nesmí ji zahodit ani zapsat na půl.** Buď kompletní záznam, nebo fronta. Napůl zapsaný řádek v CRM je horší než žádný, protože vypadá jako hotový.
+
+### Verzování scénářů: aby se dalo vrátit
+
+Scénáře se upravují za provozu a chyba v úpravě se pozná až po dvou dnech. Tři návyky, které z toho dělají řešitelnou situaci:
+
+1. **Export nebo kopie před každou větší změnou.** Většina platforem umí scénář vyexportovat do souboru nebo si udělat kopii. Kopii pojmenujte datem a jednou větou, co se mění.
+2. **Změny po jedné.** Když upravíte prompt, přidáte krok a změníte filtr naráz, nemáte jak zjistit, co z toho rozbilo výsledek.
+3. **Deník změn u scénáře.** Jeden řádek: datum, co jsem změnil, proč. Tři měsíce zpět je to k nezaplacení, protože „proč jsem sem dal tenhle filtr“ je otázka, kterou si položíte určitě.
+
+Prompty verzujte zvlášť a mimo platformu — v [knihovně promptů](/tipy/ai-knihovna-promptu) s datem u každé verze. Prompt je ta část scénáře, která se mění nejčastěji, a zároveň jediná, kterou platforma nezobrazí v žádném přehledném srovnání.
+
+### Když nástroj změní API
+
+Dřív nebo později přijde den, kdy scénář spadne bez toho, že byste na něj sáhli. Cizí služba změnila rozhraní, zrušila pole, přejmenovala kategorii nebo zpřísnila ověřování. Nedá se tomu předejít, dá se to jen přežít s menším rozruchem.
+
+**Než se to stane:** držte seznam scénářů a služeb, které používají, ať víte, koho se změna týká. Odebírejte oznámení pro vývojáře u služeb, na kterých stojí něco důležitého. A pište scénáře tak, aby chybějící pole vedlo do fronty, ne k zápisu prázdné hodnoty.
+
+**Když se to stane:** nejdřív se podívejte do historie běhů na konkrétní chybu — devět z deseti případů je vyřešeno jedním přemapovaným polem nebo novým přihlášením. Až pak hledejte, co se změnilo. A než opravu nasadíte, projeďte přes ni pět starých případů z fronty; oprava, která projde jedním testovacím vstupem, umí spadnout na druhém.
+
+```text
+Můj automatizační scénář přestal fungovat. Pomoz mi zúžit,
+kde je problém, než začnu přestavovat.
+
+SCÉNÁŘ:
+[popiš kroky a použité aplikace]
+Kdy naposledy fungoval: [datum]
+Co jsem od té doby změnil: [seznam, klidně „nic“]
+
+CHYBA:
+Krok, na kterém padá: [název kroku]
+Hláška: [vlož přesné znění]
+Vstupní data toho běhu: [vlož, citlivé údaje nahraď zástupnými]
+
+Vrať mi:
+1. Co ta hláška znamená lidsky
+2. Tři nejpravděpodobnější příčiny, seřazené podle
+   pravděpodobnosti, u každé jak ji ověřím za minutu
+3. Jestli to podle popisu vypadá na změnu na straně cizí služby
+   (vypršelé přihlášení, zrušené pole, zpřísněný limit)
+   nebo na chybu v mém scénáři
+4. Nejmenší možnou opravu, kterou to zprovozním
+5. Co přidat, aby příště tenhle druh selhání skončil ve frontě
+   ke kontrole místo tichého zápisu špatných dat
+
+Nenavrhuj přestavbu scénáře. Hledám nejmenší opravu.
+```
+
+Vrátí zúžený seznam podezřelých a hlavně bod 5, který z jednorázové opravy dělá trvalé zlepšení. Před vložením dat pozor: chybové záznamy obsahují reálné vstupy, takže osobní údaje nahraďte zástupnými hodnotami.
+
 ### Kolik to spotřebuje
 
 Platformy se účtují podle počtu operací a AI krok podle množství zpracovaného textu. Pohlídejte si proto dvě věci: **filtrovat co nejdřív** a **neposílat modelu víc textu, než potřebuje**. Scénář, který dotazováním kontroluje schránku každou minutu a posílá do AI kroku celé zprávy, spotřebuje mnohonásobek toho co scénář s webhookem a filtrem — při stejném výsledku.
 
-### Oprávnění a data
+## Bezpečnost, přístupy a osobní údaje
 
-Automat s přístupem do celé pošty a s právem mazat je nesmyslně velká zbraň na úkol „přepiš poptávku do tabulky“. Dejte mu přístup do jedné složky a pokud možno jen na čtení, zápis omezte na jeden cíl.
+Scénář je program, který se za vás přihlašuje do vašich účtů. Většina návodů to odbude větou o bezpečnosti na konec; tahle kapitola je tu proto, že první vážný průšvih s automatizací nebývá technický, ale přístupový.
 
-Citlivá data (osobní údaje, zdravotní informace, mzdy, obchodní tajemství) posílejte jen do nástrojů schválených vaší firmou a jen na účty se smluvní ochranou dat. Když si nejste jistí, máte dvě čisté cesty: provozovat n8n u sebe, nebo citlivá pole ze scénáře vynechat a nechat v něm jen identifikátor, podle kterého si člověk záznam otevře v systému.
+### Přístupy: automat má mít vlastní účet a co nejmíň práv
+
+Nejčastější uspořádání u začátečníků je nejhorší možné: scénář se přihlašuje pod osobním účtem majitele, který má práva na všechno. Když se pak něco stane, nikdo nepozná, co udělal člověk a co automat, a odebrat automatu přístup znamená odebrat ho i sobě.
+
+Lepší postup má tři body:
+
+1. **Vlastní účet pro automatizace**, kde to služba dovolí — vlastní schránka, vlastní uživatel v CRM, vlastní servisní účet. Poznáte podle něj v historii, kdo co udělal, a odpojíte ho jedním kliknutím.
+2. **Nejmenší možná práva.** Přístup do jedné složky, ne do celé schránky. Právo zápisu do jedné tabulky, ne do celého prostoru. Čtení tam, kde stačí čtení. Automat, který přepisuje poptávky do tabulky, nemá mít právo mazat.
+3. **Pravidelná revize.** Dvakrát ročně projděte v každé službě seznam připojených aplikací a odpojte ty, které už nepoužíváte. Zapomenuté oprávnění je otevřené okno, o kterém nevíte.
+
+### Klíče a hesla pro stroje
+
+API klíč je heslo, které nemá majitele a nikdo si ho nepamatuje. Pravidla jsou krátká a nudná, a přesně proto se porušují:
+
+- **Klíč patří do trezoru na tajemství**, který má platforma zabudovaný, ne do textového pole v kroku a už vůbec ne do dokumentu, tabulky nebo chatu.
+- **Klíč se nikdy neposílá v příloze ani ve zprávě.** Když ho musíte předat, předejte ho cestou, kterou se dá zneplatnit.
+- **Každá integrace vlastní klíč**, ať se dá odebrat jednotlivě.
+- **Klíč, který se někde mihl** — ve screenshotu, v chybové hlášce, v exportu — je kompromitovaný. Zneplatnit a vydat nový je práce na dvě minuty, dohadování je práce na týden.
+- **Export scénáře obsahuje víc, než čekáte.** Než ho někam pošlete nebo uložíte do sdílené složky, projděte ho očima.
+
+### Co nikdy nepustit bez schválení člověkem
+
+Tenhle seznam je jádro celého návodu a nemá výjimky:
+
+- **Odeslání komunikace ven** — mail, zpráva klientovi, veřejný příspěvek, odpověď na recenzi. Vždycky koncept.
+- **Cokoli s penězi** — platba, schválení faktury, vystavení dobropisu, změna ceny, objednávka.
+- **Mazání a přepisování** — smazaný soubor, přepsaný záznam, zrušená položka v kalendáři. Automat přidává, nemaže.
+- **Právní úkony a lhůty** — výpověď, odstoupení, podání, potvrzení souhlasu.
+- **Rozhodnutí o lidech** — hodnocení, výběr uchazečů, cokoli, co se dotýká něčí práce nebo pověsti.
+- **Sdělování údajů třetí straně** — předání kontaktů, sdílení dokumentu ven, zveřejnění čehokoli, co bylo interní.
+
+Praktické provedení je jednoduché a už jste ho viděli u všech deseti scénářů: **koncept místo odeslání, úkol se štítkem místo úkolu v ostrém projektu, nový řádek místo přepsání.** Když scénář neumí udělat návrh a umí jen čin, není to případ pro automatizaci.
+
+### Osobní údaje a GDPR prakticky
+
+Jakmile scénář sahá na jméno, e-mail, telefon nebo cokoli, podle čeho se dá poznat konkrétní člověk, pracujete s osobními údaji — i když jich je pět a jsou to jen kontakty na klienty. Čtyři otázky, na které byste měli umět odpovědět dřív, než scénář zapnete:
+
+1. **Kudy ta data tečou?** Vypište řetěz: odkud přišla, přes které služby projdou, kde skončí. U každé služby v řetězu si musíte být jistí, že tam ta data smějí být.
+2. **Potřebuje ten krok opravdu celý údaj?** Většinou ne. Do AI kroku, který kategorizuje požadavek, nemusí jít příjmení ani telefon — stačí text a identifikátor, podle kterého si člověk záznam otevře v systému. Tohle je nejúčinnější opatření vůbec a stojí jednu úpravu promptu.
+3. **Jaký účet používáte u AI kroku?** Citlivá data patří jen do nástrojů, které vaše firma schválila, na účty se smluvní ochranou dat. Osobní bezplatný účet není místo pro klientské údaje.
+4. **Jak dlouho ta data ve scénáři zůstanou?** Historie běhů obsahuje vstupní data, často měsíce zpátky. Zjistěte si, jak dlouho, a u citlivých scénářů zkraťte, co jde.
+
+Dvě věci navíc, na které se zapomíná. **Zvláštní kategorie údajů** — zdravotní stav, náboženství, členství v odborech, biometrie — do automatizovaných scénářů nepatří vůbec, pokud nemáte právní rozbor, který říká opak. A **právo na výmaz** platí i pro data ve vašich tabulkách a logách: když má někdo právo být zapomenut, musí být zapomenut i v pomocném přehledu, který si vyrobil scénář. Než scénář nasadíte, vězte, kde všude jeho data leží.
+
+```text
+Zkontroluj můj automatizační scénář z pohledu přístupů a osobních
+údajů. Chovej se jako opatrný kolega, ne jako právník.
+
+SCÉNÁŘ:
+[vypiš kroky, aplikace a to, co se v každém kroku přenáší]
+Kdo k tomu má přístup: [role]
+Účty, pod kterými scénář běží: [popiš]
+Typ dat, která tím tečou: [kontakty, obsah zpráv, faktury,
+zdravotní údaje, mzdy…]
+
+Vrať mi:
+1. Cestu dat: tabulka krok po kroku — jaký údaj vstupuje,
+   kde se ukládá, kde zůstává i po doběhnutí
+2. Údaje, které v jednotlivých krocích vůbec nemusí být —
+   a jak scénář upravit, aby se tam nedostaly
+3. Kroky, kde má scénář víc práv, než potřebuje, a jaká
+   práva by mu stačila
+4. Akce, které by podle mého popisu mohl scénář provést
+   nevratně, a jak z nich udělat návrh ke schválení
+5. Tři otázky, které si musím zodpovědět dřív, než to zapnu
+
+Nepiš obecné poučení o GDPR. Chci konkrétní úpravy mého scénáře.
+```
+
+Vrátí seznam úprav, ze kterých bývá nejužitečnější bod 2 — obvykle se ukáže, že polovina údajů v AI kroku být vůbec nemusí a scénář funguje stejně. To je nejlevnější možné zlepšení bezpečnosti: údaj, který tam není, nemůže uniknout.
 
 ## Kdy neautomatizovat
 
-Ne všechno, co jde zautomatizovat, se má zautomatizovat. Šest situací, kde je správná odpověď „nechte to být“:
+Tahle kapitola je v návodu o automatizaci nejdůležitější, protože jde proti jeho vlastnímu zájmu. Ne všechno, co jde zautomatizovat, se má zautomatizovat — a nejdražší scénáře nejsou ty, které se nepovedly, ale ty, které se povedly a neměly vzniknout. Devět situací, kde je správná odpověď „nechte to být“:
 
 - **Děláte to míň než třikrát týdně.** Stavba a údržba stojí čas navždy, úspora je úměrná četnosti. U vzácných úkolů se to nevrátí.
 - **Proces je nestabilní.** Postup, který se každý měsíc mění, budete každý měsíc přestavovat. Nejdřív ho ustalte a sepište jako [checklist](/tipy/checklisty-opakovanych-procesu), teprve pak automatizujte.
@@ -926,6 +1523,11 @@ Ne všechno, co jde zautomatizovat, se má zautomatizovat. Šest situací, kde j
 - **Jde o vztah, ne o přenos dat.** Odpověď na stížnost, poděkování, kondolence, vyjednávání ceny. Automatizovaná zdvořilost je horší než žádná — příjemce ji pozná.
 - **Výjimek je víc než pravidel.** Když u tří z deseti případů musíte zasáhnout, scénář nešetří čas, jen přidal krok kontroly.
 - **Scénář by musel dostat práva, která byste nedali ani stážistovi.** Odesílat vaším jménem, mazat záznamy, potvrzovat objednávky. Když se rozsah nedá zúžit, nestavte to.
+- **Zabere to míň než pět minut měsíčně.** Klasická past: úkol je otravný, takže vypadá draze. Spočítejte si ho ale poctivě — pět minut měsíčně je hodina za rok a stavba se strávenou hodinou nezaplatí ani za deset let. Otravnost není totéž co náklad.
+- **Vstupy nejsou stabilní.** Když dodavatel posílá faktury pokaždé v jiném formátu, když formulář nemá povinná pole, když se podklady vyskytují jednou v textu a jednou ve fotce, scénář bude selhávat na půlce případů a vy budete opravovat víc, než byste přepisovali. Nejdřív ustálit vstup, pak automatizovat.
+- **Nikdo to nechce.** Proces, o kterém jeho vlastník tvrdí, že žádný problém nemá, se automatizovat nedá — ne technicky, ale lidsky. Bez člověka, který výstupy kontroluje a chce, aby to fungovalo, scénář do měsíce zamrzne.
+
+Když se rozhodujete v hraničním případě, položte si tři otázky a odpovězte nahlas. **Kolik hodin ročně to opravdu ušetří?** (frekvence krát doba, ne dojem) **Co se stane, když to tiše selže a nikdo si toho měsíc nevšimne?** (když je odpověď „nic hrozného“, stavte; když ne, stavte to jen jako návrh ke schválení) A **kdo to bude udržovat, až budu mít jinou práci?** Když na třetí otázku nemáte jméno, nestavte to.
 
 ## Nejčastější chyby
 
@@ -935,13 +1537,20 @@ Ne všechno, co jde zautomatizovat, se má zautomatizovat. Šest situací, kde j
 - **Nefiltrovat hned za spouštěčem.** Scénář, který se pouští na každou položku, plýtvá operacemi i penězi.
 - **Netestovat na reálných starých datech.** Co funguje na vymyšleném příkladu, spadne na prvním skutečném vstupu — typicky na prázdném formuláři.
 - **Zapomenout na hlášení chyb.** Tichý scénář vypadá stejně jako fungující. Rozdíl poznáte, až se někdo zeptá, proč jste nereagovali.
+- **Nechat model počítat.** Součty, procenta a rozdíly patří do vzorce v tabulce. Model vrátí číslo, které vypadá správně, a nikdo ho nepřepočítá.
+- **Posílat do AI kroku celý mail i s historií a patičkou.** Zdražuje to, zpomaluje a hlavně model odpovídá na něco, co se řešilo před měsícem.
+- **Nemít frontu pro to, co scénář nepobral.** Když si scénář neví rady a položku zahodí, ztratíte přesně ty případy, které si zasloužily pozornost.
+- **Postavit scénář pod svým osobním účtem s právy na všechno.** Nepoznáte pak, co udělal člověk a co automat, a odebrat přístup automatu znamená odebrat ho i sobě.
+- **Nemít proces zmapovaný.** Automatizace špatného procesu z něj udělá rychlejší špatný proces — a přidá vrstvu, přes kterou už není vidět, kde se to kazí.
 
 ## Nejlepší nástroje
 
 - **Zapier** — nejrychlejší cesta k prvnímu funkčnímu scénáři a největší počet propojení; volba, když je scénář jednoduchý.
 - **Make** — vizuální editor, ve kterém je vidět tok dat; přehlednější u podmínek, větvení a smyček.
 - **n8n** — otevřená platforma provozovatelná na vlastním serveru; volba tam, kde data nesmějí do cizího cloudu nebo kde potřebujete vlastní krok s kódem.
-- **Vestavěné automatizace v nástrojích, které už máte** — pravidla v poště, automatizace v Notionu, Power Automate v Microsoft 365. Když stačí, nepřidávejte další službu.
+- **Power Automate** — když firma běží na Microsoft 365 a scénáře se drží uvnitř Outlooku, SharePointu, Teamsů a tabulek; hlídejte hranici mezi standardními a prémiovými konektory.
+- **Apple Zkratky** — osobní automatizace přímo v telefonu nebo na Macu, se spouštěči, které cloud neumí (poloha, režim soustředění, nabíječka) a s AI krokem přímo v zařízení; viz [zkratky a automatizace na iPhonu](/tipy/ios-zkratky-automatizace).
+- **Vestavěné automatizace v nástrojích, které už máte** — pravidla v poště, automatizace v Notionu, filtry ve schránce. Když stačí, nepřidávejte další službu.
 - **Rutiny v Claude s konektory** — když je spouštěčem čas a výstupem text pro člověka; postup v tipu [rutiny v Claude](/tipy/claude-rutiny-posta-kalendar).
 - **Claude Code nebo vlastní skript** — když scénář potřebuje sáhnout na soubory nebo přepočítat data; viz [skripty pro nevývojáře](/tipy/ai-skripty-pro-nevyvojare).
 
@@ -950,7 +1559,9 @@ Ne všechno, co jde zautomatizovat, se má zautomatizovat. Šest situací, kde j
 - **Čas:** jeden dobře zvolený scénář ušetří typicky hodinu až dvě týdně — ale jen dokud si nepostavíte pátý, který nikdo nekontroluje.
 - **Peníze:** rychlejší reakce na poptávku zvyšuje šanci na zakázku; scénář, který zkrátí odpověď z druhého dne na dvě hodiny, se zaplatí na jedné zakázce.
 - **Spolehlivost:** automat nezapomene a neudělá překlep v přepisu čísla. Zato udělá stejnou chybu stokrát, když ho špatně nastavíte — proto ta kontrolní kolečka.
+- **Kvalita:** strukturovaný záznam u každé poptávky, jednotně pojmenované soubory, zápis z každé schůzky. Ne proto, že by to člověk neuměl líp, ale proto, že to člověk nedělá pokaždé.
 - **Klid:** přestane vás rozbíjet den každá příchozí položka. Rozhodujete v dávkách, ne po jedné.
+- **Přehled:** po půl roce provozu víte, kolik poptávek přišlo, jak dlouho trvala odpověď a kde se práce zdržuje — protože to všechno leží v tabulkách, které scénáře mimochodem plní.
 
 ## Pro tip
 
