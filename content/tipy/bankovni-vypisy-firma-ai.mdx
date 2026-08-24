@@ -1,0 +1,48 @@
+---
+title: "Bankovní výpisy ve firmě: CSV a AI"
+excerpt: "Z jednoho CSV výpisu spárujete platby s fakturami a získáte náklady po kategoriích. Podklad pro účetní vznikne za odpoledne, ne za týden."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "freelancer"]
+keys: []
+saves: "~2 h měsíčně"
+date: "2026-08-24"
+updated: "2026-08-24"
+---
+
+Firemní výpis z banky je nejpoctivější dokument, jaký o firmě existuje — a zároveň ten, do kterého se nikomu nechce dívat. Přitom stačí jediný export do CSV a tři zadání, aby z něj vypadlo to, co obvykle vzniká ručním proklikáváním: které vydané faktury jsou zaplacené a které ne, kam skutečně tečou náklady a co má účetní ještě dohledat. Není to účetnictví, je to přehled, který má majitel mít dřív než tři týdny po konci měsíce.
+
+## Jak na to
+
+1. **Stáhněte výpis v CSV.** V internetovém bankovnictví bývá u historie účtu volba pro export do CSV nebo XLSX; vyberte celý měsíc nebo čtvrtletí. Nechte v souboru sloupce datum, částka, protistrana, variabilní symbol a zpráva pro příjemce — jinak nebude co párovat.
+2. **Rozhodněte, kam data pošlete.** Firemní výpis obsahuje obchodní tajemství i osobní údaje protistran. Patří jen do placeného firemního účtu AI, kde se data nepoužívají k trénování — do bezplatných chatů ho nenahrávejte. Když si nejste jistí, smažte před nahráním sloupce s názvy protistran a párujte jen podle variabilních symbolů.
+3. **Spárujte příjmy s fakturami.** Nahrajte výpis a k tomu seznam vydaných faktur (číslo, částka, datum splatnosti) a zadejte:
+
+```text
+Ke každé faktuře ze seznamu najdi ve výpisu odpovídající příchozí platbu.
+Páruj primárně podle variabilního symbolu, sekundárně podle částky a data.
+Vrať tři tabulky: spárované, nezaplacené po splatnosti (s počtem dní prodlení)
+a platby ve výpisu, které se nepodařilo přiřadit k žádné faktuře.
+```
+
+4. **Roztřiďte náklady.** Odchozí platby nechte zařadit do kategorií, které dávají smysl vaší firmě — ne obecných:
+
+```text
+Roztřiď odchozí platby do kategorií: nájem a energie, software a předplatné,
+subdodavatelé, marketing, cestovné, vybavení, poplatky, ostatní.
+Vypiš součet za kategorii a měsíc a označ položky, které se opakují každý měsíc.
+U kategorie ostatní vypiš jednotlivé položky, ať vidím, co se tam schovává.
+```
+
+5. **Vytáhněte otázky pro účetní.** Poslední průchod: „Vypiš platby, u kterých není zřejmý účel nebo chybí variabilní symbol, a ke každé napiš, na co se mám u účetní zeptat." Vznikne krátký seznam místo obecného „projděte to".
+6. **Ověřte součty.** Sečtěte v tabulkovém editoru sloupec s částkami a porovnejte s tím, co vrátila AI. Když se čísla rozejdou, chyba je obvykle v desetinné čárce nebo ve znaménku u odchozích plateb.
+
+## Vzorová situace
+
+Majitel čtyřčlenné agentury dělal měsíční přehled tak, že v bankovnictví ručně proklikával platby a odškrtával faktury v tabulce — dvě hodiny a stejně mu vždycky něco uteklo. S exportem a čtyřmi zadáními má za dvacet minut seznam tří faktur po splatnosti (na které hned večer poslal upomínku), rozpad nákladů podle kategorií a šest položek, které pošle účetní dohledat. Zbytek odpoledne dělal placenou práci.
+
+Osobní verzi téhož postupu — rodinný rozpočet z výpisu — rozebíráme v tipu [osobní rozpočet z bankovního výpisu](/tipy/osobni-rozpocet-z-bankovniho-vypisu).
+
+## Co vám to přinese
+
+Přehled o penězích se posune z konce čtvrtletí na týden po konci měsíce. Faktury po splatnosti se najdou samy, opakované náklady vystoupí ze šumu a účetní dostane konkrétní dotazy místo hromady výpisů. Rozhodnutí a účetní závěry ale zůstávají na lidech — AI tady jen třídí a počítá.

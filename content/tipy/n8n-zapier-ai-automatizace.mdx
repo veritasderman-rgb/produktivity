@@ -1,21 +1,41 @@
 ---
-title: "První AI automatizace bez programování: trigger, AI krok, návrh ke schválení"
-excerpt: "Kompletní návod s prompty: kdy stačí rutina v Claude a kdy potřebujete n8n, Zapier nebo Make, tři hotové scénáře krok za krokem a ošetření chyb."
+title: "AI automatizace procesů: velký průvodce"
+excerpt: "Automatizace srozumitelně: co je trigger, akce a běh, srovnání Make, Zapieru, n8n i Power Automate, deset hotových scénářů s prompty a kdy to nedělat."
 category: "ai"
 platform: "vsude"
 audience: ["manazer", "freelancer"]
 keys: []
-saves: "~2 h týdně"
+saves: "~4 h týdně"
 date: "2026-08-11"
-updated: "2026-08-12"
+updated: "2026-08-24"
 tldr: >-
-  První AI automatizace bez programování: AI není celý automat, ale jeden krok
-  uprostřed — něco scénář spustí (trigger), model z toho vytáhne nebo napíše
-  strukturovaný výstup a výsledek skončí v tabulce, CRM nebo ve složce Koncepty. Návod
-  rozhoduje, kdy stačí rutina v Claude a kdy potřebujete Zapier, Make či n8n, ukazuje
-  tři hotové scénáře a ošetření chyb. Automat smí připravit cokoli, poslední kliknutí
-  zůstává vaše.
+  Kompletní průvodce automatizací od úplného začátku: co je trigger, akce, větvení
+  a běh, kde v tom je AI a proč je model jen jeden krok uprostřed, ne celý automat.
+  Srovnání Zapieru, Make, n8n, Power Automate a Apple Zkratek včetně toho, kdy se
+  vyplatí n8n na vlastním serveru. Deset hotových automatizací krok za krokem
+  s prompty — od poptávky do CRM přes faktury, newsletter a přepis schůzky až po
+  zálohu příloh. Procesní automatizace ve firmě: jak vybrat, co automatizovat první
+  (frekvence krát doba krát chybovost), jak proces napřed nakreslit a kdo ho vlastní.
+  A poctivé kapitoly navíc: co dělat, když se scénář rozbije, jak ošetřit přístupy
+  a osobní údaje, a kdy je správná odpověď neautomatizovat vůbec. Přes celý návod
+  platí jedno pravidlo: automat smí připravit cokoli, poslední kliknutí zůstává vaše.
 faq:
+  - q: "Co je to vlastně AI automatizace a čím se liší od běžné automatizace?"
+    a: >-
+      Běžná automatizace přesouvá data podle pevných pravidel: přišel formulář,
+      zapiš řádek do tabulky. AI automatizace přidá doprostřed jeden krok, který
+      rozumí volnému textu — vytáhne z nestrukturované zprávy jméno, částku
+      a termín, zařadí požadavek do kategorie nebo napíše koncept odpovědi.
+      Zbytek scénáře zůstává obyčejná pevná pravidla. Právě proto je model
+      jen jeden krok uprostřed, ne celý automat.
+  - q: "Kterou automatizační platformu si mám vybrat jako začátečník?"
+    a: >-
+      Nejdřív se podívejte, co už máte: pravidla v poště, automatizace v Notionu
+      nebo Power Automate v Microsoft 365 často stačí a nepřidávají další službu.
+      Když to nestačí, začněte tam, kde má vaše kombinace aplikací hotové
+      propojení a kde vám vyhovuje editor — Zapier je nejrychlejší k prvnímu
+      běžícímu scénáři, Make je přehlednější u větvení a smyček. n8n si nechte
+      na chvíli, kdy vám dojde bezplatný objem nebo data nesmějí do cizího cloudu.
   - q: "Kdy mi stačí rutina v Claude a kdy potřebuju automatizační platformu?"
     a: >-
       Rutina stačí, když je spouštěčem čas, data vedou přes konektor, zadání se často
@@ -23,31 +43,34 @@ faq:
       událost v cizím systému (formulář, faktura, platba), v řetězu jsou víc než dvě
       aplikace nebo potřebujete webhook a spolehlivý běh nad objemem. Hraniční
       případy řešte tím jednodušším.
-  - q: "Proč se prompt v AI kroku píše jinak než v chatu?"
+  - q: "Který firemní proces mám automatizovat jako první?"
     a: >-
-      Protože ho neuvidíte selhat, nemůžete se doptat a výstup čte stroj, ne člověk.
-      Platí pět pravidel: jeden krok, jeden úkol; pevný výstupní formát (JSON
-      s vyjmenovanými klíči); výslovný zákaz domýšlení s hodnotou „neuvedeno“;
-      uzavřené číselníky místo volných kategorií; a ukázka vstupu i výstupu přímo
-      v promptu.
+      Spočítejte u každého kandidáta frekvence krát doba krát chybovost a začněte
+      nahoře, ale jen u procesů, které jsou stabilní a mají jasného vlastníka.
+      Nejlepší první proces je nudný, častý, dobře popsatelný a chyba v něm je
+      vidět do druhého dne. Než začnete klikat, nakreslete proces tak, jak
+      opravdu běží — polovina úspor bývá v krocích, které po zmapování
+      jednoduše zrušíte.
+  - q: "Dá se automatizovat příprava newsletteru?"
+    a: >-
+      Ano, ale jen po draft. Scénář průběžně sbírá kandidáty ze sledovaných zdrojů,
+      u každého si nechá udělat shrnutí a známku relevance, a jednou týdně z toho
+      sestaví koncept čísla. Rozesílku nikdy nespouštějte automaticky: model umí
+      napsat větu, která zní dobře a není pravda, a ve veřejném textu je taková
+      věta vidět víc než deset dobrých.
   - q: "Smí automat sám odesílat maily nebo platit?"
     a: >-
       Ne — AI navrhuje, člověk schvaluje. Tři pravidla bez výjimky: koncept místo
       odeslaného mailu, úkol se štítkem „ke schválení“ místo úkolu v ostrém projektu,
       nový řádek místo přepsání existujícího. Koncept vás stojí deset vteřin čtení,
       jeden nešťastný odeslaný mail stojí klienta.
-  - q: "Jak poznám, že se scénář tiše rozbil?"
+  - q: "Jak poznám, že se scénář tiše rozbil, a co s tím?"
     a: >-
       Tichý scénář vypadá stejně jako fungující. Ke každému scénáři patří cesta pro
       neúspěch — samostatná tabulka, kam padá vše, co se nepovedlo, a jedno souhrnné
-      upozornění denně. A jednou měsíčně pusťte umělý test: je to jediný způsob, jak
-      rozlišit „nic se nestalo“ od „scénář týden neběžel“.
-  - q: "Co když model vrátí platný, ale nesmyslný výstup?"
-    a: >-
-      To je nejzákeřnější selhání, protože scénář proběhne jako úspěšný. Obrana je
-      kontrola rozumnosti před zápisem: rozpočet mimo očekávaný rozsah, datum
-      v minulosti, kategorie mimo číselník nebo prázdné povinné pole ať vede na
-      ruční frontu, ne do CRM.
+      upozornění denně. Přidejte hlídače nečinnosti (když scénář neběžel dvacet čtyři
+      hodin, ozvi se) a jednou měsíčně pusťte umělý test. Je to jediný způsob,
+      jak rozlišit „nic se nestalo“ od „scénář týden neběžel“.
   - q: "Kdy je lepší neautomatizovat vůbec?"
     a: >-
       Když to děláte míň než třikrát týdně, když je proces nestabilní, když je cena
@@ -69,6 +92,125 @@ Freelancerka Klára dostává poptávky z webového formuláře, průměrně des
 Po postavení jednoho scénáře je to jinak. Nová poptávka spustí automat: model z textu vytáhne jméno, firmu, typ zakázky, rozpočtový rámec a termín, přiřadí poptávce známku od A do C podle toho, jak sedí na Klářino zaměření, zapíše řádek do tabulky, založí úkol se štítkem „ke schválení“ a připraví koncept odpovědi ve schránce. Klára otevře poštu dvakrát denně, projde koncepty, dva upraví, jeden smaže.
 
 Po měsíci: z dvou hodin týdně zbylo dvacet minut a hlavně přestal formulář rozbíjet den. Odesílá pořád Klára — jen už netráví čas přepisováním.
+
+## Automatizace lidsky: co se pod tím slovem skrývá
+
+Slovo „automatizace“ zní jako něco pro IT oddělení. Přitom je to nejjednodušší myšlenka v celé počítačové práci: **popíšete jednou postup, který jinak děláte rukama, a program ho pak dělá za vás.** Nic víc. Nepotřebujete k tomu programovací jazyk, potřebujete umět popsat, co po sobě následuje — a to umíte, jinak byste tu práci nedělali.
+
+Tahle kapitola je pro každého, kdo nikdy neotevřel editor scénářů. Pokud už automatizujete, přeskočte ji a pokračujte srovnáním platforem. Pokud ne, přečtěte ji celou: bez těchhle šesti pojmů budete v každém návodu tápat a budete si myslet, že za to může vaše nešikovnost. Nemůže. Ty pojmy prostě nikdo nevysvětluje, protože se autorům zdají samozřejmé.
+
+### Automat je jedna věta: „když se stane tohle, udělej tamto“
+
+Každá automatizace, jakkoli složitá, je rozvinutím jedné věty. **Když přijde nová poptávka, zapiš ji do tabulky. Když přistane faktura, ulož přílohu do složky. Když je pátek ráno, pošli mi přehled týdne.** První polovina věty je spouštěč, druhá je akce. Všechno ostatní — větvení, podmínky, opakování — je jen jemnější popis téhož.
+
+Tomuhle celku se v různých nástrojích říká různě: Zapier mu říká „Zap“, Make „scénář“, n8n „workflow“, Power Automate „tok“, Apple „zkratka“ nebo „automatizace“. Je to totéž. V tomhle návodu budeme mluvit o **scénáři**, protože to je nejsrozumitelnější české slovo — a protože scénář opravdu vypadá jako filmový scénář: očíslovaný sled kroků, o kterých se dá vyprávět.
+
+Než začnete cokoli stavět, zkuste svůj postup vyslovit nahlas jako jednu takovou větu. Když se to nepovede, nemáte ještě proces, máte zvyk. To není hanba, ale automatizovat se to nedá — zvyk se nedá popsat kroky, protože polovinu rozhodnutí děláte podvědomě. K tomu, jak zvyk převést na popsatelný postup, se dostaneme v kapitole o mapování procesu.
+
+### Trigger: co scénář probudí
+
+**Trigger (spouštěč) je událost, po které se scénář probudí.** Do té doby nedělá nic a nic nestojí. Existují tři druhy a rozdíl mezi nimi je to první, co byste měli u každého scénáře vědět.
+
+- **Událost v aplikaci** — přišel mail se štítkem, přibyl řádek v tabulce, někdo odeslal formulář, změnil se stav v CRM, nahrál se soubor do složky. Tohle je nejběžnější spouštěč a stojí za devíti z deseti scénářů.
+- **Čas (rozvrh)** — každý den v 7:00, každé pondělí, poslední den v měsíci. Nikdo nic neudělal, jen uplynul čas. Pozor: když je spouštěčem čas a data jsou dostupná přes konektor, možná nepotřebujete platformu vůbec a stačí naplánovaná [rutina v Claude](/tipy/claude-rutiny-posta-kalendar).
+- **Zavolání zvenčí (webhook)** — cizí systém sám zaklepe na adresu, kterou mu dáte. Je to nejrychlejší a nejlevnější varianta, protože scénář se probudí přesně tehdy, kdy se něco stalo, a ani o vteřinu dřív.
+
+U prvních dvou druhů se často schovává čtvrtý pojem: **dotazování (polling)**. Znamená, že se platforma každých pár minut sama ptá „přibylo něco nového?“. Vypadá to jako událost, ale ve skutečnosti je to časovač, který běží pořád dokola — a každý ten dotaz se vám může počítat, i když se nic nestalo. Proto se u služeb, které umí webhook, webhook vždycky vyplatí.
+
+### Akce: co scénář udělá
+
+**Akce je krok, který něco vykoná v nějaké aplikaci.** Zapiš řádek, ulož soubor, vytvoř úkol, pošli zprávu do kanálu, vytvoř koncept mailu. Scénář jich může mít jednu i patnáct a provádějí se v pořadí shora dolů — výstup jednoho kroku je vstupem dalšího.
+
+Akce se dělí na dvě skupiny a stojí za to je v hlavě odlišovat. **Neškodné akce** něco přidávají: nový řádek, nový soubor, nový koncept. Když se scénář splete, uklidíte to smazáním. **Nevratné akce** něco mění nebo posílají ven: odeslaný mail, přepsaný záznam, zaplacená faktura, smazaný soubor. Tady se chyba neuklízí, tady se omlouvá. Celý tenhle návod stojí na tom, že do scénářů dáváte jen akce z první skupiny — a druhé necháváte na sobě.
+
+### Filtr, větvení a smyčka
+
+Tři nástroje, kterými se z lineárního seznamu kroků stane skutečný scénář:
+
+- **Filtr** je závora hned za spouštěčem. „Pokračuj jen tehdy, když je vyplněný e-mail.“ „Pokračuj jen u faktur nad určitou částku.“ Když podmínka neplatí, scénář se tiše ukončí. Filtr je nejlacinější krok, který můžete mít, a nejčastěji vynechávaný.
+- **Větvení** je rozcestí. „Když je kategorie fakturace, pošli to účetní; když reklamace, pošli to servisu.“ Každá větev pak pokračuje vlastní řadou kroků. V Make se tomu říká router, v Zapieru cesty, v n8n IF nebo Switch.
+- **Smyčka (iterace)** je opakování stejného kroku nad seznamem. Přišel mail s pěti přílohami — smyčka projde jednu po druhé. Bez smyčky by scénář zpracoval jen tu první a vy byste si toho všimli za měsíc.
+
+K tomu patří dva pomocné kroky, které nic nedělají, ale bez nich se scénáře staví zle. **Zpoždění** počká, než druhá strana stihne data zapsat. A **nastavení proměnné** si odloží mezivýsledek stranou, aby se k němu dalo vrátit o pět kroků dál.
+
+### Běh: jednotka, kterou platíte
+
+Tady se láme nejvíc rozpočtů, takže pozorně. **Běh je jedno probuzení scénáře od spouštěče po poslední krok.** Přišla poptávka, scénář se rozjel, doběhl — jeden běh.
+
+Jenže platformy neúčtují stejně. Některé počítají **běhy** (jedno probuzení = jedna jednotka, jedno je, kolik má scénář kroků). Jiné počítají **operace nebo úlohy** (každý provedený krok = jedna jednotka, takže scénář o osmi krocích spotřebuje osm). Ten rozdíl je desetinásobný a poznáte ho, až vám dojde měsíční příděl třetí týden.
+
+Z toho plynou tři praktická pravidla, která platí všude:
+
+1. **Filtrujte hned za spouštěčem.** Krok, který se nespustí, nic nestojí. Scénář, který teprve v pátém kroku zjistí, že tuhle položku neměl zpracovávat, zaplatil čtyři kroky za nic.
+2. **Nepoužívejte dotazování tam, kde stačí webhook.** Kontrola schránky každou minutu je čtyřicet tři tisíc probuzení měsíčně, z nichž drtivá většina nenajde nic.
+3. **Neposílejte modelu víc textu, než potřebuje.** AI krok se účtuje podle množství textu na vstupu i výstupu, a rozdíl mezi „pošli celý mail i s patičkou a citovanou historií“ a „pošli jen tělo zprávy“ bývá pětinásobný.
+
+### Kde v tom všem je AI
+
+A teď to důležité, kvůli čemu je tenhle článek o **AI automatizaci** a ne jen o automatizaci: **model je jeden krok uprostřed scénáře, ne scénář sám.**
+
+Klasická automatizace umí přesouvat data, která už mají tvar. Řádek do řádku, pole do pole. Na čem vždycky ztroskotala, je volný text: člověk napíše do formuláře odstavec, ve kterém je jméno, rozpočet, termín i obava — a žádné pravidlo z toho ta čtyři pole nevytáhne. Tohle je přesně místo, kde AI krok mění hru. Dostane odstavec, vrátí strukturu.
+
+Prakticky se AI krok hodí na čtyři věci a na nic jiného:
+
+- **Vytáhnout strukturu z textu** — z poptávky, faktury, zprávy, přepisu. Nejspolehlivější použití vůbec.
+- **Zařadit do kategorie** z předem daného seznamu — priorita, oddělení, typ požadavku.
+- **Shrnout** dlouhý text do dvou vět, které se vejdou do notifikace.
+- **Napsat návrh textu** — koncept odpovědi, draft newsletteru, komentář k číslům.
+
+Naopak: AI krok není počítadlo, není databáze a není rozhodčí. Nenechávejte ho sčítat čísla (od toho je tabulka), vyhledávat fakta z paměti (od toho je vyhledávání) ani rozhodovat o penězích a lidech. A hlavně: **výstup AI kroku je vždycky návrh, ne rozsudek.** Do CRM, do tabulky, do konceptu — ano. Do odeslaného mailu bez čtení — nikdy.
+
+### Slovníček: patnáct pojmů, které uvidíte v každém editoru
+
+- **Scénář (Zap, workflow, tok, flow)** — celý automat od spouštěče po poslední krok.
+- **Trigger (spouštěč)** — událost, která scénář probudí.
+- **Akce (action, modul, node, uzel)** — jeden krok, který něco vykoná v aplikaci.
+- **Běh (run, execution)** — jedno probuzení scénáře od začátku do konce.
+- **Operace / úloha (task)** — jednotka, kterou platíte; podle platformy jeden krok nebo jeden běh.
+- **Webhook** — internetová adresa, na kterou cizí systém zavolá, když se něco stane.
+- **Dotazování (polling)** — pravidelná otázka „přibylo něco?“ tam, kde webhook není.
+- **Filtr** — podmínka, která scénář zastaví, když se nemá pokračovat.
+- **Router / větvení** — rozcestí, kde scénář pokračuje podle podmínky jednou z cest.
+- **Iterátor / smyčka** — opakování kroků nad seznamem položek.
+- **Mapování polí** — přiřazení „tenhle údaj ze spouštěče patří do tohohle sloupce“. Tady vzniká víc chyb než v AI kroku.
+- **Konektor / integrace** — hotové propojení platformy s konkrétní aplikací.
+- **Autorizace (připojení, connection)** — uložené oprávnění, kterým scénář vstupuje do vašeho účtu.
+- **API klíč / token** — heslo pro stroje. Nesdílí se, nelepí do dokumentů, dá se zneplatnit.
+- **JSON** — textový formát, ve kterém si kroky předávají strukturovaná data. Vypadá jako seznam dvojic „klíč: hodnota“ a nemusíte mu rozumět do hloubky, jen ho poznat.
+- **Log (historie běhů)** — záznam o tom, co scénář kdy udělal a s jakými daty. První místo, kam se díváte, když něco nesedí.
+- **Sandbox / testovací režim** — režim, ve kterém scénář běží nanečisto a nesahá na ostrá data.
+
+Když si nejste jistí, jestli vůbec máte proces, který se dá popsat kroky, nechte si ho přeložit do jazyka automatizace dřív, než otevřete jakýkoli editor:
+
+```text
+Popíšu ti postup, který dělám ručně. Přelož mi ho do jazyka
+automatizace, abych viděl, jestli se to vůbec dá postavit.
+
+MŮJ POSTUP (tak, jak ho dělám dnes):
+[popiš krok za krokem, klidně neuspořádaně, včetně toho, kdy
+to děláš a co tě k tomu vyzve]
+
+Vrať mi:
+1. Jednu větu ve tvaru „když se stane X, udělej Y“ — jádro celého
+   postupu
+2. Spouštěč: co přesně tu práci spouští v reálném světě a jestli
+   je to událost v aplikaci, čas, nebo zavolání zvenčí
+3. Seznam kroků v pořadí, u každého: v jaké aplikaci se odehrává
+   a jestli jde o přidání (neškodné), nebo o změnu či odeslání
+   (nevratné)
+4. Rozhodnutí, která v postupu dělám hlavou — vypiš je zvlášť
+   a u každého napiš, jestli se dá popsat pravidlem, nebo jde
+   o úsudek, který musí zůstat na mně
+5. Místa, kde je vstupem volný text, který někdo musí přečíst
+   a pochopit — tam patří AI krok
+6. Upřímné hodnocení: dá se tenhle postup automatizovat, dá se
+   automatizovat jen zčásti, nebo je to zvyk, který se nejdřív
+   musí ustálit?
+
+U bodu 6 mi neříkej, co chci slyšet.
+```
+
+Vrátí popis, který můžete rovnou přenést do editoru — a hlavně bod 4 a 6, kvůli kterým se prompt vyplatí pustit. Typický výsledek u prvního pokusu je „automatizovat jde šest kroků z devíti, dva jsou úsudek a jeden nemá stabilní vstup“. To je přesně ta odpověď, kterou potřebujete slyšet, než utratíte odpoledne.
 
 ## Kdy stačí rutina v Claude a kdy potřebujete platformu
 
@@ -122,6 +264,139 @@ za měsíc.
 ```
 
 Vrátí seřazený seznam, ve kterém bývá první scénář jiný, než jste čekali — lidé podceňují nudné přepisy a přeceňují viditelné, ale vzácné úkoly. Bod 4 čtěte pozorně: automatizace činnosti, kterou děláte dvakrát měsíčně, se nezaplatí, i když je technicky snadná.
+
+## Srovnání platforem: co si vybrat a proč
+
+Otázka „jaká automatizační platforma je nejlepší“ nemá odpověď, protože nejlepší je ta, která má hotové propojení s aplikacemi, které používáte, a editor, ve kterém se neztratíte. Tahle kapitola vám nedá vítěze — dá vám mapu, ze které poznáte, kam patříte.
+
+Jedno upozornění, které v podobných srovnáních chybí a mělo by tam být tučně: **podmínky se mění rychleji, než stačí zastarat článek.** Bezplatné příděly se zvětšují i zmenšují, způsob účtování se přepočítává, AI funkce přibývají každé čtvrtletí. Co následuje, je stav v době psaní a hlavně logika, podle které se rozhoduje — tu si ověřte přímo u zdroje ve chvíli, kdy budete platit. Konkrétní ceny tady schválně nenajdete, protože by za půl roku lhaly.
+
+### Jak číst tohle srovnání
+
+U každé platformy sledujte čtyři věci a nic jiného:
+
+1. **Máte tam své aplikace?** Bez hotového propojení se scénář postaví taky, ale přes obecné kroky a s prací navíc. Podívejte se do katalogu integrací dřív, než se rozhodnete.
+2. **Rozumíte editoru?** Někomu vyhovuje seznam kroků pod sebou, jinému plátno s čarami mezi bloky. Není to malichernost — v editoru, který vám nesedí, přestanete scénáře udržovat.
+3. **Jak se počítá spotřeba?** Za běh, nebo za každý krok? U scénáře o deseti krocích je mezi tím řádový rozdíl.
+4. **Kde běží vaše data?** V cizím cloudu, ve vaší firemní doméně, na vašem serveru, nebo přímo v telefonu? U zákaznických dat je tohle první otázka, ne poslední.
+
+### Zapier — nejrychlejší cesta k prvnímu funkčnímu scénáři
+
+Zapier je nejstarší a nejrozšířenější a jeho hlavní devízou je počet propojení: pravděpodobnost, že tam vaši aplikaci najdete, je nejvyšší ze všech. Editor je jednoduchý seznam kroků pod sebou, provede vás mapováním polí za ruku a první scénář vám poběží do dvaceti minut.
+
+**Kde to skřípe:** bezplatná úroveň je v době psaní opravdu jen na vyzkoušení — omezený počet úloh měsíčně a scénáře pouze o dvou krocích, tedy jeden spouštěč a jedna akce. To vylučuje skoro všechno, co v tomhle návodu stavíme, protože už samotné „spouštěč, filtr, AI krok, zápis“ jsou čtyři kroky. Zapier také účtuje po úlohách, takže vícekrokové scénáře spotřebovávají příděl rychleji, než čekáte. A složitější logika — větvení, smyčky, práce se seznamy — je tu méně přehledná než u konkurence.
+
+**AI a MCP:** Zapier má vlastní AI kroky i asistenty a provozuje MCP server, kterým se jeho akce dají zpřístupnit AI asistentovi jako nástroje. Pozor na jednu věc, která překvapí: spotřeba přes MCP se v době psaní počítá do stejného přídělu jako běžné scénáře, takže si AI asistent umí příděl vyčerpat sám.
+
+**Berte ho, když:** chcete první výsledek dnes, máte netypickou aplikaci, kterou jinde nenajdete, a scénáře budou jednoduché.
+
+### Make — vizuální editor, ve kterém je vidět tok dat
+
+Make staví scénář na plátno jako řetěz kolečkových modulů propojených čarami. Zní to jako kosmetický rozdíl, ale není: u větvení, filtrů a smyček je Make podstatně čitelnější a po spuštění vidíte přímo na plátně, kolik položek kterou větví prošlo a co v nich bylo. Pro člověka, který se učí, je tohle nejrychlejší způsob, jak pochopit, co se ve scénáři vlastně děje.
+
+**Kde to skřípe:** účtuje se po operacích, tedy zhruba po krocích, takže bohatý scénář spotřebovává rychle. Bezplatná úroveň v době psaní dovolí řádově tisíc operací měsíčně, malý počet současně aktivních scénářů a nejkratší interval spouštění v řádu čtvrthodiny — na naučení bohatě stačí, na provoz ne. A práce se strukturami dat (kolekce, pole, agregátory) je mocná, ale má vlastní křivku učení.
+
+**AI a MCP:** Make má hotové kroky pro velké jazykové modely, vlastní agenty a napojení na MCP. Pro naše účely stačí obyčejný krok „zeptej se modelu“, do kterého vložíte prompt a dostanete text nebo JSON.
+
+**Berte ho, když:** scénáře budou mít větvení a podmínky, chcete vidět, kudy data tečou, a nevadí vám počítat operace.
+
+### n8n — otevřená platforma, kterou můžete provozovat u sebe
+
+n8n je jiná kategorie. Je to otevřený software, který si můžete pustit na vlastním serveru, a v téhle variantě je zdarma bez omezení počtu běhů — platíte jen server, na kterém to běží. Editor je uzlový jako Make, ale s jedním zásadním navíc: kdykoli můžete vložit krok s vlastním kódem a udělat věc, na kterou v hotových blocích není tlačítko. Existuje i placená cloudová varianta pro ty, kdo nechtějí spravovat server, a ta se účtuje po celých bězích, ne po krocích — u dlouhých scénářů je to velký rozdíl v její prospěch.
+
+**Kde to skřípe:** samohostovaná varianta znamená, že správcem jste vy. Aktualizace, zálohy, obnovení po pádu, certifikát, dostupnost — to všechno je najednou vaše práce. Když server spadne v pátek večer, scénáře stojí do pondělí. Hotových propojení má n8n méně než Zapier, i když u běžných aplikací to nepoznáte, a chybějící se dají dohnat obecným krokem přes API.
+
+**AI a MCP:** tady je n8n nejdál. Má uzel pro AI agenta, uzly pro modely a paměť, umí se připojit k externím MCP serverům jako klient a umí i opačný směr — zveřejnit vlastní workflow jako MCP nástroj, který si pak zavolá AI asistent. Když chcete stavět něco na pomezí automatizace a agenta, je tohle nejotevřenější hřiště. Co jsou MCP konektory a proč na nich záleží, rozebírá tip [konektory jako USB-C pro AI](/tipy/mcp-konektory-usb-c-pro-ai).
+
+**Berte ho, když:** data nesmějí opustit vaši infrastrukturu, máte objem, na kterém by se počítání kroků prodražilo, nebo potřebujete krok s vlastním kódem.
+
+### Power Automate — když už jste celí v Microsoftu
+
+Power Automate je automatizační platforma zabudovaná do Microsoft 365 a její největší výhoda je, že ji nejspíš už máte. Když firma běží na Outlooku, SharePointu, Teamsech a Excelu v cloudu, máte propojení na dosah ruky, přihlašování řeší firemní účet a správce IT vidí, co kdo postavil.
+
+**Kde to skřípe:** rozdělení na standardní a prémiové konektory je past, do které se šlápne vždycky až v půlce stavby. Se základní licencí postavíte scénáře nad Microsoft službami, ale v okamžiku, kdy sáhnete na databázi nebo na cizí obchodní systém, jste v jiné cenové kategorii. Bezplatný příděl běhů, který přichází s Microsoft 365, je v době psaní v řádu stovek měsíčně — na osobní scénáře dost, na firemní provoz ne. Editor je rozvláčnější než u konkurence a chybové hlášky umí být záhadné.
+
+**AI a MCP:** vestavěné AI schopnosti (AI Builder, asistenti) jsou z větší části za placenou hranicí a způsob jejich účtování se v době psaní přepracovává. Nic vám ale nebrání použít v toku obyčejné volání jazykového modelu přes API a mít AI krok tímhle způsobem.
+
+**Berte ho, když:** firma je celá v Microsoftu, IT chce mít nad automatizacemi dohled a scénáře nepotřebují sáhnout ven.
+
+### Apple Zkratky — automatizace, kterou máte v kapse
+
+Zkratky jsou jediná položka v tomhle srovnání, která neběží v cloudu, ale na vašem zařízení. Spouštěčem může být čas, poloha, připojení k nabíječce, otevření aplikace, příchozí zpráva, režim soustředění nebo prosté klepnutí na tlačítko na ploše. To je něco, co žádná cloudová platforma neumí — a naopak.
+
+**AI krok tady existuje taky:** v novějších verzích systému je k dispozici akce, která pošle text jazykovému modelu a vrátí výsledek jako proměnnou pro další krok, s volbou mezi modelem přímo v zařízení, výpočtem v Apple cloudu, nebo napojením na externího asistenta. Prakticky to znamená, že si můžete udělat zkratku „vezmi text ze schránky, přepiš ho do zdvořilé odpovědi a ulož do poznámek“ bez jediné externí služby.
+
+**Kde to skřípe:** je to osobní nástroj, ne firemní. Neexistuje sdílení scénářů týmem, historie běhů je chudá, ladění je otravné a když je telefon vypnutý, nic neběží. Serverové věci typu „hlídej formulář na webu“ tímhle nepostavíte. Podrobněji se zkratkám věnuje tip [zkratky a automatizace na iPhonu](/tipy/ios-zkratky-automatizace).
+
+**Berte je, když:** jde o vaši osobní rutinu na telefonu nebo Macu a data nemají důvod opouštět zařízení.
+
+### Vestavěné automatizace, které už máte
+
+Než přidáte další službu, projděte, co umí nástroje, které platíte dnes. Překvapivě často to stačí:
+
+- **Pravidla v poště** roztřídí, archivují, přeposílají a označují — a nic navíc nestojí; postup je v tipu [pravidla v Outlooku](/tipy/outlook-pravidla).
+- **Automatizace v Notionu** umí při změně stavu založit úkol, přiřadit člověka nebo poslat upozornění.
+- **Rutiny v Claude s konektory** zvládnou celý blok „vezmi data z pošty a kalendáře, napiš mi z toho přehled“ bez jediného scénáře.
+- **Tabulkové skripty** dokážou přepočítat a rozeslat report podle rozvrhu.
+
+Pravidlo zní: **další služba v řetězu znamená další účet, další heslo, další místo, kde se něco rozbije.** Když se rozhodujete mezi „přidat platformu“ a „doladit, co už mám“, začněte tím druhým.
+
+### Kdy se vyplatí samohostovaný n8n — a kdy je to past
+
+Vyplatí se ve třech situacích. **Když data nesmějí do cizího cloudu** — zdravotní údaje, osobní data klientů ve větším objemu, obchodní tajemství, cokoli, kde by převod dat mimo firmu znamenal právní problém. **Když máte objem**, při kterém by se počítání jednotlivých kroků prodražilo; hranice bývá kolem tisíců běhů měsíčně. A **když potřebujete kroky, na které jinde není tlačítko** — vlastní výpočet, práce se soubory, napojení na interní systém bez veřejného API.
+
+Past je to ve dvou situacích. **Když nemáte, kdo by ten server spravoval.** Automatizační platforma je infrastruktura: potřebuje aktualizace, zálohy, hlídání místa na disku a někoho, kdo v neděli večer zjistí, proč se scénáře zastavily. Když tuhle roli nikdo nemá, je samohostování falešná úspora — ušetříte předplatné a zaplatíte výpadky. A **když si to berete jen proto, že je to zdarma**, i když by vám bohatě stačil bezplatný příděl u cloudové služby.
+
+Střední cesta existuje a málokdo o ní mluví: n8n si můžete pořídit i jako placenou cloudovou službu a k samohostování přejít později, protože scénáře jsou přenositelné. Začít v cloudu a přestěhovat se, až to bude dávat smysl, je poctivější postup než začínat správou serveru.
+
+### AI kroky a MCP: co dnes platformy umí
+
+Krátké shrnutí, protože se tenhle obrázek mění nejrychleji ze všeho:
+
+- **AI krok** (pošli text modelu, dostaň text nebo JSON) má v době psaní každá vážně míněná platforma. Tohle je devadesát procent toho, co k automatizaci potřebujete, a je to nejnudnější a nejspolehlivější varianta.
+- **AI agent** (model, který sám rozhoduje, které nástroje zavolá) má většina platforem taky. Je to mocné a je to zároveň místo, kde se nejsnáz ztratí kontrola nad tím, co se stalo. Pro první scénáře ho nechte být — vysvětlení, jak agentní smyčky fungují a čím jsou zrádné, najdete v tipu [co jsou loopy](/tipy/co-jsou-loopy-agentni-smycky).
+- **MCP** je standard, kterým se aplikace hlásí AI asistentovi jako sada nástrojů. Prakticky to znamená dva směry: platforma jako klient (scénář si sáhne na cizí MCP server) a platforma jako server (váš scénář se stane nástrojem, který si zavolá asistent). Nejdál je v tomhle n8n, ale podpora přibývá všude.
+
+Pravidlo pro začátek zní: **postavte to jako pevný scénář s jedním AI krokem.** Agent i MCP jsou vrstvy navíc a přidávají se do něčeho, co už funguje a co umíte zkontrolovat.
+
+### Jak vybrat za deset minut
+
+Napište si tři věci — které aplikace v tom budou, kolik položek denně a jestli mezi nimi tečou osobní údaje — a nechte si z toho udělat doporučení:
+
+```text
+Pomoz mi vybrat automatizační platformu. Nechci obecné srovnání,
+chci doporučení pro moji konkrétní situaci.
+
+Aplikace, které musí být propojené: [vypiš všechny, včetně těch
+českých a méně známých]
+Kolik položek denně: [odhad]
+Jak rychle to musí reagovat: [do vteřin / do hodiny / stačí ráno]
+Osobní nebo citlivá data v řetězu: [ano/ne, jaká]
+Kdo to bude udržovat: [já sám / kolega z IT / nikdo]
+Co už dnes platíme: [Microsoft 365, Google Workspace, Notion,
+Slack, …]
+
+Vrať mi:
+1. Doporučení jedné platformy a jednu větu proč
+2. Druhou volbu a za jakých okolností by byla lepší
+3. Jestli tohle zvládnu bez nové služby — pravidly v poště,
+   automatizacemi v nástrojích, které už mám, nebo naplánovanou
+   rutinou v AI asistentovi
+4. Odhad spotřeby: kolik běhů nebo kroků měsíčně to podle mých
+   čísel bude a jestli se to vejde do bezplatné úrovně
+5. Tři otázky, které si musím ověřit přímo u poskytovatele,
+   protože se podmínky mění
+
+U bodu 3 buď přísný: když to jde bez nové služby, řekni to.
+```
+
+Vrátí doporučení včetně odhadu spotřeby, což je ten údaj, který lidi zpětně nejvíc překvapí. Bod 5 berte vážně — model má znalosti k nějakému datu a bezplatné příděly se mění; ověřte si je na stránkách poskytovatele, ne v odpovědi.
+
+### Přenositelnost: jak se nezamknout
+
+Scénáře se mezi platformami nepřenášejí kliknutím, ale logika ano — a právě proto se vyplatí mít ji zapsanou mimo platformu. Ke každému scénáři si veďte krátký dokument: co ho spouští, jaké kroky následují, jaká pole se kam mapují a jaké prompty se používají. Zabere to dvacet minut a je to jediná věc, která z vás dělá vlastníka automatizace místo nájemníka.
+
+Prompty držte v [knihovně promptů](/tipy/ai-knihovna-promptu), ne jen v poli uvnitř kroku. Když se rozhodnete přestěhovat, přenášíte pak jen kliknutí, ne přemýšlení.
 
 ## Anatomie scénáře: trigger, AI krok, akce
 
