@@ -1,0 +1,692 @@
+---
+title: "Morning brief: what needs a decision today"
+excerpt: "A complete guide with 14 prompts: Claude Cowork checks Slack, mail, calendar, and dashboards, then hands you a ranked list of what's on you today."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "vyvojar"]
+keys: []
+saves: "~30 min a day"
+date: "2026-08-24"
+updated: "2026-08-24"
+tldr: >-
+  A morning brief isn't a summary of unread messages — it's a ranked list of what actually needs your decision today. It isn't a button in an app either — it's a way of using Claude Cowork: you connect connectors to Slack, mail, calendar, and Notion, point Claude in Chrome at the dashboards that don't have a connector, and have it build four blocks — urgent items from the dashboard, threads with a mention read in full, threads you're not in but that matter, and this week's deadlines. The whole guide rests on one section: until you write down exactly what “urgent” means for you, the brief just hands back noise.
+faq:
+  - q: >-
+      Is the morning brief a standalone feature I switch on somewhere?
+    a: >-
+      No. It's a way of using Claude Cowork: you connect your tools through connectors and tell Claude what to check and how to rank it. There's no “morning brief” button in the app — what you're looking for is connectors and a well-written brief.
+  - q: >-
+      How is it different from a summary of unread messages?
+    a: >-
+      An unread summary is a sorted inbox — you still have to read all of it yourself. The brief is a list of things waiting for your decision today, ranked by what happens if you don't act. Most unread messages never make it into the brief at all.
+  - q: >-
+      What does it mean that the brief runs in a remote session?
+    a: >-
+      Remote sessions (in beta as of writing) run on Anthropic's servers, so the brief is ready even with your laptop closed, and you can pick it up on your computer, the web, or your phone. For sensitive data, you can run the session locally instead, so files stay on your own machine.
+  - q: >-
+      Why does defining “urgent” get so much attention?
+    a: >-
+      Because urgency isn't a field in the data. Without your definition, the model infers urgency from volume — exclamation marks, thread length, how fresh a message is. A written definition (“urgent = blocks someone else, or has a deadline today”) is the one thing that separates a usable brief from sorted noise.
+  - q: >-
+      What if a dashboard doesn't have a connector?
+    a: >-
+      Web dashboards without a connector are reachable through the Claude in Chrome extension. In your brief, describe exactly which page to open and what to read from it — and spot-check the numbers you're basing decisions on against the source for the first few days.
+  - q: >-
+      When does it not make sense to set up a morning brief?
+    a: >-
+      When you only have one tool connected (just open that tool instead), when you can't name your priorities for the month, or when your work doesn't run through chat and email — for deals closed by phone or in person, the brief has nothing to draw on.
+---
+
+Mornings at your computer aren't wasted on work. They're wasted on **assembling a picture**: Slack, mail, calendar, dashboard, back to Slack because something in that first channel now means something different. By the time you finally decide what to start with, it's ten past ten and the best part of the day is gone.
+
+The morning brief is the answer to that specific waste. It isn't a feature with a button — it's a way of using Claude Cowork: Claude connects to your tools, goes through them for you, and puts together **one structured overview of priorities** before you even sit down. Three things make it work, and no single tool does all three on its own: it reads **whole threads**, not the last message; it surfaces **discussions you're not even part of**, but that your work says you should know about; and it **connects data across tools** — a number from the dashboard gets tied to the thread where people were already discussing it.
+
+This guide goes from zero to a brief you open in the morning and know what to start with in five minutes. We'll cover setting up the tools, the four blocks of the proven structure, fourteen prompts to copy, and the first week of tuning. The most important section is the one about defining “urgent” — without it you just get faster-sorted noise. We'll also look honestly at **when the brief doesn't work**, because there are three fairly common situations where it doesn't.
+
+## A typical scenario
+
+Petra runs product at a mid-size software company. Her mornings used to look like this: at 8:40 she opens her laptop and spends until 8:52 working through Slack — six channels, she's mentioned in three, and in two a discussion took off overnight that she has to read backward to understand what got decided. At 8:52 she switches to mail: nineteen new messages, three of them actually want something, the rest are notifications and CCs. At 9:01, the calendar: two meetings, and she's not sure if she needs to prep for one of them. At 9:05, the dashboard: conversion, error rate, support queue — four numbers she has to remember last week's values for herself.
+
+By 9:12 she has the picture and starts working. **Thirty-two minutes a day, a hundred fifty minutes a week, eleven hours a quarter** — and that's just gathering. The real cost is elsewhere: the picture gets rebuilt from scratch every time and it's never complete. The discussion Petra isn't mentioned in, but that touches a feature she's due to ship this week, slips past her. She finds out on Thursday, in a meeting, that something already decided got re-litigated for two days.
+
+After setting up a brief, her mornings look like this: at 8:40 she opens one document. At the top, three items flagged urgent — the error rate crossed a threshold and there's already a thread discussing it, so there's a link right there. Below that, four threads where she's mentioned, each summarized in two sentences with what's expected of her. Below that, two discussions she's not in but that touch her area. At the bottom, three deadlines due this week. At 8:47 she closes the document and knows what to start with. **The difference isn't that she reads faster — the brief surfaces things she wouldn't have read at all.**
+
+## What a morning brief is — and isn't
+
+Most people hear “brief” and picture something they've already tried and that didn't work: a summary of unread messages. That distinction needs to be clear from the start, because it leads to a completely different brief.
+
+### It's not a summary of unread messages
+
+An unread summary is a **sorted inbox**. It takes fifty messages, groups them by sender or channel, and hands back fifty shortened messages. You still have to read them and still have to decide for yourself what matters. It saves you scrolling, not deciding — and deciding is the expensive part.
+
+### It's a ranked list of what needs your decision
+
+The brief is the opposite operation: out of fifty messages, three dashboards, and a calendar, it pulls **six to ten items** where something today depends on you. Not “this arrived,” but “this is waiting on your decision, and here's what happens if you skip it.”
+
+Three consequences worth knowing before you write the brief:
+
+- **Most messages never make it into the brief at all** — and that's correct. If a brief has twenty items, it isn't done — it's just a differently formatted inbox.
+- **The brief also includes things nobody sent you.** A number that crossed a threshold. A discussion where a decision about your area got made. A deadline nobody told you about today because it's not until Friday.
+- **The brief doesn't end at information — it ends at a suggestion.** Every item should say what to do with it: reply, decide, delegate, or just know.
+
+### Why no single tool can do this alone
+
+Almost every tool can summarize today. Slack summarizes a channel, mail summarizes a thread. The problem is that **a decision almost never lives in one tool**. The error rate spiked on the dashboard, the context is in a Slack thread, the deadline for fixing it is on the calendar, and the decision that triggered the whole thing is in a Notion note.
+
+That's where a cross-tool brief earns its keep: instead of four summaries from four apps, you get one list where **the number is tied to the discussion**. That's the work you do today by hand — and it's exactly the part that eats thirty minutes of your morning.
+
+The second thing a single tool won't do is **read whole threads**. A channel summary tells you what was discussed. The brief should read a thread from the start, because the meaning of the last message (“okay, let's do it”) lives entirely in what came before.
+
+And third: **threads you're not part of**. Nobody mentioned you, so you got no notification — but based on what you're working on, you should know. This is the one part of the brief you genuinely can't replace with better notification filtering.
+
+### How it differs from routines and the weekly review
+
+There are two neighboring guides on this site, and it's worth knowing which one to reach for.
+
+[Routines in Claude](/tipy/claude-rutiny-posta-kalendar) covers **scheduling** and working with mail and calendar: how connectors get added, how a routine is written, what permissions it gets, and how those get revoked again. If your question is “how do I even set up a recurring task, and what is Claude allowed to do,” that's the guide — this one deliberately skips that and points there instead.
+
+[The Friday weekly review](/tipy/ai-tydenni-prehled) is a **retrospective**: it looks back at the week that just ended, compares plan against reality, and finds things that stalled or fell off the table. A morning brief looks **forward, at a single day**, and finds things waiting for a decision today. They're two different operations and don't compete — Friday you assess the week, Monday through Friday morning you line up the day. People who set up both usually find their morning brief gets shorter, because the weekly review already clears out anything that's been dragging on.
+
+The difference in one sentence: **the weekly review answers “how did it go,” the morning brief answers “what to start with today.”**
+
+## Phase 1: before you start — what to prepare
+
+A brief is only as good as its access to data. This phase is boring and decides everything else. Budget one evening.
+
+### Step 1: list the tools the brief should read
+
+Before you touch any settings, write down a list on paper. Not a list of tools you use — a **list of places where work happens that you should know about each morning**. That's a different, much shorter list.
+
+For each tool, write one sentence: exactly what the brief needs from it. Not “Slack,” but “Slack: the three channels where product decisions get made, plus any mention of my name anywhere.” Not “mail,” but “mail: messages from clients and from leadership, not newsletters and not system notifications.”
+
+Documented example sources the brief draws on: **Slack, Gmail, Google Calendar, Notion, team dashboards, and Sentry**. You'll have your own combination — the rule for a first version is: **three sources, not five**. You can always add more; in practice, nobody ever removes any.
+
+### Step 2: connectors
+
+Tools connect through **connectors from the connector marketplace**. Once added to Claude, Claude can read from them whenever you ask.
+
+How to add a connector, what Claude sees once it's added, and how to revoke permissions is covered in the [Routines in Claude](/tipy/claude-rutiny-posta-kalendar) guide — we won't repeat it here. For an overview of **which tools even have a connector and what you can actually do with them**, see the [connector guide](/tipy/mcp-konektory-nastroje).
+
+One thing specific to the brief: **it only needs read access**. It doesn't send anything, delete anything, or write anything back. When a connector asks you to choose a permission scope, pick the narrowest one that still gives the brief data — anything wider is unnecessary risk.
+
+### Step 3: dashboards without a connector
+
+Most internal dashboards and smaller tools don't have a connector and never will. Web dashboards are reachable through the **Claude in Chrome** extension — an agent in the browser opens the page and reads what's on it.
+
+Two things to keep in mind:
+
+- **Describe the page precisely.** “Check the dashboard” isn't enough. You need: which address, which tab, which time range is set, which five numbers to read. The more specific the description, the less the brief argues with itself.
+
+### Step 4: where the brief runs — remote session, or local
+
+This is a decision worth settling up front, because it changes what you can afford to do.
+
+**Remote sessions** (in beta as of writing) run on Anthropic's servers. The practical effect: the brief is ready even with your laptop closed, and you can pick it up on your computer, the web, or your phone. For a morning brief this is the natural choice — you don't want to wait for something to start in the morning, you want to open a finished result. Per the documented setup steps, either download **Claude Desktop**, or use **Claude on the web with remote sessions (beta)**.
+
+**Local sessions** suit sensitive data: you run the session locally, so files stay on your own machine. The cost is that it only runs while your computer is running — so the brief won't be sitting there ready; you have to start it yourself in the morning.
+
+The differences between chat, Cowork, and the other ways to run Claude are covered in the [installation intro](/tipy/ai-zacatecnik-instalace-a-rozdily). For a reference description of what Cowork is for, see the [product page](https://claude.com/product/cowork); a documented walkthrough for a cross-tool brief is in the [use case on Claude Academy](https://academy.claude.com/use-cases/build-a-daily-briefing-across-your-tools).
+
+## Phase 2: the brief's structure — four blocks, and why these
+
+The documented example of a good brief has four blocks, and it's worth understanding why they come in this order. It isn't aesthetics — each block answers a different question and covers a different way something can slip past you in the morning.
+
+### Block 1: urgent items from the dashboard
+
+The sample brief phrases it as “anything red or trending down.” These are **numbers that changed for the worse** — error rate, conversion, response time, queue length, anything you track on a dashboard.
+
+Why this block comes first: it's the only category you **won't hear about through communication**. Someone sends you messages. Someone puts a meeting on your calendar. But a number that's dropped a fifth since yesterday doesn't announce itself — it waits for someone to look. And if nobody looks for three days, it's a different problem than it would have been on Monday.
+
+One thing to watch for in this block: without a defined threshold, it returns noise. “Trending down” with no number attached means the brief flags every ordinary daily fluctuation. The threshold belongs in the brief — and the whole next phase covers how to set one.
+
+### Block 2: threads where you're mentioned, read in full
+
+The second block is conversations where your name came up. The key word is **full**: the brief should read the thread from the start, not summarize the last three messages.
+
+The difference is bigger than it sounds. In a twenty-message thread, the last one is often “okay, so as we agreed.” Without the rest of the thread, that's zero information. With the rest of the thread, it's “they agreed to push it back a week, and they're waiting for you to confirm.”
+
+What this block should return for each item:
+
+- **what it's about** — one or two sentences, not a transcript of the discussion,
+- **what's expected of you** — a concrete verb: reply, decide, approve, just know,
+- **how urgent it is** — per your definition, not the tone of the message,
+- **a link** — so you can jump straight to the source in one click when you want detail.
+
+A typical failure of this block: the brief returns a summary but doesn't name what's expected of you. Then you read it and still have to open the thread. If this keeps happening, your brief is missing the line “for every item, write what action is expected of me.”
+
+### Block 3: threads you're not in, but should know about
+
+This block is the reason it's worth setting up a brief at all. The other three you could piece together by hand with a bit of discipline — this one you can't, because **you don't know there's somewhere to look**.
+
+These are discussions nobody mentioned you in, but that are relevant given what you work on and what you're responsible for. A decision about a feature you're due to ship. A complaint from a client you manage. A deadline change on something you depend on.
+
+For this block to work, the brief needs to know **what your area is**. That means the brief needs a list: what you're working on this month, which projects you run, which clients are yours, which areas belong to you. Without that, the brief either returns nothing or returns randomly picked conversations.
+
+### Block 4: tasks and deadlines this week
+
+The last block is the only one that doesn't look at today, but at a **horizon of a few days**: tasks and deadlines coming up this week.
+
+Why it isn't first: if it were at the top, it would push morning decision-making into planning. You don't want to plan your week in the morning, you want to start working. Deadlines at the end work as a **check**: you read the top three blocks, decide what to start with, then at the end verify that decision doesn't collide with something due Wednesday.
+
+Practical tip: have this block return **days remaining until the deadline**, not a date. “In two days” reads differently than “August 26,” and the difference shows in what you actually do that morning.
+
+### The block order isn't arbitrary
+
+The logic behind the order: **first what doesn't announce itself (the dashboard), then what's waiting on you (mentions), then what you'd overlook (threads you're not in), and finally a horizon check (deadlines).** Descending by how easily that category slips past you.
+
+## Phase 3: defining “urgent” — the most important section
+
+If you take exactly one thing from this whole guide, make it this. The sample brief asks you to settle four things: which channels matter, what time window to cover, how to format the output, and **what “urgent” actually means**. You'll figure out the first three in five minutes. The fourth decides whether you're still opening the brief a month from now.
+
+### Why without a definition the brief returns noise
+
+Urgency isn't a field that exists in the data anywhere. There's no “urgency” column. When you don't define it, the model **infers it from what it has** — and that's volume. Exclamation marks. The word “ASAP” in a message. Thread length. How many people are in the conversation. How fresh it is.
+
+The result is predictable: the loudest person in the company ends up at the top of the brief, and the thing that's actually on fire lands sixth, because someone wrote it in a calm sentence on a Friday afternoon. **Ranking by volume is exactly what you were trying to escape by setting up a brief** — except now it feels like a system is doing it for you, so you trust it more.
+
+There's a second, less obvious consequence: without a definition, **you have nothing to tune**. When the brief is wrong and you haven't written down what you want from it, all you can do is repeat “give me more important stuff” over and over. With a written definition, you have a specific sentence to adjust, and you can immediately see what changed.
+
+### How to write your definition
+
+Don't try to come up with a general definition of urgency. Try to describe **your own rule**. Three questions help:
+
+**Question 1: What happens if I don't deal with this today?** This is the core of it. Urgent isn't what's unpleasant or loud — urgent is where inaction has a cost. If the answer is “nothing much, it'll keep till tomorrow,” it isn't urgent, even if the CEO wrote it.
+
+**Question 2: Am I blocking someone else?** Something a colleague is waiting on so they can move forward carries different weight than something only you are waiting on. This is the single most useful criterion I know, and it's the one most people's definitions are missing.
+
+**Question 3: Is it reversible, or can it be undone?** A decision that can't be reversed in a week (a proposal sent, a date confirmed, a change deployed) ranks higher than a decision you can revisit any time.
+
+Turn your answers into **three to five sentences**. Not a paragraph, not a philosophy — rules you can apply to an item and answer yes or no. And write the **second half too: what urgent isn't.** That half tends to matter more, because it's the one that gets violated in practice.
+
+### Three examples for different roles
+
+The definition varies by role more than you'd expect. Here are three you can adapt directly.
+
+**A product manager at a software company:**
+
+```
+Urgent for me means:
+- error rate or availability crossed a threshold and customers are already
+  reporting it,
+- someone on the team is blocked and waiting on my decision,
+- a decision that affects the content of this week's planned release,
+- an escalation from a customer whose contract renews next month.
+
+Urgent does NOT mean:
+- a feature idea, no matter who wrote it,
+- a discussion about something planned for next quarter,
+- a request for a stat or report with no deadline,
+- an FYI message (typically one with no question at the end).
+```
+
+**A freelancer running five clients at once:**
+
+```
+Urgent for me means:
+- a client has been waiting more than 24 hours for my reply,
+- something is blocking an invoice or a contract signature,
+- a deliverable is due within three business days and more than an
+  hour of work remains,
+- an inquiry from a new client (goes stale fast — loses value within
+  48 hours).
+
+Urgent does NOT mean:
+- internal tasks with no external deadline (website, bookkeeping,
+  portfolio),
+- a scope discussion on a job that isn't signed yet,
+- newsletters, invoices due in more than a week,
+- feedback on work that's already finished and delivered.
+```
+
+**A developer keeping a service running:**
+
+```
+Urgent for me means:
+- a new production bug that users can see (not a known, deferred one),
+- a broken build or deploy that's blocking others,
+- a code review someone's been waiting on for more than one business
+  day,
+- a security report of any severity.
+
+Urgent does NOT mean:
+- a bug already flagged as known and scheduled for later,
+- refactoring, tech debt, architecture discussions,
+- a metric blip that recovered within the hour,
+- an alert that fires daily and has never meant anything.
+```
+
+Notice what they have in common: **none of them mentions the tone of a message or who sent it.** They talk about consequences.
+
+### What doesn't belong in the definition
+
+Three things people put in their definition that end up breaking it:
+
+- **Names.** “Anything from the CEO is urgent” looks like a reasonable shortcut, and in practice just smuggles volume-based ranking back into the brief. If you want something from a specific person always at the top, write the reason instead: “messages from the CEO that contain a question or a deadline.”
+- **Words a full-text search would catch.** “Urgent is anything containing the word urgent” means whoever writes the most dramatic message sets your urgency for you.
+- **Everything.** The most common mistake in a first definition is that it's long and covers eight categories. A definition that makes half of everything urgent isn't a definition.
+
+### Write the definition down — don't just talk it through
+
+One last practical note: **write the definition into a file** and reference it in the brief, or paste it in whole. Don't rely on having explained it once in conversation.
+
+Reason: it's the **one document doing the deciding for you when you're not there**. Five minutes spent on the definition saves five days of tuning the brief.
+
+## Phase 4: the brief, step by step
+
+Now let's put it together. The prompts are ordered the way you'll need them: the first three on day zero, the next few in the first week, the last three for specific situations. Replace the brackets with your own details.
+
+One rule for this whole phase: **don't send a perfect first brief.** Send a reasonable one and let Claude ask follow-up questions. After the first message, Claude may ask clarifying questions before building the first brief, and its questions are usually better than your guess at what you forgot to mention.
+
+### Prompt 1: the first version of the brief
+
+Send this one first, ideally when you have ten minutes free to answer follow-up questions.
+
+```text
+I want to set up a morning brief with you. I don't want a summary of
+unread messages — I want a ranked list of what needs my decision today.
+
+Context on me: I work as a [role] at a [type of company]. This month
+I'm responsible for: [project 1], [project 2], [area]. Clients or
+teams I manage: [list].
+
+Sources to check: [Slack — channels X, Y, Z], [mail — inbox A],
+[calendar], [Notion — workspace B].
+
+Structure it like this:
+1. Urgent items from the dashboard — anything red or trending down.
+2. Slack threads where I'm mentioned — read them in full for context.
+3. Threads I'm not in, but that I should know about based on my work.
+4. Tasks and deadlines this week.
+
+Before you start, tell me what you're missing and ask about anything
+you need clarified. Only then build the first version.
+```
+
+This will come back with a series of questions (typically about the time window, what counts as urgent for you, and which channels matter) followed by a first brief. That first one will almost certainly be too long — that's fine, the next prompts fix it.
+
+### Prompt 2: answering the follow-up and refining sources
+
+When Claude asks follow-up questions, don't answer in one sentence. The answers are really the second half of the brief.
+
+```text
+Answers to your questions:
+
+Time window: from 5pm yesterday to now. On Monday, from 5pm Friday.
+
+Channels that actually matter: [channel 1] (product decisions happen
+there), [channel 2] (client escalations). Only read [channel 3] and
+[channel 4] for block 3 — don't pull anything from them directly.
+
+Mail: only messages from people outside the company and from [role].
+Ignore automated system notifications entirely.
+
+People whose messages carry weight even without mentioning my name:
+[names].
+
+Once you have the brief, stick to this rule: no item without a
+suggested action — either say what I should do about it, or leave
+it out.
+```
+
+This is the moment that decides the quality of every future brief. Watch for one thing: if you list channels and forget one, the brief won't know about it. Revisit the list after a week.
+
+### Prompt 3: adding your urgency definition
+
+Paste your definition from phase 3 in full, not paraphrased.
+
+```text
+Here's my definition of urgency. Rank by this, not by the tone of
+messages, thread length, or who sent it.
+
+Urgent for me means:
+- [rule 1 — what happens if I don't deal with this today],
+- [rule 2 — who I'd be blocking],
+- [rule 3 — what's irreversible].
+
+Urgent does NOT mean:
+- [category 1],
+- [category 2],
+- [category 3].
+
+When you're not sure about an item, rank it lower and add a line at
+the end of the brief called "uncertain calls" listing it, so I can
+correct it.
+```
+
+The “uncertain calls” line is a small trick with a big payoff: you get feedback on exactly where your definition falls short, instead of having to guess from what's missing.
+
+### Prompt 4: tuning the scope
+
+After the first run or two, the brief will almost certainly be too long. Don't fix it by saying “be more concise” — cut the scope of what gets in.
+
+```text
+The brief is too long. Narrow it like this, and keep doing this going
+forward:
+
+- Block 1 (dashboard): at most 3 items, only ones that crossed the
+  [number/percent] threshold. Skip ordinary daily fluctuations.
+- Block 2 (mentions): at most 5 items. If there are more, pick the
+  ones where something's expected of me, and add a line at the end
+  of the block: "N more mentions with no action expected."
+- Block 3 (not mentioning me): at most 3 items, and only if they touch
+  [project 1] or [project 2].
+- Block 4 (deadlines): only through the end of this week, with days
+  remaining until each.
+
+The whole brief has to be readable in five minutes.
+```
+
+Item caps work better than instructions to be brief — they force a real selection instead of just shorter sentences. If the brief starts dropping something important after this, raise the cap on that one block, not on all of them.
+
+### Prompt 5: output format
+
+Deal with format only after scope, not before. Tuning the look of bad content is wasted effort.
+
+```text
+Format the brief like this:
+
+- One line at the very top: "The main thing today: [one item]."
+- Then four blocks with headings. Skip an empty block entirely —
+  instead write one sentence: "Nothing from the dashboard today."
+- Each item: a bold title (max 8 words), two sentences below it on
+  what it's about, then a line "Expected of me: [action]" and a link
+  to the source.
+- No intro, no closing summary, no pleasantries.
+- If two items are about the same thing, merge them and say so.
+
+Save the whole output as one document, so it opens fine on mobile.
+```
+
+The “the main thing today” line is the single most useful sentence in the whole brief: it forces the model to make a choice, not just sort a list. If it keeps getting this wrong, that's a sign your urgency definition needs work.
+
+### Prompt 6: adding a dashboard through Claude in Chrome
+
+Once the brief works on communication alone, add the dashboard. Not the other way around.
+
+```text
+For block 1, I want data from our dashboard, which has no connector.
+Use the Claude in Chrome extension.
+
+Steps: open [address], switch to the [tab name] tab, set the time
+range to [last 7 days], and read these metrics: [metric 1], [metric 2],
+[metric 3], [metric 4].
+
+For each one, write today's value, the percentage change from last
+week, and whether it crossed the threshold I gave you.
+
+If the page doesn't load or looks different from what I described,
+don't guess the numbers — write a line in the brief: "couldn't read
+the dashboard."
+```
+
+That last paragraph matters: without it, you risk getting numbers guessed from whatever was visible. Double-check the values by hand against the source for the first week.
+
+### Prompt 7: tying numbers to discussions
+
+This is the whole reason a cross-tool brief is worth building — and you have to ask for it explicitly, it won't happen on its own.
+
+```text
+Whenever you flag a number in block 1 that's gotten worse, always
+check whether it's already being discussed somewhere, and note that.
+
+Specifically: search [channels] and mail from the last 48 hours for
+mentions of that metric, that service, or that part of the product.
+If you find a thread, add a line to the item: "already being discussed
+here: [link], status: [one sentence]."
+
+If nothing's being discussed anywhere, write "no discussion yet" —
+that's more important information to me than the number itself.
+```
+
+“No discussion yet” is the single most valuable output of the whole brief: it means so far only a chart has noticed the problem, and the decision is waiting on you.
+
+### Prompt 8: filtering noise
+
+After a few days you'll know exactly what doesn't belong in the brief. Write it all down at once.
+
+```text
+Never include these in the brief again:
+
+- [message type 1 — e.g. automated digests from tool X],
+- threads where my name only appears in the recipient list or a
+  signature, but nobody's actually asking me anything,
+- messages like "thanks," "ok," "agreed" with no other content,
+- a recurring alert that's fired more than three times a week and
+  never amounted to anything,
+- [channel or label I watch, but not in the morning].
+
+If you're not sure whether something falls under this, put it last
+and add "borderline — should I filter this?"
+```
+
+Write filters as categories, not individual cases. Ten specific banned messages in a list is worse than one well-described rule.
+
+### Prompt 9: scoping the block for threads without you
+
+The third block needs the most tuning. This prompt gives it boundaries.
+
+```text
+Block 3 (threads I'm not in) is currently returning things I don't
+need. Narrow it like this.
+
+A thread belongs in block 3 if at least one of these is true:
+- a decision got made about [project/area] I'm responsible for,
+- the deadline or scope changed on something I depend on,
+- there's a complaint or escalation from [client/team],
+- it's about a problem I've already dealt with once before.
+
+A thread doesn't belong if it's just a discussion of options, planning
+for next quarter, or a debate between people who own that decision.
+
+For each item, add a closing line: "why I think you need to know this"
+— so I can tune this judgment.
+```
+
+That closing line is the only reasonable way to tune block 3: you see the reasoning and correct it, instead of correcting results one by one.
+
+### Prompt 10: the Monday version
+
+Monday morning is different and deserves its own brief.
+
+```text
+On Mondays, build the brief with these adjusted rules:
+
+- Time window: from 5pm Friday to now, so it includes the weekend.
+- Expand block 1: add how the metrics moved over the weekend, not
+  just today's state.
+- Expand block 4 to the full week, sorted by day, not by importance.
+- Add a block at the end, "carrying over from last week": items that
+  appeared in the brief at least three times and still aren't closed.
+- Raise the item caps by half — the Monday brief is allowed to be
+  longer.
+
+At the very end, add three suggestions for what to start the week
+with, with one sentence of reasoning for each. I'll make the call
+myself.
+```
+
+The “carrying over” block is the only part of the morning brief that looks backward — and it's the best detector of tasks that need to be cancelled or handed off. If you also run the [Friday weekly review](/tipy/ai-tydenni-prehled), skip this block; it will overlap.
+
+### Prompt 11: a regular day
+
+For Tuesday through Friday, keep a sharper, shorter version.
+
+```text
+On Tuesday through Friday, run the shortened version:
+
+- Time window: from 5pm yesterday to now.
+- At most 8 items total across all blocks.
+- Block 4: only items due by Friday.
+- No suggestions for what to start with — just the ranking.
+- On a quiet morning with nothing urgent, write one line: "nothing
+  urgent today, the biggest item is [X]" and nothing else.
+
+A short brief is a good brief. Don't pad it with items just to have
+something to read.
+```
+
+That last sentence solves a real problem: without it, the brief tends to always find something, because the structure has four blocks and an empty one looks like a mistake.
+
+### Prompt 12: the brief after time off
+
+After a week away, a regular brief is useless — you need a different operation.
+
+```text
+I was away for [7] days. Build me a return brief covering the whole
+period. Don't sort it by time — sort it by what actually concerns me.
+
+Structure:
+1. Decisions made without me that touch [my area] — what got decided
+   and by whom, one sentence each.
+2. Things waiting on me that nobody picked up — this is the most
+   important block, go through it thoroughly.
+3. Things someone else handled for me — just a list, so I know who
+   to thank and what not to double-check.
+4. What changed in the numbers over that period (dashboard, comparing
+   the first and last day).
+5. Deadlines that came and went while I was away, and where they
+   stand now.
+
+Read threads in full. If a thread is longer than 20 messages, write
+one sentence up front on how it turned out, then the details.
+```
+
+It's worth running the return brief **the evening before you're back**, not the morning you return. That way it's ready in time, and you find out if anything's on fire while there's still something you can do about it.
+
+### Prompt 13: setting it up to run in a remote session
+
+Once the brief is settled, you want it ready in the morning, not something you have to start.
+
+```text
+I want this brief ready every morning before I sit down at my computer.
+Set it up as a recurring task in a remote session, so it runs even
+with my laptop closed.
+
+Schedule: weekdays at [6:45am], output as a document I can open on
+mobile and on my computer.
+
+Have Mondays run the Monday version, Tuesday through Friday the
+shortened one. If a source fails to read, build the brief anyway from
+the rest and note at the top what's missing.
+```
+
+How recurring tasks get set up, managed, and have their permissions revoked is covered in full in the [Routines in Claude](/tipy/claude-rutiny-posta-kalendar) guide. One thing specific to the brief: **schedule it to finish at least fifteen minutes before you'd open it.**
+
+### Prompt 14: an audit — why is that item there
+
+Every few weeks, it's worth asking the brief about its own work.
+
+```text
+Take the briefs from the last ten business days and give me a
+breakdown:
+
+- Which items showed up in three or more briefs? For each, say why
+  you think it keeps coming back.
+- Which categories of items did I apparently ignore — they were in
+  the brief but I never acted on them or mentioned them afterward?
+- Which block was most often empty or shortest?
+- Where were you least confident about how to rank something?
+
+Based on that, suggest three specific changes to the brief. For each,
+say what would be lost — I don't want changes that just shrink it.
+```
+
+The line “say what would be lost” prevents the most common tuning failure: the brief slowly shrinking into uselessness because every change was a narrowing. Read the suggestions and use one, not all three.
+
+## Phase 5: the first week — tuning the brief
+
+The first brief won't be good, and there's no point being upset about it. What matters is knowing what to do each day.
+
+### Days 1 and 2: just cut
+
+For the first two days, don't add anything. Read the brief with a pencil and ask one question about each item: **did I use it for anything?** Whatever you didn't use goes into prompt 8 as a filter.
+
+### Days 3 and 4: add what was missing
+
+Now, and only now, ask the opposite question: **what did I learn from somewhere else today that should have been in the brief?** This is rarer and more valuable feedback than cutting — and you'll only catch it if you note it down that evening.
+
+When something was missing, look for the cause in this order: missing source (the channel isn't on the list), missing context (Claude doesn't know it's your area), missing definition (it doesn't count as urgent, even though it should). Almost always it's one of the first two.
+
+### Day 5: consolidate the brief
+
+On Friday, rewrite the brief clean — the whole thing, not a stack of patches. A brief built out of ten separate fixes starts contradicting itself and becomes miserable to tune. Save it to a file and run with it from Monday.
+
+### When the brief is too long
+
+Three practical signs it needs narrowing:
+
+- **You're reading it for more than five minutes.** Past five minutes you start skimming, and within two weeks you stop opening it.
+- **You're scrolling.** If the brief doesn't fit on one mobile screen, it isn't a brief anymore — it's a report.
+
+The reverse signal matters just as much: **a brief that's never urgent about anything is also broken.** Either your definition is too strict, or the brief isn't connected to the source where urgent things actually originate.
+
+## When a morning brief doesn't work
+
+This section exists so it doesn't cost you a month trying to make something work that can't, in your situation.
+
+### When you have only one tool connected
+
+The whole value of a brief is in connecting things. If everything runs through mail and you have nothing else connected, the brief just hands you back a sorted inbox — and labels, filters, and rules in your mail app already do that better, faster, and with no setup. For a one-off comparison of a single long conversation, a [thread summary](/tipy/ai-shrnuti-vlakna) is enough.
+
+A rule of thumb that holds up: **under three sources, a brief isn't worth it.**
+
+### When you can't name your priorities
+
+The brief ranks things by your definition of urgency. If you don't know what matters to you this month, the definition will be vague and the brief will return a weighted average of everything. That's not a tool failure — it's a task that can't be delegated.
+
+You'll know it when you try: finish the sentence “urgent for me means” to the end. If you get stuck, start there, not with the brief. Sometimes it helps to write a [weekly review](/tipy/ai-tydenni-prehled) first and let priorities emerge from whatever keeps recurring.
+
+### When your work doesn't run through chat
+
+A tradesperson, a sales rep, a doctor, a teacher at a whiteboard — when decisions happen by phone, in person, or in the field, the brief has nothing to draw on. Connected tools don't capture what happened on-site.
+
+There's a workaround, but it's a different discipline: dictate three sentences into one note after every call and have the brief read that note. It works, but don't fool yourself that you've set up a brief — you've set up a log, which is extra work that has to earn its keep.
+
+### When the team decides somewhere you're not looking
+
+The last case is sneaky, because it looks like a badly configured brief. If real decisions at your company happen in the hallway, on an unrecorded call, or in two private messages, the brief will report the formal traffic and miss what actually matters. No brief can fix that. Either where decisions get made changes, or the brief stays a nice-to-have.
+
+## Security and sensitive data
+
+The brief reads a lot of things at once, and that's worth a few minutes of thought.
+
+**What to give the brief.** Operational communication, dashboard numbers, calendar, tasks — things that already live in cloud tools you have access to anyway.
+
+**What not to give it.** HR matters, payroll, health information, contracts before signing, anything under NDA, and inboxes that aren't yours. In practice, that means naming the specific channels and labels the brief should read in the brief itself — not handing it a whole inbox and hoping it picks well. **An explicit list is safer than a ban.**
+
+**A local session for sensitive data.** When the brief works with material you don't want sent anywhere, run the session locally — files stay on your machine. The cost is that the brief won't be ready ahead of time; treat that as a deliberate trade-off, not a shortcoming.
+
+**Company policy overrides this guide.** Before connecting work Slack or mail, check what AI tools are allowed to read at your company, and on which type of account. Sensitive data belongs exclusively on a paid or business account with contractual data protection. And if you're not sure whether you're allowed to connect a particular source, ask before you connect it — removing a connector is easy; undoing what it already read isn't.
+
+**And one line with no exceptions:** the brief only reads and suggests. It never replies for you, sends anything, deletes anything, or confirms anything. AI proposes, a human approves — and with a brief that matters even more, since it's read at 6:40 in the morning, exactly when people are least likely to double-check anything.
+
+## Common mistakes
+
+- **A brief with no urgency definition.** The most expensive mistake in this whole guide: the brief ranks by volume, and you get used to trusting an order nobody actually set.
+- **Five sources on the first try.** With five tools connected at once, you can't tell which one is producing the noise. Three sources, a week, then add one at a time.
+- **Tuning for brevity instead of scope.** “Be more concise” shortens the sentences and leaves the same number of unimportant items. Item caps per block work.
+- **A brief with no suggested action.** An item with nothing written about what's expected of you means you still have to open the source — and that's most of the savings gone.
+- **Blind trust in dashboard numbers.** Spot-check data read through the browser against the source for the first few days, especially the numbers you're actually deciding on.
+- **The brief as a second inbox.** If you read it and then go through Slack and mail in full anyway, you haven't set up a brief — you've added extra work.
+
+## The best tools
+
+- **Claude Cowork** — the environment the brief runs in: it connects connectors, works through your tools, and builds one ranked overview instead of four separate summaries.
+- **Connectors from the marketplace** — the link to Slack, Gmail, Google Calendar, Notion, and other sources the brief draws on; it only needs read access.
+- **Claude in Chrome** — the way to reach web dashboards with no connector: an agent opens the page and reads the metrics you describe.
+- **Remote sessions (beta)** — runs on Anthropic's servers, so the brief is ready even with your laptop closed, and you can pick it up on your computer, the web, or your phone.
+- **Local sessions** — the option for sensitive data, keeping files on your own machine; the brief then runs whenever your computer does.
+- **A file with your urgency definition** — an ordinary text document that turns out to be the single most important part of the whole setup.
+
+## What you get out of it
+
+- **Time:** the morning ritual of assembling a picture from four tools (typically 25-35 minutes) shrinks to five minutes of reading. Over a year that's dozens of hours — but the better part is that these are minutes at the start of the day, when you have the most energy.
+- **Money:** indirectly, through things caught early: a number that gets addressed Tuesday instead of Thursday, a client escalation that never gets a chance to build. Don't expect it to show up on an invoice — expect less firefighting.
+- **Peace of mind:** the nagging feeling that something slipped past you goes away. The block covering threads you're not in is the one mechanism that actually reduces that specific worry.
+- **Better decisions:** you start the day deciding by written rules instead of by whatever happened to be on top of the inbox. The difference shows most on the days there's simply too much going on.
+
+## Pro tip
+
+Once a week, have the brief **built for someone else** too — a colleague you manage, or a project, instead of yourself. The brief is the same; you just swap the urgency definition and the topic list. Two things fall out of that: you see where your own rules are unclear once a different context has to apply them, and you get material for a conversation you'd otherwise be having from memory.
+
+And a closing rule that outlives every change of tools: **a brief should end in a decision, not an overview.** If you close it and still don't know what to start with, it wasn't a brief — it was just an inbox you read a bit faster. On a day like that, don't fix the format. Fix the definition of “urgent.”
