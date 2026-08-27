@@ -1,0 +1,674 @@
+---
+title: "Ranní brief: co dnes čeká na rozhodnutí"
+excerpt: "Kompletní návod se 14 prompty: Claude Cowork projde Slack, poštu, kalendář i dashboard a ráno vám dá seřazený přehled toho, co dnes čeká na vás."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "vyvojar"]
+keys: []
+saves: "~30 min denně"
+date: "2026-08-24"
+updated: "2026-08-24"
+tldr: >-
+  Ranní brief není souhrn nepřečtených zpráv, ale seřazený seznam toho, co dnes vyžaduje vaše rozhodnutí. Není to tlačítko v aplikaci — je to způsob použití Claude Cowork: napojíte konektory na Slack, poštu, kalendář a Notion, na dashboardy bez konektoru pustíte Claude v Chromu a necháte si sestavit čtyři bloky — urgentní z dashboardu, vlákna se zmínkou čtená celá, vlákna bez vás, ale relevantní, a termíny tento týden. Celý návod stojí na jedné sekci: dokud si nenapíšete, co přesně pro vás znamená „urgentní“, vrací brief šum.
+faq:
+  - q: >-
+      Je ranní brief samostatná funkce, kterou někde zapnu?
+    a: >-
+      Ne. Je to způsob použití Claude Cowork: napojíte nástroje přes konektory a zadáte, co má Claude projít a jak to seřadit. Žádné tlačítko „ranní brief“ v aplikaci nehledejte — hledáte konektory a dobře napsané zadání.
+  - q: >-
+      Čím se liší od souhrnu nepřečtených zpráv?
+    a: >-
+      Souhrn nepřečtených je setříděná schránka — pořád ji musíte přečíst vy. Brief je seznam věcí, které dnes čekají na vaše rozhodnutí, seřazený podle toho, co se stane, když je neuděláte. Většina nepřečtených zpráv se do briefu vůbec nedostane.
+  - q: >-
+      Co znamená, že brief běží ve vzdálené relaci?
+    a: >-
+      Vzdálené relace (v době psaní v betě) běží na serverech Anthropicu, takže brief je hotový, i když máte zavřený notebook, a navazujete na něj napříč počítačem, webem i mobilem. U citlivých dat se dá relace pustit lokálně, aby soubory zůstaly na vašem stroji.
+  - q: >-
+      Proč se tolik řeší definice slova „urgentní“?
+    a: >-
+      Protože urgentnost není údaj v datech. Bez vaší definice model odvodí naléhavost z hlasitosti — z počtu vykřičníků, délky vlákna a čerstvosti zprávy. Napsaná definice („urgentní = blokuje někoho jiného, nebo má dnešní termín“) je ta jediná věc, která odděluje použitelný brief od setříděného šumu.
+  - q: >-
+      Co když mám dashboard, který nemá konektor?
+    a: >-
+      Na webové dashboardy bez konektoru se dá dosáhnout přes rozšíření Claude v Chromu. V zadání pak přesně popište, kterou stránku otevřít a co z ní číst — a čísla, o která se opíráte v rozhodování, si po prvních dnech namátkově ověřte proti zdroji.
+  - q: >-
+      Kdy ranní brief nemá smysl zavádět?
+    a: >-
+      Když máte napojený jen jeden nástroj (tam stačí ten nástroj otevřít), když si nedokážete pojmenovat priority na tento měsíc, nebo když vaše práce nechodí přes chat a e-mail — u zakázek vyřizovaných telefonem nebo osobně brief nemá z čeho čerpat.
+---
+
+Ráno u počítače neztrácíte čas prací. Ztrácíte ho **skládáním obrázku**: Slack, pošta, kalendář, dashboard, zpátky do Slacku, protože v tom prvním kanálu bylo něco, co teď dává jiný smysl. Když se konečně rozhodnete, čím začít, je za deset minut deset a nejlepší část dne je pryč.
+
+Ranní brief je odpověď na tohle konkrétní plýtvání. Není to funkce s tlačítkem — je to způsob použití Claude Cowork: Claude se napojí na vaše nástroje, projde je za vás a sestaví **jeden strukturovaný přehled priorit** dřív, než se posadíte. Tři věci na tom stojí a žádnou z nich neumí jeden nástroj sám: čte **celá vlákna**, ne poslední zprávu; vytáhne i **diskuze, ve kterých vůbec nefigurujete**, ale podle vašich úkolů byste o nich vědět měli; a **propojuje data napříč nástroji** — číslo z dashboardu naváže na vlákno, ve kterém se to řešilo.
+
+Návod vede od nuly k briefu, který ráno otevřete a za pět minut víte, čím začnete. Projdeme přípravu nástrojů, čtyři bloky doložené struktury, čtrnáct promptů k okopírování a první týden ladění. Nejdůležitější sekce je ta o definici slova „urgentní“ — bez ní dostanete jen rychleji setříděný šum. Poctivě se podíváme i na to, **kdy brief nefunguje**, protože to jsou tři docela běžné situace.
+
+## Vzorová situace
+
+Petra vede produkt v menší softwarové firmě. Její ráno vypadá takhle: v 8:40 otevře notebook, do 8:52 projíždí Slack — šest kanálů, ve třech je zmíněná, ve dvou se přes noc rozjela diskuze, kterou musí prolistovat odzadu, aby pochopila, na čem se domluvili. V 8:52 přepne na poštu: devatenáct nových zpráv, tři z nich něco chtějí, zbytek jsou notifikace a kopie. V 9:01 kalendář: dvě schůzky, na jednu neví, jestli má něco připravit. V 9:05 dashboard: konverze, chybovost, fronta podpory — čtyři čísla, u kterých si musí sama vzpomenout, jaká byla minulý týden.
+
+V 9:12 má obrázek hotový a začíná pracovat. **Třicet dva minut denně, sto padesát minut týdně, jedenáct hodin za čtvrtletí** — a to je jen sběr. Skutečná daň je jinde: obrázek se skládá pokaždé znovu a nikdy není úplný. Diskuze, ve které Petra není zmíněná, ale která se týká funkce, kterou má tento týden odevzdat, jí unikne. Zjistí to ve čtvrtek na schůzce, kde se ukáže, že se dva dny řešilo něco, co už bylo rozhodnuté.
+
+Po zavedení briefu vypadá její ráno takhle: v 8:40 otevře jeden dokument. Nahoře tři položky označené jako urgentní — chybovost přeskočila práh a v jednom vlákně se to už řeší, takže je u ní rovnou odkaz. Pod tím čtyři vlákna, kde je zmíněná, každé shrnuté do dvou vět s tím, co se od ní čeká. Pod tím dvě diskuze, ve kterých není, ale týkají se jejího tématu. Dole tři termíny do konce týdne. V 8:47 zavírá dokument a ví, čím začne. **Rozdíl není v tom, že by četla rychleji — brief čte věci, které by nepřečetla vůbec.**
+
+## Co ranní brief je a co není
+
+Většina lidí si pod slovem „brief“ představí něco, co už zkusili a co jim nefungovalo: souhrn nepřečtených zpráv. Tenhle rozdíl je potřeba mít jasný hned na začátku, protože z něj plyne úplně jiné zadání.
+
+### Není to souhrn nepřečtených zpráv
+
+Souhrn nepřečtených je **setříděná schránka**. Vezme padesát zpráv, seskupí je podle odesílatele nebo kanálu a vrátí padesát zkrácených zpráv. Pořád je musíte přečíst vy a pořád musíte sami rozhodnout, co je z toho důležité. Ušetří vám scrollování, neušetří vám rozhodování — a rozhodování je ta drahá část.
+
+### Je to seřazený seznam toho, co vyžaduje vaše rozhodnutí
+
+Brief je opačná operace: z padesáti zpráv, tří dashboardů a kalendáře vytáhne **šest až deset položek**, u kterých dnes něco záleží na vás. Ne „přišlo vám tohle“, ale „tohle čeká na vaše rozhodnutí a stane se tohle, když je neuděláte“.
+
+Tři důsledky, které stojí za to si uvědomit dřív, než začnete psát zadání:
+
+- **Většina zpráv se do briefu vůbec nedostane** a je to správně. Když má brief dvacet položek, není hotový — je to jen jinak naformátovaná schránka.
+- **Do briefu patří i věci, které nikdo neposlal vám.** Číslo, které přeskočilo práh. Diskuze, kde padlo rozhodnutí o vašem tématu. Termín, o kterém vám dnes nikdo nenapsal, protože je až v pátek.
+- **Brief nekončí u informace, končí u návrhu.** U každé položky má být, co s tím — odpovědět, rozhodnout, delegovat, nebo jen vědět.
+
+### Proč to nezvládne jeden nástroj sám
+
+Souhrny umí dnes skoro každý nástroj. Slack shrne kanál, pošta shrne vlákno. Problém je, že **rozhodnutí skoro nikdy nesedí v jednom nástroji**. Chybovost vyskočila v dashboardu, souvislost je ve vlákně na Slacku, termín, do kdy se to musí vyřešit, je v kalendáři, a rozhodnutí, které to celé vyvolalo, je v poznámce v Notionu.
+
+Tady je hodnota briefu napříč nástroji: nedostanete čtyři souhrny ze čtyř aplikací, dostanete jeden seznam, ve kterém je **číslo navázané na diskuzi**. To je práce, kterou dnes děláte vy — a je to přesně ta část, která vám ráno sežere těch třicet minut.
+
+Druhá věc, kterou jednotlivý nástroj neudělá, je **čtení celých vláken**. Souhrn kanálu vám řekne, o čem se mluvilo. Brief má přečíst vlákno od začátku, protože význam poslední zprávy („tak jo, jdeme do toho“) je celý v tom, co bylo předtím.
+
+A třetí: **vlákna, ve kterých nefigurujete**. Nikdo vás nezmínil, takže vám nepřijde notifikace — ale podle toho, na čem pracujete, byste o tom vědět měli. Tohle je jediná část briefu, kterou opravdu nemůžete nahradit lepším tříděním notifikací.
+
+### Čím se liší od rutin a od týdenního přehledu
+
+Na tomhle webu jsou dva sousední návody a stojí za to vědět, který kdy použít.
+
+[Rutiny v Claude](/tipy/claude-rutiny-posta-kalendar) jsou o **spouštění podle rozvrhu** a o práci s poštou a kalendářem: jak se konektory přidávají, jak se rutina zadává, jaká oprávnění dostane a jak se zase odeberou. Když se chcete ptát „jak vůbec nastavit opakovanou úlohu a co u toho Claude smí“, je to ten návod — tady se tomu záměrně nevěnujeme a odkazujeme.
+
+[Týdenní přehled v pátek](/tipy/ai-tydenni-prehled) je **bilance**: dívá se dozadu na uplynulý týden, porovnává plán se skutečností a hledá věci, které uvázly nebo spadly ze stolu. Ranní brief se dívá **dopředu na jeden den** a hledá věci, které dnes čekají na rozhodnutí. Jsou to dvě různé operace a nekonkurují si — v pátek si vyhodnocujete týden, v pondělí až pátek ráno si srovnáváte den. Kdo si zavede oba, mívá ranní brief kratší, protože týdenní přehled už jednou za týden pročistí, co se táhne.
+
+Rozdíl v jedné větě: **týdenní přehled odpovídá na „jak to šlo“, ranní brief na „čím dnes začít“.**
+
+## Fáze 1: než začnete — co si připravit
+
+Brief je tak dobrý, jak dobrý má přístup k datům. Tahle fáze je nudná a rozhoduje o všem ostatním. Počítejte s jedním večerem.
+
+### Krok 1: seznam nástrojů, které má brief číst
+
+Než sáhnete na jakékoli nastavení, napište si na papír seznam. Ne seznam nástrojů, které používáte — **seznam míst, kde vzniká práce, o které byste ráno měli vědět**. To je jiný a mnohem kratší seznam.
+
+Ke každému nástroji si připište jednu větu: co konkrétně z něj brief potřebuje. Ne „Slack“, ale „Slack: tři kanály, kde se rozhoduje o produktu, plus zmínky mého jména kdekoli“. Ne „pošta“, ale „pošta: zprávy od klientů a od vedení, ne newslettery a ne notifikace ze systémů“.
+
+Doložené příklady zdrojů, ze kterých brief čerpá: **Slack, Gmail, Kalendář Google, Notion, týmové dashboardy a Sentry**. Vy budete mít svou vlastní kombinaci — pravidlo pro první verzi zní: **tři zdroje, ne pět**. Přidávat se dá kdykoli, ubírat se v praxi zapomíná.
+
+### Krok 2: konektory
+
+Napojení nástrojů jde přes **konektory z marketplace konektorů**. Přidají se do Claude a od té chvíle z nich může Claude číst, když ho o to požádáte.
+
+Postup přidávání konektoru, co u toho Claude vidí a jak se oprávnění zase odebírá, je rozepsaný v návodu o [rutinách v Claude](/tipy/claude-rutiny-posta-kalendar) — tady ho nebudeme opakovat. Přehled toho, **které nástroje konektor vůbec mají a co s nimi reálně jde**, najdete v [průvodci konektory](/tipy/mcp-konektory-nastroje).
+
+Pro brief platí jedno navíc: **brief potřebuje jen právo číst**. Nic neodesílá, nic nemaže, nic nikam nezapisuje. Když u nějakého konektoru volíte rozsah oprávnění, volte to nejužší, které dá briefu data — cokoli nad to je zbytečné riziko.
+
+### Krok 3: dashboardy, které konektor nemají
+
+Většina interních dashboardů a menších nástrojů konektor nemá a mít nebude. Na webové dashboardy se dá dosáhnout přes rozšíření **Claude v Chromu** — agent v prohlížeči otevře stránku a přečte, co je na ní.
+
+Dvě věci k tomu:
+
+- **Popište stránku přesně.** „Podívej se na dashboard“ nestačí. Potřebujete: která adresa, která záložka, které období je nastavené, kterých pět čísel má číst. Čím konkrétnější popis, tím míň se bude brief hádat sám se sebou.
+
+### Krok 4: kde brief poběží — vzdálená relace, nebo lokálně
+
+Tohle je rozhodnutí, které si vyřešte hned, protože mění, co si můžete dovolit.
+
+**Vzdálené relace** (v době psaní v betě) běží na serverech Anthropicu. Praktický dopad: brief je hotový, i když máte zavřený notebook, a navazujete na něj napříč počítačem, webem i mobilem. Pro ranní brief je to ta přirozená volba — ráno nechcete čekat, až se něco spustí, chcete otevřít hotový výsledek. Podle doložených kroků nastavení stačí buď stáhnout **Claude Desktop**, nebo použít **Claude na webu se vzdálenými relacemi (beta)**.
+
+**Lokální relace** se hodí u citlivých dat: relaci pustíte lokálně, aby soubory zůstaly na vašem stroji. Cenou je, že běží jen tehdy, když počítač běží — takže brief nebude čekat hotový, spustíte si ho ráno sami.
+
+Rozdíly mezi chatem, Coworkem a dalšími způsoby, jak Claude spustit, rozebírá [úvod do instalace](/tipy/ai-zacatecnik-instalace-a-rozdily). Referenční popis toho, k čemu je Cowork určený, najdete na [stránce produktu](https://claude.com/product/cowork); doložený postup pro brief napříč nástroji je popsaný v [use case na Claude Academy](https://academy.claude.com/use-cases/build-a-daily-briefing-across-your-tools).
+
+## Fáze 2: struktura briefu — čtyři bloky a proč zrovna tyhle
+
+Doložená ukázka dobrého zadání má čtyři bloky a stojí za to rozumět, proč jsou zrovna v tomhle pořadí. Není to estetika — každý blok odpovídá na jinou otázku a každý řeší jiný způsob, jak vám může ráno něco uniknout.
+
+### Blok 1: urgentní věci z dashboardu
+
+Formulace ze vzorového zadání zní „cokoli červeného nebo klesajícího“. Jde o **čísla, která se změnila k horšímu** — chybovost, konverze, doba odezvy, fronta, cokoli, co v dashboardu sledujete.
+
+Proč je tenhle blok první: je to jediná kategorie, o které se **nedozvíte z komunikace**. Zprávy vám někdo pošle. Schůzku vám někdo založí. Ale číslo, které od včerejška kleslo o pětinu, se neohlásí — čeká, až se na něj někdo podívá. A když se na něj nikdo nepodívá tři dny, je z toho jiný problém, než by byl v pondělí.
+
+Na co si dát u tohohle bloku pozor: bez definovaného prahu vrací šum. „Klesající“ bez čísla znamená, že vám brief nahlásí každý běžný denní výkyv. Práh patří do zadání — a jak si ho stanovit, řeší celá další fáze.
+
+### Blok 2: vlákna, kde jste zmíněni, čtená celá
+
+Druhý blok jsou konverzace, ve kterých padlo vaše jméno. Zásadní je slovo **celá**: brief má vlákno přečíst od začátku, ne shrnout poslední tři zprávy.
+
+Rozdíl je větší, než se zdá. Ve vlákně o dvaceti zprávách je poslední často „ok, tak jak jsme se domluvili“. Bez zbytku vlákna je to nulová informace. Se zbytkem vlákna je to „domluvili se, že to odložíte o týden, a čeká se, až to potvrdíte“.
+
+Co má tenhle blok vracet u každé položky:
+
+- **o co jde** — jedna až dvě věty, ne přepis diskuze,
+- **co se čeká od vás** — konkrétní sloveso: odpovědět, rozhodnout, schválit, jen vědět,
+- **jak je to naléhavé** — podle vaší definice, ne podle tónu zprávy,
+- **odkaz** — abyste mohli jedním klikem do zdroje, když chcete detail.
+
+Typické selhání tohohle bloku: brief vrátí shrnutí, ale nepojmenuje, co se od vás čeká. Pak ho čtete a stejně musíte otevřít vlákno. Když se vám tohle děje, chybí v zadání věta „u každé položky napiš, jaká akce se ode mě očekává“.
+
+### Blok 3: vlákna, ve kterých nefigurujete, ale měli byste o nich vědět
+
+Tenhle blok je důvod, proč se brief vyplatí zavádět. Zbylé tři si při troše disciplíny poskládáte i ručně — tenhle ne, protože **nevíte, že máte kam se dívat**.
+
+Jde o diskuze, kde vás nikdo nezmínil, ale podle toho, na čem pracujete a co máte na starosti, jsou pro vás relevantní. Rozhodnutí o funkci, kterou máte odevzdat. Stížnost klienta, kterého vedete. Změna termínu u věci, na kterou navazujete.
+
+Aby tenhle blok fungoval, musí brief vědět, **co je vaše téma**. To znamená, že do zadání patří seznam: na čem pracujete tento měsíc, které projekty vedete, které klienty máte, které oblasti jsou vaše. Bez toho vám brief buď nevrátí nic, nebo vrátí náhodně vybrané konverzace.
+
+### Blok 4: úkoly a termíny tento týden
+
+Poslední blok je jediný, který se nedívá na dnešek, ale na **horizont několika dnů**. Úkoly a termíny, které spadnou tento týden.
+
+Proč není první: kdyby byl nahoře, přetlačí ranní rozhodování do plánování. Vy ráno nechcete plánovat týden, chcete začít pracovat. Termíny na konci fungují jako **kontrola**: přečtete si tři horní bloky, rozhodnete se, čím začnete, a pak si na konci ověříte, jestli to rozhodnutí nekoliduje s něčím, co má termín ve středu.
+
+Praktická rada: tenhle blok si nechte vracet **s počtem dnů do termínu**, ne s datem. „Za dva dny“ se čte jinak než „26. srpna“ a rozdíl je vidět na tom, co ráno uděláte.
+
+### Pořadí bloků není náhodné
+
+Logika za pořadím: **nejdřív to, co se neohlásí samo (dashboard), pak to, co čeká na vás (zmínky), pak to, co byste přehlédli (vlákna bez vás), a nakonec kontrola horizontu (termíny).** Sestupně podle toho, jak snadno vám daná kategorie unikne.
+
+## Fáze 3: definice slova „urgentní“ — nejdůležitější sekce
+
+Když z celého návodu uděláte jen jednu věc, ať je to tahle. Ve vzorovém zadání se má určit čtvero: které kanály jsou důležité, jaké období pokrýt, jak výstup naformátovat a **co přesně znamená „urgentní“**. První tři si domyslíte za pět minut. Ten čtvrtý rozhoduje o tom, jestli brief budete za měsíc ještě otevírat.
+
+### Proč bez definice brief vrací šum
+
+Urgentnost není údaj, který by v datech někde byl. Nikde není sloupeček „naléhavost“. Když ji nedefinujete, model ji **odvodí z toho, co má** — a to je hlasitost. Vykřičníky. Slovo „ASAP“ ve zprávě. Délka vlákna. Počet lidí v konverzaci. Čerstvost.
+
+Výsledek je předvídatelný: nahoře v briefu bude nejhlasitější člověk ve firmě a věc, která opravdu hoří, bude šestá, protože ji někdo napsal klidnou větou v pátek odpoledne. **Řízení podle hlasitosti je přesně to, čemu jste se chtěli briefem vyhnout** — jen teď máte pocit, že to za vás dělá systém, takže tomu věříte víc.
+
+Druhý, méně nápadný důsledek: bez definice **nemáte co ladit**. Když je brief špatný a vy nemáte napsáno, co po něm chcete, nezbývá než dokola opakovat „dávej mi důležitější věci“. S napsanou definicí máte konkrétní větu, kterou upravíte, a hned vidíte, co se změnilo.
+
+### Jak si definici napsat
+
+Nesnažte se vymyslet obecnou definici naléhavosti. Snažte se popsat **svoje pravidlo**. Pomůžou tři otázky:
+
+**Otázka 1: Co se stane, když se tomu dnes nebudu věnovat?** Tohle je jádro. Urgentní není to, co je nepříjemné nebo hlasité — urgentní je to, kde má nečinnost cenu. Když odpověď zní „nic zvláštního, počká to do zítřka“, není to urgentní, i kdyby to psal ředitel.
+
+**Otázka 2: Blokuju tím někoho jiného?** Věc, na kterou čeká kolega, aby mohl pokračovat, má jinou váhu než věc, na kterou čekáte jen vy. Tohle je nejužitečnější jediné kritérium, jaké znám, a většině lidí v definici chybí.
+
+**Otázka 3: Je to nevratné, nebo to jde vzít zpátky?** Rozhodnutí, které se za týden nedá otočit (odeslaná nabídka, potvrzený termín, nasazená změna), patří výš než rozhodnutí, které se dá kdykoli přehodnotit.
+
+Z odpovědí sestavte **tři až pět vět**. Ne odstavec, ne filozofii — pravidla, která jde aplikovat na položku a odpovědět ano/ne. A napište i **druhou polovinu: co urgentní není.** Ta bývá důležitější, protože ta se v praxi porušuje.
+
+### Tři příklady pro různé profese
+
+Definice se liší profesi od profese víc, než by člověk čekal. Tady jsou tři, které si můžete rovnou upravit.
+
+**Produktová manažerka v softwarové firmě:**
+
+```
+Urgentní pro mě znamená:
+- chybovost nebo dostupnost překročila práh a zákazníci to už hlásí,
+- někdo z týmu je zablokovaný a čeká na moje rozhodnutí,
+- rozhodnutí, které ovlivní obsah releasu naplánovaného na tento týden,
+- eskalace od zákazníka, který má na příští měsíc obnovu smlouvy.
+
+Urgentní NENÍ:
+- nápad na novou funkci, i kdyby ho psal kdokoli,
+- diskuze o něčem, co je v plánu na příští čtvrtletí,
+- žádost o statistiku nebo report bez termínu,
+- zpráva, která je jen na vědomí (typicky bez otázky na konci).
+```
+
+**Freelancer, který vede pět klientů zároveň:**
+
+```
+Urgentní pro mě znamená:
+- klient čeká na moji odpověď víc než 24 hodin,
+- něco blokuje fakturaci nebo podpis smlouvy,
+- termín odevzdání je do tří pracovních dnů a zbývá víc než hodina práce,
+- poptávka od nového klienta (zastarává rychle, do 48 hodin ztrácí cenu).
+
+Urgentní NENÍ:
+- interní úkoly bez vnějšího termínu (web, účetnictví, portfolio),
+- diskuze o rozsahu u zakázky, která ještě není podepsaná,
+- newslettery, faktury k zaplacení s termínem dál než týden,
+- zpětná vazba na hotovou a odevzdanou práci.
+```
+
+**Vývojář, který drží službu v provozu:**
+
+```
+Urgentní pro mě znamená:
+- nová chyba v produkci, kterou vidí uživatelé (nikoli známá a odložená),
+- padající build nebo nasazení, které blokuje ostatní,
+- code review, na které někdo čeká víc než jeden pracovní den,
+- bezpečnostní hlášení jakékoli závažnosti.
+
+Urgentní NENÍ:
+- chyba označená jako známá a naplánovaná na později,
+- refaktoring, technický dluh, diskuze o architektuře,
+- výkyv v metrikách, který se do hodiny vrátil zpět,
+- upozornění, které se opakuje denně a nikdy nic neznamenalo.
+```
+
+Všimněte si, co mají společné: **žádná z nich nemluví o tónu zprávy ani o tom, kdo ji poslal.** Mluví o následku.
+
+### Co do definice nepatří
+
+Tři věci, které do definice lidi dávají a které ji rozbíjejí:
+
+- **Jména.** „Cokoli od ředitele je urgentní“ vypadá jako rozumná zkratka a ve skutečnosti jen přenáší řízení podle hlasitosti do zadání. Když chcete, aby něco od konkrétního člověka bylo vždy nahoře, napište důvod: „zprávy od ředitele, které obsahují otázku nebo termín“.
+- **Slova, která hledá full-textové vyhledávání.** „Urgentní je všechno, kde je slovo urgentní“ znamená, že vaši naléhavost bude nastavovat ten, kdo píše nejdramatičtěji.
+- **Všechno.** Nejčastější chyba prvních definic je, že jsou dlouhé a zahrnují osm kategorií. Definice, podle které je urgentní polovina věcí, není definice.
+
+### Definici pište, ne domlouvejte
+
+Poslední praktická poznámka: definici **napište do souboru** a v zadání se na ni odkazujte, případně ji do zadání vkládejte celou. Nespoléhejte na to, že jste ji jednou vysvětlili v konverzaci.
+
+Důvod: je to **jediný dokument, který za vás dělá rozhodnutí, když u toho nejste**. Pět minut práce na definici ušetří pět dní ladění zadání.
+
+## Fáze 4: zadání krok za krokem
+
+Teď to sestavíme. Prompty jsou seřazené tak, jak je budete potřebovat: první tři v den nula, další v prvním týdnu, poslední tři pro konkrétní situace. Hranaté závorky nahraďte svým.
+
+Jedno pravidlo pro celou fázi: **neposílejte první zadání dokonalé.** Pošlete rozumné a nechte si doptat. Claude si po prvním zadání může doptat upřesňující otázky, než brief poprvé sestaví, a jeho otázky bývají lepší než váš odhad, co jste zapomněli napsat.
+
+### Prompt 1: první verze briefu
+
+Tenhle prompt pošlete jako úplně první, ideálně v době, kdy máte deset minut na odpovídání na doptání.
+
+```text
+Chci si u tebe zavést ranní brief. Nechci souhrn nepřečtených zpráv —
+chci seřazený seznam toho, co dnes vyžaduje moje rozhodnutí.
+
+Kontext o mně: pracuju jako [role] v [typ firmy]. Tenhle měsíc mám na
+starosti: [projekt 1], [projekt 2], [oblast]. Klienti nebo týmy, které
+vedu: [seznam].
+
+Zdroje, které máš projít: [Slack — kanály X, Y, Z], [pošta — schránka A],
+[kalendář], [Notion — prostor B].
+
+Sestav to takto:
+1. Urgentní věci z dashboardu — cokoli červeného nebo klesajícího.
+2. Vlákna na Slacku, kde jsem zmíněný — přečti je celá kvůli kontextu.
+3. Vlákna, ve kterých nejsem, ale podle mých úkolů bych o nich měl vědět.
+4. Úkoly a termíny tento týden.
+
+Než začneš, řekni mi, co ti k tomu chybí, a zeptej se na všechno, co
+potřebuješ upřesnit. Teprve pak sestav první verzi.
+```
+
+Vrátí sérii otázek (typicky na období, na to, co je pro vás urgentní, a na to, které kanály jsou důležité) a po nich první brief. Ten první bude skoro jistě příliš dlouhý — je to v pořádku, dělá se to dalšími prompty.
+
+### Prompt 2: odpověď na doptání a upřesnění zdrojů
+
+Když se Claude doptá, neodpovídejte jednou větou. Odpovědi jsou vlastně druhá polovina zadání.
+
+```text
+Odpovědi na tvoje otázky:
+
+Období: od včerejška 17:00 do teď. V pondělí od pátku 17:00.
+
+Kanály, které jsou opravdu důležité: [kanál 1] (rozhoduje se tam o
+produktu), [kanál 2] (klientské eskalace). Kanály [kanál 3] a [kanál 4]
+čti jen kvůli bloku 3, přímo z nich nic nevytahuj.
+
+Pošta: jen zprávy od lidí mimo firmu a od [role]. Automatické notifikace
+ze systémů úplně ignoruj.
+
+Lidé, jejichž zprávy mají pro mě váhu i bez zmínky mého jména: [jména].
+
+Až budeš mít brief, drž se toho, že položka bez navržené akce do briefu
+nepatří — buď napiš, co s tím mám udělat, nebo ji vynech.
+```
+
+Tohle je moment, kdy se rozhoduje o kvalitě všech dalších briefů. Pozor na jednu věc: pokud kanály vyjmenujete a některý zapomenete, brief o něm nebude vědět. Seznam si po týdnu projděte znovu.
+
+### Prompt 3: vložení definice urgentnosti
+
+Definici ze třetí fáze vložte do zadání celou, ne parafrázovanou.
+
+```text
+Tady je moje definice naléhavosti. Řaď podle ní, ne podle tónu zpráv,
+délky vlákna ani podle toho, kdo je odesílatel.
+
+Urgentní pro mě znamená:
+- [pravidlo 1 — co se stane, když se tomu dnes nevěnuju],
+- [pravidlo 2 — koho tím blokuju],
+- [pravidlo 3 — co je nevratné].
+
+Urgentní NENÍ:
+- [kategorie 1],
+- [kategorie 2],
+- [kategorie 3].
+
+Když si u položky nejsi jistý, zařaď ji níž a na konec briefu připiš
+řádek „nejistá zařazení“ se seznamem, ať to můžu opravit.
+```
+
+Řádek o nejistých zařazeních je malý trik s velkým dopadem: dostanete zpětnou vazbu o tom, kde definice nestačí, místo abyste to museli hádat z toho, co v briefu chybí.
+
+### Prompt 4: doladění rozsahu
+
+Po prvním nebo druhém běhu bude brief skoro jistě moc dlouhý. Nezkracujte ho tím, že řeknete „buď stručnější“ — zkraťte rozsah toho, co se do něj vejde.
+
+```text
+Brief je moc dlouhý. Zúž ho takto a drž se toho i příště:
+
+- Blok 1 (dashboard): maximálně 3 položky, jen ty, co překročily práh
+  [číslo/procento]. Běžné denní výkyvy neuváděj.
+- Blok 2 (zmínky): maximálně 5 položek. Když je jich víc, vyber ty, kde
+  se ode mě něco čeká, a na konec bloku napiš „dalších N zmínek bez
+  očekávané akce“.
+- Blok 3 (bez mojí zmínky): maximálně 3 položky, a jen když se týkají
+  [projekt 1] nebo [projekt 2].
+- Blok 4 (termíny): jen do konce tohoto týdne, s počtem dnů do termínu.
+
+Celý brief se musí dát přečíst do pěti minut.
+```
+
+Stropy položek fungují lépe než pokyny ke stručnosti — vynutí si výběr místo zkracování vět. Pokud po tomhle brief začne vynechávat něco důležitého, zvyšte strop u konkrétního bloku, ne u všech.
+
+### Prompt 5: formát výstupu
+
+Formát řešte až po rozsahu, ne dřív. Když ladíte vzhled špatného obsahu, ladíte ho zbytečně.
+
+```text
+Formát briefu ustal takto:
+
+- Úplně nahoře jeden řádek: „Dnes záleží hlavně na: [jedna věc].“
+- Pak čtyři bloky s nadpisy. Prázdný blok neuváděj vůbec, místo něj
+  jednou větou napiš „z dashboardu dnes nic“.
+- Každá položka: tučný název (max 8 slov), pod ním dvě věty o co jde,
+  pak řádek „Ode mě se čeká: [akce]“ a odkaz do zdroje.
+- Žádné úvody, žádné shrnutí na konci, žádné zdvořilostní fráze.
+- Když se dvě položky týkají téhož, spoj je do jedné a napiš to.
+
+Celý výstup ulož jako jeden dokument, ať se dá otevřít na mobilu.
+```
+
+Řádek „dnes záleží hlavně na“ je nejužitečnější věta celého briefu: nutí model udělat výběr, ne jen seřadit. Když vám opakovaně nesedí, znamená to, že nesedí definice urgentnosti.
+
+### Prompt 6: přidání dashboardu přes Claude v Chromu
+
+Až brief funguje na komunikaci, přidejte dashboard. Ne obráceně.
+
+```text
+Do bloku 1 chci data z našeho dashboardu, který nemá konektor. Použij
+rozšíření Claude v Chromu.
+
+Postup: otevři [adresa], přepni na záložku [název], nastav období na
+[posledních 7 dní] a přečti tyhle metriky: [metrika 1], [metrika 2],
+[metrika 3], [metrika 4].
+
+U každé napiš dnešní hodnotu, srovnání s minulým týdnem v procentech a
+jestli překročila práh, který jsem ti dal.
+
+Když se ti stránka nenačte nebo vypadá jinak, než popisuju, nehádej
+čísla — napiš do briefu řádek „dashboard se nepodařilo přečíst“.
+```
+
+Poslední odstavec je důležitý: bez něj hrozí, že dostanete čísla odhadnutá z toho, co bylo vidět. První týden si dvakrát ověřte hodnoty ručně proti zdroji.
+
+### Prompt 7: propojení čísel s diskuzemi
+
+Tohle je věc, kvůli které se brief napříč nástroji dělá — a musíte si o ni říct, sama se nestane.
+
+```text
+Když v bloku 1 hlásíš číslo, které se zhoršilo, vždycky se podívej, jestli
+se to už někde neřeší, a napiš to k tomu.
+
+Konkrétně: prohledej [kanály] a poštu za posledních 48 hodin na zmínky
+o té metrice, o té službě nebo o té části produktu. Když najdeš vlákno,
+připiš k položce řádek „už se řeší tady: [odkaz], stav: [jedna věta]“.
+
+Když se to nikde neřeší, napiš „zatím bez diskuze“ — to je pro mě
+důležitější informace než samotné číslo.
+```
+
+Věta „zatím bez diskuze“ je nejcennější výstup celého briefu: znamená, že problém vidí zatím jen graf a rozhodnutí čeká na vás.
+
+### Prompt 8: filtrování šumu
+
+Po pár dnech budete přesně vědět, co v briefu být nemá. Sepište to najednou.
+
+```text
+Tyhle věci do briefu už nikdy nedávej:
+
+- [typ zprávy 1 — např. automatické souhrny z nástroje X],
+- vlákna, kde je moje jméno zmíněné jen v seznamu příjemců nebo
+  v podpisu, ale nikdo se mě na nic neptá,
+- zprávy typu „díky“, „ok“, „souhlasím“ bez dalšího obsahu,
+- opakující se upozornění, které se objevilo víc než třikrát za týden
+  a nikdy z něj nic nevzešlo,
+- [kanál nebo štítek, který sleduju, ale ne ráno].
+
+Když si u nějaké kategorie nejsi jistý, jestli spadá pod tohle, uveď ji
+naposledy a připiš „na hraně — mám to filtrovat?“.
+```
+
+Filtry pište jako kategorie, ne jako jednotlivé případy. Deset konkrétních zpráv v seznamu zakázaných věcí je horší než jedno dobře popsané pravidlo.
+
+### Prompt 9: vymezení bloku o vláknech bez vás
+
+Třetí blok potřebuje nejvíc ladění. Tenhle prompt mu dá hranice.
+
+```text
+Blok 3 (vlákna, ve kterých nejsem) zatím vrací věci, které nepotřebuju.
+Zúž ho takhle.
+
+Vlákno do bloku 3 patří, když platí aspoň jedno:
+- padlo v něm rozhodnutí o [projekt/oblast], za kterou odpovídám,
+- mění se v něm termín nebo rozsah něčeho, na co navazuju,
+- je v něm stížnost nebo eskalace od [klient/tým],
+- řeší se v něm problém, který jsem už jednou řešil já.
+
+Vlákno tam nepatří, když je to jen diskuze o možnostech, plánování na
+příští čtvrtletí, nebo debata mezi lidmi, kteří to mají v gesci.
+
+U každé položky napiš na konec větu „proč si myslím, že to potřebuješ
+vědět“ — ať můžu ladit tenhle úsudek.
+```
+
+Ta poslední věta je jediný způsob, jak se dá blok 3 ladit rozumně: uvidíte model uvažování a opravíte ho, místo abyste opravovali výsledky jeden po druhém.
+
+### Prompt 10: pondělní verze
+
+Pondělní ráno je jiné a zaslouží si vlastní zadání.
+
+```text
+V pondělí sestav brief podle upravených pravidel:
+
+- Období: od pátku 17:00 do teď, tedy včetně víkendu.
+- Blok 1 rozšiř: přidej, jak se metriky vyvíjely přes víkend, ne jen
+  dnešní stav.
+- Blok 4 rozšiř na celý týden a seřaď podle dnů, ne podle důležitosti.
+- Přidej na konec blok „co se táhne z minulého týdne“: věci, které byly
+  v briefu aspoň třikrát a pořád nejsou uzavřené.
+- Stropy položek zvyš o polovinu, pondělní brief smí být delší.
+
+Na úplný konec připiš tři návrhy, čím tenhle týden začít, a u každého
+jednu větu proč. Rozhodnutí nechávám na sobě.
+```
+
+Blok „co se táhne“ je jediný, který se v ranním briefu dívá dozadu — a je to nejlepší detektor úkolů, které je potřeba zrušit nebo předat. Když si vedete i [páteční týdenní přehled](/tipy/ai-tydenni-prehled), tenhle blok vynechejte, bude se překrývat.
+
+### Prompt 11: běžný den
+
+Pro úterý až pátek si udržujte ostřejší, kratší verzi.
+
+```text
+V úterý až pátek jeď zkrácenou verzi:
+
+- Období: od včerejška 17:00 do teď.
+- Maximálně 8 položek celkem napříč všemi bloky.
+- Blok 4 jen položky s termínem do pátku.
+- Bez návrhů, čím začít — stačí seřazení.
+- Když je klidné ráno a nic urgentního není, napiš jednu větu „dnes
+  nic urgentního, největší položka je [X]“ a nic dalšího nedopisuj.
+
+Krátký brief je dobrý brief. Nedoplňuj položky proto, aby bylo co číst.
+```
+
+Poslední věta řeší reálný problém: bez ní má brief tendenci vždycky něco najít, protože struktura má čtyři bloky a prázdný blok vypadá jako chyba.
+
+### Prompt 12: brief po dovolené
+
+Po týdnu mimo je běžný brief k ničemu — potřebujete jinou operaci.
+
+```text
+Byl jsem [7] dní pryč. Sestav mi návratový brief za celé to období.
+Neřaď to podle času, ale podle toho, co se mnou má co dělat.
+
+Struktura:
+1. Rozhodnutí, která padla beze mě a týkají se [moje oblasti] — co se
+   rozhodlo a kým, jednou větou každé.
+2. Věci, které na mě čekají a nikdo je nepřevzal — tohle je nejdůležitější
+   blok, projdi ho pořádně.
+3. Věci, které za mě někdo vyřídil — jen seznam, ať vím, komu poděkovat
+   a co nekontrolovat.
+4. Co se za tu dobu změnilo v číslech (dashboard, srovnání první a
+   poslední den).
+5. Termíny, které spadly, zatímco jsem byl pryč, a co s nimi je.
+
+Vlákna čti celá. Když je vlákno delší než 20 zpráv, napiš na začátek
+jednu větu, jak dopadlo, a teprve pak detaily.
+```
+
+Návratový brief se vyplatí spustit **večer před návratem**, ne ráno v den nástupu. Jednak ho máte hotový, jednak zjistíte, jestli něco nehoří, ve chvíli, kdy se s tím ještě dá něco udělat.
+
+### Prompt 13: nastavení běhu ve vzdálené relaci
+
+Až je zadání usazené, chcete, aby brief byl ráno hotový, ne aby se spouštěl.
+
+```text
+Tohle zadání chci mít každé ráno hotové, než si sednu k počítači.
+Nastav to jako opakovanou úlohu ve vzdálené relaci, ať to běží, i když
+mám zavřený notebook.
+
+Rozvrh: pracovní dny v [6:45], výstup jako dokument, který si otevřu
+na mobilu i na počítači.
+
+Pondělí ať jede podle pondělní verze zadání, úterý až pátek podle
+zkrácené. Když se některý zdroj nepodaří přečíst, brief stejně sestav
+z ostatních a nahoře napiš, co chybí.
+```
+
+Jak se opakované úlohy zakládají, spravují a jak se jim odebírají oprávnění, je celé rozepsané v návodu o [rutinách v Claude](/tipy/claude-rutiny-posta-kalendar). Pro brief platí jediné navíc: **rozvrh nastavte tak, aby byl hotový aspoň patnáct minut před tím, než ho otevřete.**
+
+### Prompt 14: audit — proč tam ta položka je
+
+Jednou za pár týdnů se vyplatí zeptat se briefu na jeho vlastní práci.
+
+```text
+Vezmi briefy z posledních deseti pracovních dnů a udělej mi rozbor:
+
+- Které položky se opakovaly ve třech a víc briefech? U každé napiš, proč
+  si myslíš, že se pořád vrací.
+- Které kategorie položek jsem podle všeho ignoroval — byly v briefu,
+  ale nikdy jsem na ně nereagoval ani se o nich pak nemluvilo?
+- Který blok byl nejčastěji prázdný nebo nejkratší?
+- Kde sis byl nejméně jistý zařazením?
+
+Na základě toho navrhni tři konkrétní úpravy zadání. U každé napiš, co
+se tím ztratí — nechci úpravy, které jen zkracují.
+```
+
+Věta „napiš, co se tím ztratí“ brání nejčastějšímu selhání ladění: brief se postupně zkrátí až do neužitečnosti, protože každá úprava byla zúžením. Návrhy si přečtěte a použijte jeden, ne všechny tři.
+
+## Fáze 5: první týden — jak brief doladit
+
+První brief nebude dobrý a je zbytečné se tím trápit. Užitečné je vědět, co se má dít který den.
+
+### Dny 1 a 2: jenom škrtejte
+
+První dva dny nepřidávejte nic. Čtěte brief s tužkou a u každé položky si odpovězte na jednu otázku: **použil jsem ji k něčemu?** Co jste nepoužili, patří do promptu 8 jako filtr.
+
+### Dny 3 a 4: přidávejte, co chybělo
+
+Teprve teď se ptejte na opačnou věc: **co jsem se dnes dozvěděl odjinud a mělo to být v briefu?** Tohle je vzácnější a cennější zpětná vazba než škrtání — a je vidět jen tehdy, když si to večer poznamenáte.
+
+Když vám něco chybělo, hledejte příčinu v tomhle pořadí: chybí zdroj (kanál není v seznamu), chybí kontext (Claude neví, že je to vaše téma), chybí definice (nespadá to pod urgentní, i když mělo). Skoro vždycky je to jedna z prvních dvou.
+
+### Den 5: sjednoťte zadání
+
+V pátek přepište zadání načisto — celé, ne jako sérii dodatků. Zadání poskládané z deseti oprav si samo odporuje a ladí se pak strašně. Uložte si ho do souboru a od pondělí jeďte podle něj.
+
+### Kdy je brief moc dlouhý
+
+Tři praktické signály, že je potřeba zúžit:
+
+- **Čtete ho víc než pět minut.** Nad pět minut ho začnete přeskakovat a za dva týdny přestanete otevírat.
+- **Scrollujete.** Když se brief nevejde na jednu obrazovku mobilu, není to brief, je to report.
+
+Obrácený signál je stejně důležitý: **brief, ve kterém není nikdy nic urgentního, je taky rozbitý.** Buď máte příliš přísnou definici, nebo brief nemá napojený zdroj, kde urgentní věci opravdu vznikají.
+
+## Kdy ranní brief nefunguje
+
+Tahle sekce je tu proto, aby vám nevzal měsíc něco, co ve vaší situaci fungovat nemůže.
+
+### Když máte napojený jeden nástroj
+
+Celá hodnota briefu je v propojení. Když všechno chodí přes poštu a nic jiného napojené nemáte, brief vám vrátí setříděnou poštu — a to už umí štítky, filtry a pravidla ve vaší poštovní aplikaci lépe, rychleji a bez nastavování. Na jednorázové srovnání jedné dlouhé konverzace navíc stačí [shrnutí vlákna](/tipy/ai-shrnuti-vlakna).
+
+Hranice, která se osvědčuje: **pod tři zdroje se brief nevyplatí.**
+
+### Když si nedokážete pojmenovat priority
+
+Brief seřazuje podle vaší definice naléhavosti. Když nevíte, co je pro vás tento měsíc důležité, definice bude vágní a brief bude vracet vážený průměr všeho. Není to chyba nástroje — je to úkol, který se nedá delegovat.
+
+Poznáte to jednoduše: zkuste větu „urgentní pro mě znamená“ dopsat do konce. Když se zaseknete, začněte tím, ne zadáním briefu. Někdy pomůže napsat si nejdřív [týdenní přehled](/tipy/ai-tydenni-prehled) a nechat priority vyplynout z toho, co se opakovaně táhne.
+
+### Když práce nechodí přes chat
+
+Řemeslník, obchodní zástupce, lékař, učitel u tabule — když se u vás rozhoduje po telefonu, osobně nebo v terénu, brief nemá z čeho čerpat. Napojené nástroje nezachytí to, co se stalo na místě.
+
+Přechodové řešení existuje, ale je to jiná disciplína: nadiktovat si po každém hovoru tři věty do jedné poznámky a nechat brief číst tu poznámku. Funguje to, jen si nenamlouvejte, že jste zavedli brief — zavedli jste si evidenci, což je práce navíc, kterou musí vyvážit užitek.
+
+### Když se tým rozhoduje jinde, než si myslíte
+
+Poslední případ je zákeřný, protože vypadá jako špatně nastavený brief. Když se u vás skutečná rozhodnutí dělají na chodbě, v hovoru bez zápisu nebo ve dvou soukromých zprávách, brief bude vracet formální provoz a to podstatné mu unikne. Nespravíte to lepším zadáním. Buď se změní, kde se rozhoduje, nebo brief zůstane doplňkem.
+
+## Bezpečnost a citlivá data
+
+Brief čte hodně věcí naráz, a to si zaslouží pár minut rozvahy.
+
+**Co briefu dát.** Provozní komunikaci, čísla z dashboardů, kalendář, úkoly. Tedy věci, které už stejně žijí v cloudových nástrojích a ke kterým máte přístup vy.
+
+**Co mu nedávat.** Personální agendu, mzdy, zdravotní údaje, smlouvy před podpisem, cokoli pod NDA a schránky, které nejsou vaše. Prakticky to znamená vyjmenovat v zadání kanály a štítky, které má brief číst — ne dát mu celou schránku a doufat, že si vybere. **Výčet je bezpečnější než zákaz.**
+
+**Lokální relace u citlivých dat.** Když brief pracuje s podklady, které nechcete posílat nikam ven, pusťte relaci lokálně — soubory zůstanou na vašem stroji. Cenou je, že brief nebude hotový dopředu; berte to jako vědomou výměnu, ne jako nedostatek.
+
+**Firemní pravidla platí nad tímhle návodem.** Než napojíte pracovní Slack nebo poštu, ověřte si, co u vás smí AI nástroje číst a na jakém typu účtu. Citlivá data patří výhradně na placený nebo firemní účet se smluvní ochranou dat. A pokud si nejste jistí, jestli konkrétní zdroj napojit smíte, zeptejte se dřív, než ho napojíte — odpojit konektor jde snadno, odestát se nedá.
+
+**A jedna hranice, která nemá výjimku:** brief jen čte a navrhuje. Neodpovídá za vás, nic neodesílá, nic nemaže, nic nepotvrzuje. AI navrhuje, člověk schvaluje — a u briefu je to o to důležitější, že se čte v šest čtyřicet ráno, tedy ve chvíli, kdy člověk nejmíň kontroluje.
+
+## Nejčastější chyby
+
+- **Zadání bez definice urgentnosti.** Nejdražší chyba celého návodu: brief pak řadí podle hlasitosti a vy si zvyknete věřit pořadí, které nikdo nenastavil.
+- **Pět zdrojů na první pokus.** S pěti napojenými nástroji nepoznáte, který z nich vrací šum. Tři zdroje, týden, pak přidávejte po jednom.
+- **Ladění stručností místo rozsahu.** „Buď stručnější“ zkrátí věty a nechá tam stejný počet nedůležitých položek. Stropy položek na blok fungují.
+- **Brief bez navržené akce.** Položka, u které není napsáno, co se od vás čeká, znamená, že stejně musíte otevřít zdroj — a tím jste přišli o většinu úspory.
+- **Slepá důvěra číslům z dashboardu.** Data čtená přes prohlížeč si první dny namátkově ověřte proti zdroji, obzvlášť ta, podle kterých se rozhodujete.
+- **Brief jako druhá schránka.** Když ho čtete, ale pak stejně projdete Slack i poštu celé, nezavedli jste brief — přidali jste si práci navíc.
+
+## Nejlepší nástroje
+
+- **Claude Cowork** — prostředí, ve kterém brief vzniká: napojí konektory, projde nástroje a sestaví jeden seřazený přehled místo čtyř souhrnů.
+- **Konektory z marketplace** — napojení na Slack, Gmail, Kalendář Google, Notion a další zdroje, ze kterých brief čerpá; briefu stačí právo číst.
+- **Claude v Chromu** — cesta k webovým dashboardům, které konektor nemají: agent stránku otevře a přečte metriky, které mu popíšete.
+- **Vzdálené relace (beta)** — běh na serverech Anthropicu, takže brief je hotový i při zavřeném notebooku a navazujete na něj na počítači, webu i mobilu.
+- **Lokální relace** — varianta pro citlivá data, kdy soubory zůstávají na vašem stroji; brief se pak spouští, když počítač běží.
+- **Soubor s definicí urgentnosti** — obyčejný textový dokument, který je ve skutečnosti nejdůležitější součást celé sestavy.
+
+## Co vám to přinese
+
+- **Čas:** ranní skládání obrázku ze čtyř nástrojů (typicky 25–35 minut) se smrskne na pět minut čtení. Přes rok jde o desítky hodin — ale ta lepší část je, že to jsou minuty na začátku dne, kdy máte nejvíc energie.
+- **Peníze:** nepřímo, přes věci zachycené včas: číslo, které se řeší v úterý místo ve čtvrtek, a klientská eskalace, která se nestačí rozjet. Nečekejte úsporu na faktuře, čekejte míň hašení.
+- **Klid:** zmizí podezření, že vám něco uteklo. Blok o vláknech, ve kterých nefigurujete, je jediný mechanismus, který tenhle konkrétní neklid opravdu snižuje.
+- **Kvalita rozhodování:** začínáte den rozhodnutím podle napsaných pravidel místo podle toho, co bylo nahoře ve schránce. Rozdíl se projeví hlavně ve dnech, kdy je toho moc.
+
+## Pro tip
+
+Nechte si brief jednou týdně **sestavit i pro někoho jiného** — pro kolegu, kterého vedete, nebo pro projekt, ne pro sebe. Zadání je stejné, jen vyměníte definici urgentnosti a seznam témat. Dvě věci z toho vypadnou: uvidíte, kde jsou vaše vlastní pravidla nesrozumitelná, když je má aplikovat cizí kontext, a získáte podklad pro rozhovor, který jinak vedete z paměti.
+
+A závěrečné pravidlo, které přežije všechny změny nástrojů: **brief má končit rozhodnutím, ne přehledem.** Když ho zavřete a nevíte, čím začnete, nebyl to brief — byla to jen rychleji přečtená schránka. V takový den neopravujte formát. Opravte definici slova „urgentní“.
