@@ -1,0 +1,195 @@
+---
+title: "Hlídač státu jako novinářský nástroj"
+excerpt: "Zakázky, dotace, sponzoring stran i K-index přímo v konverzaci. Odkud vede stopa, jak ji doložit u zdroje a kde veřejná data končí a začíná obvinění."
+category: "ai"
+platform: "vsude"
+audience: ["novinar"]
+keys: []
+saves: "~2 h na rešerši"
+date: "2026-08-24"
+updated: "2026-08-24"
+tldr: >-
+  MCP server Hlídače státu dává modelu přímý přístup k registru smluv, veřejným
+  zakázkám, dotacím, insolvencím, sponzoringu politických stran, K-indexu i
+  stenozáznamům sněmovny. Pro novináře je to nástroj na hledání stopy, ne na
+  psaní závěru: filtry typu „smlouvy s vážnými problémy“, „skrytá cena“ nebo
+  „těsně pod limitem“ vygenerují seznam míst, kam se podívat. Každý nález pak
+  musí projít doložením u zdroje a testem, jestli není obyčejné vysvětlení
+  pravděpodobnější než to zajímavé.
+---
+
+Veřejná data o hospodaření státu jsou dostupná roky, jenže rozházená po rejstřících, které spolu nemluví. Hlídač státu je propojuje přes IČO a jména osob a od roku 2025 k nim provozuje MCP server — rozhraní, kterým se AI asistent na data ptá přímo, místo aby vy kopírovali tabulky do chatu. Pro redakci to mění jednu konkrétní věc: rešerše, která zabrala odpoledne, se zkrátí na čtvrthodinu a zbytek času zbude na to, co stroj neudělá — na telefonáty a na ověření.
+
+Na tomhle webu je [prověrka obchodního partnera přes Hlídač státu](/tipy/proverka-obchodniho-partnera-hlidac-statu) — ta odpovídá na otázku „podepsat s nimi, nebo ne“ a končí rizikovým profilem. Novinářská práce s týmiž daty má jiný cíl i jiná rizika: nehledáte riziko pro sebe, hledáte stopu pro text, který někoho pojmenuje. Nastavení konektoru najdete v tom návodu, tenhle text pokračuje od chvíle, kdy server běží.
+
+## Co je jinak, když jste novinář
+
+Tři rozdíly, které určují celý postup:
+
+- **Nehledáte jednu firmu, hledáte anomálii.** Prověrka začíná u jména protistrany. Rešerše často začíná u úřadu, oboru nebo částky a jméno je až výsledek.
+- **Výstupem není rozhodnutí, ale tvrzení.** Rizikový profil si přečtete vy. Text čte veřejnost a jmenovaný člověk má právo na odpověď i na omluvu.
+- **Presumpce neviny platí i pro data.** Insolvence, rozhodnutí ÚOHS ani sponzorský dar nejsou obvinění. Jsou to fakta, ke kterým teprve hledáte, jestli dávají dohromady příběh.
+
+Hlídač počítá s tím, že s daty pracují i novináři: účty mají role a některé analytické přehledy — třeba žebříčky firem, kterým nejvíc narostl objem zakázek se státem — jsou dostupné jen účtům s rolí novináře nebo beta testera. Když vám model odpoví, že na nástroj nemá oprávnění, není to chyba dotazu; je to důvod napsat Hlídači a o roli požádat.
+
+## Pět míst, odkud vede stopa
+
+**Registr smluv.** Nejbohatší zdroj a zároveň ten, kde má vyhledávání nejvíc novinářsky užitečných filtrů. Kromě klíčových slov, IČO a částek umí vyhledávání vrátit jen smlouvy označené jako smlouvy s vážnými právními problémy, jen smlouvy se skrytou cenou a — to je nejzajímavější — jen smlouvy, jejichž hodnota leží těsně pod zákonným limitem pro veřejnou zakázku. To je klasický vzorec obcházení soutěže a ručně by se hledal těžko. Pozor: „těsně pod limitem“ není důkaz ničeho. Je to seznam smluv, na které se stojí za to podívat.
+
+**Veřejné zakázky.** Samostatná databáze zadávacích řízení. Filtruje se podle zadavatele, dodavatele, data podpisu, ceny bez DPH a podle CPV kódů — číselníku oborů, kterým se dá vymezit třeba jen IT nebo jen stavebnictví. Užitečné, když sledujete jeden trh a ne jednu firmu.
+
+**Dotace.** České i evropské, s vlastní syntaxí dotazu. Kromě příjemce a poskytovatele se dá filtrovat podle oblasti (doprava, zdravotnictví, kultura, sport, životní prostředí a další), podle programu, podle roku a podle částky s operátory. Rychlá cesta k otázce „kdo v našem kraji čerpal na tenhle program nejvíc“.
+
+**Sponzoring politických stran.** Dary od firem, dary od fyzických osob i pohled ze strany příjemce, tedy seznam dárců jedné strany. Data pocházejí z výročních zpráv stran. Sponzoring je legální a běžný; novinářsky zajímavý je až ve spojení s něčím dalším — se zakázkou, s dotací, s načasováním.
+
+**Existenční a soudní stopa.** Insolvenční řízení podle IČO včetně role (dlužník, věřitel, správce), záznamy o trestních řízeních právnických osob, status nespolehlivého plátce DPH a rozhodnutí ÚOHS. K tomu K-index — známka A až F pro instituce podle rizikovosti jejich smluvní praxe. U K-indexu si pamatujte dvě omezení: počítá se jen pro zhruba dvě stě největších veřejných institucí (u menšího úřadu prostě není) a detailní rozpad na jednotlivé rizikové metriky je dostupný jen s komerční licencí. Souhrnná známka a pořadí v žebříčku jsou k dispozici běžně.
+
+Bokem stojí ještě stenozáznamy Poslanecké sněmovny — doslovné přepisy projevů. Když máte nález z registru, tohle je nejrychlejší způsob, jak zjistit, co k věci kdo řekl v sále a kdy.
+
+## Prompt: screening jednoho úřadu
+
+```text
+Používej výhradně data z Hlídače státu, nic nedoplňuj z paměti.
+
+Pro instituci [název úřadu]:
+1. Najdi její IČO a potvrď, že jde o tu správnou (sídlo, typ).
+2. Vrať K-index za všechny dostupné roky. Pokud není, napiš to.
+3. Vypiš smlouvy za poslední tři roky, které jsou označené
+   jako smlouvy s vážnými právními problémy.
+4. Vypiš smlouvy se skrytou cenou.
+5. Vypiš smlouvy, jejichž hodnota je těsně pod limitem
+   pro veřejnou zakázku.
+
+U každé smlouvy uveď: datum, druhou stranu s IČO, částku,
+předmět a identifikátor smlouvy pro dohledání.
+Na konec napiš, kolik výsledků bylo celkem a kolik jsi zobrazil
+— chci vědět, jestli koukám na první stránku, nebo na všechno.
+```
+
+Poslední řádek zadání není detail. Vyhledávání je stránkované a jedna stránka vrací nejvýš padesát záznamů; „našel jsem osm smluv“ může znamenat „osm z devadesáti“. Bez téhle otázky si toho nevšimnete.
+
+## Prompt: firma proti státu v čase
+
+```text
+Pro firmu [název] najdi IČO a pak sestav přehled jejího
+podnikání se státem:
+
+- souhrn obchodů se státem (smlouvy, dotace, rizika)
+- objem smluv po jednotlivých letech, jako tabulku
+- pět největších zakázek s datem, zadavatelem a částkou
+- insolvenční řízení podle IČO včetně role firmy v nich
+- trestní záznamy právnické osoby
+- status nespolehlivého plátce DPH
+- dceřiné společnosti
+
+Ke každému číslu uveď, ze kterého zdroje pochází.
+Kde data nejsou, napiš „není v datech“ — nedopočítávej
+a neodhaduj.
+```
+
+Časová řada je to podstatné. Jedna velká zakázka nic neznamená; skok z nuly na desítky milionů v roce, kdy se vyměnilo vedení úřadu, je otázka do telefonu.
+
+## Prompt: křížová kontrola sponzoringu
+
+```text
+Pro firmu [název, IČO] a pro její jednatele a společníky
+(dohledej je jako osoby) zjisti:
+
+1. dary politickým stranám — kdo, kdy, komu, kolik
+2. smlouvy a zakázky se státem — kdy a s kým
+
+Sestav jedinou časovou osu, kde budou obě řady vedle sebe,
+seřazené podle data.
+
+Nedělej žádný závěr o souvislosti. Jen mi ukaž, kde jsou
+dary a zakázky časově blízko u sebe, a u každé takové
+dvojice napiš, jaké BĚŽNÉ vysvětlení by mohlo platit.
+```
+
+Poslední odstavec je tam schválně. Model, který dostane za úkol vymyslet i nudné vysvětlení, vám ušetří text, který by neobstál.
+
+## Prompt: dotace v regionu a v oboru
+
+```text
+Vyhledej dotace v oblasti [např. sport] přidělené v letech
+[rozsah] příjemcům se sídlem v [kraj/obec].
+
+Seřaď podle částky sestupně, vrať 30 největších.
+U každé: příjemce s IČO, program, projekt, částka, rok,
+poskytovatel.
+
+Pak zvlášť vypiš příjemce, kteří se v seznamu objevují
+opakovaně, a k nim jejich celkový součet.
+```
+
+## Prompt: co k tomu kdo řekl ve sněmovně
+
+```text
+Ve stenozáznamech Poslanecké sněmovny najdi projevy, ve kterých
+zaznělo [téma / název programu / jméno firmy], od [datum].
+
+Vrať tabulku: datum, řečník, schůze, téma, jedna citovaná věta.
+Seřaď od nejnovějšího. Pak mi u třech nejrelevantnějších vypiš
+celý úsek projevu, ať si ho můžu přečíst v kontextu.
+
+Uveď, kolik záznamů dotaz našel celkem.
+```
+
+## Prompt: převod nálezů do doložitelné podoby
+
+```text
+Ze všeho, co jsi v téhle konverzaci našel, sestav jedinou tabulku
+s těmito sloupci:
+
+1. tvrzení (jedna věta, jak by mohla stát v textu)
+2. konkrétní datový podklad (typ záznamu, identifikátor, částka,
+   datum)
+3. kde si to ověřím u zdroje (který rejstřík, co tam zadat)
+4. co ještě chybí, aby se to dalo napsat
+
+Do sloupce 1 nepiš nic, co nemá záznam ve sloupci 2.
+Na konec přidej seznam OTÁZKY: co se z veřejných dat zjistit
+nedá a musím se na to někoho zeptat.
+```
+
+## Jak stopu doložit
+
+Nález z konverzace není zdroj. Zdroj je záznam, na který jde ukázat. Než se cokoli dostane do textu, projde tímhle:
+
+1. **IČO, ne jméno.** Názvy firem se opakují a liší se o mezeru. Všechno se vede pod osmimístným IČO.
+2. **Proklik do zdroje.** Každý údaj, který se dostane do textu, si otevřete na hlidacstatu.cz nebo rovnou v registru smluv a podíváte se na originál. Model může správně najít a přitom špatně shrnout.
+3. **Datum stažení.** Data se doplňují zpětně. Věta „ke dni 24. srpna 2026 registr obsahoval“ je přesná; „registr obsahuje“ zestárne.
+4. **Kopie.** Export nebo PDF smlouvy do složky ke kauze. Záznam se může změnit, doplnit dodatkem, zmizet.
+5. **Druhý zdroj.** Obchodní rejstřík na justice.cz kvůli lidem a sbírce listin, ARES kvůli identifikaci. Hlídač je index, ne primární evidence.
+6. **Otázka pro protistranu.** Ještě než začnete psát. Vyjádření často vysvětlí anomálii úplně obyčejně — a to je taky výsledek.
+
+## Jak ji nepřestřelit
+
+Pravidla, která patří nad monitor:
+
+- **Veřejná data nejsou obvinění.** Insolvence, rozhodnutí ÚOHS ani „těsně pod limitem“ nedokazují nic než sebe.
+- **Presumpce neviny.** Trestní řízení není odsouzení. Formulace „byl obviněn“ a „je vinen“ dělí jedno slovo a soud.
+- **Korelace v čase není souvislost.** Dar a zakázka ve stejném měsíci jsou důvod se ptát, ne tvrdit.
+- **Firma není člověk.** Údaj o právnické osobě nepřenášejte na jednatele bez doložení role.
+- **Úplnost dat je omezená.** Registr smluv má zákonné výjimky, dotace mají zpoždění, K-index existuje jen pro největší instituce.
+- **Model občas přiřadí špatně.** Zvlášť u podobných jmen a u firem v holdingu. Proto proklik.
+- **Legální a nemravné jsou dvě různá slova.** Když je věc legální, musí to v textu zaznít.
+- **AI není zdroj.** V textu se neobjeví „podle analýzy AI“. Objeví se registr smluv, výroční zpráva strany, rozhodnutí úřadu.
+
+## Ochrana zdrojů: co do dotazu nepatří
+
+Dotaz odchází na server třetí strany a je s ním spojený váš účet. Samotné vyhledávání ve veřejných datech je neškodné, ale kombinace je informace: jméno vašeho zdroje, název nezveřejněného dokumentu, interní kódové označení kauzy ani seznam lidí, které máte od zdroje, do promptu nepatří. Ptejte se na entity, ne na svůj příběh. Nezveřejněné podklady nechte mimo — model je k dotazu do registru nepotřebuje. A citlivé rešerše veďte v účtu, u kterého víte, jak se nakládá s daty a zda se používají k trénování.
+
+## Vzorová situace
+
+Regionální redaktorka Klára ví jen tohle: v kraji se opakovaně mluví o zakázkách na údržbu silnic. Začne screeningem krajské správy — K-index má, za poslední tři roky se zhoršil o stupeň. Ve výpisu smluv těsně pod limitem najde jedenáct smluv se třemi dodavateli. U jednoho z nich si nechá sestavit časovou řadu: objem zakázek vyskočil ve stejném roce, kdy jednatel firmy daroval krajské organizaci jedné strany. Klára z toho nemá článek — má pět otázek. Otevře si každou smlouvu v registru, uloží PDF, ověří jednatele v obchodním rejstříku a zavolá na správu i do firmy. Firma odpoví, že šlo o rámcovou smlouvu rozdělenou po úsecích, což je legitimní vysvětlení jednoho ze tří nálezů. Zbylé dva zůstávají a text bude o nich.
+
+## Co vám to přinese
+
+Rešerše, na kterou by bylo potřeba odpoledne v šesti rejstřících, se smrskne na čtvrthodinu — a hlavně vznikne z otázek, které by vás ručně nenapadlo položit, protože se nedají proklikat. Filtry na smlouvy s vážnými problémy nebo těsně pod limitem jsou generátor stop, které jinak leží nepovšimnuté. Zbytek práce se nemění: telefonáty, vyjádření, proklik do zdroje a podpis pod textem, který nese odpovědnost za každé slovo.
+
+Na obecné ověřování tvrzení navazuje [ověřování faktů s AI](/tipy/ai-overovani-faktu), na dohledatelné citování [vyhledávání s citacemi](/tipy/ai-vyhledavani-citace) a na to, jak MCP konektory fungují obecně, [přehled konektorů](/tipy/mcp-konektory-nastroje).
+
+## Pro tip
+
+Nález, který se vám nejvíc líbí, nechte napadnout dřív, než ho někdo napadne v komentářích: „Jsi právník média. Tady je můj nález a moje formulace. Napiš, co v tom nesedí, které tvrzení není doložené a jaké obyčejné vysvětlení jsem nezvážil.“ Nejužitečnější odpověď z celé rešerše bývá ta, po které jeden odstavec vypadne.

@@ -1,0 +1,198 @@
+---
+title: "Diagramy do článku ve formátu SVG"
+excerpt: "Schéma řekne za tři vteřiny to, co odstavec za minutu. Jak si nechat vygenerovat vektorový diagram, ošetřit přístupnost a ověřit každé číslo v něm."
+category: "ai"
+platform: "vsude"
+audience: ["novinar", "marketer"]
+keys: []
+saves: "~2 h na schéma"
+date: "2026-08-24"
+updated: "2026-08-24"
+tldr: >-
+  Vlastnická struktura, časová osa kauzy nebo tok peněz se v odstavci čtou těžko
+  a ve schématu na jeden pohled. AI umí takové schéma vygenerovat rovnou jako
+  SVG — vektor, který je ostrý v tisku i na retině, váží pár kilobajtů, jde
+  otevřít v textovém editoru a text v něm zůstává textem. Podmínka je zadat
+  pravidla (systémové písmo, viewBox, popisky, kontrast) a pak si ověřit každé
+  číslo, protože diagram je tvrzení stejně jako věta.
+---
+
+Vlastnická struktura přes tři země, časová osa kauzy o dvanácti bodech, tok dotace od ministerstva ke třem příjemcům a zpátky. Tohle jsou věci, které se v souvětí čtou příšerně — čtenář si musí v hlavě držet pět jmen a dvě data, a většinou to vzdá. Schéma stejnou informaci předá na jeden pohled. Problém byl vždycky v tom, že mezi „vím, co chci nakreslit“ a hotovou grafikou stál grafik a den čekání. Model umí schéma vygenerovat rovnou jako SVG, takže od nápadu k použitelné verzi vede cesta na pár minut — a co je důležitější, k verzi číslo šest taky.
+
+## Kdy schéma pomůže a kdy je to zbytečná práce
+
+Vyplatí se, když v textu je:
+
+- **vztah mezi třemi a více subjekty** — kdo koho vlastní, kdo komu platí, kdo kde sedí ve správní radě,
+- **sled událostí, ve kterém záleží na pořadí a odstupech** — časová osa toho, kdo co kdy věděl,
+- **cesta peněz** — od zdroje přes prostředníky k příjemci, zvlášť když se cestou částka mění,
+- **proces s rozhodovacími body** — co se stane, když úřad žádost zamítne,
+- **srovnání dvou stavů** — jak to bylo před změnou zákona a jak po ní.
+
+Nevyplatí se u dvou čísel (stačí věta), u jediného srovnání (stačí tabulka) a všude, kde by schéma jen převyprávělo odstavec beze změny struktury. Špatné schéma je horší než žádné — čtenář ho luští a pak zjistí, že se nic nedozvěděl.
+
+## Proč vektor, a ne obrázek
+
+SVG není obrázek v běžném smyslu. Je to textový soubor s popisem tvarů, který prohlížeč vykreslí až u čtenáře. Z toho plynou čtyři praktické výhody:
+
+1. **Ostrost všude.** Na retině, na projektoru i v tisku. Rastrový obrázek se při zvětšení rozpadne, vektor se dokreslí. Pro tisk se z SVG exportuje PDF, které vektor zachová.
+2. **Editovatelnost.** Otevřete ho v textovém editoru a přepíšete překlep. Nebo v Inkscapu, Illustratoru či Figmě a posunete šipku. Nemusíte znovu generovat celý obrázek kvůli jednomu jménu.
+3. **Velikost.** Schéma o dvaceti prvcích váží jednotky kilobajtů. Stejná grafika jako PNG v rozlišení pro retinu má stovky.
+4. **Text zůstává textem.** Popisky jde vyhledat, zkopírovat a přečte je i odečítač obrazovky. Tohle je zároveň největší rozdíl proti screenshotu tabulky, který dnes v článcích potkáte pořád.
+
+## Jak si SVG nechat vygenerovat
+
+Model umí SVG psát přímo, ale bez pravidel vyrobí grafiku, která vypadá dobře v náhledu a rozpadne se na webu. Do zadání proto patří pět technických podmínek — vyplatí se je mít v [knihovně promptů](/tipy/ai-knihovna-promptu) a jen kopírovat:
+
+- **viewBox a žádné pevné rozměry** v pixelech, aby se schéma přizpůsobilo šířce sloupce,
+- **systémové písmo**, ne odkaz na webfont, který u čtenáře nebude — tedy `font-family` se záložním obecným typem na konci,
+- **text jako text**, ne převedený na křivky (ztratil by se pro vyhledávání i pro odečítač),
+- **žádné skripty a žádné externí odkazy**, protože redakční systémy je stejně vyříznou,
+- **prvek `title` a `desc` uvnitř SVG** kvůli přístupnosti.
+
+Kostra, která tomu odpovídá, vypadá takhle:
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400"
+     role="img" aria-labelledby="t1 d1">
+  <title id="t1">Tok dotace na projekt Alfa</title>
+  <desc id="d1">Ministerstvo poslalo 40 milionů korun kraji,
+    ten rozdělil prostředky mezi tři příjemce.</desc>
+  <style>
+    .lbl { font-family: Georgia, "Times New Roman", serif;
+           font-size: 16px; fill: #111; }
+  </style>
+  <rect x="20" y="20" width="200" height="60" rx="6"
+        fill="#eef2f7" stroke="#334155"/>
+  <text class="lbl" x="40" y="56">Ministerstvo</text>
+</svg>
+```
+
+## Prompt: vlastnická struktura
+
+```text
+Vytvoř diagram jako čisté SVG. Data používej jen ta, která ti dám
+— nic nedoplňuj a nic nedopočítávej.
+
+Obsah: vlastnická struktura. Uzly a vazby:
+[firma A — vlastní 60 % — firma B]
+[firma C — vlastní 40 % — firma B]
+[firma B — vlastní 100 % — firma D, sídlo Kypr]
+
+Technické podmínky:
+- viewBox 0 0 900 500, žádné pevné width a height
+- font-family s obecným záložním typem na konci, velikost
+  aspoň 15 px
+- text jako element text, nikdy jako křivky
+- žádné skripty, žádné externí odkazy, žádné rastrové obrázky
+- prvky title a desc, atribut role="img"
+- šipky ve směru vlastnictví, procenta na hraně vazby
+- zahraniční subjekt odliš tvarem NEBO vzorem, ne jen barvou
+
+Vrať jen kód SVG a pod ním seznam všech textů, které v diagramu
+jsou, ať je můžu zkontrolovat proti podkladům.
+```
+
+Poslední věta je drobnost, která ušetří nejvíc nervů: seznam popisků se čte rychleji než kód a překlep ve jméně firmy v něm uvidíte hned.
+
+## Prompt: časová osa
+
+```text
+Vytvoř vodorovnou časovou osu jako SVG z těchto událostí:
+[datum — událost — zdroj]
+[datum — událost — zdroj]
+…
+
+Pravidla:
+- odstupy na ose musí odpovídat skutečným odstupům mezi daty,
+  ne rozmístit body rovnoměrně
+- roky vyznač jako popisky pod osou
+- události střídej nad a pod osou, aby se popisky nepřekrývaly
+- pokud se dvě události liší o méně než [X] dní, slouč je do
+  jednoho bodu se dvěma řádky textu
+- viewBox, systémové písmo, text jako text, title a desc
+
+Pod kód vypiš, jestli jsi musel kvůli místu něco zkrátit.
+```
+
+Rovnoměrné rozmístění bodů je nejčastější tichá lež v časových osách: dva týdny a dva roky vypadají stejně a čtenář si z toho odnese úplně jiný příběh. Explicitní zákaz do zadání patří.
+
+## Prompt: tok peněz
+
+```text
+Vytvoř schéma toku peněz jako SVG.
+
+Uzly a částky:
+[zdroj — částka — příjemce]
+…
+
+Pravidla:
+- šířka šipky odpovídá částce, uveď v desc, jaké měřítko
+  jsi použil
+- ke každé šipce popisek s částkou; formátuj čísla česky
+  (mezera jako oddělovač tisíců)
+- pokud součet odchozích částek nesedí na příchozí, NEDOROVNÁVEJ
+  to — udělej uzel „neuvedeno“ a rozdíl v něm pojmenuj
+- viewBox, systémové písmo, text jako text, title a desc,
+  kontrast textu vůči podkladu aspoň 4,5:1
+
+Pod kód vypiš tabulku: odkud, kam, kolik — přesně tak, jak je
+to v diagramu.
+```
+
+Pravidlo o nedorovnávání je tam z dobrého důvodu. Modely mají tendenci dělat schémata, která „vycházejí“, i když vstupní data nevycházejí — a schéma, kde součet sedí, přitom ve skutečnosti čtvrtina peněz chybí, je věcná chyba, kterou nikdo nenajde.
+
+## Přístupnost a kontrast
+
+Diagram v článku čte i člověk, který ho nevidí, a člověk, který nerozliší červenou od zelené. Tři věci, které to řeší:
+
+- **Prvky `title` a `desc` uvnitř SVG a atribut `role` s hodnotou `img`.** `title` je název schématu, `desc` je věta, která popíše, co z diagramu plyne. Není to popisek pod obrázkem, je to to, co uslyší odečítač.
+- **Význam nikdy jen barvou.** Když jsou zahraniční firmy červené a české modré, pro část čtenářů je schéma prázdné. Přidejte tvar, čárkovaný obrys nebo vzor.
+- **Kontrast.** Text vůči podkladu aspoň 4,5:1, obrysy a čáry aspoň 3:1. Světle šedá na bílé vypadá elegantně na monitoru grafika a mizí na telefonu v tramvaji.
+
+```text
+Zkontroluj přiložené SVG a vrať seznam problémů, nic neopravuj:
+
+1. chybí title, desc nebo role="img"?
+2. je někde význam nesen jen barvou?
+3. spočítej kontrastní poměr každé kombinace barvy textu
+   a jeho podkladu a označ vše pod 4,5:1
+4. je někde písmo menší než 14 px?
+5. odkazuje soubor na externí písmo, obrázek nebo skript?
+6. je text uložen jako křivky místo elementu text?
+
+U každého nálezu uveď řádek a konkrétní návrh opravy.
+```
+
+## Diagram je tvrzení, ne ilustrace
+
+Tady se novinářská práce liší od infografiky v prezentaci. Každé číslo, šipka i jméno ve schématu je tvrzení, za které se ručí stejně jako za větu v textu. Praktické důsledky: pod schématem patří zdroj a datum („Zdroj: registr smluv, stav k 24. 8. 2026“), stejně jako u tabulky. Model, který kreslí, si občas domyslí vazbu, kterou v podkladech nemáte — zvlášť u organizačních struktur, kde „to tak přece bývá“. A když schéma vzniklo z dokumentu od zdroje, platí totéž co pro text: jména a detaily, které by zdroj identifikovaly, do podkladu pro generování nepatří.
+
+```text
+Tady je hotové SVG a tady jsou moje podklady.
+Projdi diagram prvek po prvku a vrať tabulku:
+
+údaj v diagramu | je v podkladech (ano/ne) | kde přesně
+
+Zvlášť vypiš vše, co v diagramu je a v podkladech to nenajdeš —
+včetně vazeb, šipek a slovních popisků, ne jen čísel.
+Nic neopravuj.
+```
+
+## Jak ho dostat do článku
+
+Nejjednodušší cesta je uložit soubor a vložit ho jako obrázek — většina redakčních systémů `.svg` přijme. Když ho systém odmítá, vloží se kód přímo do stránky, jenže to většina CMS taky nedovolí; pak zbývá export do PNG ve dvojnásobném rozlišení jako záloha a SVG jako soubor ke stažení. Na sociální sítě SVG nenahrajete vůbec, tam se exportuje PNG. A na tisk se z téhož souboru udělá PDF — jeden zdroj, tři výstupy, žádné překreslování.
+
+## Vzorová situace
+
+Redaktor Tomáš má rozpletenou vlastnickou strukturu: pět firem, dva zahraniční subjekty, tři úrovně. V textu to zabralo odstavec, který si po sobě nedokázal přečíst ani on. Data má v poznámkách, tak je vloží do zadání na vlastnickou strukturu a za dvě minuty má SVG. Ve výpisu popisků najde, že model u jedné firmy uvedl podíl 40 %, ačkoli v podkladech je 40,1 % — opraví přímo v kódu, protože je to obyčejný text. Pustí kontrolu přístupnosti, ta najde šedý text s poměrem 3,1:1 a jednu vazbu odlišenou jen barvou; obojí opraví. Nakonec pustí kontrolu proti podkladům a ta ukáže, že šipka mezi dvěma firmami v podkladech nemá oporu — Tomáš ji smaže. Grafička si soubor otevře, sjednotí ho s vizuálním stylem přílohy a je hotovo za deset minut místo za den.
+
+## Co vám to přinese
+
+Schéma přestane být věc, kterou si u textu netroufnete objednat, protože „to není tak důležité“. Od podkladů k použitelné verzi vede cesta na pár minut a k patnácté verzi taky — a právě možnost schéma dvacetkrát přerovnat je to, co dělá rozdíl mezi diagramem, který pomůže, a diagramem, který se luští. Grafik se navíc nedostane k nule, ale k hotové struktuře, kterou jen dotáhne do vizuálu.
+
+Na práci s daty, ze kterých schéma vzniká, navazuje [analýza dat s AI](/tipy/ai-analyza-dat), na interaktivní verze [artefakty a miniaplikace](/tipy/claude-artefakty-miniappky) a na dohledatelnost čísel [ověřování faktů](/tipy/ai-overovani-faktu).
+
+## Pro tip
+
+Nechte si vedle SVG vygenerovat i textovou verzi téhož schématu — odrážkový seznam vazeb. Je to pojistka pro čtenáře bez obrázků, podklad pro popisek a hlavně kontrolní seznam: když se textová verze čte divně, schéma nebude o nic srozumitelnější, jen to bude méně vidět.

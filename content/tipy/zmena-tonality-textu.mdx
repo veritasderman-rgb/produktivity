@@ -1,0 +1,185 @@
+---
+title: "Změna tonality textu beze ztráty fakt"
+excerpt: "Stejná fakta, jiný registr: zpravodajský, analytický, popularizační, na sítě. Jak zadat tón konkrétně a včas poznat, že model ujel do bulváru."
+category: "ai"
+platform: "vsude"
+audience: ["novinar", "marketer"]
+keys: []
+saves: "~30 min na text"
+date: "2026-08-24"
+updated: "2026-08-24"
+tldr: >-
+  Přeladit text do jiného registru je jiná práce než ho přepsat. Model to zvládne,
+  ale jen když tón dostane popsaný osami, které se dají zkontrolovat — délka vět,
+  terminologie, osoba, práce s čísly, typ sloves — místo přídavných jmen typu
+  „čtivěji“. Při každé změně registru hrozí tři konkrétní ztráty: zmizí atribuce,
+  z výhrady se stane tvrzení a přibude hodnocení, které v původním textu nebylo.
+  Na to existuje kontrolní prompt a čtyři signály, podle kterých poznáte bulvár.
+---
+
+Stejná fakta se dají napsat pětkrát a pokaždé jinak: střízlivě do zpravodajství, s kontextem do analýzy, srozumitelně do popularizačního textu, úderně na sítě. Novinář tohle dělá běžně — jen tomu neříká změna tonality, ale „udělej z toho verzi pro web“. Model v tom umí pomoct rychleji než kdokoli jiný a zároveň je to disciplína, kde nadělá nejvíc tiché škody. Přelaďování je totiž jediný typ úpravy, při kterém se fakta nemění, a přesto se posouvá to, co text tvrdí.
+
+## Čtyři registry, které v redakci potřebujete
+
+Nejde o styl v literárním smyslu, ale o čtyři pracovní režimy s odlišnými pravidly:
+
+- **Zpravodajský.** Krátké věty, jedno sdělení na větu, obrácená pyramida. Autor není vidět. Každé hodnocení je něčí, ne autorovo. Čísla přesně, ne zaokrouhleně.
+- **Analytický.** Delší souvětí unese víc podmínek. Připouští „proč“ a „co z toho plyne“, ale drží rozdíl mezi tím, co je doloženo, a tím, co je výklad. Terminologie se používá a vysvětluje jednou.
+- **Popularizační.** Odborný termín se nahradí opisem nebo se vysvětlí příkladem. Vysvětlení nesmí zjednodušit natolik, že přestane platit — tohle je hlavní past.
+- **Pro sítě.** Nejkratší, s háčkem v první větě. Kontext, který v článku nese třetí odstavec, tu musí být hned, jinak post tvrdí něco jiného než článek.
+
+## Proč „napiš to líp“ nefunguje
+
+Přídavná jména jsou pro model nejednoznačná. „Čtivěji“ pochopí jako kratší věty plus oslovení čtenáře plus řečnickou otázku. „Živěji“ chápe jako expresivnější slovesa. „Profesionálněji“ jako víc trpných rodů a podstatných jmen. Výsledek se pokaždé liší a nedá se zopakovat — a hlavně, žádný z těch pokynů modelu neříká, co v textu musí zůstat.
+
+Řešení je popsat registr osami, které si po přečtení výsledku umíte zkontrolovat:
+
+1. **Délka vět** — průměr a strop, ne „krátké“.
+2. **Terminologie** — používat, vysvětlit při prvním výskytu, nebo nahradit opisem.
+3. **Osoba a oslovení** — je autor v textu vidět? Oslovuje se čtenář?
+4. **Čísla** — přesně, zaokrouhleně, nebo převedeno na srovnání.
+5. **Slovesa** — neutrální, nebo expresivní. Trpný rod ano/ne.
+6. **Obrazná pojmenování** — povoleno, nebo zakázáno.
+7. **Co je v prvním odstavci** — nejnovější fakt, nejdůležitější důsledek, nebo scéna.
+
+Sedm řádků, které se napíšou jednou a používají pořád. Tohle je zároveň hranice proti [tónu značky](/tipy/znacka-ton-hlasu-ai): brand book řeší, jak zní organizace napříč vším, co vydá. Tady jde o jeden text a o to, aby se při přeladění nepohnula fakta.
+
+## Prompt: karta registru z vašeho vlastního archivu
+
+Nejlepší popis vaší zpravodajské tonality nevymyslíte od stolu — je ve vašich textech. Nechte ho vytáhnout z osmi až deseti kusů, které vám přišly dobré:
+
+```text
+Přikládám 10 textů z naší rubriky. Nechci pochvalu ani hodnocení.
+Popiš registr, ve kterém jsou napsané, podle těchto os:
+
+1. délka vět (průměr a nejdelší, které se v textech vyskytují)
+2. terminologie (které termíny se používají bez vysvětlení)
+3. osoba a oslovení (je autor vidět, oslovuje čtenáře)
+4. práce s čísly (přesně / zaokrouhleně / převedeno na srovnání)
+5. typ sloves (neutrální vs. expresivní, trpný rod)
+6. obrazná pojmenování (ano/ne, s příklady z textů)
+7. co bývá v prvním odstavci
+
+U každé osy uveď dvě doslovné ukázky z přiložených textů.
+Na konec přidej seznam 10 obratů, které se v textech NIKDY
+neobjevují, ačkoli by je jiná redakce použila.
+
+Texty:
+[sem vložte texty]
+```
+
+Výsledek uložte jako kartu registru a přikládejte ji ke každému přeladění. Ušetří vám opakované vysvětlování a hlavně zajistí, že dva různé texty přeladěné v různých dnech dopadnou stejně.
+
+## Prompt: přeladění s pevnými pravidly
+
+```text
+Přelaď následující text ze zpravodajského do popularizačního
+registru. Fakta, jejich pořadí ani jejich váha se nemění.
+
+Registr:
+- věty do 20 slov, žádné souvětí přes dvě vedlejší
+- odborné termíny vysvětli při prvním výskytu jednou větou,
+  pak už termín používej normálně
+- čtenáře neoslovuj, autor v textu není vidět
+- čísla nech přesná; k jednomu klíčovému číslu smíš přidat
+  srovnání, pokud vyplývá z textu
+- slovesa neutrální, žádná expresivní („zdrtil“, „šokoval“)
+- žádné řečnické otázky, žádné vykřičníky
+- žádná metafora, kterou by šlo číst jako hodnocení
+
+Nedotknutelné: kdo co tvrdí, výhrady („údajně“, „podle“,
+„nepravomocně“, „zatím“), čísla, jména, vyjádření druhé strany.
+Nepřidávej žádný fakt, který v textu není — ani vysvětlující.
+
+Vrať přeladěný text a pod ním seznam všech termínů,
+které jsi vysvětloval, s formulací vysvětlení.
+
+Text:
+[sem vložte text]
+```
+
+Poslední odstavec zadání dělá víc práce, než se zdá. Vysvětlení odborného termínu je totiž nová informace a bývá zdrojem chyb — model rád doplní definici, která je obecně správná, ale v kontextu vašeho textu neplatí. Když vám je vypíše zvlášť, zkontrolujete pět vět místo celého článku.
+
+## Co se při změně tónu nesmí ztratit
+
+Tři věci, v tomhle pořadí naléhavosti:
+
+**Atribuce.** Ve zpravodajském registru je „podle výroční zprávy firma snížila zisk“. V uvolněnějším tónu z toho model udělá „firma snížila zisk“. Fakt se nezměnil, ale zdroj zmizel a tvrzení je najednou vaše.
+
+**Výhrady a modalita.** „Zřejmě“, „mělo by“, „podle dostupných informací“, „nepravomocně“ vypadají jako slovní vata a při zestručňování jdou ven jako první. Přitom nesou právní i věcný obsah. Obviněný člověk není odsouzený a rozdíl je jedno slovo.
+
+**Míra jistoty u čísel.** „Přibližně 3 000“ se v úspornějším registru stane „3 000“. U odhadu je to posun, který text zpřesňuje víc, než dovolují data.
+
+Na kontrolu stačí jeden prompt, který nic neopravuje — jen ukazuje:
+
+```text
+Porovnej původní a přeladěný text. Styl neřeš.
+Vrať tabulku: tvrzení v originále | jak zní teď | posun.
+
+Posun označ jako: BEZE ZMĚNY / OSLABENO / ZESÍLENO /
+ZTRACENA ATRIBUCE / ZTRACENA VÝHRADA / NOVÉ TVRZENÍ.
+
+Zvlášť vypiš:
+a) každé místo, kde zmizelo „podle koho“
+b) každé místo, kde se z podmíněného stalo oznamovací
+c) každé hodnotící slovo, které v originále nebylo
+
+Nic neopravuj.
+```
+
+Řádky ZESÍLENO a NOVÉ TVRZENÍ čtěte vždy. Právě tam vzniká oprava v příštím vydání.
+
+## Jak poznat, že model přestřelil do bulváru
+
+Model má z trénování silnou představu, že „poutavější“ znamená „emotivnější“. Bez explicitního zákazu ujede a pozná se to podle čtyř signálů:
+
+1. **Slovesa se zbarvila.** Ze „snížil“ je „osekal“, z „odmítl“ je „utnul“, z „vzrostl“ je „vyletěl“.
+2. **Přibyla jistota.** Zmizelo „zřejmě“ a text najednou ví.
+3. **Objevila se otázka nebo oslovení.** „Co to znamená pro vaši peněženku?“
+4. **Nová hodnotící slova.** „Kontroverzní“, „skandální“, „nebývalý“ — nikdo je neřekl, přidal je model.
+
+Rychlá kontrola, kterou lze pustit i na cizí text:
+
+```text
+Projdi text a vrať tři seznamy, nic jiného:
+
+A) expresivní slovesa a přídavná jména (u každého navrhni
+   neutrální náhradu)
+B) věty, které tvrdí víc jistoty, než unese doložený zdroj
+C) hodnotící slova bez atribuce (kdo to hodnotí?)
+
+U každé položky uveď doslovnou citaci a číslo odstavce.
+Nepřepisuj text.
+```
+
+## Prompt: tři registry vedle sebe
+
+Když se v redakci hádáte o tón, je rychlejší se na varianty podívat než je popisovat:
+
+```text
+Z tohoto odstavce udělej tři verze se stejnými fakty:
+
+A) zpravodajská — věty do 15 slov, autor neviditelný,
+   čísla přesně
+B) analytická — souvětí povolena, přidej jednu větu
+   „co z toho plyne“, ale jen to, co plyne z uvedených dat
+C) na sítě — do 280 znaků, háček v první větě, atribuce
+   musí zůstat i tady
+
+Ve všech třech drž identická fakta, jména a výhrady.
+Pod každou verzi napiš, co se v ní ztratilo oproti originálu.
+```
+
+## Vzorová situace
+
+Redaktor Vít má hotový zpravodajský text o rozhodnutí úřadu a editor chce z něj vysvětlující verzi pro víkendovou přílohu. Přiloží kartu registru přílohy, pustí přeladění a dostane text, který se čte dobře. V kontrolní tabulce ale svítí tři řádky: dvakrát ZTRACENA ATRIBUCE (zmizelo „podle rozhodnutí“) a jednou NOVÉ TVRZENÍ — model vysvětlil pojem tak, že mu přidal důsledek, který v rozhodnutí není. Vít obojí vrátí, vysvětlení přepíše vlastní větou a text pošle dál. Přeladění zabralo pět minut, kontrola tři, ruční přepis by stál půl hodiny — a hlavně by ty tři posuny nikdo nehledal, protože text zněl dobře.
+
+## Co vám to přinese
+
+Přeladění přestane být loterií a stane se opakovatelným krokem se stejným výsledkem pokaždé. Ušetří to zhruba půl hodiny na text, ale podstatnější je kontrolní tabulka: je to jediný způsob, jak u změny tónu uvidět posuny, které při běžném čtení zmizí, protože text zní přirozeně. Pod textem je pořád podepsaný člověk a rozhoduje o každém řádku, který model označil.
+
+Na doprovodné texty k publikovanému článku navazuje [sada příspěvků na sítě](/tipy/z-clanku-prispevky-na-site), na přesné rozsahy [úprava textu na počet znaků](/tipy/text-na-presny-pocet-znaku) a na kritické čtení hotové verze [AI jako oponent](/tipy/ai-oponent).
+
+## Pro tip
+
+Kartu registru si udělejte i pro tón, který v redakci **nechcete** — sesbírejte deset obratů z konkurenčního bulváru a přiložte je jako zakázaný seznam. Zákaz se kontroluje binárně: buď tam ta fráze je, nebo není. To je mnohem spolehlivější měřítko než pokyn „nebuď bulvární“, kterému každý model rozumí jinak.
