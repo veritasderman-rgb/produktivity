@@ -1,0 +1,178 @@
+---
+title: "Text na přesný počet znaků, ne přibližně"
+excerpt: "Titulek do 60, perex do 300, sloupek na 3 000. Modely znaky počítají nespolehlivě — návod, jak zadat limit, ověřit ho a krátit bez ztráty faktů."
+category: "ai"
+platform: "vsude"
+audience: ["novinar", "marketer", "freelancer"]
+keys: []
+saves: "~20 min na text"
+date: "2026-08-24"
+updated: "2026-08-24"
+tldr: >-
+  Model neumí spolehlivě spočítat znaky, protože nevidí písmena, ale tokeny —
+  takže „zkrať to na 300 znaků“ vrátí text, který má 260 nebo 380. Postup, který
+  funguje: limit zadat jako tvrdé pravidlo s povinným výpisem počtu, výsledek si
+  změřit vlastníma očima (editor, Ctrl+Shift+C, wc -m) a krátit podle pořadí, ve
+  kterém se z novinářského textu smí ubírat. Ven jdou první přívlastky a
+  zopakovaný kontext, nikdy ne atribuce, výhrady a čísla, na kterých text stojí.
+---
+
+Uzávěrka je za dvacet minut, sloupek má 3 400 znaků a v šabloně je místo na 3 000. Titulek musí být do šedesáti, aby se nezalamoval, perex do tří set, aby prošel systémem. Krácení na přesný rozsah je jedna z mála redakčních prací, kterou člověk dělá každý den a nikdy se u ní nezrychlí — a zároveň jedna z prvních, u kterých se nabízí AI. Funguje to, ale ne tak, jak byste čekali: model je výborný v tom, co z textu vyhodit, a mizerný v tom, kolik toho vyhodil.
+
+## Proč model počítá znaky nespolehlivě
+
+Jazykový model nevidí písmena. Text si rozděluje na tokeny — kusy o velikosti od jednoho znaku po celé slovo — a s těmi pracuje. Kolik znaků takový token má, se z jeho reprezentace přímo nevyčte, takže když po modelu chcete počet znaků, dělá odhad na základě toho, jak podobné texty vypadaly v trénování. U češtiny je odhad ještě horší než u angličtiny: diakritika rozbíjí slova na víc tokenů a poměr „token na znak“ je jiný než v jazyce, na kterém se model učil nejvíc.
+
+Praktický dopad: požádáte o 300 znaků a dostanete 247 nebo 361. Model přitom sebevědomě napíše „(298 znaků)“, protože i tohle číslo je odhad, ne měření. Pokud má model k dispozici nástroj na spuštění kódu — v placených režimech pro analýzu dat běžně má — dokáže si délku spočítat doopravdy a pak je přesný. Bez nástroje jste odkázáni na vlastní kontrolu.
+
+Z toho plyne jediné rozumné pravidlo: **limit zadávejte tvrdě, ale výsledek si vždycky změřte sami.** Trvá to pět vteřin a je to jediná část procesu, kterou nelze delegovat.
+
+## Jak si počet ověřit za pět vteřin
+
+- **Word:** stavový řádek dole, kliknutím na počet slov se otevře okno s položkou „Znaky (včetně mezer)“. Když označíte odstavec, počítá jen výběr.
+- **Dokumenty Google:** Nástroje → Počet slov, nebo rovnou zkratkou Ctrl+Shift+C. Zaškrtnutím „Zobrazovat počet slov při psaní“ získáte živé počítadlo v rohu.
+- **Redakční systém:** většina CMS ukazuje počítadlo u titulku a perexu přímo v editoru — pokud ho váš systém má, je to nejspolehlivější místo, protože měří přesně to pole, které vás zajímá.
+- **Terminál:** `wc -m soubor.txt`. Pozor na časté nedorozumění — `wc -c` počítá bajty, ne znaky, a české písmeno s diakritikou zabírá v UTF‑8 bajty dva. Na textu s háčky vám `wc -c` napočítá o pětinu víc.
+
+Jestli krátíte denně, vyplatí se mít po ruce jedno místo, kde měříte vždycky stejně. Rozdíly mezi nástroji jsou drobné (zalomení řádků, nedělitelné mezery), ale u limitu 60 znaků rozhodují.
+
+## Krácení: co jde ven jako první
+
+Model umí krátit velmi dobře, jenže bez instrukce krátí podle toho, co považuje za „méně důležité“ — a to je u novinářského textu často přesně naopak. Rozhodně nechcete, aby jako první vypadlo „podle vyšetřovací zprávy“, protože to vypadá jako vata. Pořadí, ve kterém se z textu ubírá, proto patří přímo do promptu:
+
+1. **Přívlastky a příslovce**, které nenesou informaci — „výrazně“, „poměrně“, „zcela nový“.
+2. **Zopakovaný kontext**, který už zazněl v perexu nebo v předchozím odstavci.
+3. **Vedlejší věty**, které jen jinými slovy říkají hlavní větu.
+4. **Druhý příklad**, když první stačí. Tři ilustrace téhož jevu jsou luxus, ne argument.
+5. **Popisné pasáže** kolem citace — uvození typu „na dotaz redakce v pondělí odpoledne uvedl“ se dá zkrátit na „uvedl“.
+6. **Čísla, která nejsou pointou.** Když text stojí na jednom údaji, ostatní jsou kontext a smí jít.
+
+A co ven nesmí nikdy, ani když chybí padesát znaků: atribuce (kdo to tvrdí), výhrady a modalita („údajně“, „podle policie“, „zatím nepravomocně“), jména a čísla, na kterých text stojí, a vyjádření druhé strany. Když se limit nedá splnit bez sáhnutí do téhle skupiny, není chyba v textu — je krátký o jeden odstavec, který tam být musí, a řešit se to má s editorem, ne škrtem.
+
+## Prompt na zkrácení s pevným limitem
+
+Klíč je zadat limit jako podmínku, ne jako přání, a vynutit si protokol o tom, co vypadlo. Ten protokol je celá pointa: čtete ho rychleji než celý text a hned vidíte, jestli se neztratilo něco, co jste chtěli udržet.
+
+```text
+Zkrať následující text na maximálně 3 000 znaků včetně mezer.
+Limit je tvrdý, ne přibližný.
+
+Pořadí, ve kterém smíš ubírat:
+1. přívlastky a příslovce bez informace
+2. kontext zopakovaný z perexu
+3. vedlejší věty opakující hlavní myšlenku
+4. druhý a další příklad téhož
+5. popisná uvození citací
+
+NIKDY neubírej: kdo co tvrdí (atribuce), výhrady typu „údajně“,
+„podle“, „zatím nepravomocně“, jména, čísla nesoucí pointu
+a vyjádření druhé strany. Nepřidávej žádnou informaci, která
+v původním textu není.
+
+Vrať v tomto pořadí:
+1. zkrácený text
+2. řádek „Počet znaků včetně mezer: N“
+3. protokol: seznam toho, co jsi vyhodil, po položkách
+4. seznam VÝHRADY: co jsi musel zkrátit na hraně srozumitelnosti
+
+Text:
+[sem vložte text]
+```
+
+Až vám model vrátí výsledek, změřte ho. Když je nad limitem, nechte doladit — a všimněte si, že druhé kolo bývá přesnější, protože model už má před sebou konkrétní číslo, o kolik přestřelil:
+
+```text
+Text má 3 180 znaků, limit je 3 000. Zkrať o dalších 180 znaků
+podle stejných pravidel. Neškrtej celý odstavec — ubírej po
+slovech a vedlejších větách, ať se nezmění stavba textu.
+Znovu vypiš, co vypadlo.
+```
+
+## Prompt na jeden text ve třech délkách
+
+Většinou nepotřebujete jednu délku, ale sadu: titulek, perex, upoutávku na web a plný text. Vyplatí se je nechat vyrobit najednou z téhož podkladu — nezávisle vzniklé varianty se totiž rozcházejí v důrazu a čtenář, který uvidí dvě z nich, si všimne.
+
+```text
+Z následujícího textu udělej čtyři varianty stejného sdělení.
+U každé dodrž limit včetně mezer a připiš skutečný počet znaků:
+
+A) titulek, max 60 znaků — bez dvojtečky, bez otazníku,
+   sloveso v hlavní větě, žádný příslib, který text nesplní
+B) perex, max 300 znaků — první věta říká, co se stalo,
+   druhá říká, komu na tom záleží
+C) upoutávka na web, max 800 znaků — perex plus jeden
+   konkrétní údaj navíc
+D) shrnutí do rubriky, max 1 200 znaků
+
+Napříč variantami drž stejná fakta a stejné atribuce.
+Nic nepřidávej. U každé varianty připiš, který údaj z textu
+jsi kvůli limitu vypustil.
+```
+
+U titulků se vyplatí chtít víc možností najednou. Osm variant se čte půl minuty a rozdíl mezi nimi je poučnější než jedna „nejlepší“:
+
+```text
+Navrhni 8 titulků k tomuto textu, každý do 60 znaků včetně mezer,
+u každého připiš počet znaků. Pravidla: konkrétní podmět, aktivní
+sloveso, žádné otázky, žádné superlativy, žádný údaj, který
+v textu není. Ke každému titulku připiš, na které větě textu stojí.
+```
+
+## Když text nedosahuje: doplnit, ne nafouknout
+
+Opačná situace je nebezpečnější. Chybí vám osm set znaků do rozsahu a model je bez mrknutí doplní — jenže v novinářském textu není z čeho, takže vyrobí věty, které buď neříkají nic, nebo říkají něco, co nikdo netvrdil. Nafouknutý text se navíc pozná: přibudou obraty typu „je třeba zdůraznit, že“ a odstavce začnou opakovat, co už zaznělo.
+
+Bezpečné doplnění vychází výhradně z materiálu, který máte — z poznámek, přepisu rozhovoru, dokumentu. Model má hledat, co jste vynechali, ne vymýšlet, co by se hodilo:
+
+```text
+Tento text má 2 200 znaků, cílový rozsah je 3 000.
+Nesmíš přidat žádnou informaci, která není v přiložených
+podkladech. Místo psaní nového textu udělej tohle:
+
+1. Vypiš 10 konkrétních údajů z podkladů, které v článku
+   nejsou a doplnily by ho (číslo, jméno, datum, citace).
+2. U každého napiš, kam v textu patří a proč.
+3. Teprve pak navrhni doplněný text a označ v něm hvězdičkou
+   každou větu, která je nová.
+
+Když v podkladech není dost materiálu na 3 000 znaků, napiš to
+rovnou a nedopisuj vatu.
+
+Podklady:
+[sem vložte poznámky a přepisy]
+```
+
+Poslední odstavec zadání je ten nejdůležitější. Model, který dostane povolení říct „na tohle nemám materiál“, ho překvapivě často využije — a vy máte informaci, že chybí telefonát, ne slova.
+
+## Kontrola, co se cestou ztratilo
+
+Po každém větším zásahu se vyplatí jedna minuta na porovnání faktů. Nejde o styl, jde o to, jestli zkrácená verze netvrdí něco jiného než původní:
+
+```text
+Porovnej původní a zkrácený text. Nezajímá mě styl.
+Vrať tabulku o třech sloupcích:
+
+- tvrzení v původním textu
+- jak zní v zkráceném textu
+- posun: BEZE ZMĚNY / OSLABENO / ZESÍLENO / ZMIZELO / NOVÉ
+
+Zvlášť vypiš každý případ, kdy se ztratila atribuce nebo výhrada
+(z „podle policie zřejmě“ se stalo „policie potvrdila“).
+Nic neopravuj, jen vypiš.
+```
+
+Zvlášť si všímejte řádků označených ZESÍLENO. Krácení totiž nejčastěji nekazí fakta tím, že je smaže, ale tím, že z opatrné formulace udělá tvrzení — a to je přesně chyba, za kterou se otiskuje oprava.
+
+## Vzorová situace
+
+Editorka Hana má v pět odpoledne dostat do tisku sloupek na 3 000 znaků. Autor poslal 3 900 a je nedostupný. Hana vloží text do zadání s pevným limitem a pořadím škrtů, dostane verzi o 3 070 znacích a protokol o dvanácti položkách. V protokolu vidí, že vypadla věta s vyjádřením ministerstva — to je jediná položka, kterou vrátí ručně, a místo ní obětuje druhý příklad. Změří výsledek v CMS: 2 986. Pak pustí kontrolu posunů a v tabulce najde jeden řádek ZESÍLENO — z „návrh podle dokumentu počítá s“ se stalo „návrh počítá s“. Opraví zpátky. Celé to trvalo osm minut místo pětadvaceti a pod textem je pořád podepsaný autor, ne model.
+
+## Co vám to přinese
+
+Krácení přestane být tou částí dne, kterou odkládáte na poslední chvíli. Reálná úspora je zhruba dvacet minut na delším textu a u sady titulek–perex–upoutávka spíš víc, protože varianty vznikají naráz a drží spolu. Hlavní zisk ale není v čase: protokol o tom, co vypadlo, je záznam, který u ručního krácení nikdy nevznikne — a díky němu poznáte ztracenou výhradu dřív, než ji najde čtenář.
+
+Na text, který má zůstat vaším hlasem a jen bez chyb, se hodí jiný přístup — [korektura, která nepřepisuje](/tipy/ai-oprav-jen-pravopis). Když text potřebuje přeladit do jiného registru, pokračujte [změnou tonality](/tipy/zmena-tonality-textu). A typografické detaily, které se při krácení rozbíjejí nejčastěji, řeší [česká typografie s AI](/tipy/ai-ceska-typografie).
+
+## Pro tip
+
+Nezveřejněné podklady a materiály od zdrojů nahrávejte jen tam, kde víte, jak se s nimi nakládá — a jména, kontakty a věci, které by zdroj identifikovaly, z nich před vložením vyházejte. Na krácení model nepotřebuje vědět, kdo vám dokument dal; potřebuje jen text. Osobní účet zdarma není místo pro rozpracovanou kauzu.
