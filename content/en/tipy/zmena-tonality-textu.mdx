@@ -1,0 +1,191 @@
+---
+title: "Change a text's tone without losing facts"
+excerpt: "Same facts, different register: news, analytical, explanatory, social. How to specify tone concretely and catch a model drifting into tabloid."
+category: "ai"
+platform: "vsude"
+audience: ["novinar", "marketer"]
+keys: []
+saves: "~30 min per text"
+date: "2026-08-24"
+updated: "2026-08-24"
+tldr: >-
+  Retuning a text into a different register is different work from rewriting it.
+  A model can do it, but only when the tone is described along axes you can
+  actually check afterward — sentence length, terminology, point of view, how
+  numbers are handled, verb type — instead of adjectives like “punchier.” Every
+  register change risks three specific losses: attribution disappears, a hedge
+  turns into a flat claim, and evaluation creeps in that wasn't in the original.
+  There's a check prompt for that, plus four signals that tell you a text has
+  drifted into tabloid.
+---
+
+The same facts can be written five different ways and come out different every time: sober for a news report, with context for an analysis piece, plain-spoken for an explainer, punchy for social. Journalists do this constantly — they just don't call it changing the tone, they call it “make a web version of this.” A model can help with it faster than anyone, and it's also the discipline where it does the most quiet damage. Retuning is, after all, the one kind of edit where the facts shouldn't change and yet what the text claims can shift anyway.
+
+## Four registers a newsroom needs
+
+This isn't style in the literary sense — it's four working modes, each with its own rules:
+
+- **News.** Short sentences, one point per sentence, inverted pyramid. The writer stays invisible. Every evaluation belongs to someone named, never to the writer. Numbers exact, never rounded.
+- **Analytical.** Longer sentences can carry more conditions. It allows “why” and “what follows,” but keeps a clear line between what's documented and what's interpretation. Terminology gets used and explained once.
+- **Explanatory.** A technical term gets replaced with plain language or explained through an example. The explanation can't simplify so far that it stops being accurate — that's the main trap.
+- **Social.** Shortest of all, with a hook in the first sentence. Context that lives in the third paragraph of the article has to be there immediately, or the post ends up claiming something different from the piece it's drawn from.
+
+## Why “make it better” doesn't work
+
+Adjectives are ambiguous to a model. “Punchier” it reads as shorter sentences plus addressing the reader plus a rhetorical question. “Livelier” it reads as more expressive verbs. “More professional” it reads as more passive voice and more nominalizations. The result is different every time and can't be reproduced — and, crucially, none of those instructions tells the model what has to survive in the text.
+
+The fix is to describe the register along axes you can check once you've read the result:
+
+1. **Sentence length** — an average and a ceiling, not “short.”
+2. **Terminology** — used as-is, explained on first use, or replaced with plain language.
+3. **Point of view and address** — is the writer visible in the text? Is the reader addressed directly?
+4. **Numbers** — exact, rounded, or converted into a comparison.
+5. **Verbs** — neutral or expressive. Passive voice allowed or not.
+6. **Figurative language** — allowed or banned.
+7. **What opens the first paragraph** — the newest fact, the most important consequence, or a scene.
+
+Seven lines, written once and reused every time. This is also where it draws a line against [brand voice](/tipy/znacka-ton-hlasu-ai): a brand book covers how an organization sounds across everything it publishes. Here the scope is one text, and the point is that the facts don't move while the register does.
+
+## Prompt: a register card pulled from your own archive
+
+The best description of your newsroom's tone won't come from sitting down and inventing one — it's already there in your own writing. Have it pulled from eight to ten pieces you consider good:
+
+```text
+I'm attaching 10 pieces from our section. I don't want praise
+or a rating. Describe the register they're written in, along
+these axes:
+
+1. sentence length (average and the longest that occur in the texts)
+2. terminology (which terms are used without explanation)
+3. point of view and address (is the writer visible, is the
+   reader addressed)
+4. handling of numbers (exact / rounded / converted into a comparison)
+5. verb type (neutral vs. expressive, passive voice)
+6. figurative language (yes/no, with examples from the texts)
+7. what typically opens the first paragraph
+
+For each axis, give two verbatim examples from the attached texts.
+At the end, add a list of 10 phrases that NEVER appear in these
+texts, even though another newsroom would use them.
+
+Texts:
+[paste the texts here]
+```
+
+Save the result as a register card and attach it to every retuning job. It saves you re-explaining the same thing repeatedly, and more importantly it guarantees that two different pieces retuned on two different days come out consistent with each other.
+
+## Prompt: retuning with fixed rules
+
+```text
+Retune the following text from news register into explanatory
+register. The facts, their order, and their weight don't change.
+
+Register:
+- sentences under 20 words, no compound sentence with more than
+  two subordinate clauses
+- explain technical terms in one sentence on first use, then use
+  the term normally
+- don't address the reader, the writer stays invisible in the text
+- keep numbers exact; you may add one comparison to a single key
+  number, if it follows from the text
+- neutral verbs, no expressive ones (“slashed,” “stunned”)
+- no rhetorical questions, no exclamation points
+- no metaphor that could be read as an evaluation
+
+Untouchable: who is making each claim, hedges (“allegedly,”
+“according to,” “pending appeal,” “so far”), numbers, names,
+the other side's response. Add no fact that isn't in the text —
+not even by way of explanation.
+
+Return the retuned text, followed by a list of every term you
+explained, along with the wording of the explanation.
+
+Text:
+[paste the text here]
+```
+
+That last paragraph of the prompt does more work than it looks like. Explaining a technical term is new information, and it's a common source of errors — a model likes to add a definition that's generally correct but doesn't hold in the context of your specific text. When it lists those explanations separately, you're checking five sentences instead of the whole piece.
+
+## What must not be lost when the tone changes
+
+Three things, in order of urgency:
+
+**Attribution.** In news register it's “according to the annual report, the company's profit fell.” In a looser tone the model turns that into “the company's profit fell.” The fact hasn't changed, but the source has vanished and the claim is suddenly yours.
+
+**Hedges and modality.** “Apparently,” “is expected to,” “according to available information,” “pending appeal” look like filler and are usually the first thing to go when a text gets trimmed. But they carry legal and factual weight. A person who's been charged is not a person who's been convicted, and the difference is one word.
+
+**Certainty around numbers.** “Approximately 3,000” becomes “3,000” in a leaner register. For an estimate, that's a shift that makes the text more precise than the data actually allows.
+
+One prompt is enough to check for this — and it fixes nothing, it only shows you:
+
+```text
+Compare the original and the retuned text. I'm not asking about style.
+Return a table: claim in the original | how it reads now | shift.
+
+Mark the shift as: UNCHANGED / WEAKENED / STRENGTHENED /
+ATTRIBUTION LOST / HEDGE LOST / NEW CLAIM.
+
+List separately:
+a) every spot where “according to whom” disappeared
+b) every spot where a conditional became a flat statement
+c) every evaluative word that wasn't in the original
+
+Don't fix anything.
+```
+
+Always read the lines marked STRENGTHENED and NEW CLAIM. That's exactly where next issue's correction gets born.
+
+## How to tell a model has overshot into tabloid
+
+Models come out of training with a strong assumption that “more engaging” means “more emotional.” Without an explicit ban, they drift, and you can spot it by four signals:
+
+1. **Verbs got colorful.** “Reduced” becomes “slashed,” “declined” becomes “refused point-blank,” “rose” becomes “skyrocketed.”
+2. **Certainty crept in.** “Apparently” vanished and the text suddenly just knows.
+3. **A question or direct address showed up.** “What does this mean for your wallet?”
+4. **New evaluative words appeared.** “Controversial,” “scandalous,” “unprecedented” — nobody said them, the model added them.
+
+A quick check you can even run on someone else's text:
+
+```text
+Go through the text and return three lists, nothing else:
+
+A) expressive verbs and adjectives (suggest a neutral replacement
+   for each)
+B) sentences that claim more certainty than the cited source
+   supports
+C) evaluative words without attribution (who is doing the evaluating?)
+
+For each item, give the exact quote and the paragraph number.
+Don't rewrite the text.
+```
+
+## Prompt: three registers side by side
+
+When a newsroom is arguing about tone, it's faster to look at the options than to describe them:
+
+```text
+Make three versions of this paragraph, all with the same facts:
+
+A) news — sentences under 15 words, writer invisible, numbers exact
+B) analytical — compound sentences allowed, add one sentence of
+   “what this means,” but only what follows from the data given
+C) social — under 280 characters, hook in the first sentence,
+   attribution has to survive here too
+
+Keep identical facts, names, and hedges across all three.
+Under each version, note what got lost compared with the original.
+```
+
+## A typical scenario
+
+Reporter Vít has a finished news piece about an agency's decision, and the editor wants an explanatory version for the weekend supplement. He attaches the supplement's register card, runs the retuning, and gets back a text that reads well. But the check table lights up three lines: ATTRIBUTION LOST twice (“according to the decision” disappeared) and NEW CLAIM once — the model explained a term in a way that tacked on a consequence not actually in the ruling. Vít reverts both, rewrites the explanation in his own sentence, and sends the piece on. The retuning took five minutes, the check three, a manual rewrite would have taken half an hour — and nobody would have gone looking for those three shifts, because the text read fine.
+
+## What you get out of it
+
+Retuning stops being a gamble and becomes a repeatable step that produces the same result every time. It saves roughly half an hour per piece, but the more important part is the check table: it's the only way to see the shifts a tone change causes that disappear on a normal read, because the text still sounds natural. A person is still the byline, and still decides on every line the model flagged.
+
+Following on from a published article, there's [a set of social posts drawn from it](/tipy/z-clanku-prispevky-na-site); for exact lengths, see [cutting text to a character count](/tipy/text-na-presny-pocet-znaku); and for a critical read of the finished version, see [AI as your opponent](/tipy/ai-oponent).
+
+## Pro tip
+
+Build a register card for the tone you **don't** want, too — collect ten phrases from a competing tabloid outlet and attach them as a banned list. A ban is easy to check: either the phrase is there or it isn't. That's a far more reliable measure than the instruction “don't be tabloid,” which every model interprets differently.

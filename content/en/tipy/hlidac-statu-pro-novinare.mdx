@@ -1,0 +1,199 @@
+---
+title: "Hlídač státu as a journalism tool"
+excerpt: "Contracts, subsidies, party donations, and the K-index right inside a conversation. Where a lead comes from and where data ends and an accusation begins."
+category: "ai"
+platform: "vsude"
+audience: ["novinar"]
+keys: []
+saves: "~2 h per investigation"
+date: "2026-08-24"
+updated: "2026-08-24"
+tldr: >-
+  The MCP server run by Hlídač státu — a Czech public-sector transparency
+  watchdog — gives a model direct access to the Register of Contracts, public
+  procurement, subsidies, insolvencies, political party donations, the K-index,
+  and parliamentary transcripts. For a journalist it's a tool for finding a lead,
+  not for writing a conclusion: filters like “contracts with serious issues,”
+  “hidden price,” or “just under the threshold” generate a list of places worth
+  a look. Every finding then has to be verified at the source and tested against
+  whether a boring explanation isn't more likely than the interesting one.
+---
+
+Public data on how the state spends money has been available for years, just scattered across registries that don't talk to each other. Hlídač státu links them by company ID and by people's names, and since 2025 it has run an MCP server for them — an interface an AI assistant can query directly, instead of you copying tables into a chat window. For a newsroom that changes one concrete thing: research that used to eat an afternoon shrinks to fifteen minutes, and the rest of the time goes to what a machine can't do — phone calls and verification.
+
+This site also covers [vetting a business partner with Hlídač státu](/tipy/proverka-obchodniho-partnera-hlidac-statu), which answers the question “sign with them or not” and ends in a risk profile. Journalistic work with the same data has a different goal and different risks: you're not looking for risk to yourself, you're looking for a lead for a piece that will name someone. Setting up the connector is covered in that guide; this piece picks up from the point where the server is already running.
+
+## What's different when you're a journalist
+
+Three differences shape the whole approach:
+
+- **You're not looking for one company, you're looking for an anomaly.** Vetting starts from the name of a counterparty. Investigative research often starts from an agency, an industry, or an amount, and the name is the result, not the starting point.
+- **The output isn't a decision, it's a claim.** A risk profile is something you read yourself. A published piece is read by the public, and the person named in it has a right to respond — and to a correction.
+- **The presumption of innocence applies to data too.** An insolvency filing, a ruling from the Czech competition authority, or a political donation is not an accusation. They're facts you're still trying to figure out whether they add up to a story.
+
+Hlídač státu builds in the assumption that journalists work with its data too: accounts have roles, and some of the analytical views — league tables of companies whose volume of state contracts grew fastest, for instance — are available only to accounts with a journalist or beta-tester role. If the model tells you it isn't authorized to use a tool, that's not a bug in your query — it's a reason to write to Hlídač státu and ask for the role.
+
+## Five places a lead can come from
+
+**Register of Contracts.** The richest source, and the one with the most journalistically useful search filters. Beyond keywords, company IDs, and amounts, the search can return just contracts flagged as having serious legal issues, just contracts with a hidden price, and — the most interesting one — just contracts whose value sits just under the legal threshold that would trigger a public procurement process. That's a classic pattern for dodging competitive bidding, and it would be nearly impossible to find by hand. Caveat: “just under the threshold” proves nothing on its own. It's a list of contracts worth a closer look.
+
+**Public procurement.** A separate database of tender procedures. It filters by contracting authority, supplier, signing date, price excluding VAT, and CPV codes — a classification of industries that lets you scope a search to, say, just IT or just construction. Useful when you're tracking a market rather than a single company.
+
+**Subsidies.** Czech and EU subsidies, with their own query syntax. Beyond recipient and grantor, you can filter by area (transport, healthcare, culture, sport, environment, and more), by program, by year, and by amount with comparison operators. A fast route to “who in our region drew the most from this program.”
+
+**Political party donations.** Donations from companies, donations from individuals, and the view from the recipient's side — a list of a given party's donors. The data comes from parties' annual reports. Donating is legal and common; it becomes journalistically interesting once it lines up with something else — a contract, a subsidy, a timing coincidence.
+
+**Financial and legal trail.** Insolvency proceedings by company ID, including the role (debtor, creditor, administrator), criminal records for legal entities, unreliable VAT payer status, and rulings from the Czech competition authority. On top of that there's the K-index — a grade from A to F for institutions based on the riskiness of their contracting practices. Two limits worth remembering about the K-index: it's calculated only for roughly the two hundred largest public institutions (a smaller agency simply won't have one), and the detailed breakdown into individual risk metrics is available only under a commercial license. The overall grade and its ranking are available normally.
+
+Off to the side sit transcripts from the Chamber of Deputies — verbatim records of floor speeches. Once you have a finding from the registers, this is the fastest way to see what anyone said about it on the floor, and when.
+
+## Prompt: screening one agency
+
+```text
+Use only data from Hlídač státu — don't add anything from memory.
+
+For the institution [agency name]:
+1. Find its company ID and confirm it's the right entity
+   (registered address, type).
+2. Return the K-index for every available year. If there isn't
+   one, say so.
+3. List contracts from the last three years flagged as having
+   serious legal issues.
+4. List contracts with a hidden price.
+5. List contracts whose value sits just under the public
+   procurement threshold.
+
+For each contract, give: date, counterparty with its company ID,
+amount, subject, and an identifier for looking it up.
+At the end, state how many results there were in total and how
+many you're showing — I need to know if I'm looking at the first
+page or at everything.
+```
+
+That last line isn't a nicety. Search results are paginated and a single page returns at most fifty records; “I found eight contracts” can mean “eight out of ninety.” Without that question you won't notice.
+
+## Prompt: a company's dealings with the state over time
+
+```text
+For the company [name], find its company ID and then build a
+profile of its business with the state:
+
+- a summary of its dealings with the state (contracts, subsidies, risks)
+- the volume of contracts by year, as a table
+- its five largest contracts with date, contracting authority, and amount
+- insolvency proceedings by company ID, including the company's role in them
+- criminal records for the legal entity
+- unreliable VAT payer status
+- subsidiary companies
+
+For each figure, note which source it comes from.
+Where data doesn't exist, write “not in the data” — don't
+estimate or fill in gaps.
+```
+
+The time series is what matters. One large contract means nothing on its own; a jump from zero to tens of millions in the year an agency changed leadership is a question worth a phone call.
+
+## Prompt: cross-checking donations
+
+```text
+For the company [name, company ID] and for its directors and
+partners (look them up as people), find:
+
+1. donations to political parties — who, when, to whom, how much
+2. contracts and procurement with the state — when and with whom
+
+Build a single timeline with both series side by side, sorted
+by date.
+
+Don't draw any conclusion about a connection. Just show me where
+donations and contracts sit close together in time, and for each
+such pair note what BORING explanation could account for it.
+```
+
+That last paragraph is there on purpose. A model tasked with coming up with the boring explanation too will save you from publishing a piece that wouldn't hold up.
+
+## Prompt: subsidies by region and by sector
+
+```text
+Search for subsidies in the area of [e.g. sport] awarded in the
+years [range] to recipients based in [region/municipality].
+
+Sort by amount descending, return the top 30.
+For each: recipient with company ID, program, project, amount,
+year, grantor.
+
+Then separately list recipients who appear more than once in
+the results, with their combined total.
+```
+
+## Prompt: what got said about it on the floor
+
+```text
+In the Chamber of Deputies transcripts, find speeches that
+mention [topic / program name / company name], from [date] onward.
+
+Return a table: date, speaker, session, topic, one quoted sentence.
+Sort from most recent. Then for the three most relevant, give me
+the full passage of the speech so I can read it in context.
+
+State how many records the query found in total.
+```
+
+## Prompt: turning findings into something you can verify
+
+```text
+From everything you've found in this conversation, build a single
+table with these columns:
+
+1. claim (one sentence, as it might appear in the piece)
+2. the specific data behind it (record type, identifier, amount, date)
+3. where I can verify it at the source (which registry, what to
+   search for)
+4. what's still missing before this could be published
+
+Don't put anything in column 1 that doesn't have a record in column 2.
+At the end, add a list titled OPEN QUESTIONS: things public data
+can't answer, that I need to ask someone about directly.
+```
+
+## How to verify a lead
+
+A finding from a conversation is not a source. A source is a record you can point to. Before anything makes it into a piece, it goes through this:
+
+1. **Company ID, not a name.** Company names repeat and vary by a single character. Everything is filed under the eight-digit company ID.
+2. **Click through to the source.** Open every figure that's going to make it into the piece on hlidacstatu.cz or directly in the Register of Contracts, and look at the original. A model can find the right record and still summarize it wrong.
+3. **Date of retrieval.** Registries get backfilled. “As of August 24, 2026, the register contained” is accurate; “the register contains” ages badly.
+4. **Save a copy.** Export or save a PDF of the contract into the case file. A record can change, get amended, or disappear.
+5. **A second source.** The Commercial Register at justice.cz for people and filed documents, ARES for identification. Hlídač státu is an index, not a primary record — and other countries have comparable open registries, so this same method transfers well beyond the Czech Republic.
+6. **A question for the other side.** Before you start writing. A response often explains an anomaly in a perfectly ordinary way — and that's a result too.
+
+## How not to overshoot
+
+Rules worth keeping above your monitor:
+
+- **Public data is not an accusation.** An insolvency filing, a competition-authority ruling, or “just under the threshold” prove nothing beyond themselves.
+- **Presumption of innocence.** A criminal proceeding is not a conviction. “Was charged” and “is guilty” are separated by one word — and by a court.
+- **Correlation in time is not a connection.** A donation and a contract in the same month are a reason to ask, not to assert.
+- **A company is not a person.** Don't carry a finding about a legal entity over onto a director without verifying their actual role.
+- **Data coverage has limits.** The Register of Contracts has statutory exemptions, subsidy data lags, and the K-index exists only for the largest institutions.
+- **The model occasionally mismatches records.** Especially with similar names and companies inside a holding structure. That's why you click through.
+- **Legal and unseemly are two different words.** When something is legal, that has to be stated in the piece.
+- **AI is not a source.** The piece never says “according to an AI analysis.” It says the Register of Contracts, a party's annual report, an agency's ruling.
+
+## Protecting sources: what doesn't belong in a query
+
+A query goes to a third-party server, tied to your account. Searching public data on its own is harmless, but the combination is information: your source's name, the title of an unpublished document, an internal case code name, or a list of people you got from a source — none of that belongs in a prompt. Ask about entities, not about your story. Keep unpublished material out entirely — the model doesn't need it to query a registry. And run sensitive research from an account where you know exactly how the data is handled and whether it's used for training.
+
+## A typical scenario
+
+Regional reporter Klára knows only this: people keep talking about road-maintenance contracts in her region. She starts by screening the regional authority — it has a K-index, and it's dropped a grade over the last three years. In the list of contracts sitting just under the threshold, she finds eleven contracts with three suppliers. For one of them, she has a timeline built: the volume of its contracts jumped the same year its director donated to the regional branch of a political party. Klára doesn't have an article out of that — she has five questions. She opens each contract in the register, saves the PDFs, verifies the director in the Commercial Register, and calls both the authority and the company. The company says it was a framework agreement split across sections — a legitimate explanation for one of the three findings. The other two hold up, and the piece will be about those.
+
+## What you get out of it
+
+Research that would otherwise take an afternoon across six registries shrinks to fifteen minutes — and, more importantly, it surfaces questions you wouldn't have thought to ask by hand, because they aren't the kind you can click your way to. Filters for contracts with serious issues or just under the threshold are a generator of leads that would otherwise sit unnoticed. The rest of the work doesn't change: phone calls, responses, clicking through to the source, and a byline that carries responsibility for every word.
+
+Following on from general claim verification, see [fact-checking with AI](/tipy/ai-overovani-faktu); for citable search results, see [search with citations](/tipy/ai-vyhledavani-citace); and for how MCP connectors work in general, see [an overview of connectors](/tipy/mcp-konektory-nastroje).
+
+## Pro tip
+
+Before anyone else can, have your best finding attacked: “You're the outlet's lawyer. Here's my finding and my wording. Tell me what doesn't hold up, which claim isn't backed by a source, and what boring explanation I haven't considered.” The single most useful response out of an entire investigation is often the one that costs you a paragraph.
