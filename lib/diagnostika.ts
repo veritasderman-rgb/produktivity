@@ -630,6 +630,7 @@ export const PROFESSION_TIPS: Record<AudienceId, { low: string; high: string }> 
   vyvojar: { low: "github-copilot", high: "claude-code-osobni-automatizace" },
   freelancer: { low: "smlouva-pred-podpisem-ai", high: "sablony-z-odeslane-posty-ai" },
   rodic: { low: "ai-v-rodine-vychova-hry-pohadky", high: "jidelnicek-a-nakupni-seznam-ai" },
+  novinar: { low: "text-na-presny-pocet-znaku", high: "ai-v-redakci-pruvodce" },
 };
 
 /** Doporučené návody pro úroveň a (volitelnou) profesi — v pořadí, max 3. */

@@ -9,7 +9,8 @@ export type AudienceId =
   | "marketer"
   | "vyvojar"
   | "freelancer"
-  | "rodic";
+  | "rodic"
+  | "novinar";
 
 export type Audience = {
   /** Hodnota v poli `audience` ve frontmatteru tipů. */
@@ -102,6 +103,17 @@ export const audiences: Audience[] = ([
     description: {
       cs: "Pro rodiče, kteří žonglují s prací, domácností a dětským kalendářem naráz. Sdílené seznamy, plánování rodiny a domácí administrativa, kterou za vás z velké části udělá rutina.",
       en: "For parents juggling work, a household and a kids' calendar at the same time. Shared lists, family planning and household admin that a routine can largely take off your hands.",
+    },
+  },
+  {
+    id: "novinar",
+    order: 8,
+    slug: { cs: "novinare", en: "journalists" },
+    name: { cs: "Novináři", en: "Journalists" },
+    forWhom: { cs: "novináře", en: "journalists" },
+    description: {
+      cs: "Pro redaktory, editory a všechny, kdo píšou proti uzávěrce. Rešerše s dohledatelnými zdroji, data z veřejných registrů, krácení na přesný rozsah a práce s tónem — s jasnou čárou, kde končí pomocník a začíná autorská odpovědnost.",
+      en: "For reporters, editors and anyone writing against a deadline. Research with sources you can trace, data from public registries, cutting to an exact length and working with tone — with a clear line where the assistant ends and your byline begins.",
     },
   },
 ] satisfies Audience[]).sort((a, b) => a.order - b.order);
