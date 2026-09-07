@@ -3,6 +3,7 @@ import { getAllChapters } from "@/lib/chapters";
 import { getAllNews } from "@/lib/news";
 import { getAllPrompts } from "@/lib/prompts";
 import { getAllAgentMetas } from "@/lib/agents";
+import { getAllIssueMetas } from "@/lib/newsletter";
 
 export const revalidate = 3600;
 
@@ -16,6 +17,7 @@ export async function GET() {
   const enTips = getAllTips("en");
   const prompts = getAllPrompts();
   const agents = getAllAgentMetas();
+  const issues = getAllIssueMetas();
 
   const lines: string[] = [
     "# Produktivní.cz",
@@ -51,6 +53,19 @@ export async function GET() {
     "",
     ...agents.map((a) => `- [${a.title}](https://www.produktivni.cz/agenti/${a.slug}): ${a.excerpt}`),
   ];
+
+  if (issues.length > 0) {
+    lines.push(
+      "",
+      "## Archiv newsletteru",
+      "",
+      `Odeslaná čísla týdenního newsletteru, volně ke čtení: https://www.produktivni.cz/newsletter/archiv`,
+      "",
+      ...issues.map(
+        (i) => `- [${i.subject}](https://www.produktivni.cz/newsletter/archiv/${i.slug}): ${i.preheader}`,
+      ),
+    );
+  }
 
   if (enChapters.length > 0 || enTips.length > 0) {
     lines.push("", "## English version", "");

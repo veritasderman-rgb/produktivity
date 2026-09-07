@@ -14,6 +14,8 @@ import { audienceHref, audiences } from "@/lib/audiences";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 import { ogImage } from "@/lib/og";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
+import { NewsletterCta } from "@/components/NewsletterCta";
+import { toolCta } from "@/lib/tool-cta";
 
 const CS_URL = "https://www.produktivni.cz/nastroje/diagnostika";
 const EN_URL = "https://www.productive.tips/nastroje/diagnostika";
@@ -167,6 +169,8 @@ export default async function DiagnostikaPage({
       <p className="mt-14 border-t border-hairline pt-6 text-[13px] leading-relaxed text-faint">
         {t.disclaimer}
       </p>
+      <NewsletterCta {...toolCta("diagnostika", locale)} locale={locale} />
+
     </div>
   );
 }

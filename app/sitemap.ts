@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllAgentMetas } from "@/lib/agents";
+import { getAllIssueMetas } from "@/lib/newsletter";
 import { audienceBase, audiencePath, audiences } from "@/lib/audiences";
 import { getAllTips } from "@/lib/tips";
 import { getAllChapters } from "@/lib/chapters";
@@ -24,7 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const enNews = new Set(getAllNews("en").map((n) => n.slug));
 
   const staticPaths = [
-    "", "/prirucka", "/tipy", "/deset-minut", "/cesty", "/ai", "/prompty", "/sablony", "/kurz", "/gadgety", "/slovnik", "/kam-dal", "/konektory", "/newsletter", "/newsletter/ukazka", "/start",
+    "", "/prirucka", "/tipy", "/deset-minut", "/cesty", "/ai", "/prompty", "/sablony", "/kurz", "/gadgety", "/slovnik", "/kam-dal", "/konektory", "/newsletter", "/newsletter/ukazka", "/newsletter/archiv", "/start",
     "/nastroje", "/nastroje/kviz", "/nastroje/diagnostika", "/nastroje/pomodoro", "/nastroje/sazba",
     "/nastroje/promptovac", "/nastroje/audit-casu",
     "/rozhovory", "/z-praxe", "/zmeny", "/agenti",
@@ -210,8 +211,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return entries;
   });
 
+  // Archiv newsletteru. Dokud pro jazyk žádné číslo neodešlo, blok je prázdný.
+  const enIssues = new Set(getAllIssueMetas("en").map((i) => i.slug));
+  const issues = getAllIssueMetas().flatMap((issue) => {
+    const csPath = `/newsletter/archiv/${issue.slug}`;
+    const entries: MetadataRoute.Sitemap = [{
+      url: `${BASE}${csPath}`,
+      lastModified: issue.date,
+      changeFrequency: "yearly" as const,
+      priority: 0.5,
+      ...withAlternates(csPath, enIssues.has(issue.slug)),
+    }];
+    if (enIssues.has(issue.slug)) {
+      entries.push({ url: `${EN_BASE}${csPath}`, lastModified: issue.date, changeFrequency: "yearly", priority: 0.4 });
+    }
+    return entries;
+  });
+
   return [
     ...staticRoutes, ...proHub, ...proPages, ...chapters, ...tips, ...news,
     ...promptArticles, ...interviews, ...practice, ...learningPaths, ...agents,
+    ...issues,
   ];
 }

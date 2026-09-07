@@ -159,6 +159,31 @@ Ověřovací běh má vlastní týdenní rutinu — přesný postup (výběr fro
 do changelogu) je v **`docs/OVEROVANI.md`**. Zásada: `tested` se zapisuje
 **jen po skutečném ověření**, nikdy plošně skriptem.
 
+### 7c. Archiv newsletteru
+
+Odeslaná čísla newsletteru žijí na `/newsletter/archiv`. Archiv se plní ručně
+a **jen tím, co skutečně odešlo** — nikdy dopředu a nikdy „ukázkově“; na ukázku
+slouží `/newsletter/ukazka`.
+
+Po rozeslání čísla uložte jeho kopii do `content/newsletter/<slug>.mdx`
+(anglickou mutaci do `content/en/newsletter/`). Formát je stejný jako
+u ukázkového čísla, jen s pořadovým číslem a datem navíc:
+
+```
+---
+number: 12                 # pořadové číslo vydání
+subject: "Předmět e-mailu" # slouží i jako titulek stránky
+preheader: "Náhledový text — v archivu funguje jako perex."
+date: "YYYY-MM-DD"         # den rozeslání
+---
+
+Tělo čísla v markdownu, přesně jak odešlo.
+```
+
+Slug volte podle tématu, ne podle čísla (`zapis-z-porady-za-minutu`, ne
+`cislo-12`) — adresa pak dává smysl i po letech. Archiv, sitemapa i `/llms.txt`
+se doplní samy; nic dalšího se nastavovat nemusí.
+
 ### 8. Limity
 
 - Max 5 položek na den, radši 2 kvalitní než 5 slabých.

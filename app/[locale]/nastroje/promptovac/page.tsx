@@ -4,6 +4,8 @@ import { PromptBuilder, type PromptSample } from "@/components/PromptBuilder";
 import { getAllPrompts, type PromptEntry } from "@/lib/prompts";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { ogImage } from "@/lib/og";
+import { NewsletterCta } from "@/components/NewsletterCta";
+import { toolCta } from "@/lib/tool-cta";
 
 /**
  * Skládačka promptů. lib/prompts.ts čte soubory přes node:fs, takže celá
@@ -218,6 +220,8 @@ export default async function PromptBuilderPage({
           ))}
         </div>
       </section>
+      <NewsletterCta {...toolCta("promptovac", locale)} locale={locale} />
+
     </div>
   );
 }
