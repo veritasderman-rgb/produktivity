@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/lib/agents";
 import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
 import { CopyPre } from "@/components/CopyPre";
-import { NewsletterForm } from "@/components/NewsletterForm";
+import { NewsletterCta } from "@/components/NewsletterCta";
 import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { DataDisclaimer } from "@/components/DataDisclaimer";
 import { Disclaimer } from "@/components/Disclaimer";
@@ -133,7 +133,14 @@ export default async function AgentArticleDetail({
   const p = (path: string) => localePath(locale, path);
 
   const article = getAgentArticle(slug, locale);
-  if (!article) notFound();
+  if (!article) {
+    /* Díl, který vyšel jen v druhém jazyce: přepínač jazyka v hlavičce drží
+       cestu, takže by uživatele poslal na 404. Nabídneme mu rozcestník sekce
+       v jazyce, na který přepnul. Neexistující slug 404 zůstává. */
+    const other = locale === "en" ? "cs" : "en";
+    if (getAgentArticle(slug, other)) redirect(localePath(locale, "/agenti"));
+    notFound();
+  }
 
   const { prev, next } = agentNeighbours(getAllAgentMetas(locale), slug);
   const headings = extractHeadings(article.body);
@@ -267,13 +274,12 @@ export default async function AgentArticleDetail({
       )}
       <Pomohlo slug={article.slug} locale={locale} />
       <Disclaimer locale={locale} />
-      <div className="print-hide mt-14 border-t-2 border-hairline-strong pt-8">
-        <p className="eyebrow mb-2 text-faint">{t.ctaEyebrow}</p>
-        <p className="mb-5 max-w-[48ch] text-[15px] text-muted">{t.ctaDesc}</p>
-        <div className="max-w-md">
-          <NewsletterForm source={`agenti-${article.slug}`} locale={locale} />
-        </div>
-      </div>
+      <NewsletterCta
+        eyebrow={t.ctaEyebrow}
+        desc={t.ctaDesc}
+        source={`agenti-${article.slug}`}
+        locale={locale}
+      />
       <BackToTop locale={locale} />
       <NewsletterPopup locale={locale} />
     </article>

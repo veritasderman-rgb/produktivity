@@ -16,6 +16,7 @@ const T = {
     bonusPre: "Bonus hned po přihlášení: e-book ",
     bonusStrong: "Top 30 tipů, které vám vrátí hodinu denně",
     sampleLink: "Podívejte se na ukázkové číslo →",
+    archiveLink: "Archiv odeslaných čísel →",
   },
   en: {
     title: "Newsletter",
@@ -28,6 +29,7 @@ const T = {
     bonusPre: "A bonus the moment you sign up: the e-book ",
     bonusStrong: "Top 30 tips that give you back an hour a day",
     sampleLink: "See a sample issue →",
+    archiveLink: "Archive of past issues →",
   },
 };
 
@@ -85,9 +87,14 @@ export default async function NewsletterPage({
             </span>
           </li>
         </ul>
-        <p className="mb-8 text-[15px] font-bold">
+        <p className="mb-2 text-[15px] font-bold">
           <Link href={localePath(locale, "/newsletter/ukazka")} className="draw-link">
             {t.sampleLink}
+          </Link>
+        </p>
+        <p className="mb-8 text-[15px] font-bold">
+          <Link href={localePath(locale, "/newsletter/archiv")} className="draw-link">
+            {t.archiveLink}
           </Link>
         </p>
         <div className="max-w-md">

@@ -4,6 +4,8 @@ import { PomodoroTimer } from "@/components/PomodoroTimer";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { ogImage } from "@/lib/og";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
+import { NewsletterCta } from "@/components/NewsletterCta";
+import { toolCta } from "@/lib/tool-cta";
 
 const CS_URL = "https://www.produktivni.cz/nastroje/pomodoro";
 const EN_URL = "https://www.productive.tips/nastroje/pomodoro";
@@ -80,6 +82,8 @@ export default async function PomodoroPage({
       <div className="mt-10">
         <PomodoroTimer locale={locale} />
       </div>
+      <NewsletterCta {...toolCta("pomodoro", locale)} locale={locale} />
+
     </div>
   );
 }

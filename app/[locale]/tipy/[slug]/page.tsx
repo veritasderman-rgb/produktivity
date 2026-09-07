@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import { getAllTips, getTip } from "@/lib/tips";
-import { NewsletterForm } from "@/components/NewsletterForm";
+import { NewsletterCta } from "@/components/NewsletterCta";
 import { DataDisclaimer } from "@/components/DataDisclaimer";
 import { Disclaimer } from "@/components/Disclaimer";
 import { TipCard } from "@/components/TipCard";
@@ -307,13 +307,12 @@ export default async function TipDetail({
       )}
       <Pomohlo slug={tip.slug} locale={locale} />
       <Disclaimer locale={locale} />
-      <div className="print-hide mt-14 border-t-2 border-hairline-strong pt-8">
-        <p className="eyebrow mb-2 text-faint">{t.ctaEyebrow}</p>
-        <p className="mb-5 max-w-[48ch] text-[15px] text-muted">{t.ctaDesc}</p>
-        <div className="max-w-md">
-          <NewsletterForm source={`tip-${tip.slug}`} locale={locale} />
-        </div>
-      </div>
+      <NewsletterCta
+        eyebrow={t.ctaEyebrow}
+        desc={t.ctaDesc}
+        source={`tip-${tip.slug}`}
+        locale={locale}
+      />
       <BackToTop locale={locale} />
       <NewsletterPopup locale={locale} />
     </article>

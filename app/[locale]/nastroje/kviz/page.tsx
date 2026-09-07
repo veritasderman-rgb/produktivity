@@ -5,6 +5,8 @@ import { SystemQuiz } from "@/components/SystemQuiz";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { ogImage } from "@/lib/og";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
+import { NewsletterCta } from "@/components/NewsletterCta";
+import { toolCta } from "@/lib/tool-cta";
 
 const CS_URL = "https://www.produktivni.cz/nastroje/kviz";
 const EN_URL = "https://www.productive.tips/nastroje/kviz";
@@ -95,6 +97,8 @@ export default async function QuizPage({
       <p className="mt-14 border-t border-hairline pt-6 text-[13px] leading-relaxed text-faint">
         {t.disclaimer}
       </p>
+      <NewsletterCta {...toolCta("kviz", locale)} locale={locale} />
+
     </div>
   );
 }

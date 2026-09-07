@@ -195,7 +195,7 @@ export default async function CoursePage({
         <h2 className="display mb-2 text-[clamp(20px,3vw,28px)]">{t.signupTitle}</h2>
         <p className="mb-8 max-w-[52ch] text-[15px] text-muted">{t.signupDesc}</p>
         <div className="max-w-md">
-          <NewsletterForm source="kurz" locale={locale} />
+          <NewsletterForm source="kurz" locale={locale} offer="kurz" />
         </div>
         <div className="mt-10 max-w-[62ch] border border-hairline bg-surface p-5">
           <p className="eyebrow mb-2 text-faint">{t.gdprTitle}</p>

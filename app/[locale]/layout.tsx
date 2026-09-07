@@ -241,6 +241,7 @@ gtag('config', '${GA_ID}');`}
               <ul className="space-y-2 text-[14px] font-semibold">
                 <li><Link href={p("/kurz")} className="draw-link">{t.footer.course}</Link></li>
                 <li><Link href={p("/newsletter")} className="draw-link">{t.footer.newsletter}</Link></li>
+                <li><Link href={p("/newsletter/archiv")} className="draw-link">{t.footer.newsletterArchive}</Link></li>
                 <li><Link href={p("/o-projektu")} className="draw-link">{t.footer.aboutProject}</Link></li>
                 <li><a href="https://josefpavlovic.cz" target="_blank" rel="noopener noreferrer" className="draw-link">josefpavlovic.cz</a></li>
                 <li><Link href={p("/ochrana-osobnich-udaju")} className="draw-link">{t.footer.privacy}</Link></li>

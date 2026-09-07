@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllInterviews, getInterview, interviewTitle, type Interview } from "@/lib/interviews";
-import { NewsletterForm } from "@/components/NewsletterForm";
+import { NewsletterCta } from "@/components/NewsletterCta";
 import { Pojem } from "@/components/Pojem";
 import { CopyPre } from "@/components/CopyPre";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
@@ -206,13 +206,12 @@ export default async function InterviewDetail({
         />
       </div>
 
-      <div className="mt-14 border-t-2 border-hairline-strong pt-8">
-        <p className="eyebrow mb-2 text-faint">{t.ctaEyebrow}</p>
-        <p className="mb-5 max-w-[48ch] text-[15px] text-muted">{t.ctaDesc}</p>
-        <div className="max-w-md">
-          <NewsletterForm source={`rozhovor-${interview.slug}`} locale={locale} />
-        </div>
-      </div>
+      <NewsletterCta
+        eyebrow={t.ctaEyebrow}
+        desc={t.ctaDesc}
+        source={`rozhovor-${interview.slug}`}
+        locale={locale}
+      />
     </article>
   );
 }

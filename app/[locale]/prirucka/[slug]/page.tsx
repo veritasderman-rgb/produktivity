@@ -10,7 +10,7 @@ import { getAllChapters, getChapter, getSectionLabels } from "@/lib/chapters";
 import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
 import { OknaDemo } from "@/components/OknaDemo";
 import { PredPo } from "@/components/PredPo";
-import { NewsletterForm } from "@/components/NewsletterForm";
+import { NewsletterCta } from "@/components/NewsletterCta";
 import { Disclaimer } from "@/components/Disclaimer";
 import { TipCard } from "@/components/TipCard";
 import { getAllTips } from "@/lib/tips";
@@ -232,13 +232,12 @@ export default async function ChapterPage({
         </div>
       )}
 
-      <div className="print-hide mt-12">
-        <p className="eyebrow mb-2 text-faint">{t.ctaEyebrow}</p>
-        <p className="mb-5 max-w-[48ch] text-[15px] text-muted">{t.ctaDesc}</p>
-        <div className="max-w-md">
-          <NewsletterForm source={`kapitola-${ch.slug}`} locale={locale} />
-        </div>
-      </div>
+      <NewsletterCta
+        eyebrow={t.ctaEyebrow}
+        desc={t.ctaDesc}
+        source={`kapitola-${ch.slug}`}
+        locale={locale}
+      />
       <BackToTop locale={locale} />
       <NewsletterPopup locale={locale} />
     </article>

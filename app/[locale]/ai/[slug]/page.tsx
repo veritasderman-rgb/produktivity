@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllNews, getNewsItem } from "@/lib/news";
 import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
-import { NewsletterForm } from "@/components/NewsletterForm";
+import { NewsletterCta } from "@/components/NewsletterCta";
 import { DataDisclaimer } from "@/components/DataDisclaimer";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { annotateGlossary } from "@/lib/annotate";
@@ -124,13 +124,12 @@ export default async function NewsDetail({
           </a>
         </p>
       )}
-      <div className="mt-12">
-        <p className="eyebrow mb-2 text-faint">{t.ctaEyebrow}</p>
-        <p className="mb-5 max-w-[48ch] text-[15px] text-muted">{t.ctaDesc}</p>
-        <div className="max-w-md">
-          <NewsletterForm source={`ai-${n.slug}`} locale={locale} />
-        </div>
-      </div>
+      <NewsletterCta
+        eyebrow={t.ctaEyebrow}
+        desc={t.ctaDesc}
+        source={`ai-${n.slug}`}
+        locale={locale}
+      />
     </article>
   );
 }

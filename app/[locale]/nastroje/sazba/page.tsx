@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { RateCalculator } from "@/components/RateCalculator";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { ogImage } from "@/lib/og";
+import { NewsletterCta } from "@/components/NewsletterCta";
+import { toolCta } from "@/lib/tool-cta";
 
 const T = {
   cs: {
@@ -154,6 +156,8 @@ export default async function RatePage({
           ))}
         </div>
       </section>
+      <NewsletterCta {...toolCta("sazba", locale)} locale={locale} />
+
     </div>
   );
 }

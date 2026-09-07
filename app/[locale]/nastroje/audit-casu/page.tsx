@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { TimeAudit } from "@/components/TimeAudit";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { ogImage } from "@/lib/og";
+import { NewsletterCta } from "@/components/NewsletterCta";
+import { toolCta } from "@/lib/tool-cta";
 
 const T = {
   cs: {
@@ -163,6 +165,8 @@ export default async function TimeAuditPage({
           ))}
         </div>
       </section>
+      <NewsletterCta {...toolCta("audit-casu", locale)} locale={locale} />
+
     </div>
   );
 }
