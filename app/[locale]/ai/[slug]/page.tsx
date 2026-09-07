@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { missingTranslation } from "@/lib/missing-translation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllNews, getNewsItem } from "@/lib/news";
 import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
 import { NewsletterCta } from "@/components/NewsletterCta";
 import { DataDisclaimer } from "@/components/DataDisclaimer";
-import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { isLocale, otherLocale, localePath, type Locale } from "@/lib/i18n";
 import { annotateGlossary } from "@/lib/annotate";
 import { ogImage } from "@/lib/og";
 import { Pojem } from "@/components/Pojem";
@@ -94,7 +94,8 @@ export default async function NewsDetail({
   const p = (path: string) => localePath(locale, path);
 
   const n = getNewsItem(slug, locale);
-  if (!n) notFound();
+  // Chybí jen překlad? Přepínač jazyka nesmí skončit na 404 — viz lib/missing-translation.ts.
+  if (!n) missingTranslation(locale, Boolean(getNewsItem(slug, otherLocale(locale))), "/ai");
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { missingTranslation } from "@/lib/missing-translation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import {
@@ -25,7 +25,7 @@ import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import { annotateGlossary } from "@/lib/annotate";
 import { extractHeadings, flatText, slugify } from "@/lib/toc";
 import { formatReviewed, reviewedLabel } from "@/lib/reviewed";
-import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { isLocale, otherLocale, localePath, type Locale } from "@/lib/i18n";
 import { ogImage } from "@/lib/og";
 
 const TOC_MIN_HEADINGS = 4;
@@ -133,14 +133,8 @@ export default async function AgentArticleDetail({
   const p = (path: string) => localePath(locale, path);
 
   const article = getAgentArticle(slug, locale);
-  if (!article) {
-    /* Díl, který vyšel jen v druhém jazyce: přepínač jazyka v hlavičce drží
-       cestu, takže by uživatele poslal na 404. Nabídneme mu rozcestník sekce
-       v jazyce, na který přepnul. Neexistující slug 404 zůstává. */
-    const other = locale === "en" ? "cs" : "en";
-    if (getAgentArticle(slug, other)) redirect(localePath(locale, "/agenti"));
-    notFound();
-  }
+  // Chybí jen překlad? Přepínač jazyka nesmí skončit na 404 — viz lib/missing-translation.ts.
+  if (!article) missingTranslation(locale, Boolean(getAgentArticle(slug, otherLocale(locale))), "/agenti");
 
   const { prev, next } = agentNeighbours(getAllAgentMetas(locale), slug);
   const headings = extractHeadings(article.body);
