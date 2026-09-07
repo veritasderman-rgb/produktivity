@@ -201,6 +201,12 @@ const cs = {
       ucitel: "Učitelé", marketer: "Marketing", rodic: "Rodiče", novinar: "Novináři",
     } as Record<string, string>,
   },
+  cookies: {
+    text: "Web měří anonymní návštěvnost (Google Analytics, Vercel). Bez souhlasu se neukládají žádné analytické cookies.",
+    more: "Více v ochraně osobních údajů",
+    accept: "Souhlasím",
+    reject: "Odmítnout",
+  },
   langSwitch: { label: "EN", title: "Switch to English", target: "en" as Locale },
 };
 
@@ -388,6 +394,12 @@ const en: typeof cs = {
       manazer: "Managers", student: "Students", vyvojar: "Developers", freelancer: "Freelancers",
       ucitel: "Teachers", marketer: "Marketers", rodic: "Parents", novinar: "Journalists",
     },
+  },
+  cookies: {
+    text: "This site measures anonymous traffic (Google Analytics, Vercel). No analytics cookies are stored without your consent.",
+    more: "More in the privacy policy",
+    accept: "Accept",
+    reject: "Decline",
   },
   langSwitch: { label: "CS", title: "Přepnout do češtiny", target: "cs" as Locale },
 };

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Schibsted_Grotesk, Lora, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { BookmarkLink } from "@/components/BookmarkLink";
+import { CookieConsent } from "@/components/CookieConsent";
 import { Keycap } from "@/components/Keycap";
 import { LangSwitch } from "@/components/LangSwitch";
 import { NavAi, NavAiChips, NavMore } from "@/components/NavAi";
@@ -15,6 +16,7 @@ import { getAllChapters } from "@/lib/chapters";
 import { getAllInterviews, interviewTitle } from "@/lib/interviews";
 import { getAllNews } from "@/lib/news";
 import { getAllTips } from "@/lib/tips";
+import { CONSENT_KEY } from "@/lib/consent";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
 import { JsonLd, websiteJsonLd } from "@/components/JsonLd";
 import "../globals.css";
@@ -190,19 +192,38 @@ export default async function RootLayout({
 
         <main>{children}</main>
         <Analytics />
-        {GA_ID && (
+        {process.env.NODE_ENV === "production" && GA_ID && (
           <>
+            {/* Google Consent Mode v2 — výchozí stav (denied) se nastaví ještě
+                před načtením GA, takže než návštěvník klikne, neukládají se
+                žádné cookies. Dřívější volbu bereme z localStorage, ať lišta
+                neotravuje podruhé. */}
+            <Script id="ga-consent-default" strategy="beforeInteractive">
+              {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+window.gtag = window.gtag || gtag;
+var granted = false;
+try { granted = localStorage.getItem('${CONSENT_KEY}') === 'granted'; } catch (e) {}
+gtag('consent', 'default', {
+  ad_storage: granted ? 'granted' : 'denied',
+  ad_user_data: granted ? 'granted' : 'denied',
+  ad_personalization: granted ? 'granted' : 'denied',
+  analytics_storage: granted ? 'granted' : 'denied',
+  wait_for_update: 500
+});`}
+            </Script>
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
               strategy="afterInteractive"
             />
             <Script id="ga4" strategy="afterInteractive">
-              {`window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
+              {`gtag('js', new Date());
 gtag('config', '${GA_ID}');`}
             </Script>
           </>
+        )}
+        {GA_ID && (
+          <CookieConsent dict={t.cookies} privacyHref={p("/ochrana-osobnich-udaju")} />
         )}
 
         <footer className="mt-24 border-t-2 border-hairline-strong">
