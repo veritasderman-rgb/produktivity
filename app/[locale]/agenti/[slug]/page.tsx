@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import {
@@ -133,7 +133,14 @@ export default async function AgentArticleDetail({
   const p = (path: string) => localePath(locale, path);
 
   const article = getAgentArticle(slug, locale);
-  if (!article) notFound();
+  if (!article) {
+    /* Díl, který vyšel jen v druhém jazyce: přepínač jazyka v hlavičce drží
+       cestu, takže by uživatele poslal na 404. Nabídneme mu rozcestník sekce
+       v jazyce, na který přepnul. Neexistující slug 404 zůstává. */
+    const other = locale === "en" ? "cs" : "en";
+    if (getAgentArticle(slug, other)) redirect(localePath(locale, "/agenti"));
+    notFound();
+  }
 
   const { prev, next } = agentNeighbours(getAllAgentMetas(locale), slug);
   const headings = extractHeadings(article.body);
