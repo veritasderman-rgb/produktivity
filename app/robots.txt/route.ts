@@ -15,17 +15,19 @@ const EN_DOMAIN = process.env.EN_DOMAIN ?? "productive.tips";
 const AI_BOTS = ["GPTBot", "ClaudeBot", "Claude-Web", "PerplexityBot", "Google-Extended", "CCBot"];
 
 /**
- * E-book je odměna za přihlášení k newsletteru, ne článek k nalezení ve
- * vyhledávání. Odkaz na PDF chodí v uvítacím e-mailu a zobrazí se po
- * odeslání formuláře; indexovat ho nechceme, jinak by se dal najít rovnou
- * a magnet by ztratil smysl. Platí to i pro AI crawlery — u ostatního
- * obsahu je vítáme, tady by výsledek byl stejný jako v našeptávači.
+ * Cesty, které nechceme dát AI crawlerům. U ostatního obsahu je vítáme,
+ * e-book je ale odměna za přihlášení k newsletteru — ne materiál k učení.
  *
- * Pozor: robots.txt řeší indexaci, ne přístup. Kdo adresu zná, PDF si
- * stáhne dál — a to je v pořádku, přeposlání e-booku známému je funkce,
- * ne chyba.
+ * Pro vyhledávače tady schválně nic není: `Disallow` zakazuje stahování,
+ * ne indexaci, takže adresa se ve výsledcích objevit může, když na ni
+ * někdo odkáže — a zakázanou adresu robot nestáhne, takže by neviděl ani
+ * `noindex`. Vyhledávače proto e-book stahovat smí a z indexu ho drží
+ * hlavička `X-Robots-Tag: noindex` z next.config.ts.
+ *
+ * Ani jedno neřeší přístup: kdo adresu zná, PDF si stáhne dál. To je
+ * v pořádku — přeposlat e-book známému je funkce, ne chyba.
  */
-const DISALLOW_ALL_BOTS = ["/ebook/"];
+const AI_BOTS_DISALLOW = ["/ebook/"];
 
 export function GET(req: NextRequest) {
   const host = (req.headers.get("host") ?? "").toLowerCase();
@@ -40,12 +42,11 @@ export function GET(req: NextRequest) {
     // Delší pravidlo vyhrává nad obecným Disallow níž.
     "Allow: /api/og",
     "Disallow: /api/",
-    ...DISALLOW_ALL_BOTS.map((path) => `Disallow: ${path}`),
     "",
     ...AI_BOTS.flatMap((bot) => [
       `User-Agent: ${bot}`,
       "Allow: /",
-      ...DISALLOW_ALL_BOTS.map((path) => `Disallow: ${path}`),
+      ...AI_BOTS_DISALLOW.map((path) => `Disallow: ${path}`),
       "",
     ]),
     `Sitemap: ${base}/sitemap.xml`,
