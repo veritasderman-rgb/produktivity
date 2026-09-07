@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { Schibsted_Grotesk, Lora, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { BookmarkLink } from "@/components/BookmarkLink";
-import { CookieConsent } from "@/components/CookieConsent";
+import { CookieConsent, CookieSettingsLink } from "@/components/CookieConsent";
 import { Keycap } from "@/components/Keycap";
 import { LangSwitch } from "@/components/LangSwitch";
 import { NavAi, NavAiChips, NavMore } from "@/components/NavAi";
@@ -197,7 +197,8 @@ export default async function RootLayout({
             {/* Google Consent Mode v2 — výchozí stav (denied) se nastaví ještě
                 před načtením GA, takže než návštěvník klikne, neukládají se
                 žádné cookies. Dřívější volbu bereme z localStorage, ať lišta
-                neotravuje podruhé. */}
+                neotravuje podruhé. Reklamní souhlas (ad_*) zůstává vždycky
+                denied — lišta se na reklamní účely neptá. */}
             <Script id="ga-consent-default" strategy="beforeInteractive">
               {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
@@ -205,9 +206,9 @@ window.gtag = window.gtag || gtag;
 var granted = false;
 try { granted = localStorage.getItem('${CONSENT_KEY}') === 'granted'; } catch (e) {}
 gtag('consent', 'default', {
-  ad_storage: granted ? 'granted' : 'denied',
-  ad_user_data: granted ? 'granted' : 'denied',
-  ad_personalization: granted ? 'granted' : 'denied',
+  ad_storage: 'denied',
+  ad_user_data: 'denied',
+  ad_personalization: 'denied',
   analytics_storage: granted ? 'granted' : 'denied',
   wait_for_update: 500
 });`}
@@ -266,6 +267,7 @@ gtag('config', '${GA_ID}');`}
                 <li><Link href={p("/o-projektu")} className="draw-link">{t.footer.aboutProject}</Link></li>
                 <li><a href="https://josefpavlovic.cz" target="_blank" rel="noopener noreferrer" className="draw-link">josefpavlovic.cz</a></li>
                 <li><Link href={p("/ochrana-osobnich-udaju")} className="draw-link">{t.footer.privacy}</Link></li>
+                {GA_ID && <li><CookieSettingsLink label={t.cookies.settings} /></li>}
               </ul>
             </div>
           </div>
