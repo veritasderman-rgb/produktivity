@@ -1,0 +1,89 @@
+---
+title: "Model, harness, agent: tři slova, která si všichni pletou"
+excerpt: "Model je motor, harness je auto, agent je řidič s úkolem. Když tyhle tři vrstvy nerozlišujete, nedá se rozumět ani jediné zprávě o AI — ani rozhodnout, co si pustíte doma a co necháte v cloudu."
+track: "zaklady"
+order: 2
+tags: ["agenti", "orchestrace"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Model je jen předpovídač dalšího slova — sám o sobě neumí nic spustit ani si nic pamatovat. Harness je obal kolem něj: smyčka, nástroje, paměť, sandbox a oprávnění. Agent je harness, který dostal cíl a jede k němu bez toho, aby se u každého kroku ptal. V roce 2026 se soutěží hlavně o harness, ne o model — a právě harness rozhoduje o tom, co vám AI může udělat.
+sources:
+  - name: "The New Stack: harness jako produkt a spor o cenu"
+    url: "https://thenewstack.io/ai-agent-harness-pricing-split/"
+  - name: "Ollama — knihovna modelů ke stažení"
+    url: "https://ollama.com/library"
+---
+
+Když se řekne „AI umí číst moje soubory“, znamená to tři úplně různé věci podle toho, kde přesně ta schopnost sedí. Bez rozlišení tří vrstev se nedá rozumné rozhodnutí udělat — ani o soukromí, ani o penězích, ani o tom, co pustit doma.
+
+## Model: předpovídač dalšího slova
+
+Model je soubor s čísly. Velký, klidně desítky gigabajtů, ale pořád jenom soubor. Umí jedinou věc: dostane text a spočítá, jak nejpravděpodobněji pokračuje.
+
+To je všechno. Model **sám o sobě neumí**:
+
+- otevřít soubor na vašem disku,
+- poslat e-mail nebo zavolat API,
+- zapamatovat si, co jste mu psali včera,
+- spustit kód,
+- podívat se na internet.
+
+Když někde čtete, že „model si přečetl vaši tabulku“, ve skutečnosti se stalo tohle: něco jiného tabulku otevřelo, převedlo na text a ten text vložilo modelu na vstup. To „něco jiného“ je harness.
+
+Modely se dělí na dvě rodiny podle toho, jestli si ten soubor s čísly můžete stáhnout:
+
+| | Otevřené váhy | Uzavřené modely |
+|---|---|---|
+| Kde běží | Kdekoli — i na vašem počítači | Jen u poskytovatele |
+| Co platíte | Elektřinu a hardware | Za každý požadavek |
+| Data | Neopouští váš stroj | Odchází k poskytovateli |
+| Kdo rozhoduje o vypnutí | Vy | Poskytovatel |
+
+Otevřených modelů jsou dnes desítky rodin — Llama, Qwen, Gemma, Mistral, DeepSeek i modely s otevřenými vahami od OpenAI. Uzavřené modely mají pořád náskok v těch nejtěžších úlohách, ale ten náskok se rok od roku ztenčuje a u běžné kancelářské práce už často není poznat.
+
+## Harness: obal, ve kterém model teprve něco umí
+
+Harness je anglicky postroj. Je to všechno kolem modelu, co z předpovídače slov udělá použitelný nástroj:
+
+<Flow title="Co dělá harness" steps={[
+  { title: "Smyčka", desc: "Nepošle modelu dotaz jednou, ale opakovaně — model navrhne krok, harness ho provede, výsledek vrátí zpátky na vstup." },
+  { title: "Nástroje", desc: "Čtení souborů, spuštění příkazu, vyhledání na webu, volání API. Harness modelu popíše, co má k dispozici, a pak to za něj skutečně provede." },
+  { title: "Paměť", desc: "Uchová konverzaci, souhrny předchozích kroků, poznámky mezi běhy. Model sám si nepamatuje nic." },
+  { title: "Sandbox", desc: "Ohraničí, kde smí kód běžet a k jakým souborům se dostane. Bez sandboxu má model práva celého vašeho účtu." },
+  { title: "Oprávnění", desc: "Rozhodne, co proběhne samo a co se zeptá. Tohle je jediné místo, kde se dá skutečně zabrzdit." },
+]} />
+
+Když si doma pustíte Ollamu nebo LM Studio, dostanete model **a k němu malý harness** — chat s historií a možná pár nástrojů. Když si otevřete ChatGPT nebo Claude v prohlížeči, dostanete model **a k němu velký harness**, který umí prohledávat web, spouštět kód a sahat do konektorů.
+
+A právě proto v roce 2026 přestala být hlavní bitva o modely. Velké laboratoře i nástrojové firmy vydávají harness jako samostatný produkt — s vlastním sandboxem, vlastní správou přihlašovacích údajů a vlastním způsobem, jak celý běh vystopovat. Spor se přesunul od otázky „čí model je chytřejší“ k otázce „čí obal je bezpečnější a kolik za něj chcete“.
+
+Pro vás z toho plyne praktická věc: **stejný model se ve dvou harnessech chová jinak.** Když vám lokální model připadá hloupější než ten cloudový, často nejde o model. Jde o to, že jeden má vyhledávání, kalkulačku, přístup k souborům a pět kol na opravu vlastních chyb, a druhý má prázdné okno.
+
+## Agent: harness, který dostal cíl
+
+Agent je harness, kterému nezadáte krok, ale výsledek. Rozdíl je v tom, kdo drží smyčku.
+
+- **Chat:** vy napíšete, model odpoví, vy si přečtete, vy napíšete znovu. Kontrolu máte po každém kroku.
+- **Agent:** vy napíšete cíl, model si sám rozmyslí kroky, harness je provádí a vy se dozvíte výsledek. Kontrolu máte na začátku a na konci.
+
+Ten rozdíl zní malý a je obrovský. Agent, který má vyřídit poptávku, sám otevře e-mail, sám najde ceník, sám vygeneruje nabídku a sám ji může odeslat — pokud mu to harness dovolí. Právě proto se v roce 2026 mluví o agentech jako o produktu roku i o riziku roku zároveň.
+
+Praktický důsledek: **při návrhu vlastního velína se rozhodujete hlavně na úrovni harnessu**, ne modelu. Model vyměníte za pět minut. Harness určuje, jestli vám nástroj smí smazat soubor, poslat mail nebo zaplatit fakturu.
+
+## Jak si to přeložit do vlastních rozhodnutí
+
+Když příště čtete oznámení nové AI funkce, rozeberte si ji na tři otázky:
+
+1. **Jaký model za tím je** a dá se vyměnit? Když ne, jste na jednom dodavateli.
+2. **Co umí harness** — jaké má nástroje, co běží v sandboxu, kde jsou uložené přihlašovací údaje?
+3. **Kde končí návrh a začíná akce** — co proběhne samo a co se ptá?
+
+Třetí otázka je nejdůležitější a v marketingových materiálech se odpovídá nejhůř. Když ji nikde nenajdete, je to samo o sobě informace.
+
+## Pro tip
+
+Až budete zkoušet lokální model a bude vám připadat slabý, zkuste ho pustit ve dvou různých harnessech — třeba holý přes příkazovou řádku a pak v grafickém klientovi, který mu umí předat obsah souboru. Většinou zjistíte, že ten „slabý model“ jen neměl ruce. Je to nejlevnější způsob, jak si na vlastní kůži osahat, o čem tenhle díl je.
+
+Další díl se dívá na to, proč se z agentů stal produkt roku — a proč zároveň riziko roku.

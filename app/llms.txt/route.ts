@@ -2,6 +2,7 @@ import { getAllTips } from "@/lib/tips";
 import { getAllChapters } from "@/lib/chapters";
 import { getAllNews } from "@/lib/news";
 import { getAllPrompts } from "@/lib/prompts";
+import { getAllAgentMetas } from "@/lib/agents";
 
 export const revalidate = 3600;
 
@@ -14,6 +15,7 @@ export async function GET() {
   const enChapters = getAllChapters("en");
   const enTips = getAllTips("en");
   const prompts = getAllPrompts();
+  const agents = getAllAgentMetas();
 
   const lines: string[] = [
     "# Produktivní.cz",
@@ -42,6 +44,12 @@ export async function GET() {
     "## AI novinky",
     "",
     ...news.map((n) => `- [${n.title}](https://www.produktivni.cz/ai/${n.slug}): ${n.excerpt}`),
+    "",
+    "## Agenti a vlastní AI",
+    "",
+    `Seriál o tom, kde co běží a kdo to smí spustit: lokální modely na vlastním hardwaru, brána pro cloudové modely, ovládání z Telegramu, vlastní soubory v chatu a pravidla pro agenty. ${agents.length} dílů: https://www.produktivni.cz/agenti`,
+    "",
+    ...agents.map((a) => `- [${a.title}](https://www.produktivni.cz/agenti/${a.slug}): ${a.excerpt}`),
   ];
 
   if (enChapters.length > 0 || enTips.length > 0) {

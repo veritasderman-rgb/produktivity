@@ -1,0 +1,100 @@
+---
+title: "Mac mini jako domácí AI server"
+excerpt: "Tichá krabice u routeru, která běží pořád a odpovídá vám na dotazy z mobilu i z notebooku. Jak z Macu mini udělat inferenční server, kolik paměti si pořídit a co udělat, aby se nevypínal."
+track: "lokalni-ai"
+order: 2
+tags: ["lokalni-ai", "hardware"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Mac mini je dnes nejtišší a nejméně otravný způsob, jak mít doma pořád běžící model. Klíčové rozhodnutí není procesor, ale velikost sjednocené paměti — ta určuje, jak velký model se vejde, protože grafika a procesor na Applu sdílejí tutéž RAM. Praktické nastavení: vypnout uspávání, pustit Ollamu tak, aby poslouchala na síti, a přístup zvenčí řešit privátní sítí, ne otevřeným portem.
+sources:
+  - name: "Ollama — dokumentace a stažení"
+    url: "https://ollama.com/download"
+  - name: "Ollama — knihovna modelů ke stažení"
+    url: "https://ollama.com/library"
+  - name: "Apple: MLX, strojové učení na Apple silicon"
+    url: "https://github.com/ml-explore/mlx"
+---
+
+Notebook je na lokální AI špatný stroj. Ne proto, že by neměl výkon — ale proto, že ho zavřete a odejdete. Domácí AI dává smysl teprve tehdy, když běží pořád: když se na ni můžete zeptat z mobilu v tramvaji a ona odpoví, protože doma nespí.
+
+Mac mini je na tuhle roli dnes nejpříjemnější stroj. Je tichý, malý, žere málo a — což je ta podstatná část — má **sjednocenou paměť**.
+
+## Proč zrovna sjednocená paměť
+
+Na běžném PC má grafická karta vlastní paměť a model se musí vejít do ní. Šestnáctigigová grafika utáhne jen to, co se vejde do těch šestnácti gigabajtů, i kdyby měl počítač v základní desce paměti 128.
+
+Na čipech Apple je paměť společná. Procesor i grafický výpočet sahají do stejného bazénu. Prakticky to znamená, že Mac s velkou pamětí utáhne modely, na které by běžná herní grafika nestačila — pomaleji než nejdražší profesionální karta, ale plynule a bez toho, aby vám v obýváku hučel větrák.
+
+Proto je při výběru **velikost paměti důležitější než cokoli jiného.** Rychlejší čip vám zkrátí čekání o desítky procent. Málo paměti vám celé kategorie modelů zavře úplně.
+
+<Bars title="Co se do sjednocené paměti rozumně vejde" items={[
+  { label: "16 GB", value: 8, display: "modely do ~8 mld., jeden naráz" },
+  { label: "24 GB", value: 14, display: "modely do ~14 mld., pohodlně" },
+  { label: "32 GB", value: 24, display: "modely 20–30 mld." },
+  { label: "64 GB", value: 48, display: "velké modely, víc naráz" },
+]} />
+
+Čísla jsou orientační a závisí na kvantizaci (příští ale jeden díl). Nechte si vždycky rezervu — operační systém, prohlížeč a zbytek si taky něco vezmou, a model, který se do paměti nevejde celý, začne swapovat na disk a zpomalí na nepoužitelnost.
+
+## Nastavení, bez kterého to nebude fungovat
+
+Mac mini z krabice je nastavený jako stolní počítač, ne jako server. Tři věci se musí změnit.
+
+**1. Vypněte uspávání.** V Nastavení systému → Zámek obrazovky a v sekci Energie nastavte, aby se počítač neuspával, když je připojený k napájení. Server, který spí, není server.
+
+**2. Zapněte automatické spuštění po výpadku proudu.** Ve stejné sekci energie. Jinak vám po každém bouřkovém výpadku zůstane krabice zhasnutá, dokud nepřijdete domů.
+
+**3. Pusťte vzdálené přihlášení.** V Nastavení systému → Obecné → Sdílení zapněte Vzdálené přihlášení (SSH). Od téhle chvíle můžete Mac spravovat z notebooku a nemusíte k němu chodit s klávesnicí.
+
+Bonus: monitor odpojit můžete. Mac mini běží i bez něj.
+
+## Aby model poslouchal na síti, ne jen na sobě
+
+Tohle je krok, který lidi zaskočí. Ollama po instalaci poslouchá **jen na `localhost`** — což znamená, že se k ní dostane jen ten stroj, na kterém běží. Pro server je to k ničemu.
+
+Nastavíte to proměnnou prostředí `OLLAMA_HOST`. Na macOS se to dělá pro službu takhle:
+
+```
+launchctl setenv OLLAMA_HOST "0.0.0.0:11434"
+```
+
+Pak Ollamu restartujte (nejjednodušeji odhlášením a přihlášením, nebo restartem aplikace). Od téhle chvíle je model dostupný na `http://<adresa-macu>:11434` z celé domácí sítě.
+
+**Ověření z notebooku:**
+
+```
+curl http://192.168.1.50:11434/api/tags
+```
+
+Když se vrátí seznam stažených modelů, máte hotovo. Adresu Macu zjistíte v Nastavení systému → Síť.
+
+## Zásadní varování: tohle nedávejte na internet
+
+Vypadá to lákavě: přesměrovat port na routeru a mít model dostupný odkudkoli. **Nedělejte to.** Ollama nemá ve výchozím stavu žádné přihlašování. Otevřený port znamená, že váš model může používat kdokoli, kdo najde vaši IP adresu — a najde ji automat během hodin.
+
+Správné řešení jsou **privátní sítě** typu Tailscale nebo WireGuard: mobil, notebook a Mac mini vidí na sebe, jako by byly ve stejné místnosti, ale zvenčí není otevřený žádný port. Celý postup rozebírá díl o bezpečné cestě domů ve čtvrté lince.
+
+## Co na Macu běží nejrychleji
+
+Apple pro vlastní čipy vyvíjí framework MLX a modely v jeho formátu bývají na Apple silicon o něco svižnější než obecné varianty. Prakticky:
+
+- **Nechcete se s tím párat:** zůstaňte u Ollamy. Rozdíl v rychlosti nepoznáte při psaní, jen při dlouhých generacích.
+- **Chcete vymáčknout maximum:** hledejte v LM Studiu modely označené MLX a zapněte příslušný běhový modul.
+
+Pro roli domácího serveru je pohodlí důležitější než posledních patnáct procent rychlosti. Ollama vyhrává tím, že se sama spustí po restartu a mluví standardním API, na které se napojí všechno ostatní.
+
+## Kolik to stojí na elektřině
+
+Mac mini v klidu spotřebuje jednotky wattů, při generování odpovědi desítky. Když ho necháte běžet nonstop, jde o řád desítek korun měsíčně. Proti předplatnému několika AI služeb je to zanedbatelné — ale poctivě: úsporu vám udělá až to, že díky němu opravdu přestanete platit něco jiného. O tom je díl o nákladech ve třetí lince.
+
+## Na co si dát pozor
+
+- **Nekupujte podle procesoru, kupujte podle paměti.** Za rok si řeknete, že chcete pustit větší model, a paměť se u Maců nedá dokoupit.
+- **Nechte disku místo.** Tři stažené modely snadno zaberou 50 GB. Externí SSD je levnější než větší interní.
+- **Nespoléhejte na to, že to poběží samo věčně.** Aktualizace systému stroj restartuje. Zkontrolujte po ní, že se Ollama nastartovala a že proměnná `OLLAMA_HOST` pořád platí.
+- **Nepouštějte na tenhle stroj citlivá data bez rozmyslu.** To, že server stojí u vás doma, neznamená, že je zabezpečený. Znamená to jen, že za jeho zabezpečení ručíte vy.
+
+Další díl je pro ty, kdo doma nemají Mac, ale herní PC s grafikou od Nvidie. Je to druhá plnohodnotná cesta a v něčem je dokonce lepší.

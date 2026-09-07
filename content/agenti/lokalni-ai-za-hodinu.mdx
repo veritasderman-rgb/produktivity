@@ -1,0 +1,113 @@
+---
+title: "Lokální AI za hodinu: první model na vlastním počítači"
+excerpt: "Bez účtu, bez karty, bez odesílání dat komukoli. Instalace jedné aplikace, jeden příkaz, jeden stažený model — a za hodinu máte na svém stroji AI, která funguje i v letadle."
+track: "lokalni-ai"
+order: 1
+tags: ["lokalni-ai", "open-weights"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Nejrychlejší cesta k lokální AI vede přes Ollamu (příkazová řádka, běží na pozadí jako služba) nebo LM Studio (grafické okno, hezčí start). Stáhnete model velikosti pár gigabajtů, spustíte a píšete — data nikam neodcházejí. Začněte malým modelem kolem 4 až 8 miliard parametrů, ne tím největším, co se do stroje vejde: rozdíl v použitelnosti je menší, než čekáte, a rozdíl v rychlosti obrovský.
+sources:
+  - name: "Ollama — knihovna modelů ke stažení"
+    url: "https://ollama.com/library"
+  - name: "Ollama — dokumentace a stažení"
+    url: "https://ollama.com/download"
+  - name: "LM Studio"
+    url: "https://lmstudio.ai/"
+---
+
+Na tomhle kroku se láme většina dobrých úmyslů. Lidé si přečtou, že lokální AI je složitá, představí si Linux, grafické karty a konfigurační soubory, a nechají to být. Přitom rozjet první model dnes trvá zhruba tak dlouho jako instalace kancelářského balíku.
+
+Pojďme na to. Cíl téhle hodiny není mít nejlepší model. Cíl je zjistit, jaké to je, když AI běží u vás.
+
+## Co vlastně potřebujete
+
+Skoro jistě to už máte. Pro první pokus stačí:
+
+- **Počítač z posledních zhruba pěti let.** Mac s čipem Apple (M1 a novější) je ideální. Windows nebo Linux s vyhrazenou grafikou od Nvidie taky. I obyčejný notebook bez grafiky model rozjede — jen pomaleji.
+- **Volné místo na disku.** Počítejte 5 až 10 GB na jeden menší model.
+- **Operační paměť.** 8 GB stačí na drobky, 16 GB je pohodlný začátek, 32 GB a víc otevírá zajímavější modely.
+
+Co **nepotřebujete**: účet, platební kartu, internet po stažení modelu, ani znalost programování.
+
+## Cesta A: Ollama (doporučeno)
+
+Ollama je nejrozšířenější způsob, jak dostat model na vlastní stroj. Nainstaluje se jako běžná aplikace, běží na pozadí jako služba a ovládá se jedním příkazem.
+
+1. **Stáhněte a nainstalujte** z oficiálních stránek. Na Macu je to obyčejný `.dmg`, na Windows instalátor, na Linuxu jednořádkový skript.
+
+2. **Otevřete terminál** (na Macu Terminál, na Windows PowerShell) a spusťte:
+
+```
+ollama run qwen3
+```
+
+Poprvé to model stáhne — u menších variant jednotky gigabajtů. Podruhé už naskočí za pár vteřin.
+
+3. **Pište.** Objeví se výzva a od téhle chvíle mluvíte s modelem, který běží na vašem stroji. Odpojte se od internetu a ověřte si, že to jede dál. Je to překvapivě příjemný pocit.
+
+4. **Skončíte** příkazem `/bye`.
+
+Užitečné příkazy do začátku:
+
+```
+ollama list          # co mám stažené
+ollama pull gemma3   # stáhnout, ale nespouštět
+ollama rm qwen3      # smazat model a uvolnit disk
+ollama ps            # co právě běží a kolik to žere
+```
+
+Důležitá věc, která se hodí v dalších dílech: Ollama po instalaci **poslouchá na adrese `http://localhost:11434`** a mluví přes běžné API. To je ten háček, na který se pak zavěsí chatovací rozhraní, Telegram bot i vlastní skripty.
+
+## Cesta B: LM Studio (když nechcete terminál)
+
+LM Studio je klasická aplikace s oknem. Nainstalujete, v katalogu si vyberete model, kliknete na stáhnout a pak píšete do chatu. Nikde žádný příkazový řádek.
+
+Výhody: vidíte velikosti souborů, upozorní vás, když se model do paměti nevejde, a máte přehledné nastavení. Nevýhoda: o něco hůř se to napojuje na další nástroje. Pro první seznámení je to ale nejpříjemnější cesta a přepnout se později na Ollamu není problém — modely se stahují ze stejných zdrojů.
+
+## Který model si stáhnout jako první
+
+Tady dělá většina lidí stejnou chybu: stáhnou to největší, co se do stroje vejde, počkají třicet minut, položí otázku, koukají na text, který se plazí po vteřině slovo, a zavřou to.
+
+**Začněte malým.** Modely se označují počtem parametrů — 4b znamená čtyři miliardy. Pro první týden hledejte něco mezi **4 a 8 miliardami**. V Ollamě jsou k dispozici desítky rodin: Qwen, Llama, Gemma, Mistral, DeepSeek i modely s otevřenými vahami od OpenAI, a skoro každá má malou i velkou variantu.
+
+<Bars title="Hrubá orientace: co utáhne kolik paměti" items={[
+  { label: "8 GB RAM", value: 4, display: "modely do ~4 mld." },
+  { label: "16 GB RAM", value: 8, display: "modely do ~8 mld." },
+  { label: "32 GB RAM", value: 14, display: "modely do ~14 mld." },
+  { label: "64 GB a víc", value: 32, display: "modely 30 mld. a výš" },
+]} />
+
+Čísla berte jako orientaci, ne jako zákon — záleží na kvantizaci, o které je čtvrtý díl téhle linky, a na tom, co ještě máte otevřené. Pravidlo palce: **model, který se celý vejde do paměti, běží plynule; ten, který se nevejde, se plazí.**
+
+## Na co lokální model použít hned první den
+
+Nesnažte se ho hned srovnávat s cloudem na nejtěžších úlohách. Prohrajete a otrávíte se. Zkuste místo toho věci, kde je „dost dobrý“ opravdu dost dobrý:
+
+- **Shrnutí interního zápisu** nebo dlouhého mailu, který nechcete posílat ven.
+- **Přeformulování odstavce** — zdvořileji, stručněji, jinak.
+- **Roztřídění seznamu** do kategorií.
+- **Vytažení údajů** z textu do tabulky: jméno, částka, termín.
+- **Překlad** pracovní verze dokumentu, kterou nechcete dávat cizí službě.
+- **Vysvětlení chybové hlášky** nebo neznámé zkratky.
+
+To je ohromný kus běžné práce. A všechno to proběhne, aniž by jediné slovo opustilo váš byt.
+
+## Kde lokální model naopak zaostane
+
+Buďme poctiví. Menší modely na domácím stroji:
+
+- **hůř drží dlouhý kontext** — u desítek stránek najednou ztrácí nit,
+- **jsou slabší v přesných faktech** a s větší chutí si vymýšlejí,
+- **hůř zvládají složité vícekrokové úlohy** a psaní kódu ve větším projektu,
+- **nemají automaticky přístup na internet** — vyhledávání jim musíte přidat zvlášť.
+
+Právě proto celý tenhle seriál nekončí u lokálního modelu. Cílem je mít lokál **i** cloud a rozhodovat se podle úlohy. To je náplň třetí linky o orchestraci.
+
+## Pro tip
+
+Až budete mít model rozjetý, zkuste jednu věc, která hodně napoví o tom, jak to celé funguje: položte stejnou otázku dvakrát — jednou lokálnímu modelu bez jakýchkoli nástrojů, jednou v cloudovém chatu, který si umí vyhledat na webu a spustit kód. Většina rozdílu, který uvidíte, není v inteligenci modelu, ale v tom, že jeden má ruce a druhý ne. O tom je díl o modelu, harnessu a agentovi.
+
+Další díl: co udělat, aby ten model neběžel na notebooku, ale na tiché krabici u routeru, která je dostupná pořád.

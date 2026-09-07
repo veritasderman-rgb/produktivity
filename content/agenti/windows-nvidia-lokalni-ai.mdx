@@ -1,0 +1,111 @@
+---
+title: "Windows s Nvidií: druhá cesta k vlastní AI"
+excerpt: "Herní PC je na lokální AI často lepší stroj než Mac — dokud se model vejde do paměti grafické karty. Jak zjistit, co vaše sestava utáhne, co nastavit ve Windows a proč je VRAM jediné číslo, na kterém záleží."
+track: "lokalni-ai"
+order: 3
+tags: ["lokalni-ai", "hardware"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Na Windows s Nvidií rozhoduje jediné číslo: velikost paměti grafické karty (VRAM). Model, který se do ní vejde celý, běží velmi rychle — rychleji než na srovnatelně drahém Macu. Model, který se nevejde, se rozdělí mezi grafiku a operační paměť a spadne na zlomek rychlosti. Ollama i LM Studio na Windows fungují bez ladění, stačí aktuální ovladač; pro nonstop provoz vypněte uspávání a spusťte službu tak, aby poslouchala na síti.
+sources:
+  - name: "Ollama — dokumentace a stažení"
+    url: "https://ollama.com/download"
+  - name: "Ollama — knihovna modelů ke stažení"
+    url: "https://ollama.com/library"
+  - name: "LM Studio"
+    url: "https://lmstudio.ai/"
+---
+
+Pokud vám doma stojí herní PC, máte na lokální AI možná lepší stroj než ten, kdo si právě kupuje Mac mini. Grafická karta od Nvidie počítá inference velmi rychle. Má to jednu podmínku a je nekompromisní.
+
+## Jediné číslo, na kterém záleží: VRAM
+
+Na rozdíl od Maců, kde je paměť společná, má grafická karta vlastní paměť — VRAM. A platí tvrdá hranice:
+
+- **Model se do VRAM vejde celý** → počítá jenom grafika → velmi rychle.
+- **Model se nevejde** → část se odloží do operační paměti a počítá procesor → **řádově pomaleji**.
+
+Není to plynulý přechod. Je to sráz. Model, kterému chybí do VRAM půl gigabajtu, může být pětkrát pomalejší než ten, který se tam vejde s rezervou.
+
+Kolik VRAM máte, zjistíte ve Windows nejrychleji takhle: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Esc</kbd> → záložka Výkon → GPU → řádek „Vyhrazená paměť GPU“.
+
+<Bars title="Co se vejde do VRAM (čtyřbitová kvantizace)" items={[
+  { label: "8 GB", value: 8, display: "modely do ~8 mld." },
+  { label: "12 GB", value: 14, display: "modely do ~14 mld." },
+  { label: "16 GB", value: 20, display: "modely do ~20 mld." },
+  { label: "24 GB", value: 32, display: "modely 30 mld. a víc" },
+]} />
+
+Čísla jsou hrubá — záleží na kvantizaci a na tom, jak dlouhý kontext modelu dáte. Nechte si vždycky aspoň gigabajt rezervy; kontext se do VRAM ukládá taky a s délkou konverzace roste.
+
+## Instalace: nic zvláštního
+
+Dobrá zpráva je, že na Windows dnes není co ladit.
+
+1. **Aktualizujte ovladač Nvidie.** Přes GeForce Experience nebo z webu výrobce. Tohle je jediný krok, který lidé přeskočí a pak se diví, že model běží na procesoru.
+2. **Nainstalujte Ollamu** (instalátor pro Windows) nebo **LM Studio**. Obojí si grafiku najde samo.
+3. **Spusťte model** stejným příkazem jako kdekoli jinde:
+
+```
+ollama run qwen3
+```
+
+4. **Ověřte, že to jede na grafice.** Během generování odpovědi se v Správci úloh musí vytížit GPU, ne procesor. Když se hýbe jen procesor, model se do VRAM nevešel — vezměte menší variantu.
+
+Ollama umí i přímo říct, jak je model umístěný:
+
+```
+ollama ps
+```
+
+Ve sloupci s umístěním uvidíte, jestli běží celý na GPU, nebo je rozdělený mezi GPU a CPU. To druhé je signál, že máte sáhnout po menším modelu nebo silnější kvantizaci.
+
+## Nastavení pro nonstop provoz
+
+Jestli má PC dělat domácí server, potřebuje stejné úpravy jako Mac z minulého dílu.
+
+**Vypněte uspávání.** Nastavení → Systém → Napájení a baterie → Obrazovka a režim spánku. Uspání nastavte na „Nikdy“, když je počítač v síti.
+
+**Zapněte automatický start po výpadku.** Tohle se nastavuje v BIOSu/UEFI, obvykle položka „Restore on AC Power Loss“ nebo podobně. Bez ní zůstane stroj po výpadku vypnutý.
+
+**Nechte službu poslouchat na síti.** Ollama i na Windows startuje jen pro `localhost`. Přidejte systémovou proměnnou prostředí:
+
+```
+OLLAMA_HOST = 0.0.0.0:11434
+```
+
+Nastavíte ji v Nastavení → Systém → Informace → Upřesnit nastavení systému → Proměnné prostředí. Potom Ollamu restartujte (ikona v oznamovací oblasti → Quit, a znovu spustit).
+
+**Povolte port v bráně firewall** — jen pro privátní síť, nikdy pro veřejnou.
+
+A znovu to varování z minulého dílu, protože je důležitější než všechno ostatní: **nepřesměrovávejte port na routeru.** Ollama nemá přihlašování. Vzdálený přístup řešte privátní sítí, viz díl o bezpečné cestě domů.
+
+## Kdy je Windows lepší volba než Mac
+
+- **Máte silnou grafiku už doma.** Nulové vstupní náklady proti nákupu nového stroje.
+- **Chcete si i něco trénovat nebo ladit.** Ekosystém kolem Nvidie je v tomhle výrazně bohatší.
+- **Chcete generovat obrázky.** Nástroje pro obrazovou generaci mají na Nvidii nejlepší podporu.
+- **Potřebujete čistou rychlost** na modelu, který se do VRAM vejde.
+
+## Kdy je naopak lepší Mac
+
+- **Chcete velký model, ne rychlý.** 64 GB sjednocené paměti utáhne to, na co by běžná herní karta nestačila ani náhodou.
+- **Bude to stát v obýváku.** Herní PC je hlučné a žere víc; rozdíl v hluku i spotřebě je dramatický.
+- **Nechcete to spravovat.** Mac mini běží měsíce bez zásahu.
+
+## Poctivé srovnání spotřeby
+
+Herní PC v klidu spotřebuje desítky wattů, při generování odpovědi klidně dvě až tři stovky. Když ho necháte běžet nonstop, je to znát na účtu — na rozdíl od Macu mini, který je v tomhle prakticky zadarmo. Když počítáte, jestli se lokál vyplatí (díl o nákladech ve třetí lince), tohle číslo do výpočtu patří.
+
+Praktický kompromis, který se osvědčuje: **PC nechat spát a budit ho po síti** (Wake on LAN), když má něco spočítat. Ušetří to hodně elektřiny za cenu pár vteřin čekání navíc.
+
+## Na co si dát pozor
+
+- **Nedívejte se na počet jader ani na takt karty.** VRAM rozhoduje o tom, co spustíte, všechno ostatní jen o tom, jak rychle.
+- **Sdílená paměť není VRAM.** Windows vykazují „sdílenou paměť GPU“, což je vypůjčená operační paměť. Model, který skončí tam, poběží pomalu.
+- **Zavřete hru.** Hra i model se perou o stejnou paměť; když karta nemá volno, model se odsune do RAM a zpomalí.
+- **Sledujte teploty.** Nonstop inference je jiná zátěž než hraní — vytrvalejší a méně nárazová. Zkontrolujte, že si sestava udrží rozumné teploty i po hodinách.
+
+Další díl vysvětlí to slovo, které v obou předchozích dílech pořád padalo: kvantizace. Je to hlavní páka, kterou model dostanete do paměti, kterou máte.

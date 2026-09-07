@@ -1,0 +1,81 @@
+---
+title: "Když se otráví samotný nástroj: případ LiteLLM"
+excerpt: "V březnu 2026 se do balíčku populární AI brány dostala na čtyřicet minut upravená verze se sběračem přihlašovacích údajů. Čtyřicet minut stačilo. Co se stalo, proč to je varování pro každého, kdo si staví vlastní velín, a co s tím."
+track: "rizeni"
+order: 3
+tags: ["bezpecnost", "orchestrace", "api-klice"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  24. března 2026 se na PyPI objevily upravené verze balíčku LiteLLM (1.82.7 a 1.82.8) se sběračem přihlašovacích údajů, který odesílal proměnné prostředí, klíče SSH, cloudové a databázové údaje na cizí doménu. Podle oznámení provozovatele byly dostupné zhruba čtyřicet minut a útočník obešel oficiální publikační proces; prvotní podezření míří na zranitelnost v bezpečnostním skeneru používaném ve vlastní pipeline. Doporučený postup: odinstalovat, smazat podstrčený soubor, obměnit všechny přihlašovací údaje a připnout ověřenou verzi. Poučení: nástroj, který drží vaše klíče, je stejně kritický jako klíče samotné.
+sources:
+  - name: "LiteLLM: bezpečnostní oznámení k incidentu z března 2026"
+    url: "https://docs.litellm.ai/blog/security-update-march-2026"
+  - name: "NHS England Digital: kybernetické varování k balíčku LiteLLM"
+    url: "https://digital.nhs.uk/cyber-alerts/2026/cc-4761"
+  - name: "Snyk: rozbor útoku přes otrávený bezpečnostní skener"
+    url: "https://snyk.io/blog/poisoned-security-scanner-backdooring-litellm/"
+---
+
+Předchozí díly seriálu vás vedly k tomu, abyste si postavili vlastní bránu — jedno místo, které zná všechny vaše API klíče. Je poctivé říct i druhou stranu: **tím se z toho nástroje stane nejcennější cíl v celé vaší stavbě.** A v březnu 2026 se ukázalo, jak to vypadá, když se ten cíl trefí.
+
+## Co se stalo
+
+24. března 2026 se do veřejného balíčkovacího repozitáře PyPI dostaly upravené verze knihovny **LiteLLM** — populární AI brány, o které mluví celá třetí linka tohohle seriálu. Šlo o verze **1.82.7 a 1.82.8**.
+
+Podle bezpečnostního oznámení, které provozovatel vydal, obsahovaly **sběrač přihlašovacích údajů**: kód, který posbíral proměnné prostředí, klíče SSH, přihlašovací údaje ke cloudovým službám, tokeny ke Kubernetes a hesla k databázím, zašifroval je a odeslal na doménu, která k projektu nepatří.
+
+Balíčky byly podle oznámení dostupné **přibližně čtyřicet minut**, než je repozitář stáhl z oběhu.
+
+Čtyřicet minut. To je doba, za kterou proběhne pár automatických sestavení, jedna aktualizace v produkčním prostředí a několik instalací na noteboocích vývojářů. U nástroje s takovým rozšířením to není málo.
+
+## Jak se tam ten kód dostal
+
+Tohle je ta zajímavější část. Podle oznámení útočník **obešel oficiální publikační proces** a nahrál balíčky přímo. Prvotní podezření míří na zranitelnost v **bezpečnostním skeneru**, který projekt používal ve své vlastní pipeline pro kontrolu závislostí.
+
+Přečtěte si tu větu ještě jednou. Cesta dovnitř vedla přes nástroj, jehož jediným úkolem je hlídat bezpečnost.
+
+Druhý detail stojí za pozornost technicky: novější z obou verzí přidávala soubor `litellm_init.pth`. Soubory s touhle příponou Python zpracovává **při startu interpretu**, ne až při importu knihovny. Z útoku, který se spustí, když někdo knihovnu použije, se tím stal útok, který se spustí, kdykoli se na tom stroji spustí Python.
+
+## Co s tím dělat, pokud se vás to týká
+
+Postup podle oznámení provozovatele:
+
+1. **Považujte všechna tajemství na zasažených systémech za kompromitovaná** a obměňte je. Ne změňte — obměňte a stará zneplatněte.
+2. **Prohledejte instalaci** na soubor `litellm_init.pth` v adresáři s balíčky a smažte ho.
+3. **Projděte historii** — prostředí, sestavovací pipeline, obrazy kontejnerů a záznamy nasazení — jestli se v nich verze 1.82.7 nebo 1.82.8 neobjevila.
+4. **Připněte ověřenou verzi** (podle oznámení 1.82.6 nebo starší, dokud nevyjde potvrzeně čistá).
+
+Bod tři je ten, který lidé přeskakují. Balíček se do prostředí nedostane jen tím, že si ho někdo nainstaluje ručně — dostane se tam automatickým sestavením, obrazem kontejneru nebo aktualizací závislosti někoho jiného.
+
+## Co si z toho odnést, i když LiteLLM nepoužíváte
+
+**1. Brána je stejně kritická jako klíče, které drží.** Když stavíte velín, přestává být volba nástroje otázkou pohodlí. Je to rozhodnutí o tom, komu svěříte přístupové údaje ke všemu.
+
+**2. Připínejte verze.** Automatická aktualizace na nejnovější verzi je pohodlná ve chvíli, kdy se nic neděje, a katastrofální ve čtyřiceti minutách, kdy se děje. Připnutá verze a vědomá aktualizace o pár dní později by tenhle konkrétní případ přečkaly.
+
+**3. Klíče s omezenou platností bolí míň.** Tohle je přesně ten scénář, kvůli kterému díl o API klíčích doporučuje virtuální klíče, stropy útraty a pravidelnou obměnu. Uniklý klíč se stropem a platností na měsíc je nepříjemnost. Uniklý klíč bez limitu je faktura.
+
+**4. Neveřejné neznamená bezpečné.** Vaše brána běží doma, na privátní síti a bez veřejného portu. Tenhle útok šel dovnitř aktualizací, ne sítí.
+
+**5. Sledujte oznámení nástrojů, které vám drží tajemství.** Ne všech. Ale těch dvou nebo tří, které mají přístup ke všemu, ano. Odběr bezpečnostních oznámení projektu je pět minut práce jednou za život.
+
+## Praktický kontrolní seznam pro vlastní velín
+
+<Flow title="Pět opatření proti otrávené závislosti" steps={[
+  { title: "Připnuté verze", desc: "Konkrétní čísla verzí v konfiguraci, ne „nejnovější“. U bran a agentních nástrojů bez výjimky." },
+  { title: "Odstup od vydání", desc: "Neaktualizujte v den vydání. Pár dní zpoždění je nejlevnější obrana, jaká existuje." },
+  { title: "Oddělené prostředí", desc: "Brána v kontejneru nebo ve vlastním virtuálním prostředí, ne v systémovém Pythonu s vašimi klíči v proměnných." },
+  { title: "Minimum tajemství v prostředí", desc: "Co si nástroj nemusí přečíst z proměnných, ať si nepřečte. Sběrač bere to, co najde." },
+  { title: "Odběr oznámení", desc: "Bezpečnostní kanál projektu a upozornění na zranitelnosti pro vaše závislosti." },
+]} />
+
+## Na co si dát pozor
+
+- **Nespoléhejte na to, že to zachytí skener.** V tomhle případě byl skener součástí cesty dovnitř.
+- **Kontejner není izolace, když mu předáte klíče.** Sběrač uvnitř kontejneru najde přesně to, co jste do něj vložili.
+- **Když neumíte odpovědět, jestli jste zasaženi, jste zasaženi.** Bez historie sestavení a záznamu verzí je jediná bezpečná odpověď „obměnit vše“.
+- **Tohle není argument proti vlastní bráně.** Cloudová služba má stejný problém, jen o něm nemusíte vědět. Argument to je pro připnuté verze, oddělené prostředí a klíče s limitem.
+
+Poslední díl seriálu je největší případovka roku: co se stane, když firma vsadí na agenty dřív, než má vyřešené řízení.

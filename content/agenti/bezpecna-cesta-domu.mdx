@@ -1,0 +1,110 @@
+---
+title: "Bezpečná cesta domů: proč ne otevřený port, ale privátní síť"
+excerpt: "Přesměrovat port na routeru je nejrychlejší způsob, jak dát svůj model celému internetu. Privátní síť ho zpřístupní jen vašim zařízením a nastaví se za deset minut — bez veřejné IP, bez certifikátů, bez děr ve firewallu."
+track: "ovladani"
+order: 2
+tags: ["ovladani", "bezpecnost", "telegram", "lokalni-ai"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Domácí model nesmí být dostupný z veřejného internetu. Přesměrovaný port na routeru znamená, že vaši Ollamu bez přihlašování najdou automatické skenery během hodin. Správné řešení je privátní síť (Tailscale, WireGuard nebo Cloudflare Tunnel): notebook, mobil a domácí stroj se vidí, jako by ležely na jednom stole, ale zvenčí není otevřený žádný port. Nastavení Tailscale zabere zhruba deset minut a nepotřebuje veřejnou IP adresu.
+sources:
+  - name: "Tailscale — dokumentace"
+    url: "https://tailscale.com/kb/"
+  - name: "WireGuard — oficiální stránky"
+    url: "https://www.wireguard.com/"
+  - name: "Cloudflare Tunnel — dokumentace"
+    url: "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/"
+---
+
+Jakmile člověk rozjede model doma, přijde nutkání: „a co kdybych se k němu dostal i z práce?“ Nejrychlejší odpověď je přesměrovat port na routeru. Je to zároveň nejhorší možná odpověď a stojí za to vědět proč.
+
+## Proč otevřený port ne
+
+Ollama, LM Studio i většina domácích AI nástrojů **nemají ve výchozím stavu žádné přihlašování.** Kdo se dostane na adresu a port, může používat váš model, číst seznam vašeho obsahu a v horším případě sahat na věci, na které jste ho napojili.
+
+A najdou to. Internet nepřetržitě prochází automaty, které skenují veřejné adresy na známé porty. Nová služba na veřejné IP bývá objevena během hodin, ne měsíců. Nepomůže ani „mám divné číslo portu“ — skenuje se všechno.
+
+Ještě horší varianta je otevřít port k bráně z třetí linky. Ta totiž zná vaše skutečné API klíče a útratu platíte vy.
+
+## Co je privátní síť
+
+Privátní síť (VPN v původním smyslu) udělá jednu jedinou věc: **vaše zařízení se navzájem vidí, jako by ležela na jednom stole**, ale pro zbytek internetu neexistují.
+
+Prakticky to znamená, že mobil v tramvaji a Mac mini v obýváku mají mezi sebou přímé, šifrované spojení, a nikde není otevřený žádný port. Nepotřebujete veřejnou IP adresu, nemusíte nic nastavovat na routeru a nemusíte řešit certifikáty.
+
+<Flow title="Tři cesty domů, od nejjednodušší" steps={[
+  { title: "Tailscale", desc: "Postavené na WireGuardu, ale bez konfigurace. Nainstalujete na každé zařízení, přihlásíte se stejným účtem a hotovo. Pro osobní použití je bezplatná úroveň velkorysá." },
+  { title: "WireGuard ručně", desc: "Stejná technologie bez prostředníka. Nastavení klíčů a adres si děláte sami. Víc práce, plná kontrola, funguje i tam, kde nechcete cizí koordinační službu." },
+  { title: "Cloudflare Tunnel", desc: "Jiný přístup: služba u vás doma naváže spojení ven a Cloudflare zpřístupní konkrétní aplikaci na adrese, kterou lze chránit přihlášením. Vhodné, když chcete pustit dovnitř i někoho jiného." },
+]} />
+
+## Nastavení Tailscale krok za krokem
+
+Pro domácí velín je tohle obvykle nejlepší poměr úsilí a výsledku.
+
+**1. Nainstalujte na domácí stroj.**
+
+Na macOS z App Storu nebo přes Homebrew, na Linuxu jednořádkovým skriptem z oficiálních stránek, na Windows instalátorem. Pak spusťte:
+
+```
+tailscale up
+```
+
+Otevře se prohlížeč, přihlásíte se (Google, Microsoft, GitHub) a stroj se připojí.
+
+**2. Nainstalujte na mobil a notebook.** Stejný účet. Aplikace jsou v obchodech s aplikacemi.
+
+**3. Zjistěte adresu domácího stroje.**
+
+```
+tailscale ip -4
+```
+
+Dostanete adresu, která vypadá jako `100.x.y.z`. Tahle adresa je platná **jen uvnitř vaší privátní sítě** — z běžného internetu na ni nikdo nedosáhne.
+
+**4. Ověřte spojení.** Z notebooku připojeného k mobilnímu internetu:
+
+```
+curl http://100.x.y.z:11434/api/tags
+```
+
+Když se vrátí seznam modelů, jste hotoví. Váš model je dostupný odkudkoli — a přitom na routeru není otevřená ani škvíra.
+
+## Užitečné doplňky
+
+- **Sdílený přístup pro rodinu nebo kolegu.** Tailscale umí pozvat jiný účet ke konkrétnímu zařízení, ne k celé síti.
+- **Přístupová pravidla.** Dá se omezit, které zařízení smí na který port. Mobil ať vidí bránu, ale ne SSH.
+- **Odchozí uzel.** Když chcete surfovat přes domácí připojení, například na cizí wifi.
+- **MagicDNS.** Místo číselné adresy pak píšete jméno stroje.
+
+## Když chcete pustit dovnitř i někoho zvenčí
+
+Privátní síť je skvělá pro vaše zařízení. Když chcete zpřístupnit chatovací rozhraní kolegovi, který si nic instalovat nebude, sáhněte po tunelu s přihlášením — Cloudflare Tunnel nebo podobná služba dokáže vystavit konkrétní aplikaci na adrese a před ni postavit přihlášení, aniž byste otevírali port.
+
+I tak platí: **vystavujte konkrétní aplikaci, nikdy celou bránu nebo Ollamu.** Rozdíl je v tom, že chatovací rozhraní má uživatele a hesla; brána má vaše API klíče.
+
+## Kontrolní seznam, než to prohlásíte za hotové
+
+1. Na routeru **není** přesměrovaný žádný port na váš AI stroj.
+2. Ollama i brána poslouchají buď jen na `localhost`, nebo na rozhraní privátní sítě.
+3. Firewall na domácím stroji povoluje port modelu jen z privátní sítě.
+4. Zkusili jste se na model dostat z veřejné IP adresy a **nepovedlo se to**.
+5. Telegram bot běží lokálně a ven navazuje spojení sám (viz předchozí díl).
+
+Bod čtyři si opravdu vyzkoušejte. Je to jediný test, kterému se dá věřit.
+
+## Na co si dát pozor
+
+- **Privátní síť není náhrada za přihlašování.** Kdo se dostane k jednomu vašemu zařízení, je uvnitř. Na kritické věci přidejte přihlášení i tak.
+- **Zařízení, které přestanete používat, odstraňte.** Starý telefon s aktivním klientem je otevřená cesta domů.
+- **Koordinační služba vidí, kdo se s kým spojuje** — ne obsah, ale metadata. Komu to vadí, ať jde cestou vlastního WireGuardu.
+- **Aktualizujte klienty.** Je to síťový software s privilegovaným přístupem.
+- **Nezaměňujte to za komerční „VPN pro soukromí“.** To je úplně jiná služba k úplně jinému účelu.
+
+## Pro tip
+
+Až budete mít privátní síť hotovou, přenastavte Telegram bota z předchozího dílu tak, aby volal bránu přes adresu privátní sítě, ne přes `localhost`. Získáte tím možnost pustit bota na jiném stroji, než na kterém běží model — třeba na malém počítači, který jede nonstop, zatímco výkonný stroj se probouzí jen na výpočet.
+
+Další díl skládá celou linku dohromady: jak vypadá jeden velín ovládaný ze tří různých obrazovek.

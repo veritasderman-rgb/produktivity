@@ -1,0 +1,201 @@
+---
+title: "Telegram jako ovládací panel domácí AI"
+excerpt: "Napíšete zprávu z mobilu, doma to spočítá váš model a odpověď přijde zpátky do chatu. Kompletní návod: založení bota, kam patří token, jak povolit jen sebe a padesát řádků kódu, které to celé spojí."
+track: "ovladani"
+order: 1
+tags: ["telegram", "ovladani", "lokalni-ai"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Telegram je nejrychlejší cesta, jak ovládat domácí AI z mobilu: bota si založíte přes BotFather za dvě minuty, dostanete token a napojíte ho na bránu nebo přímo na Ollamu. Dvě věci jsou nepominutelné — token patří do proměnné prostředí, nikdy do kódu, a bot musí mít seznam povolených uživatelů, jinak vám ho během dní najde někdo cizí. Bot běží na domácím stroji a ven vůbec nic neotvírá: sám se ptá Telegramu na nové zprávy.
+sources:
+  - name: "Telegram Bot API — oficiální dokumentace"
+    url: "https://core.telegram.org/bots/api"
+  - name: "Telegram: jak založit bota přes BotFather"
+    url: "https://core.telegram.org/bots/features#botfather"
+  - name: "Ollama — dokumentace a stažení"
+    url: "https://ollama.com/download"
+---
+
+Tady se z technické hračky stane věc, kterou budete používat každý den. Dokud musíte kvůli každému dotazu otevřít notebook a najít správnou záložku, domácí AI zůstane experimentem. Jakmile stačí napsat zprávu v aplikaci, kterou už máte na mobilu, změní se to.
+
+Telegram na tuhle roli sedí ze tří důvodů: má vynikající rozhraní pro boty, běží na všem a — což je nejdůležitější — **bot se sám ptá Telegramu na nové zprávy.** Nemusíte tedy na domácím routeru otevřít jediný port.
+
+## Jak to celé funguje
+
+<Flow title="Cesta jedné zprávy" steps={[
+  { title: "Napíšete z mobilu", desc: "Obyčejná zpráva svému botovi v Telegramu, odkudkoli na světě." },
+  { title: "Telegram ji podrží", desc: "Zpráva čeká na serverech Telegramu, dokud si pro ni někdo nepřijde." },
+  { title: "Domácí stroj si ji vyzvedne", desc: "Skript běžící u vás doma se každou chvíli ptá: máte pro mě něco nového?" },
+  { title: "Model odpoví", desc: "Skript pošle text vaší bráně nebo přímo Ollamě. Odpověď spočítá stroj v obýváku." },
+  { title: "Odpověď se vrátí do chatu", desc: "Zpět přes Telegram na váš mobil. Celé to trvá vteřiny." },
+]} />
+
+Klíčová věta: **spojení navazuje váš domácí stroj směrem ven.** Zvenčí do vaší sítě nevede nic. To je zásadní bezpečnostní rozdíl proti tomu, kdyby model poslouchal na veřejné adrese.
+
+## Krok 1: založte bota
+
+V Telegramu najděte účet **@BotFather** (má modrý ověřovací štítek) a napište:
+
+```
+/newbot
+```
+
+BotFather se zeptá na jméno (to, co uvidíte v chatu) a na uživatelské jméno, které musí končit na `bot`. Když projde, dostanete zprávu s **tokenem** — dlouhým řetězcem ve tvaru `123456789:AAF...`.
+
+Ten token je heslo k vašemu botovi. Kdo ho má, může za bota psát komukoli, kdo si ho přidal. Takže:
+
+- **Nikdy ho neposílejte v chatu ani ve screenshotu.**
+- **Nikdy ho nedávejte do kódu.**
+- Když unikne, u BotFathera ho zrušte příkazem `/revoke` a vygenerujte nový.
+
+Zatímco jste v BotFatherovi, hodí se ještě:
+
+```
+/setprivacy      → Disable   (jen pokud chcete bota ve skupině)
+/setdescription  → k čemu ten bot je
+/setcommands     → seznam příkazů, které bot umí
+```
+
+## Krok 2: zjistěte své ID
+
+Bot musí vědět, komu smí odpovídat. Bez toho si ho během pár dní najde náhodný kolemjdoucí — uživatelská jména botů se dají procházet.
+
+Napište v Telegramu botovi **@userinfobot** (nebo jinému podobnému) a on vám vrátí vaše číselné ID. Zapište si ho, bude potřeba.
+
+## Krok 3: token do proměnné prostředí
+
+Na domácím stroji, kde bot poběží:
+
+```
+export TELEGRAM_TOKEN="123456789:AAF..."
+export TELEGRAM_ALLOWED="123456789"
+export OLLAMA_URL="http://localhost:11434"
+```
+
+Tohle platí pro spuštění z terminálu. Na Windows si totéž nastavte v uživatelských proměnných prostředí. Podrobněji je to v dílu o API klíčích.
+
+Pozor na jednu past: **`~/.zshrc` čte jenom terminál.** Až bota níž rozjedete jako službu na pozadí, systém tenhle soubor nenačte a skript spadne hned na prvním řádku. Proměnné se v tom případě zapisují do konfigurace služby — jak, ukazuje krok 5.
+
+## Krok 4: samotný bot
+
+Padesát řádků v Pythonu. Nainstalujte knihovnu:
+
+```
+pip install python-telegram-bot requests
+```
+
+A vytvořte soubor `bot.py`:
+
+```python
+import os
+import requests
+from telegram import Update
+from telegram.ext import Application, MessageHandler, filters, ContextTypes
+
+TOKEN = os.environ["TELEGRAM_TOKEN"]
+ALLOWED = {int(x) for x in os.environ["TELEGRAM_ALLOWED"].split(",")}
+OLLAMA = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+MODEL = os.environ.get("MODEL", "qwen3")
+
+def ask(prompt: str) -> str:
+    r = requests.post(
+        f"{OLLAMA}/api/generate",
+        json={"model": MODEL, "prompt": prompt, "stream": False},
+        timeout=180,
+    )
+    r.raise_for_status()
+    return r.json()["response"].strip()
+
+async def handle(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.effective_user.id not in ALLOWED:
+        return                      # cizí uživatel: mlčky ignorovat
+    await ctx.bot.send_chat_action(update.effective_chat.id, "typing")
+    try:
+        answer = ask(update.message.text)
+    except Exception as exc:
+        answer = f"Nepovedlo se: {exc}"
+    for i in range(0, len(answer), 4000):   # Telegram má limit délky zprávy
+        await update.message.reply_text(answer[i:i + 4000])
+
+app = Application.builder().token(TOKEN).build()
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle))
+app.run_polling()
+```
+
+Spusťte:
+
+```
+python3 bot.py
+```
+
+A napište botovi z mobilu. Odpověď spočítá stroj u vás doma.
+
+## Krok 5: ať to běží pořád
+
+Skript spuštěný v terminálu skončí, jakmile terminál zavřete. Pro trvalý provoz:
+
+**Na Macu** vytvořte soubor `~/Library/LaunchAgents/cz.velin.telegrambot.plist`. Proměnné prostředí musí být přímo v něm — launchd žádný `~/.zshrc` nečte:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>cz.velin.telegrambot</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/josef/velin/bot.py</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>TELEGRAM_TOKEN</key><string>123456789:AAF...</string>
+    <key>TELEGRAM_ALLOWED</key><string>123456789</string>
+    <key>OLLAMA_URL</key><string>http://localhost:11434</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardErrorPath</key><string>/tmp/telegrambot.err</string>
+</dict>
+</plist>
+```
+
+Token je v souboru čitelně, takže mu hned omezte práva a teprve pak službu načtěte:
+
+```
+chmod 600 ~/Library/LaunchAgents/cz.velin.telegrambot.plist
+launchctl load ~/Library/LaunchAgents/cz.velin.telegrambot.plist
+```
+
+Systém pak bota nastartuje po každém přihlášení a znovu ho spustí, kdyby spadl. Když se nerozjede, první místo, kam se podívat, je `/tmp/telegrambot.err`.
+
+**Na Linuxu** je to služba pro systemd s `Restart=always`; proměnné patří do direktiv `Environment=`, nebo lépe do souboru načteného přes `EnvironmentFile=` s právy `600`.
+
+**Na Windows** nejjednodušeji Plánovač úloh se spuštěním při startu systému. Uživatelské proměnné prostředí se do naplánované úlohy načtou, ale musí být nastavené **před** jejím vytvořením — jinak úloha startuje bez nich.
+
+## Co si přidat, jakmile to jede
+
+Základní bot odpovídá na text. Za pár dalších řádků z něj uděláte skutečný velín:
+
+- **Příkazy pro přepnutí modelu.** `/rychly` a `/chytry` přepínají mezi aliasy z brány — viz díl o směrování.
+- **Historie konverzace.** Uchovejte pár posledních zpráv na uživatele, aby bot držel nit.
+- **Přijímání souborů.** Pošlete botovi PDF a on ho shrne. Pozor na to, kam soubor uloží.
+- **Hlasové zprávy.** Nadiktujete zprávu, přepis proběhne lokálně, model odpoví textem.
+- **Naplánované zprávy.** Bot vám každé ráno pošle shrnutí, které v noci připravil.
+
+## Na co si dát pozor
+
+- **Seznam povolených uživatelů není volitelný.** Bot bez něj je veřejná služba, kterou platíte vy.
+- **Token je klíč od bota, ne od vašeho stroje** — ale kdo ho má, může přes bota mluvit s vaším modelem. Chovejte se k němu jako k heslu.
+- **Telegram vidí obsah zpráv.** Obyčejné chaty s botem nejsou šifrované end-to-end. Když je celý smysl vašeho lokálního modelu v tom, že data nikam nechodí, tak si uvědomte, že tudy chodí. Pro opravdu citlivé věci použijte přístup přes privátní síť a chat ve vlastním rozhraní — o tom je příští díl.
+- **Ošetřete chyby.** Když model neběží nebo je přetížený, ať bot řekne co se stalo. Mlčící bot je horší než chybová hláška.
+- **Dlouhé odpovědi se musí dělit.** Telegram nepustí zprávu delší než zhruba 4 000 znaků; proto ten cyklus v ukázce.
+
+## Pro tip
+
+Nejužitečnější příkaz, který si do bota přidáte, není chytrý model — je to `/stav`. Ať vám vypíše, jestli Ollama běží, jaký model je načtený a kolik zabírá paměti. Až budete někde na cestách a bot přestane odpovídat, tenhle jeden příkaz vám ušetří půl hodiny dohadů.
+
+Další díl řeší tu nepříjemnou otázku, která se vznáší nad celou touhle linkou: jak se k domácímu stroji dostat zvenčí, aniž byste otevřeli dveře celému internetu.

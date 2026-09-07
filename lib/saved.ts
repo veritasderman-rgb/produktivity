@@ -8,7 +8,7 @@
    připojení sám srovná — žádný setState v efektu.
 --------------------------------------------------------------------------- */
 
-export type SavedType = "tip" | "kapitola";
+export type SavedType = "tip" | "kapitola" | "agent";
 
 export type SavedItem = { type: SavedType; slug: string; title: string; savedAt: number };
 export type RecentItem = { type: SavedType; slug: string; title: string; visitedAt: number };
@@ -81,7 +81,7 @@ function isRecord(x: unknown): x is Record<string, unknown> {
 }
 
 function isSavedType(x: unknown): x is SavedType {
-  return x === "tip" || x === "kapitola";
+  return x === "tip" || x === "kapitola" || x === "agent";
 }
 
 export function parseSaved(raw: string): SavedItem[] {

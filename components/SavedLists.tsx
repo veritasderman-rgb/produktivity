@@ -30,7 +30,7 @@ const T = {
     recentEmpty: "Zatím nic. Jakmile si něco přečtete, objeví se to tady.",
     remove: "Odebrat",
     removeTitle: (title: string) => `Odebrat: ${title}`,
-    typeLabel: { tip: "Tip", kapitola: "Příručka" } as Record<SavedType, string>,
+    typeLabel: { tip: "Tip", kapitola: "Příručka", agent: "Agenti" } as Record<SavedType, string>,
   },
   en: {
     saved: "Saved",
@@ -39,11 +39,11 @@ const T = {
     recentEmpty: "Nothing yet. Once you read something, it will show up here.",
     remove: "Remove",
     removeTitle: (title: string) => `Remove: ${title}`,
-    typeLabel: { tip: "Tip", kapitola: "Handbook" } as Record<SavedType, string>,
+    typeLabel: { tip: "Tip", kapitola: "Handbook", agent: "Agents" } as Record<SavedType, string>,
   },
 };
 
-const typeHref: Record<SavedType, string> = { tip: "/tipy", kapitola: "/prirucka" };
+const typeHref: Record<SavedType, string> = { tip: "/tipy", kapitola: "/prirucka", agent: "/agenti" };
 
 type Row = { type: SavedType; slug: string; title: string };
 
