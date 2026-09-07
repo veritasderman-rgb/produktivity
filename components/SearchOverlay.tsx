@@ -12,7 +12,7 @@ import { localePath, type Locale } from "@/lib/i18n";
 --------------------------------------------------------------------------- */
 
 export type SearchIndexItem = {
-  type: "tip" | "kapitola" | "ai" | "rozhovor";
+  type: "tip" | "kapitola" | "ai" | "rozhovor" | "agent";
   slug: string;
   title: string;
 };
@@ -32,6 +32,7 @@ const typeHref: Record<SearchIndexItem["type"], string> = {
   kapitola: "/prirucka",
   ai: "/ai",
   rozhovor: "/rozhovory",
+  agent: "/agenti",
 };
 
 /* Stav otevření žije mimo React ve sdíleném store: tlačítka lupy (desktop

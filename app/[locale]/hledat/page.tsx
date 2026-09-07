@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getAllTips } from "@/lib/tips";
 import { getAllChapters } from "@/lib/chapters";
 import { getAllNews } from "@/lib/news";
+import { getAllAgentMetas } from "@/lib/agents";
 import { getAllInterviews, interviewTitle } from "@/lib/interviews";
 import { SearchAll, type SearchDoc } from "@/components/SearchAll";
 import { isLocale, type Locale } from "@/lib/i18n";
@@ -83,6 +84,12 @@ export default async function SearchPage({
       slug: i.slug,
       title: interviewTitle(i, locale),
       excerpt: i.excerpt,
+    })),
+    ...getAllAgentMetas(locale).map((a) => ({
+      type: "agent" as const,
+      slug: a.slug,
+      title: a.title,
+      excerpt: a.excerpt,
     })),
   ];
 

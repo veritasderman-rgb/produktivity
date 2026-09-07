@@ -1,0 +1,106 @@
+---
+title: "Fronta úloh a schvalování: agent připraví, vy potvrdíte"
+excerpt: "Rozdíl mezi užitečným a nebezpečným agentem není v modelu, ale v jedné čáře: kde končí příprava a začíná akce. Jak tu čáru postavit tak, aby držela — složkou, frontou a jedním tlačítkem v mobilu."
+track: "ovladani"
+order: 4
+tags: ["ovladani", "telegram", "agenti", "rizeni"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Skoro celá hodnota agentů je v přípravě, skoro celé riziko v odeslání. Když ty dvě věci oddělíte frontou — agent píše do složky „ke schválení“ a nic neodesílá, dokud nekliknete — získáte většinu užitku a téměř žádné riziko. Fronta musí být místem, kde vidíte tři věci: co agent udělal, z čeho vycházel a co se stane po schválení. A hranice musí být technická, ne dohodnutá: agent, který má přihlašovací údaje k poště, ji odeslat může, i když jste mu řekli, ať nikoli.
+sources:
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+  - name: "Help Net Security: prompt injection stále stojí za většinou selhání agentních systémů"
+    url: "https://www.helpnetsecurity.com/2026/06/11/owasp-prompt-injection-ai-security-failures/"
+---
+
+Celý tenhle seriál stojí na jedné větě: **agent smí připravit cokoli, poslední kliknutí zůstává vaše.** Tenhle díl je o tom, jak z té věty udělat něco, co skutečně drží — protože jako dobré předsevzetí vydrží týden.
+
+## Proč to dohodou nejde
+
+Většina lidí to zkusí takhle: do instrukcí agenta napíšou „nikdy nic neodesílej bez mého souhlasu“ a považují to za vyřešené.
+
+Není. Model nemá spolehlivou hranici mezi tím, co jsou data, a tím, co je příkaz. Když agent při práci narazí na text, který napsal někdo jiný — přílohu, webovou stránku, e-mail —, ten text mu může říct, co má dělat. A on to udělá s vašimi právy. To je jádro problému, kterému se říká prompt injection a který podle bezpečnostních přehledů z roku 2026 stojí pořád za většinou selhání agentních systémů v provozu.
+
+Z toho plyne jediné rozumné pravidlo: **hranice musí být tam, kde agent nemá jak ji přejít.** Ne v instrukci, ale v tom, že mu chybí přihlašovací údaje, chybí oprávnění nebo chybí síťový přístup.
+
+## Kde tu čáru vést
+
+<Matrix
+  tags={["Volno", "S pravidlem", "Jen s potvrzením", "Ani technický přístup"]}
+  hot={2}
+  note="Čára mezi druhým a třetím polem je celá bezpečnost agentů. Nad ní se pracuje, pod ní se schvaluje."
+  quadrants={[
+    { title: "Agent smí sám", action: "Číst, hledat, třídit, připravovat, ukládat do své složky.", examples: "Shrnutí, koncept odpovědi, roztřídění faktur, rešerše, návrh příspěvku" },
+    { title: "Agent smí po pravidle", action: "Akce s malým dosahem, které se dají vzít zpět.", examples: "Přesun souboru do složky, přidání štítku, vytvoření konceptu v poště" },
+    { title: "Jen s vaším potvrzením", action: "Cokoli, co uvidí někdo jiný nebo co stojí peníze.", examples: "Odeslání mailu, publikace příspěvku, objednávka, nasazení změny" },
+    { title: "Nikdy automaticky", action: "Nevratné a citlivé. Sem agent nemá mít ani technický přístup.", examples: "Mazání dat, platby, změna oprávnění, cokoli se mzdami a smlouvami" },
+  ]}
+/>
+
+Praktický test pro zařazení: **kolik stojí to vzít zpátky?** Nic → první kvadrant. Minutu → druhý. Omluvu → třetí. Peníze nebo reputaci → čtvrtý.
+
+## Fronta: nejjednodušší funkční řešení
+
+Nepotřebujete žádnou platformu. Stačí složka, kterou už máte z předchozího dílu:
+
+```
+~/velin/
+  ke-schvaleni/
+  schvaleno/
+  zamitnuto/
+  archiv/
+```
+
+Agent píše **výhradně** do `ke-schvaleni/`. Nemá přístup k odesílání. Nemá klíč k poště. Když má připravit odpověď na e-mail, uloží ji jako soubor — a k němu poznámku, komu má jít a proč.
+
+Vy pak soubor přesunete do `schvaleno/` a teprve tenhle přesun spustí odeslání. Odesílá jiný, hloupý skript, který neumí nic než vzít soubor a poslat ho. Ten skript nečte cizí text, takže mu ho nikdo nemůže podstrčit.
+
+Tohle je klíčový architektonický trik: **chytrá část nemá práva, oprávněná část není chytrá.**
+
+## Co musí být v každé položce fronty
+
+Aby se schvalovalo rychle a přesto vědomě, musí položka odpovědět na tři otázky na první pohled:
+
+1. **Co se stane po schválení.** Jednou větou. „Odejde e-mail na adresu X.“
+2. **Z čeho agent vycházel.** Zdroj, odkaz, citace. Bez toho schvalujete naslepo.
+3. **Co je hotové a co odhad.** Když si agent není jistý, má to napsat.
+
+Když položka tyhle tři věci nemá, upravte agentovi zadání, ne své zvyky. Schvalování, u kterého nevidíte, co schvalujete, je horší než žádné — dává falešný pocit kontroly.
+
+## Schvalování z mobilu
+
+Sloučeno s Telegram botem z prvního dílu téhle linky vypadá běžný den takhle:
+
+- Bot pošle ráno souhrn: **„3 položky ke schválení.“**
+- U každé stručný popis a tlačítka **Schválit / Zamítnout / Upravit**.
+- Schválení přesune soubor a spustí odeslání.
+- Zamítnutí ho přesune do `zamitnuto/` a agent se z toho příště poučí, protože zamítnuté položky si čte.
+
+Zásadní detail: **tlačítka musí být pojmenovaná podle důsledku, ne podle akce.** Ne „OK“, ale „Odeslat klientovi“. Rozdíl v počtu omylů je obrovský.
+
+## Když se schvalování stane razítkovačkou
+
+Tohle je nejčastější způsob, jak dobrý systém přestane fungovat. Po měsíci máte třicet položek denně, všechny vypadají v pořádku a schvalujete je jedním palcem, aniž byste je četli. Od té chvíle nemáte kontrolu, máte rituál.
+
+Tři protilátky:
+
+- **Omezte objem.** Když je položek moc, agent dělá věci, které dělat nemá. Zúžte zadání.
+- **Náhodná kontrola.** Jednou týdně si vyberte jednu schválenou položku a projděte ji do hloubky. Zjistíte, co vám prochází.
+- **Různá váha.** Rutinní položky ať jdou hromadně, ale ty ze třetího kvadrantu ať vždycky vyžadují otevření a přečtení.
+
+## Na co si dát pozor
+
+- **Agent nesmí mít přihlašovací údaje k tomu, co nemá dělat sám.** Tohle je jediná ochrana, která funguje i po tisící úloze.
+- **Zamítnutí musí být stejně snadné jako schválení.** Když je zamítnutí složitější, lidé schvalují.
+- **Logujte, kdo co schválil a kdy.** I když jste to jenom vy. Za tři měsíce se to bude hodit.
+- **Řešte i případ, kdy nikdo neschválí.** Položky, které týden leží, mají někam zmizet nebo připomenout — jinak vám fronta zaroste.
+- **Nepouštějte agenta na cizí text a k odesílání zároveň.** To je přesně ta kombinace, kterou popisuje poslední linka seriálu jako smrtící trojici.
+
+## Pro tip
+
+Než agentovi cokoli svěříte, projděte jeho zadání jednou otázkou: **„co nejhoršího se stane, když tuhle instrukci někdo přepíše?“** Když je odpověď „připraví nesmyslný koncept“, jste v pořádku. Když je odpověď „odešle nesmysl klientovi“, máte hranici na špatném místě.
+
+Tím končí linka o ovládání. Další je o tom, co dělá velín skutečně užitečným: o vašich vlastních souborech.

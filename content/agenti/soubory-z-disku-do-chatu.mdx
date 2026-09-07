@@ -1,0 +1,109 @@
+---
+title: "Soubory z disku do chatu: jak to doopravdy funguje"
+excerpt: "„AI vidí moje soubory“ znamená pět různých věcí s velmi různými dopady na soukromí. Rozdíl mezi přiložením, indexem, konektorem a přímým přístupem — a proč byste ho měli znát dřív, než někam nahrajete smlouvu."
+track: "data"
+order: 1
+tags: ["data", "mcp", "lokalni-ai", "bezpecnost"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Model sám o sobě žádný soubor neotevře — vždycky to za něj dělá něco jiného a právě na tom „něčem jiném“ záleží. Pět různých způsobů: ruční přiložení (nejtransparentnější), sledovaná složka (pohodlné, ale kopíruje), vyhledávací index nad vašimi soubory (pošle jen úryvky), konektor do cloudové služby (dva mezičlánky) a přímý přístup k disku (nejsilnější a nejnebezpečnější). U každého se ptejte na tři věci: co přesně odejde, kam a co s tím jde dělat.
+sources:
+  - name: "Ollama — dokumentace a stažení"
+    url: "https://ollama.com/download"
+  - name: "Model Context Protocol — specifikace"
+    url: "https://modelcontextprotocol.io/"
+  - name: "Open WebUI — chatovací rozhraní pro vlastní modely"
+    url: "https://github.com/open-webui/open-webui"
+---
+
+Nejužitečnější věta, kterou si o AI můžete zapamatovat, zní: **model neumí otevřít soubor.** Nikdy. Umí jen dostat text na vstup a předpovědět pokračování. Když tedy někde čtete, že „AI si přečetla vaši tabulku“, stalo se ve skutečnosti tohle: nějaký jiný program tabulku otevřel, převedl na text a ten text modelu podstrčil.
+
+Ten „jiný program“ je harness a existuje v pěti variantách. Liší se v tom, co přesně odejde, kam to odejde a jak snadno se to dá zneužít.
+
+## 1. Ruční přiložení
+
+Přetáhnete soubor do okna chatu. Aplikace ho převede na text a pošle modelu spolu s vaší otázkou.
+
+- **Co odejde:** celý obsah souboru, jednorázově.
+- **Kam:** tam, kde běží model. U cloudového chatu k poskytovateli.
+- **Kontrola:** nejvyšší ze všech variant. Vidíte přesně, co posíláte.
+- **Nevýhoda:** pracné a nefunguje pro víc než pár souborů.
+
+Tohle je varianta, kterou by měl každý používat jako výchozí, dokud nemá dobrý důvod pro jinou. **Když nevíte, co se posílá, přiložte to ručně.**
+
+## 2. Sledovaná složka
+
+Nastavíte nástroji složku a on ji hlídá. Nový soubor → automaticky zpracuje.
+
+- **Co odejde:** obsah každého souboru, který do složky spadne. Včetně toho, který jste tam dali omylem.
+- **Kam:** podle nástroje.
+- **Kontrola:** nízká. Zapomenete, že to běží.
+- **Kdy má smysl:** dávkové zpracování na lokálním modelu — třídění faktur, přepisy nahrávek, konverze.
+
+Zásadní pravidlo: **sledovaná složka smí být jen složka, kterou pro ten účel vytvoříte.** Nikdy Dokumenty, nikdy Plocha, nikdy Stažené soubory.
+
+## 3. Vyhledávací index (RAG)
+
+Nástroj vaše soubory jednou přečte, rozseká na kousky a udělá si z nich index. Když se pak na něco zeptáte, najde relevantní kousky a **jen ty** pošle modelu.
+
+- **Co odejde:** pár odstavců, ne celý dokument.
+- **Kam:** index je obvykle lokální; kousky jdou tam, kde běží model.
+- **Kontrola:** střední. Nevíte předem, které kousky se vyberou.
+- **Kdy má smysl:** velká sbírka dokumentů, ve které chcete hledat odpovědi.
+
+Tomuhle se říká RAG a má vlastní díl hned příští. Je to nejrozšířenější způsob, jak dát modelu „paměť“ na vlastní materiály — a je kolem něj nejvíc mýtů.
+
+## 4. Konektor do cloudové služby
+
+Model se přes rozhraní připojí k Disku Google, Notionu, poště nebo CRM. Nejrozšířenější standard se jmenuje MCP a na webu k němu máme [katalog konektorů](/konektory) i [velký průvodce](/tipy/mcp-konektory-nastroje).
+
+- **Co odejde:** to, co si model vyžádá — a to se dopředu neví.
+- **Kam:** dva mezičlánky. Nejdřív dodavateli aplikace, pak poskytovateli modelu.
+- **Kontrola:** závisí čistě na tom, jaká oprávnění konektoru dáte.
+- **Kdy má smysl:** živá data, která se často mění.
+
+Tady je nejdůležitější věta celého dílu: **konektor je oprávnění, ne funkce.** Když dáte modelu přístup k poště, dali jste mu přístup ke všem mailům, ne jen k tomu jednomu, na který se ptáte.
+
+## 5. Přímý přístup k disku
+
+Agent má nástroj „přečti soubor“ a „zapiš soubor“ na skutečném disku.
+
+- **Co odejde:** cokoli, co si agent vyžádá.
+- **Kontrola:** jen taková, jakou postavíte technicky.
+- **Kdy má smysl:** práce s kódem, hromadné úpravy, automatizace.
+- **Riziko:** nejvyšší ze všech variant.
+
+Tohle je varianta, kde se nejvíc vyplatí sandbox — vymezená složka, mimo kterou agent nevidí. Rozdíl mezi „agent má přístup k projektu“ a „agent má přístup k domovskému adresáři“ je rozdíl mezi nepříjemností a katastrofou.
+
+## Tři otázky před každým zapojením
+
+<Flow title="Než dáte modelu k něčemu přístup" steps={[
+  { title: "Co přesně odejde?", desc: "Celý soubor, nebo úryvek? Jednou, nebo pokaždé? Vidím to, nebo se to děje na pozadí?" },
+  { title: "Kam to odejde?", desc: "Zůstane to na mém stroji, jde to k poskytovateli modelu, nebo přes dodavatele aplikace k poskytovateli?" },
+  { title: "Co se s tím dá udělat?", desc: "Umí ten nástroj jenom číst, nebo taky zapisovat, mazat a posílat ven?" },
+]} />
+
+Když u nějakého nástroje neumíte odpovědět na všechny tři, nedávejte mu citlivá data. To není opatrnost, to je minimum.
+
+## Praktické rozdělení, které funguje
+
+- **Citlivé a jednorázové** → ruční přiložení lokálnímu modelu.
+- **Citlivé a opakované** → sledovaná složka nebo lokální index, model doma.
+- **Veřejné a velké** → RAG nebo cloudový model, jak se hodí.
+- **Živá data z aplikací** → konektor, ale s co nejužšími oprávněními.
+- **Práce se soubory, kde má agent i zapisovat** → vyhrazená složka a schvalování, viz díl o frontě úloh.
+
+## Na co si dát pozor
+
+- **Přiložený soubor většinou zůstane v historii konverzace.** Smazání souboru z disku nesmaže to, co už odešlo.
+- **Metadata jdou s tím.** Dokument z Wordu nese jméno autora, historii revizí a někdy i smazaný text.
+- **Sken není text.** Když modelu přiložíte fotku dokladu, projde to rozpoznáváním znaků — což je další krok, kde data někudy tečou.
+- **U klientských a osobních údajů platí zvláštní opatrnost.** Anonymizujte, co jde, a bez souhlasu klienta nebo firmy nikam nenahrávejte interní dokumenty. Podrobněji o tom mluví kapitola [AI eticky a bezpečně](/prirucka/ai-eticky-a-bezpecne).
+
+## Pro tip
+
+Udělejte si jednou za čas revizi: projděte v každém AI nástroji seznam připojených konektorů a sledovaných složek a odpojte to, co jste půl roku nepoužili. Většina lidí zjistí, že má aktivní přístup do služby, kterou už dávno nepoužívá — a přístup platí dál.
+
+Další díl rozebírá tu variantu, kolem které je nejvíc nedorozumění: vlastní znalostní bázi a RAG.

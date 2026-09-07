@@ -68,27 +68,49 @@ export function Bars({ title, items, max }: { title?: string; items: BarItem[]; 
 
 type Quadrant = { title: string; action: string; examples: string };
 
-/** Eisenhowerova matice — poradí quadrantů: [urgentní+důležité, důležité, urgentní, ani jedno] */
-export function Matrix({ quadrants }: { quadrants: [Quadrant, Quadrant, Quadrant, Quadrant] }) {
-  const meta = [
-    { tag: "Urgentní + důležité", hot: false },
-    { tag: "Důležité, neurgentní", hot: true },
-    { tag: "Urgentní, nedůležité", hot: false },
-    { tag: "Ani jedno", hot: false },
-  ];
+const EISENHOWER_TAGS: [string, string, string, string] = [
+  "Urgentní + důležité",
+  "Důležité, neurgentní",
+  "Urgentní, nedůležité",
+  "Ani jedno",
+];
+
+const EISENHOWER_NOTE =
+  "Kvadrant „Důležité, neurgentní“ je místo, kde vzniká skutečný pokrok — plánujte si pro něj čas dřív, než ho urgence sežerou.";
+
+/**
+ * Matice 2×2. Bez dalších props je to Eisenhowerova matice (štítky i poznámka
+ * pod ní jsou její); `tags`, `note` a `hot` z ní udělají libovolnou jinou
+ * dvouosou mřížku — používá ji například sekce /agenti pro rozhodování
+ * „citlivá data × nevratná akce“.
+ *
+ * Pořadí kvadrantů: [levý horní, pravý horní, levý dolní, pravý dolní].
+ * `hot` je index zvýrazněného kvadrantu; `null` nezvýrazní žádný.
+ */
+export function Matrix({
+  quadrants,
+  tags = EISENHOWER_TAGS,
+  note = tags === EISENHOWER_TAGS ? EISENHOWER_NOTE : undefined,
+  hot = 1,
+}: {
+  quadrants: [Quadrant, Quadrant, Quadrant, Quadrant];
+  tags?: [string, string, string, string];
+  note?: string;
+  hot?: number | null;
+}) {
   return (
     <div className="ig">
       <div className="ig-matrix">
         {quadrants.map((q, i) => (
-          <div key={q.title} className={`ig-quad${meta[i].hot ? " ig-quad-hot" : ""}`}>
-            <span className="ig-quad-tag">{meta[i].tag}</span>
+          <div key={q.title} className={`ig-quad${hot === i ? " ig-quad-hot" : ""}`}>
+            <span className="ig-quad-tag">{tags[i]}</span>
             <span className="ig-quad-title">{q.title}</span>
             <span className="ig-quad-action">{q.action}</span>
             <span className="ig-quad-ex">{q.examples}</span>
           </div>
         ))}
       </div>
-      <p className="ig-note">Kvadrant „Důležité, neurgentní“ je místo, kde vzniká skutečný pokrok — plánujte si pro něj čas dřív, než ho urgence sežerou.</p>
+      {note && <p className="ig-note">{note}</p>}
     </div>
   );
 }

@@ -1,0 +1,110 @@
+---
+title: "Směrování podle úlohy: který model na co pustit"
+excerpt: "Posílat všechno tomu nejchytřejšímu modelu je jako jezdit do trafiky náklaďákem. Jak rozdělit práci do tří tříd, nastavit záložní trasu a přestat platit za práci, kterou zvládne krabice v obýváku."
+track: "orchestrace"
+order: 3
+tags: ["orchestrace", "open-weights", "naklady"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Rozdělte úlohy do tří tříd: rutina (shrnutí, klasifikace, extrakce) jde na lokální model, standard (běžné psaní, rešerše, koncepty) na levnější cloudový, špička (složité analýzy, kód napříč projektem, drahá rozhodnutí) na nejlepší dostupný. V bráně si na ty tři třídy pojmenujte aliasy a v aplikacích používejte jen ty názvy, ne konkrétní modely. Přidejte záložní trasu pro výpadky a jedno tvrdé pravidlo: citlivá data nikdy neeskalují do cloudu automaticky.
+sources:
+  - name: "LiteLLM — směrování, fallbacky a load balancing"
+    url: "https://docs.litellm.ai/docs/routing"
+  - name: "OpenRouter — dokumentace"
+    url: "https://openrouter.ai/docs"
+---
+
+Když si postavíte bránu, přijde otázka, kterou předtím nebylo kde položit: **který model má tuhle konkrétní úlohu zpracovat?** Většina lidí odpoví „ten nejlepší“ a je to špatná odpověď hned ze tří důvodů. Nejlepší model je nejdražší, nejpomalejší a u devíti z deseti běžných úloh nepoznáte rozdíl.
+
+## Tři třídy úloh
+
+Nesnažte se to rozhodovat případ od případu. Vytvořte si tři přihrádky a každou novou úlohu do některé hoďte.
+
+<Flow title="Tři třídy a kam patří" steps={[
+  { title: "Rutina → lokální model", desc: "Shrnutí, klasifikace, extrakce údajů, přeformulování, jednoduchý překlad, čištění textu. Vysoký objem, nízká cena chyby, často citlivá data." },
+  { title: "Standard → levnější cloudový model", desc: "Běžné psaní, rešerše, koncepty, odpovědi na maily, práce s veřejnými informacemi. Potřebuje kvalitu, ale ne špičku." },
+  { title: "Špička → nejlepší dostupný model", desc: "Složité analýzy, kód napříč projektem, dlouhé dokumenty, rozhodnutí, kde chyba stojí peníze. Nízký objem, vysoká hodnota." },
+]} />
+
+Poměr, který u lidí obvykle vychází po pár týdnech měření: **zhruba dvě třetiny úloh spadnou do rutiny.** Přesně ta část, kterou zvládne krabice doma zadarmo a která zároveň nejčastěji obsahuje data, jež nechcete posílat ven.
+
+## Aliasy: nejdůležitější trik celého dílu
+
+V bráně si nepojmenovávejte modely podle výrobce. Pojmenujte si je **podle role**:
+
+```yaml
+model_list:
+  - model_name: rutina
+    litellm_params:
+      model: ollama/qwen3
+      api_base: http://192.168.1.50:11434
+
+  - model_name: standard
+    litellm_params:
+      model: openai/…
+      api_key: os.environ/OPENAI_API_KEY
+
+  - model_name: spicka
+    litellm_params:
+      model: anthropic/…
+      api_key: os.environ/ANTHROPIC_API_KEY
+```
+
+Aplikace pak volají `rutina`, `standard`, `spicka`. Nikdy ne konkrétní název modelu.
+
+Proč je to tak zásadní: za tři měsíce vyjde novinka, která je lepší a levnější. Vy přepíšete jeden řádek v konfiguraci brány. Chat, editor, skripty, Telegram bot i agenti o tom nevědí a fungují dál. **Bez aliasů byste obcházeli deset míst** a ve dvou byste zapomněli.
+
+## Záložní trasa
+
+Poskytovatelé vypadávají. Někdy na deset minut, někdy na hodiny. Brána umí definovat, kam se má dotaz poslat, když první volba selže:
+
+```yaml
+litellm_settings:
+  fallbacks:
+    - spicka: ["standard"]
+    - standard: ["rutina"]
+```
+
+Čtěte to zdola: když vypadne standardní model, jede se na lokální. Když vypadne špičkový, jede se na standardní. Nikdy nezůstanete stát úplně.
+
+Má to jeden háček, který se snadno přehlédne: **fallback nesmí jít opačným směrem, než chcete u dat.** Když si nastavíte, že lokální model při zahlcení eskaluje do cloudu, poslali jste právě citlivá data ven — a to automaticky, bez toho, aby o tom někdo věděl. Tady je jediné správné pravidlo:
+
+**Z lokálu do cloudu se neeskaluje automaticky. Nikdy.** Když lokální model nestačí, ať to úloha oznámí a rozhodnete vy.
+
+## Jak poznat, kam úloha patří
+
+Když si nejste jistí zařazením, tři otázky:
+
+1. **Dělám to víc než desetkrát týdně?** Ano → kandidát na rutinu, i kdyby to zpočátku vyžadovalo trochu ladění promptu.
+2. **Vadilo by mi, kdyby ten text četl cizí člověk?** Ano → rutina nebo standard s anonymizací, ale rozhodně vědomé rozhodnutí.
+3. **Kolik stojí, když to model zvorá?** Nic → rutina. Hodinu práce → standard. Peníze nebo reputaci → špička a člověk na konci.
+
+## Měření: bez něj to je hádání
+
+Brána vám dá čísla, která jste dřív neměli. Za dva týdny provozu se podívejte na:
+
+- **Kolik dotazů šlo do které třídy.** Když je špička nad deset procent, buď ji používáte na věci, které tam nepatří, nebo máte špatně nastavené aliasy.
+- **Kolik stála každá třída.** Obvyklé zjištění: pár procent dotazů dělá většinu útraty.
+- **Kde se sahá po člověku.** Když u nějaké úlohy pořád přepisujete výstup, přesuňte ji o třídu výš — nebo zjistěte, že tam AI vůbec nepatří.
+
+## Chytřejší směrování, když si na to troufáte
+
+Základní verze rozděluje podle toho, co si vyberete v aplikaci. Pokročilejší varianty přidávají:
+
+- **Podle délky vstupu.** Krátký dotaz na rutinu, dlouhý dokument na model s velkým kontextem.
+- **Podle citlivosti.** Když text obsahuje vzory jako rodné číslo, IBAN nebo interní značky, dotaz vůbec neopustí lokální model.
+- **Podle vytížení.** Když lokální model zrovna nepočítá nic jiného, jde tam víc práce; při zácpě jde standard ven.
+- **S vyrovnávací pamětí.** Opakující se dotazy se neplatí dvakrát.
+
+Nezačínejte tímhle. Začněte třemi aliasy a jedním fallbackem. Chytré směrování má smysl, až když máte data o tom, co se u vás skutečně děje.
+
+## Na co si dát pozor
+
+- **Nepřehánějte počet tříd.** Šest kategorií si nikdo nezapamatuje a všechno skončí v jedné.
+- **Aliasy pojmenujte tak, aby dávaly smysl za rok.** `rutina` je dobré jméno. `model2` není.
+- **Kontrolujte, že lokál skutečně jede.** Když Ollama neběží, tichý fallback vám může poslat všechnu rutinu do cloudu a zjistíte to z faktury.
+- **Prompt laděný na jeden model nemusí sedět jinému.** Když měníte model za aliasem, projděte pár typických úloh, jestli výstup pořád odpovídá formátu, který od něj čekají skripty.
+
+Poslední díl téhle linky je počítání: kolik ten celý velín stojí a kdy se lokální model vyplatí.

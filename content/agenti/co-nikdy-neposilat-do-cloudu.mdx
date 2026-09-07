@@ -1,0 +1,87 @@
+---
+title: "Co nikdy neposílat do cloudu (a jak to ohlídat)"
+excerpt: "Krátký seznam věcí, které nemají opustit váš stroj, a tři technická opatření, díky kterým to nezáleží na vaší paměti. Protože pravidlo, které si musíte pamatovat, dřív nebo později selže."
+track: "data"
+order: 4
+tags: ["data", "bezpecnost", "rizeni"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Existuje krátký seznam dat, u kterých se nevyplatí spoléhat na podmínky poskytovatele: přihlašovací údaje a klíče, zdravotní údaje, osobní údaje klientů bez jejich souhlasu, nezveřejněné firemní informace, cizí důvěrné materiály a cokoli pod mlčenlivostí. Nejde o to si to pamatovat — jde o to zařídit, aby to nešlo: výchozí model lokální, žádná automatická eskalace do cloudu, oddělené složky pro citlivé a běžné, a filtr, který dotaz zastaví, když v něm najde rodné číslo, IBAN nebo klíč.
+sources:
+  - name: "ČTÚ: pravidla transparentnosti podle AI Actu od 2. srpna 2026"
+    url: "https://ctu.gov.cz/tiskova-zprava-2.-srpna-2026-jako-klicove-datum-pro-pravidla-transparentnosti-podle-aktu-o-umele"
+  - name: "ÚOOÚ — Úřad pro ochranu osobních údajů"
+    url: "https://uoou.gov.cz/"
+---
+
+Tenhle díl je krátký schválně. Není to esej, je to seznam, který si můžete vytisknout.
+
+Než začneme: nejde o to, že by poskytovatelé AI byli podezřelí. Jde o to, že **odeslání dat je nevratná operace.** Co odešlo, odešlo. Smazání konverzace to nevrací, změna podmínek to nevrací a lítost to nevrací už vůbec.
+
+## Seznam
+
+**1. Přihlašovací údaje.** Hesla, API klíče, tokeny, obsah souborů s tajemstvími. Ani „jen abys mi zkontroloval formát“. Klíč vložený do chatu je klíč, který je potřeba zrušit.
+
+**2. Zdravotní údaje.** Vlastní i cizí. Lékařské zprávy, diagnózy, výsledky. Zvláštní kategorie osobních údajů s odpovídající ochranou.
+
+**3. Osobní údaje klientů bez jejich souhlasu.** Jména, adresy, rodná čísla, čísla účtů, cokoli, podle čeho jde člověka identifikovat. Když potřebujete s takovým textem pracovat, anonymizujte ho **před** odesláním, ne v promptu.
+
+**4. Nezveřejněné firemní informace.** Rozpracované smlouvy, cenotvorba, mzdové podklady, plány, podklady k akvizicím, cokoli, co ještě nešlo ven.
+
+**5. Cizí důvěrné materiály.** Dokumenty, které vám někdo poslal s tím, že jsou interní. Nejsou vaše, nemáte je co posílat dál.
+
+**6. Cokoli pod mlčenlivostí.** Když jste podepsali NDA, vztahuje se i na AI nástroje. To, že jde o stroj, na povinnosti nic nemění.
+
+**7. Nahrávky a přepisy schůzek, kde nemáte souhlas všech.** Přepis porady je osobní údaj všech zúčastněných.
+
+## Šedá zóna
+
+Některé věci nejsou zakázané, ale zaslouží si vědomé rozhodnutí:
+
+- **Interní zápisy bez jmen.** Obvykle v pořádku, ale rozmyslete si, co z nich jde odvodit.
+- **Kód firemního projektu.** Záleží na firmě a na tom, co je ve smlouvě s poskytovatelem.
+- **Vlastní rozepsaná tvorba.** Technicky nic nebrání, ale někdo to takhle nechce.
+- **Fotky a skeny dokladů.** Rozpoznání textu proběhne někde — a s ním jde i všechno ostatní na té fotce.
+
+Pravidlo pro šedou zónu: **kdyby se to zítra objevilo veřejně, byl by to problém?** Když ano, patří to domů.
+
+## Proč pravidla v hlavě nestačí
+
+Protože si je nezapamatujete v tom jediném okamžiku, kdy na tom záleží — ve spěchu, v pátek odpoledne, když potřebujete rychle odpověď. Proto se to musí zařídit technicky.
+
+<Flow title="Tři opatření, která nespoléhají na vaši paměť" steps={[
+  { title: "Lokální model jako výchozí", desc: "Když je výchozí volba lokální, do cloudu se dostane jen to, co tam vědomě pošlete. Obrácené nastavení má obrácené následky." },
+  { title: "Žádná automatická eskalace", desc: "V bráně nesmí být fallback z lokálního modelu do cloudu. Když lokál nestačí, ať to řekne a rozhodnete vy." },
+  { title: "Oddělené složky a profily", desc: "Citlivá práce v jedné složce s lokálním nastavením, běžná v druhé. Nástroj pak ani nemá kam sáhnout." },
+]} />
+
+## Filtr, který zastaví omyl
+
+Když máte bránu ze třetí linky, dá se do ní přidat jednoduchá kontrola: než dotaz odejde k externímu poskytovateli, projede se přes vzory. Není to dokonalé, ale zachytí ty nejčastější omyly.
+
+Na co se dívat:
+
+- **Rodné číslo:** šest číslic, lomítko, tři nebo čtyři číslice.
+- **IBAN:** dvě písmena a dlouhá řada znaků.
+- **Číslo platební karty:** šestnáct číslic, případně s mezerami.
+- **API klíče:** typické předpony jako `sk-`, `ghp_`, `AKIA`.
+- **Interní značky:** cokoli, co vaše firma používá k označování důvěrných dokumentů.
+
+Když filtr něco najde, dotaz **nemá tiše přesměrovat na lokální model** — má se zastavit a zeptat. Tiché přesměrování vás naučí filtr ignorovat.
+
+## Když se to už stalo
+
+1. **Nezakrývejte to.** Ztráta času je horší než přiznání.
+2. **Zrušte, co se zrušit dá.** Klíče a hesla okamžitě.
+3. **Zjistěte rozsah.** Co přesně odešlo, kdy a komu.
+4. **Podívejte se do podmínek** poskytovatele, jak dlouho data drží a jak požádat o výmaz.
+5. **U osobních údajů zvažte ohlašovací povinnost.** Podle povahy incidentu může jít o porušení zabezpečení s povinností hlásit dozorovému úřadu. Tady se neptejte na internetu, ale právníka.
+6. **Změňte nastavení, ne jen chování.** Když to šlo jednou, půjde to znova.
+
+## Pro tip
+
+Nejlepší investice do klidu je nudná: **udělejte si dvě pracovní prostředí.** Jedno „interní“, kde je výchozí lokální model, žádné cloudové klíče a složky s citlivými daty. Druhé „běžné“ s plným cloudem a bez přístupu k tomu prvnímu. Přepnutí trvá vteřinu a od té chvíle nemusíte u každého dotazu přemýšlet — o rozdělení jste rozhodli jednou, dopředu a v klidu.
+
+Tím končí linka o datech. Poslední linka je o tom, co se stane, když se všechna tahle pravidla vynechají — a jak je sepsat na jednu stránku, kterou lidé skutečně čtou.

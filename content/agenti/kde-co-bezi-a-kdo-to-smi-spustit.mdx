@@ -1,0 +1,93 @@
+---
+title: "Nová otázka: kde co běží a kdo to smí spustit"
+excerpt: "„Používáme AI?“ je otázka roku 2023. Dneska už na ni odpovídá každý stejně a nic to neříká. Užitečná otázka má dvě poloviny — kde ta konkrétní úloha běží a kdo ji smí spustit — a odpověď se dá napsat na jednu stránku."
+track: "zaklady"
+order: 4
+tags: ["rizeni", "lokalni-ai", "orchestrace"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Rozhodnutí o AI se přesunulo z otázky „ano, nebo ne“ na dvě konkrétnější: kde daná úloha běží (na vašem stroji, v cloudu, nebo u dodavatele aplikace) a kdo ji smí spustit (vy, kdokoli z týmu, nebo automat bez dozoru). Klíč k odpovědi není technologie, ale citlivost dat a nevratnost akce. Rozdělte si práci do čtyř kvadrantů podle těchhle dvou os a většina rozhodnutí se udělá sama.
+sources:
+  - name: "ČTÚ: pravidla transparentnosti podle AI Actu od 2. srpna 2026"
+    url: "https://ctu.gov.cz/tiskova-zprava-2.-srpna-2026-jako-klicove-datum-pro-pravidla-transparentnosti-podle-aktu-o-umele"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+Před třemi lety se na poradách řešilo, jestli AI ano, nebo ne. Dneska už tuhle otázku nikdo nepokládá, protože odpověď zná každý a je stejná. Jenže „používáme AI“ je stejně užitečná informace jako „používáme internet“ — nic z toho neplyne.
+
+Otázka, která něco rozhodne, má dvě poloviny.
+
+## První polovina: kde to běží
+
+U každé úlohy, kterou svěříte AI, existují tři možnosti, kam data poputují:
+
+**Na vašem stroji.** Model běží na vašem Macu, notebooku nebo domácí krabici. Text nikdy neopustí síť. Platíte elektřinou a čekáním. Kvalita je u běžných úloh dostatečná, u nejtěžších zaostává.
+
+**U poskytovatele modelu.** Data letí do OpenAI, Anthropiku, Googlu nebo k jinému dodavateli. Máte nejlepší kvalitu a nejrychlejší odpověď, platíte za požadavek. Data jsou u někoho jiného — s podmínkami, které si musíte přečíst.
+
+**U dodavatele aplikace.** Nejnenápadnější a nejčastější varianta. Používáte nástroj, který má AI vestavěnou. Data jdou nejdřív dodavateli aplikace a ten je posílá dál k modelu. Máte tedy dva mezičlánky, ne jeden — a smlouvu obvykle jen s tím prvním.
+
+Tenhle třetí případ lidé podceňují nejvíc. Zápis ze schůzky nahraný do nástroje na přepis prošel dvěma firmami dřív, než jste si přečetli první větu.
+
+## Druhá polovina: kdo to smí spustit
+
+Druhá osa je o oprávnění. I tady jsou tři stupně:
+
+<Flow title="Kdo drží spoušť" steps={[
+  { title: "Jen vy, ručně", desc: "Otevřete chat, napíšete, přečtete si odpověď. Kontrola po každém kroku, nejpomalejší a nejbezpečnější." },
+  { title: "Kdokoli z týmu", desc: "Nástroj je nasazený a používá ho víc lidí. Chyba jednoho se týká všech. Potřebuje pravidla, ne jen licenci." },
+  { title: "Automat bez dozoru", desc: "Spouští to plán, příchozí e-mail nebo jiný agent. Nikdo se nedívá. Tady musí být hranice postavená technicky, ne dohodou." },
+]} />
+
+Ten třetí stupeň je zlom. Dokud u toho někdo sedí, je poslední pojistkou člověk. Jakmile úlohu spouští událost — přišel mail, změnil se soubor, otevřel se tiket — přestává platit „však si toho někdo všimne“.
+
+## Čtyři kvadranty, ve kterých se rozhodne skoro všechno
+
+Když ty dvě osy zkřížíte a zjednodušíte na dva stupně (citlivá data ano/ne, nevratná akce ano/ne), dostanete mřížku, která odpoví za vás.
+
+<Matrix
+  tags={["Citlivá data · nevratná akce", "Citlivá data · vratná akce", "Veřejná data · nevratná akce", "Veřejná data · vratná akce"]}
+  hot={3}
+  note="Většina denní práce leží v posledním kvadrantu — a většina obav patří tomu prvnímu. Když si je nespletete, rozhodne se skoro všechno samo."
+  quadrants={[
+    { title: "Nikdy bez člověka", action: "Agent smí jen připravit, poslední kliknutí je vaše.", examples: "Odeslání nabídky klientovi, platba, smazání dat, mzdové podklady" },
+    { title: "Domů, ne do cloudu", action: "Lokální model, nebo poskytovatel se smlouvou. Automat povolen.", examples: "Shrnutí interního zápisu, klasifikace pošty, hledání ve vlastních poznámkách" },
+    { title: "Cloud ano, schvalování zůstává", action: "Data ven můžou, poslední krok potvrzujete vy.", examples: "Publikace příspěvku na sítě, odeslání hromadného mailu, nasazení kódu" },
+    { title: "Pusťte to", action: "Tady je většina denní práce a skoro žádné riziko.", examples: "Rešerše, koncept textu, překlad veřejného dokumentu, brainstorming" },
+  ]}
+/>
+
+Většina lidí má devadesát procent práce ve čtvrtém kvadrantu a bojí se tam pustit cokoli, protože si to plete s prvním. A naopak: první kvadrant se do automatizace dostane omylem, protože „to je přece jen mail“.
+
+Praktický test na nevratnost je jednoduchý. Zeptejte se: **kolik mě bude stát vrátit to zpátky?** Koncept, který smažete, stojí nic. Mail, který odešel, stojí omluvu. Platba stojí peníze. Zveřejněná citlivá data se vrátit nedají vůbec.
+
+## Proč se lokální AI vrací zrovna teď
+
+Souvisí to přesně s tímhle rozdělením. Druhý kvadrant — citlivá data, vratná akce — je největší, nejužitečnější a nejhůř řešitelný cloudem. Přepis interní porady, shrnutí smlouvy, roztřídění pošty, hledání ve vlastních poznámkách: samá práce, kde je model užitečný a kde zároveň jde o data, která nechcete rozdávat.
+
+Právě do téhle díry se vrací lokální modely. Nemusí být nejlepší na světě. Musí být **dost dobré na tuhle konkrétní úlohu** — a být u vás doma.
+
+A pak je tu třetí důvod, který přibyl letos: **kdo to smí spustit, se stalo regulační otázkou.** Od 2. srpna 2026 platí v EU pravidla transparentnosti podle AI Actu — kdo provozuje AI chatbota směrem k veřejnosti, musí to přiznat, a kdo publikuje deepfake obsah, musí ho označit. Dohled v Česku vede Český telekomunikační úřad. Není to celý AI Act, ale je to ukázka směru: neptáme se, jestli AI používáte, ptáme se, kde, na co a s čí odpovědností.
+
+## Jak si to sepsat na jednu stránku
+
+Až budete pro sebe nebo pro tým odpovídat, stačí tabulka o čtyřech sloupcích. Vezměte pět nejčastějších úloh a doplňte:
+
+| Úloha | Kde běží | Kdo spouští | Co se stane samo |
+|---|---|---|---|
+| Shrnutí zápisu z porady | lokální model doma | já ručně | uloží se koncept |
+| Rešerše k tématu | cloudový model | kdokoli z týmu | nic, jen text |
+| Odpověď na poptávku | cloudový model | automat při příchodu | připraví koncept, neodesílá |
+| Roztřídění faktur | lokální model | automat každou noc | přesune do složek |
+| Publikace na sítě | cloudový model | já ručně | nic bez potvrzení |
+
+Tahle tabulka je celá vaše AI strategie. Když v ní nesedí ani jeden řádek, technologie za to nemůže.
+
+## Na co si dát pozor
+
+Poslední sloupec je ten, na kterém záleží nejvíc — a taky ten, který se nejčastěji vyplňuje optimisticky. Napište do něj to, co nástroj **umí**, ne to, co od něj **čekáte**. Když má agent přístup k odesílání pošty, patří tam „může odeslat mail“, i když jste mu řekli, ať to nedělá. Model nemá spolehlivou hranici mezi daty a příkazy: text, který přijde zvenčí, mu může říct, co dělat, a on to udělá s vašimi právy. To je ta „smrtící trojice“, o které mluví poslední linka seriálu.
+
+Další linka je praktická: pustíme si první model doma. Za hodinu, bez účtu a bez karty.

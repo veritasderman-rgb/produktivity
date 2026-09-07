@@ -1,0 +1,93 @@
+---
+title: "Open weights vs. uzavřené modely: kdy stačí ten stažený"
+excerpt: "Otevřené modely už nejsou chudá varianta. U poloviny běžné práce rozdíl nepoznáte — a u druhé poloviny ho poznáte hodně. Jak rozhodnout úlohu po úloze, místo abyste si vybírali tábor."
+track: "lokalni-ai"
+order: 5
+tags: ["open-weights", "lokalni-ai", "naklady"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Nejde o to vybrat si stranu, ale rozdělit si práci. Stažený model doma vyhrává tam, kde jsou data citlivá, úloha opakovaná a chyba levná: shrnutí, klasifikace, extrakce údajů, přeformulování, překlad pracovní verze. Uzavřený model v cloudu vyhrává tam, kde je úloha složitá, dlouhá nebo drahá na chybu: velké analýzy, kód napříč projektem, práce s aktuálními informacemi. Praktický test má tři otázky — citlivost dat, cena chyby, délka úlohy.
+sources:
+  - name: "Ollama — knihovna modelů ke stažení"
+    url: "https://ollama.com/library"
+  - name: "ČTÚ: pravidla transparentnosti podle AI Actu od 2. srpna 2026"
+    url: "https://ctu.gov.cz/tiskova-zprava-2.-srpna-2026-jako-klicove-datum-pro-pravidla-transparentnosti-podle-aktu-o-umele"
+---
+
+Diskuse o otevřených a uzavřených modelech se vede jako fotbalové derby a je to škoda, protože to není otázka víry. Je to rozhodnutí, které se dělá u každé úlohy zvlášť — a u většiny z nich má jasnou odpověď.
+
+## Co ta dvě slova znamenají
+
+**Otevřené váhy (open weights)** znamenají, že si soubor s modelem stáhnete a pustíte kdekoli. Neznamená to nutně otevřený zdrojový kód ani zveřejněná trénovací data — znamená to, že máte samotný model. Licencí je několik druhů a liší se v tom, co s modelem smíte komerčně dělat; u vážného firemního nasazení se vyplatí ji přečíst.
+
+**Uzavřený model** existuje jenom u poskytovatele. Mluvíte s ním přes API nebo přes jeho aplikaci. Nemůžete ho stáhnout, nemůžete ho pustit offline a nemůžete zabránit tomu, aby ho poskytovatel zítra vyměnil nebo vypnul.
+
+Rozdíl není v kvalitě. Rozdíl je v tom, **kdo drží spoušť.**
+
+## Tři otázky, které rozhodnou za vás
+
+Než se pustíte do srovnávání benchmarků, projděte úlohu třemi otázkami. Většinou vám odpoví hned první.
+
+**1. Jak citlivá jsou data?**
+
+Když by vám vadilo, kdyby ten text četl cizí člověk, patří úloha domů. Interní zápisy, klientské podklady, zdravotní věci, mzdy, rozpracované smlouvy. Ne proto, že by poskytovatelé byli podezřelí — ale proto, že u citlivých dat je nejsilnější ochrana ta, kdy prostě nikam neodejdou.
+
+**2. Kolik stojí chyba?**
+
+Když model něco splete v konceptu textu, přepíšete větu. Když to splete ve výpočtu, který jde do nabídky, stojí to peníze. Čím dražší chyba, tím spíš chcete nejsilnější model — a hlavně kontrolu člověkem.
+
+**3. Jak dlouhá a složitá je úloha?**
+
+Jedna otázka a jeden odstavec odpovědi zvládne skoro každý model. Padesátistránkový dokument, vícekrokové zadání nebo změna napříč velkým projektem je disciplína, ve které mají uzavřené špičkové modely pořád znatelný náskok.
+
+## Kam co patří v praxi
+
+<Matrix
+  tags={["Citlivé · složité", "Citlivé · jednoduché", "Veřejné · složité", "Veřejné · jednoduché"]}
+  hot={1}
+  note="Stažený model vyhrává ve dvou kvadrantech ze čtyř — a leží v nich většina denní práce. To je celý ten obrat, kvůli kterému se lokální AI vrátila do hry."
+  quadrants={[
+    { title: "Rozdělte úlohu", action: "Citlivá část lokálně, obecná v cloudu bez identifikátorů.", examples: "Analýza interních dat, právní rozbor vlastní smlouvy" },
+    { title: "Lokální model", action: "Tady vyhrává jednoznačně a bez kompromisu.", examples: "Shrnutí zápisu, třídění pošty, extrakce údajů z faktur" },
+    { title: "Cloud", action: "Zaplaťte si to nejlepší, ušetříte víc času, než stojí kredit.", examples: "Velká rešerše, refaktoring kódu, dlouhá analýza trhu" },
+    { title: "Lokální model", action: "Zadarmo a bez limitů — a rozdíl nepoznáte.", examples: "Přeformulování, brainstorming, vysvětlení pojmu, koncept e-mailu" },
+  ]}
+/>
+
+Všimněte si, že lokální model vyhrává ve dvou ze čtyř kvadrantů — a jsou to ty dva, ve kterých leží většina denní práce. To je celý ten obrat, kvůli kterému se lokální AI vrátila do hry.
+
+## V čem se otevřené modely v roce 2026 posunuly
+
+Tři věci se změnily proti stavu před dvěma lety:
+
+- **Malé modely zesílily.** Model o osmi miliardách parametrů dnes dělá věci, na které dřív nestačilo čtyřicet. Pro shrnutí, klasifikaci a extrakci je to plně dostačující.
+- **Přibylo rodin.** V knihovně Ollamy najdete Llamu, Qwen, Gemmu, Mistral, DeepSeek i modely s otevřenými vahami od OpenAI — a k tomu specializované varianty na kód. Máte z čeho vybírat podle úlohy, ne jen podle značky.
+- **Umí volat nástroje.** Novější otevřené modely zvládají strukturovaný výstup a volání funkcí, což je podmínka pro cokoli agentního. Bez toho by lokální model zůstal jen chytrým chatem.
+
+## V čem uzavřené modely pořád vedou
+
+Buďme upřímní, protože nadšení tady škodí:
+
+- **Nejtěžší uvažování.** Vícekrokové úlohy, kde se musí model vracet a opravovat, patří pořád špičce.
+- **Dlouhý kontext.** Držet nit přes stovky stran je disciplína, kde je rozdíl velký.
+- **Aktuálnost.** Uzavřené modely mají zabudované vyhledávání a novější znalosti. Lokální model neví, co se stalo minulý týden — a když mu to neřeknete, klidně si to vymyslí.
+- **Obrázky, zvuk, video.** Multimodální schopnosti jsou v otevřených modelech slabší.
+- **Podpora a odpovědnost.** Když se něco pokazí, u poskytovatele existuje smlouva a někdo, komu voláte.
+
+## Nejlepší odpověď je „obojí“
+
+Skoro nikdo nemá jen jedno. Reálné nastavení, které funguje, vypadá takhle:
+
+1. **Lokální model jako výchozí.** Všechno, co se dá udělat doma, se udělá doma. Je to zadarmo, bez limitů a bez odesílání dat.
+2. **Cloud jako eskalace.** Když lokální model úlohu nezvládne nebo je zjevně za hranicí, pošle se to výš.
+3. **Brána, která to rozhoduje.** Aby se nemuselo ručně přepínat mezi aplikacemi. Přesně o tom je celá další linka seriálu.
+
+Tenhle model se navíc dobře obhajuje i směrem k pravidlům: v EU platí od srpna 2026 pravidla transparentnosti podle AI Actu a obecně roste tlak vědět, kudy data tečou. Když má firma napsáno „citlivé úlohy běží lokálně, ostatní u poskytovatele X“, je to odpověď. „Používáme AI“ odpověď není.
+
+## Pro tip
+
+Udělejte si vlastní minitest. Vezměte pět úloh, které děláte opravdu často, a projeďte je lokálním i cloudovým modelem. Ne benchmark, ale vaše práce. Skoro každý po tomhle cvičení zjistí, že u tří z pěti rozdíl nepozná — a přesně ty tři patří natrvalo domů.
+
+Tím končí linka o lokální AI. Další začíná otázkou, jak všechny ty modely — domácí i cloudové — dostat za jeden vypínač.

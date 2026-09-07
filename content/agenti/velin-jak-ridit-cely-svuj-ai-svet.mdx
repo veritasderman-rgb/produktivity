@@ -1,0 +1,83 @@
+---
+title: "Velín: jak řídit celý svůj AI svět z jednoho místa"
+excerpt: "Pět účtů, tři předplatné, každý model v jiné záložce a soubory pořád na disku. Tenhle díl je mapa celého seriálu: co je velín, z jakých čtyř vrstev se skládá a v jakém pořadí ho stavět."
+track: "zaklady"
+order: 1
+tags: ["agenti", "orchestrace", "lokalni-ai", "ovladani", "data"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Většina lidí má dnes AI rozsypanou: ChatGPT v prohlížeči, Claude v druhé záložce, lokální model, který jednou vyzkoušeli, a soubory, které do toho pokaždé ručně přetahují. Velín je opačný přístup — jedno místo, odkud spustíte kteroukoli úlohu na kterémkoli modelu, ať běží na vašem Macu doma nebo v cloudu. Skládá se ze čtyř vrstev: výpočet (kde model běží), brána (jeden vstup pro všechny modely), data (co model smí vidět) a ovládání (odkud to spouštíte). Stavějte je v tomhle pořadí a na každé vrstvě si odpovězte na jednu otázku: kdo to smí spustit.
+sources:
+  - name: "Ollama — knihovna modelů ke stažení"
+    url: "https://ollama.com/library"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+Zkuste si tenhle test. Kolik záložek, aplikací a účtů se vám otevře, když si vzpomenete na „musím se na to zeptat AI“? Když je odpověď „záleží, na co se ptám“, máte přesně ten problém, který tenhle seriál řeší. Nemáte systém. Máte sbírku.
+
+Velín je opak sbírky. Je to jedno místo, ze kterého zadáte úlohu — a ono se někde vzadu rozhodne, jestli ji zpracuje malý model na vašem Macu mini v obýváku, nebo jestli poletí do cloudu k tomu nejchytřejšímu, co je zrovna k mání. Vy o tom nemusíte vědět. Vy jen zadáte úlohu.
+
+Zní to jako věc pro firmy s IT oddělením. Není. Celý ten princip se dá postavit doma za jedno odpoledne, z open source dílů, na hardwaru, který už nejspíš máte.
+
+## Proč se to najednou vyplatí
+
+Ještě donedávna byla otázka jednoduchá: platit si ChatGPT, nebo ne. Dneska je jiná — **kde co běží a kdo to smí spustit**. Tři věci se sešly naráz:
+
+**Modely ke stažení dohnaly pole.** Ollama, nejrozšířenější způsob, jak si model pustit doma, dnes v knihovně nabízí desítky rodin od drobečků pro 0,6 miliardy parametrů po obry se stovkami miliard — Llamu, Qwen, Gemmu, Mistral, DeepSeek i modely s otevřenými vahami od OpenAI. Pro shrnutí zápisu, přepis, klasifikaci pošty nebo první verzi textu je rozdíl proti špičkovému cloudovému modelu už často neznatelný.
+
+**Domácí hardware na to stačí.** Mac s dostatkem sjednocené paměti nebo herní PC s Nvidií zvládne rozumný model v reálném čase. Nepotřebujete serverovnu, potřebujete tichou krabici u routeru.
+
+**Agenti přestali být chat.** Nástroje, které samy klikají, čtou soubory, píšou kód a mluví s dalšími službami, jsou produkt roku 2026. A zároveň jeho největší riziko — protože agent, který má přístup k vašim datům a zároveň čte cizí text z internetu, je strukturálně napadnutelný. O tom je celá poslední linka seriálu.
+
+Když se tyhle tři věci potkají, přestává dávat smysl mít AI rozházenou po záložkách.
+
+## Čtyři vrstvy velína
+
+Celý ten systém, ať už ho stavíte pro sebe nebo pro pětičlenný tým, má vždycky stejné čtyři patra. Rozdíl je jen v tom, jak velké kusy do nich dáte.
+
+<Flow title="Z čeho se velín skládá" steps={[
+  { title: "Výpočet", desc: "Kde model fyzicky běží. Mac mini nebo Windows s Nvidií doma, cloud u poskytovatele, nebo obojí vedle sebe." },
+  { title: "Brána", desc: "Jeden vstupní bod pro všechny modely. Drží API klíče, směruje úlohy, počítá útratu, loguje." },
+  { title: "Data", desc: "Co model smí vidět. Složky na disku, znalostní báze, konektory do aplikací — a jasná hranice, co ven nesmí." },
+  { title: "Ovládání", desc: "Odkud to spouštíte. Chat v prohlížeči, terminál, Telegram v mobilu. Stejný velín, tři obrazovky." },
+]} />
+
+**Výpočet** je nejhmatatelnější vrstva a lidé s ní obvykle začínají. Stáhnete model, spustíte, píšete. Chyba je zastavit se tady — samotný lokální model bez zbytku je jen další záložka navíc.
+
+**Brána** je ta vrstva, kvůli které to celé dává smysl. Místo pěti aplikací s pěti klíči máte jeden endpoint. Vaše aplikace, skripty i chat mluví jenom s ním. Když zítra vyjde lepší model, změníte jeden řádek v konfiguraci brány a všechno ostatní o tom neví. Tohle je ten „jeden vstup“, kvůli kterému se celá stavba jmenuje velín.
+
+**Data** jsou vrstva, kde se rozhoduje o důvěře. Model, který nevidí vaše soubory, je encyklopedie. Model, který je vidí, je asistent. Ale zároveň platí, že co se jednou pošle do cloudu, už zpátky nevezmete — takže tahle vrstva potřebuje hranici, ne jen technické řešení.
+
+**Ovládání** je to, co z nástroje udělá návyk. Když musíte kvůli každé úloze otevřít notebook, systém používat nebudete. Když stačí napsat do Telegramu na mobilu a domácí stroj to zpracuje, používat ho budete každý den. O tom je čtvrtá linka.
+
+## V jakém pořadí to stavět
+
+Nejčastější chyba je začít od agentů. Je to nejzábavnější část, tak se do ní všichni vrhnou první — a pak zjistí, že mají autonomní nástroj s přístupem ke všemu a bez jediného pravidla. Přesně tohle se stalo Metě v projektu, kterému říkala Project OT; poslední díl seriálu ho rozebírá jako případovku.
+
+Pořadí, které funguje:
+
+1. **Rozjeďte jeden lokální model.** Hodina práce, žádný účet, žádná karta. Cíl není mít nejlepší model, cíl je pochopit, co znamená „běží mi to doma“.
+2. **Postavte bránu.** I kdyby za ní byl jen ten jeden lokální model a jeden cloudový účet. Od téhle chvíle máte jedno místo pro klíče a jedno místo, kde vidíte útratu.
+3. **Připojte data.** Nejdřív jednu složku. Ne celý disk. Zjistíte, že „AI vidí moje soubory“ je ve skutečnosti několik různých technik s velmi různými dopady na soukromí.
+4. **Přidejte ovládání.** Telegram, terminál, cokoli, co vám sedne. Teprve tady se ze stavby stane návyk.
+5. **Až nakonec pusťte agenty — a napřed jim napište pravidla.** Jedna stránka stačí. Kdo co smí spustit, co agent smí udělat sám a co jen připravit ke schválení.
+
+## Jedno pravidlo, které platí přes všechny vrstvy
+
+Přes celý seriál se táhne jedna věta: **agent smí připravit cokoli, poslední kliknutí zůstává vaše.**
+
+Není to opatrnost pro opatrnost. Je to reakce na konkrétní technickou vlastnost dnešních modelů. Simon Willison ji v červnu 2025 pojmenoval jako „smrtící trojici“: jakmile má jeden nástroj naráz přístup k vašim soukromým datům, čte obsah, který napsal někdo cizí, a umí komunikovat ven, je zneužitelný. Model totiž nemá spolehlivou hranici mezi „tohle jsou data“ a „tohle je příkaz“. Cizí text v přílohách, na webu nebo v e-mailu mu může říct, co má dělat — a on to udělá s vašimi právy.
+
+Tenhle problém se nedá vyřešit lepším promptem. Dá se řešit jedině tím, že jednu ze tří nohou trojice useknete: buď agent nevidí citlivá data, nebo nečte cizí obsah, nebo nemá jak výsledek poslat ven bez vašeho potvrzení. Návrh velína, který popisuje tenhle seriál, je postavený přesně na tom.
+
+## Co si z prvního dílu odnést
+
+- Cílem není mít lokální AI. Cílem je mít **jedno místo**, odkud řídíte lokální i cloudovou AI dohromady.
+- Čtyři vrstvy: výpočet, brána, data, ovládání. Stavějte je v tomhle pořadí.
+- Na každé vrstvě si odpovězte na jednu otázku: **kdo to smí spustit.** Doma je odpověď „já“, ve firmě je to celá směrnice.
+- Agenty pusťte až nakonec a s pravidly. Jsou to nejsilnější i nejnebezpečnější díly stavebnice.
+
+Další díl uklidí pojmy, které se v téhle oblasti pletou nejvíc: model, harness a agent. Bez nich se nedá číst ani jediná zpráva o AI, aniž byste ji pochopili špatně.

@@ -1,0 +1,100 @@
+---
+title: "Vlastní znalostní báze: RAG bez mýtů"
+excerpt: "Nahrát modelu tisíc dokumentů a čekat, že je bude znát, nefunguje. Jak vyhledávání nad vlastními materiály doopravdy pracuje, proč nejčastěji selhává na špatných datech a co udělat, aby odpovídalo správně."
+track: "data"
+order: 2
+tags: ["data", "lokalni-ai", "orchestrace"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  RAG není učení modelu, ale vyhledávání. Vaše dokumenty se rozsekají na kousky, ke každému se spočítá vektor a při dotazu se najde několik nejpodobnějších úryvků, které se pošlou modelu jako kontext. Model tedy nezná vaši sbírku — dostane pár odstavců z ní. Devět z deseti nefunkčních znalostních bází selhává na vstupu, ne na modelu: špatně rozsekané dokumenty, chybějící nadpisy, naskenované PDF bez textové vrstvy a odpovědi, které v žádném dokumentu nejsou.
+sources:
+  - name: "Open WebUI — dokumentace ke znalostním bázím"
+    url: "https://docs.openwebui.com/"
+  - name: "Ollama — knihovna modelů ke stažení"
+    url: "https://ollama.com/library"
+---
+
+„Nahraju tam všechny firemní dokumenty a AI je bude znát.“ Tahle věta se pronáší denně a je v ní zabalené nedorozumění, které pak stojí týdny zklamání. Pojďme si to rozebrat.
+
+## Co se doopravdy stane
+
+RAG (vyhledáváním doplněné generování) funguje v pěti krocích:
+
+<Flow title="Cesta vaší otázky" steps={[
+  { title: "Rozsekání", desc: "Každý dokument se rozdělí na kousky, typicky několik set slov. Jeden dokument = desítky až stovky kousků." },
+  { title: "Vektory", desc: "Ke každému kousku se spočítá číselný otisk, který zachycuje význam. Ukládá se do databáze." },
+  { title: "Dotaz", desc: "Vaše otázka se převede na stejný typ otisku." },
+  { title: "Vyhledání", desc: "Najde se několik kousků s nejpodobnějším otiskem. Obvykle tři až deset." },
+  { title: "Odpověď", desc: "Jen tyhle kousky se pošlou modelu spolu s vaší otázkou. Model odpoví z nich." },
+]} />
+
+Zásadní důsledek: **model vaši sbírku nezná.** Nikdy ji celou neviděl. Vidí pár odstavců, které mu vyhledávání podstrčilo. Když vyhledávání sáhne vedle, model odpoví vedle — a bude si tím naprosto jistý.
+
+Druhý důsledek: **RAG není trénink.** Model se nic nenaučil. Zítra bez té databáze neví nic. To je dobrá zpráva pro soukromí (nic se nikam nezapeklo) a špatná zpráva pro očekávání.
+
+## Proč to nejčastěji nefunguje
+
+Když si lidé postaví znalostní bázi a nefunguje, hledají chybu v modelu. Skoro nikdy tam není. Pořadí příčin podle četnosti:
+
+**1. Naskenované PDF bez textové vrstvy.** Nejčastější příčina vůbec. Dokument vypadá jako text, ale je to obrázek. Nástroj z něj vytáhne prázdno a vy se divíte, že o něm model nic neví. Test: zkuste v PDF vyhledat slovo. Když to nenajde nic, nemá textovou vrstvu a je potřeba rozpoznání znaků.
+
+**2. Špatné rozsekání.** Když se dokument nakrájí uprostřed tabulky nebo se odstavec rozdělí na půl, kousky ztratí smysl. Sazba na tři sloupce, hlavičky a patičky na každé stránce a poznámky pod čarou dokážou udělat z čistého dokumentu nesmyslnou kaši.
+
+**3. Chybějící kontext v kousku.** Kousek textu „platnost je 24 měsíců“ je sám o sobě k ničemu, když z něj není poznat, o které smlouvě se mluví. Dobré nástroje ke každému kousku přidávají nadpis dokumentu a sekce.
+
+**4. Otázka, na kterou v datech není odpověď.** RAG neumí syntézu přes celou sbírku. „Kolik máme celkem klientů“ nenajde, protože tahle věta nikde nestojí. Umí jen najít, kde už napsaná je.
+
+**5. Málo kousků, nebo naopak moc.** Tři kousky u složité otázky nestačí. Dvacet kousků model zahltí a začne v nich plavat.
+
+## Co s tím prakticky udělat
+
+**Připravte vstup, ne model.** Tohle je devadesát procent práce a nikdo o tom nemluví.
+
+- Naskenované dokumenty proženěte rozpoznáváním znaků a **výsledek si přečtěte**. Ne celý, ale namátkou.
+- Dejte dokumentům pořádné nadpisy a názvy souborů. „smlouva-acme-2026-udrzba.pdf“ je nesrovnatelně lepší než „scan_0043.pdf“.
+- Vyhoďte duplicity a staré verze. Když má báze tři verze téže směrnice, model bude odpovídat z náhodné.
+- Dlouhé dokumenty rozdělte podle kapitol, ne na náhodné bloky.
+
+**Zvolte rozumnou velikost kousku.** Několik set slov s malým překryvem mezi sousedy je dobrý začátek. Menší kousky = přesnější vyhledání, ale roztrhaný kontext. Větší = celistvější, ale hůř se trefují.
+
+**Vyžádejte si citace.** Nechte nástroj u každé odpovědi ukázat, ze kterých kousků čerpal. Bez toho nemáte jak poznat halucinaci od pravdy — a s tím ji odhalíte za pět vteřin. Je to stejná disciplína, kterou popisuje návod na [ověřování faktů](/tipy/ai-overovani-faktu).
+
+**Testujte na otázkách, které znáte.** Napište si dvacet otázek, u kterých víte správnou odpověď, a projeďte je po každé změně nastavení. Bez téhle sady si jen tak povídáte.
+
+## Kdy RAG a kdy něco jiného
+
+| Situace | Řešení |
+|---|---|
+| Sbírka dokumentů, hledáte v nich odpovědi | RAG |
+| Jeden dlouhý dokument, chcete o něm mluvit | Vložte ho celý do kontextu, RAG je zbytečný |
+| Data v tabulce, ptáte se na počty a součty | Databáze a dotaz, ne RAG |
+| Živá data, která se mění každou hodinu | Konektor do zdroje |
+| Chcete, aby model psal vaším stylem | Instrukce a příklady, ne RAG |
+
+Ten poslední řádek je častý omyl. Nahrání dvaceti vlastních textů do znalostní báze vám nezmění styl modelu. Na to jsou instrukce a ukázky přímo v zadání — viz návod na [projekty a kontext](/tipy/ai-projekty-kontext).
+
+## Lokálně, nebo v cloudu
+
+Znalostní báze je disciplína, kde lokální řešení vyhrává častěji než jinde:
+
+- Dokumenty jsou obvykle **to nejcitlivější, co máte**.
+- Výpočet otisků je nenáročná úloha, kterou zvládne i slabší stroj.
+- Vyhledávání běží lokálně a je rychlé.
+- Modelu se posílá jen několik odstavců, ne celá sbírka.
+
+Praktické nastavení: index i dokumenty doma, generování odpovědi buď lokálním modelem (u citlivých věcí), nebo přes bránu tím lepším (u obecných). Přesně tohle rozdělení popisuje díl o směrování.
+
+## Na co si dát pozor
+
+- **Kdo má přístup k bázi, má přístup ke všem dokumentům v ní.** Nemíchejte do jedné báze věci s různým stupněm důvěrnosti.
+- **Aktualizace není automatická.** Když dokument změníte, musíte ho v indexu obnovit. Jinak báze odpovídá ze staré verze.
+- **Otisky nejsou šifra.** Z vektorů se dá o obsahu leccos zjistit; nepovažujte je za bezpečné uložení citlivých dat.
+- **Model bude odpovídat i tehdy, když nic nenašel.** Do zadání proto napište, ať výslovně řekne „v podkladech to není“ — a otestujte, že to opravdu dělá.
+
+## Pro tip
+
+Než postavíte znalostní bázi nad tisícem dokumentů, postavte ji nad deseti. Projděte na nich svých dvacet testovacích otázek. Když to na deseti dokumentech nefunguje, na tisíci to nebude fungovat taky — jen to bude trvat déle, než na to přijdete.
+
+Další díl je o tom, jak modelu dát ruce na vlastním disku, aniž byste mu dali celý domovský adresář.

@@ -1,0 +1,111 @@
+---
+title: "MCP lokálně: dát modelu ruce na vlastním disku"
+excerpt: "Konektory nejsou jen pro cloudové služby. Lokální MCP server umí modelu zpřístupnit složku, databázi nebo příkazovou řádku — a rozdíl mezi užitečným a nebezpečným zapojením je jediný parametr: co všechno mu vymezíte."
+track: "data"
+order: 3
+tags: ["mcp", "data", "agenti", "bezpecnost"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  MCP je standard, kterým model mluví s nástroji. Vedle vzdálených konektorů do cloudových služeb existují i lokální servery, které běží na vašem stroji a zpřístupní modelu složku, databázi nebo systémové příkazy — data přitom neopouštějí počítač. Zásadní je vymezení: serveru dejte přesně jednu složku, ne domovský adresář, a jen ta práva, která pro úlohu potřebuje. Nastavení je jeden konfigurační soubor a bezpečnostní pravidlo se dá shrnout do věty: co model nevidí, to nemůže poslat ven.
+sources:
+  - name: "Model Context Protocol — specifikace"
+    url: "https://modelcontextprotocol.io/"
+  - name: "MCP — referenční servery (mimo jiné souborový systém)"
+    url: "https://github.com/modelcontextprotocol/servers"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+Většina článků o MCP mluví o konektorech do cloudových služeb — Notion, Disk Google, CRM. Ta zajímavější polovina se ale odehrává u vás na disku. Lokální MCP server je způsob, jak dát modelu skutečné ruce, a přitom nechat data doma.
+
+Základy protokolu a katalog dostupných konektorů najdete v [průvodci MCP](/tipy/mcp-konektory-nastroje) a v [katalogu konektorů](/konektory). Tenhle díl je jen o té lokální části.
+
+## Co lokální MCP server umí
+
+Model dostane seznam nástrojů, které si může vyžádat. Server je pak za něj skutečně provede na vašem stroji.
+
+| Server | Co zpřístupní | Typické použití |
+|---|---|---|
+| Souborový systém | Čtení a zápis v jedné vymezené složce | Práce s dokumenty, projekty, kódem |
+| Databáze | Dotazy do lokální databáze | Ptaní se na vlastní data přirozeným jazykem |
+| Git | Historii repozitáře, změny | Práce s kódem a jeho historií |
+| Prohlížeč | Otevírání stránek, klikání | Rutinní práce na webu |
+| Systémové příkazy | Spuštění příkazu | Automatizace — a nejnebezpečnější varianta |
+
+Podstatné je, že tohle všechno běží **na vašem stroji**. Když ho spárujete s lokálním modelem, neopustí data počítač vůbec. Když ho spárujete s cloudovým modelem, opustí je jen ta část, kterou si model vyžádá.
+
+## Jak se to nastavuje
+
+Klientská aplikace (chat, editor, agentní nástroj) má konfigurační soubor, kde vyjmenujete servery, které má spustit. Zjednodušený tvar, který je napříč nástroji podobný:
+
+```json
+{
+  "mcpServers": {
+    "dokumenty": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/josef/velin/vstup"
+      ]
+    }
+  }
+}
+```
+
+Poslední řádek je celý bezpečnostní model. **Ta cesta je hranice.** Server nevidí nic mimo ni. Když tam napíšete domovský adresář, dali jste modelu všechno — poštu, fotky, klíče, historii prohlížeče.
+
+Po restartu klienta se v seznamu nástrojů objeví čtení a zápis souborů a model je začne používat.
+
+## Vymezení: šest pravidel, která se vyplatí
+
+<Flow title="Jak nastavit lokální server, aby vás nekousl" steps={[
+  { title: "Jedna složka, ne disk", desc: "Vytvořte složku právě pro tenhle účel. Nikdy nesměřujte server do domovského adresáře ani do Dokumentů." },
+  { title: "Nejdřív jen čtení", desc: "Většina úloh zápis nepotřebuje. Zapisovat povolte, až když se ukáže, že to bez toho nejde." },
+  { title: "Žádné klíče v dosahu", desc: "Ve vymezené složce nesmí být .env, konfigurace ani nic s přihlašovacími údaji." },
+  { title: "Kopie, ne originály", desc: "U cenných dat pracujte s kopií. Chybný přepis pak nic nestojí." },
+  { title: "Ve verzování", desc: "Když je složka v gitu, každou změnu vidíte a vrátíte jedním příkazem." },
+  { title: "Systémové příkazy až úplně nakonec", desc: "Server, který umí spustit cokoli, obchází všechna ostatní omezení. Zapínejte ho vědomě a jen na vymezenou práci." },
+]} />
+
+## Proč je vymezení důležitější než u cloudových konektorů
+
+U cloudového konektoru je oprávnění dané službou — dáte modelu přístup ke kalendáři a víc než kalendář neuvidí. Lokální souborový server je jiný: **jeden parametr rozhoduje mezi „vidí jednu složku“ a „vidí všechno“.**
+
+A pak je tu ta kombinace, na kterou upozorňuje celý seriál. Když má jeden nástroj naráz:
+
+1. přístup k vašim souborům,
+2. schopnost číst obsah, který napsal někdo cizí (dokument z internetu, příloha, cizí repozitář),
+3. možnost komunikovat ven,
+
+je zneužitelný. Text v tom cizím dokumentu může modelu říct, co má udělat, a on to udělá s vašimi právy. Lokální MCP server bez rozmyslu je nejrychlejší způsob, jak si tuhle trojici složit doma.
+
+Obrana je vždycky useknout jednu nohu. Nejsnáz se seká ta třetí: **model, který nemá jak výsledek poslat ven bez vašeho potvrzení, je nesrovnatelně bezpečnější** — přesně jak popisuje díl o frontě úloh.
+
+## Co s tím jde dělat dobrého
+
+Když je vymezení v pořádku, otevírá se docela zábavná sada úloh:
+
+- **Úklid složky.** „Projdi vstup, přejmenuj soubory podle obsahu a rozděl je do podsložek podle roku.“
+- **Souhrn projektu.** Model si přečte všechny poznámky ve složce a napíše, kde projekt stojí.
+- **Dohledání v hromadě dokumentů.** Bez budování znalostní báze — na desítkách souborů to zvládne prostým čtením.
+- **Příprava podkladů.** Vytáhne z faktur údaje a uloží tabulku.
+- **Kontrola konzistence.** Najde, kde si dva dokumenty odporují.
+
+Všechno tohle proběhne na vašem stroji a výsledek skončí ve složce `ke-schvaleni/`, kterou znáte ze čtvrté linky.
+
+## Na co si dát pozor
+
+- **Zkontrolujte, co se doopravdy spustilo.** Většina klientů umí zobrazit, které nástroje má model k dispozici. Podívejte se tam po každé změně konfigurace.
+- **Nepřidávejte servery „pro jistotu“.** Každý další je další cesta dovnitř. Platí to, co u konektorů: čím míň nástrojů, tím menší plocha k útoku.
+- **Komunitní servery čtěte, než je spustíte.** Je to kód, který poběží s vašimi právy. U MCP je rozdíl mezi oficiálním a komunitním projektem důležitější než u běžné aplikace.
+- **Zápis logujte.** Ať víte, které soubory model změnil. Bez toho se špatná změna hledá týden.
+- **Sdílené složky s kolegy nejsou vymezení.** Když do složky může kdokoli z týmu vložit dokument, může do ní kdokoli vložit i pokyn pro vašeho agenta.
+
+## Pro tip
+
+Postavte si dvě konfigurace a přepínejte mezi nimi: **„čtení“** se serverem jen pro čtení v jedné složce a **„práce“** se zápisem. Devadesát procent úloh zvládnete v té první a nebudete muset u každé přemýšlet, jestli to nemůže něco přepsat. Přepnutí trvá vteřinu, chybný přepis stovky souborů stojí odpoledne.
+
+Poslední díl téhle linky je krátký a nepříjemný: seznam věcí, které do cloudu nepatří.

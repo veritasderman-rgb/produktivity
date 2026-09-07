@@ -1,0 +1,99 @@
+---
+title: "Notebook, mobil, domácí stroj: jeden velín, tři obrazovky"
+excerpt: "Tři zařízení, tři různé role a jedna společná paměť. Jak si rozdělit, co se dělá kde, aby vám rozdělaná práce nezůstávala na stroji, který je zrovna zavřený v batohu."
+track: "ovladani"
+order: 3
+tags: ["ovladani", "telegram", "orchestrace", "data"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Nejčastější chyba domácího velína je, že si každé zařízení pamatuje něco jiného. Řešení má tři pravidla: výpočet i data bydlí na domácím stroji, zařízení jsou jen okna, a stav se drží na jednom místě — ve složce na domácím disku, ne v historii chatu. Mobilu dejte krátké úlohy a schvalování, notebooku dlouhou práci, domácímu stroji všechno, co běží bez dozoru. Pak je jedno, odkud se díváte.
+sources:
+  - name: "Open WebUI — chatovací rozhraní pro vlastní modely"
+    url: "https://github.com/open-webui/open-webui"
+  - name: "Tailscale — dokumentace"
+    url: "https://tailscale.com/kb/"
+---
+
+Když si postavíte model doma, bránu, Telegram bota a privátní síť, čeká vás nečekaný problém: **paměť se rozsype.** Ráno se na něco zeptáte z mobilu, odpoledne v tom chcete pokračovat na notebooku a zjistíte, že tam ta konverzace není. Za týden nevíte, kde co je.
+
+Není to problém nástrojů. Je to problém rozdělení rolí.
+
+## Tři pravidla, která to řeší
+
+**1. Výpočet a data bydlí doma.** Domácí stroj je jediné místo, kde běží model a kde leží soubory, se kterými pracujete. Notebook ani mobil si nic nedrží.
+
+**2. Zařízení jsou jen okna.** Mobil ani notebook nejsou „místa, kde se něco děje“. Jsou to obrazovky, kterými se díváte na jeden a týž velín.
+
+**3. Stav se drží v souborech, ne v chatu.** Konverzace je pomíjivá. Když má něco přežít víc než jedno posezení, musí to skončit ve složce na domácím disku.
+
+To třetí pravidlo je nejtěžší a nejužitečnější. Historie chatu je past: vypadá jako paměť, ale je nedohledatelná, nedá se v ní hledat napříč a při přechodu mezi nástroji o ni přijdete.
+
+## Kdo co dělá
+
+<Flow title="Rozdělení rolí" steps={[
+  { title: "Domácí stroj — dělník", desc: "Běží na něm model, brána a všechno, co pracuje bez dozoru: noční dávky, hlídání složek, plánované úlohy. Tady leží data." },
+  { title: "Notebook — dílna", desc: "Dlouhá práce s dokumenty, psaní, kód, cokoli, kde potřebujete velkou obrazovku a klávesnici. Přistupuje k domácímu stroji přes privátní síť." },
+  { title: "Mobil — velín v kapse", desc: "Krátké dotazy, zadání úlohy do fronty, schválení nebo zamítnutí toho, co domácí stroj připravil. Nic dlouhého se tu nepíše." },
+]} />
+
+Tenhle rozpis vypadá samozřejmě, ale málokdo ho má vědomě. Většina lidí zkouší na mobilu dělat práci notebooku, což je frustrující, a pak to vzdá.
+
+## Jak to prakticky nastavit
+
+**Jedno chatovací rozhraní pro všechna zařízení.** Pusťte si na domácím stroji webový chat (Open WebUI je nejrozšířenější) a napojte ho na svou bránu. Přistupujete k němu z prohlížeče na notebooku i na mobilu přes adresu v privátní síti. Historie je jedna a je vaše.
+
+**Telegram jako rychlá cesta.** Pro dotazy, které trvají deset vteřin, je otevírání prohlížeče zbytečné. Bot z prvního dílu téhle linky to pokryje.
+
+**Jedna sdílená složka.** Vytvořte na domácím stroji strukturu, se kterou pracuje AI i vy:
+
+```
+~/velin/
+  vstup/        # sem odkládáte, co má model zpracovat
+  vystup/       # sem ukládá výsledky
+  ke-schvaleni/ # co je hotové, ale čeká na vaše ano
+  archiv/       # hotovo a odsouhlaseno
+  poznamky/     # trvalá znalostní báze
+```
+
+Tahle struktura je jednoduchá schválně. Když bude složitější, přestanete ji používat.
+
+Na notebooku si tu složku připojte přes síť nebo přes SSH, na mobilu se do ní dostanete přes soubory v chatovacím rozhraní.
+
+## Scénář jednoho dne
+
+Jak to vypadá, když to funguje:
+
+| Kdy | Kde | Co se děje |
+|---|---|---|
+| 6:30 | domácí stroj | Noční dávka roztřídila poštu a připravila tři koncepty odpovědí do `ke-schvaleni/` |
+| 7:40 | mobil | V Telegramu přijde souhrn: tři koncepty čekají. Dva odsouhlasíte, jeden vrátíte s poznámkou |
+| 9:00 | notebook | Otevřete chat přes privátní síť, pokračujete v analýze, kterou jste včera nedokončili — historie je tam, kde jste ji nechali |
+| 13:00 | mobil | Napadne vás myšlenka, pošlete ji botovi, ten ji uloží do `poznamky/` |
+| 18:00 | notebook | Zadáte modelu, ať přes noc zpracuje složku `vstup/` |
+| 23:00 | domácí stroj | Pracuje. Vy ne. |
+
+Všimněte si, že se ani jednou neřeší „kde to mám“. To je celý cíl.
+
+## Co jde a co nejde
+
+**Jde:** mít z mobilu přístup ke všem svým souborům přes model, spouštět dlouhé úlohy z telefonu, pokračovat na jiném zařízení v tom, co jste začali.
+
+**Nejde:** aby zařízení fungovala nezávisle. Když je domácí stroj vypnutý, nemáte nic. To je vědomá daň za to, že data zůstávají doma — a proto stojí za to mít doma stroj, který běží pořád, ne notebook, který jste zavřeli.
+
+**Kompromis pro cesty:** menší model přímo na notebooku pro případ, že jste offline nebo doma vypadl proud. Nebude to stejné, ale nezůstanete stát.
+
+## Na co si dát pozor
+
+- **Nedělejte dvě znalostní báze.** Jedna složka, jedno místo. Dvě znamenají, že ani v jedné nic nenajdete.
+- **Zálohujte domácí stroj.** Když je to jediné místo, kde data jsou, je to i jediné místo, odkud se dají ztratit.
+- **Historii chatu neberte jako archiv.** Co má přežít, uložte do souboru.
+- **Mobil nepoužívejte na dlouhé zadávání.** Když píšete na telefonu odstavec instrukcí, děláte to špatně — nadiktujte to nebo počkejte na klávesnici.
+- **Nastavte si, co se stane při výpadku.** Aspoň to, že vám bot řekne „domácí stroj neodpovídá“ místo mlčení.
+
+## Pro tip
+
+Nejlepší kontrola, jestli je velín postavený dobře, je jednoduchá: **vypněte notebook na tři dny a pracujte jen z mobilu.** Co vám bude chybět, je seznam věcí, které máte špatně rozdělené. Většinou zjistíte, že jediné, co skutečně potřebujete na velké obrazovce, je psaní dlouhých textů — všechno ostatní jde zadat a schválit dvěma větami.
+
+Poslední díl téhle linky je o tom, co se stane mezi zadáním a výsledkem: o frontě úloh a o tom, proč poslední klik musí zůstat váš.

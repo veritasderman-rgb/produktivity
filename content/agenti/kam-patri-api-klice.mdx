@@ -1,0 +1,108 @@
+---
+title: "Kam patří API klíče (a kam rozhodně ne)"
+excerpt: "Klíč je heslo, které nikdo nezmění, protože si na něj nikdo nevzpomene. Kam ho uložit na Macu, na Windows a na serveru, proč nepatří do chatu ani do souboru v projektu a jak poznat, že vám utekl."
+track: "orchestrace"
+order: 2
+tags: ["api-klice", "bezpecnost", "orchestrace"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  API klíč je jméno i heslo naráz a platí, dokud ho nezrušíte. Nepatří do zdrojového kódu, do chatu, do screenshotu ani do sdíleného dokumentu — patří do proměnných prostředí, do systémové klíčenky nebo do správce hesel. Nejlepší obrana není lepší úkryt, ale menší škoda: vlastní klíč pro každou aplikaci, tvrdý měsíční strop u poskytovatele a pravidelná obměna. Když má klíč utéct, ať uteče takový, který můžete během minuty zrušit bez toho, aby přestalo fungovat všechno ostatní.
+sources:
+  - name: "LiteLLM — virtuální klíče a rozpočty v proxy"
+    url: "https://docs.litellm.ai/docs/proxy/virtual_keys"
+  - name: "LiteLLM: bezpečnostní oznámení k incidentu z března 2026"
+    url: "https://docs.litellm.ai/blog/security-update-march-2026"
+---
+
+Tohle je nejnudnější díl celého seriálu a zároveň ten, po jehož zanedbání přijde nejvíc nepříjemných překvapení. API klíč není heslo v obvyklém smyslu. Je to **jméno i heslo v jednom řetězci**, platí do zrušení, nemá dvoufaktor a nikdo vám nepošle mail, že se s ním někdo přihlásil z Bukurešti.
+
+## Proč je to citlivější, než to vypadá
+
+Když unikne klíč k modelu, dějí se tři věci naráz:
+
+1. **Někdo za vás utrácí.** Cizí provoz jde na váš účet, dokud si toho nevšimnete.
+2. **Někdo vidí, co se ptáte** — pokud má klíč k bráně, vidí i historii.
+3. **Někdo může jednat vaším jménem**, pokud je klíč napojený na nástroje, které něco dělají.
+
+Ta třetí položka je nová. Dokud byl klíč jen k chatu, šlo o peníze. Ve světě agentů může být klíč přístupem k poště, ke kalendáři, k repozitáři nebo k CRM.
+
+## Kam klíč nepatří
+
+Projděte si to jako kontrolní seznam. Skoro každý na nějakém bodě zaškrtne „to jsem udělal“.
+
+- **Do zdrojového kódu.** Ani „dočasně“, ani do větve, kterou nikdo neuvidí. Git si to pamatuje navždycky.
+- **Do chatu s AI.** Ano, i do toho vlastního. Klíč vložený do konverzace skončí v historii a možná i v logu brány.
+- **Do screenshotu.** Klasika sdílení obrazovky na poradě.
+- **Do sdíleného dokumentu nebo Slacku.** „Pošlu ti klíč do zprávy“ znamená, že klíč bude existovat v archivu firmy napořád.
+- **Do konfiguračního souboru v projektu.** Pokud tedy není v ignorovaných souborech — a i pak to je poslední volba, ne první.
+
+## Kam patří
+
+**Na vlastním počítači: proměnné prostředí.** Klíč žije mimo projekt a program si ho vezme za běhu.
+
+Na macOS a Linuxu do souboru `~/.zshrc` nebo `~/.bashrc`:
+
+```
+export ANTHROPIC_API_KEY="sk-..."
+export OPENAI_API_KEY="sk-..."
+```
+
+Na Windows přes Nastavení → Systém → Informace → Upřesnit nastavení systému → Proměnné prostředí, do uživatelských proměnných.
+
+**Na Macu ještě lépe: klíčenka.** Klíč uložíte do systémové klíčenky a skript si ho vytáhne příkazem, takže nikde nesedí v čitelném souboru:
+
+```
+security add-generic-password -a "$USER" -s ANTHROPIC_API_KEY -w "sk-..."
+security find-generic-password -a "$USER" -s ANTHROPIC_API_KEY -w
+```
+
+**Ve správci hesel.** Bitwarden, 1Password i další umí bezpečné poznámky a většina má nástroj pro příkazovou řádku. Tady má klíč sedět jako **zdroj pravdy** — proměnná prostředí je jen pracovní kopie.
+
+**Na serveru: soubor s omezenými právy, nebo správce tajemství.** Když už klíče musí ležet v souboru (třeba `.env` pro bránu), nastavte mu práva tak, aby ho četl jen ten jeden uživatel:
+
+```
+chmod 600 .env
+```
+
+## Nejlepší obrana není lepší úkryt
+
+Tohle je ta myšlenka, kvůli které díl stojí za přečtení. Klíč vám dřív nebo později uteče — omylem, nedopatřením, cizí chybou. Otázka není jak tomu zabránit, ale **jak udělat, aby to nebolelo.**
+
+<Flow title="Čtyři opatření, která snižují škodu" steps={[
+  { title: "Klíč na aplikaci, ne jeden pro všechno", desc: "Když utče klíč od skriptu na třídění pošty, zrušíte ho a nic jiného nepřestane fungovat." },
+  { title: "Tvrdý strop u poskytovatele", desc: "Měsíční limit útraty. Nastavte ho na částku, kterou jste ochotní ztratit, ne na tu, kterou plánujete utratit." },
+  { title: "Virtuální klíče přes bránu", desc: "Aplikace dostanou klíče od vaší brány, ne skutečné klíče poskytovatelů. Zrušení je jeden příkaz." },
+  { title: "Obměna podle kalendáře", desc: "Jednou za čtvrt roku klíče vyměňte. Zjistíte při tom i to, kde všude jste je zapomněli." },
+]} />
+
+Ten třetí bod je hlavní důvod, proč se brána z předchozího dílu vyplatí i jednomu člověku. **Skutečné klíče k poskytovatelům zná jenom brána.** Všechno ostatní — chat, editor, Telegram bot, agenti — dostane klíč, který si vyrobíte sami, dáte mu strop a kdykoli ho odstřihnete.
+
+## Jak poznat, že se něco děje
+
+- **Sledujte útratu, ne až fakturu.** U poskytovatele si zapněte upozornění na překročení částky. Neobvyklý provoz poznáte podle skoku, ne podle celkového čísla.
+- **Kontrolujte logy brány.** Když vidíte dotazy v čase, kdy jste spali, je něco špatně.
+- **Reagujte na varování služeb.** Poskytovatelé i GitHub aktivně skenují veřejné repozitáře na uniklé klíče. Když takový mail přijde, není to spam.
+
+## Když klíč unikne
+
+Pořadí kroků, aby se to nezhoršilo:
+
+1. **Zrušte klíč u poskytovatele.** Ne změnit, zrušit. Okamžitě.
+2. **Vygenerujte nový** a nasaďte ho jen tam, kde je opravdu potřeba.
+3. **Projděte historii útraty** za posledních několik dní.
+4. **Najděte, kudy utekl** — jinak to za týden zopakujete.
+5. **Když byl v gitu, nestačí ho smazat commitem.** Historii je potřeba přepsat, nebo repozitář považovat za kompromitovaný.
+
+## Na co si dát pozor
+
+Klíče vám nemusí uniknout jen vaší chybou. V březnu 2026 se ukázalo, jak to vypadá, když se cizí kód dostane do nástroje, který klíče drží: do balíčku populární AI brány LiteLLM byla na krátkou dobu podstrčena upravená verze, jejíž součástí byl sběrač přihlašovacích údajů. Provozovatel vydal bezpečnostní oznámení s pokynem postižené verze odinstalovat a **obměnit všechny přihlašovací údaje**. Celý případ rozebírá samostatný díl v poslední lince.
+
+Poučení pro tenhle díl: klíč, který lze zrušit jedním kliknutím a který má strop, je nesrovnatelně menší problém než klíč bez limitu, který používá pět aplikací naráz.
+
+## Pro tip
+
+Udělejte si dnes jednu věc, která zabere deset minut: přihlaste se ke každému poskytovateli, kde máte účet, a nastavte měsíční strop útraty. Většina lidí ho nemá nastavený vůbec. Je to nejlevnější pojistka v celém tomhle seriálu.
+
+Další díl je zábavnější: jak bránu naučit, aby posílala každou úlohu tam, kde se zpracuje nejlíp a nejlevněji.

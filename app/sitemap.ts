@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getAllAgentMetas } from "@/lib/agents";
 import { audienceBase, audiencePath, audiences } from "@/lib/audiences";
 import { getAllTips } from "@/lib/tips";
 import { getAllChapters } from "@/lib/chapters";
@@ -26,7 +27,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "", "/prirucka", "/tipy", "/deset-minut", "/cesty", "/ai", "/prompty", "/sablony", "/kurz", "/gadgety", "/slovnik", "/kam-dal", "/konektory", "/newsletter", "/newsletter/ukazka", "/start",
     "/nastroje", "/nastroje/kviz", "/nastroje/diagnostika", "/nastroje/pomodoro", "/nastroje/sazba",
     "/nastroje/promptovac", "/nastroje/audit-casu",
-    "/rozhovory", "/z-praxe", "/zmeny",
+    "/rozhovory", "/z-praxe", "/zmeny", "/agenti",
     "/o-projektu", "/hledat", "/ochrana-osobnich-udaju",
   ];
 
@@ -191,8 +192,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return entries;
   });
 
+  // Seriál „Agenti a vlastní AI". Dokud pro jazyk nejsou díly, blok je prázdný.
+  const enAgents = new Set(getAllAgentMetas("en").map((a) => a.slug));
+  const agents = getAllAgentMetas().flatMap((a) => {
+    const csPath = `/agenti/${a.slug}`;
+    const lastModified = a.updated ?? a.date;
+    const entries: MetadataRoute.Sitemap = [{
+      url: `${BASE}${csPath}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+      ...withAlternates(csPath, enAgents.has(a.slug)),
+    }];
+    if (enAgents.has(a.slug)) {
+      entries.push({ url: `${EN_BASE}${csPath}`, lastModified, changeFrequency: "monthly", priority: 0.6 });
+    }
+    return entries;
+  });
+
   return [
     ...staticRoutes, ...proHub, ...proPages, ...chapters, ...tips, ...news,
-    ...promptArticles, ...interviews, ...practice, ...learningPaths,
+    ...promptArticles, ...interviews, ...practice, ...learningPaths, ...agents,
   ];
 }

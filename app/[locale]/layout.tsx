@@ -9,6 +9,7 @@ import { Keycap } from "@/components/Keycap";
 import { LangSwitch } from "@/components/LangSwitch";
 import { NavAi, NavAiChips, NavMore } from "@/components/NavAi";
 import { SearchOverlay, SearchTrigger, type SearchIndexItem } from "@/components/SearchOverlay";
+import { getAllAgentMetas } from "@/lib/agents";
 import { audienceBase, audienceHref, audiences } from "@/lib/audiences";
 import { getAllChapters } from "@/lib/chapters";
 import { getAllInterviews, interviewTitle } from "@/lib/interviews";
@@ -73,6 +74,7 @@ export default async function RootLayout({
     { href: p("/tipy"), label: t.nav.tips },
     { href: p("/cesty"), label: t.nav.paths },
     { href: p("/ai"), label: t.nav.ai, dropdown: true },
+    { href: p("/agenti"), label: t.nav.agents },
     { href: p("/prompty"), label: t.nav.prompts },
     { href: p("/nastroje"), label: t.nav.tools },
     { href: p("/gadgety"), label: t.nav.gadgets },
@@ -87,6 +89,7 @@ export default async function RootLayout({
   ];
   const mobileMore = [
     { href: p("/ai"), label: t.nav.ai },
+    { href: p("/agenti"), label: t.nav.agents },
     { href: p("/prompty"), label: t.nav.prompts },
     { href: p("/gadgety"), label: t.nav.gadgets },
   ];
@@ -102,6 +105,7 @@ export default async function RootLayout({
       slug: i.slug,
       title: interviewTitle(i, locale),
     })),
+    ...getAllAgentMetas(locale).map((a) => ({ type: "agent" as const, slug: a.slug, title: a.title })),
   ];
 
   // Podmenu profesí: v desktopové navigaci pod položkou „AI“, na mobilu pruh chipů.
@@ -218,6 +222,7 @@ gtag('config', '${GA_ID}');`}
                 <li><Link href={p("/prirucka")} className="draw-link">{t.footer.handbook}</Link></li>
                 <li><Link href={p("/tipy")} className="draw-link">{t.footer.tips}</Link></li>
                 <li><Link href={p("/ai")} className="draw-link">{t.footer.aiSection}</Link></li>
+                <li><Link href={p("/agenti")} className="draw-link">{t.footer.agents}</Link></li>
                 <li><Link href={p("/prompty")} className="draw-link">{t.footer.prompts}</Link></li>
                 <li><Link href={p("/sablony")} className="draw-link">{t.footer.templates}</Link></li>
                 <li><Link href={p("/gadgety")} className="draw-link">{t.footer.gadgets}</Link></li>

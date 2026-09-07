@@ -1,0 +1,98 @@
+---
+title: "Co stojí lokální AI a co cloud: poctivý výpočet"
+excerpt: "Lokální model není zadarmo a cloud není drahý — dokud nezačnete počítat objem. Jak si spočítat vlastní bod zlomu, kde se skrývají náklady, které vám nikdo neřekne, a proč hlavní důvod pro lokál stejně nejsou peníze."
+track: "orchestrace"
+order: 4
+tags: ["naklady", "lokalni-ai", "orchestrace"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Lokální model má vysoký vstupní náklad (hardware) a nízký provozní (elektřina). Cloud je opačný: nula na začátku, platba za každý požadavek. Bod zlomu proto neurčuje cena modelu, ale objem — dokud děláte pár desítek dotazů denně, cloud je levnější a pohodlnější; při stovkách dotazů denně nebo dávkovém zpracování se domácí stroj zaplatí. Do výpočtu ale patří i váš čas na správu, který lidé vynechávají, a hlavní důvod pro lokál stejně bývají data, ne peníze.
+sources:
+  - name: "Ollama — knihovna modelů ke stažení"
+    url: "https://ollama.com/library"
+  - name: "LiteLLM — sledování útraty a rozpočty"
+    url: "https://docs.litellm.ai/docs/proxy/cost_tracking"
+---
+
+Tenhle díl schválně neuvádí konkrétní ceny modelů. Mění se každé dva měsíce a tabulka, která by dnes byla přesná, by za rok lhala. Užitečnější je metoda, kterou si spočítáte vlastní čísla — a ta metoda se nemění.
+
+## Dvě různé nákladové struktury
+
+**Cloud** je čistě proměnný náklad. Nula na začátku, pak platíte za každý zpracovaný token. Nepoužijete → neplatíte. Objem vzroste desetkrát → účet vzroste desetkrát.
+
+**Lokál** je skoro celý fixní. Zaplatíte hardware, pak už jen elektřinu. Nepoužijete → platíte stejně. Objem vzroste desetkrát → náklad se skoro nezmění, jen budete déle čekat.
+
+Z toho plyne, že se ty dvě věci nedají srovnat jedním číslem. Dají se srovnat jenom **při konkrétním objemu.**
+
+## Jak si spočítat vlastní bod zlomu
+
+Postup na tři kroky, každý zabere pár minut.
+
+**Krok 1: změřte objem.** Pusťte bránu na dva týdny a podívejte se, kolik dotazů denně skutečně děláte a jak jsou velké. Většina lidí se u toho čísla plete o řád — nahoru i dolů.
+
+**Krok 2: spočítejte cloudovou cenu za měsíc.** Vezměte aktuální ceník poskytovatele a váš naměřený objem. Brána to obvykle umí spočítat sama, protože útratu sleduje.
+
+**Krok 3: spočítejte lokální cenu za měsíc.**
+
+- **Hardware** rozpočítaný na dobu životnosti. Stroj za 25 000 Kč, který bude sloužit tři roky, je zhruba 700 Kč měsíčně.
+- **Elektřina.** Spotřebu ve wattech vynásobte 0,72 (počet kilowatthodin za měsíc na jeden watt nepřetržitého provozu) a cenou za kWh. Tichá krabice s průměrnými 15 W vyjde na desítky korun. Herní PC se stovkou wattů v průměru na několik stovek.
+- **Váš čas.** Tohle lidé vynechávají a je to největší položka. Počítejte hodinu měsíčně na aktualizace, restarty a hledání, proč to zase nejede.
+
+Pak porovnejte. A hlavně: **porovnejte to znovu za půl roku**, protože ceny modelů dlouhodobě klesají, zatímco vaše elektřina ne.
+
+## Co obvykle vyjde
+
+Bez konkrétních částek se dá říct tohle:
+
+- **Pár desítek dotazů denně:** cloud je levnější i pohodlnější. Lokální stroj se na takovém objemu nezaplatí, protože ho platíte, i když spí.
+- **Stovky dotazů denně nebo dávkové zpracování:** lokál začíná vyhrávat. Typicky když AI třídí poštu, zpracovává dokumenty nebo běží v automatizacích.
+- **Nepravidelné špičky:** vyhrává kombinace. Rutina doma, špička v cloudu — přesně jak popisuje předchozí díl o směrování.
+
+<Bars title="Kde se náklad schovává (podíl na celkových nákladech lokálu)" items={[
+  { label: "Hardware", value: 60, display: "největší položka" },
+  { label: "Váš čas na správu", value: 30, display: "podceňovaná" },
+  { label: "Elektřina", value: 10, display: "menší, než čekáte" },
+]} />
+
+Poměry jsou orientační a závisí na tom, jak drahý stroj si pořídíte a jak si ceníte hodinu. Podstatné je pořadí: **hardware a váš čas, ne elektřina.**
+
+## Skryté náklady, o kterých se nemluví
+
+**Na straně cloudu:**
+
+- Vícenásobné předplatné. Tři AI aplikace zvlášť stojí často víc než jedno API s bránou.
+- Draho placené „přemýšlení“. Modely, které si před odpovědí generují dlouhou úvahu, spotřebují násobně víc, než odpovídá délce odpovědi.
+- Agenti. Jeden agentní běh může znamenat desítky volání modelu. Bez rozpočtu na klíč se to umí pěkně rozjet.
+
+**Na straně lokálu:**
+
+- Disk. Tři modely a je pryč padesát gigabajtů.
+- Slepé uličky. První měsíc strávíte laděním a to je čas, který jste mohli fakturovat.
+- Chlazení a hluk. U herního PC v obývacím pokoji je to reálná daň.
+
+## Proč peníze stejně nejsou hlavní důvod
+
+Poctivě: většina lidí, kteří si postaví domácí AI, na tom nakonec nevydělá. Vydělají na něčem jiném.
+
+- **Data zůstávají doma.** Tuhle položku nespočítáte, dokud se nestane průšvih.
+- **Žádné limity.** Můžete pustit tisíc dotazů za noc a nikdo vás nezastaví.
+- **Funguje to i bez internetu.** V letadle, na chalupě, při výpadku.
+- **Nikdo vám model nevypne ani nezmění.** Verze, kterou jste si stáhli, bude za rok fungovat stejně. To se o cloudové službě říct nedá.
+- **Rozumíte tomu.** Když si to postavíte, přestanete být uživatelem černé skříňky.
+
+To poslední je málo hmatatelné a nejvíc se vyplácí. Kdo si jednou postavil bránu a viděl v logu, co se vlastně posílá, dělá jiná rozhodnutí než ten, kdo jen kliká.
+
+## Praktické doporučení
+
+1. **Nekupujte hardware, dokud neznáte svůj objem.** Dva týdny s cloudem a bránou vám dají číslo, které stojí za víc než všechny srovnávací články.
+2. **Když už kupujete, kupujte podle paměti.** Viz díly o Macu mini a o Windows s Nvidií.
+3. **Nastavte si stropy u poskytovatelů dřív, než začnete.** Rozpočet je levnější než překvapení.
+4. **Počítejte to znovu.** Jednou za půl roku. Ceny se hýbou a vaše objemy taky.
+
+## Na co si dát pozor
+
+Nejčastější chyba v tomhle výpočtu je srovnávat lokální model s tím nejdražším cloudovým. To je nesmysl — rutinu byste v cloudu stejně nepouštěli na špičkovém modelu. Srovnávejte **stejnou třídu úlohy**: lokální model proti tomu levnějšímu cloudovému, na kterém byste tu rutinu dělali. Rozdíl vyjde jinak, než čekáte, a hlavně bude pravdivý.
+
+Tím končí linka o orchestraci. Další je o té části, díky které to celé začnete používat každý den: jak velín ovládat z mobilu.

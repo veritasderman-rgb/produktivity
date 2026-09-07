@@ -1,0 +1,101 @@
+---
+title: "Brána pro všechny modely: jeden vstup místo pěti účtů"
+excerpt: "Pět modelů, pět aplikací, pět klíčů a nikdo neví, kolik to stojí. Brána je jeden endpoint, za kterým se schová všechno — lokální model doma i ten nejdražší v cloudu. A vyměnit se dá za jeden řádek."
+track: "orchestrace"
+order: 1
+tags: ["orchestrace", "api-klice"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Brána (gateway, proxy) je jedna adresa, na kterou posílají dotazy všechny vaše aplikace, a která je teprve rozhoduje dál — na lokální model, k jednomu poskytovateli, k druhému. Dva hlavní přístupy: hostovaná služba typu OpenRouter, kde nic neprovozujete a máte jeden klíč k mnoha modelům, nebo vlastní brána typu LiteLLM, kterou si spustíte sami a máte plnou kontrolu nad daty i logy. Obojí jde kombinovat: vlastní brána vepředu, hostovaná služba jako jeden z poskytovatelů vzadu.
+sources:
+  - name: "LiteLLM — dokumentace proxy serveru"
+    url: "https://docs.litellm.ai/"
+  - name: "OpenRouter — dokumentace"
+    url: "https://openrouter.ai/docs"
+  - name: "Open WebUI — chatovací rozhraní pro vlastní modely"
+    url: "https://github.com/open-webui/open-webui"
+---
+
+Tady se z hromádky nástrojů stává systém. Do téhle chvíle jste měli lokální model a nějaké cloudové účty. Od téhle chvíle budete mít **jednu adresu**, na kterou se ptá všechno ostatní — a co se stane za ní, je vaše věc, ne věc každé jednotlivé aplikace.
+
+## Problém, který brána řeší
+
+Bez brány vypadá běžné nastavení takhle:
+
+- Chatovací aplikace má svůj účet a své předplatné.
+- Editor kódu má vlastní klíč k jinému poskytovateli.
+- Skript na třídění pošty má klíč v souboru někde na disku.
+- Lokální model běží zvlášť a nemluví s ničím.
+- Kolik to celé stojí, zjistíte na konci měsíce z pěti faktur.
+
+A když vyjde lepší model, musíte ho nastavit na pěti místech. Když jeden klíč unikne, hledáte, kde všude byl. Když chcete zjistit, co se AI vlastně ptáte, nemáte jediný log.
+
+Brána tuhle změť srovná do jednoho místa:
+
+<Flow title="Co brána dělá" steps={[
+  { title: "Jeden endpoint", desc: "Všechny aplikace mluví s jednou adresou a jedním rozhraním, bez ohledu na to, který model je vzadu." },
+  { title: "Klíče na jednom místě", desc: "Skutečné klíče k poskytovatelům zná jen brána. Aplikace dostanou vlastní, zrušitelné klíče." },
+  { title: "Směrování", desc: "Podle názvu modelu, podle typu úlohy, podle dostupnosti. Když jeden poskytovatel vypadne, jde dotaz jinam." },
+  { title: "Rozpočty a limity", desc: "Na klíč, na uživatele, na projekt. Konečně víte, co kolik stojí — a můžete to zastropovat." },
+  { title: "Logy", desc: "Jedno místo, kde vidíte, co se posílalo, komu a kolik to stálo." },
+]} />
+
+## Dvě cesty: hostovaná, nebo vlastní
+
+**Hostovaná brána (OpenRouter a podobné).** Zaregistrujete se, dostanete jeden klíč a máte přístup ke stovkám modelů od různých poskytovatelů. Nic neprovozujete, nic neaktualizujete. Platíte kreditem, nebo si připojíte vlastní klíče k poskytovatelům. Nastavíte si limity na klíč.
+
+- **Pro:** hotovo za deset minut, nulová údržba, obrovská nabídka modelů.
+- **Proti:** vaše dotazy jdou přes další firmu. Pro citlivá data je to mezičlánek navíc.
+
+**Vlastní brána (LiteLLM a podobné).** Open source proxy, kterou si spustíte na vlastním stroji — klidně na tom Macu mini z druhé linky. Mluví se stovkou poskytovatelů, umí virtuální klíče, rozpočty i cache.
+
+- **Pro:** směrování, klíče i logy zůstávají u vás. Ven odchází jen samotné volání modelu.
+- **Proti:** musíte to provozovat, aktualizovat a hlídat.
+
+**A pak varianta, která se v praxi osvědčuje nejvíc: obojí.** Vlastní brána vepředu jako jediný vstup pro vaše aplikace, a hostovaná služba zapojená vzadu jako jeden z poskytovatelů. Dostanete kontrolu nad daty i logy a zároveň dosah na modely, ke kterým byste jinak potřebovali pět registrací.
+
+## Jak to vypadá v praxi
+
+Vlastní brána se nastavuje konfiguračním souborem, kde vyjmenujete modely a to, kam se mají posílat. Zjednodušený příklad, který ukazuje princip — jeden lokální model a jeden cloudový pod stejnou střechou:
+
+```yaml
+model_list:
+  - model_name: rychly
+    litellm_params:
+      model: ollama/qwen3
+      api_base: http://192.168.1.50:11434
+
+  - model_name: chytry
+    litellm_params:
+      model: anthropic/claude-…
+      api_key: os.environ/ANTHROPIC_API_KEY
+```
+
+Aplikace pak volá model jménem `rychly` nebo `chytry` a vůbec neřeší, jestli je vzadu krabice v obýváku nebo datové centrum. Když se rozhodnete model vyměnit, přepíšete jeden řádek a nikde jinde se nic neděje.
+
+To je ta hlavní hodnota, kvůli které brána stojí za to úsilí: **oddělíte jméno úlohy od konkrétního dodavatele.**
+
+## Co si na bránu pověsit
+
+Jakmile máte jeden endpoint, dá se na něj napojit skoro všechno:
+
+- **Chatovací rozhraní.** Open WebUI je nejrozšířenější — vypadá jako běžný AI chat, ale mluví s vaší bránou. Historie konverzací zůstává u vás.
+- **Editor kódu.** Většina nástrojů umí zadat vlastní adresu API.
+- **Skripty a automatizace.** Jeden klíč, jedna adresa, žádné hledání v souborech.
+- **Telegram bot** ze čtvrté linky seriálu.
+- **Agenti.** A tady začíná být brána nejen pohodlná, ale i bezpečnostně důležitá — protože je to jediné místo, kde jde agentovi useknout přístup.
+
+## Na co si dát pozor
+
+- **Brána je nový kritický bod.** Když spadne, spadne všechno. Pro domácí použití je to v pořádku, pro tým to chce zálohu — třeba záložní směrování na hostovanou službu.
+- **Brána vidí všechno.** Všechny dotazy, všechny odpovědi. Logy si zapněte vědomě a rozhodněte, co v nich má být — a hlavně kde leží.
+- **Aktualizace nejsou volitelné.** Brána je software s přístupem ke všem vašim klíčům. V březnu 2026 se ukázalo, jak zlé to může být, když se do takového nástroje dostane cizí kód — o případu LiteLLM je samostatný díl v poslední lince a stojí za přečtení dřív, než bránu nasadíte.
+- **Nezveřejňujte ji na internet.** Stejné pravidlo jako u modelu: přístup zvenčí přes privátní síť, nikdy přes otevřený port.
+
+## Pro tip
+
+Než začnete stavět, udělejte si inventuru: sepište každou aplikaci, která u vás dnes volá nějaký model, a k ní klíč, který používá. Většina lidí se u toho seznamu poprvé lekne. To je ten samý seznam, který budete za týden mít celý za jednou adresou — a poprvé v něm uvidíte i útratu.
+
+Další díl je o té nejnepříjemnější části celé stavby: kam patří API klíče a kam rozhodně ne.

@@ -1,0 +1,108 @@
+---
+title: "Kolik paměti model sežere: kvantizace srozumitelně"
+excerpt: "Proč má stejný model v knihovně pět různých velikostí, co znamená Q4 v názvu souboru a jak spočítat, jestli se vám do stroje vejde. Jedna tabulka, jeden vzorec, žádná matematika."
+track: "lokalni-ai"
+order: 4
+tags: ["lokalni-ai", "hardware", "open-weights"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Kvantizace je zaokrouhlování čísel v modelu, aby zabral míň paměti. Model o osmi miliardách parametrů zabere v plné přesnosti kolem 16 GB, ve čtyřbitové kvantizaci zhruba 5 GB — a rozdíl v kvalitě odpovědí je u běžné práce sotva postřehnutelný. Hrubý vzorec: počet miliard parametrů krát 0,6 se rovná gigabajty při čtyřbitové kvantizaci. Nejlepší poměr je obvykle čtyřbitová varianta; pod ni jít nemá smysl, nad ni jen když máte paměti nazbyt.
+sources:
+  - name: "Ollama — knihovna modelů ke stažení"
+    url: "https://ollama.com/library"
+  - name: "llama.cpp — projekt, ze kterého kvantizované formáty pocházejí"
+    url: "https://github.com/ggml-org/llama.cpp"
+---
+
+Otevřete knihovnu modelů a u jednoho jména vidíte pět souborů různé velikosti. Stejný model, stejné číslo parametrů, ale jednou 4 GB a jednou 16. Rozdíl se jmenuje kvantizace a je to nejužitečnější věc, kterou o lokálních modelech můžete vědět.
+
+## Co to vlastně je
+
+Model je obrovská tabulka čísel — parametrů. Když ho autoři natrénují, každé to číslo je uložené přesně, obvykle na 16 bitů. Kvantizace znamená, že ta čísla **zaokrouhlíte** a uložíte na míň bitů. Osm bitů. Čtyři. Někdy míň.
+
+Přesně jako když si zapíšete cenu 1 249,90 Kč jako „asi dvanáct set“. Ztratíte přesnost, ušetříte místo, a pro většinu rozhodnutí to nevadí.
+
+<Bars title="Stejný model o 8 miliardách parametrů" items={[
+  { label: "16 bitů (plná přesnost)", value: 16, display: "~16 GB" },
+  { label: "8 bitů (Q8)", value: 8, display: "~8,5 GB" },
+  { label: "5 bitů (Q5)", value: 6, display: "~5,7 GB" },
+  { label: "4 bity (Q4)", value: 5, display: "~4,9 GB" },
+]} />
+
+Hodnoty jsou přibližné — liší se podle konkrétního formátu a podle toho, které vrstvy modelu se kvantizují jak. Poměry ale platí.
+
+## Vzorec, který si zapamatujete
+
+Pro rychlý odhad ve čtyřbitové kvantizaci, což je dnes nejběžnější volba:
+
+**Miliardy parametrů × 0,6 ≈ gigabajty na disku i v paměti.**
+
+Takže:
+
+| Model | Velikost při Q4 | Kam se vejde |
+|---|---|---|
+| 4 mld. | ~2,5 GB | skoro cokoli, i notebook bez grafiky |
+| 8 mld. | ~5 GB | 8GB grafika, 16GB Mac |
+| 14 mld. | ~9 GB | 12GB grafika, 24GB Mac |
+| 30 mld. | ~18 GB | 24GB grafika, 32GB Mac |
+| 70 mld. | ~42 GB | 64GB Mac, víc karet |
+
+**A pak přičtěte kontext.** Konverzace, dokument, který modelu vložíte, i jeho odpověď se ukládají do paměti navíc. U krátkého chatu jsou to stovky megabajtů, u dlouhého dokumentu klidně gigabajty. Proto to pravidlo o rezervě: **nechte volný aspoň jeden až dva gigabajty nad velikostí modelu.**
+
+## Kterou variantu vybrat
+
+Praxe je nudně jednoduchá:
+
+- **Q4 je výchozí volba.** Nejlepší poměr velikosti a kvality. Když si v Ollamě stáhnete model bez upřesnění, dostanete obvykle právě tuhle variantu.
+- **Q5 nebo Q6, když máte paměť nazbyt.** Rozdíl proti Q4 je malý, ale u přesných úloh (kód, čísla, strukturovaný výstup) může být znát.
+- **Q8 jen výjimečně.** Zabírá dvakrát tolik co Q4 a rozdíl proti Q5 je u běžné práce těžko měřitelný.
+- **Pod čtyři bity nechoďte.** Dvou- a tříbitové varianty existují, ale model začíná znatelně blbnout — hlavně v přesnosti a v držení instrukcí.
+
+## Důležitější rozhodnutí, než si myslíte
+
+Tady je ta věc, kterou lidé podceňují: **větší model v silné kvantizaci je skoro vždycky lepší než menší model v plné přesnosti.**
+
+Máte 12 GB paměti. Můžete si vybrat:
+
+- model o 8 miliardách parametrů v Q8 (~8,5 GB), nebo
+- model o 14 miliardách parametrů v Q4 (~9 GB).
+
+Ta druhá volba bude ve většině úloh znatelně lepší. Počet parametrů je hrubá míra toho, kolik toho model „ví a umí“, a ztráta z kvantizace je proti tomu drobnost.
+
+Pravidlo: **napřed vyberte největší model, který se vám do paměti vejde v Q4, a teprve když zbývá místo, zvyšujte přesnost.**
+
+## Co kvantizace nezmění
+
+- **Rychlost čtení dlouhého dokumentu.** Ta závisí hlavně na délce kontextu a na výkonu stroje.
+- **Chování modelu při instrukcích.** Q4 model není „hloupější v pravidlech“, jen o kousek méně přesný v detailech.
+- **Kvalitu češtiny.** Tu určuje trénink, ne kvantizace. Některé rodiny modelů jsou v češtině výrazně lepší než jiné — to se dá zjistit jenom zkoušením.
+
+## Jak si to prakticky vyzkoušet
+
+Stáhněte si dvě varianty téhož modelu a položte jim tři stejné otázky:
+
+```
+ollama pull qwen3:8b
+ollama pull qwen3:14b
+```
+
+Zkuste na obou stejnou trojici: shrnutí odstavce, vytažení tří údajů do tabulky a přeformulování textu. U prvních dvou úloh rozdíl často nepoznáte. U té třetí obvykle ano.
+
+A pak si změřte, jak dlouho každý model odpovídá:
+
+```
+ollama run qwen3:14b --verbose
+```
+
+Přepínač vypíše po odpovědi statistiku včetně rychlosti generování. Pod deset slov za vteřinu je psaní nepříjemné, nad dvacet je to plynulé.
+
+## Na co si dát pozor
+
+- **Nestahujte pět variant „pro jistotu“.** Každá zabere gigabajty. `ollama rm` je váš přítel.
+- **Označení formátů se liší podle nástroje.** V Ollamě uvidíte značky jako `q4_K_M`, v LM Studiu podobné. Písmena na konci znamenají, které vrstvy se kvantizují jinak — pro rozhodování stačí číslo.
+- **Kontext si berte střídmě.** Nastavit modelu obří kontextové okno „pro jistotu“ zabere paměť, i když ho nevyužijete.
+- **Model, který se nevejde, poznáte podle rychlosti, ne podle chyby.** Nic nespadne. Jen se to plazí. Když je odpověď najednou desetkrát pomalejší, došla paměť.
+
+Poslední díl téhle linky je rozhodovací: kdy stačí model, který si stáhnete, a kdy má smysl platit za ten nejlepší v cloudu.
