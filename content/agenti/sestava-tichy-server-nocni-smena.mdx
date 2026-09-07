@@ -1,0 +1,115 @@
+---
+title: "Sestava 2: tichý server na noční směnu"
+excerpt: "Druhá sestava přidává jednu věc: stroj, který běží pořád. Tím se otevře práce, která se dělá bez vás — noční dávky, hlídání webů, ranní souhrn do Telegramu. A přidá se jedna povinnost, kterou herní PC nemělo."
+track: "sestavy"
+order: 2
+tags: ["sestava", "hardware", "ovladani", "telegram", "naklady"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Rozdíl proti první sestavě není výkon, ale dostupnost. Tichá krabice, která běží nonstop, umí věci, na které herní PC nestačí — ne proto, že by bylo pomalé, ale proto, že ho vypínáte. Otevře to čtyři typy práce: noční dávky, hlídání, přípravu na ráno a příjem úloh z mobilu. Cena je nižší, než čekáte (Mac mini v klidu odebírá jednotky wattů), ale přibude povinnost: stroj, který běží bez dozoru a má přístup k datům, potřebuje pravidla dřív než agenty.
+sources:
+  - name: "Ollama — dokumentace a stažení"
+    url: "https://ollama.com/download"
+  - name: "Tailscale — dokumentace"
+    url: "https://tailscale.com/kb/"
+  - name: "Telegram Bot API — oficiální dokumentace"
+    url: "https://core.telegram.org/bots/api"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+První sestava řeší, jak si rozdělit práci mezi lokální model a tři účty. Tahle přidává jedinou věc navíc — **stroj, který je vždycky zapnutý** — a tím se otevře celá kategorie práce, kterou předtím nešlo dělat.
+
+Není to o výkonu. Herní PC z první sestavy je nejspíš rychlejší. Je to o tom, že ho zavřete a odejdete.
+
+## Co dostanete navíc
+
+<Flow title="Čtyři věci, které umí jen běžící stroj" steps={[
+  { title: "Noční dávky", desc: "Složka, kterou přes den naplníte, se zpracuje v noci. Ráno máte hotovo a nečekali jste ani minutu." },
+  { title: "Hlídání", desc: "Weby, feedy, schránka, změny v repozitáři. Kontrola každou hodinu, ozve se jen když je co říct." },
+  { title: "Příprava na ráno", desc: "Souhrn dne, roztříděná pošta a připravené koncepty čekají, než vstanete." },
+  { title: "Příjem úloh odkudkoli", desc: "Napíšete z mobilu v tramvaji, stroj to zpracuje a odpoví. Notebook u toho být nemusí." },
+]} />
+
+Všimněte si, že ani jedna z těch čtyř věcí nepotřebuje nejchytřejší model na světě. Potřebují **dostupnost**.
+
+## Železo: co si pořídit
+
+Dva rozumné směry, oba popsané v druhé lince seriálu:
+
+| | Mac mini | Malé PC / mini server |
+|---|---|---|
+| Klidová spotřeba | jednotky wattů | jednotky až desítky wattů |
+| Hluk | prakticky žádný | podle chlazení |
+| Velikost modelu | omezená sjednocenou pamětí | omezená VRAM, nebo pomalu na CPU |
+| Správa | běží měsíce bez zásahu | podle systému |
+
+Pro tuhle roli rozhoduje **velikost paměti, ne rychlost procesoru** — viz [Mac mini jako domácí AI server](/agenti/mac-mini-jako-domaci-ai-server) a [kvantizace](/agenti/kolik-pameti-model-sezere-kvantizace). Model, který se vejde celý, běží plynule; ten, který se nevejde, se plazí bez ohledu na čip.
+
+Poctivá poznámka k ekonomice: **tichá krabice v klidu stojí na elektřině řádově desítky korun měsíčně, herní PC v nonstop provozu stovky.** Právě proto se druhá sestava přidává vedle první, ne místo ní — těžké kódování zůstane na výkonném stroji, který zapnete, když ho potřebujete.
+
+## Jak to spolu mluví
+
+Sestava 2 nenahrazuje sestavu 1. Skládají se:
+
+- **Herní PC** — těžká práce, když u toho sedíte. Zapíná se a vypíná.
+- **Tichý server** — všechno, co běží bez vás. Nonstop, s bránou a Telegram botem.
+- **Notebook a mobil** — jen okna. Nic si nedrží, viz [jeden velín, tři obrazovky](/agenti/jeden-velin-tri-obrazovky).
+
+Brána bydlí na tichém serveru, ne na herním PC. Je to jediné místo, které běží pořád, takže jediné, kde má smysl držet klíče, logy a směrování.
+
+## Nastavení, které z krabice udělá server
+
+Čtyři věci, bez kterých to nebude fungovat, a všechny se dělají jednou:
+
+1. **Vypnout uspávání a zapnout start po výpadku proudu.** Server, který spí, není server.
+2. **Nechat model poslouchat na síti**, ne jen na `localhost` — přes proměnnou `OLLAMA_HOST`.
+3. **Přístup zvenčí přes privátní síť**, nikdy přes přesměrovaný port. Detaily v dílu [bezpečná cesta domů](/agenti/bezpecna-cesta-domu).
+4. **Telegram bot jako vstup.** Bot běží na serveru a sám se ptá Telegramu na nové zprávy, takže na routeru nemusí být otevřené vůbec nic — viz [Telegram jako ovládací panel](/agenti/telegram-jako-ovladaci-panel).
+
+## Den, jak vypadá v provozu
+
+| Kdy | Co se děje | Kdo to dělá |
+|---|---|---|
+| 2:00 | Zpracování složky `vstup/` — přepisy, extrakce, souhrny | lokální model, dávkově |
+| 5:00 | Kontrola webů a certifikátů | skript bez modelu |
+| 6:30 | Sestavení ranního souhrnu a konceptů do `ke-schvaleni/` | lokální model |
+| 7:40 | „3 položky ke schválení“ přijde do Telegramu | bot |
+| 7:41 | Dvě schválíte z mobilu, jednu vrátíte s poznámkou | vy |
+| přes den | Rychlé dotazy z mobilu, zadávání úloh do fronty | vy + bot |
+| 18:00 | Odložíte podklady do `vstup/` na noc | vy |
+
+Ta poslední řádka je pointa celé sestavy: **práci zadáváte večer a výsledek máte ráno.** Nečekáte u obrazovky, protože stroj nepotřebuje, abyste u toho byl.
+
+## Co za to: nová povinnost
+
+Tady je ta část, kterou nadšené návody vynechávají. Stroj, který **běží bez dozoru**, **vidí vaše data** a **čte věci, které psal někdo jiný** (příchozí poštu, feedy, cizí dokumenty), je přesně ta kombinace, kterou popisuje díl o [smrtící trojici](/agenti/smrtici-trojice-agentu). Jakmile k tomu přidáte možnost odeslat něco ven, je zneužitelný.
+
+U herního PC, které zapínáte a u kterého sedíte, je poslední pojistkou člověk. Tady není. Proto k téhle sestavě patří tři věci, a ne jako doporučení:
+
+- **Fronta se schvalováním.** Agent píše do `ke-schvaleni/`, odesílá jiný, hloupý skript až po vašem kliknutí. Chytrá část nemá práva, oprávněná část není chytrá.
+- **Seznam povolených uživatelů u bota.** Bez něj je to veřejná služba, kterou platíte vy.
+- **Jednostránková pravidla** dřív, než pustíte prvního agenta — [vzor je hotový](/agenti/pravidla-pro-agenty-jedna-stranka).
+
+## Kdy tuhle sestavu vůbec nestavět
+
+Buďme upřímní, protože nadšení tady stojí peníze:
+
+- **Nemáte co pouštět v noci.** Když se vám nesejde aspoň pár opakovaných úloh týdně, je to krabice, která svítí.
+- **Zvládnete to na notebooku.** Kdo pracuje z jednoho místa a večer nic nepotřebuje, přidává jen údržbu.
+- **Nechcete nic spravovat.** Server je závazek: aktualizace, restarty, občasné „proč to nejede“.
+
+Rozumný test: **měsíc si zapisujte úlohy, které byste pustil na noc, kdyby bylo kam.** Když jich je do pěti, počkejte.
+
+## Na co si dát pozor
+
+- **Zálohujte.** Když je server jediné místo, kde data jsou, je to i jediné místo, odkud se dají ztratit.
+- **Hlídejte, že to jede.** Nejužitečnější příkaz bota není chytrý model, ale `/stav` — jestli běží Ollama, jaký model je načtený a kolik zabírá paměti.
+- **Aktualizace systému stroj restartují.** Po každé zkontrolujte, že se služby zvedly a proměnné pořád platí.
+- **To, že server stojí u vás doma, neznamená, že je zabezpečený.** Znamená to, že za jeho zabezpečení ručíte vy.
+
+---
+
+Tím jsou obě sestavy hotové. Když si z nich máte odnést jedno pravidlo, ať je to tohle: **nejdřív si rozdělte práci do kbelíků, pak teprve kupujte a rušte.** Většina lidí to dělá obráceně — pořídí nástroj a pak hledá, na co ho použít. Proto mají tři předplatná a nevědí, které z nich zrušit.

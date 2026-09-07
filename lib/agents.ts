@@ -15,7 +15,7 @@ import type { Locale } from "@/lib/i18n";
  */
 
 /** Šest tematických linek seriálu. Pořadí je pořadím čtení. */
-export const AGENT_TRACKS = ["zaklady", "lokalni-ai", "orchestrace", "ovladani", "data", "rizeni"] as const;
+export const AGENT_TRACKS = ["zaklady", "sestavy", "lokalni-ai", "orchestrace", "ovladani", "data", "rizeni"] as const;
 export type AgentTrack = (typeof AGENT_TRACKS)[number];
 
 /** Štítky napříč linkami — jeden článek jich má typicky dva až čtyři. */
@@ -27,6 +27,7 @@ export const AGENT_TAGS = [
   "orchestrace",
   "api-klice",
   "naklady",
+  "sestava",
   "ovladani",
   "telegram",
   "data",
@@ -186,6 +187,10 @@ export const agentLabels: Record<
         name: "Základy",
         lead: "Co je model, co harness a co agent — a proč se ta otázka posunula z „AI ano/ne“ na „kde co běží“.",
       },
+      sestavy: {
+        name: "Vzorové sestavy",
+        lead: "Dvě hotové sestavy od hardwaru po fakturu: co u koho běží, kolik to stojí a proč zrovna takhle.",
+      },
       "lokalni-ai": {
         name: "Lokální AI",
         lead: "První model na vlastním stroji: Mac mini, Windows s Nvidií, kolik paměti to sní a kdy lokál stačí.",
@@ -215,6 +220,7 @@ export const agentLabels: Record<
       orchestrace: "Orchestrace",
       "api-klice": "API klíče",
       naklady: "Náklady",
+      sestava: "Vzorové sestavy",
       ovladani: "Ovládání",
       telegram: "Telegram",
       data: "Vaše data",
@@ -228,6 +234,10 @@ export const agentLabels: Record<
       zaklady: {
         name: "Foundations",
         lead: "Model, harness, agent — and why the question moved from “AI yes or no” to “what runs where”.",
+      },
+      sestavy: {
+        name: "Reference setups",
+        lead: "Two complete setups from hardware to invoice: what runs where, what it costs and why it is put together this way.",
       },
       "lokalni-ai": {
         name: "Local AI",
@@ -258,6 +268,7 @@ export const agentLabels: Record<
       orchestrace: "Orchestration",
       "api-klice": "API keys",
       naklady: "Cost",
+      sestava: "Reference setups",
       ovladani: "Control",
       telegram: "Telegram",
       data: "Your data",

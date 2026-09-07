@@ -1,0 +1,148 @@
+---
+title: "Sestava 1: herní PC, tři předplatná, GitHub a pár webů"
+excerpt: "Konkrétní člověk, konkrétní železo, konkrétní účty. Co u koho běží, co se dá zrušit, kdy se vyplatí přejít z předplatného na API — a v jakém pořadí to postavit, aby každý krok dával smysl sám o sobě."
+track: "sestavy"
+order: 1
+tags: ["sestava", "naklady", "orchestrace", "lokalni-ai", "hardware"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Výchozí stav: Windows s Nvidií doma, předplatné Claude, ChatGPT i Gemini, projekty na GitHubu a správa několika webů. Nejdřív rozdělte práci do čtyř kbelíků podle toho, co ji nejlíp obslouží: rutina na lokální model, kódování a agenti na jedno předplatné, druhý názor na druhé, automatizace na API přes bránu. Pak zrušte to, co po měsíci nikdo neotevřel. Tři plná předplatná se vyplatí jen tomu, kdo denně používá všechna tři — u většiny lidí vyhraje jedno předplatné plus API brána, protože u API platíte za spotřebu, ne za přístup.
+sources:
+  - name: "Anthropic — ceník API"
+    url: "https://www.anthropic.com/pricing"
+  - name: "OpenAI — ceník API"
+    url: "https://openai.com/api/pricing/"
+  - name: "Google — ceník Gemini API"
+    url: "https://ai.google.dev/pricing"
+  - name: "Ollama — knihovna modelů ke stažení"
+    url: "https://ollama.com/library"
+  - name: "LiteLLM — dokumentace proxy serveru"
+    url: "https://docs.litellm.ai/"
+---
+
+Předchozí díly rozebraly jednotlivé vrstvy. Tenhle je jiný: vezmeme jednu konkrétní situaci a postavíme ji celou, od železa po fakturu.
+
+**Výchozí stav.** Doma stojí Windows s grafikou od Nvidie. Předplacené jsou Claude, ChatGPT i Gemini. Projekty se verzují na GitHubu. K tomu správa několika webů a čas od času nějaká jednorázová automatizace.
+
+Je to hodně běžná sestava — a hodně často je poskládaná náhodou. Předplatná přibývala postupně, každé se používá na něco jiného, a nikdo si nikdy nesedl a neřekl, co má vlastně dělat co.
+
+## Krok 0: čtyři kbelíky místo tří účtů
+
+Než začnete cokoli instalovat, roztřiďte si týden. Ne podle nástroje, ale podle typu práce:
+
+<Flow title="Do čeho vám den padá" steps={[
+  { title: "Rutina", desc: "Shrnutí, přepis, klasifikace, extrakce údajů, přeformulování, překlad pracovní verze. Vysoký objem, nízká cena chyby, často interní data." },
+  { title: "Kódování a projekty", desc: "Práce v repozitáři: nová funkce, oprava, review, refaktoring. Potřebuje kontext celého projektu a hodně kol." },
+  { title: "Přemýšlení a druhý názor", desc: "Rozhodnutí, rešerše, oponentura, dlouhý dokument. Nízký objem, vysoká hodnota jedné odpovědi." },
+  { title: "Automatizace", desc: "Věci, které běží bez vás: hlídání webů, noční dávky, zpracování pošty. Volá se z kódu, ne z chatu." },
+]} />
+
+Tohle rozdělení je celý ten trik. Každý kbelík má totiž **jiného nejlevnějšího dodavatele** — a když je smícháte do jednoho účtu, platíte za všechno tou nejdražší sazbou.
+
+## Krok 1: rutina jde na vaše PC
+
+Tady grafická karta konečně vydělá. Rutina je objemově největší kbelík a zároveň ten, kde je „dost dobré“ opravdu dost dobré.
+
+```
+ollama run qwen3
+```
+
+Podrobný rozjezd je v dílu [Lokální AI za hodinu](/agenti/lokalni-ai-za-hodinu), volba modelu podle VRAM v dílu [Windows s Nvidií](/agenti/windows-nvidia-lokalni-ai). Pro tuhle sestavu stačí vědět jedno: **model, který se celý vejde do paměti karty, běží rychle; ten, který se nevejde, se plazí.**
+
+Co sem patří hned první týden:
+
+- shrnutí zápisů a dlouhých mailů, které nechcete posílat ven,
+- vytažení údajů z faktur a dokladů do tabulky,
+- roztřídění složky se soubory,
+- první verze textů, které stejně budete přepisovat,
+- překlad pracovní verze dokumentu.
+
+Náklad: elektřina. Herní PC při generování odebírá řádově stovku wattů, v klidu desítky — počítejte spíš stovky korun měsíčně než desítky, pokud poběží nonstop. Proto tuhle sestavu neprovozujte 24/7; probouzejte stroj, jen když má co počítat. (Kdo chce nonstop, patří do [sestavy 2](/agenti/sestava-tichy-server-nocni-smena).)
+
+## Krok 2: jedno předplatné jako hlavní pracovní nástroj
+
+Kódování a projekty na GitHubu jsou disciplína, kde má předplatné navrch nad API — protože kódovací agent spotřebuje na jednu úlohu desítky volání modelu a u předplatného platíte přístup, ne spotřebu.
+
+Klíčové rozhodnutí: **jedno z těch tří je hlavní.** Ne všechna tři.
+
+Které? Rozhodněte podle toho, kde trávíte nejvíc času, ne podle benchmarků. Praktický test na týden: veďte si čárky, kolikrát otevřete které. Skoro vždycky vyjde jedno s velkým náskokem — a ta ostatní dvě jsou „na jistotu“, což je nejdražší důvod, jaký na předplatné existuje.
+
+Pro práci s repozitářem sem patří:
+
+- **napojení na GitHub**, aby agent viděl issues, PR a historii,
+- **práce v terminálu nebo v editoru**, ne kopírování kódu do chatu,
+- **schvalování změn přes pull request** — agent připraví, vy mergujete. Je to přesně ta hranice z dílu o [frontě úloh](/agenti/fronta-uloh-a-schvalovani), jen ji za vás už drží GitHub.
+
+## Krok 3: druhý názor bez druhého předplatného
+
+Tady je ta úspora, kterou většina lidí přehlédne. Když chcete druhý model jen na oponenturu — „projdi tohle rozhodnutí a najdi, co mi uniklo“ —, děláte to párkrát týdně. Na to je plné měsíční předplatné nesmysl.
+
+Levnější je **API přes bránu**: platíte za skutečně zpracovaná slova. Pár desítek oponentur měsíčně stojí zlomek předplatného, protože jde o jednotky dlouhých dotazů, ne o tisíce.
+
+Zprovoznění je na jedno odpoledne — [brána pro všechny modely](/agenti/brana-pro-vsechny-modely) popisuje postup. Do konfigurace vám přibudou tři aliasy podle [směrování podle úlohy](/agenti/smerovani-podle-ulohy):
+
+```yaml
+model_list:
+  - model_name: rutina        # lokální model na vašem PC
+  - model_name: standard      # levnější cloudový model
+  - model_name: spicka        # nejlepší dostupný, jen na těžké věci
+```
+
+Od téhle chvíle máte jedno místo, kde vidíte útratu za všechny modely dohromady. To je informace, kterou dneska nemáte, a bez které se o předplatných nedá rozhodnout.
+
+## Krok 4: weby a automatizace na bránu
+
+Správa webů a jednorázové automatizace jsou čtvrtý kbelík a patří **výhradně** za bránu, nikdy do chatu. Důvody jsou dva a oba praktické: chat neběží, když spíte, a chat vám nedá log.
+
+Typické úlohy z týdne správce několika webů:
+
+| Úloha | Kbelík | Kde běží |
+|---|---|---|
+| Kontrola, jestli weby odpovídají a mají platný certifikát | automatizace | skript, bez modelu |
+| Shrnutí, co se změnilo v logu chyb | rutina | lokální model |
+| Návrh textu na stránku podle brand voice | přemýšlení | standard přes bránu |
+| Oprava chyby v šabloně | kódování | předplatné, přes PR |
+| Souhrn týdne do Telegramu | rutina | lokální model, plánovaně |
+
+Všimněte si prvního řádku: **nejlevnější AI je žádná AI.** Ping a kontrola certifikátu jsou deset řádků skriptu. Model do nich patří teprve ve chvíli, kdy je potřeba přečíst něco nestrukturovaného.
+
+## Ekonomika: co s těmi třemi předplatnými
+
+Teď to hlavní. Po měsíci provozu s bránou máte čísla a můžete rozhodnout.
+
+<Flow title="Rozhodovací postup, ne dogma" steps={[
+  { title: "Změřte, co skutečně používáte", desc: "Měsíc čárek u tří předplatných a útrata na bráně. Bez toho jen hádáte." },
+  { title: "Nechte to, které používáte denně", desc: "Hlavní pracovní nástroj. Tady se předplatné vyplatí, protože agenti spotřebují hodně volání." },
+  { title: "Druhé zrušte a přesuňte na API", desc: "Když ho otevřete párkrát týdně, platíte za přístup, ne za práci. API je u nízkého objemu levnější." },
+  { title: "Třetí nechte, jen když má něco navíc", desc: "Ne „lepší odpovědi“, ale konkrétní funkci, kterou jinde nemáte a používáte ji." },
+  { title: "Přepočítejte za půl roku", desc: "Ceny modelů dlouhodobě klesají, vaše objemy rostou. Rozhodnutí ze současnosti nemusí platit napřesrok." },
+]} />
+
+Tři páky, které u API sníží účet a lidé o nich nevědí:
+
+- **Levnější třída modelu.** Rozpětí mezi nejlevnějším a nejdražším modelem jednoho výrobce bývá zhruba desetinásobek za stejný objem. U rutiny je ten rozdíl v kvalitě sotva postřehnutelný — u ceny hodně.
+- **Dávkové zpracování.** Když na výsledek nespěcháte, dá se u velkých poskytovatelů poslat úloha do fronty **za poloviční cenu**. Noční zpracování složky je učebnicový případ.
+- **Cache opakovaného kontextu.** Když v každém dotazu posíláte tentýž dlouhý podklad, opakované čtení stojí zhruba **desetinu** běžné vstupní sazby. Podrobněji viz díl o [nákladech](/agenti/naklady-lokalni-vs-cloud).
+
+A jedna páka, která je ještě lepší než všechny tři: **rutina na lokálním modelu stojí nula za dotaz.** Čím víc práce přesunete do prvního kbelíku, tím míň záleží na tom, co dělají ceníky.
+
+## Pořadí, ve kterém to stavět
+
+Každý krok musí dávat smysl sám o sobě, i kdybyste u něj skončili.
+
+1. **Víkend:** lokální model na PC. Týden ho používejte na rutinu. Zjistíte, kde stačí a kde ne.
+2. **Následující víkend:** brána, zatím jen s lokálním modelem a jedním API klíčem. Od téhle chvíle vidíte útratu.
+3. **Týden 3–4:** směrování podle tří aliasů, weby a automatizace za bránu.
+4. **Po měsíci:** rozhodnutí o předplatných podle naměřených čísel.
+5. **Až potom:** agenti a Telegram. Ne dřív — [pravidla](/agenti/pravidla-pro-agenty-jedna-stranka) se píšou před nasazením, ne po něm.
+
+## Na co si dát pozor
+
+- **Nerušte předplatné dřív, než máte bránu.** Jinak si zavřete dveře dřív, než víte, co za nimi bylo.
+- **Nepočítejte jen peníze.** Váš čas na správu je reálná položka; hodina měsíčně na aktualizace a restarty stojí víc než leckteré předplatné.
+- **Herní PC nonstop je drahé.** Jestli chcete nepřetržitý provoz, srovnejte spotřebu s tichou krabicí ze [sestavy 2](/agenti/sestava-tichy-server-nocni-smena) — rozdíl je řádový.
+- **Ceny v tomhle dílu schválně nejsou.** Mění se každé dva měsíce; odkazy na oficiální ceníky jsou pod článkem a postup výpočtu je v dílu o nákladech. Co se nemění, jsou poměry: dávka za polovinu, cache za desetinu, nejlevnější třída modelu řádově pod špičkou.
+
+Další díl ukazuje druhou sestavu — co se změní, když stroj poběží pořád a část práce se přesune na noční směnu.
