@@ -74,7 +74,9 @@ export TELEGRAM_ALLOWED="123456789"
 export OLLAMA_URL="http://localhost:11434"
 ```
 
-Na Macu, kde má bot běžet i po restartu, si tyhle řádky dejte do `~/.zshrc`. Na Windows do uživatelských proměnných prostředí. Podrobněji je to v dílu o API klíčích.
+Tohle platí pro spuštění z terminálu. Na Windows si totéž nastavte v uživatelských proměnných prostředí. Podrobněji je to v dílu o API klíčích.
+
+Pozor na jednu past: **`~/.zshrc` čte jenom terminál.** Až bota níž rozjedete jako službu na pozadí, systém tenhle soubor nenačte a skript spadne hned na prvním řádku. Proměnné se v tom případě zapisují do konfigurace služby — jak, ukazuje krok 5.
 
 ## Krok 4: samotný bot
 
@@ -134,11 +136,45 @@ A napište botovi z mobilu. Odpověď spočítá stroj u vás doma.
 
 Skript spuštěný v terminálu skončí, jakmile terminál zavřete. Pro trvalý provoz:
 
-**Na Macu** vytvořte soubor `~/Library/LaunchAgents/cz.velin.telegrambot.plist` a načtěte ho příkazem `launchctl load`. Systém pak bota nastartuje po každém přihlášení a znovu ho spustí, kdyby spadl.
+**Na Macu** vytvořte soubor `~/Library/LaunchAgents/cz.velin.telegrambot.plist`. Proměnné prostředí musí být přímo v něm — launchd žádný `~/.zshrc` nečte:
 
-**Na Linuxu** je to služba pro systemd s `Restart=always`.
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>cz.velin.telegrambot</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/josef/velin/bot.py</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>TELEGRAM_TOKEN</key><string>123456789:AAF...</string>
+    <key>TELEGRAM_ALLOWED</key><string>123456789</string>
+    <key>OLLAMA_URL</key><string>http://localhost:11434</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardErrorPath</key><string>/tmp/telegrambot.err</string>
+</dict>
+</plist>
+```
 
-**Na Windows** nejjednodušeji Plánovač úloh se spuštěním při startu systému.
+Token je v souboru čitelně, takže mu hned omezte práva a teprve pak službu načtěte:
+
+```
+chmod 600 ~/Library/LaunchAgents/cz.velin.telegrambot.plist
+launchctl load ~/Library/LaunchAgents/cz.velin.telegrambot.plist
+```
+
+Systém pak bota nastartuje po každém přihlášení a znovu ho spustí, kdyby spadl. Když se nerozjede, první místo, kam se podívat, je `/tmp/telegrambot.err`.
+
+**Na Linuxu** je to služba pro systemd s `Restart=always`; proměnné patří do direktiv `Environment=`, nebo lépe do souboru načteného přes `EnvironmentFile=` s právy `600`.
+
+**Na Windows** nejjednodušeji Plánovač úloh se spuštěním při startu systému. Uživatelské proměnné prostředí se do naplánované úlohy načtou, ale musí být nastavené **před** jejím vytvořením — jinak úloha startuje bez nich.
 
 ## Co si přidat, jakmile to jede
 

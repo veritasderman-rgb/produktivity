@@ -74,12 +74,15 @@ export async function generateMetadata({
   if (!article) return {};
   const csUrl = `https://www.produktivni.cz/agenti/${slug}`;
   const enUrl = `https://www.productive.tips/agenti/${slug}`;
+  /* Anglický díl nabízíme jen tehdy, když opravdu existuje — jinak by hreflang
+     posílal roboty na 404. Stejnou podmínku má sekce v sitemapě. */
+  const hasEn = getAllAgentArticles("en").some((a) => a.slug === slug);
   return {
     title: article.title,
     description: article.excerpt,
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,
-      languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
+      languages: hasEn ? { cs: csUrl, en: enUrl, "x-default": csUrl } : { cs: csUrl, "x-default": csUrl },
     },
     openGraph: {
       title: article.title,
