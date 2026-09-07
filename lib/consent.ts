@@ -25,15 +25,20 @@ export function subscribeConsent(onChange: () => void): () => void {
   };
 }
 
+/** Volba pro případ, že localStorage zápis odmítne (privátní režim,
+ *  sandbox). Bez ní by se lišta po kliknutí nezavřela — přečetla by si
+ *  prázdné úložiště a otevřela se znovu. */
+let fallbackChoice: ConsentChoice | null = null;
+
 /** Uložená volba, nebo null když se návštěvník ještě nerozhodl. */
 function readStored(): ConsentChoice | null {
   try {
     const stored = window.localStorage.getItem(CONSENT_KEY);
-    return stored === "granted" || stored === "denied" ? stored : null;
+    if (stored === "granted" || stored === "denied") return stored;
   } catch {
-    // Privátní režim — chováme se, jako by volba nepadla; lišta se ukáže znovu.
-    return null;
+    // Privátní režim — spolehneme se na volbu drženou v paměti.
   }
+  return fallbackChoice;
 }
 
 /** Má se lišta vykreslit? */
@@ -54,6 +59,8 @@ export function reopenConsent(): void {
 }
 
 export function writeConsent(choice: ConsentChoice): void {
+  // Nejdřív do paměti: platí i tehdy, když zápis do localStorage selže.
+  fallbackChoice = choice;
   try {
     window.localStorage.setItem(CONSENT_KEY, choice);
   } catch {
