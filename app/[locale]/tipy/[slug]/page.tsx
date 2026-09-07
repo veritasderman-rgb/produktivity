@@ -3,7 +3,7 @@ import path from "node:path";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { missingTranslation } from "@/lib/missing-translation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import { getAllTips, getTip } from "@/lib/tips";
@@ -15,7 +15,7 @@ import { chapterForTip, relatedTips } from "@/lib/related";
 import { annotateGlossary } from "@/lib/annotate";
 import { Pojem } from "@/components/Pojem";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd, faqJsonLd, howToJsonLd } from "@/components/JsonLd";
-import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
+import { getDict, isLocale, otherLocale, localePath, type Locale } from "@/lib/i18n";
 import { CopyPre } from "@/components/CopyPre";
 import { KeysDemo } from "@/components/KeysDemo";
 import { TypewriterPre } from "@/components/TypewriterPre";
@@ -181,7 +181,8 @@ export default async function TipDetail({
   const dict = getDict(locale).tipCard;
 
   const tip = getTip(slug, locale);
-  if (!tip) notFound();
+  // Chybí jen překlad? Přepínač jazyka nesmí skončit na 404 — viz lib/missing-translation.ts.
+  if (!tip) missingTranslation(locale, Boolean(getTip(slug, otherLocale(locale))), "/tipy");
 
   const allTips = getAllTips(locale);
   const chapter = chapterForTip(tip, locale);

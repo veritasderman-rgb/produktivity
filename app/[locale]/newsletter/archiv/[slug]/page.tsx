@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { missingTranslation } from "@/lib/missing-translation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import { getAllIssues, getIssue } from "@/lib/newsletter";
 import { CopyPre } from "@/components/CopyPre";
 import { NewsletterCta } from "@/components/NewsletterCta";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
-import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { isLocale, otherLocale, localePath, type Locale } from "@/lib/i18n";
 import { ogImage } from "@/lib/og";
 
 const T = {
@@ -111,14 +111,8 @@ export default async function NewsletterIssuePage({
   const p = (path: string) => localePath(locale, path);
 
   const issue = getIssue(slug, locale);
-  if (!issue) {
-    /* Číslo, které vyšlo jen v druhém jazyce: přepínač jazyka v hlavičce drží
-       cestu, takže by uživatele poslal na 404. Nabídneme mu rozcestník archivu
-       v jazyce, na který přepnul. Neexistující slug 404 zůstává. */
-    const other = locale === "en" ? "cs" : "en";
-    if (getIssue(slug, other)) redirect(localePath(locale, "/newsletter/archiv"));
-    notFound();
-  }
+  // Chybí jen překlad? Přepínač jazyka nesmí skončit na 404 — viz lib/missing-translation.ts.
+  if (!issue) missingTranslation(locale, Boolean(getIssue(slug, otherLocale(locale))), "/newsletter/archiv");
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-14">

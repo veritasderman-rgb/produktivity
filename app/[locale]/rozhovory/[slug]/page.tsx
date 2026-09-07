@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { missingTranslation } from "@/lib/missing-translation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllInterviews, getInterview, interviewTitle, type Interview } from "@/lib/interviews";
 import { NewsletterCta } from "@/components/NewsletterCta";
@@ -9,7 +9,7 @@ import { Pojem } from "@/components/Pojem";
 import { CopyPre } from "@/components/CopyPre";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import { annotateGlossary } from "@/lib/annotate";
-import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { isLocale, otherLocale, localePath, type Locale } from "@/lib/i18n";
 import { extractHeadings, flatText, slugify } from "@/lib/toc";
 
 const T = {
@@ -138,7 +138,8 @@ export default async function InterviewDetail({
   const p = (path: string) => localePath(locale, path);
 
   const interview = getInterview(slug, locale);
-  if (!interview) notFound();
+  // Chybí jen překlad? Přepínač jazyka nesmí skončit na 404 — viz lib/missing-translation.ts.
+  if (!interview) missingTranslation(locale, Boolean(getInterview(slug, otherLocale(locale))), "/rozhovory");
 
   const title = interviewTitle(interview, locale);
   const headings = extractHeadings(interview.body);

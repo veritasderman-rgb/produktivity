@@ -401,3 +401,8 @@ export function getDict(locale: Locale) {
 export function isLocale(x: string): x is Locale {
   return x === "cs" || x === "en";
 }
+
+/** Ten druhý jazyk — web má právě dva, takže je to prosté prohození. */
+export function otherLocale(locale: Locale): Locale {
+  return locale === "en" ? "cs" : "en";
+}

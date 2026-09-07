@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { missingTranslation } from "@/lib/missing-translation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import { getAllPracticePosts, getPracticePost, type PracticePost } from "@/lib/practice";
@@ -9,7 +9,7 @@ import { Pojem } from "@/components/Pojem";
 import { CopyPre } from "@/components/CopyPre";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import { annotateGlossary } from "@/lib/annotate";
-import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { isLocale, otherLocale, localePath, type Locale } from "@/lib/i18n";
 import { extractHeadings, flatText, slugify } from "@/lib/toc";
 import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
 import { OknaDemo } from "@/components/OknaDemo";
@@ -163,7 +163,8 @@ export default async function PracticeDetail({
   const p = (path: string) => localePath(locale, path);
 
   const post = getPracticePost(slug, locale);
-  if (!post) notFound();
+  // Chybí jen překlad? Přepínač jazyka nesmí skončit na 404 — viz lib/missing-translation.ts.
+  if (!post) missingTranslation(locale, Boolean(getPracticePost(slug, otherLocale(locale))), "/z-praxe");
 
   const headings = extractHeadings(post.body);
 

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { missingTranslation } from "@/lib/missing-translation";
 import { CopyPre } from "@/components/CopyPre";
 import { PromptStar } from "@/components/PromptStar";
 import { getArticlePrompts, getPromptArticles } from "@/lib/prompts";
-import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
+import { getDict, isLocale, otherLocale, localePath, type Locale } from "@/lib/i18n";
 import { ogImage } from "@/lib/og";
 
 const T = {
@@ -79,7 +79,8 @@ export default async function PromptArticlePage({
   const p = (path: string) => localePath(locale, path);
 
   const article = getArticlePrompts(slug, locale);
-  if (!article) notFound();
+  // Chybí jen překlad? Přepínač jazyka nesmí skončit na 404 — viz lib/missing-translation.ts.
+  if (!article) missingTranslation(locale, Boolean(getArticlePrompts(slug, otherLocale(locale))), "/prompty");
 
   const category = dict.tipCard.categories[article.category] ?? article.category;
 

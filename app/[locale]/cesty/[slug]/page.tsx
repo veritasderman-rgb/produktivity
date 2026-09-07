@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { missingTranslation } from "@/lib/missing-translation";
 import { PathProgress, type ProgressStep } from "@/components/PathProgress";
 import { NewsletterCta } from "@/components/NewsletterCta";
 import { formatDuration, getPath, getPaths } from "@/lib/paths";
-import { isLocale, locales, localePath, type Locale } from "@/lib/i18n";
+import { isLocale, otherLocale, locales, localePath, type Locale } from "@/lib/i18n";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
 const T = {
@@ -97,7 +97,8 @@ export default async function PathDetailPage({
   const p = (path: string) => localePath(locale, path);
 
   const path = getPath(slug, locale);
-  if (!path) notFound();
+  // Chybí jen překlad? Přepínač jazyka nesmí skončit na 404 — viz lib/missing-translation.ts.
+  if (!path) missingTranslation(locale, Boolean(getPath(slug, otherLocale(locale))), "/cesty");
 
   const steps: ProgressStep[] = path.steps.map((step) => ({
     id: step.id,

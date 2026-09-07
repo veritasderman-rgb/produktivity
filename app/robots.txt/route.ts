@@ -14,6 +14,21 @@ const EN_DOMAIN = process.env.EN_DOMAIN ?? "productive.tips";
 /** Boti, kterým allow říkáme explicitně (nad rámec obecného `*`). */
 const AI_BOTS = ["GPTBot", "ClaudeBot", "Claude-Web", "PerplexityBot", "Google-Extended", "CCBot"];
 
+/**
+ * Cesty, které nechceme dát AI crawlerům. U ostatního obsahu je vítáme,
+ * e-book je ale odměna za přihlášení k newsletteru — ne materiál k učení.
+ *
+ * Pro vyhledávače tady schválně nic není: `Disallow` zakazuje stahování,
+ * ne indexaci, takže adresa se ve výsledcích objevit může, když na ni
+ * někdo odkáže — a zakázanou adresu robot nestáhne, takže by neviděl ani
+ * `noindex`. Vyhledávače proto e-book stahovat smí a z indexu ho drží
+ * hlavička `X-Robots-Tag: noindex` z next.config.ts.
+ *
+ * Ani jedno neřeší přístup: kdo adresu zná, PDF si stáhne dál. To je
+ * v pořádku — přeposlat e-book známému je funkce, ne chyba.
+ */
+const AI_BOTS_DISALLOW = ["/ebook/"];
+
 export function GET(req: NextRequest) {
   const host = (req.headers.get("host") ?? "").toLowerCase();
   const isEn = host === EN_DOMAIN || host === `www.${EN_DOMAIN}`;
@@ -28,7 +43,12 @@ export function GET(req: NextRequest) {
     "Allow: /api/og",
     "Disallow: /api/",
     "",
-    ...AI_BOTS.flatMap((bot) => [`User-Agent: ${bot}`, "Allow: /", ""]),
+    ...AI_BOTS.flatMap((bot) => [
+      `User-Agent: ${bot}`,
+      "Allow: /",
+      ...AI_BOTS_DISALLOW.map((path) => `Disallow: ${path}`),
+      "",
+    ]),
     `Sitemap: ${base}/sitemap.xml`,
     "",
   ];

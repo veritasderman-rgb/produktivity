@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { missingTranslation } from "@/lib/missing-translation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import { getAllChapters, getChapter, getSectionLabels } from "@/lib/chapters";
@@ -15,7 +15,7 @@ import { Disclaimer } from "@/components/Disclaimer";
 import { TipCard } from "@/components/TipCard";
 import { getAllTips } from "@/lib/tips";
 import { tipsForChapter } from "@/lib/related";
-import { isLocale, localePath, type Locale } from "@/lib/i18n";
+import { isLocale, otherLocale, localePath, type Locale } from "@/lib/i18n";
 import { annotateGlossary } from "@/lib/annotate";
 import { Pojem } from "@/components/Pojem";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
@@ -141,7 +141,8 @@ export default async function ChapterPage({
   const p = (path: string) => localePath(locale, path);
 
   const ch = getChapter(slug, locale);
-  if (!ch) notFound();
+  // Chybí jen překlad? Přepínač jazyka nesmí skončit na 404 — viz lib/missing-translation.ts.
+  if (!ch) missingTranslation(locale, Boolean(getChapter(slug, otherLocale(locale))), "/prirucka");
 
   const chapters = getAllChapters(locale);
   const sectionLabels = getSectionLabels(locale);
