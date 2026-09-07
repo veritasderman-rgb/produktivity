@@ -3,11 +3,11 @@
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
-  readConsent,
-  readConsentOnServer,
+  isConsentOpen,
+  isConsentOpenOnServer,
+  reopenConsent,
   subscribeConsent,
   writeConsent,
-  type ConsentChoice,
 } from "@/lib/consent";
 
 export type CookiesDict = {
@@ -19,15 +19,11 @@ export type CookiesDict = {
 
 export function CookieConsent({ dict, privacyHref }: { dict: CookiesDict; privacyHref: string }) {
   // localStorage je externí úložiště mimo React — čteme ho přes
-  // useSyncExternalStore, ať se lišta po volbě sama překreslí. Serverový
-  // snapshot vrací hotovou volbu, takže se při hydrataci nic nemihne.
-  const choice = useSyncExternalStore<ConsentChoice | null>(
-    subscribeConsent,
-    readConsent,
-    readConsentOnServer,
-  );
+  // useSyncExternalStore, ať se lišta překreslí po volbě i po znovuotevření
+  // z patičky. Serverový snapshot lištu skrývá, aby se při hydrataci nemihla.
+  const open = useSyncExternalStore(subscribeConsent, isConsentOpen, isConsentOpenOnServer);
 
-  if (choice !== null) return null;
+  if (!open) return null;
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-hairline-strong bg-paper px-[var(--page-pad)] py-4">
@@ -57,5 +53,14 @@ export function CookieConsent({ dict, privacyHref }: { dict: CookiesDict; privac
         </div>
       </div>
     </div>
+  );
+}
+
+/** Odkaz do patičky, kterým jde souhlas kdykoli znovu otevřít a odvolat. */
+export function CookieSettingsLink({ label }: { label: string }) {
+  return (
+    <button type="button" onClick={reopenConsent} className="draw-link text-left">
+      {label}
+    </button>
   );
 }

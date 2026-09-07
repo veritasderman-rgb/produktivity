@@ -206,6 +206,7 @@ const cs = {
     more: "Více v ochraně osobních údajů",
     accept: "Souhlasím",
     reject: "Odmítnout",
+    settings: "Nastavení cookies",
   },
   langSwitch: { label: "EN", title: "Switch to English", target: "en" as Locale },
 };
@@ -400,6 +401,7 @@ const en: typeof cs = {
     more: "More in the privacy policy",
     accept: "Accept",
     reject: "Decline",
+    settings: "Cookie settings",
   },
   langSwitch: { label: "CS", title: "Přepnout do češtiny", target: "cs" as Locale },
 };
