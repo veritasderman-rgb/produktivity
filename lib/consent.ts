@@ -18,27 +18,50 @@ function notify(): void {
   for (const l of listeners) l();
 }
 
+let storageListener: ((e: StorageEvent) => void) | null = null;
+
+/** Volba padlá v jiné záložce. Bez tohohle by odvolaný souhlas platil
+ *  v ostatních otevřených záložkách až po jejich přenačtení. */
+function handleStorage(e: StorageEvent): void {
+  // key === null je localStorage.clear()
+  if (e.key !== null && e.key !== CONSENT_KEY) return;
+  // Cizí zápis je čerstvější než naše nouzová volba v paměti.
+  fallbackChoice = null;
+  const choice = readStored();
+  if (choice) updateGtagConsent(choice);
+  notify();
+}
+
 export function subscribeConsent(onChange: () => void): () => void {
   listeners = [...listeners, onChange];
+  if (!storageListener) {
+    storageListener = handleStorage;
+    window.addEventListener("storage", storageListener);
+  }
   return () => {
     listeners = listeners.filter((l) => l !== onChange);
+    if (listeners.length === 0 && storageListener) {
+      window.removeEventListener("storage", storageListener);
+      storageListener = null;
+    }
   };
 }
 
-/** Volba pro případ, že localStorage zápis odmítne (privátní režim,
- *  sandbox). Bez ní by se lišta po kliknutí nezavřela — přečetla by si
- *  prázdné úložiště a otevřela se znovu. */
+/** Volba se tu drží JEN když ji localStorage odmítl uložit (privátní režim,
+ *  plné úložiště, jen pro čtení). Pak je v úložišti pořád ta stará a neplatná,
+ *  takže tahle má přednost. Po úspěšném zápisu je null a pravdu drží úložiště. */
 let fallbackChoice: ConsentChoice | null = null;
 
 /** Uložená volba, nebo null když se návštěvník ještě nerozhodl. */
 function readStored(): ConsentChoice | null {
+  if (fallbackChoice) return fallbackChoice;
   try {
     const stored = window.localStorage.getItem(CONSENT_KEY);
     if (stored === "granted" || stored === "denied") return stored;
   } catch {
-    // Privátní režim — spolehneme se na volbu drženou v paměti.
+    // Privátní režim — volba se drží jen v paměti.
   }
-  return fallbackChoice;
+  return null;
 }
 
 /** Má se lišta vykreslit? */
@@ -59,12 +82,12 @@ export function reopenConsent(): void {
 }
 
 export function writeConsent(choice: ConsentChoice): void {
-  // Nejdřív do paměti: platí i tehdy, když zápis do localStorage selže.
-  fallbackChoice = choice;
   try {
     window.localStorage.setItem(CONSENT_KEY, choice);
+    fallbackChoice = null; // uloženo, pravdu drží úložiště
   } catch {
-    /* privátní režim — volba platí jen pro tuto návštěvu */
+    // Úložiště volbu odmítlo — držíme ji v paměti pro tuhle návštěvu.
+    fallbackChoice = choice;
   }
   reopened = false;
   updateGtagConsent(choice);
