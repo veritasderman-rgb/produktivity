@@ -1,0 +1,174 @@
+---
+title: "Sestava 3: dynamický web s Claudem od nuly po vlastní doménu"
+excerpt: "Účet, napojený GitHub, první zadání — a za pár týdnů web, který si každé ráno sám najde téma, napíše článek a čeká, až mu to schválíte. Přesně takhle vznikl web, který právě čtete."
+track: "sestavy"
+order: 3
+tags: ["sestava", "agenti", "orchestrace", "rizeni"]
+level: "zacatecnik"
+date: "2026-09-12"
+updated: "2026-09-12"
+tldr: >-
+  Postup má šest kroků a každý dává smysl sám o sobě: účet a napojený GitHub, zadání webu jako verzovaný soubor v repozitáři, první běh, kdy Claude web postaví, nasazení na Vercel s dočasnou adresou, denní rutina, která hledá témata a otevírá pull requesty, a nakonec vlastní doména. Klíčová rozhodnutí jsou dvě: zadání i pravidla rutiny patří do gitu jako soubory, ne do chatu, a rutina nikdy nepublikuje sama — otevře PR a čeká na merge.
+sources:
+  - name: "Claude Code na webu — dokumentace"
+    url: "https://code.claude.com/docs/en/claude-code-on-the-web"
+  - name: "Claude Code GitHub Action"
+    url: "https://github.com/anthropics/claude-code-action"
+  - name: "Vercel — nasazení z Gitu"
+    url: "https://vercel.com/docs/deployments/git"
+  - name: "Vercel — vlastní domény"
+    url: "https://vercel.com/docs/domains"
+---
+
+Tenhle web vznikl přesně postupem, který je níž. Není to teoretický návod — je to popis toho, co se tady doopravdy stalo, včetně souborů, které si můžete otevřít.
+
+Cíl není „web“ jako vizitka. Cíl je web, který **každé ráno sám najde téma, napíše návrh článku a čeká, až mu to schválíte.** Rozdíl mezi tím a klasickým blogem je v tom, že u klasického blogu jste úzké hrdlo vy.
+
+## Krok 1: účet a napojený GitHub
+
+Potřebujete dvě věci a obě jsou na deset minut.
+
+**Účet u Claude** s přístupem ke Claude Code na webu. Je to prostředí, kde Claude nepracuje jen v chatu, ale dostane opravdový počítač: naklonuje si repozitář, spouští příkazy, píše soubory a otevírá pull requesty.
+
+**Účet na GitHubu** a prázdný repozitář. Jméno je jedno, klidně `muj-web`. Nemusíte umět git — od téhle chvíle s ním pracuje Claude a vy jen schvalujete.
+
+Napojení se dělá v nastavení Claude Code: povolíte přístup ke konkrétnímu repozitáři. Ne k celému účtu — jen k tomu jednomu. Je to stejné pravidlo o nejužších možných oprávněních, které se v tomhle seriálu opakuje od začátku.
+
+## Krok 2: zadání jako soubor, ne jako zpráva v chatu
+
+Tady se rozhoduje, jestli projekt za měsíc pojede, nebo se rozsype. A skoro každý to poprvé udělá špatně.
+
+Napsat do chatu „postav mi web o pěstování rajčat“ funguje. Jeden den. Pak zapomenete, na čem jste se dohodli, Claude taky, a za tři týdny má web tři různé struktury URL a dvě navigace.
+
+**Zadání patří do repozitáře jako soubor.** Na tomhle webu se jmenuje `ZADANI.md` a obsahuje:
+
+<Flow title="Co má být v zadání" steps={[
+  { title: "Vize a cíl", desc: "O čem web je, komu slouží a čím se má lišit. Dvě věty, ne stránka." },
+  { title: "Cílové skupiny", desc: "Pro koho píšete. Bez tohohle vzniká obsah pro nikoho." },
+  { title: "Struktura webu", desc: "Seznam adres a co na které je. Tohle je ta část, která se nejvíc vyplatí." },
+  { title: "Typy obsahu", desc: "Co je článek, co novinka, co jak dlouhé a jak často." },
+  { title: "Technické řešení", desc: "Framework, hosting, kde žije obsah. Claude poradí, vy rozhodnete." },
+  { title: "Odsouhlasená rozhodnutí", desc: "Tabulka „otázka → rozhodnutí“ s datem. Nejcennější část celého souboru." }
+]} />
+
+Ta poslední položka je klenot. Kdykoli něco rozhodnete — „ceny na webu zatím neuvádíme“, „obsah bude v MDX, ne v CMS“ —, přidá se řádek. Za měsíc už nikdo neřeší podruhé, co bylo rozhodnuté, a hlavně **to čte i Claude**, protože soubor je v repozitáři, který má před sebou.
+
+Praktický postup: nediktujte zadání. Nechte si ho napsat rozhovorem. „Chci web o X, polož mi patnáct otázek, na které potřebuješ odpověď, než napíšeš zadání.“ Odpovíte a máte hotovo — a odpovědi jsou přesně ta rozhodnutí, která patří do tabulky.
+
+## Krok 3: první běh — Claude staví web
+
+Teď zadáte první skutečnou úlohu. Ne „postav web“, ale něco, co má hranici:
+
+```
+Přečti ZADANI.md. Založ projekt podle technického řešení,
+udělej homepage a jednu vzorovou stránku obsahu.
+Nic dalšího. Otevři pull request.
+```
+
+Proč tak úzce? Protože **první běh chcete hlavně zkontrolovat, ne dostat hotovo.** Uvidíte, jak Claude pracuje, jestli rozumí zadání a jestli vám sedí, co vzniklo. Když ne, opravíte zadání — ne kód.
+
+Co dostanete: pull request s popisem, co se udělalo a proč. Prohlédnete si diff, zeptáte se na to, co nechápete, a když jste spokojení, mergnete.
+
+Od téhle chvíle jezdí každá změna přes pull request. Nikdy ne přímo do hlavní větve. Je to ta samá hranice jako [fronta se schvalováním](/agenti/fronta-uloh-a-schvalovani) z linky o ovládání — jen ji za vás drží GitHub, takže nemusíte stavět nic vlastního.
+
+**Na co si dát pozor u prvních běhů:**
+
+- **Neschvalujte, co jste nepřečetli.** Po pěti PR má člověk chuť mergovat naslepo. Přesně tam začínají problémy.
+- **Ptejte se na „proč“.** Když nerozumíte nějakému rozhodnutí v kódu, zeptejte se v komentáři PR. Odpověď vám řekne, jestli je to promyšlené, nebo náhoda.
+- **Když něco nefunguje, opravte zadání.** Instrukce v chatu vydrží jednu konverzaci; soubor v repozitáři vydrží projekt.
+
+## Krok 4: nasazení na Vercel a dočasná adresa
+
+Web, který běží jen u vás, není web. A tenhle krok je překvapivě nejrychlejší z celého postupu.
+
+1. **Účet na Vercelu**, přihlášení přes GitHub.
+2. **Import repozitáře** — Vercel si framework pozná sám.
+3. **Deploy.**
+
+Dostanete adresu ve tvaru `nazev-projektu.vercel.app`. Funguje, má HTTPS a dá se poslat známým. **Vlastní domény se zatím nedotýkejte** — dokud se struktura webu mění každý týden, je zbytečná.
+
+Dvě věci, které Vercel přidá a kvůli kterým celý postup drží pohromadě:
+
+- **Náhled u každého pull requestu.** Každý PR dostane vlastní živou adresu. Neschvalujete diff, ale hotovou stránku, na kterou se můžete podívat. U obsahu je to zásadní rozdíl.
+- **Nasazení po merge.** Mergnete a za minutu je to venku. Žádné FTP, žádné „teď to nahraju“.
+
+Jestli projekt potřebuje tajemství — API klíč, přihlašovací údaje k newsletteru —, patří do nastavení Vercelu jako proměnné prostředí, **nikdy do repozitáře.** Viz díl o [API klíčích](/agenti/kam-patri-api-klice).
+
+## Krok 5: denní rutina, která hledá témata
+
+Tady se z webu stane „dynamický“. A skládá se ze tří souborů.
+
+**1. Pravidla rutiny jako soubor.** Na tomhle webu je to `docs/RUTINA.md` a je v něm všechno: co hledat, jak přísně filtrovat, jak dlouhý má být článek, jaká je struktura, kolik položek denně maximálně a co dělat, když nic nenajde. První řádek toho souboru říká, že **je to jediný zdroj pravdy pro chování rutiny** — změny se dělají tam, ne v plánovači.
+
+Nejdůležitější věta v celém souboru: *„Když nic neprojde, PR neotvírej. Kvalita má přednost před frekvencí.“* Bez ní vám rutina bude denně vyrábět výplň, protože ji o to žádáte.
+
+**2. Plánovač.** Spouští se přes GitHub Actions, protože běží v GitHubu, kde už obsah je. Jádro je krátké:
+
+```yaml
+on:
+  schedule:
+    - cron: "23 5 * * *"   # denně ráno
+  workflow_dispatch: {}    # a ručně, když chcete
+
+jobs:
+  rutina:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Přečti docs/RUTINA.md a proveď přesně podle něj jeden denní běh.
+            Otevři pull request ke schválení. Nikdy netlač do hlavní větve.
+```
+
+Všimněte si, jak je ten pokyn krátký. **Všechna inteligence je v `docs/RUTINA.md`**, ne v plánovači — proto se chování mění úpravou jednoho souboru, který navíc prochází code review jako cokoli jiného.
+
+Ta podivná minuta v cronu není chyba. Kdyby všichni plánovali na celou hodinu, sejde se to; `23` je rozumný zvyk.
+
+**3. Klíč v secrets.** V nastavení repozitáře, nikdy v souboru. GitHub ho do logu nevypíše.
+
+**Co se pak děje každé ráno:** rutina se probudí, projde, co už na webu je (aby nenapsala totéž podruhé), prohledá internet, vyfiltruje, co projde — a když něco projde, napíše to ve formátu webu, ověří, že build prochází, a otevře pull request. Vy dostanete notifikaci, přečtete si náhled na Vercelu a mergnete nebo zamítnete.
+
+Nemáte úzké hrdlo v psaní. Máte ho ve schvalování, a to je ta správná strana.
+
+## Krok 6: vlastní doména
+
+Až když web měsíc stojí a struktura se přestala měnit.
+
+1. **Kupte domenu** u registrátora. České `.cz` u českého, jinak kdekoli.
+2. **Přidejte ji ve Vercelu** v nastavení projektu.
+3. **Nasměrujte DNS** podle toho, co Vercel ukáže — obvykle jde o dva záznamy.
+4. **Rozhodněte o `www`.** Jedna varianta je hlavní, druhá na ni přesměrovává. Vyberte a držte se toho; kdo má obojí naplno, dělí si SEO sám se sebou.
+5. **Certifikát** vyřídí Vercel sám.
+
+Dočasnou adresu nechte žít. Hodí se, když si potřebujete ověřit, že problém je v doméně a ne ve webu.
+
+## Co to celé stojí
+
+Poctivě a bez částek, protože ty se mění:
+
+- **GitHub** — na veřejný i soukromý repozitář jednoho člověka stačí bezplatná úroveň.
+- **Vercel** — bezplatná úroveň na osobní projekt stačí; platit začnete, až když má web provoz, který za to stojí.
+- **Doména** — jednou ročně, u `.cz` řádově stokoruny.
+- **Claude** — předplatné na vaši práci v chatu a **API klíč pro rutinu**. Tohle je jediná položka, která roste s používáním: rutina spotřebuje na jeden denní běh znatelně víc než jeden dotaz v chatu, protože hledá, čte a píše.
+
+Pár způsobů, jak držet poslední položku dole, je v dílu o [nákladech](/agenti/naklady-lokalni-vs-cloud) a v [sestavě 1](/agenti/sestava-herni-pc-tri-predplatna). Nejúčinnější je ten nejnudnější: **nastavte si u poskytovatele měsíční strop útraty**, než rutinu poprvé pustíte.
+
+## Na co si dát pozor
+
+- **Rutina nesmí publikovat sama.** Merge je vaše rozhodnutí. Je to jediná pojistka mezi „web se plní sám“ a „web si sám vymýšlí“.
+- **Vyžadujte zdroje.** Do pravidel napište, že každé faktické tvrzení má odkaz. Bez toho dostanete plynulý text, který občas lže.
+- **Nepouštějte rutinu na klientská data.** Hledá na internetu a píše do repozitáře. Nic jiného nepotřebuje vidět — a nic jiného jí nedávejte.
+- **Čtěte diff, ne jen titulek PR.** Hlavně první měsíc.
+- **Počítejte s tím, že rutinu budete ladit.** První dva týdny bude buď moc opatrná, nebo moc povolná. To se opravuje v jednom souboru, což je celý smysl toho, že je v gitu.
+- **Nedělejte to kvůli objemu.** Pointa není mít víc článků. Pointa je nemuset psát ty, které napsat umí stroj — abyste měli čas na ty, které neumí.
+
+## Pro tip
+
+Než rutinu pustíte na denní plán, spusťte ji **třikrát ručně** (v GitHub Actions je na to tlačítko, kvůli tomu je v plánovači `workflow_dispatch`). Uvidíte, co vyrobí, a doladíte pravidla, dokud se to děje pod dohledem. Rutina, kterou poprvé uvidíte v běhu v sedm ráno, je rutina, kterou budete dohánět.
+
+---
+
+Tím linka Vzorové sestavy končí. Tři sestavy, jeden princip: **napřed napište, co má platit a kdo to smí spustit — pak to pusťte.** V prvních dvou sestavách jsou ta pravidla ve vaší hlavě a ve složce `ke-schvaleni/`. Tady jsou v souboru v gitu a hlídá je pull request. Je to tatáž věc, jen se lépe škáluje.
