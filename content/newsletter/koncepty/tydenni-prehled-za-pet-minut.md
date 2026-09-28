@@ -47,7 +47,7 @@ Celý návod má šest fází od napojení zdrojů po archiv a všechna zadání
 
 ## Prompt k okopírování
 
-Nemáte AI napojenou na kalendář a úkolovník? Revizi zvládnete i ručně. Vložte do chatu export nebo opis kalendáře a úkolů za tento týden — bez jmen klientů a citlivých údajů — a použijte tohle zadání:
+Nemáte AI napojenou na kalendář a úkolovník? Revizi zvládnete i ručně: vložte do chatu kalendář a úkoly za tento týden a použijte zadání níže. Pracovní data ale patří jen do AI nástroje, který má vaše firma schválený. Do osobního nebo bezplatného účtu vkládejte jen opis bez jmen kolegů a klientů a bez interních údajů — místo „porada s Novákem o rozpočtu projektu X“ stačí „porada o rozpočtu“.
 
 ```text
 Níže je můj kalendář a seznam úkolů za posledních 7 dní.
