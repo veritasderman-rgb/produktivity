@@ -501,6 +501,9 @@ Postav nad ní vzdálený MCP server, který poběží na Vercelu:
 - Server musí být zamčený od prvního nasazení: obal ho přes
   withMcpAuth s required: true, takže dokud přihlášení není nastavené,
   odmítne každý požadavek (401). Přihlášení doplníme v dalším kroku.
+  Pro lokální testování přijmi navíc testovací token z proměnné
+  MCP_TEST_TOKEN v .env.local, ale jen při běhu na mém počítači
+  (mimo Vercel); na Vercelu ho server nesmí přijmout nikdy.
 - Každé volání nástroje zaloguj do Postgres databáze z proměnné
   DATABASE_URL (Neon, driver @neondatabase/serverless): čas, nástroj,
   počet výsledků, cesty vrácených dokumentů, doba zpracování v ms,
@@ -584,7 +587,7 @@ Všimněte si dvou věcí. Popis nástroje (`description`) je psaný pro model, 
 
 ### Test na vlastním počítači
 
-Před nasazením se vyplatí server vyzkoušet. Řekněte Claude Code: „Spusť server lokálně a ukaž mi, jak ho otestovat v MCP Inspectoru.“ MCP Inspector je oficiální testovací nástroj: otevře se v prohlížeči, připojí se k serveru, vypíše nástroje a umožní je ručně zavolat. Zkuste `hledej` s pěti otázkami, u kterých znáte odpověď, a podívejte se, jestli vrací správné soubory.
+Před nasazením se vyplatí server vyzkoušet. Řekněte Claude Code: „Spusť server lokálně a ukaž mi, jak ho otestovat v MCP Inspectoru.“ MCP Inspector je oficiální testovací nástroj: otevře se v prohlížeči, připojí se k serveru, vypíše nástroje a umožní je ručně zavolat. Protože je server zamčený, Inspector se k němu připojí jen s testovacím tokenem: Claude Code vám ho vygeneruje do souboru `.env.local` (ten se do repozitáře nenahrává) a ukáže, kam ho v Inspectoru vložit jako bearer token. Na Vercelu tenhle token nefunguje — tam platí jen skutečné přihlášení z fáze 5. Zkuste `hledej` s pěti otázkami, u kterých znáte odpověď, a podívejte se, jestli vrací správné soubory.
 
 ### Testovací sada: dvacet otázek, které znáte
 
