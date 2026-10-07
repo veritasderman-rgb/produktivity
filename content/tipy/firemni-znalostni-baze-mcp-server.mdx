@@ -126,7 +126,7 @@ Za tři týdny mají první verzi báze. Za dva měsíce Tereza na poradě ukazu
 | **Vercel** | Běh serveru | Bezplatný tarif Hobby je podle podmínek Vercelu jen pro nekomerční osobní použití. Firemní server patří na tarif Pro. |
 | **Neon** | Statistika využití | Nejsnáz přes Vercel Marketplace přímo z projektu na Vercelu; na statistiku stačí bezplatný tarif. |
 
-Vytvořte účty na firemní e-mail, ideálně sdílenou adresu typu `ai@firma.cz`, ne na osobní e-mail Ondřeje. Až Ondřej jednou odejde, účty musí zůstat firmě. Zapněte všude dvoufázové ověření.
+Účty musí patřit firmě, ne Ondřejovi — až jednou odejde, musí zůstat ve firmě. Nedělá se to ale sdíleným přihlášením pro všechny: každý člověk má **vlastní osobní účet** a firma vlastní **organizaci nebo tým**, do kterého lidi zve (na GitHubu organizace, na Vercelu tým, v Claude organizace). Vlastníky organizace dejte aspoň dva, aby odchod jednoho nic nezablokoval. GitHub výslovně požaduje, aby jeden účet používal jen jeden člověk — a jen tak u každé změny v bázi uvidíte, kdo ji udělal. Zapněte všude dvoufázové ověření.
 
 ### Role: kdo co dělá
 
@@ -368,8 +368,8 @@ Druhý důvod je praktický: z repozitáře na GitHubu si server na Vercelu bere
 
 ### Organizace a repozitář
 
-1. Na github.com si založte účet na firemní e-mail a zapněte dvoufázové ověření.
-2. Vpravo nahoře přes tlačítko **+** zvolte **New organization** a založte organizaci firmy (bezplatný tarif stačí). Repozitáře pak patří firmě, ne Ondřejovi.
+1. Na github.com si založte osobní účet (klidně na pracovní e-mail) a zapněte dvoufázové ověření. Každý, kdo bude v bázi něco měnit, si založí vlastní — sdílený účet pro víc lidí GitHub nepovoluje.
+2. Vpravo nahoře přes tlačítko **+** zvolte **New organization** a založte organizaci firmy (bezplatný tarif stačí). Repozitáře pak patří firmě, ne Ondřejovi. V organizaci hned jmenujte druhého vlastníka (třeba Terezu).
 3. V organizaci zvolte **New repository**. Název třeba `znalosti`. **Visibility: Private** — tohle je jediné nastavení, které nesmíte splést.
 4. Zaškrtněte vytvoření souboru README a potvrďte.
 
@@ -449,6 +449,8 @@ Jsi napojený na znalostní bázi firmy [název]. Pravidla:
 4. Když si dva dokumenty odporují, uveď oba a dej přednost tomu
    s novějším datem platnosti.
 5. Před tvorbou jakéhokoli textu nebo materiálu ven zavolej brand.
+6. Do nástrojů posílej jen věcný dotaz (např. "lhůta reklamace"),
+   nikdy jména, kontakty ani celé zprávy zákazníků.
 ```
 
 Tyhle čtyři řádky jsou důvod, proč budou mít všichni zaměstnanci srovnatelnou kvalitu odpovědí. Pravidla nepíše každý do svého promptu — dostane je každý chat od serveru.
@@ -496,11 +498,19 @@ Postav nad ní vzdálený MCP server, který poběží na Vercelu:
   instrukcí výše].
 - Popisy nástrojů piš česky a tak, aby z nich model poznal, kdy který
   použít.
+- Server musí být zamčený od prvního nasazení: obal ho přes
+  withMcpAuth s required: true, takže dokud přihlášení není nastavené,
+  odmítne každý požadavek (401). Přihlášení doplníme v dalším kroku.
 - Každé volání nástroje zaloguj do Postgres databáze z proměnné
   DATABASE_URL (Neon, driver @neondatabase/serverless): čas, nástroj,
-  dotaz/parametry, počet výsledků, cesty vrácených dokumentů, doba
-  zpracování v ms, anonymizovaný identifikátor uživatele (hash),
-  pokud je k dispozici. Logování nesmí nikdy shodit odpověď nástroje —
+  počet výsledků, cesty vrácených dokumentů, doba zpracování v ms,
+  hash identifikátoru uživatele, pokud je k dispozici. Text dotazu
+  (u hledej a nahlas_mezeru) před uložením minimalizuj: odstraň
+  e-maily, telefonní čísla, rodná čísla a další dlouhé číselné řetězce
+  a zkrať ho na 200 znaků. Ostatní parametry neukládej, jen cestu
+  u nástroje dokument. Přidej naplánovanou úlohu (Vercel Cron), která
+  jednou denně smaže záznamy starší než 180 dní.
+  Logování nesmí nikdy shodit odpověď nástroje —
   když databáze není dostupná, nástroj odpoví a chybu jen vypíše.
   Databázové připojení inicializuj až při prvním použití, ne při
   buildu.
@@ -588,6 +598,8 @@ Tohle je nejdůležitější součást celé fáze a nikdo ji nedělá. Sepište
 Sadu uložte do `tests/otazky.md` a nechte Claude Code testy spouštět při každé změně. Když po úpravě vyhledávání nebo po přidání dokumentů klesne počet správných odpovědí, víte to dřív než zaměstnanci.
 
 ## Fáze 5: nasazení na Vercel
+
+Jedno pravidlo předem: **server jde ven už zamčený.** Zadání z fáze 4 proto chce, aby server od prvního nasazení odmítal každý požadavek bez platného přihlášení. Po prvním kliknutí na Deploy tak na adrese běží server, který zatím nikomu nic neřekne — a odemkne se teprve, až nastavíte přihlášení níže. Nikdy to nedělejte obráceně („nasadíme, přihlášení doděláme zítra“): interní ceník a směrnice by mezitím byly dostupné komukoli, kdo adresu najde.
 
 ### První nasazení
 
@@ -682,7 +694,7 @@ create table pouziti (
   id           bigserial primary key,
   cas          timestamptz not null default now(),
   nastroj      text not null,          -- hledej, dokument, brand…
-  dotaz        text,                   -- co se hledalo
+  dotaz        text,                   -- zkrácený dotaz bez osobních údajů
   pocet        int,                    -- počet výsledků
   dokumenty    text[],                 -- vrácené soubory
   ms           int,                    -- doba zpracování
@@ -767,7 +779,8 @@ Zaznamenávání dotazů je zpracování údajů o zaměstnancích, i když neuk
 
 1. **Řekněte to lidem.** Krátká věta v oznámení: co se loguje (dotazy do báze, ne celé konverzace), proč (aby se báze zlepšovala) a kdo to vidí.
 2. **Minimalizujte.** Hash místo identity. Statistiku po lidech nepotřebujete — potřebujete vědět, co chybí, ne kdo se ptal.
-3. **Mažte.** Dotazy starší než 6–12 měsíců smažte nebo agregujte do souhrnů. Nastavte to rovnou při stavbě.
+3. **Mažte.** Dotazy starší než 6–12 měsíců smažte nebo agregujte do souhrnů. Nastavte to rovnou při stavbě — zadání z fáze 4 počítá s denní úlohou, která maže záznamy starší než 180 dní.
+4. **Čistěte text dotazů.** Model do nástroje občas pošle víc, než by měl — třeba kus zprávy zákazníka se jménem. Server proto text dotazu před uložením zkrátí a odstraní z něj e-maily, telefony a dlouhá čísla, a instrukce serveru modelu říkají, ať do nástrojů posílá jen věcný dotaz. Ani tak to není stoprocentní filtr; přístup ke statistice proto mějte jen pro správce.
 
 Server mimochodem vidí jen to, co Claude pošle nástroji — dotaz do báze, ne celou konverzaci zaměstnance. To je dobré lidem říct, protože první obava bývá „šéf čte moje chaty“. Nečte.
 
