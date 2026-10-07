@@ -1,0 +1,1067 @@
+---
+title: "Firemní znalostní báze pro AI: ze šuplíku plného PDF vlastní MCP server pro celou firmu"
+excerpt: "Všichni ve firmě pracují s AI a každý dostává jiné — a často divné — odpovědi. Kompletní návod, jak z rozházených PDF, prezentací, ceníků a videí vytěžit přes Claude Cowork čisté markdownové soubory, uložit je na GitHub, nechat Claude Code postavit MCP server, nasadit ho na Vercel, připojit jako vlastní konektor a v databázi Neon sledovat, jak se používá. Včetně brandu od PDF po video a více než 30 promptů k okopírování."
+category: "ai"
+platform: "vsude"
+audience: ["manazer", "marketer", "vyvojar"]
+keys: []
+saves: "~hodiny týdně na každého, kdo ve firmě pracuje s AI"
+date: "2026-10-07"
+updated: "2026-10-07"
+tldr: >-
+  Když AI ve firmě odpovídá divně, skoro nikdy za to nemůže model. Může za to, že o firmě nic neví — a každý zaměstnanec mu do chatu podstrčí jiný kousek kontextu, jinou verzi ceníku a jinou představu o tónu značky. Dvacet lidí pak dostává dvacet verzí pravdy. Řešením není lepší model, ale jeden zdroj pravdy, na který dosáhne každý chat ve firmě. Návod ho staví v sedmi krocích: všechny firemní materiály do jedné složky, Claude Cowork z nich vytěží strukturované markdownové soubory, ty se uloží do repozitáře na GitHubu, Claude Code nad nimi postaví MCP server s nástroji typu „hledej“, „brand“ nebo „kdo to ví“, server poběží na Vercelu, zaměstnanci se k němu připojí jako k vlastnímu konektoru v Claude a databáze Neon zaznamenává, co se hledá — včetně otázek, na které báze odpověď nemá. Ty jsou nejcennějším výstupem celého systému: říkají, co do báze doplnit. Výsledek: obchodník, nováček i marketér dostanou odpověď ze stejných podkladů, se stejnými pravidly a s odkazem na zdroj.
+faq:
+  - q: >-
+      Proč AI ve firmě odpovídá divně, když je model tak chytrý?
+    a: >-
+      Protože model zná internet, ne vaši firmu. Neví, jaký máte ceník, jak zní vaše značka ani že směrnice z roku 2023 už neplatí. Co neví, doplní pravděpodobným odhadem — a ten zní přesvědčivě. Navíc každý zaměstnanec mu dává jiný kontext: jeden nahraje starý ceník, druhý žádný, třetí popíše firmu po svém. Bez společného zdroje pravdy nemůžou odpovědi být srovnatelné.
+  - q: >-
+      Proč markdown a ne rovnou nahrát PDF do Projektu v Claude?
+    a: >-
+      Projekt s nahranými PDF funguje pro jednoho člověka nebo malý tým a jako začátek je v pořádku. Markdown v gitu má ale tři výhody: je čitelný pro člověka i stroj bez ztrát (žádné rozsypané tabulky ze skenů), má historii změn (víte, kdo kdy co upravil) a dá se z něj postavit server, ke kterému se připojí celá firma — bez toho, aby každý udržoval vlastní kopii podkladů.
+  - q: >-
+      Co je MCP server a proč ne obyčejný chatbot nad dokumenty?
+    a: >-
+      MCP je standard, kterým AI aplikace mluví s nástroji. Vlastní MCP server dá Claudu nástroje jako „prohledej firemní znalosti“, „vrať pravidla značky“ nebo „kdo je odborník na reklamace“. Zaměstnanci přitom pracují ve svém běžném Claude — s jeho schopnostmi psát, počítat a tvořit dokumenty — a firemní znalosti si model dotáhne sám, když je potřebuje. Chatbot nad dokumenty je další aplikace navíc, MCP server je rozšíření nástroje, který už lidé používají.
+  - q: >-
+      Musím umět programovat?
+    a: >-
+      Ne, ale musíte umět číst a rozhodovat. Server napíše Claude Code, vy určujete, jaké nástroje má mít, schvalujete změny a testujete na otázkách, u kterých znáte správnou odpověď. Na zavedení a správu ve firmě nad dvacet lidí se přesto vyplatí mít jednoho technicky zdatnějšího člověka, který systém vlastní.
+  - q: >-
+      Je bezpečné dát firemní dokumenty na GitHub a Vercel?
+    a: >-
+      Soukromý repozitář na GitHubu a nasazení na Vercelu jsou běžná firemní infrastruktura, ale bezpečnost určujete vy: repozitář musí být soukromý, server chráněný přihlášením a do báze patří jen to, co smí vidět každý zaměstnanec, který se k ní připojí. Osobní údaje, mzdy, smlouvy s osobními údaji a hesla do znalostní báze nepatří vůbec.
+  - q: >-
+      Proč měřit využití v databázi Neon?
+    a: >-
+      Bez měření nevíte, jestli báze funguje. Nejcennější číslo nejsou počty dotazů, ale dotazy bez výsledku — ty přesně ukazují, co lidé potřebují a v bázi chybí. Druhé cenné číslo jsou nejčastěji čtené dokumenty: ty musí být nejaktuálnější. Zaznamenávání dotazů je ale zpracování údajů o zaměstnancích, takže lidem řekněte, co se loguje a proč, a jména neukládejte.
+  - q: >-
+      Zvládne Claude tvořit i brandové materiály, včetně videa?
+    a: >-
+      Dokumenty, prezentace, tabulky a texty vytvoří Claude Cowork přímo jako soubory podle pravidel značky z báze. Grafiku zvládne přes konektory grafických nástrojů. Video Claude sám nenatočí ani nesestříhá — připraví ale scénář, scénosled, titulky, texty do grafiky a podklady pro hlas, které pak zpracujete ve střihovém nebo generativním nástroji. Báze zajistí, že všechno vychází ze stejných barev, písem a tónu.
+  - q: >-
+      Kolik to celé stojí?
+    a: >-
+      Kromě licencí Claude, které firma pro práci s AI stejně platí, je provoz levný: GitHub se soukromým repozitářem je zdarma, databáze Neon pro statistiku vystačí v bezplatném tarifu a Vercel pro firemní použití vyžaduje placený tarif Pro (řádově 20 dolarů měsíčně za člena týmu). Hlavní náklad je čas: první verze báze zabere jednomu člověku zhruba dva až čtyři týdny po večerech nebo jeden týden soustředěné práce.
+---
+
+Ve firmě to vypadá takhle: všichni už s AI pracují. Obchodník si nechá napsat nabídku, marketérka posty na sociální sítě, nováček se ptá, jak se zadává dovolená, technik hledá postup u reklamace. A výsledky? Obchodník dostane nabídku s cenou, kterou firma nemá od jara. Posty znějí jako od úplně jiné firmy. Nováček dostane obecnou radu podle zákoníku práce místo interní směrnice. Technik dostane postup, který by fungoval u konkurence.
+
+Nikdo z nich nedělá nic špatně. Model je chytrý, prompt rozumný. Jen **model o vaší firmě nic neví** — a co neví, to si přesvědčivě domyslí.
+
+Tenhle návod ukazuje, jak to napravit pro celou firmu najednou. Ne tím, že každý bude do chatu vkládat správné dokumenty (nebude), ale tím, že firemní znalosti dostanou jedno místo, na které dosáhne každý chat ve firmě. Postavíme ho z věcí, které už máte v šuplíku: PDF, prezentace, ceníky, brand manuál, nahrávky ze školení.
+
+Číst můžete po fázích, každá má vlastní prompty k okopírování — stačí doplnit hranaté závorky. Technická průprava není potřeba; tam, kde se objeví terminál nebo kód, je u toho vysvětlení, co se děje a co uvidíte.
+
+## Slovníček pojmů
+
+Pár slov, která se v návodu opakují. Stačí je přelétnout, vrátit se můžete kdykoli.
+
+| Pojem | Co to je, lidsky |
+|---|---|
+| **Markdown (.md)** | Prostý text s jednoduchým formátováním: nadpis začíná mřížkou, odrážka pomlčkou. Čte ho člověk i stroj bez ztrát. Je to formát, ve kterém AI „myslí“ nejlépe. |
+| **Claude Cowork** | Režim v desktopové aplikaci Claude, ve kterém Claude pracuje se složkou na vašem disku: čte soubory, vytváří nové, třídí je. Jako kolega, kterému dáte přístup k jedné složce. |
+| **Git, GitHub, repozitář** | Git je systém, který si pamatuje každou verzi každého souboru. GitHub je služba, kde takové složky s historií (repozitáře) bydlí online. Repozitář může být soukromý — vidí ho jen pozvaní. |
+| **Claude Code** | Agent od Anthropicu, který píše a upravuje kód. Běží v terminálu, v desktopové aplikaci i v prohlížeči na claude.ai/code. Umí se připojit k repozitáři na GitHubu. |
+| **MCP server** | Program, který AI aplikaci nabízí nástroje. Náš server bude umět „prohledej firemní znalosti“, „vrať pravidla značky“ a podobně. MCP je standard, kterému rozumí Claude i další AI aplikace. |
+| **Konektor** | Propojení Claude s nějakou službou přes MCP. Vlastní (custom) konektor je takový, který si přidáte sami zadáním adresy serveru. |
+| **Nástroj (tool)** | Jedna funkce MCP serveru, kterou si model může zavolat — například vyhledávání. Model sám rozhoduje, kdy ji použije. |
+| **Vercel** | Hosting, na kterém poběží náš server. Sám si ho stáhne z GitHubu a při každé změně v repozitáři ho nasadí znovu. |
+| **Neon** | Databáze PostgreSQL v cloudu. Použijeme ji na statistiku: kdo se na co ptal a co nenašel. |
+| **Frontmatter** | Hlavička na začátku markdownového souboru mezi dvěma řádky se třemi pomlčkami. Nese údaje o dokumentu: název, vlastníka, platnost. |
+
+## Proč AI ve firmě odpovídá divně
+
+Než začneme stavět, stojí za to pojmenovat příčiny přesně. Řešení totiž míří na každou z nich.
+
+**1. Model nezná vaši firmu.** Zná internet do určitého data. Váš ceník, vaše směrnice ani to, že „Standard“ je u vás název produktové řady a ne přídavné jméno, v jeho datech nejsou.
+
+**2. Každý mu dává jiný kontext.** Obchodník nahraje ceník z února, kolegyně z června, třetí kolega žádný a model si ceny odhadne. Výsledek: tři nabídky, tři různé ceny, všechny „od AI“.
+
+**3. Staré a nové verze se míchají.** Firemní disk je archeologické naleziště. Směrnice v1, v2, „v2-final“, „v2-final-opravdu“. Když model dostane všechny, odpovídá z náhodné.
+
+**4. Model nepřizná, že neví.** Když chybí podklad, doplní pravděpodobnou odpověď — a ta zní stejně sebejistě jako pravdivá. Bez odkazu na zdroj nepoznáte rozdíl.
+
+**5. Nikdo neví, jak to lidé doopravdy používají.** Vedení ví, kolik stojí licence. Neví, na co se lidé ptají, kde AI selhává a kde ji nikdo nepoužívá, protože „stejně kecá“.
+
+Na všech pět je jedno řešení se dvěma vlastnostmi: **jeden zdroj pravdy, ze kterého čerpá každý chat ve firmě, a měření, které ukáže, kde ten zdroj nestačí.** Obecný rámec zavádění AI ve firmě popisuje [kompletní průvodce AI ve firmě](/tipy/ai-ve-firme-kompletni-pruvodce); tenhle návod je jeho technické srdce.
+
+## Celá cesta na jedné obrazovce
+
+<Flow title="Od šuplíku plného PDF k bázi pro celou firmu" steps={[
+  { title: "1. Složka", desc: "Všechny dostupné firemní materiály na jedno místo: PDF, Word, Excel, prezentace, přepisy videí, brand manuál, loga." },
+  { title: "2. Cowork", desc: "Claude Cowork složku projde a vytěží z ní čisté markdownové soubory s hlavičkou: co to je, kdo to vlastní, odkdy to platí." },
+  { title: "3. GitHub", desc: "Markdown se uloží do soukromého repozitáře. Od té chvíle má každá změna autora, datum a jde vrátit." },
+  { title: "4. Claude Code", desc: "Agent nad repozitářem postaví MCP server s nástroji: hledej, dokument, brand, šablona, kdo to ví, nahlas mezeru." },
+  { title: "5. Vercel", desc: "Server poběží na Vercelu a při každé změně znalostí se sám nasadí znovu." },
+  { title: "6. Konektor", desc: "Zaměstnanci si server připojí v Claude jako vlastní konektor. Firemní znalosti mají v každém chatu." },
+  { title: "7. Neon", desc: "Databáze zaznamenává dotazy. Dotazy bez výsledku říkají, co do báze doplnit." },
+]} />
+
+Proč takhle a ne jednodušeji? Jednodušší varianty existují a pro některé firmy stačí — viz tabulka. Ta naše dává smysl od chvíle, kdy s AI pracuje víc než hrstka lidí a chcete, aby odpovídali stejně.
+
+| Řešení | Pro koho | Slabina |
+|---|---|---|
+| Každý si nahrává dokumenty do chatu sám | Jednotlivec | Každý má jinou verzi, nikdo neví, co je aktuální |
+| Sdílený Projekt v Claude s nahranými soubory | Tým do deseti lidí, jeden obor | Soubory se ručně přenahrávají, nejde měřit, PDF se špatně čtou |
+| Konektor do firemního disku (SharePoint, Google Disk) | Firma s uklizeným diskem | Model čte i staré verze a pracovní nedodělky; uklizený disk má málokdo |
+| **Vlastní MCP server nad markdownem v gitu** | **Firma, kde s AI pracuje víc lidí a chce srovnatelné výsledky** | **Vyžaduje úvodní práci a člověka, který bázi vlastní** |
+
+## Vzorová situace
+
+Tereza je provozní ředitelkou firmy, která dodává a montuje tepelná čerpadla — 45 lidí, tři pobočky. Firma platí Claude pro celý tým už půl roku. Na poradě zazní tři stížnosti za sebou: obchodník poslal zákazníkovi nabídku s loňskou cenou servisní prohlídky, sociální sítě „zní jako banka“ a nováček na recepci zákazníkovi řekl, že záruka je dva roky, přestože firma u montáží dává pět.
+
+Tereza má k dispozici: brand manuál v PDF od agentury, ceník v Excelu, katalog produktů ve třech verzích, interní směrnice ve Wordu, prezentaci pro obchodníky, záznamy dvou interních školení z Teams a složku s logy. Žádný programátor ve firmě není; technicky nejzdatnější je správce sítě Ondřej, který „trochu zná GitHub“.
+
+Za tři týdny mají první verzi báze. Za dva měsíce Tereza na poradě ukazuje graf, na co se lidé ptají, a seznam dvaceti otázek, na které báze odpověď neměla — a které teď má. Celý návod jde po jejích stopách.
+
+## Než začnete: účty, role a hranice
+
+### Účty, které budete potřebovat
+
+| Služba | Na co | Tarif |
+|---|---|---|
+| **Claude** | Cowork, Claude Code a hlavně používání báze | Pro firmu ideálně Team nebo Enterprise — administrátor pak přidá konektor za celou organizaci. Na pilot stačí Pro nebo Max. |
+| **GitHub** | Repozitář se znalostmi | Zdarma, soukromé repozitáře jsou v bezplatném tarifu. Doporučená je organizace (firemní účet), ne osobní účet zaměstnance. |
+| **Vercel** | Běh serveru | Bezplatný tarif Hobby je podle podmínek Vercelu jen pro nekomerční osobní použití. Firemní server patří na tarif Pro. |
+| **Neon** | Statistika využití | Nejsnáz přes Vercel Marketplace přímo z projektu na Vercelu; na statistiku stačí bezplatný tarif. |
+
+Vytvořte účty na firemní e-mail, ideálně sdílenou adresu typu `ai@firma.cz`, ne na osobní e-mail Ondřeje. Až Ondřej jednou odejde, účty musí zůstat firmě. Zapněte všude dvoufázové ověření.
+
+### Role: kdo co dělá
+
+Báze stojí a padá s lidmi, ne s technikou. Před prvním krokem si sepište tři role:
+
+- **Vlastník báze** (u Terezy ona sama) — rozhoduje, co do báze patří, a schvaluje změny.
+- **Správce** (Ondřej) — stará se o repozitář, server a přístupy.
+- **Vlastníci oblastí** — za každou oblast (ceník, servis, HR, brand) jeden člověk, který ověří, že výtah z jeho podkladů je správný. Bez nich budete mít bázi, které nikdo nevěří.
+
+### Co do báze nepatří
+
+Tohle je nejdůležitější odstavec celého návodu. **Do báze patří jen to, co smí vidět každý, kdo se k ní připojí.** Server nerozlišuje, jestli se ptá jednatel, nebo brigádník na recepci — pokud to sami nenaprogramujete a pečlivě neotestujete.
+
+Do báze proto nepatří:
+
+- osobní údaje zákazníků a zaměstnanců (jména s kontakty, rodná čísla, adresy),
+- mzdy, hodnocení, zdravotní informace,
+- smlouvy s konkrétními zákazníky, obchodní tajemství nad rámec toho, co ví každý zaměstnanec,
+- hesla, přístupové údaje, API klíče — **nikdy a nikam do repozitáře**,
+- cokoli, co by vám vadilo vidět na obrazovce kteréhokoli zaměstnance.
+
+Když potřebujete oddělit důvěrnější vrstvu (třeba podklady jen pro vedení), postavte pro ni **samostatný server s vlastním přihlášením**, ne „tajnou složku“ ve stejné bázi.
+
+## Fáze 1: všechno do jedné složky
+
+Cíl první fáze je nudný a nejdůležitější: dostat všechny dostupné materiály na jedno místo a vyhodit, co tam nepatří. Kvalita odpovědí na konci řetězce se rozhoduje tady. Pravidlo „špatné podklady dovnitř, špatné odpovědi ven“ platí u znalostních bází doslova — podrobně to rozebírá díl o [znalostních bázích bez mýtů](/agenti/vlastni-znalostni-baze-rag).
+
+### Struktura vstupní složky
+
+Na disku (ne ve sdílené síťové složce, kam kdokoli přidá cokoli) založte jednu složku a v ní podsložky podle oblastí:
+
+```text
+firemni-znalosti/
+├── _vstup/                  ← sem jde všechno surové
+│   ├── 01-firma/            o firmě, historie, pobočky, kontakty na oddělení
+│   ├── 02-produkty/         katalogy, technické listy, srovnání
+│   ├── 03-cenik/            ceníky, slevová pravidla, platební podmínky
+│   ├── 04-procesy/          směrnice, postupy, reklamace, servis
+│   ├── 05-obchod/           prezentace, vzorové nabídky, námitky zákazníků
+│   ├── 06-hr/               onboarding, dovolená, benefity (bez osobních údajů!)
+│   ├── 07-brand/            brand manuál, loga, písma, fotky, vzorové texty
+│   ├── 08-sablony/          šablony dokumentů, e-mailů, prezentací
+│   └── 09-video/            přepisy videí a školení (ne samotná videa)
+├── znalosti/                ← sem bude Cowork zapisovat výsledek
+└── ke-kontrole/             ← sem Cowork odloží, co si neví rady
+```
+
+Podsložky si přizpůsobte firmě. Důležité je, aby `_vstup` byl oddělený od výstupu `znalosti`: vstup je hromada, výstup je knihovna.
+
+### Co se s kterým typem podkladu stane
+
+| Podklad | Co z něj vznikne | Na co dát pozor |
+|---|---|---|
+| PDF s textem | Markdown s nadpisy a tabulkami | Vícesloupcová sazba a záhlaví se občas promíchají — kontrolovat tabulky |
+| Naskenované PDF | Markdown po přečtení obrázku | Claude čte i skeny, ale čísla v tabulkách ověřit proti originálu vždycky |
+| Word, Google Dokumenty | Markdown, zachová strukturu nadpisů | Revize a komentáře před exportem přijměte nebo smažte |
+| Excel (ceník) | Markdownová tabulka a vysvětlení pravidel | Vzorce a skryté listy — ceník převést na „co platí“, ne na kopii tabulky |
+| PowerPoint | Markdown po snímcích, včetně poznámek řečníka | Grafy s čísly přepsat do textu, obrázky popsat |
+| E-maily, vzorové odpovědi | Šablony s proměnnými místo jmen | Osobní údaje nahradit zástupnými značkami |
+| Videa a záznamy školení | Přepis, z něj strukturovaný návod | Video musí napřed projít přepisem, viz níže |
+| Loga, fotky, písma | Popis v brand dokumentu, soubory zvlášť | Do markdownu jde popis a odkaz, ne samotný obrázek |
+
+### Videa: napřed přepis
+
+Cowork pracuje se soubory, které umí přečíst — texty, dokumenty, tabulky, obrázky. Hodinové video ze školení sám „nezhlédne“. Video proto napřed převeďte na text:
+
+- **Záznamy z Teams, Google Meet nebo Zoomu** — pokud byl zapnutý přepis, stáhněte ho rovnou (formát .vtt nebo .docx).
+- **Videa na YouTube** (i neveřejná) — automatické titulky jdou stáhnout jako text.
+- **Ostatní nahrávky** — přepis udělá kterýkoli nástroj na převod řeči na text. U interních školení dejte přednost nástroji, který běží lokálně nebo v rámci firemní licence, ne anonymní webové službě.
+
+Do `_vstup/09-video/` pak jde přepis a k němu jednořádkový soubor s názvem videa, datem a tím, kde video leží. Samotná videa do báze nepatří — jsou velká a model z nich stejně potřebuje jen text.
+
+### Úklid: deset minut, které ušetří měsíce
+
+Než pustíte Cowork do práce, projděte `_vstup` a udělejte tři věci:
+
+1. **Vyhoďte staré verze.** Ze tří verzí katalogu nechte jednu. Když nevíte kterou, zeptejte se vlastníka oblasti — přesně k tomu je.
+2. **Přejmenujte nesrozumitelné soubory.** `scan_0043.pdf` → `smernice-reklamace-2026.pdf`. Název souboru je první kontext, který model dostane.
+3. **Vyndejte osobní údaje.** Exporty e-mailů se jmény zákazníků, docházku, smlouvy. Když je potřebujete jako vzor, nahraďte jména zástupnými značkami ještě před nahráním.
+
+Tereze zabrala první fáze dva dny — většinu času nezabralo sbírání, ale zjišťování, která verze katalogu platí. Vlastník oblasti produktů odpověděl za pět minut. Hledat by to bez něj trvalo týden.
+
+## Fáze 2: Claude Cowork vytěží markdown
+
+### Proč Cowork a ne běžný chat
+
+V běžném chatu byste soubory nahrávali po dávkách, výsledek kopírovali a ukládali ručně. Cowork pracuje přímo se složkou: přečte všechno v `_vstup`, zapíše výsledky do `znalosti` a co si neví rady, odloží do `ke-kontrole`. Na stovky souborů je to rozdíl mezi odpolednem a týdnem.
+
+Cowork najdete v desktopové aplikaci Claude (macOS a Windows) na placených plánech. Při zadání úkolu vyberete složku, ke které má Claude přístup. Vyberte **`firemni-znalosti`** — ne domovský adresář, ne celé Dokumenty. Ta složka je hranice: co je mimo ni, Claude nevidí. Pro jistotu pracujte nad **kopií** materiálů, originály nechte, kde jsou.
+
+### Instrukce pro složku
+
+Cowork umí k vybrané složce trvalé instrukce, které platí pro každý úkol v ní. Využijte to — formát výstupu tak nebudete opakovat v každém promptu. Do instrukcí složky vložte:
+
+```text
+Pracuješ na firemní znalostní bázi firmy [název], která [čím se firma
+zabývá, 1 věta]. Ze souborů ve složce _vstup tvoříš markdownové soubory
+do složky znalosti.
+
+Pravidla:
+- Nikdy neměň ani nemaž nic ve složce _vstup.
+- Každý výstupní soubor začíná hlavičkou (frontmatter) v tomto tvaru:
+  ---
+  nazev: krátký výstižný název
+  oblast: firma | produkty | cenik | procesy | obchod | hr | brand | sablony
+  typ: fakt | postup | pravidlo | sablona | faq
+  shrnuti: jedna věta, co dokument obsahuje
+  platnost_od: RRRR-MM-DD (pokud ji zdroj uvádí, jinak vynech)
+  vlastnik: [doplní člověk — nech prázdné]
+  zdroj: cesta k původnímu souboru v _vstup
+  ---
+- Jeden soubor = jedno téma. Raději víc kratších souborů než jeden obří.
+- Píšeš česky, věcně, celými větami. Žádný marketingový vzduch.
+- Čísla, ceny, lhůty a názvy přebírej přesně. Nic nezaokrouhluj a nedomýšlej.
+- Když si nejsi jistý (nečitelný sken, rozpor mezi zdroji, chybějící
+  údaj), nevymýšlej: zapiš problém do ke-kontrole/otazky.md s odkazem
+  na zdroj.
+- Osobní údaje (jména zákazníků, kontakty na konkrétní lidi mimo firmu,
+  rodná čísla) do výstupu nepřenášej — nahraď je [ZÁKAZNÍK] apod.
+- Názvy souborů: malá písmena, bez diakritiky, slova oddělená pomlčkou.
+```
+
+Tahle hlavička není byrokracie. Pole `shrnuti` později použije server pro výpis výsledků hledání, `platnost_od` mu pomůže dát přednost novějšímu dokumentu a `zdroj` umožní každou odpověď dohledat k originálu.
+
+### Krok 1: inventura bez zapisování
+
+První úkol nic nevytváří — jen se dívá. Co se po odeslání stane: Cowork projde všechny podsložky (u stovek souborů to trvá několik minut, uvidíte průběh) a vrátí přehled. Nic nezapíše, takže nic nepokazí.
+
+```text
+Projdi celou složku _vstup a nic zatím nevytvářej. Vrať mi:
+1. Tabulku: soubor | oblast | o čem je (1 věta) | odhad počtu
+   výstupních témat | problém (nečitelné, duplicitní, zastaralé?)
+2. Seznam souborů, které vypadají jako různé verze téhož dokumentu,
+   a u každé dvojice, v čem se liší.
+3. Soubory, které podle tebe obsahují osobní údaje nebo důvěrné
+   informace a do báze pro všechny zaměstnance by nepatřily.
+4. Navrženou strukturu složky znalosti (podsložky a názvy souborů).
+```
+
+Tereze inventura odhalila dvě věci, o kterých nevěděla: v katalogu z ledna a z června se liší výkon jednoho modelu (červnový je správně) a ve složce obchodu ležel export nabídek se jmény a telefony zákazníků. Export šel ze vstupu pryč dřív, než ho kdokoli převedl do báze.
+
+### Krok 2: výtah po oblastech
+
+Výtah dělejte **po jedné oblasti**, ne všechno naráz. Menší dávka = lepší kontrola a dřív zjistíte, jestli formát sedí. Začněte oblastí, kterou nejlépe znáte, ať dokážete posoudit kvalitu.
+
+```text
+Zpracuj podsložku _vstup/04-procesy podle instrukcí složky.
+
+U každého postupu (reklamace, servis, objednávka náhradního dílu…)
+vytvoř samostatný soubor se strukturou:
+## K čemu to je
+## Kdo to dělá
+## Kroky (číslovaný seznam, každý krok jedna akce)
+## Lhůty a čísla
+## Časté chyby a výjimky
+## Na koho se obrátit (role, ne jméno)
+
+Když se dva zdroje v postupu rozcházejí, nerozhoduj — zapiš rozpor
+do ke-kontrole/otazky.md. Na konci mi vypiš seznam vytvořených souborů
+a počet otázek ke kontrole.
+```
+
+Pro ceník a produkty se vyplatí jiná struktura — tam jde o přesná čísla, ne o kroky:
+
+```text
+Zpracuj _vstup/03-cenik. Cílem není přepsat Excel do markdownu,
+ale popsat, co platí:
+- cenik-sluzby.md: tabulka služba | cena bez DPH | cena s DPH | jednotka
+  | poznámka; nad tabulkou datum platnosti
+- slevova-pravidla.md: kdy a jakou slevu smí dát obchodník sám,
+  kdy schvaluje vedoucí, co se nikdy neslevňuje
+- platebni-podminky.md
+Každou cenu zkontroluj dvakrát proti zdroji. Do ke-kontrole/otazky.md
+zapiš každou buňku se vzorcem, jejíž výsledek se ti nepodařilo ověřit.
+```
+
+### Krok 3: FAQ z reálných otázek
+
+Dokumenty popisují, jak věci fungují. Lidé se ale ptají jinak. Nejlepší způsob, jak bázi „naučit“ jejich jazyk, je přidat soubory s otázkami a odpověďmi napsanými tak, jak se lidé doopravdy ptají. Když máte k dispozici e-maily na podporu nebo zápisy z porad, přidejte je (anonymizované) do vstupu.
+
+```text
+Na základě všech souborů ve složce znalosti a anonymizovaných dotazů
+zákazníků v _vstup/05-obchod/dotazy vytvoř soubor znalosti/faq/
+[oblast]-faq.md pro každou oblast.
+
+Každá položka:
+### Otázka formulovaná tak, jak by se zeptal zákazník nebo kolega
+Odpověď ve 2–5 větách.
+Zdroj: odkaz na soubor ve znalosti, ze kterého odpověď vychází.
+
+Zahrň i otázky, na které odpověď zní „to neděláme“ nebo „to záleží
+na…“ — ty jsou pro bázi stejně důležité. Nevytvářej odpovědi, které
+nemají oporu v žádném souboru; takové otázky dej do ke-kontrole.
+```
+
+### Krok 4: kdo co ví
+
+Jeden soubor, který lidé nečekají a který se v provozu ukáže jako nejpoužívanější: **mapa odborníků**. Když báze odpověď nemá, nejlepší, co může udělat, je poslat tazatele za správným člověkem — role a interní kontakt, žádné soukromé údaje.
+
+```text
+Vytvoř znalosti/firma/kdo-co-vi.md: tabulka oblast | typické otázky
+| role | interní kontakt (oddělení, sdílená schránka) | zastupuje.
+Vycházej z organizační struktury v _vstup/01-firma. Jména osob uveď
+jen tam, kde jsou ve zdroji výslovně jako kontaktní osoba pro danou
+oblast, a označ je k ověření.
+```
+
+### Krok 5: kontrola rozporů
+
+Po zpracování všech oblastí nechte Cowork bázi přečíst celou a hledat rozpory — přesně ty, které by jinak odhalil až zákazník.
+
+```text
+Přečti celou složku znalosti a najdi:
+1. Rozpory: kde dva soubory tvrdí o téže věci něco jiného (cena,
+   lhůta, postup, název). U každého: oba soubory, obě tvrzení.
+2. Osiřelé odkazy: zmínky o dokumentu, procesu nebo produktu,
+   který v bázi nemá vlastní soubor.
+3. Soubory bez data platnosti, které obsahují ceny nebo lhůty.
+4. Pět otázek, které by podle tebe zaměstnanci kladli nejčastěji
+   a na které báze zatím neodpoví.
+Výsledek zapiš do ke-kontrole/audit.md. Nic neopravuj.
+```
+
+### Lidská kontrola: bez ní to nepouštějte
+
+Teď nastupují vlastníci oblastí. Každý dostane soubory své oblasti a otázky z `ke-kontrole`. Nemusí číst všechno slovo po slovu — stačí tři věci: **čísla** (ceny, lhůty, výkony), **postupy** (sedí pořadí kroků?) a **co chybí**. Po kontrole doplní do hlavičky pole `vlastnik`.
+
+Výsledek po druhé fázi u Terezy: 140 markdownových souborů v osmi oblastech, 23 otázek ke kontrole (z toho 6 skutečných rozporů ve firemních dokumentech, o kterých nikdo nevěděl) a soubor `kdo-co-vi.md`. Zabralo to čtyři odpoledne Cowork práce a týden čekání na vlastníky oblastí.
+
+Tip: v Coworku si nastavte **naplánovaný úkol**, který jednou týdně zkontroluje, jestli do `_vstup` nepřibylo něco nového, a zpracuje to stejnými pravidly. Údržba báze pak neznamená projekt, ale rutinu.
+
+## Fáze 3: znalosti na GitHub
+
+### Proč git, a ne sdílená složka
+
+Sdílená složka ví, jak soubor vypadá teď. Git ví, jak vypadal **kdykoli**, kdo ho změnil a proč. U znalostní báze je to zásadní: když se zítra ukáže, že AI tvrdí nesmysl o záruce, za minutu zjistíte, kdy se ta věta do báze dostala a kdo ji schválil. A jedním kliknutím ji vrátíte.
+
+Druhý důvod je praktický: z repozitáře na GitHubu si server na Vercelu bere data a Claude Code v něm pracuje. Git je společný jazyk všech nástrojů v řetězci. Pokud git vidíte poprvé, lidský úvod najdete v návodu [Značka jako systém](/tipy/firma-brand-voice-brozura-web-crm), fáze 3.
+
+### Organizace a repozitář
+
+1. Na github.com si založte účet na firemní e-mail a zapněte dvoufázové ověření.
+2. Vpravo nahoře přes tlačítko **+** zvolte **New organization** a založte organizaci firmy (bezplatný tarif stačí). Repozitáře pak patří firmě, ne Ondřejovi.
+3. V organizaci zvolte **New repository**. Název třeba `znalosti`. **Visibility: Private** — tohle je jediné nastavení, které nesmíte splést.
+4. Zaškrtněte vytvoření souboru README a potvrďte.
+
+### Nahrání souborů
+
+Máte dvě cesty a obě jsou klikací:
+
+**Přes prohlížeč** — v repozitáři **Add file → Upload files** a přetáhnout soubory. Funguje pro menší dávky: GitHub v prohlížeči přijme najednou nejvýš 100 souborů a každý do 25 MiB. Markdown je malý, takže limit velikosti nehrozí; limit počtu znamená, že 140 souborů nahrajete na dvakrát. Nevýhoda: přetažením celé složky se struktura podsložek zachová jen v některých prohlížečích, takže výsledek zkontrolujte.
+
+**Přes GitHub Desktop** (doporučené) — bezplatná aplikace pro Windows a Mac, která git ovládá klikáním:
+
+1. Nainstalujte GitHub Desktop a přihlaste se firemním účtem.
+2. **File → Clone repository** a vyberte `znalosti`. Na disku vznikne složka propojená s GitHubem.
+3. Do ní zkopírujte obsah složky `znalosti` z Coworku (podsložky i soubory).
+4. GitHub Desktop vlevo ukáže seznam nových souborů. Dole napište krátký popis (třeba „První verze báze: procesy, ceník, produkty“) a klikněte **Commit to main**.
+5. Nahoře **Push origin**. Hotovo — soubory jsou na GitHubu.
+
+Od teď bude každá změna znamenat totéž: upravit soubor, popsat změnu, odeslat. Historie se vede sama.
+
+### Struktura repozitáře
+
+Výsledek by měl vypadat zhruba takhle:
+
+```text
+znalosti/
+├── README.md              co to je, kdo to vlastní, jak navrhnout změnu
+├── znalosti/
+│   ├── firma/             o-firme.md, pobocky.md, kdo-co-vi.md
+│   ├── produkty/
+│   ├── cenik/
+│   ├── procesy/
+│   ├── obchod/
+│   ├── hr/
+│   ├── brand/             viz fáze 8
+│   ├── sablony/
+│   └── faq/
+└── assets/
+    └── brand/             loga (SVG, PNG), barevné palety, ikonky
+```
+
+Server s kódem později přibude do stejného repozitáře vedle — znalosti a server, který je zpřístupňuje, pak mají společnou historii a každá změna znalostí automaticky spustí nové nasazení.
+
+**Co do repozitáře nikdy:** hesla, přístupové klíče, soubor `.env`, exporty z účetnictví, cokoli s osobními údaji. Jednou nahrané heslo zůstává v historii i po smazání souboru — musí se pak změnit, ne smazat. Velká videa a tiskové PDF také ne: git není úložiště médií. Pro ně stačí odkaz na místo, kde leží.
+
+### Kdo smí měnit
+
+V nastavení repozitáře (**Settings → Collaborators and teams**) přidejte lidi s rozumnými právy: správce s plným přístupem, vlastníci oblastí s právem zápisu. Pro změny pak nastavte pravidlo, že do hlavní větve se nepíše napřímo, ale přes **pull request** — návrh změny, který někdo schválí. Zní to složitě, v praxi je to tlačítko „Approve“. A znamená to, že žádná změna v bázi neprojde bez druhého páru očí.
+
+## Fáze 4: Claude Code postaví MCP server
+
+### Co přesně stavíme
+
+MCP server je malý program se seznamem nástrojů. Když se zaměstnanec v Claude zeptá „jaká je cena servisní prohlídky“, Claude pozná, že na to má nástroj, zavolá `hledej` s dotazem „servisní prohlídka cena“, dostane zpět nejrelevantnější úryvky z báze s odkazem na zdroj a z nich odpoví.
+
+Nejdůležitější rozhodnutí celé fáze není technické: **jaké nástroje server nabídne.** Méně je víc — každý nástroj musí mít jasný účel, jinak model neví, kdy ho použít. Osvědčená sada:
+
+| Nástroj | Co dělá | Kdy ho model použije |
+|---|---|---|
+| `hledej` | Fulltextové hledání v bázi, vrátí 5–8 nejlepších úryvků s názvem, shrnutím a cestou k souboru | Skoro u každé otázky na firmu |
+| `dokument` | Vrátí celý soubor podle cesty | Když úryvek nestačí a je potřeba celý postup nebo ceník |
+| `prehled` | Seznam oblastí a dokumentů s jednovětým shrnutím | „Co všechno o firmě víš?“, orientace |
+| `brand` | Pravidla značky: tón, barvy, písma, loga s odkazy, zakázané fráze | Kdykoli se tvoří text nebo materiál ven |
+| `sablona` | Vrátí šablonu dokumentu nebo e-mailu | Nabídky, odpovědi zákazníkům, interní dokumenty |
+| `kdo_to_vi` | Najde roli a interní kontakt pro oblast | Když báze odpověď nemá nebo jde o rozhodnutí |
+| `nahlas_mezeru` | Zapíše otázku, na kterou báze neodpověděla | Automaticky, když hledání nic nenajde |
+
+K nástrojům patří ještě jedna věc, na kterou se často zapomíná: **instrukce serveru.** MCP server může klientovi poslat text, který model čte jako pokyny k používání nástrojů. Sem patří pravidla, která mají platit pro každého zaměstnance stejně:
+
+```text
+Jsi napojený na znalostní bázi firmy [název]. Pravidla:
+1. Na otázky o firmě, jejích produktech, cenách, postupech a značce
+   odpovídej z báze (nástroj hledej), ne z obecných znalostí.
+2. U každého faktu uveď zdroj (cestu k souboru).
+3. Když báze odpověď nemá, řekni to výslovně, zavolej nahlas_mezeru
+   a pomocí kdo_to_vi doporuč, na koho se obrátit. Nikdy nedomýšlej
+   ceny, lhůty ani podmínky.
+4. Když si dva dokumenty odporují, uveď oba a dej přednost tomu
+   s novějším datem platnosti.
+5. Před tvorbou jakéhokoli textu nebo materiálu ven zavolej brand.
+```
+
+Tyhle čtyři řádky jsou důvod, proč budou mít všichni zaměstnanci srovnatelnou kvalitu odpovědí. Pravidla nepíše každý do svého promptu — dostane je každý chat od serveru.
+
+### Vyhledávání: začněte jednoduše
+
+Tady se zbytečně často přestřeluje. Pro bázi o stovkách až nízkých tisících markdownových souborů **nepotřebujete vektorovou databázi.** Dobré fulltextové hledání, které počítá s českou diakritikou a skloňováním („reklamace“, „reklamaci“, „reklamací“), dává výborné výsledky a dá se snadno ladit. Celou bázi si server může načíst do paměti při startu.
+
+Na vektorové hledání (hledání podle významu, ne slov) přejděte, až testovací otázky ukážou, že fulltext nestačí — typicky když se lidé ptají úplně jinými slovy, než jakými je napsaná báze. Neon na to má rozšíření pgvector, takže se dá přidat bez nové služby. Ale napřed fulltext a měření.
+
+### Připojení Claude Code k repozitáři
+
+Nejjednodušší cesta bez instalace: otevřete **claude.ai/code**, propojte svůj účet GitHub (Claude si vyžádá oprávnění k vybraným repozitářům — dejte mu jen `znalosti`) a vyberte repozitář. Claude Code pak pracuje v cloudu nad kopií repozitáře, změny dává do samostatné větve a otevře pull request, který schválíte.
+
+Alternativa pro ty, kdo terminál nevidí poprvé: Claude Code v terminálu nebo v desktopové aplikaci nad naklonovanou složkou z GitHub Desktop. Výsledek je stejný; postup instalace najdete v návodu [Vlastní web s Claude Code a Vercelem](/tipy/web-claude-code-vercel).
+
+### Zadání pro Claude Code
+
+Teď hlavní prompt. Co se po odeslání stane: Claude Code si nejdřív přečte strukturu repozitáře a několik souborů, pak navrhne plán a začne psát kód. Uvidíte, jak vytváří soubory a spouští příkazy (instalace balíčků, testy). Celé to trvá desítky minut. Pokud se na něco zeptá, odpovězte; pokud něco selže, většinou to sám opraví.
+
+```text
+V tomto repozitáři je ve složce znalosti/ firemní znalostní báze
+v markdownu. Každý soubor má frontmatter s poli nazev, oblast, typ,
+shrnuti, platnost_od, vlastnik, zdroj.
+
+Postav nad ní vzdálený MCP server, který poběží na Vercelu:
+- Next.js (App Router) s balíčkem mcp-handler, endpoint /api/mcp,
+  transport Streamable HTTP. Drž se aktuální dokumentace Vercelu
+  "Deploy MCP servers to Vercel" a verze balíčku, kterou uvádí.
+- Při startu načti všechny soubory ze znalosti/ do paměti.
+- Nástroje:
+  1. hledej(dotaz, oblast?) — fulltext s normalizací diakritiky
+     a jednoduchým zohledněním českých koncovek; vrať max. 8 výsledků:
+     nazev, shrnuti, cesta, relevantní úryvek (max. 800 znaků),
+     platnost_od. Novější platnost má při shodě přednost.
+  2. dokument(cesta) — celý soubor; jen soubory uvnitř znalosti/,
+     ošetři pokusy o cestu ven ze složky.
+  3. prehled() — oblasti a soubory s shrnutím.
+  4. brand(tema?) — obsah složky znalosti/brand a veřejné URL
+     souborů v assets/brand.
+  5. sablona(nazev?) — bez parametru seznam šablon, s parametrem obsah.
+  6. kdo_to_vi(oblast) — z znalosti/firma/kdo-co-vi.md.
+  7. nahlas_mezeru(otazka, kontext?) — zápis do databáze (viz níže).
+- Instrukce serveru (server instructions) vlož z [vložit text
+  instrukcí výše].
+- Popisy nástrojů piš česky a tak, aby z nich model poznal, kdy který
+  použít.
+- Každé volání nástroje zaloguj do Postgres databáze z proměnné
+  DATABASE_URL (Neon, driver @neondatabase/serverless): čas, nástroj,
+  dotaz/parametry, počet výsledků, cesty vrácených dokumentů, doba
+  zpracování v ms, anonymizovaný identifikátor uživatele (hash),
+  pokud je k dispozici. Logování nesmí nikdy shodit odpověď nástroje —
+  když databáze není dostupná, nástroj odpoví a chybu jen vypíše.
+  Databázové připojení inicializuj až při prvním použití, ne při
+  buildu.
+- Přidej migraci SQL pro tabulky a soubor docs/statistiky.sql
+  s dotazy z tohoto zadání [viz fáze 7].
+- Přidej testy: pro hledání sadu 20 otázek ze souboru
+  tests/otazky.md, u každé očekávaný soubor ve výsledcích.
+- Žádné tajné údaje v kódu ani v repozitáři; vše přes proměnné
+  prostředí. Do README napiš, které proměnné server potřebuje.
+
+Nejdřív mi napiš plán a seznam souborů, které vytvoříš. Kód piš
+až po mém potvrzení.
+```
+
+Poslední řádek je důležitý. Plán si přečtěte — nemusíte rozumět každému slovu, ale musíte vidět, že odpovídá zadání. Když chybí nástroj nebo je navíc něco, co jste nechtěli, řekněte to teď, ne po hodině práce.
+
+### Jak vypadá jádro serveru
+
+Pro představu, co Claude Code vyrobí: srdce serveru je jeden soubor s registrací nástrojů. Zjednodušeně (bez vyhledávací logiky a ošetření chyb):
+
+```ts
+// app/api/mcp/route.ts — zjednodušená ukázka
+import { createMcpHandler } from "mcp-handler";
+import { z } from "zod";
+import { hledej, nactiDokument } from "@/lib/baze";
+import { zaloguj } from "@/lib/statistika";
+import { INSTRUKCE } from "@/lib/instrukce";
+
+const handler = createMcpHandler(
+  (server) => {
+    server.registerTool(
+      "hledej",
+      {
+        description:
+          "Prohledá firemní znalostní bázi (produkty, ceník, postupy, " +
+          "HR, brand). Použij u každé otázky na firmu. Vrací úryvky " +
+          "s cestou ke zdrojovému souboru.",
+        inputSchema: z.object({
+          dotaz: z.string().min(2),
+          oblast: z.string().optional(),
+        }),
+      },
+      async ({ dotaz, oblast }) => {
+        const start = Date.now();
+        const vysledky = hledej(dotaz, oblast);
+        await zaloguj({
+          nastroj: "hledej",
+          dotaz,
+          pocet: vysledky.length,
+          dokumenty: vysledky.map((v) => v.cesta),
+          ms: Date.now() - start,
+        });
+        const text = vysledky.length
+          ? vysledky
+              .map((v) => `## ${v.nazev}\nZdroj: ${v.cesta}\n\n${v.uryvek}`)
+              .join("\n\n---\n\n")
+          : "V bázi nic nenalezeno. Řekni to uživateli, zavolej " +
+            "nahlas_mezeru a doporuč kontakt přes kdo_to_vi.";
+        return { content: [{ type: "text", text }] };
+      },
+    );
+    // … dokument, prehled, brand, sablona, kdo_to_vi, nahlas_mezeru
+  },
+  { instructions: INSTRUKCE },
+);
+
+export { handler as GET, handler as POST };
+```
+
+Všimněte si dvou věcí. Popis nástroje (`description`) je psaný pro model, ne pro programátora — z něj model pozná, kdy nástroj použít. A text při prázdném výsledku modelu výslovně říká, co má udělat. Právě tyhle drobnosti dělají rozdíl mezi bází, která „kecá“, a bází, která řekne „tohle nevím, zeptejte se oddělení servisu“.
+
+### Test na vlastním počítači
+
+Před nasazením se vyplatí server vyzkoušet. Řekněte Claude Code: „Spusť server lokálně a ukaž mi, jak ho otestovat v MCP Inspectoru.“ MCP Inspector je oficiální testovací nástroj: otevře se v prohlížeči, připojí se k serveru, vypíše nástroje a umožní je ručně zavolat. Zkuste `hledej` s pěti otázkami, u kterých znáte odpověď, a podívejte se, jestli vrací správné soubory.
+
+### Testovací sada: dvacet otázek, které znáte
+
+Tohle je nejdůležitější součást celé fáze a nikdo ji nedělá. Sepište dvacet otázek, **u kterých znáte správnou odpověď**, a ke každé soubor, ve kterém odpověď je. Mixujte typy:
+
+- přesná čísla („kolik stojí servisní prohlídka čerpadla do 12 kW“),
+- postupy („jak postupovat, když zákazník hlásí chybu E05“),
+- formulace jinými slovy, než jsou v bázi („co dělat, když topení nehřeje“),
+- otázky, na které odpověď **v bázi není** — u nich je správná odpověď „nevím, obraťte se na…“.
+
+Sadu uložte do `tests/otazky.md` a nechte Claude Code testy spouštět při každé změně. Když po úpravě vyhledávání nebo po přidání dokumentů klesne počet správných odpovědí, víte to dřív než zaměstnanci.
+
+## Fáze 5: nasazení na Vercel
+
+### První nasazení
+
+1. Na vercel.com se přihlaste přes GitHub (firemní účet).
+2. **Add New → Project** a vyberte repozitář `znalosti`. Vercel pozná Next.js sám a nabídne výchozí nastavení — nechte ho.
+3. Klikněte **Deploy**. Za minutu až dvě máte adresu typu `https://znalosti-firma.vercel.app`. Server běží na `https://znalosti-firma.vercel.app/api/mcp`.
+4. V nastavení projektu zkontrolujte, že je zapnutý **Fluid compute** (Vercel ho pro MCP servery doporučuje) a v nastavení funkcí zvolte region v EU, třeba Frankfurt — data pak zbytečně necestují přes oceán.
+
+Od teď platí: **každá schválená změna v repozitáři znamená nové nasazení.** Vlastník oblasti opraví cenu, správce schválí pull request, za dvě minuty odpovídá báze novou cenou. Žádné přenahrávání souborů, žádné „aktualizuj si Projekt“.
+
+Když se nové nasazení nepovede nebo začne odpovídat nesmysly, Vercel umí jedním kliknutím vrátit předchozí verzi (**Instant Rollback**). U báze, na které závisí čtyřicet lidí, je to pojistka k nezaplacení.
+
+### Přihlášení: kdo se k serveru dostane
+
+Server na veřejné adrese je dosažitelný z celého internetu. Konektory v Claude se k němu navíc připojují **ze serverů Anthropicu**, ne z vašeho počítače — takže ho nejde schovat jen do firemní sítě (pro to existují zvláštní tunely, ale to je jiná kapitola). Ochrana proto musí být v serveru samotném. Máte tři možnosti:
+
+| Varianta | Jak funguje | Kdy ano |
+|---|---|---|
+| **OAuth přihlášení** | Každý zaměstnanec se při připojení konektoru přihlásí firemním účtem (přes poskytovatele přihlášení — ideálně ten, který firma už používá pro Microsoft 365 nebo Google Workspace). Server ví, kdo se ptá. | Ostrý provoz. Jediná varianta, kde jde odebrat přístup jednomu člověku a měřit využití po lidech. |
+| **Klíč v hlavičce požadavku** | Claude posílá s každým požadavkem pevný klíč, který zadáte při přidání konektoru. Všichni sdílí jeden klíč. | Pilot a interní nástroje. Pozor: v Claude je tahle možnost zatím v betě a nemusí být ve vaší organizaci dostupná. |
+| **Bez přihlášení** | Kdo zná adresu, může se ptát. | Jen pro obsah, který by klidně mohl být veřejný — třeba produktové FAQ. Nikdy pro interní směrnice. |
+
+`mcp-handler` má pro OAuth připravené pomocné funkce (`withMcpAuth` a zveřejnění metadat podle specifikace MCP), samotné přihlašování ale obstarává poskytovatel identity. Zadání pro Claude Code:
+
+```text
+Přidej k MCP serveru povinné OAuth přihlášení podle sekce "Enabling
+authorization" v dokumentaci Vercelu k MCP serverům. Poskytovatel
+identity: [Microsoft Entra ID / Google Workspace / jiný]. Povol jen
+účty z domény [firma.cz]. Z ověřeného tokenu ulož do logu jen hash
+identifikátoru uživatele, nikdy e-mail ani jméno. Napiš mi krok
+za krokem, co musím nastavit u poskytovatele identity a jaké proměnné
+prostředí doplnit na Vercelu. Klíče a tajné hodnoty do repozitáře
+nedávej.
+```
+
+Proměnné prostředí (klíče, adresy, tajné hodnoty) se zadávají na Vercelu v **Settings → Environment Variables**, nikdy do kódu. Proč na tom tolik záleží, rozebírá díl [kam patří API klíče](/agenti/kam-patri-api-klice).
+
+## Fáze 6: připojení jako vlastní konektor
+
+### Pro celou firmu (Team a Enterprise)
+
+Na plánech Team a Enterprise přidává konektor **vlastník organizace** a zaměstnanci se k němu pak jen připojí:
+
+1. Vlastník organizace otevře **Organization settings → Connectors**.
+2. Zvolí **Add → Custom** (pokud se Claude zeptá na typ, vybere **Web**).
+3. Zadá adresu serveru, např. `https://znalosti-firma.vercel.app/api/mcp`.
+4. Podle zvolené varianty přihlášení nastaví OAuth nebo hlavičku s klíčem a klikne **Add**.
+
+Zaměstnanci pak v **Customize → Connectors** najdou konektor s označením **Custom** a kliknou **Connect** (u OAuth se přihlásí firemním účtem). Tereza tenhle krok přidala do onboardingu nováčků: první den, třetí bod seznamu, hned po hesle k e-mailu.
+
+### Pro jednotlivce (Pro, Max, Free)
+
+V **Customize → Connectors** klikněte **Add custom connector**, zadejte adresu serveru, případně přihlašovací údaje, a potvrďte. Na bezplatném plánu jde přidat jen jeden vlastní konektor.
+
+### Použití v chatu
+
+V konkrétní konverzaci se konektory zapínají a vypínají přes tlačítko **+** → **Connectors**. Konektor funguje v běžném chatu, v Coworku i v desktopové aplikaci, takže stejné znalosti má k dispozici i Cowork, když tvoří dokument. Pro Claude Code se stejný server přidá příkazem `claude mcp add` s transportem HTTP.
+
+Dvě nastavení stojí za minutu:
+
+- **Oprávnění nástrojů.** V detailu konektoru jde u každého nástroje nastavit, jestli ho Claude smí používat bez ptaní, s potvrzením, nebo vůbec. Čtecí nástroje (`hledej`, `dokument`, `brand`) klidně bez ptaní; `nahlas_mezeru` zapisuje do databáze, ale neškodně, takže také.
+- **Projekty.** V Projektu pro obchodní tým můžete do instrukcí přidat „u každé otázky na ceny a podmínky použij firemní znalostní bázi“. Model pak po nástroji sáhne i tehdy, když se zaměstnanec zeptá vágně.
+
+### První test v ostrém provozu
+
+Než bázi oznámíte celé firmě, nechte pět lidí z různých oddělení týden pracovat normálně a jednou denně napsat, kde AI odpověděla dobře a kde vedle. Teprve pak rozšiřte. U Terezy pilot odhalil, že obchodníci se ptají na „Standard“ a „Premium“, zatímco báze mluví o „řadě S“ a „řadě P“. Jeden řádek se synonymy v souboru produktů a vyhledávání začalo fungovat.
+
+Obecně o tom, co konektory umí a jak s nimi zacházet, píše [průvodce MCP konektory](/tipy/mcp-konektory-nastroje); přehled hotových konektorů je v [katalogu konektorů](/konektory).
+
+## Fáze 7: statistika v Neonu
+
+### Proč měřit
+
+Bez měření se o bázi dozvíte jen dvě věci: že „to nefunguje“ (od lidí, kterým jednou nevyšla odpověď) a že „to je super“ (od nadšenců). Ani jedno vám neřekne, co dělat dál. Statistika odpoví na čtyři otázky:
+
+1. **Používá se to?** Kolik dotazů denně, kolik různých lidí, roste to?
+2. **Na co se lidé ptají?** Nejčastější dotazy a nejčtenější dokumenty — ty musí být nejaktuálnější.
+3. **Co v bázi chybí?** Dotazy, na které hledání nic nenašlo. **Tohle je nejcennější číslo celého systému.**
+4. **Kde to drhne?** Pomalé odpovědi, opakované dotazy (člověk se ptá potřetí jinak, protože poprvé nedostal, co chtěl).
+
+### Databáze za pět minut
+
+1. V projektu na Vercelu otevřete záložku **Storage** (případně **Marketplace**) a zvolte **Neon**.
+2. Vyberte region co nejblíž regionu funkcí (např. Frankfurt) a bezplatný tarif.
+3. Propojte databázi s projektem. Vercel sám doplní proměnnou `DATABASE_URL` do nastavení projektu — server ji použije bez dalšího nastavování.
+4. Spusťte migraci, kterou připravil Claude Code (řekněte mu „spusť migraci proti DATABASE_URL“, nebo SQL vložte do **SQL Editoru** v konzoli Neonu).
+
+Tabulky, které stačí na začátek:
+
+```sql
+create table pouziti (
+  id           bigserial primary key,
+  cas          timestamptz not null default now(),
+  nastroj      text not null,          -- hledej, dokument, brand…
+  dotaz        text,                   -- co se hledalo
+  pocet        int,                    -- počet výsledků
+  dokumenty    text[],                 -- vrácené soubory
+  ms           int,                    -- doba zpracování
+  uzivatel     text                    -- hash, nikdy jméno ani e-mail
+);
+
+create table mezery (
+  id           bigserial primary key,
+  cas          timestamptz not null default now(),
+  otazka       text not null,
+  kontext      text,
+  vyreseno     boolean not null default false
+);
+
+create index on pouziti (cas);
+create index on pouziti (nastroj);
+```
+
+### Dotazy, které budete pouštět každý týden
+
+Uložte si je do `docs/statistiky.sql` v repozitáři, ať je má po ruce každý, kdo se o bázi stará:
+
+```sql
+-- 1. Využití po dnech za poslední měsíc
+select date_trunc('day', cas) as den,
+       count(*) as dotazu,
+       count(distinct uzivatel) as lidi
+from pouziti
+where cas > now() - interval '30 days'
+group by 1 order by 1;
+
+-- 2. Dotazy bez výsledku — seznam úkolů na doplnění báze
+select lower(dotaz) as dotaz, count(*) as kolikrat
+from pouziti
+where nastroj = 'hledej' and pocet = 0
+  and cas > now() - interval '30 days'
+group by 1 order by 2 desc limit 30;
+
+-- 3. Nejčtenější dokumenty — musí být nejaktuálnější
+select d as dokument, count(*) as kolikrat
+from pouziti, unnest(dokumenty) as d
+where cas > now() - interval '30 days'
+group by 1 order by 2 desc limit 20;
+
+-- 4. Které nástroje se používají
+select nastroj, count(*) from pouziti
+where cas > now() - interval '30 days'
+group by 1 order by 2 desc;
+
+-- 5. Otevřené mezery nahlášené modelem
+select cas, otazka from mezery
+where not vyreseno order by cas desc;
+```
+
+### Jak se na čísla dívat bez programování
+
+Tři cesty podle toho, kdo se dívá:
+
+- **Správce:** SQL Editor v konzoli Neonu — vložit dotaz, spustit, výsledek je tabulka.
+- **Vlastník báze:** v Claude existuje konektor pro Neon. Připojený jen pro čtení (zvlášť vytvořená databázová role s právem `select`) umožní ptát se přirozeně: „Na co se lidé tento týden ptali a nenašli odpověď? Seskup podobné dotazy.“ Model napíše SQL sám.
+- **Vedení:** požádejte Claude Code o jednoduchou stránku `/statistiky` ve stejném projektu, chráněnou stejným přihlášením — graf využití, top dokumenty, otevřené mezery. Jedno zadání, jedno odpoledne.
+
+### Měsíční rytmus: z mezer úkoly
+
+Statistika má smysl jen tehdy, když z ní něco plyne. Tereza zavedla jednoduchý rytmus: první pondělí v měsíci si vytáhne dotazy bez výsledku, seskupí je (s pomocí Claude) a rozdá vlastníkům oblastí. Ti doplní dokumenty, správce schválí změny, mezery se označí jako vyřešené.
+
+```text
+Tady je export dotazů bez výsledku za poslední měsíc [vložit tabulku].
+1. Seskup je podle tématu a odhadni, kolik různých potřeb za nimi stojí.
+2. U každé skupiny navrhni, jestli jde o: chybějící dokument,
+   chybějící synonymum (informace v bázi je, ale jinými slovy),
+   nebo otázku, která do báze nepatří.
+3. Seřaď podle počtu dotazů a navrhni vlastníka oblasti.
+Výstup jako tabulka pro poradu.
+```
+
+Po dvou měsících měla báze o 31 dokumentů víc a podíl dotazů bez výsledku klesl na zhruba třetinu původního stavu. To je metrika, kterou se vyplatí ukazovat vedení — ne počet dotazů, ale **kolik otázek, které dřív končily u kolegy nebo u vymyšlené odpovědi, dnes končí u správného dokumentu.**
+
+### Ochrana soukromí zaměstnanců
+
+Zaznamenávání dotazů je zpracování údajů o zaměstnancích, i když neukládáte jména. Udělejte tři věci:
+
+1. **Řekněte to lidem.** Krátká věta v oznámení: co se loguje (dotazy do báze, ne celé konverzace), proč (aby se báze zlepšovala) a kdo to vidí.
+2. **Minimalizujte.** Hash místo identity. Statistiku po lidech nepotřebujete — potřebujete vědět, co chybí, ne kdo se ptal.
+3. **Mažte.** Dotazy starší než 6–12 měsíců smažte nebo agregujte do souhrnů. Nastavte to rovnou při stavbě.
+
+Server mimochodem vidí jen to, co Claude pošle nástroji — dotaz do báze, ne celou konverzaci zaměstnance. To je dobré lidem říct, protože první obava bývá „šéf čte moje chaty“. Nečte.
+
+## Fáze 8: srovnatelná kvalita pro všechny — vzorové prompty
+
+Báze sama o sobě zajistí, že všichni čerpají ze stejných podkladů. Druhá polovina srovnatelné kvality je **společná knihovna promptů**: když obchodník A a obchodník B zadávají nabídku stejným promptem nad stejnou bází, dostanou srovnatelný výsledek. Jak takovou knihovnu vést a verzovat, popisuje návod [knihovna promptů](/tipy/ai-knihovna-promptu). Tady je startovní sada po rolích — zkopírujte ji klidně rovnou do repozitáře jako `znalosti/prompty.md` a server ji vydá nástrojem `sablona`.
+
+### Pro každého
+
+```text
+Podle firemní znalostní báze: [otázka]. Uveď zdroj u každého faktu.
+Když v bázi odpověď není, řekni to a doporuč, na koho se obrátit.
+```
+
+```text
+Co všechno o [téma] je ve firemní bázi? Udělej přehled dokumentů
+s jednovětým shrnutím a upozorni, kde si dokumenty odporují nebo
+kde chybí datum platnosti.
+```
+
+### Obchod
+
+```text
+Připrav nabídku pro [typ zákazníka, velikost objektu, požadavek].
+Ceny, slevová pravidla a platební podmínky ber výhradně z báze
+a u každé ceny uveď zdroj. Použij šablonu nabídky z báze a tón
+značky (nástroj brand). Když požadavek vyžaduje slevu nad rámec
+pravidel, nepočítej ji — napiš, kdo ji musí schválit.
+```
+
+```text
+Zákazník namítá: "[námitka]". Najdi v bázi, jak na tuto námitku
+odpovídáme, a navrhni dvě verze odpovědi: krátkou do telefonu
+a e-mailovou. Nic neslibuj, co v bázi není.
+```
+
+### Zákaznická podpora a servis
+
+```text
+Zákazník píše: "[text zprávy]". Podle postupů v bázi:
+1. o jaký typ požadavku jde a jaká je lhůta,
+2. co od zákazníka ještě potřebujeme,
+3. návrh odpovědi v tónu značky.
+Když postup v bázi není, nepiš odpověď a řekni, komu to předat.
+```
+
+```text
+Technik hlásí: [popis závady / chybový kód]. Najdi v bázi postup
+a vypiš ho jako číslovaný seznam kroků do terénu. Upozorni na
+bezpečnostní pokyny a na kroky, které smí dělat jen certifikovaný
+technik.
+```
+
+### Marketing
+
+```text
+Napiš [3 příspěvky na LinkedIn / newsletter / text na web] o [téma].
+Fakta o produktech ber jen z báze, tón a zakázané fráze z nástroje
+brand. Ke každému textu přidej seznam tvrzení, která je potřeba
+před zveřejněním ověřit.
+```
+
+```text
+Zkontroluj tento text proti pravidlům značky v bázi: [text].
+Vypiš odchylky (tón, zakázané fráze, nesprávné názvy produktů,
+čísla, která nesedí s bází) a navrhni opravenou verzi.
+```
+
+### HR a onboarding
+
+```text
+Jsem nový zaměstnanec na pozici [pozice]. Podle báze mi sestav
+plán prvního týdne: co si musím zařídit, koho kontaktovat (role)
+a které dokumenty si přečíst. U každého bodu odkaz na zdroj.
+```
+
+```text
+Kolega se ptá: "[otázka na dovolenou, benefity, home office…]".
+Odpověz podle interních pravidel v bázi, ne podle obecného
+zákoníku práce. Když pravidlo v bázi chybí, řekni to.
+```
+
+### Vedení
+
+```text
+Projdi bázi a připrav souhrn: které oblasti jsou popsané dobře,
+které slabě (málo dokumentů, staré platnosti, chybí vlastník)
+a co bys doplnil jako první. Výstup jako tabulka.
+```
+
+```text
+Připravuji [změnu ceníku / nový proces]. Najdi v bázi všechny
+dokumenty, kterých se změna dotkne, a navrhni, co v nich upravit.
+Nic neměň, jen seznam.
+```
+
+Pro správnou funkci promptů platí jedno pravidlo: **v knihovně jsou vzory, ne povinné formuláře.** Lidé je mají upravovat. Cílem není, aby všichni psali stejně, ale aby všichni začínali ze stejné kvality.
+
+## Fáze 9: brandové materiály — od PDF po video
+
+Brand je oblast, kde je rozdíl mezi „AI bez báze“ a „AI s bází“ vidět okamžitě. Bez báze model píše „jako banka“, vybere náhodné barvy a „prémiový“ dá do každé druhé věty. S bází má přesná pravidla — a hlavně je mají stejná všichni.
+
+### Brand v bázi: co do něj patří
+
+Vlastní brand manuál je obvykle PDF, které popisuje, jak značka **vypadá**. Pro AI je potřeba ho převést do podoby, která popisuje i to, jak značka **mluví**, a to tak konkrétně, aby se podle toho dalo tvořit. Do `znalosti/brand/` patří:
+
+| Soubor | Obsah |
+|---|---|
+| `ton-hlasu.md` | Vlastnosti tónu s ukázkami, tykání/vykání po kanálech, páry „takhle ne / takhle ano“ |
+| `slovnik.md` | Názvy produktů a jak se píšou, odborné termíny, zakázané fráze s důvodem |
+| `barvy.md` | Barvy s kódy HEX, RGB a CMYK, kde se která používá, co se nesmí kombinovat |
+| `pisma.md` | Písma pro nadpisy a text, náhradní písma (když firemní není k dispozici), velikosti |
+| `logo.md` | Varianty loga, ochranná zóna, minimální velikost, co se s logem nesmí dělat, odkazy na soubory |
+| `fotografie.md` | Styl fotek, co na nich ano a ne, popis vzorových fotek |
+| `formaty.md` | Rozměry pro sociální sítě, prezentace, tiskoviny; pravidla pro video (úvod, závěr, titulky) |
+
+Soubory loga a vzorové obrázky leží v `assets/brand/` a server je vystavuje jako veřejné adresy na Vercelu, takže nástroj `brand` vrátí i přímé odkazy. Logo je beztak veřejné, ale do téhle složky nedávejte nic, co by veřejné být nemělo.
+
+Prompt pro Cowork, který z brand manuálu udělá použitelný brand v bázi:
+
+```text
+V _vstup/07-brand je náš brand manuál (PDF), loga a vzorové texty
+z webu a sociálních sítí. Vytvoř soubory do znalosti/brand podle
+tohoto seznamu: ton-hlasu.md, slovnik.md, barvy.md, pisma.md,
+logo.md, fotografie.md, formaty.md.
+
+U vizuálních pravidel přebírej přesně kódy barev a názvy písem
+z manuálu. Tón hlasu odvoď ze skutečných textů, ne z obecných
+frází v manuálu — a ke každé vlastnosti tónu dej ukázkovou větu
+z našich textů. Kde manuál a skutečné texty nesouhlasí (manuál
+říká vykání, web tyká), zapiš to do ke-kontrole/otazky.md.
+Soubory loga zkopíruj do assets/brand s popisnými názvy
+(logo-barevne.svg, logo-bile.png…) a v logo.md uveď, kdy kterou
+variantu použít.
+```
+
+Metodiku, jak z vlastních textů vydestilovat tón hlasu, podrobně rozebírá tip o [značce a tónu hlasu](/tipy/znacka-ton-hlasu-ai); kompletní cestu od brand voice po brožuru a web popisuje [Značka jako systém](/tipy/firma-brand-voice-brozura-web-crm).
+
+### Dokumenty a PDF
+
+Cowork s připojenou bází tvoří dokumenty přímo jako soubory — Word, PDF, tabulky. Výhoda proti chatu: výsledek je soubor ve složce, ne text, který musíte někam kopírovat.
+
+```text
+Vytvoř ve složce vystupy dokument [produktový list / interní směrnici
+/ nabídku] o [téma] jako .docx a .pdf. Obsah ber z firemní báze,
+vizuál podle nástroje brand: barvy, písma (když firemní písmo není
+nainstalované, použij náhradní z pisma.md), logo z assets/brand
+v záhlaví. Na konec přidej seznam zdrojů z báze. Než soubor vytvoříš,
+ukaž mi osnovu.
+```
+
+### Prezentace
+
+```text
+Připrav prezentaci (.pptx, 10–12 snímků) pro [publikum] na téma
+[téma]. Fakta z báze, každé číslo s poznámkou o zdroji v poznámkách
+řečníka. Barvy, písma a logo podle brandu; jedna hlavní myšlenka
+na snímek, žádné odstavce textu. Na poslední snímek kontakt podle
+kdo_to_vi.
+```
+
+### Sociální sítě a grafika
+
+Texty pro sociální sítě zvládne Claude sám podle pravidel značky. Pro grafiku máte dvě cesty: Claude připraví přesné zadání (text do grafiky, barvy v HEX, rozvržení, rozměr) pro grafika nebo grafický nástroj, nebo v Claude připojíte konektor grafického nástroje (v adresáři konektorů jsou například Canva nebo Adobe Express) a Claude podle brandu připraví návrh rovnou tam. Ve druhém případě se vyplatí mít v grafickém nástroji nastavenou sadu značky (barvy, písma, loga) — Claude ji pak použije a nemusí kódy barev přepisovat.
+
+```text
+Připrav sérii 5 příspěvků na [Instagram / LinkedIn] k [akce, produkt].
+Ke každému: text příspěvku v tónu značky, krátký text do grafiky
+(max. 8 slov), návrh vizuálu (co na obrázku, barvy z brand/barvy.md
+v HEX, umístění loga podle logo.md) a rozměr podle formaty.md.
+Fakta o produktu jen z báze.
+```
+
+### Video
+
+U videa je dobré být poctivý: **Claude video nenatočí ani nesestříhá.** Udělá ale všechno ostatní, co video obvykle zdržuje — a s bází to udělá v souladu se značkou a s fakty, která sedí.
+
+<Flow title="Video s bází: co udělá Claude a co člověk" steps={[
+  { title: "Scénář", desc: "Claude napíše scénář podle báze: fakta o produktu, tón značky, délka podle platformy. Člověk schválí." },
+  { title: "Scénosled", desc: "Záběr po záběru: co je vidět, co se říká, jaký text je v obraze, kolik vteřin. Podklad pro natáčení nebo generování." },
+  { title: "Texty a titulky", desc: "Texty do grafiky, popisky, titulky ve formátu .srt pro střihový program. Názvy produktů správně, ne odhadem." },
+  { title: "Hlas a hudba", desc: "Text pro namluvení v délce, která sedí na záběry. Namluví člověk, nebo nástroj na převod textu na řeč." },
+  { title: "Natočení a střih", desc: "Člověk ve střihovém programu, nebo generativní video nástroj podle scénosledu. Barvy a písma z brandu." },
+  { title: "Kontrola", desc: "Claude zkontroluje přepis hotového videa proti bázi a brandu: sedí čísla, názvy, tón?" },
+]} />
+
+```text
+Připrav podklady pro [30vteřinové video na Instagram / 2minutové
+video na web] o [téma]. Z báze ber fakta o produktu, z brandu tón,
+barvy, písma a pravidla pro video z formaty.md (úvod, závěr, logo).
+Výstup:
+1. scénář (co se říká),
+2. scénosled jako tabulka: čas | záběr | text v obraze | zvuk,
+3. titulky ve formátu .srt,
+4. seznam záběrů k natočení nebo vygenerování.
+Ulož do vystupy/video-[téma]/.
+```
+
+A kontrola na konci — když máte přepis hotového videa:
+
+```text
+Tady je přepis hotového videa [vložit] a seznam textů v obraze
+[vložit]. Zkontroluj je proti firemní bázi a brandu: nesprávná
+čísla, staré názvy produktů, zakázané fráze, tón. Vypiš jen
+nálezy s časem ve videu.
+```
+
+### Pravidlo pro všechno, co jde ven
+
+Ať jde o PDF, prezentaci, post nebo video: **AI navrhuje, člověk schvaluje.** Báze dramaticky snižuje počet chyb, ale neodstraňuje je. Do brandu si proto přidejte jednoduchý kontrolní seznam — čísla ověřena, názvy produktů sedí, logo ve správné variantě, schválil vlastník — a nechte Claude, ať ho na konci každého výstupu vypíše a odškrtá. Co neodškrtá, kontrolujete vy.
+
+## Údržba: aby báze nezastarala
+
+Báze, kterou nikdo neudržuje, je za půl roku horší než žádná báze — protože jí lidé věří. Údržba ale nemusí být projekt. Stačí rytmus:
+
+<Timeline title="Rytmus údržby" items={[
+  {time: "Průběžně", title: "Změna = pull request", desc: "Kdo mění ceník, směrnici nebo produkt, upraví i soubor v bázi. Vlastník oblasti schválí, nasazení proběhne samo."},
+  {time: "Týdně", title: "Cowork projde _vstup", desc: "Naplánovaný úkol zpracuje nové podklady stejnými pravidly a připraví změny ke schválení."},
+  {time: "Měsíčně", title: "Mezery z Neonu", desc: "Dotazy bez výsledku se seskupí a rozdají vlastníkům oblastí. Testovací sada se rozšíří o nové otázky."},
+  {time: "Čtvrtletně", title: "Audit platností", desc: "Cowork vypíše dokumenty se starou platností nebo bez vlastníka. Vlastníci potvrdí, nebo opraví."},
+  {time: "Ročně", title: "Revize struktury", desc: "Sedí oblasti? Nepotřebuje nějaká vrstva vlastní server s užším přístupem?"},
+]} />
+
+Jedna věc, která pomůže víc než jakýkoli proces: **když AI odpoví špatně, oprava jde do báze, ne do promptu.** Zaměstnanec, který zjistí chybu, ji nahlásí (stačí nástroj `nahlas_mezeru` nebo e-mail vlastníkovi báze) a oprava v bázi pomůže všem. Oprava v jeho promptu pomůže jemu jednou.
+
+## Bezpečnost napříč celým postupem
+
+| Kde | Riziko | Opatření |
+|---|---|---|
+| Vstupní složka | Osobní údaje se dostanou do báze | Úklid před zpracováním, instrukce Coworku, inventura s kontrolou osobních údajů |
+| Cowork | Smaže nebo přepíše originály | Pracovat nad kopií, instrukce „nikdy neměň _vstup“ |
+| GitHub | Veřejný repozitář, hesla v historii | Private repozitář, organizace místo osobního účtu, žádné tajné údaje v souborech |
+| GitHub | Někdo změní bázi bez kontroly | Změny jen přes schválený pull request |
+| Vercel | Server dostupný komukoli | OAuth přihlášení, u pilotu nejméně klíč v hlavičce; obsah bez ochrany jen veřejný |
+| Vercel | Klíče v kódu | Jen proměnné prostředí v nastavení projektu |
+| Konektor | Podstrčené instrukce v dokumentech | Do báze jen dokumenty, které prošly kontrolou; báze bez nástrojů, které umí posílat data ven |
+| Neon | Logy jako sledování zaměstnanců | Hash místo identity, informovat lidi, mazat po 6–12 měsících, přístup ke statistice jen pro správce |
+
+Poslední řádek tabulky konektorů si zaslouží větu navíc. Náš server je navržený tak, aby **jen četl** (a zapisoval neškodné záznamy o mezerách). To je zásadní bezpečnostní vlastnost: i kdyby se do báze dostal dokument se skrytým pokynem pro AI, server nemá nástroj, kterým by mohl něco poslat ven nebo smazat. Proč na téhle kombinaci tolik záleží, vysvětluje díl o [smrtící trojici agentů](/agenti/smrtici-trojice-agentu). Až budete chtít přidat nástroje, které něco mění (zápis do CRM, odeslání e-mailu), udělejte z nich samostatný server s vlastními pravidly — nemíchejte je do znalostní báze.
+
+## Kolik to stojí a kolik času si vyhradit
+
+**Peníze.** Licence Claude firma typicky platí tak jako tak. Navíc: GitHub se soukromými repozitáři zdarma, Neon pro statistiku v bezplatném tarifu, Vercel Pro řádově 20 dolarů měsíčně za člena týmu, který projekt spravuje (při běžném provozu znalostní báze se do zahrnutého objemu vejdete). Pokud zvolíte placeného poskytovatele přihlášení, přičtěte jeho cenu; často ale stačí přihlášení přes Microsoft nebo Google účet, který firma už má. Ceny se mění — před rozhodnutím zkontrolujte aktuální ceníky.
+
+**Čas** je hlavní náklad:
+
+| Fáze | Orientačně |
+|---|---|
+| Sběr a úklid podkladů | 1–3 dny (záleží na tom, kolik verzí čeho máte) |
+| Výtah v Coworku | 2–4 odpoledne práce Coworku + vaše kontrola |
+| Kontrola vlastníky oblastí | týden kalendářně, hodina až dvě práce na člověka |
+| GitHub a struktura | půl dne |
+| MCP server s Claude Code | 1–2 dny včetně testovací sady |
+| Vercel, přihlášení, konektor | půl dne až den (přihlášení bývá nejpracnější) |
+| Neon a statistika | půl dne |
+| Pilot s pěti lidmi | týden |
+
+Celkem počítejte se dvěma až čtyřmi týdny kalendářně, z toho zhruba týden soustředěné práce jednoho člověka. Pak údržba: pár hodin měsíčně.
+
+## Nejčastější chyby
+
+- **Nahrát všechno a doufat.** Bez úklidu vstupu postavíte velmi drahou cestu k odpovědím ze staré verze katalogu.
+- **Přeskočit vlastníky oblastí.** Báze, kterou nikdo z odborníků nezkontroloval, má chyby, o kterých se dozvíte od zákazníka.
+- **Jedna báze pro všechno.** Směrnice pro recepci a podklady pro vedení ve stejném serveru = podklady pro vedení na recepci.
+- **Vektorová databáze první den.** Složitost, kterou na stovkách dokumentů nepotřebujete a která ztěžuje ladění. Napřed fulltext a testovací sada.
+- **Server bez přihlášení „jen na zkoušku“.** Zkoušky mají tendenci zůstat v provozu.
+- **Měřit počet dotazů místo mezer.** Počet dotazů ukazuje nadšení. Dotazy bez výsledku ukazují, co dělat.
+- **Opravovat prompty místo báze.** Chyba v bázi opravená v jednom promptu zůstane chybou pro všechny ostatní.
+- **Nikomu neříct, že se loguje.** Když to lidé zjistí sami, ztratíte důvěru, kterou statistika nevrátí.
+
+## Celý postup na jedné obrazovce
+
+1. **Role:** vlastník báze, správce, vlastníci oblastí. Rozhodnout, co do báze nepatří.
+2. **Složka:** `firemni-znalosti/_vstup` po oblastech, videa jako přepisy, staré verze pryč, osobní údaje pryč.
+3. **Cowork:** instrukce složky s formátem hlavičky → inventura → výtah po oblastech → FAQ → kdo co ví → audit rozporů → kontrola vlastníky.
+4. **GitHub:** organizace, soukromý repozitář, nahrání přes GitHub Desktop, změny přes pull request.
+5. **Claude Code:** sada nástrojů a instrukce serveru → plán → server s `mcp-handler` → testovací sada 20 otázek.
+6. **Vercel:** import repozitáře, EU region, OAuth přihlášení, proměnné prostředí.
+7. **Konektor:** vlastník organizace přidá vlastní konektor, zaměstnanci kliknou Connect, pilot s pěti lidmi.
+8. **Neon:** z Vercel Marketplace, tabulky `pouziti` a `mezery`, týdenní dotazy, měsíční rytmus doplňování.
+9. **Prompty a brand:** knihovna promptů v bázi, brand jako pravidla, výstupy od PDF po podklady k videu, vždy se schválením člověka.
+
+## Co vám to přinese
+
+**Srovnatelné odpovědi.** Obchodník s dvacetiletou praxí a nováček druhý den v práci dostanou na otázku o ceně servisní prohlídky stejnou odpověď — se stejným zdrojem.
+
+**Odpovědi, kterým jde věřit.** Každý fakt má odkaz na dokument. Když model neví, řekne to a pošle vás za správným člověkem, místo aby si vymýšlel.
+
+**Méně dotazů na kolegy.** Otázky typu „jak se zadává…“ a „kolik stojí…“ přestanou přerušovat lidi, kteří znají odpověď. U Terezy to byla nejčastější pochvala z pilotu: odborníci na servis přestali dvacetkrát denně odpovídat na totéž.
+
+**Značka, která zní stejně.** Posty, nabídky i videa vycházejí ze stejných pravidel. Ne proto, že je všichni nastudovali, ale proto, že je má po ruce každý chat.
+
+**Vědomí, co ve firmě chybí.** Dotazy bez výsledku jsou nejpoctivější mapa toho, co lidé potřebují vědět a co nikde není napsané. Tuhle mapu dřív neměl nikdo.
+
+## Pro tip
+
+Začněte jednou oblastí a jedním týmem. Ne „celá firma, všechny dokumenty“, ale třeba **ceník a servisní postupy pro obchod a podporu**. Za týden máte funkční řetězec od složky po statistiku, testovací sadu, první mezery — a hlavně důkaz pro zbytek firmy, že to funguje. Další oblasti se pak přidávají jako soubory do repozitáře: server, konektor ani databáze se už nemění. Tereza začala ceníkem. Zbytek firmy se o bázi začal hlásit sám, když obchodníci přestali posílat nabídky s loňskými cenami.

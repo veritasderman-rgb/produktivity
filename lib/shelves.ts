@@ -60,6 +60,7 @@ export const shelves: Shelf[] = [
     href: { cs: "/pro/manazery", en: "/for/managers" },
     slugs: [
       "ai-ve-firme-kompletni-pruvodce",
+      "firemni-znalostni-baze-mcp-server",
       "firma-brand-voice-brozura-web-crm",
       "proverka-obchodniho-partnera-hlidac-statu",
       "firemni-procesy-mapy-lucid-notion",
