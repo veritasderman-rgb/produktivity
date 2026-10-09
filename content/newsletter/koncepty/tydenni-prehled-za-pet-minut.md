@@ -1,9 +1,11 @@
 ---
-# KONCEPT — zatím neodesláno. Do archivu (/newsletter/archiv) patří až po
-# rozeslání: pak soubor přesunout do content/newsletter/tydenni-prehled-za-pet-minut.mdx
-# a smazat tenhle komentář. Loader čte jen .mdx přímo v content/newsletter/,
-# takže tahle složka se nikde nepublikuje.
-number: 1
+# NAHRAZENO — tenhle koncept nikdy neodešel. Jako číslo 1 odešel 9. 10. 2026
+# newsletter firemni-znalostni-baze-pro-ai. Než tenhle text použijete, přepište
+# úvod (představuje se jako první číslo a mluví o 1. říjnu), upravte datum
+# a doplňte `number:` podle skutečného pořadí. Pak teprve platí obvyklý postup:
+# po rozeslání přesunout do content/newsletter/ jako .mdx a smazat tenhle
+# komentář. Loader čte jen .mdx přímo v content/newsletter/, takže tahle
+# složka se nikde nepublikuje.
 subject: "Zítra je pátek: týdenní revize za pět minut"
 preheader: "První číslo newsletteru Produktivní.cz: jeden tip do hloubky, AI novinka týdne a prompt k okopírování."
 date: "2026-10-01"
