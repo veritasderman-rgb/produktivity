@@ -3,17 +3,19 @@
 # rozeslání: pak soubor přesunout do content/newsletter/firemni-znalostni-baze-pro-ai.mdx
 # a smazat tenhle komentář. Loader čte jen .mdx přímo v content/newsletter/,
 # takže tahle složka se nikde nepublikuje.
-number: 2
+number: 1
 subject: "Proč AI ve firmě odpovídá každému jinak (a jak to spravit)"
-preheader: "Nový velký návod: firemní znalostní báze jako vlastní MCP server. K tomu Gemini skills, ChatGPT Space a co jsme na webu opravili."
-date: "2026-10-15"
+preheader: "První číslo newsletteru Produktivní.cz: firemní znalostní báze jako vlastní MCP server, Gemini skills, ChatGPT Space a co jsme na webu opravili."
+date: "2026-10-09"
 ---
 
-Dobré ráno,
+Dobrý den,
 
-ve firmách teď s AI pracuje skoro každý. A skoro každý dostává jiné odpovědi: obchodník nabídku s loňskou cenou, marketérka posty, které znějí jako od jiné firmy, nováček obecnou radu podle zákoníku práce místo interní směrnice. Model přitom nedělá nic špatně. **Jen o vaší firmě nic neví** a co neví, to si přesvědčivě domyslí.
+tohle je první číslo newsletteru Produktivní.cz. Od příštího týdne vám každý čtvrtek ráno pošlu jeden tip do hloubky, pár odkazů, které stojí za kliknutí, a prompt, který si zkopírujete a vyzkoušíte ještě ten den. A když vám něco nebude sedět, stačí odpovědět na tenhle e-mail. Čtu to já, ne robot.
 
-Tenhle týden proto jedno velké téma, nejdelší návod, jaký na webu zatím máme. K tomu dvě AI novinky a krátce o tom, co jsme na webu opravili.
+Ve firmách teď s AI pracuje skoro každý. A skoro každý dostává jiné odpovědi: obchodník nabídku s loňskou cenou, marketérka posty, které znějí jako od jiné firmy, nováček obecnou radu podle zákoníku práce místo interní směrnice. Model přitom nedělá nic špatně. **Jen o vaší firmě nic neví** a co neví, to si přesvědčivě domyslí.
+
+První číslo má proto jedno velké téma, nejdelší návod, jaký na webu zatím máme. K tomu dvě AI novinky a krátce o tom, co jsme na webu opravili.
 
 ## Tip týdne: firemní znalostní báze, na kterou dosáhne každý chat
 
@@ -85,7 +87,7 @@ Pravidla:
 
 A otázka na závěr: **na co se vás kolegové ptají pořád dokola?** Odpovězte mi jedním řádkem. Přesně takové otázky patří do firemní báze jako první.
 
-Mějte přehledný týden,
+Mějte hezký víkend,
 
 Josef
 
