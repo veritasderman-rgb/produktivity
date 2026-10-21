@@ -45,6 +45,11 @@ export const KB_MCP = [
   "Mám připojené",
 ] as const;
 
+/** Otázka 13: znalost pojmů — každý pojem má jednu odpověď ze ZNALOST. */
+export const POJMY = ["GitHub", "Vercel", "MCP server", "Kontext", "Token"] as const;
+
+export const ZNALOST = ["Neslyšel(a)", "Slyšel(a), ale nevím přesně", "Vím, co to je"] as const;
+
 /** Minimální délka odpovědí na otevřené otázky — hlídá klient i server. */
 export const MIN_OPEN = 20;
 
@@ -54,6 +59,8 @@ export type Odpovedi = {
   grafika: string[];
   placenyUcet: string;
   kbMcp: string;
+  /** Pojem → odpověď ze ZNALOST. */
+  pojmy: Record<string, string>;
   zroutCasu: string;
   ocekavani: string;
 };
@@ -177,6 +184,11 @@ const R = {
     title: "AI si vymýšlí s jistotou v hlase. Ověřujte",
     why: "Jak chytit vymyšlenou odpověď dřív, než ji dostane poslanec na stůl.",
   },
+  slovnik: {
+    href: "/slovnik",
+    title: "Slovník pojmů z AI",
+    why: "MCP, token, kontextové okno a další slova, která na školení padnou — každé vysvětlené pár větami.",
+  },
   urovne: {
     href: "/prirucka/pet-urovni-ai",
     title: "Pět úrovní práce s AI: od chatu k agentovi",
@@ -193,7 +205,7 @@ const MAX = 8;
 
 /**
  * Sestaví doporučené čtení podle odpovědí. Pořadí = priorita: nejdřív to, co
- * odpovídá úrovni, pak témata z otevřených odpovědí, nakonec ověřování
+ * odpovídá úrovni a neznámým pojmům, pak témata z otevřených odpovědí, nakonec ověřování
  * a bezpečnost, které dostane každý.
  */
 export function doporuc(o: Odpovedi): Doporuceni[] {
@@ -208,6 +220,11 @@ export function doporuc(o: Odpovedi): Doporuceni[] {
   else if (level === 3) add(R.mcp, R.konektory);
   else if (level === 4) add(R.rutiny, R.rutinyKapitola);
   else add(R.trojice, R.rutinyKapitola);
+
+  // Neznámé pojmy z otázky 13: slovník má přednost před tématy z otevřených odpovědí.
+  const neznam = POJMY.filter((p) => o.pojmy[p] !== ZNALOST[2]);
+  if (neznam.includes("MCP server")) add(R.mcp);
+  if (neznam.length > 0) add(R.slovnik);
 
   const text = `${o.zroutCasu} ${o.ocekavani}`.toLowerCase();
   if (/steno|tisk|podklad|důvodov|zákon|rešerš|reserš|pozměň|pozmen|legislat/.test(text)) {

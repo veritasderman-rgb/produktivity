@@ -7,7 +7,9 @@ import {
   MIN_OPEN,
   NASTROJE,
   PLACENY_UCET,
+  POJMY,
   UROVNE,
+  ZNALOST,
   doporuc,
   type Doporuceni,
 } from "@/lib/pirati-dotaznik";
@@ -137,6 +139,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: ERR.tooShort }, { status: 400 });
   }
 
+  const rawPojmy = (data.pojmy && typeof data.pojmy === "object" ? data.pojmy : {}) as Record<string, unknown>;
+  const pojmy: Record<string, string> = Object.fromEntries(POJMY.map((p) => [p, str(rawPojmy[p])]));
+  if (Object.values(pojmy).some((v) => !v)) {
+    return NextResponse.json({ error: ERR.missing }, { status: 400 });
+  }
+
   const nastroje = list(data.nastroje, NASTROJE);
   let grafika = list(data.grafika, GRAFIKA);
   if (
@@ -144,7 +152,8 @@ export async function POST(req: Request) {
     !grafika ||
     !(UROVNE as readonly string[]).includes(uroven) ||
     !(PLACENY_UCET as readonly string[]).includes(placenyUcet) ||
-    !(KB_MCP as readonly string[]).includes(kbMcp)
+    !(KB_MCP as readonly string[]).includes(kbMcp) ||
+    Object.values(pojmy).some((v) => !(ZNALOST as readonly string[]).includes(v))
   ) {
     return NextResponse.json({ error: ERR.badChoice }, { status: 400 });
   }
@@ -159,7 +168,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: ERR.notReady }, { status: 503 });
   }
 
-  const recs = doporuc({ uroven, nastroje, grafika, placenyUcet, kbMcp, zroutCasu, ocekavani });
+  const recs = doporuc({ uroven, nastroje, grafika, placenyUcet, kbMcp, pojmy, zroutCasu, ocekavani });
   const sql = neon(dbUrl);
 
   let id: number;
@@ -167,11 +176,11 @@ export async function POST(req: Request) {
     const rows = await sql`
       INSERT INTO pirati_dotaznik (
         jmeno, prijmeni, email, vek, pro_koho, pouziti, zrout_casu, chyba_ai,
-        uroven, nastroje, nastroje_jiny, grafika, placeny_ucet, kb_mcp, ocekavani, doporuceni
+        uroven, nastroje, nastroje_jiny, grafika, placeny_ucet, kb_mcp, pojmy, ocekavani, doporuceni
       ) VALUES (
         ${jmeno}, ${prijmeni}, ${email}, ${vek}, ${proKoho}, ${pouziti}, ${zroutCasu}, ${chybaAi},
         ${uroven}, ${nastroje}, ${nastroje.includes("Jiný") ? nastrojeJiny || null : null}, ${grafika},
-        ${placenyUcet}, ${kbMcp}, ${ocekavani}, ${recs.map((r) => r.href)}
+        ${placenyUcet}, ${kbMcp}, ${JSON.stringify(pojmy)}::jsonb, ${ocekavani}, ${recs.map((r) => r.href)}
       )
       RETURNING id`;
     id = Number(rows[0].id);

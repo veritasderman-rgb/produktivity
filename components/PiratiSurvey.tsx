@@ -9,7 +9,9 @@ import {
   MIN_OPEN,
   NASTROJE,
   PLACENY_UCET,
+  POJMY,
   UROVNE,
+  ZNALOST,
 } from "@/lib/pirati-dotaznik";
 
 const ERROR = "Odeslání se nepovedlo. Zkuste to prosím znovu.";
@@ -112,6 +114,7 @@ export function PiratiSurvey() {
       ...Object.fromEntries(fd.entries()),
       nastroje: fd.getAll("nastroje"),
       grafika: fd.getAll("grafika"),
+      pojmy: Object.fromEntries(POJMY.map((p) => [p, fd.get(`pojem-${p}`) ?? ""])),
       consent: fd.get("consent") === "on",
     };
 
@@ -258,10 +261,31 @@ export function PiratiSurvey() {
             ))}
           </div>
         </Question>
+        <Question n={13} label="Slyšeli jste tyhle pojmy?" hint="U každého pojmu vyberte jednu možnost.">
+          <div className="grid gap-3">
+            {POJMY.map((p) => (
+              <fieldset key={p} className="grid gap-2 border border-hairline bg-card p-4 sm:grid-cols-[9rem_1fr] sm:items-center">
+                <legend className="sr-only">{p}</legend>
+                <p aria-hidden="true" className="text-[15px] font-bold">{p}</p>
+                <div className="flex flex-wrap gap-2">
+                  {ZNALOST.map((v) => (
+                    <label
+                      key={v}
+                      className="flex cursor-pointer items-center gap-2 border border-hairline px-3 py-2 text-[13.5px] has-[:checked]:border-accent has-[:checked]:font-semibold"
+                    >
+                      <input type="radio" name={`pojem-${p}`} value={v} required className="h-4 w-4 accent-accent" />
+                      {v}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            ))}
+          </div>
+        </Question>
       </Section>
 
       <Section title="Závěr">
-        <Question n={13} label="Co si chcete ze školení odnést?">
+        <Question n={14} label="Co si chcete ze školení odnést?">
           <textarea name="ocekavani" rows={4} required minLength={MIN_OPEN} maxLength={5000} className={field} />
         </Question>
 
