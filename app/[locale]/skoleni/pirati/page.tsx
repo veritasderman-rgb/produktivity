@@ -26,7 +26,7 @@ export default async function PiratiSurveyPage({
       <p className="eyebrow mb-2 text-faint">Školení AI · Poslanecký klub Pirátů</p>
       <h1 className="display text-[clamp(30px,5vw,46px)]">Než se uvidíme na školení</h1>
       <p className="mt-5 max-w-[60ch] text-[16.5px] leading-relaxed text-muted">
-        Třináct otázek, zhruba deset minut. Podle odpovědí ušiju školení na to, co opravdu děláte — ne na
+        Čtrnáct otázek, zhruba deset minut. Podle odpovědí ušiju školení na to, co opravdu děláte — ne na
         obecné ukázky. Pište konkrétně, správné ani špatné odpovědi tu nejsou.
       </p>
       <p className="mt-3 max-w-[60ch] text-[15px] leading-relaxed text-muted">
