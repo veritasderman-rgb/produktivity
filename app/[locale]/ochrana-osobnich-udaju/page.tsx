@@ -27,6 +27,10 @@ const T = {
         strong: "Poptávka školení:",
         rest: " jméno, pracovní e-mail, název firmy, velikost týmu a text poptávky — abych vám mohl odpovědět a připravit nabídku. Právním základem je jednání o smlouvě z vašeho podnětu.",
       },
+      {
+        strong: "Vstupní dotazník ke školení:",
+        rest: " jméno, příjmení, e-mail, věk, pro koho pracujete a odpovědi na otázky o práci s AI — abych školení připravil na míru a poslal vám jeden e-mail s doporučenými materiály. Právním základem je váš souhlas udělený při odeslání dotazníku.",
+      },
     ],
     dataNote:
       "Žádné další osobní údaje web aktivně nesbírá. Nepoužívám reklamní cookies. Pro měření návštěvnosti používám Google Analytics, které cookies ukládá — podrobnosti níže.",
@@ -35,6 +39,14 @@ const T = {
       {
         strong: "Brevo",
         rest: " (Sendinblue GmbH, EU) — rozesílka newsletteru a správa kontaktů. Vaše adresa je uložena u nich.",
+      },
+      {
+        strong: "Neon",
+        rest: " (Neon, Inc., data v EU – Frankfurt) — databáze, ve které jsou uložené odpovědi ze vstupního dotazníku ke školení.",
+      },
+      {
+        strong: "Resend",
+        rest: " (Resend, Inc., odesílání z EU – Irsko) — odeslání e-mailu s doporučenými materiály po vyplnění dotazníku.",
       },
       {
         strong: "Vercel",
@@ -49,6 +61,7 @@ const T = {
     retention: [
       "Newsletter: do odvolání souhlasu (odhlášení).",
       "Poptávky školení: po dobu jednání a následně po dobu nezbytnou pro případné navazující služby, nejdéle 3 roky od poslední komunikace.",
+      "Vstupní dotazník ke školení: po dobu přípravy a konání školení a navazující podpory, nejdéle 12 měsíců od jeho vyplnění. Na požádání je smažu dřív.",
     ],
     rightsTitle: "Vaše práva",
     rightsA:
@@ -57,7 +70,7 @@ const T = {
       " — odpovídám do 30 dnů, obvykle mnohem dřív. Pokud byste nebyli spokojeni, můžete se obrátit na Úřad pro ochranu osobních údajů (uoou.gov.cz).",
     changesTitle: "Změny tohoto dokumentu",
     changes:
-      "Pokud se způsob zpracování změní (např. přibude nový nástroj), aktualizuji tuto stránku. Poslední aktualizace: srpen 2026.",
+      "Pokud se způsob zpracování změní (např. přibude nový nástroj), aktualizuji tuto stránku. Poslední aktualizace: říjen 2026.",
     contactA: "Máte otázku? ",
     contactLink: "Napište mi",
     contactB: " — na rovinu a bez právničiny.",
@@ -85,6 +98,10 @@ const T = {
         strong: "Training inquiry:",
         rest: " your name, work email, company name, team size and the text of your inquiry — so I can reply and put a proposal together. The legal basis is pre-contractual negotiation at your request.",
       },
+      {
+        strong: "Training pre-survey:",
+        rest: " first name, surname, email, age, who you work for and your answers about how you use AI — so I can tailor the training and send you one email with recommended materials. The legal basis is the consent you give when submitting the survey.",
+      },
     ],
     dataNote:
       "The site actively collects no other personal data. I use no advertising cookies. For traffic measurement I use Google Analytics, which does store cookies — details below.",
@@ -93,6 +110,14 @@ const T = {
       {
         strong: "Brevo",
         rest: " (Sendinblue GmbH, EU) — newsletter delivery and contact management. Your address is stored with them.",
+      },
+      {
+        strong: "Neon",
+        rest: " (Neon, Inc., data stored in the EU – Frankfurt) — the database holding answers from the training pre-survey.",
+      },
+      {
+        strong: "Resend",
+        rest: " (Resend, Inc., sending from the EU – Ireland) — delivery of the email with recommended materials after the survey.",
       },
       {
         strong: "Vercel",
@@ -107,6 +132,7 @@ const T = {
     retention: [
       "Newsletter: until you withdraw consent (unsubscribe).",
       "Training inquiries: for the duration of our negotiation and then for as long as any follow-up services require, at most 3 years from our last contact.",
+      "Training pre-survey: for the preparation and delivery of the training and follow-up support, at most 12 months after you fill it in. I delete it sooner on request.",
     ],
     rightsTitle: "Your rights",
     rightsA:
@@ -115,7 +141,7 @@ const T = {
       " — I reply within 30 days, usually much sooner. If you are not satisfied, you can turn to the Czech Data Protection Authority (uoou.gov.cz).",
     changesTitle: "Changes to this document",
     changes:
-      "If the way data is processed changes (a new tool is added, for example), I will update this page. Last updated: August 2026.",
+      "If the way data is processed changes (a new tool is added, for example), I will update this page. Last updated: October 2026.",
     contactA: "Got a question? ",
     contactLink: "Write to me",
     contactB: " — straight, and without the legalese.",
