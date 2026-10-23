@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Fragment } from "react";
 import { getAllTipMetas, type TipMeta } from "@/lib/tips";
 import { countTipValues, filterTips, TIPS_PER_PAGE } from "@/lib/tip-filters";
+import { NewsletterForm } from "@/components/NewsletterForm";
 import { TipCard } from "@/components/TipCard";
 import { TipSearch } from "@/components/TipSearch";
 import { getDict, isLocale, localePath, type Locale } from "@/lib/i18n";
@@ -30,6 +32,8 @@ const T = {
     prev: "← Novější",
     next: "Starší →",
     pageOf: (a: number, b: number) => `Strana ${a} z ${b}`,
+    ctaEyebrow: "Nejlepší tip týdne do e-mailu",
+    ctaDesc: "Nechcete procházet stovky tipů? Jednou týdně vám pošlu ten, který se vyplatí nejvíc. Dvě minuty čtení.",
   },
   en: {
     title: "Tips & tricks",
@@ -53,6 +57,8 @@ const T = {
     prev: "← Newer",
     next: "Older →",
     pageOf: (a: number, b: number) => `Page ${a} of ${b}`,
+    ctaEyebrow: "The best tip of the week, by email",
+    ctaDesc: "Don't want to browse hundreds of tips? Once a week I send you the one that pays off most. Two minutes to read.",
   },
 };
 
@@ -103,6 +109,9 @@ function filterHref(
   if (strana > 1) p.set("strana", String(strana));
   return `${localePath(locale, "/tipy")}${p.size ? `?${p}` : ""}`;
 }
+
+/** Po kolika kartách se do mřížky vloží přihlášení k newsletteru (2 řady na desktopu). */
+const CTA_AFTER = 6;
 
 const chip = (active: boolean) =>
   `font-mono text-[12px] font-semibold tracking-[0.08em] uppercase px-3.5 py-2 border-[1.5px] transition-colors no-underline ${
@@ -268,13 +277,23 @@ export default async function TipsPage({
 
       {visible.length > 0 ? (
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {visible.map((tip) => (
-            <TipCard
-              key={tip.slug}
-              tip={tip}
-              index={numberBySlug.get(tip.slug) ?? 0}
-              locale={locale}
-            />
+          {visible.map((tip, i) => (
+            <Fragment key={tip.slug}>
+              <TipCard tip={tip} index={numberBySlug.get(tip.slug) ?? 0} locale={locale} />
+              {/* Newsletter po prvních dvou řadách karet (nebo za posledním tipem,
+                  když jich je míň) — dál většina čtenářů nedoscrolluje. */}
+              {i === Math.min(CTA_AFTER, visible.length) - 1 && (
+                <div className="grid gap-5 border-[1.5px] border-hairline-strong bg-card p-6 sm:col-span-2 sm:grid-cols-2 sm:items-end lg:col-span-3">
+                  <div>
+                    <p className="eyebrow mb-2 text-faint">{t.ctaEyebrow}</p>
+                    <p className="max-w-[46ch] text-[15px] text-muted">{t.ctaDesc}</p>
+                  </div>
+                  <div className="max-w-md">
+                    <NewsletterForm source="tipy" locale={locale} />
+                  </div>
+                </div>
+              )}
+            </Fragment>
           ))}
         </div>
       ) : (

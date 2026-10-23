@@ -104,7 +104,7 @@ export function NewsletterForm({
 
   if (status === "ok") {
     return (
-      <div className="border border-hairline-strong bg-card p-4">
+      <div data-newsletter className="border border-hairline-strong bg-card p-4">
         <p className="text-[14.5px] font-semibold">{t.done}</p>
         <a
           href={EBOOK_HREF[locale] ?? EBOOK_HREF.cs}
@@ -117,7 +117,7 @@ export function NewsletterForm({
   }
 
   return (
-    <div>
+    <div data-newsletter>
       <p className="mb-2.5 text-[14.5px] leading-snug font-bold text-ink">{o.lead}</p>
       <form onSubmit={submit} className="flex border-[1.5px] border-hairline-strong bg-card">
         <input

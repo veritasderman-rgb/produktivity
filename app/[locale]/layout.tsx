@@ -9,6 +9,7 @@ import { CookieConsent, CookieSettingsLink } from "@/components/CookieConsent";
 import { Keycap } from "@/components/Keycap";
 import { LangSwitch } from "@/components/LangSwitch";
 import { NavAi, NavAiChips, NavMore } from "@/components/NavAi";
+import { NewsletterForm } from "@/components/NewsletterForm";
 import { SearchOverlay, SearchTrigger, type SearchIndexItem } from "@/components/SearchOverlay";
 import { getAllAgentMetas } from "@/lib/agents";
 import { audienceBase, audienceHref, audiences } from "@/lib/audiences";
@@ -228,6 +229,21 @@ gtag('config', '${GA_ID}');`}
         )}
 
         <footer className="mt-24 border-t-2 border-hairline-strong">
+          {/* Přihlášení k newsletteru na každé stránce. Kde už stránka vlastní
+              formulář má (články, homepage, /newsletter, nástroje), CSS pravidlo
+              .footer-newsletter v globals.css tenhle blok schová, ať nejsou dva
+              stejné formuláře pod sebou. */}
+          <div className="footer-newsletter print-hide border-b border-hairline">
+            <div className="mx-auto grid max-w-[var(--page-max)] gap-6 px-[var(--page-pad)] py-10 sm:grid-cols-2 sm:items-end">
+              <div>
+                <p className="eyebrow mb-2 text-faint">{t.footer.newsletterEyebrow}</p>
+                <p className="max-w-[44ch] text-[15px] text-muted">{t.footer.newsletterDesc}</p>
+              </div>
+              <div className="max-w-md">
+                <NewsletterForm source="footer" locale={locale} />
+              </div>
+            </div>
+          </div>
           <div className="mx-auto grid max-w-[var(--page-max)] gap-10 px-[var(--page-pad)] py-14 sm:grid-cols-3">
             <div>
               <div className="flex items-center gap-3">
