@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { track } from "@vercel/analytics";
 
 /**
  * Co formulář nabízí. Výchozí `ebook` říká odměnu rovnou na tlačítku —
@@ -9,6 +10,9 @@ import { useState } from "react";
  * sedmidenní e-mailový kurz, ne e-book.
  */
 export type NewsletterOffer = "ebook" | "kurz";
+
+/** Jméno skrytého pole-pasti. Schválně nic, co by vyplnil prohlížeč nebo správce hesel. */
+const HONEYPOT = "b_hp";
 
 /** E-book, který chodí v uvítacím e-mailu. Cesta se liší podle jazyka. */
 const EBOOK_HREF: Record<"cs" | "en", string> = {
@@ -72,20 +76,38 @@ export function NewsletterForm({
   const o = t.offers[offer] ?? t.offers.ebook;
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "error">("idle");
   const [message, setMessage] = useState("");
+  // Kdy se formulář objevil — server odmítne odeslání rychlejší, než stihne člověk.
+  const mountedAt = useRef(0);
+  useEffect(() => {
+    mountedAt.current = Date.now();
+  }, []);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const email = new FormData(e.currentTarget).get("email");
+    const form = new FormData(e.currentTarget);
+    const email = form.get("email");
     setStatus("sending");
     try {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, source, locale }),
+        body: JSON.stringify({
+          email,
+          source,
+          locale,
+          // Ochrana proti botům: past (skryté pole) a doba od zobrazení formuláře.
+          hp: form.get(HONEYPOT) ?? "",
+          elapsed: Date.now() - mountedAt.current,
+        }),
       });
       const data = await res.json();
       if (res.ok) {
         setStatus("ok");
+        // Konverze do Vercel Analytics i GA4 (GA jen se souhlasem) — podle source
+        // je vidět, který formulář přihlášky přináší.
+        track("newsletter-signup", { source, locale });
+        const w = window as typeof window & { gtag?: (...args: unknown[]) => void };
+        w.gtag?.("event", "sign_up", { method: "newsletter", source });
         try {
           // Přihlášeno — newsletter pop-up se už nikdy nemá ukazovat.
           window.localStorage.setItem("produktivni:subscribed", "1");
@@ -127,6 +149,15 @@ export function NewsletterForm({
           placeholder={t.placeholder}
           aria-label={t.ariaEmail}
           className="min-w-0 flex-1 bg-transparent px-4 py-3 text-[15px] outline-offset-[-2px]"
+        />
+        {/* Past na boty: člověk pole nevidí ani na něj netabne, robot ho vyplní. */}
+        <input
+          type="text"
+          name={HONEYPOT}
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          className="absolute -left-[9999px] h-px w-px opacity-0"
         />
         <button
           type="submit"
