@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { track } from "@vercel/analytics";
 
 /**
@@ -76,11 +76,6 @@ export function NewsletterForm({
   const o = t.offers[offer] ?? t.offers.ebook;
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "error">("idle");
   const [message, setMessage] = useState("");
-  // Kdy se formulář objevil — server odmítne odeslání rychlejší, než stihne člověk.
-  const mountedAt = useRef(0);
-  useEffect(() => {
-    mountedAt.current = Date.now();
-  }, []);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -95,9 +90,12 @@ export function NewsletterForm({
           email,
           source,
           locale,
-          // Ochrana proti botům: past (skryté pole) a doba od zobrazení formuláře.
+          // Ochrana proti botům: past (skryté pole) a doba od načtení stránky.
+          // Měří se od načtení, ne od zobrazení formuláře — pop-up formulář
+          // vzniká až po 40 s čtení a rychlé automatické vyplnění v něm
+          // nesmí člověka odmítnout.
           hp: form.get(HONEYPOT) ?? "",
-          elapsed: Date.now() - mountedAt.current,
+          elapsed: Math.round(performance.now()),
         }),
       });
       const data = await res.json();

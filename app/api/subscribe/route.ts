@@ -20,7 +20,7 @@ const ERR = {
 // Přihlášení k newsletteru — kontakt jde do Brevo (list "newsletter").
 // Vyžaduje env BREVO_API_KEY a BREVO_LIST_ID; bez nich vrací srozumitelnou chybu,
 // aby formulář nikdy nepředstíral úspěch.
-/** Rychleji formulář vyplní a odešle jen robot (měřeno od zobrazení formuláře). */
+/** Rychleji formulář vyplní a odešle jen robot (měřeno od načtení stránky). */
 const MIN_FILL_MS = 3000;
 
 export async function POST(req: Request) {
