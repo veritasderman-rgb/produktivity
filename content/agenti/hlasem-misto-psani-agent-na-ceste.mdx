@@ -1,0 +1,99 @@
+---
+title: "Hlasem místo psaní: agent v autě a na procházce"
+excerpt: "Nejlepší nápady přicházejí, když nemáte volné ruce. Hlasová zpráva v Telegramu, přepis, odpověď hlasem nebo textem. Nastavení na čtyři řádky, bezplatná varianta a tři situace, kdy se hlas nehodí."
+track: "ovladani"
+order: 7
+tags: ["ovladani", "telegram", "agenti"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Hermes umí přijmout hlasovou zprávu z Telegramu, přepsat ji a odpovědět textem nebo hlasem. Přepis i čtení mají bezplatné varianty; pro češtinu je potřeba nastavit jazyk, výchozí je angličtina. V kontejneru nemusí být místní přepis k dispozici, pak se použije cloudová služba. Tři režimy se přepínají příkazem /voice. Hlas je skvělý na zachycení myšlenky a krátké dotazy, špatný na cokoli, kde záleží na přesném znění, a nevhodný tam, kde vás někdo slyší.
+sources:
+  - name: "Hermes Agent — hlasový režim"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/voice-mode"
+  - name: "Hermes Agent — Telegram"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/telegram"
+  - name: "Hermes Agent — provoz v Dockeru"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"
+---
+
+Psát agentovi na klávesnici telefonu je v pořádku u stolu. V autě je to nebezpečné, s kočárkem nemožné a na procházce to kazí procházku. Přitom právě tam člověka napadají věci, které stojí za zapsání.
+
+Telegram má hlasové zprávy odjakživa. Stačí, aby jim agent rozuměl.
+
+## Jak to funguje
+
+Podržíte v Telegramu mikrofon, řeknete, co potřebujete, a pustíte. Agent zprávu přepíše na text, zpracuje ji jako každou jinou a odpoví. Jestli textem, nebo hlasem, si určíte.
+
+```text
+/voice off     odpovídá vždy textem (výchozí)
+/voice on      hlasem odpoví jen na hlasovou zprávu
+/voice tts     hlasem odpoví na všechno
+/voice status  ukáže, co je nastaveno
+```
+
+Pro většinu lidí je správně `/voice on`. Napíšete-li, čtete. Řeknete-li, posloucháte. Nastavení přežije restart.
+
+## Nastavení pro češtinu
+
+Dvě věci v souboru `config.yaml` a jeden klíč.
+
+```yaml
+stt:
+  enabled: true
+  provider: groq
+  language: "cs"
+
+tts:
+  provider: edge
+  edge:
+    voice: "cs-CZ-VlastaNeural"
+```
+
+**Jazyk přepisu.** Výchozí je angličtina. Bez řádku `language: "cs"` dostanete z českého diktátu anglicky znějící nesmysly a budete hledat chybu jinde.
+
+**Přepis.** Hermes umí přepisovat i lokálně, bez jakékoli služby. V kontejneru ale podle dokumentace nemusí být potřebné součásti k dispozici; pak zvolte cloudovou službu. Groq má bezplatný tarif a stačí k němu klíč `GROQ_API_KEY` v souboru `.env`.
+
+**Hlas odpovědi.** Poskytovatel `edge` je zdarma a bez klíče, s českými hlasy. Kdo chce přirozenější přednes a už má účet u ElevenLabs, přepne poskytovatele a zadá identifikátor hlasu.
+
+Po úpravě kontejner restartujte a pošlete zkušební zprávu: „Zopakuj mi doslova, co jsem teď řekl.“ Uvidíte, jak dobře vám rozumí, dřív, než mu svěříte něco důležitého.
+
+## Na co se hlas hodí
+
+- **Zachytit myšlenku.** „Zapiš si nápad k projektu Web: zkusit ceník jako tabulku.“ Deset vteřin a je to venku z hlavy.
+- **Rychlý dotaz.** „Co mám dnes odpoledne?“ a odpověď do sluchátek.
+- **Úkol na později.** „Připomeň mi zítra v devět zavolat do servisu.“
+- **Deník.** Tři věty cestou z práce jsou víc než prázdná stránka večer.
+- **Dlouhé zadání.** Mluvíte třikrát rychleji, než píšete. Zadání, které byste palcem ošidili, nadiktujete celé.
+
+## Na co se nehodí
+
+- **Jména, čísla, adresy.** Přepis si s nimi poradí hůř než s běžnou řečí. Telefonní číslo nebo e-mail vždy zkontrolujte v textu.
+- **Cokoli nevratného.** Pokyn typu „smaž“ nebo „pošli“ hlasem nedávejte. Jedno přeslechnuté slovo a agent udělá něco jiného.
+- **Když vás někdo slyší.** V tramvaji nadiktujete agentovi i spolucestujícím, co jste komu slíbili.
+
+K druhému bodu: dobrý návyk je nechat si u důležitých věcí zadání zopakovat. Řekněte agentovi jednou provždy: „Když ti hlasem zadám úkol s termínem, napiš mi ho zpátky jednou větou, než ho uložíš.“ Uloží si to do paměti.
+
+## V autě
+
+Tady je potřeba říct jednu věc napřímo: držet telefon a mačkat mikrofon za jízdy je stejný přestupek jako psaní zprávy. Hlas pomáhá jen tehdy, když ho ovládáte bez rukou.
+
+Co funguje: nadiktovat zprávu **před rozjezdem** a odpověď si nechat přečíst do reproduktorů. Nebo použít hlasového asistenta telefonu k odeslání zprávy do Telegramu, pokud to váš telefon a auto umějí. A nejspolehlivější varianta je ta nejnudnější: zastavit.
+
+## Kam hlas teče
+
+Hlasová zpráva projde třemi místy: servery Telegramu, službou, která ji přepisuje, a poskytovatelem modelu. U bezplatných přepisovacích služeb si přečtěte, co s nahrávkami dělají. Kdo chce, aby zvuk neopustil dům, potřebuje lokální přepis a tedy instalaci mimo kontejner nebo vlastní image — to už je práce pro pokročilé.
+
+Rozumné pravidlo: hlasem zadávejte to, co byste řekli nahlas v kanceláři.
+
+## Na co si dát pozor
+
+- **Dlouhé nahrávky.** Pětiminutový monolog se přepíše, ale agent z něj vybere, co uzná za důležité. Kratší zprávy dopadají lépe.
+- **Hluk.** Vítr a motor zhorší přepis víc, než čekáte. Sluchátka s mikrofonem pomáhají.
+- **Hlasová odpověď je pomalejší.** Vzniká až po textové. Na dlouhé odpovědi si nechte text.
+- **Placené hlasy stojí kredity.** Režim `/voice tts` s placeným poskytovatelem čte nahlas i každé „hotovo“.
+
+---
+
+Hlas agenta nezrychlí ani nezchytří. Jen ho zpřístupní ve chvílích, kdy byste jinak neudělali nic — a právě v nich vzniká většina věcí, které si pak nemůžete vybavit.

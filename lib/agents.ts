@@ -152,6 +152,20 @@ export function agentArticlesByTrack(
   return articles.filter((a) => a.track === track);
 }
 
+/**
+ * Naposledy přidané díly — pruh „Nově přidáno“ nad seriálem. Sekce se jinak řadí
+ * po linkách, takže nový díl by bez něj nebyl na první pohled vidět. Při shodě
+ * data rozhoduje vyšší pořadí v lince (novější díly mají vyšší číslo).
+ */
+export function latestAgentArticles(articles: AgentArticleMeta[], count: number): AgentArticleMeta[] {
+  return [...articles]
+    .sort(
+      (a, b) =>
+        b.date.localeCompare(a.date) || b.order - a.order || a.title.localeCompare(b.title, "cs"),
+    )
+    .slice(0, count);
+}
+
 /** Kolik článků nese který štítek — pro čísla u filtru. */
 export function countAgentTags(articles: AgentArticleMeta[]): Record<string, number> {
   const acc: Record<string, number> = {};

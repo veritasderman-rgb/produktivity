@@ -1,0 +1,178 @@
+---
+title: "Notion jako paměť: tři databáze, které vydrží rok"
+excerpt: "Jedna tabulka slibů stačí měsíc. Pak v ní máte čtyři sta řádků, polovinu duplicit a přestanete jí věřit. Struktura se třemi propojenými databázemi, pohledy na každý den a pravidla, kdo do ní smí co zapsat."
+category: "aplikace"
+platform: "vsude"
+audience: ["manazer", "freelancer"]
+keys: []
+saves: "~1 h týdně hledání, kdo co slíbil"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Paměť v Notionu, do které zapisuje AI, potřebuje tři propojené databáze: Sliby,
+  Lidé a Projekty. Jméno a projekt jako odkaz, ne jako text, je to, co ji drží
+  pohromadě — jinak máte Petra Svobodu zapsaného pěti způsoby. K tomu čtyři pohledy
+  (Dnes, Po termínu, Čeká na schválení, Podle člověka), pravidlo, že AI zapisuje
+  jen jako návrh, a měsíční archivace hotového. Struktura vychází z databáze slibů
+  z návodu na Beeper a přidává k ní to, co začne chybět po šesti týdnech.
+faq:
+  - q: "Nestačí jedna tabulka?"
+    a: >-
+      První měsíc ano. Problém přijde, až se zeptáte „co všechno mám rozjednané
+      s Novákem“ a zjistíte, že je v tabulce jako Novák, Ing. Novák, Jirka N.
+      a Jiří Novák. Propojená databáze lidí tohle řeší jednou provždy.
+  - q: "Může strukturu založit AI?"
+    a: >-
+      Ano, zadání je v návodu. Nechte ji ale založit podle přesného popisu
+      a výsledek si projděte. Struktura, které nerozumíte, se vám za měsíc
+      rozpadne pod rukama.
+  - q: "Co když AI zapíše nesmysl?"
+    a: >-
+      Proto zapisuje se stavem Návrh a vy potvrzujete. Návrhy, které do týdne
+      nepotvrdíte, při úklidu mažete. Databáze, do které se píše
+      bez schválení, ztratí důvěru po prvním vymyšleném slibu.
+  - q: "Jak je to se soukromím?"
+    a: >-
+      Notion je cloudová služba a propojená AI vidí to, co vidí účet, kterým je
+      přihlášená. Pro agenta proto založte samostatný účet pozvaný jen do téhle
+      paměti, ne do celého pracovního prostoru. A do paměti nepište nic, co by
+      nesmělo opustit firmu.
+  - q: "Hodí se to i bez AI?"
+    a: >-
+      Ano. Struktura funguje stejně, když sliby zapisujete ručně. AI jen přebírá
+      tu část práce, kterou lidé vynechávají — zápis ve chvíli, kdy slib padl.
+---
+
+[Návod na Beeper](/tipy/beeper-hub-zprav-s-ai) končí databází „Sliby a závazky“ o devíti sloupcích. Je to dobrý začátek. Po šesti týdnech pravidelného zapisování ale narazíte na tři potíže, které nemají nic společného s AI:
+
+Jeden člověk je v tabulce pod pěti jmény. Nevíte, které sliby patří ke kterému projektu. A hotové řádky zasypaly ty otevřené.
+
+Všechny tři mají stejnou příčinu: **text tam, kde má být odkaz.**
+
+## Vzorová situace
+
+Marek, projektový manažer na volné noze, má po dvou měsících v databázi 380 slibů. Před schůzkou s klientem chce vidět, co všechno si navzájem dluží. Vyfiltruje „Novák“ a dostane šest řádků. Ví, že jich je víc. Zbytek je pod „Ing. Novák“, „Jirka“ a „p. Novák (Stavby)“.
+
+Za jedno odpoledne strukturu předělá: lidi a projekty vytáhne do vlastních databází a sliby na ně napojí. Od té chvíle otevře kartu člověka a vidí všechno, co s ním má rozjednané, napříč sítěmi i projekty.
+
+## Jak na to
+
+### 1. Tři databáze místo jedné
+
+**Lidé** — jeden řádek na člověka.
+
+- Jméno (název)
+- Firma (text)
+- Jiná jména (text): přezdívky a tvary, pod kterými se objevuje v chatech
+- Poznámka (text): co je dobré vědět před hovorem
+
+**Projekty** — jeden řádek na zakázku nebo oblast.
+
+- Název
+- Stav (výběr: Běží, Čeká, Hotovo)
+- Klient (odkaz do Lidí)
+
+**Sliby** — jádro, jak ho znáte, se dvěma změnami.
+
+- Slib (název)
+- Kdo slibuje (výběr: Já, Protistrana)
+- **Člověk (odkaz do Lidí)** — místo textového pole
+- **Projekt (odkaz do Projektů)** — nový sloupec
+- Dokdy (datum)
+- Stav (výběr: Návrh, Potvrzeno, Splněno, Zrušeno)
+- Zdroj (text): síť a chat
+- Citace (text): doslovná věta
+- Zapsáno (čas vytvoření)
+
+Sloupec „Jiná jména“ u lidí je malá věc s velkým účinkem. Podle něj AI pozná, že „Jirka“ ve WhatsAppu a „Ing. Novák“ v e-mailu je jeden řádek.
+
+### 2. Zadání pro založení
+
+```text
+Založ mi v Notionu tři propojené databáze na stránce „Paměť“.
+
+LIDÉ: Jméno (title), Firma (text), Jiná jména (text),
+Poznámka (text).
+
+PROJEKTY: Název (title), Stav (select: Běží, Čeká, Hotovo),
+Klient (relation do Lidé).
+
+SLIBY: Slib (title), Kdo slibuje (select: Já, Protistrana),
+Člověk (relation do Lidé), Projekt (relation do Projekty),
+Dokdy (date), Stav (select: Návrh, Potvrzeno, Splněno, Zrušeno;
+výchozí Návrh), Zdroj (text), Citace (text),
+Zapsáno (created time).
+
+Nic dalšího nezakládej. Nakonec vypiš, co jsi vytvořil.
+```
+
+### 3. Čtyři pohledy
+
+Databáze bez pohledů je sklad. Tyhle čtyři z ní dělají nástroj:
+
+- **Dnes a zítra** — Stav je Potvrzeno, Dokdy do zítřka. Tohle otevíráte ráno.
+- **Po termínu** — Stav je Potvrzeno, Dokdy v minulosti. Má být prázdný.
+- **Ke schválení** — Stav je Návrh. Fronta toho, co zapsala AI.
+- **Kalendář** — podle sloupce Dokdy, jen potvrzené.
+
+Pátý pohled vznikne sám: na kartě každého člověka a projektu se zobrazí sliby, které na něj odkazují.
+
+### 4. Pravidla zápisu pro AI
+
+Tohle zadání dejte agentovi jednou; ať si ho uloží jako postup.
+
+```text
+Pravidla pro zápis do databáze Sliby:
+
+1. Zapisuj vždy se stavem Návrh. Stav Potvrzeno nastavuji já.
+2. Než založíš slib, najdi člověka v databázi Lidé — hledej
+   i ve sloupci Jiná jména. Když ho nenajdeš, nezakládej ho;
+   zapiš slib bez odkazu a jméno dej do Zdroje s poznámkou
+   „nový člověk?“.
+3. Projekt přiřaď jen tehdy, když je z kontextu jasný.
+   Jinak nech prázdné.
+4. Před zápisem zkontroluj, jestli stejný slib u stejného
+   člověka už neexistuje. Když ano, jen aktualizuj Dokdy.
+5. Citace je vždy doslovná věta ze zprávy.
+6. Nic nemaž a nic neoznačuj jako Splněno.
+```
+
+Druhé pravidlo je záměrně přísné. Kdyby AI zakládala lidi sama, máte za měsíc zase pět Nováků, jen v jiné tabulce.
+
+### 5. Pět minut denně
+
+Ráno otevřete pohled **Ke schválení**. U každého řádku tři možnosti: potvrdit, opravit a potvrdit, nebo smazat. Kde chybí odkaz na člověka, doplníte ho — a když jde o nového, založíte ho i s jinými jmény.
+
+Tahle chvíle je celý smysl systému. AI slib najde. Jestli to slib opravdu byl, víte jen vy.
+
+### 6. Měsíční úklid
+
+- Splněné a zrušené sliby starší než měsíc přesuňte do archivu, nebo je aspoň skryjte ze všech pohledů.
+- Návrhy starší než týden, které jste nepotvrdili, smažte. Když jste je týden nepotřebovali, sliby to nebyly.
+- Projděte lidi bez jediného slibu a rozhodněte, jestli tam patří.
+
+## Nejčastější chyby
+
+- **Jméno jako text.** Kvůli tomu celý tenhle návod vznikl.
+- **Příliš mnoho sloupců.** Priorita, kategorie, odhad času. Každý sloupec, který nevyplňujete, je šum; přidejte ho, až vám bude třikrát chybět.
+- **AI zapisuje rovnou jako Potvrzeno.** Ušetří to pět minut denně a stojí důvěru v celou databázi.
+- **Žádný úklid.** Po roce bez archivace se pohledy načítají pomalu a nikdo je neotevírá.
+- **Paměť sdílená s celým týmem bez pravidel.** Osobní sliby a týmové úkoly jsou dvě různé věci. Tahle struktura je osobní.
+
+## Nejlepší nástroje
+
+- **Notion** — propojené databáze, pohledy a kalendář; bezplatný tarif na osobní paměť stačí.
+- **Agent s přístupem k Notionu** — zapisuje návrhy podle pravidel. Zapojení popisuje [sestava s Beeperem a Hermesem](/agenti/sestava-pamet-nad-zpravami-beeper-hermes).
+- **Samostatný účet pro agenta** — pozvaný jen na stránku Paměť, ne do celého prostoru.
+- **Widget na ploše telefonu** — s pohledem Dnes a zítra. Paměť, kterou musíte hledat, nepoužíváte.
+
+## Co vám to přinese
+
+- **Čas:** před schůzkou jedna karta místo hledání ve čtyřech aplikacích.
+- **Přesnost:** jeden člověk je jeden řádek, ať vám píše odkudkoli.
+- **Důvěru:** v databázi je jen to, co jste potvrdili.
+- **Výdrž:** struktura unese rok zápisů, protože se z ní pravidelně odnáší hotové.
+
+## Pro tip
+
+Do databáze Lidé si přidejte sloupec **Naposledy** jako souhrn nejnovějšího data z propojených slibů. Seřazená podle něj ukáže, s kým jste dlouho nic neřešili. U klientů je to seznam lidí, kterým stojí za to se ozvat — a je to jediný pohled v celé paměti, který vám práci nepřipomíná, ale přináší.

@@ -1,0 +1,106 @@
+---
+title: "Ranní brief: jedna zpráva místo deseti"
+excerpt: "Deset naplánovaných úloh znamená deset zpráv, které do týdne přestanete číst. Jak je složit do jednoho přehledu na minutu čtení, co do něj nepatří a jak poznat, že je čas ho zkrátit."
+track: "ovladani"
+order: 6
+tags: ["ovladani", "telegram", "agenti", "naklady"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Agent s deseti plánovanými úlohami pošle ráno deset zpráv a vy je přestanete otevírat. Řešení je jedna úloha, která posbírá všechno a napíše jeden přehled s pevnou strukturou: co hoří, co je dnes, co se změnilo, a nic dalšího. Tři pravidla ho drží krátký: strop na délku, sekce bez obsahu se vynechávají a když není co říct, přijde jedna věta. Postup si uložte jako dovednost, ať vypadá každý den stejně. A jednou za měsíc ho zkraťte o to, co jste přestali číst.
+sources:
+  - name: "Hermes Agent — plánované úlohy (cron)"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/cron"
+  - name: "Hermes Agent — systém dovedností"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/skills"
+  - name: "Hermes Agent — Telegram"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/telegram"
+---
+
+Seznam [sta úloh pro Hermes](/agenti/sestava-hermes-na-synology-sto-pouziti) má jednu vedlejší škodu. Člověk si jich nadšeně nastaví osm a druhý den ráno mu v 7:00 přijde počasí, v 7:05 kalendář, v 7:10 kurz eura, v 7:15 sliby, v 7:20 stav disků. Třetí den to ztlumí. Pátý den nečte nic, včetně té jedné zprávy, která byla důležitá.
+
+Ranní brief je oprava téhle chyby. Jedna zpráva, vždy ve stejnou dobu, vždy se stejnou strukturou.
+
+## Pravidlo jedné minuty
+
+Brief má jít přečíst za minutu vestoje. To je zhruba 150 slov. Všechno ostatní z toho plyne: když se tam něco nevejde, nepatří to tam.
+
+Užitečná zkouška: představte si, že vám ho někdo čte nahlas ve dveřích. U které věty byste řekli „to stačí, díky“?
+
+## Struktura, která funguje
+
+Čtyři sekce v pevném pořadí. Pořadí je důležitější než obsah, protože po týdnu čtete jen první dvě a zbytek přelétnete.
+
+<Flow title="Pořadí podle toho, co unese odklad" steps={[
+  { title: "Hoří", desc: "Co je po termínu nebo má termín dnes. Nejvýš tři položky. Když nic, sekce se vynechá." },
+  { title: "Dnes", desc: "Schůzky a pevné časy z kalendáře, s jednou větou, co si na ně vzít." },
+  { title: "Změnilo se", desc: "Co přibylo od včerejška: nové sliby, cena, která klesla, zpráva, na kterou čekáte." },
+  { title: "Jedna věc navíc", desc: "Počasí, nebo cokoli, co jste si vybrali. Jedna věta, ne odstavec." },
+]} />
+
+## Jak ho zadat
+
+Nezakládejte čtyři úlohy, které se pak pokusíte spojit. Založte jednu a popište výsledek:
+
+```text
+Každý pracovní den v 6:45 mi pošli ranní brief. Pravidla:
+
+- Nejvýš 150 slov, žádný úvod, žádné rozloučení.
+- Sekce v tomto pořadí: HOŘÍ, DNES, ZMĚNILO SE, a jedna věta
+  o počasí. Sekci, která nemá obsah, celou vynech.
+- HOŘÍ: sliby z databáze po termínu nebo s termínem dnes,
+  nejvýš tři, nejstarší první.
+- DNES: schůzky z kalendáře s časem a místem.
+- ZMĚNILO SE: jen to, co přibylo od včerejšího briefu.
+- Když není co hlásit v žádné sekci, napiš jen:
+  „Dnes klid.“ a počasí.
+- Nic nehodnoť, nic nedoporučuj, pokud se nezeptám.
+```
+
+Poslední řádek vypadá přísně. Bez něj model každé ráno připojí odstavec dobře míněných rad a brief se zdvojnásobí.
+
+## Uložte to jako dovednost
+
+Po třech dnech ladění řekněte agentovi, ať si postup uloží (`/learn`). Od té chvíle je struktura zapsaná v souboru a plánovaná úloha ji jen načte. Proč je to lepší než dlouhé zadání v úloze samotné a jak dovednost zkontrolovat, vysvětluje díl o [dovednostech agenta](/agenti/dovednosti-agenta-jak-ho-naucit-postup).
+
+Praktický důsledek: až budete chtít brief změnit, upravíte jeden soubor. A víkendová verze může tutéž dovednost použít s jiným zadáním.
+
+## Co do briefu nepatří
+
+- **Zprávy ze světa.** Jsou nekonečné a rozbijí pravidlo jedné minuty hned první den. Kdo je chce, ať si nechá posílat zvlášť, v jinou hodinu.
+- **Motivační věta.** Agent ji napíše rád a pokaždé jinak. Je to šum.
+- **Všechno, co se nezměnilo.** „Disky v pořádku“ nechcete číst tři sta dní v roce. Chcete číst jen den, kdy v pořádku nejsou.
+- **Rozhodnutí za vás.** „Doporučuji schůzku přesunout“ do přehledu nepatří. Fakta ano, rady na vyžádání.
+
+To třetí je pravidlo, které ušetří nejvíc: **hlásit výjimky, ne stav.** Hlídací úlohy bez modelu k tomu mají v Hermesu vlastní režim — skript, který nic nevypíše, nic nepošle. Brief pak zmíní jen to, co skript ohlásil.
+
+## Večerní dvojče
+
+Ranní brief říká, co vás čeká. Večerní má jinou práci: zavřít den. Bývá ještě kratší.
+
+```text
+Každý pracovní den v 17:30: co z ranního HOŘÍ zůstalo otevřené,
+co nového jsem dnes slíbil, a první věc na zítřek. Nejvýš 80 slov.
+```
+
+Většina lidí zjistí, že stačí jeden z nich. Zkuste oba týden a nechte ten, který čtete.
+
+## Kolik to stojí
+
+Jedna úloha denně je levnější než deset, protože agent načítá své podklady jednou. Přesto si první týden hlídejte útratu: brief, který sahá do pošty, kalendáře a databáze, čte víc textu, než byste čekali. Strop na klíči, jak ho popisuje díl o [OpenRouteru](/agenti/openrouter-jeden-klic-zaloha), platí i tady.
+
+## Měsíční škrt
+
+Jednou za měsíc si položte otázku, kterou sekci jste posledních čtrnáct dní nečetli. Tu smažte. Brief, ze kterého nic neubývá, časem doroste do délky, kdy ho přestanete číst celý — a pak jste zpátky tam, kde jste začali.
+
+## Na co si dát pozor
+
+- **Čas doručení.** Pošlete si ho o deset minut dřív, než vstáváte, ne o hodinu. Zpráva zasypaná nočními notifikacemi zapadne.
+- **Víkend je jiný.** Pracovní brief v sobotu ráno je nejrychlejší cesta, jak ho začít nenávidět.
+- **Citlivé věci do Telegramu.** Chat s botem není šifrovaný mezi koncovými zařízeními. V briefu má být „schůzka u lékaře v 10“, ne diagnóza.
+- **Když brief nepřijde, něco se pokazilo.** Právě proto má i prázdný den svou jednu větu. Ticho pak znamená poruchu, ne klid.
+
+---
+
+Dobrý brief poznáte podle toho, že vám po dovolené chyběl. Špatný podle toho, že jste si jeho absence nevšimli.

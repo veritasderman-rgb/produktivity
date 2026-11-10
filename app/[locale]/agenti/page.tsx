@@ -6,6 +6,7 @@ import {
   agentLabels,
   countAgentTags,
   getAllAgentMetas,
+  latestAgentArticles,
   type AgentArticleMeta,
   type AgentTag,
 } from "@/lib/agents";
@@ -24,6 +25,7 @@ const T = {
     leadStrong: "kde co běží a kdo to smí spustit",
     leadB: ". Lokální a firemní AI roste vedle cloudu: Mac mini zvládne inference, open weights dotahují uzavřené modely a agenti jsou produkt roku i riziko roku. Tenhle seriál vás provede od prvního lokálního modelu po velín, ze kterého celý ten svět řídíte jedním chatem — a po pravidla, bez kterých se to celé rozsype.",
     countEyebrow: (n: number) => `${n} dílů · šest linek · průběžně přibývá`,
+    newTitle: "Nově přidáno",
     startTitle: "Kde začít",
     startLead:
       "Seriál se dá číst popořadě jako kurz, nebo skákat po štítcích. Když nevíte, začněte prvním dílem každé linky — jsou psané pro člověka, který zatím nic nenainstaloval.",
@@ -49,6 +51,7 @@ const T = {
     leadStrong: "what runs where and who may start it",
     leadB: ". Local and in-house AI is growing alongside the cloud: a Mac mini handles inference, open weights keep closing the gap, and agents are the product of the year and the risk of the year. This series takes you from your first local model to a control room you run the whole thing from — and to the rules without which it all falls apart.",
     countEyebrow: (n: number) => `${n} parts · six tracks · more coming`,
+    newTitle: "Recently added",
     startTitle: "Where to start",
     startLead:
       "Read it front to back like a course, or jump around by tag. If in doubt, start with the first part of each track — they assume you have installed nothing yet.",
@@ -89,6 +92,21 @@ export async function generateMetadata({
       images: [ogImage(t.title, locale)],
     },
   };
+}
+
+/** Datum dílu v krátkém tvaru — „10. 11. 2026“ / „Nov 10, 2026“. */
+function formatDate(iso: string, locale: Locale) {
+  const [y, m, d] = iso.split("-").map(Number);
+  if (!y || !m || !d) return iso;
+  if (locale === "en") {
+    return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    });
+  }
+  return `${d}. ${m}. ${y}`;
 }
 
 const chip = (active: boolean) =>
@@ -179,6 +197,26 @@ export default async function AgentsPage({
       ) : (
         <>
           <p className="eyebrow mt-6 text-faint">{t.countEyebrow(all.length)}</p>
+
+          {!activeTag && (
+            <section className="mt-8 border border-hairline-strong bg-card p-5 sm:p-6">
+              <h2 className="eyebrow mb-4 text-accent">{t.newTitle}</h2>
+              <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+                {latestAgentArticles(all, 6).map((article) => (
+                  <li key={article.slug}>
+                    <p className="eyebrow mb-1 text-faint">
+                      {formatDate(article.date, locale)} · {labels.tracks[article.track].name}
+                    </p>
+                    <p className="text-[15px] leading-snug font-bold">
+                      <Link href={p(`/agenti/${article.slug}`)} className="draw-link">
+                        {article.title}
+                      </Link>
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <section className="mt-10 border-t-2 border-hairline-strong pt-8">
             <h2 className="display text-[clamp(20px,3vw,26px)]">{t.startTitle}</h2>

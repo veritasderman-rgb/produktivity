@@ -1,0 +1,161 @@
+---
+title: "Firemní styl jako MCP server: barvy, pravidla i fotky, o které si AI řekne sama"
+excerpt: "Manuál značky v PDF nikdo nečte, AI už vůbec ne. Když pravidla, texty a schválené fotky dáte na jeden server, vyžádá si je každý nástroj sám — Claude, agent na NASu i kolega v jiném oddělení. Co na takový server patří a jak ho postavit."
+track: "data"
+order: 6
+tags: ["mcp", "data", "agenti", "rizeni"]
+level: "pokrocily"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Kopírovat pravidla značky do každého promptu funguje pro jednoho člověka a jeden týden. Udržitelná cesta je malý MCP server, který nabízí pár nástrojů: vrať pravidla značky, najdi schválenou fotku, zkontroluj text. Každý nástroj umělé inteligence, který umí MCP, si je pak vyžádá sám a všichni pracují se stejnou, aktuální verzí. Server je pár desítek řádků nad složkou se soubory. Těžká část není kód, ale obsah: krátká pravidla místo stostránkového manuálu a fotky popsané tak, aby se daly najít.
+sources:
+  - name: "Model Context Protocol — specifikace a úvod"
+    url: "https://modelcontextprotocol.io/"
+  - name: "MCP — oficiální Python SDK"
+    url: "https://github.com/modelcontextprotocol/python-sdk"
+  - name: "Hermes Agent — MCP servery a filtrování nástrojů"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+Každá firma, která začala dělat grafiku a texty s umělou inteligencí, narazí na stejnou věc. První vizuál je povedený. Desátý vypadá, jako by ho dělala jiná firma. Někdo z marketingu si proto sepíše odstavec s barvami a tónem a vkládá ho na začátek každého zadání.
+
+Funguje to, dokud je ten člověk jeden. Pak přijde druhý s vlastní verzí odstavce, logo se změní a polovina lidí dál používá staré.
+
+## Proč server, a ne dokument
+
+Manuál značky je dokument pro lidi. Umělá inteligence potřebuje totéž jinak: **v malých kouscích, na vyžádání a vždy v poslední verzi.**
+
+Přesně to dělá MCP server. Nabídne modelu několik nástrojů a model si o ně řekne ve chvíli, kdy je potřebuje. Co je MCP obecně, vysvětluje díl o [lokálním MCP](/agenti/mcp-lokalne-ruce-na-disku).
+
+| | Odstavec v promptu | PDF manuál | MCP server |
+|---|---|---|---|
+| Aktuální u všech | ne | ne | ano |
+| Model čte jen to, co potřebuje | ne | ne | ano |
+| Umí vydat fotku nebo logo | ne | ne | ano |
+| Funguje v Claudovi i u agenta | ručně | ručně | ano |
+| Práce na začátku | minuta | už existuje | odpoledne |
+
+Třetí řádek je ten, kvůli kterému to stojí za námahu. Pravidla jdou okopírovat. **Schválené fotky, loga a šablony ne.**
+
+## Co na něj patří
+
+Šest nástrojů pokryje většinu práce. Názvy jsou ilustrační, podstatné je rozdělení.
+
+<Flow title="Šest nástrojů firemního serveru" steps={[
+  { title: "Pravidla značky", desc: "Barvy s kódy, písma, tón, co nikdy. Krátká verze pro zadání grafiky a textu." },
+  { title: "Fakta o firmě", desc: "Název, adresy, kontakty, čísla. Aby si je model nevymýšlel." },
+  { title: "Najdi fotku", desc: "Hledání ve schválených fotkách podle popisu, místa a formátu. Vrací odkaz, popis a podmínky užití." },
+  { title: "Loga a šablony", desc: "Správné soubory ve správných variantách: barevné, jednobarevné, na tmavé pozadí." },
+  { title: "Slovník", desc: "Jak se píšou názvy produktů, co se nepřekládá, zakázané výrazy." },
+  { title: "Zkontroluj text", desc: "Projde hotový text proti pravidlům a vrátí, co je špatně. Deterministicky, bez modelu." },
+]} />
+
+Poslední nástroj bývá nejužitečnější. Model se pravidly řídí většinou; kontrola, která je jen kód, se jimi řídí vždy.
+
+## Obsah je těžší než kód
+
+**Pravidla zkraťte na jednu obrazovku.** Stostránkový manuál model nepřečte lépe než vy. Napište verzi, kterou by pochopil nový kolega první den:
+
+```markdown
+BARVY: zelená #1F5F4A (hlavní), krémová #F4EFE6 (pozadí),
+       černá #1A1A1A (text). Žádné přechody, žádná neonová.
+PÍSMO: nadpisy Fraunces, text Inter. Nikdy verzálky v celé větě.
+FOTKY: denní světlo, teplé tóny, skuteční lidé a skutečná místa.
+       Žádné fotobankové úsměvy do kamery.
+TÓN:   vykání, klidně, bez superlativů a vykřičníků.
+NIKDY: text vygenerovaný do obrázku, logo na rušném pozadí,
+       tváře zákazníků bez souhlasu.
+```
+
+**Fotky popište, jinak je nikdo nenajde.** Složka s tisícem souborů pojmenovaných `IMG_4471.jpg` je k ničemu lidem i modelu. Ke každé fotce patří řádek v tabulce:
+
+```text
+soubor | co je na ní | místo | rok | formát | smí se použít na | autor
+```
+
+Sloupec „smí se použít na“ je nejdůležitější. Fotka zaměstnance, který odešel, nebo snímek s licencí jen na web jsou přesně ty chyby, které pak řeší právník.
+
+Popisky umí navrhnout model, který fotky vidí. Schválit je musí člověk, který ví, kdo na nich je.
+
+## Kostra serveru
+
+Server je tenká vrstva nad složkou. V oficiálním SDK pro Python vypadá základ takhle; berte to jako kostru, kterou vám Claude dopíše podle vašich souborů a podle aktuální dokumentace:
+
+```python
+from pathlib import Path
+import csv
+from mcp.server import MCPServer
+
+DATA = Path("/data/znacka")
+mcp = MCPServer("Firemní styl")
+
+@mcp.tool()
+def pravidla_znacky() -> str:
+    """Krátká pravidla vizuálního stylu a tónu. Zavolej před
+    každým zadáním grafiky nebo textu."""
+    return (DATA / "pravidla.md").read_text(encoding="utf-8")
+
+@mcp.tool()
+def najdi_fotku(dotaz: str, format: str = "") -> list[dict]:
+    """Najde schválené firemní fotky podle popisu. Vrací odkaz,
+    popis a to, kde se fotka smí použít."""
+    with open(DATA / "fotky.csv", encoding="utf-8") as f:
+        radky = list(csv.DictReader(f))
+    slova = dotaz.lower().split()
+    return [
+        r for r in radky
+        if all(s in r["popis"].lower() for s in slova)
+        and (not format or r["format"] == format)
+    ][:10]
+```
+
+Tři věci si všimněte. Popisek pod názvem nástroje je to, podle čeho se model rozhoduje, kdy ho zavolat; pište ho jako pokyn. Nástroj na fotky vrací **odkaz a podmínky**, ne obrázek samotný, takže je odpověď malá. A hledání je obyčejné porovnání slov — na pár set fotek stačí a dá se pochopit.
+
+## Kde ho pustit a kdo na něj smí
+
+Dvě rozumné varianty:
+
+- **Na NASu vedle agenta**, v dalším kontejneru bez publikovaných portů. Dosáhne na něj agent a vy přes privátní síť. Postup pro Synology je v dílu [Synology zvenčí](/agenti/synology-bezpecny-pristup-zvenci).
+- **Na firemním hostingu s přihlášením**, když ho má používat celý tým z aplikace Claude jako vlastní konektor.
+
+Ať tak či tak platí:
+
+- **Server jen čte.** Žádný nástroj, který by pravidla nebo fotky měnil. Úpravy dělá člověk v souborech.
+- **Fotky s lidmi mají vlastní režim.** Co není výslovně schválené k užití, server nevydá.
+- **Agentovi povolte jen to, co potřebuje.** V Hermesu se nástroje serveru dají vyjmenovat v nastavení, stejně jako u Beeperu v [sestavě 4](/agenti/sestava-pamet-nad-zpravami-beeper-hermes).
+- **Veřejný server znamená veřejné fotky.** Bez přihlášení na něj patří jen to, co už je na webu.
+
+## Jak se pak pracuje
+
+Zadání se zkrátí na to podstatné:
+
+```text
+Připrav zadání pro tři vizuály adventní kampaně. Nejdřív si ze
+serveru načti pravidla značky. Pro každý vizuál zkus najít
+schválenou fotku; když žádná nesedí, napiš prompt pro generátor,
+který pravidla dodrží. Hotové texty nech zkontrolovat.
+```
+
+Model si vyžádá pravidla, prohledá fotky, kde to jde, použije skutečné, a text prožene kontrolou. Stejné zadání dá stejně stylovaný výsledek v Claudovi, u agenta na NASu i kolegyni v obchodním oddělení.
+
+Navazuje to na oba grafické návody: [obraz a video v ElevenLabs](/tipy/elevenlabs-obrazky-a-video) a [dotažení v Affinity](/tipy/affinity-zdarma-dotazeni-ai-grafiky). Tam jste styl drželi referenčním obrázkem. Tady ho drží server.
+
+## Kdy to nestavět
+
+- **Jste na to sami a styl máte v hlavě.** Pak stačí uložený odstavec a složka s fotkami.
+- **Nemáte kdo by obsah udržoval.** Server se zastaralými pravidly je horší než žádný, protože mu všichni věří.
+- **Fotky nejsou popsané a nikdo je popsat nechce.** Začněte tabulkou. Server je až druhý krok.
+
+## Na co si dát pozor
+
+- **Jeden zdroj pravdy.** Když pravidla existují na serveru i v PDF, do měsíce se rozejdou. PDF generujte ze stejných souborů, nebo ho zrušte.
+- **Verzujte.** Soubory s pravidly patří do gitu. Až se někdo zeptá, proč je logo jinak než loni, budete vědět kdy a kdo.
+- **Hlídejte, na co se modely ptají.** Dotazy, na které server nemá odpověď, jsou nejlepší seznam toho, co doplnit.
+- **Práva k fotkám ověřte u zdroje.** To, že soubor leží ve firemní složce, neznamená, že ho smíte použít v reklamě.
+
+---
+
+Manuál značky býval dokument, který se jednou za tři roky draze vyrobil a pak ležel na disku. Server je stejný obsah v podobě, která se používá denně — a právě proto se na něm brzy ukáže, co v manuálu nikdy nefungovalo.

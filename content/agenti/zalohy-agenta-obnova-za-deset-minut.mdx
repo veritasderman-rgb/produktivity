@@ -1,0 +1,115 @@
+---
+title: "Zálohy agenta: co uložit, aby šel obnovit za deset minut"
+excerpt: "Po třech měsících má agent v jedné složce vaši paměť, vyladěné postupy a klíče ke všemu. Co z toho zálohovat, kam, jak často — a proč záloha musí ležet tam, kam agent sám nedosáhne."
+track: "data"
+order: 5
+tags: ["data", "bezpecnost", "agenti", "hardware"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Celý agent je jedna složka: nastavení, klíče, paměť, dovednosti, plánované úlohy a historie. Program samotný zálohovat nemusíte, ten se stáhne znovu. Na Synology složku zálohuje Hyper Backup, šifrovaně a s verzemi, na místo mimo NAS. Dvě pravidla jsou důležitější než nástroj: záloha obsahuje tokeny, takže se šifruje, a cíl zálohy nesmí být připojený do kontejneru, jinak ji agent umí pokazit spolu s originálem. A záloha, ze které jste nikdy nezkusili obnovit, je jen naděje.
+sources:
+  - name: "Hermes Agent — provoz v Dockeru a složka s daty"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"
+  - name: "Hermes Agent — profily, export a import"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/profiles"
+  - name: "Synology — Hyper Backup"
+    url: "https://www.synology.com/en-global/dsm/feature/hyper_backup"
+---
+
+První týden s agentem nemáte co ztratit. Po třech měsících v jeho složce leží seznam lidí a souvislostí, který si o vás složil, dvacet postupů vyladěných na vaši práci, rozvrh úloh a tokeny ke všem službám. Vyrobit to znovu znamená ty tři měsíce zopakovat.
+
+A všechno je to v jedné složce na jednom disku.
+
+## Co v ní je
+
+Hermes drží veškerý stav v jedné složce; v kontejneru je to ta, kterou jste připojili jako `/opt/data`.
+
+| Co | K čemu | Jak moc by chybělo |
+|---|---|---|
+| `config.yaml` | modely, nástroje, napojení | půl hodiny práce |
+| `.env`, `auth.json` | klíče a přihlášení | hodina a obcházení služeb |
+| soubory paměti | co o vás agent ví | týdny |
+| `skills/` | vyladěné postupy | týdny až měsíce |
+| `cron/` | plánované úlohy | hodina, pokud si je pamatujete |
+| `SOUL.md` | povaha agenta | čtvrt hodiny |
+| historie rozhovorů | hledání v minulosti | podle toho, jak ji používáte |
+
+Program samotný v tabulce není. Ten se při obnově stáhne znovu.
+
+Pro sestavu s Beeperem přidejte druhou složku, tu s daty Beeper Serveru. Jsou v ní šifrovací klíče k vašim chatům; bez nich se po havárii musíte znovu přihlásit do všech sítí.
+
+## Tři vrstvy
+
+Osvědčené pravidlo říká: tři kopie, na dvou různých místech, jedna z nich mimo dům. Pro agenta na NASu to vychází takhle.
+
+<Flow title="Od nejrychlejší po nejodolnější" steps={[
+  { title: "Snímky na NASu", desc: "U modelů se souborovým systémem Btrfs. Vrátí složku do stavu před hodinou. Chrání před chybou, ne před požárem." },
+  { title: "Záloha na jiný disk", desc: "Hyper Backup na USB disk nebo druhý NAS, denně, s verzemi. Chrání před selháním disku." },
+  { title: "Záloha mimo dům", desc: "Hyper Backup do cloudu, šifrovaně. Chrání před krádeží, požárem a vytopením." },
+]} />
+
+Kdo má jen jednu, ať je to ta třetí.
+
+## Nastavení v Hyper Backup
+
+V DSM otevřete Hyper Backup a založte úlohu zálohování složek. Čtyři volby jsou podstatné:
+
+- **Zdroj:** jen složky agenta, ne celý svazek. Malá záloha se rychle obnovuje a snadno zkouší.
+- **Šifrování na straně klienta: zapnout.** Záloha obsahuje tokeny ke všemu, co agent umí. Nešifrovaná kopie v cloudu je druhý exemplář vašich klíčů u cizí firmy. Heslo si uložte do správce hesel; bez něj zálohu neobnoví nikdo, ani vy.
+- **Verze:** ponechat aspoň třicet dní zpět. Důvod je níž.
+- **Plán:** denně v noci, mimo dobu, kdy běží plánované úlohy agenta.
+
+K poslednímu bodu: agent si průběžně zapisuje do databáze. Záloha pořízená uprostřed zápisu se většinou obnoví, ale může přijít o poslední chvíle rozhovoru. Kdo chce jistotu, nechá kontejner před zálohou na minutu zastavit; Hyper Backup umí před úlohou a po ní spustit skript.
+
+## Proč verze, a proč mimo dosah agenta
+
+Běžná představa o záloze je, že chrání před rozbitým diskem. U agenta je pravděpodobnější jiná nehoda: **agent sám si něco pokazí.**
+
+Přepíše si dovednost horší verzí. Smaže z paměti něco, co smazat neměl. Naučí se špatný návyk, jak popisuje díl o [dovednostech](/agenti/dovednosti-agenta-jak-ho-naucit-postup). A vy si toho všimnete za čtrnáct dní.
+
+Dvě věci z toho plynou:
+
+**Jedna kopie nestačí.** Záloha, která se každou noc přepíše, má po čtrnácti dnech uloženou tu pokaženou verzi. Proto verze třicet dní zpět.
+
+**Cíl zálohy nesmí být připojený do kontejneru.** Kdyby agent viděl složku se zálohami, umí pokazit originál i kopii jedním příkazem. Kontejner má vidět jen svou pracovní složku. Zálohu dělá NAS zvenčí.
+
+## Rychlá cesta: export
+
+Hermes má vlastní příkaz, který sbalí profil do jednoho souboru:
+
+```bash
+hermes profile export default
+hermes profile import ./default.tar.gz --name default
+```
+
+Hodí se před větší změnou — než přepíšete nastavení, než nainstalujete cizí dovednost, než aktualizujete. Není to náhrada za pravidelnou zálohu, ale je to nejrychlejší krok zpět, jaký máte. Soubor obsahuje klíče, takže s ním zacházejte jako s heslem a nenechávejte ho ležet ve sdílené složce.
+
+## Zkouška obnovy
+
+Tohle je část, kterou skoro nikdo neudělá, a jediná, která říká, jestli zálohu máte.
+
+1. V Hyper Backup obnovte včerejší verzi do **nové, prázdné složky**. Ne přes tu živou.
+2. Založte zkušební kontejner, který místo původní složky připojí tu obnovenou. Druhého bota nepotřebujete; původní kontejner na tu chvíli zastavte, protože dva agenti nesmějí běžet na jednom tokenu.
+3. Napište agentovi: „Co o mně víš?“ a „Jaké máš plánované úlohy?“
+4. Zkušební kontejner smažte, původní spusťte.
+
+Stopněte si to. Když to napoprvé trvá hodinu, zapište si, kde jste se zdrželi. Napodruhé to bude těch deset minut z nadpisu.
+
+## Co se zálohou neobnoví
+
+- **Přihlášení, která mezitím vypršela.** Některé tokeny mají omezenou platnost. Po obnově ze starší zálohy se k části služeb přihlásíte znovu.
+- **Zprávy v Beeperu z doby mezi zálohou a havárií.** Sítě je většinou dosynchronizují, ale ne vždy celé.
+- **Zápisy v Notionu.** Ty leží u Notionu, ne u vás. Mají vlastní historii stránek; počítejte s ní zvlášť.
+
+## Na co si dát pozor
+
+- **Heslo k záloze mějte jinde než na NASu.** Zní to samozřejmě, dokud nezjistíte, že je v poznámce uložené na témže disku.
+- **Po obnově na jiný stroj zkontrolujte práva souborů.** Soubory s klíči mají být čitelné jen pro vlastníka.
+- **Upozornění na selhání zálohy si nechte posílat.** Záloha, která tři týdny tiše neproběhla, je nejčastější druh žádné zálohy.
+- **Starý NAS před prodejem vymažte bezpečně.** Složka agenta je sbírka klíčů.
+
+---
+
+Zálohu budete potřebovat nejspíš ne kvůli disku, ale kvůli obyčejnému úternímu omylu — svému nebo agentovu. Na ten stačí třicet dní verzí a jedna vyzkoušená obnova.
