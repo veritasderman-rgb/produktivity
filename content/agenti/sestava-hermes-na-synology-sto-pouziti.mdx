@@ -1,0 +1,230 @@
+---
+title: "Sestava 5: Hermes na Synology, které už doma máte — a sto věcí, které mu zadat"
+excerpt: "Na vlastního agenta nepotřebujete Mac mini. Stačí NAS, na který si ukládáte fotky: agent je lehký, protože přemýšlí model v cloudu. Půlhodinová instalace a sto konkrétních úloh, rozdělených podle toho, kolik mu k nim musíte svěřit."
+track: "sestavy"
+order: 5
+tags: ["sestava", "agenti", "hardware", "telegram", "naklady"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Agent a model jsou dvě různé věci. Model potřebuje výkon, agent jen stroj, který běží pořád — a ten už možná máte ve skříni. Hermes Agent si podle dokumentace vystačí s jedním jádrem a 1 GB paměti (doporučeno 2–4 GB), takže ho utáhne běžné Synology s aplikací Container Manager. Mac mini se vyplatí až ve chvíli, kdy chcete, aby doma běžel i model. Článek ukazuje instalaci v jednom kontejneru a sto úloh od ranního přehledu po hlídání cen — seřazených tak, abyste začali těmi, ke kterým agent nepotřebuje žádná vaše data.
+sources:
+  - name: "Hermes Agent — provoz v Dockeru a nároky na stroj"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"
+  - name: "Hermes Agent — přehled funkcí"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/overview"
+  - name: "Hermes Agent — plánované úlohy (cron)"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/cron"
+  - name: "Hermes Agent — příběhy uživatelů a případy použití"
+    url: "https://hermes-agent.nousresearch.com/docs/user-stories"
+  - name: "Hermes Agent — bezpečnost a schvalování příkazů"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/security"
+  - name: "Hermes Agent — Telegram"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/telegram"
+---
+
+V diskusích o domácích agentech se pořád dokola doporučuje Mac mini. Je to dobrý stroj a díl o něm [tu máme](/agenti/mac-mini-jako-domaci-ai-server). Jenže spousta lidí si ho kupuje na něco, co zvládne krabice, která jim už pět let stojí ve skříni vedle routeru.
+
+## Proč stačí NAS
+
+Stojí to na jednom rozlišení: **agent není model.**
+
+Model je ta část, která přemýšlí. Potřebuje hodně paměti a rychlý čip, a proto se kvůli němu kupují drahé stroje. Agent je ta část, která model řídí: pamatuje si, co jste mu řekli, hlídá rozvrh, čte zprávy z Telegramu a volá nástroje. Na to stačí málo.
+
+Hermes Agent uvádí jako minimum jedno jádro a 1 GB paměti, doporučuje dvě jádra a 2–4 GB. To je běžné Synology řady Plus. Model přitom běží jinde — u OpenAI, Anthropicu nebo přes [OpenRouter](/agenti/openrouter-jeden-klic-zaloha) — a NAS mu jen posílá dotazy.
+
+| | Synology, které máte | Mac mini |
+|---|---|---|
+| Pořizovací cena | nula | desítky tisíc korun |
+| Agent s modelem v cloudu | ano | ano |
+| Model přímo doma | ne | ano, podle paměti |
+| Běží nonstop | už teď | musíte nastavit |
+| Data, ke kterým má agent blízko | všechna na NASu | jen ta, která mu dáte |
+
+Poslední řádek čtěte dvakrát. Je to výhoda i riziko zároveň a vrátíme se k němu.
+
+**Mac mini tedy mít nemusíte, ale můžete.** Dává smysl, když chcete, aby text vůbec neopouštěl dům. Agent pak může zůstat na NASu a na Mac mini se jen ptát — to je rozdělení práce ze [sestavy 2](/agenti/sestava-tichy-server-nocni-smena).
+
+## Co ověřit, než začnete
+
+- **Container Manager.** Otevřete v DSM Centrum balíčků a hledejte ho. Když tam není, váš model kontejnery neumí a tahle sestava není pro vás.
+- **Procesor.** Modely s Intelem nebo AMD jsou bez potíží. U úsporných modelů s procesorem ARM si ověřte, že oficiální image pro vaši architekturu existuje; zdroje se v tom rozcházejí.
+- **Paměť.** Se 2 GB to půjde ztuha, se 4 GB pohodlně. Paměť se u řady Plus dá většinou doplnit.
+
+## Instalace za půl hodiny
+
+Podrobný postup včetně terminálu pro začátečníky je v [sestavě 4](/agenti/sestava-pamet-nad-zpravami-beeper-hermes). Tady je jen kostra pro jeden kontejner:
+
+```yaml
+services:
+  hermes:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes
+    restart: unless-stopped
+    command: gateway run
+    volumes:
+      - /volume1/docker/hermes:/opt/data
+    mem_limit: 4g
+```
+
+Vložte ji v Container Manageru do nového projektu. Pak přes SSH jednou pusťte průvodce:
+
+```bash
+sudo docker run -it --rm \
+  -v /volume1/docker/hermes:/opt/data \
+  nousresearch/hermes-agent setup
+```
+
+Průvodce se zeptá na model a na to, kudy s vámi má agent mluvit. Pro Telegram potřebujete token bota a své číselné ID; postup je v dílu [Telegram jako ovládací panel](/agenti/telegram-jako-ovladaci-panel). Všimněte si, co v kostře chybí: **řádek `ports`**. Agent se Telegramu ptá sám, zvenčí se k němu nikdo nepřipojuje.
+
+Dvě věci udělejte dřív, než mu zadáte první úlohu:
+
+1. **Dejte mu vlastní složku, ne celý NAS.** Kontejner vidí jen to, co mu připojíte. Když budete chtít, aby třídil skeny, připojte složku se skeny. Ne `/volume1`.
+2. **Nastavte strop útraty** u poskytovatele modelu. Agent s rozvrhem utrácí, i když spíte.
+
+## Sto věcí, které mu zadat
+
+Úlohy se zadávají větou v Telegramu: „Každé ráno v sedm mi pošli…“ a agent si z toho sám udělá plánovanou úlohu. Seznam je seřazený podle toho, **kolik agentovi musíte svěřit.** Začněte nahoře.
+
+### Bez vašich dat: stačí web
+
+1. Ranní přehled zpráv ze tří zdrojů, které si vyberete.
+2. Počasí na den s jednou větou, co si vzít na sebe.
+3. Hlídání ceny jedné věci v e-shopu a zpráva, když klesne.
+4. Kontrola, jestli už jsou v prodeji lístky na koncert.
+5. Týdenní souhrn novinek v oboru, pět odkazů a proč stojí za přečtení.
+6. Hlídání změn na stránce úřadu nebo školy.
+7. Upozornění na nový díl podcastu nebo nové video na kanálu.
+8. Kurz eura každé pondělí, když plánujete větší nákup.
+9. Výluky a zpoždění na vaší trase před odchodem z domu.
+10. Rešerše k tématu: deset zdrojů, shrnutí, rozpory mezi nimi.
+11. Porovnání tří výrobků podle parametrů, které vás zajímají.
+12. Hlídání volných termínů na úřadě nebo u lékaře, pokud jsou veřejně na webu.
+13. Slovo dne v jazyce, který se učíte, s větou na procvičení.
+14. Upozornění, když vyjde nová verze programu, který používáte.
+15. Přehled kulturních akcí na víkend ve vašem městě.
+16. Hlídání nových inzerátů podle zadaných kritérií.
+17. Ověření tvrzení z článku: co říkají primární zdroje.
+18. Shrnutí dlouhého videa nebo článku z odkazu, který mu pošlete.
+19. Seznam otevřených dotačních výzev v oboru jednou týdně.
+20. Upozornění na svátky, výročí a státní volna na příští týden.
+
+### Vlastní paměť: co mu řeknete, to si pamatuje
+
+21. Zápisník nápadů: nadiktujete, on roztřídí podle projektů.
+22. Večerní deník ze tří otázek, uložený do souboru.
+23. Seznam nákupů, do kterého přidáváte během dne.
+24. Připomínky s kontextem: „připomeň mi to, až budu řešit daně“.
+25. Evidence, komu jste co půjčili.
+26. Kniha jízd nebo spotřeby, zadávaná hlasovou zprávou.
+27. Čtenářský deník s citáty.
+28. Záznam, co jste jedli, a týdenní pohled bez moralizování.
+29. Tréninkový plán, který se upravuje podle toho, co jste odcvičili.
+30. Seznam dárků, které někdo během roku zmínil.
+31. Narozeniny a výročí s připomenutím týden předem.
+32. Rodinná pravidla a domluvy na jednom místě.
+33. Údržba domácnosti: filtry, revize, výměna pneumatik.
+34. Záruky a účtenky s datem konce záruky.
+35. Evidence léků a připomenutí, kdy docházejí.
+36. Co je v mrazáku a co z toho uvařit.
+37. Osobní slovník pojmů z oboru, který se učíte.
+38. Týdenní ohlédnutí: co se povedlo, co ne, co příště jinak.
+39. Rozpracované myšlenky, ke kterým se chcete vrátit.
+40. Jídelníček na týden podle toho, co rodina jí.
+
+### Soubory ve složce, kterou mu připojíte
+
+41. Přejmenování skenů podle obsahu a data.
+42. Roztřídění faktur do složek podle dodavatele.
+43. Výtah z dlouhého PDF na jednu stranu.
+44. Přepis hlasových poznámek do textu.
+45. Hledání duplicitních dokumentů.
+46. Kontrola smlouvy: termíny, výpovědní lhůty, sankce.
+47. Převod ručně psaných poznámek z fotky do textu.
+48. Tabulka z hromady účtenek.
+49. Porovnání dvou verzí dokumentu a seznam rozdílů.
+50. Rejstřík k rodinnému archivu dokumentů.
+51. Popisky k fotkám z dovolené pro album.
+52. Kontrola, že noční záloha proběhla, podle logu.
+53. Týdenní přehled, co ve složce přibylo.
+54. Návrh, co archivovat a co smazat. Mazat sám nesmí.
+55. Překlad dokumentu se zachováním struktury.
+56. Shrnutí zápisů ze schůzek za měsíc.
+57. Příprava podkladů k daňovému přiznání do jedné složky.
+58. Kontrola pravopisu ve všem, co dáte do složky „ke kontrole“.
+59. Čistopis z nadiktovaného konceptu.
+60. Osnova prezentace z podkladů ve složce.
+
+### Práce: s přístupem k poště, kalendáři nebo úkolům
+
+61. Ranní přehled dne z kalendáře a úkolů.
+62. Koncepty odpovědí na běžné e-maily. Odesíláte vy.
+63. Příprava na schůzku: kdo tam bude a co jste si psali naposledy.
+64. Hlídání, na co jste nedostali odpověď.
+65. Zápis ze schůzky rozdělený na úkoly a rozhodnutí.
+66. Páteční shrnutí týdne pro šéfa nebo klienta.
+67. Návrh termínů schůzky podle volných oken.
+68. Roztřídění pošty do tří hromádek: dnes, tento týden, nikdy.
+69. Upozornění na kolize v kalendáři na příští týden.
+70. Přehled faktur po splatnosti.
+71. Koncept nabídky podle minulých nabídek.
+72. Sledování zmínek o firmě na webu.
+73. Týdenní čísla z tabulky ve dvou větách.
+74. Připomenutí slibů z chatů — to je celá [sestava 4](/agenti/sestava-pamet-nad-zpravami-beeper-hermes).
+75. Seznam otázek, které si před schůzkou máte ujasnit.
+76. Kontrola textu proti firemnímu stylu.
+77. Přehled, co kolegové přidali do sdíleného dokumentu.
+78. Návrh agendy z otevřených bodů.
+79. Rozpad velkého úkolu na kroky s odhadem času.
+80. Měsíční přehled, kam vám utekl čas podle kalendáře.
+
+### Domácnost a rodina
+
+81. Rodinný kalendář: kdo kdy vyzvedává děti.
+82. Připomenutí kroužků a co na ně sbalit.
+83. Pohádka na dobrou noc s postavami, které si dítě vymyslelo.
+84. Procvičování slovíček nebo vyjmenovaných slov formou hry.
+85. Rozpis úklidu, který se střídá spravedlivě.
+86. Plán výletu podle počasí a věku dětí.
+87. Kontrola školního webu a shrnutí pro rodiče.
+88. Připomenutí plateb, které nejdou inkasem.
+89. Hlídání spotřeby energií, pokud ji NAS někde sbírá.
+90. Seznam věcí na dovolenou podle místa a ročního období.
+
+### NAS sám a pokročilé kousky
+
+91. Denní zpráva o stavu disků a volném místě.
+92. Upozornění, když je k dispozici aktualizace DSM.
+93. Kontrola platnosti certifikátů a domén.
+94. Hlídání, že běží ostatní kontejnery.
+95. Ranní zpráva namluvená hlasem místo textu.
+96. Vlastní dovednost: postup, který vám agent jednou udělal dobře, si uloží a příště ho zopakuje.
+97. Druhý profil agenta s jinou povahou a jinými právy, třeba pro děti.
+98. Záložní model přes OpenRouter, když hlavní vypadne.
+99. Týdenní audit: co agent za týden udělal a kolik to stálo.
+100. Úklid po sobě: seznam plánovaných úloh, které už nedávají smysl.
+
+Čísla 96 a 99 berte vážněji než ostatní. První je důvod, proč se agent časem zlepšuje. Druhé je důvod, proč mu můžete dál věřit.
+
+## Kde je hranice
+
+Seznam je seřazený záměrně. V první dvacítce agent nevidí nic vašeho a nejhorší, co se může stát, je špatné shrnutí. Od čísla 61 čte věci, které psali cizí lidé, a zároveň vidí vaše data — a to je kombinace, o které je díl o [smrtící trojici](/agenti/smrtici-trojice-agentu).
+
+Pro NAS z toho plynou tři pravidla:
+
+- **Agent navrhuje, vy odesíláte a mažete.** Koncept e-mailu ano, odeslání ne. Seznam k archivaci ano, smazání ne.
+- **Připojená složka je hranice.** Co kontejner nevidí, to nemůže přečíst ani poslat ven. Proto nikdy nepřipojujte celý svazek.
+- **Schvalování příkazů nechte zapnuté.** U plánovaných úloh má Hermes nebezpečné příkazy ve výchozím stavu zakázané. Tak to nechte.
+
+A jedno pravidlo navíc, které platí jen tady: **NAS je místo, kde máte zálohy.** Agent, který by k nim měl právo zápisu, je jediná věc, která umí pokazit data i jejich zálohu najednou. Složku se zálohami mu nepřipojujte vůbec.
+
+## Kdy to nestavět
+
+- **Nemáte opakované úlohy.** Kdo se agenta zeptá jednou týdně, tomu stačí aplikace v mobilu.
+- **NAS je na hraně.** Když už teď při přehrávání videa nestíhá, další kontejner mu nepomůže.
+- **Chcete model doma.** Pak je to opravdu práce pro Mac mini nebo počítač s grafickou kartou.
+
+---
+
+Rozumný postup je nudný: nainstalovat, zadat tři úlohy z první dvacítky a týden sledovat, jestli je čtete. Když ano, přidejte další. Když ne, žádný z těch sto bodů vám nepomůže — a přišli jste na to zadarmo, na stroji, který jste už měli.

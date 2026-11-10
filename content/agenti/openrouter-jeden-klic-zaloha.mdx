@@ -1,0 +1,122 @@
+---
+title: "OpenRouter: jeden klíč ke stovkám modelů a záloha, když hlavní vypadne"
+excerpt: "Jeden účet, jeden klíč, jedna faktura — a přístup k modelům od desítek poskytovatelů. Co to stojí doopravdy, jak nastavit strop útraty, kdy se hodí jako hlavní cesta a kdy jen jako pojistka pro agenta."
+track: "orchestrace"
+order: 5
+tags: ["orchestrace", "api-klice", "naklady", "agenti"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  OpenRouter je hostovaná brána: zaregistrujete se, dobijete kredit a jedním klíčem voláte přes 600 modelů od více než 80 poskytovatelů. Za tokeny platíte ceníkovou cenu poskytovatele bez přirážky; služba si bere 5,5 % při dobití kreditu. Největší praktická hodnota jsou tři věci: klíč se stropem útraty, automatický přechod na jiného poskytovatele při výpadku a možnost vyzkoušet nový model bez dalšího účtu. Nevýhoda je další firma v cestě vašim datům — proto si před prvním dotazem projděte nastavení soukromí.
+sources:
+  - name: "OpenRouter — ceník a tarify"
+    url: "https://openrouter.ai/pricing"
+  - name: "OpenRouter — časté dotazy (poplatky, logování, soukromí)"
+    url: "https://openrouter.ai/docs/faq"
+  - name: "OpenRouter — limity a stav klíče"
+    url: "https://openrouter.ai/docs/api-reference/limits"
+  - name: "OpenRouter — směrování modelů a Auto Router"
+    url: "https://openrouter.ai/docs/features/model-routing"
+  - name: "Hermes Agent — záložní poskytovatelé modelu"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/fallback-providers"
+---
+
+Díl o [bráně pro všechny modely](/agenti/brana-pro-vsechny-modely) OpenRouter zmiňuje jednou větou jako „hostovanou variantu“. Tady je ten zbytek: co to přesně je, kolik to stojí a jak ho zapojit tak, aby vás jednou v noci nepřekvapil účet.
+
+## Co to je, jednou větou
+
+OpenRouter je prostředník. Vy pošlete dotaz na jednu adresu s jedním klíčem, on ho předá poskytovateli, který daný model provozuje, a vrátí odpověď. Mluví stejným rozhraním jako OpenAI, takže ho pozná skoro každý nástroj, do kterého se dá zadat vlastní adresa a klíč.
+
+<Stats items={[
+  { value: "600+", label: "modelů na jednom klíči", sub: "od více než 80 poskytovatelů" },
+  { value: "5,5 %", label: "poplatek při dobití kreditu", sub: "tokeny bez přirážky" },
+  { value: "50", label: "dotazů denně zdarma", sub: "na modely označené :free" },
+  { value: "1 000", label: "dotazů denně zdarma", sub: "po dobití aspoň 10 dolarů" },
+]} />
+
+## Kolik to stojí doopravdy
+
+Ceník má dvě vrstvy a plete se to.
+
+**Tokeny** platíte v ceně, jakou má poskytovatel v ceníku. OpenRouter k nim nic nepřičítá.
+
+**Poplatek** platíte při nákupu kreditu: 5,5 % na běžném tarifu, 8 % na firemním. Dobijete-li sto dolarů, zaplatíte sto pět a půl. U jednotlivých dotazů už se neplatí nic navíc.
+
+Tři drobnosti, které se hodí vědět předem:
+
+- **Kredit může po roce propadnout.** Služba si to v podmínkách vyhrazuje. Nedobíjejte na tři roky dopředu.
+- **Vrácení peněz jde jen do 24 hodin** od platby a jen za nevyužitý kredit. Poplatek se nevrací.
+- **Záporný zůstatek zablokuje i modely zdarma.** Když agent přetáhne, přestane fungovat všechno.
+
+Přímý účet u poskytovatele je tedy o těch 5,5 % levnější. Platíte za pohodlí a za pojistku — a u útraty v řádu stokorun měsíčně je to rozdíl, který nepoznáte.
+
+## K čemu se hodí nejvíc
+
+**Záloha pro agenta.** Agent, který běží v noci, potřebuje druhou cestu pro případ, že hlavní poskytovatel vrátí chybu limitu nebo má výpadek. V Hermesu jsou to čtyři řádky:
+
+```yaml
+fallback_providers:
+  - provider: openrouter
+    model: <záložní model>
+```
+
+Klíč patří do souboru `.env` jako `OPENROUTER_API_KEY`. Celé zapojení je popsané v [sestavě 4](/agenti/sestava-pamet-nad-zpravami-beeper-hermes).
+
+**Zkoušení nových modelů.** Vyjde nový model a chcete vědět, jestli je na vaši úlohu lepší. Bez OpenRouteru to znamená nový účet, novou kartu a nový klíč. S ním změníte jeden řetězec.
+
+**Levná práce na levných modelech.** Třídění, shrnutí a extrakce nepotřebují nejdražší model. Přes jeden klíč máte po ruce i malé a levné, takže se dá [směrovat podle úlohy](/agenti/smerovani-podle-ulohy).
+
+**Výpadky jednoho poskytovatele.** Stejný model často provozuje víc firem. Když jedna vrátí chybu, OpenRouter zkusí další sám.
+
+## Nastavení za deset minut
+
+<Flow title="Od registrace k prvnímu dotazu" steps={[
+  { title: "Účet a kredit", desc: "Zaregistrujte se a dobijte deset dolarů. Tím se zároveň zvedne denní limit modelů zdarma z 50 na 1 000 dotazů." },
+  { title: "Soukromí", desc: "V nastavení soukromí rozhodněte, jestli smí dotazy jít k poskytovatelům, kteří data uchovávají nebo na nich trénují. Udělejte to před prvním dotazem." },
+  { title: "Klíč se stropem", desc: "Vytvořte klíč a nastavte mu limit útraty. Jeden klíč na jednu aplikaci, ne jeden na všechno." },
+  { title: "Zapojení", desc: "Klíč vložte do nástroje jako proměnnou prostředí. Nikdy do kódu a nikdy do chatu." },
+  { title: "Kontrola", desc: "Po prvním dni se podívejte do přehledu, kolik který klíč utratil a za jaké modely." },
+]} />
+
+Krok tři je důvod, proč tenhle článek vznikl. **Klíč bez stropu je bianko šek.** Když se agent zacyklí, bude volat model, dokud je z čeho brát. Strop na klíči znamená, že nejhorší noc vás stojí přesně tolik, kolik jste si určili. Kam klíče ukládat, řeší díl [kam patří API klíče](/agenti/kam-patri-api-klice).
+
+## Co se děje s vašimi daty
+
+Přidáváte do cesty další firmu, tak je fér vědět, co vidí.
+
+OpenRouter podle své dokumentace ve výchozím stavu **neukládá obsah dotazů ani odpovědí**, jen základní údaje o požadavku: kdy, jaký model, kolik tokenů. Ukládání obsahu si můžete zapnout výměnou za jednoprocentní slevu. Nedělejte to u ničeho, co byste nenapsali na pohlednici.
+
+Druhá půlka jsou poskytovatelé za ním. Každý má vlastní pravidla. V nastavení soukromí proto volíte, kam smí dotazy téct:
+
+- **bez uchovávání** — poskytovatel si dotaz po zpracování nenechává,
+- **uchování kvůli bezpečnosti** — smí ho držet kvůli zneužití, ne kvůli trénování,
+- **uchování a trénování** — podle pravidel poskytovatele.
+
+Když si nastavíte přísný režim a vyberete model, který ho žádný poskytovatel nesplní, dotaz skončí chybou. To je správné chování, ne porucha.
+
+A modely zdarma? Platíte jinak. Poskytovatelé bezplatných modelů mají vlastní podmínky a často právě na dotazech trénují. Na hraní ano, na cokoli soukromého ne.
+
+## Automatický výběr modelu
+
+OpenRouter nabízí i model `openrouter/auto`, který pro každý dotaz vybere konkrétní model sám. Příplatek za to není, platíte cenu vybraného modelu. Která to byla, se dozvíte v odpovědi.
+
+Pohodlné, ale s háčkem: nevíte dopředu, kolik dotaz bude stát, a výchozí nastavení míří spíš na kvalitu než na cenu. Pokud ho použijete, omezte mu v nastavení seznam povolených modelů a cenovou hladinu. Pro agenta, který běží bez dozoru, je jistější jeden pevně zvolený model.
+
+## Kdy OpenRouter nepoužívat
+
+- **Máte předplatné, které vám stačí.** Předplatné s limitem je u pravidelné práce skoro vždycky levnější než platba za tokeny. Počty jsou v dílu o [nákladech](/agenti/naklady-lokalni-vs-cloud).
+- **Používáte jeden model od jednoho poskytovatele.** Pak je přímý účet levnější a o jednoho prostředníka kratší.
+- **Zpracováváte data, která nesmí k třetí straně.** Smlouvu o zpracování máte s OpenRouterem, ne s každým poskytovatelem za ním. Pro firemní data to ověřte s právníkem, nebo zůstaňte u [lokálního modelu](/agenti/lokalni-ai-za-hodinu).
+- **Chcete mít logy u sebe.** Pak je správná odpověď vlastní brána a OpenRouter nanejvýš jako jeden z cílů za ní.
+
+## Na co si dát pozor
+
+- **Jeden klíč na jednu aplikaci.** Až jeden unikne, zrušíte jeden, ne všechno.
+- **Název modelu není všude stejný.** OpenRouter používá tvar `firma/model`. Zkopírujte ho ze stránky modelu, nepište zpaměti.
+- **Limity zdarma jsou na účet, ne na klíč.** Dva klíče vám dva příděly nedají. A počítají se i neúspěšné pokusy.
+- **Stejný model nemusí být všude stejný.** Různí poskytovatelé ho můžou provozovat s jinou délkou kontextu nebo v úspornější variantě. Když na tom záleží, zvolte poskytovatele ručně.
+
+---
+
+Nejlepší způsob, jak o OpenRouteru přemýšlet, je jako o rezervním kole. Většinu cest odjedete bez něj. Ale ten jeden večer, kdy hlavní poskytovatel spadne uprostřed noční dávky, budete rádi, že ho vezete — a že má na sobě strop.
