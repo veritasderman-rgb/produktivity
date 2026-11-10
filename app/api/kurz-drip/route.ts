@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { brevoListIds } from "@/lib/optin";
 
 /**
  * Denní rozesílka sedmidenního kurzu — náhrada za Brevo Automations,
@@ -37,8 +38,9 @@ export async function GET(req: Request) {
   }
 
   const apiKey = process.env.BREVO_API_KEY;
-  const listId = Number(process.env.BREVO_LIST_ID);
-  if (!apiKey || !listId) {
+  // Anglická větev může mít vlastní seznam (BREVO_LIST_ID_EN) — projdeme oba.
+  const listIds = brevoListIds();
+  if (!apiKey || listIds.length === 0) {
     return NextResponse.json({ error: "BREVO_API_KEY / BREVO_LIST_ID chybí" }, { status: 503 });
   }
   const brevo = (path: string, init?: RequestInit) =>
@@ -56,6 +58,7 @@ export async function GET(req: Request) {
   // Projdi kontakty listu (stránkovaně).
   const now = Date.now();
   let sent = 0, skipped = 0, done = 0, errors = 0;
+  for (const listId of listIds)
   for (let offset = 0; ; offset += 500) {
     const res = await brevo(`/contacts/lists/${listId}/contacts?limit=500&offset=${offset}`);
     if (!res.ok) {
