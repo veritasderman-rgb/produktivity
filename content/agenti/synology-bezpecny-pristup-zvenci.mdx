@@ -1,0 +1,124 @@
+---
+title: "Synology zvenčí: privátní síť místo QuickConnectu a otevřených portů"
+excerpt: "Na NASu vám teď běží agent, který čte vaše zprávy. Tím se z krabice na fotky stal stroj, který stojí za to zamknout pořádně. Konkrétní postup pro DSM: Tailscale, co vypnout, dvě naplánované úlohy, na které se zapomíná, a test, kterému se dá věřit."
+track: "ovladani"
+order: 5
+tags: ["ovladani", "bezpecnost", "hardware", "agenti"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Obecný díl o bezpečné cestě domů říká, proč privátní síť a ne otevřený port. Tenhle říká, jak to udělat na Synology. Tailscale se na DSM 7 instaluje ručně z balíčku od výrobce, ne z Centra balíčků, a potřebuje dvě naplánované úlohy: jednu pro aktualizace, druhou pro odchozí spojení po startu. Pak vypnete QuickConnect, automatické otevírání portů na routeru a SSH, které po instalaci agenta zůstalo zapnuté. Hotovo je teprve tehdy, když se na NAS z mobilních dat bez Tailscale nedostanete.
+sources:
+  - name: "Tailscale — instalace a omezení na Synology"
+    url: "https://tailscale.com/kb/1131/synology"
+  - name: "Tailscale — balíčky ke stažení"
+    url: "https://pkgs.tailscale.com/stable/"
+  - name: "Synology — QuickConnect"
+    url: "https://kb.synology.com/en-global/DSM/help/DSM/AdminCenter/connection_quickconnect"
+  - name: "Synology — jak zabezpečit NAS"
+    url: "https://kb.synology.com/en-global/DSM/tutorial/How_to_add_extra_security_to_your_Synology_NAS"
+---
+
+Dokud byl NAS jen úložiště na fotky, stačilo mu běžné zabezpečení. Po [sestavě 4](/agenti/sestava-pamet-nad-zpravami-beeper-hermes) a [sestavě 5](/agenti/sestava-hermes-na-synology-sto-pouziti) na něm běží agent, leží na něm klíče k vašim chatům a tokeny k modelům. Kdo se dostane na NAS, dostane všechno najednou.
+
+Proč privátní síť a ne přesměrovaný port, vysvětluje díl [bezpečná cesta domů](/agenti/bezpecna-cesta-domu). Tady je jen to, co je na Synology jinak.
+
+## Co vlastně chcete zvenčí dělat
+
+Než cokoli nastavíte, ujasněte si to. Většina lidí zjistí, že skoro nic.
+
+| Potřeba | Potřebuje přístup na NAS? |
+|---|---|
+| Psát si s agentem | Ne. Jde přes Telegram a agent se ptá sám. |
+| Podívat se, jestli kontejnery běží | Ano, rozhraní DSM. |
+| Opravit nastavení agenta | Ano, SSH nebo soubory. |
+| Dostat se k souborům | Ano. |
+
+První řádek je důležitý: **samotný agent žádný přístup zvenčí nepotřebuje.** Privátní síť stavíte kvůli sobě, pro těch pár chvil, kdy potřebujete na NAS sáhnout z cesty.
+
+## Krok 1: Tailscale, ale ne z Centra balíčků
+
+Tady je první past. Verze v Centru balíčků už podle Tailscale není podporovaná a neodpovídá aktuálnímu vydání. Správný postup:
+
+1. V DSM otevřete **Ovládací panel → Centrum informací** a zjistěte přesný model a procesor.
+2. Ze stránky s balíčky Tailscale stáhněte soubor `.spk` pro svou architekturu.
+3. V **Centru balíčků** zvolte **Ruční instalace** a soubor nahrajte.
+4. Otevřete Tailscale a přihlaste se stejným účtem jako na mobilu a notebooku.
+
+Od téhle chvíle má NAS adresu ve tvaru `100.x.y.z`, na kterou dosáhnou jen vaše zařízení.
+
+## Krok 2: dvě úlohy, na které se zapomíná
+
+DSM 7 drží balíčky zkrátka a Tailscale kvůli tomu potřebuje dvě naplánované úlohy. Obě se zakládají v **Ovládací panel → Plánovač úloh**.
+
+**Aktualizace.** Ruční instalace znamená, že se balíček sám neaktualizuje. Vytvořte naplánovanou úlohu s uživatelem `root`, denně, se skriptem:
+
+```bash
+tailscale update --yes
+```
+
+**Odchozí spojení po startu.** Ve výchozím stavu se přes privátní síť dostanete *na* NAS, ale programy na NASu se přes ni nedostanou *ven*. Vytvořte spouštěnou úlohu s uživatelem `root` a událostí **Spuštění**:
+
+```bash
+/var/packages/Tailscale/target/bin/tailscale configure-host; synosystemctl restart pkgctl-Tailscale.service
+```
+
+Druhou úlohu potřebujete jen tehdy, když má NAS sám volat jiné stroje ve vaší síti — třeba agent na NASu model na Mac mini. Po každé aktualizaci balíčku se musí spustit znovu; proto je navázaná na start.
+
+Jedna věc na Synology nefunguje vůbec: přihlašování přes Tailscale SSH. Používá se vestavěné SSH z DSM.
+
+## Krok 3: firewall
+
+Firewall je v DSM ve výchozím stavu vypnutý. Když ho zapnete — a měli byste —, přidejte v **Ovládací panel → Zabezpečení → Firewall** pravidlo, které povolí zdrojovou podsíť `100.64.0.0` s maskou `255.192.0.0`. To je rozsah adres privátní sítě. Bez něj si zavřete dveře, které jste právě postavili.
+
+Pořadí pravidel pak vypadá takhle: povolit domácí síť, povolit privátní síť, všechno ostatní zakázat.
+
+## Krok 4: co vypnout
+
+Teď ta příjemnější polovina. Každá z těch věcí je cesta dovnitř, kterou už nepotřebujete.
+
+- **QuickConnect.** Ovládací panel → Externí přístup → QuickConnect. Je to pohodlná služba, ale je to veřejná adresa vašeho přihlašovacího okna. S privátní sítí ji nepotřebujete.
+- **Automatické nastavení routeru.** Tamtéž na kartě Konfigurace routeru. NAS si přes ni umí na routeru sám otevírat porty. Smažte pravidla, která tam jsou.
+- **Přesměrované porty na routeru.** Podívejte se přímo do routeru. Porty 5000, 5001 a 22 mířící na NAS tam být nemají.
+- **SSH.** Zapnuli jste ho kvůli instalaci agenta. V Ovládací panel → Terminál a SNMP ho zase vypněte a zapínejte jen na dobu, kdy ho potřebujete.
+- **Výchozí účet `admin`.** Má být zakázaný. Pracujte pod vlastním účtem se silným heslem.
+
+A dvě věci zapněte:
+
+- **Dvoufázové ověření** pro všechny účty ve skupině správců.
+- **Automatické blokování** v Ovládací panel → Zabezpečení → Ochrana: po několika chybných pokusech se adresa zablokuje.
+
+## Krok 5: jak je to s právy pro Docker
+
+Tady nemám dobrou zprávu. Na Synology se s kontejnery nedá pracovat pod omezeným účtem: Container Manager i příkaz `docker` vyžadují správce. Rada „založte si pro agenta zvláštního uživatele“ tu proto nefunguje tak, jak byste čekali.
+
+Co funguje místo toho:
+
+- **Hranicí je připojená složka, ne uživatel.** Kontejner vidí jen to, co mu v nastavení připojíte.
+- **SSH je vypnuté, dokud ho nepotřebujete.** Správcovský účet, ke kterému se nedá přihlásit zvenčí, je menší riziko.
+- **Tokeny v souborech mají práva jen pro vlastníka.** Kde přesně mají klíče ležet, řeší díl [kam patří API klíče](/agenti/kam-patri-api-klice).
+
+## Krok 6: test, kterému se dá věřit
+
+Vypněte na mobilu wifi i Tailscale a zkuste z mobilních dat tři věci:
+
+1. Otevřít adresu QuickConnect. Nemá fungovat.
+2. Otevřít veřejnou IP adresu vaší domácnosti s portem 5001. Nemá odpovědět.
+3. Napsat agentovi v Telegramu. **Má odpovědět.**
+
+Pak Tailscale zapněte a otevřete `https://100.x.y.z:5001`. Má se objevit přihlášení do DSM.
+
+Když všechny čtyři věci dopadnou takhle, máte hotovo. Agent funguje odkudkoli a NAS zvenčí neexistuje.
+
+## Na co si dát pozor
+
+- **Aktualizaci DSM nedělejte přes Tailscale.** Spojení může uprostřed spadnout. Velké aktualizace pouštějte z domácí sítě.
+- **Prohlížeč bude hlásit nedůvěryhodný certifikát.** Na adrese privátní sítě je to očekávané; spojení je i tak šifrované samotnou sítí.
+- **Staré zařízení odhlaste.** Prodaný telefon s přihlášeným Tailscale je klíč od domu.
+- **Sdílené odkazy na soubory přestanou zvenčí fungovat.** Kdo je používá pro rodinu, musí rodinu přizvat do privátní sítě, nebo sdílet jinudy.
+- **Mobilní aplikace Synology** se místo QuickConnect ID připojují na adresu `100.x.y.z`. Přenastavte je hned, jinak budete za týden hledat, proč se nezálohují fotky.
+
+---
+
+Celé to zabere necelou hodinu a žádný krok není složitý. Těžké je jen jedno: vypnout věci, které fungují. QuickConnect funguje. Přesměrovaný port funguje. A právě proto tam zůstávají roky poté, co je naposledy někdo potřeboval.
