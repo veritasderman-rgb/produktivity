@@ -1,0 +1,112 @@
+---
+title: "Agent pro firmu o pěti lidech: kdo smí co zadat a kdo schvaluje"
+excerpt: "Agent pro jednoho člověka je nástroj. Agent pro pět lidí je kolega, u kterého musí být jasné, komu odpovídá, co kdo smí a kdo to zaplatí. Model tří rolí, společný kanál místo soukromých zpráv a pět rozhodnutí, která udělejte dřív, než ho zapnete."
+track: "rizeni"
+order: 7
+tags: ["agenti", "rizeni", "bezpecnost", "telegram", "naklady"]
+level: "pokrocily"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Sdílený agent selže jinak než osobní: ne na technice, ale na tom, že nikdo neví, kdo ho řídí. Funguje rozdělení na tři role — správce, který mění nastavení, uživatelé, kteří zadávají práci, a schvalovatel všeho, co jde ven nebo stojí peníze. Hermes umí oddělit správce od běžných uživatelů, ale jen u příkazů; obyčejné zadání v chatu smí dát každý povolený. Proto patří rizikové schopnosti mimo agenta úplně. Práce se zadává ve společném kanálu, ne v soukromých zprávách, a paměť agenta je firemní, takže do ní nepatří nic osobního.
+sources:
+  - name: "Hermes Agent — zprávy, role a řízení přístupu"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/"
+  - name: "Hermes Agent — profily"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/profiles"
+  - name: "Hermes Agent — bezpečnost a schvalování příkazů"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/security"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+Všechno, co tu zatím o agentech vyšlo, mělo jednoho uživatele. Vy zadáváte, vy schvalujete, vy platíte. Když se agent splete, víte, kdo to má opravit.
+
+Ve firmě o pěti lidech tohle přestává platit první den. Kolegyně mu zadá úkol, který odporuje vašemu. Někdo mu řekne, ať si „zapamatuje“, že klient má slevu. A na konci měsíce přijde účet, u kterého nikdo neví, co ho udělalo.
+
+## Tři role
+
+Než cokoli nastavíte, rozdělte tři klobouky. V pětičlenné firmě je může nosit jeden člověk, ale musí být jasné, který má zrovna na hlavě.
+
+<Flow title="Kdo je kdo" steps={[
+  { title: "Správce", desc: "Mění nastavení, modely, napojení a pravidla. Zná terminál. Jeden člověk a jeden zástupce." },
+  { title: "Uživatelé", desc: "Zadávají práci a čtou výsledky. Všichni ostatní. Nic nenastavují." },
+  { title: "Schvalovatel", desc: "Potvrzuje všechno, co jde ven z firmy nebo stojí peníze. U malé firmy obvykle majitel." },
+]} />
+
+Třetí role je ta, na kterou se zapomíná. Agent pro jednoho ji nepotřebuje, protože zadavatel a schvalovatel jsou tatáž osoba.
+
+## Co umí Hermes a co ne
+
+Hermes rozlišuje dvě úrovně uživatelů. Nastavují se u každé platformy zvlášť:
+
+```yaml
+gateway:
+  platforms:
+    telegram:
+      extra:
+        allow_from: ["111", "222", "333", "444", "555"]
+        allow_admin_from: ["111"]
+        user_allowed_commands: [status, usage]
+```
+
+Dokumentace ukazuje tenhle zápis na příkladu Discordu; klíče jsou u všech platforem stejné, hodnoty jsou číselná ID uživatelů. Správce smí všechny příkazy začínající lomítkem. Běžný uživatel jen ty vyjmenované, plus nápovědu a `/whoami`, které mu ukáže, co smí.
+
+A teď to podstatné, co dokumentace říká výslovně: **úrovně dnes omezují jen příkazy, ne obyčejný rozhovor.** Běžný uživatel nesmí přepnout model příkazem, ale smí agentovi napsat větu a agent ji vykoná se všemi nástroji, které má.
+
+Z toho plyne nejdůležitější pravidlo celého dílu: **co nesmí udělat nejmladší kolega, to agent nesmí umět vůbec.** Role nejsou místo, kde se řeší bezpečnost. Tím místem je seznam nástrojů.
+
+## Pět rozhodnutí předem
+
+**1. Co agent umí.** Sepište nástroje, které má mít, a u každého si odpovězte, jestli by vám nevadilo, kdyby ho použil kdokoli z pěti lidí bez ptaní. Co neprojde, agent nedostane. Příkazovou řádku a spouštění kódu vypněte; firemní agent je nepotřebuje.
+
+**2. Kde se zadává.** Ve společné skupině, ne v soukromých zprávách. Důvody jsou tři: všichni vidí, co agent dělá, protichůdná zadání vyjdou najevo hned a nový kolega se učí čtením. Soukromé zprávy agentovi povolte jen správci.
+
+**3. Co si agent pamatuje.** Paměť sdíleného agenta je firemní dokument. Patří do ní, jak se jmenují produkty a kdo má co na starosti. Nepatří do ní nic osobního a nic, co jeden kolega řekl o druhém. Řekněte to lidem předem — a paměť jednou měsíčně projděte.
+
+**4. Kdo schvaluje.** Agent připravuje koncepty do fronty. Odeslání klientovi, zveřejnění a cokoli s penězi potvrzuje schvalovatel. Jak takovou frontu postavit, popisuje díl o [frontě úloh a schvalování](/agenti/fronta-uloh-a-schvalovani).
+
+**5. Kdo platí a kolik.** Jeden klíč s měsíčním stropem a týdenní přehled útraty do společného kanálu. Když je útrata vidět, chová se k ní každý jinak. Postup měření je v dílu o [měsíčním účtu](/agenti/co-stoji-mesic-s-agentem).
+
+## Pravidla pro lidi, ne pro agenta
+
+Polovina potíží se sdíleným agentem je lidská. Pomáhá jedna stránka, kterou si přečte každý, kdo dostane přístup:
+
+```markdown
+JAK U NÁS PRACUJEME S AGENTEM
+
+1. Zadáváme ve skupině. Soukromě jen správce.
+2. Agent připravuje, člověk odesílá. Bez výjimky.
+3. Do zadání nepíšeme osobní údaje zákazníků ani kolegů.
+4. „Zapamatuj si“ říká jen správce.
+5. Když agent udělá chybu, napíšeme to do skupiny, ne jemu.
+6. Výsledek vždy čte ten, kdo ho zadal. Jeho podpis, jeho odpovědnost.
+```
+
+Čtvrtý bod zabrání tomu, aby si agent zapamatoval pět verzí téže věci. Šestý tomu, aby se chyby sváděly na stroj. Obecnou verzi takových pravidel najdete v dílu [pravidla pro agenty na jednu stránku](/agenti/pravidla-pro-agenty-jedna-stranka).
+
+## Jeden agent, nebo víc?
+
+Pět lidí neznamená pět agentů. Dělení dává smysl podle **práv**, ne podle osob:
+
+- **Jeden společný agent** pro to, co smějí všichni: rešerše, texty, hledání ve firemní bázi.
+- **Druhý agent pro majitele** s přístupem k tomu, co ostatní vidět nemají: finance, smlouvy, personální věci. Ve vlastním kontejneru s vlastní složkou, protože profil soubory neodděluje — proč, vysvětluje díl o [rodinném agentovi](/agenti/rodinny-agent-jeden-nas-dva-profily).
+
+Víc než dva v pětičlenné firmě obvykle znamená, že řešíte nástroj místo práce.
+
+## Co to znamená právně
+
+Jakmile agent zpracovává data zákazníků, nejste jen uživatel nástroje. Jste správce osobních údajů, který je předává zpracovateli — poskytovateli modelu. To má důsledky: smlouva o zpracování, informace pro zákazníky, a u zaměstnanců jasné sdělení, že jejich zadání agentovi vidí ostatní.
+
+Tohle si ověřte u někoho, kdo se ochranou údajů zabývá. Není to formalita; je to rozdíl mezi nástrojem a průšvihem.
+
+## Na co si dát pozor
+
+- **Zadání ve skupině čte agent celé.** Včetně vtipů a stížností. Co nemá vědět, nepište tam.
+- **Odchod kolegy.** Odebrat ze seznamu povolených ještě týž den. A projít, co agentovi řekl, ať si pamatuje.
+- **Dva lidé zadají totéž.** Agent to udělá dvakrát a zaplatíte dvakrát. Společný kanál tomu většinou zabrání sám.
+- **Kdo ho umí opravit.** Když správce onemocní, musí existovat druhý člověk, který ví, kde je [záloha](/agenti/zalohy-agenta-obnova-za-deset-minut) a jak zjistit, [proč agent mlčí](/agenti/kdyz-agent-prestane-odpovidat).
+
+---
+
+Sdílený agent je zkouška toho, jak dobře má firma rozdělené odpovědnosti. Kde jsou jasné, zapadne do nich za týden. Kde nejsou, ukáže to rychleji a levněji než jakýkoli audit.

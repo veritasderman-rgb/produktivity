@@ -1,0 +1,160 @@
+---
+title: "Když agent přestane odpovídat: postup od „mlčí“ k příčině"
+excerpt: "Ráno nepřišel brief. Agent na zprávu nereaguje. Než začnete přeinstalovávat, projděte šest otázek v pořadí od nejčastější příčiny po nejvzácnější. S příkazy, které na ně odpovídají."
+track: "ovladani"
+order: 8
+tags: ["ovladani", "agenti", "telegram", "hardware"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Mlčící agent má skoro vždy jednu ze šesti příčin: neběží kontejner, neběží brána k Telegramu, došly peníze nebo vypršel klíč, spadlo napojení na zdroj dat, úloha se nespustila, nebo došlo místo na disku. Hledejte v tomhle pořadí a u každého kroku se dívejte na jednu konkrétní věc. Polovinu případů vyřeší restart kontejneru, ale restartujte až poté, co si přečtete posledních padesát řádků záznamu — jinak se stejná chyba za týden vrátí a vy zase nebudete vědět proč.
+sources:
+  - name: "Hermes Agent — časté dotazy a řešení potíží"
+    url: "https://hermes-agent.nousresearch.com/docs/reference/faq"
+  - name: "Hermes Agent — provoz v Dockeru"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"
+  - name: "Hermes Agent — plánované úlohy (cron)"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/cron"
+  - name: "Hermes Agent — záložní poskytovatelé modelu"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/fallback-providers"
+---
+
+Agent, který funguje, je neviditelný. Všimnete si ho ve chvíli, kdy přestane — obvykle ráno, kdy na něj nemáte čas.
+
+Přirozená reakce je restartovat všechno a doufat. Většinou to pomůže. A za týden jste ve stejné situaci, protože jste se nedozvěděli, co se stalo.
+
+## Nejdřív rozlišit dva příznaky
+
+**Agent neodpovídá vůbec.** Napíšete, nic. To je problém na cestě mezi vámi a agentem: kroky 1 až 3.
+
+**Agent odpovídá, ale něco nedělá.** Nepřišel brief, do Notionu nic nepřibylo. To je problém za agentem: kroky 4 až 6.
+
+Podle toho víte, kde začít.
+
+## Krok 1: běží kontejner?
+
+V DSM otevřete Container Manager a podívejte se na stav. Nebo přes SSH:
+
+```bash
+sudo docker ps -a --filter name=hermes
+```
+
+Sloupec se stavem říká všechno. „Up“ znamená, že běží. „Restarting“ znamená, že padá a zvedá se dokola — skoro vždy chyba v nastavení po poslední úpravě. „Exited“ znamená, že spadl a zůstal ležet.
+
+Když neběží, **nejdřív si přečtěte, proč**:
+
+```bash
+sudo docker logs --tail 50 hermes
+```
+
+Posledních pár řádků obvykle příčinu pojmenuje: chybějící klíč, překlep v souboru s nastavením, plný disk. Teprve pak restartujte.
+
+Zvláštní případ: po restartu NASu se kontejner nezvedl. Zkontrolujte, že má nastavené automatické spouštění.
+
+## Krok 2: běží brána?
+
+Kontejner může běžet a přitom nemít spojení s Telegramem.
+
+```bash
+sudo docker exec hermes hermes gateway status
+sudo docker exec hermes tail -50 /opt/data/logs/gateway.log
+```
+
+Cesty a názvy příkazů uvnitř kontejneru se mohou mezi verzemi lišit; když příkaz nenajde program, podívejte se do dokumentace k vaší verzi image.
+
+Co v záznamu hledat:
+
+- **chybu přihlášení k Telegramu** — token bota je špatně nebo byl u BotFathera zrušen;
+- **zprávu, že uživatel není povolen** — píšete z jiného účtu, než jaký je na seznamu, nebo se seznam při úpravě rozbil;
+- **konflikt** — stejný token používá ještě jiný běžící agent. Dva na jednom tokenu nemohou být.
+
+Ta poslední se stává po zkoušce obnovy ze zálohy, když zkušební kontejner zůstal běžet.
+
+## Krok 3: odpovídá model?
+
+Brána funguje, agent zprávu přijal, ale model mu neodpověděl. V záznamu to poznáte podle číselných kódů:
+
+| Kód | Co znamená | Co udělat |
+|---|---|---|
+| 401, 403 | klíč neplatí nebo vypršelo přihlášení | zkontrolovat klíč, přihlásit se znovu |
+| 402 | došel kredit | dobít, zkontrolovat strop na klíči |
+| 429 | limit požadavků | počkat; když se opakuje, zpomalit úlohy |
+| 500, 502, 503 | výpadek u poskytovatele | počkat; ověřit stavovou stránku |
+
+Agent se zálohou tyhle chyby většinou přežije sám, protože přepne na záložního poskytovatele. Když mlčí i tak, selhaly obě cesty — nejčastěji proto, že strop útraty platí pro obě najednou, nebo proto, že záložní klíč nikdo od instalace nevyzkoušel.
+
+Rychlá kontrola, co má agent nastaveno:
+
+```bash
+sudo docker exec hermes hermes config show
+```
+
+## Krok 4: žije zdroj dat?
+
+Agent odpovídá, ale brief je prázdný nebo se do Notionu nic nezapisuje. Zeptejte se ho přímo:
+
+```text
+Které účty v Beeperu jsou teď připojené? A dosáhneš na Notion?
+```
+
+Nejčastější tiché selhání celé [sestavy s Beeperem](/agenti/sestava-pamet-nad-zpravami-beeper-hermes) je **spadlý most**: jedna síť se odhlásila, Beeper běží dál a agent poctivě hlásí, že nikdo nepíše. Pozná se podle toho, že z jedné sítě najednou nic nechodí.
+
+Druhé v pořadí je vypršelé přihlášení ke službě. Po úpravě nastavení napojení ho agent načte znovu příkazem `/reload-mcp`.
+
+## Krok 5: spustila se úloha?
+
+Agent funguje, zdroje fungují, a brief přesto nepřišel.
+
+```text
+Vypiš mi plánované úlohy: název, rozvrh, kdy běžely naposledy
+a jak dopadly.
+```
+
+Tři obvyklé příčiny:
+
+- **Brána v tu chvíli neběžela.** Plánované úlohy spouští ona. Když byl kontejner v sedm ráno dole, úloha se neodehrála a sama se nedoběhne.
+- **Časové pásmo.** Úloha běžela, ale o hodinu jinak, než jste čekali. Typicky týden po změně času.
+- **Úloha doběhla a nic neposlala.** Buď neměla co, nebo nemá nastaveno, kam výsledek doručit. Výstupy posledních běhů leží ve složce `cron/output`.
+
+Proto má mít i prázdný den svou jednu větu, jak radí díl o [ranním briefu](/agenti/ranni-brief-jedna-zprava-misto-deseti): ticho pak znamená poruchu, ne klid.
+
+## Krok 6: je kam psát?
+
+Poslední a nejzáludnější. Plný disk se projevuje jako všechno ostatní: kontejner padá, databáze hlásí chyby, úlohy se nedokončí.
+
+V DSM se podívejte do Správce úložiště na volné místo. U agenta rostou tři věci: záznamy, historie rozhovorů a stažené soubory. U Beeperu databáze zpráv a média.
+
+Když je svazek plný, mazat se dá i tehdy, když už nejde zapisovat. Staré záznamy a dočasné soubory jsou první kandidáti; paměť a dovednosti nechte být.
+
+## Když nic z toho
+
+Hermes má vlastní diagnostiku:
+
+```bash
+sudo docker exec hermes hermes doctor
+```
+
+Projde nastavení a napojení a vypíše, co mu nesedí. Zkuste ji dřív, než sáhnete po obnově ze [zálohy](/agenti/zalohy-agenta-obnova-za-deset-minut).
+
+A položte si jednu otázku: **co se změnilo?** Aktualizace image, úprava nastavení, nová dovednost, aktualizace DSM, nový router. Agent, který včera fungoval a dnes ne, se skoro nikdy nerozbil sám od sebe.
+
+## Jak se o výpadku dozvědět dřív
+
+Čtyři drobnosti, které z ranního překvapení udělají večerní upozornění:
+
+- **Brief má i prázdný den jednu větu.** Když nepřijde nic, víte hned.
+- **Hlídací skript bez modelu.** Jednou za hodinu zkontroluje, že kontejnery běží a je místo na disku. Ozve se jen při problému a nestojí žádné tokeny.
+- **Upozornění ze Synology.** DSM umí poslat zprávu, když kontejner neočekávaně skončí nebo dochází místo.
+- **Deník změn.** Jeden soubor, kam zapíšete datum a co jste změnili. Při příštím výpadku ho otevřete jako první.
+
+## Na co si dát pozor
+
+- **Restart maže stopy.** Nejdřív záznam, potom restart.
+- **Neopravujte tři věci najednou.** Jedna změna, zkouška, další změna. Jinak nevíte, co pomohlo.
+- **Aktualizace nedělejte v pátek odpoledne.** A ne den před dovolenou.
+- **Agent sám sebe opravit nemá.** Je lákavé říct mu „zjisti, proč nefunguješ, a sprav to“. Agent s právem měnit vlastní nastavení a spouštět příkazy je přesně to, čemu se celý seriál vyhýbá.
+
+---
+
+Výpadek sám o sobě nic neznamená; má je každý systém. O provozu vypovídá až to, jestli po něm víte, co se stalo, a jestli se tatáž věc stane podruhé.
