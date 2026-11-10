@@ -81,6 +81,14 @@ from mcp.server import MCPServer
 PRAVIDLA = yaml.safe_load(Path("/data/pravidla.yaml").read_text(encoding="utf-8"))
 mcp = MCPServer("Kontrola textu")
 
+def je_vyjimka(text: str, zacatek: int, konec: int, vyjimky: list[str]) -> bool:
+    """Výjimka platí jen tehdy, když nalezený výraz leží uvnitř ní."""
+    for v in vyjimky:
+        for m in re.finditer(re.escape(v), text, re.IGNORECASE):
+            if m.start() <= zacatek and konec <= m.end():
+                return True
+    return False
+
 @mcp.tool()
 def zkontroluj_text(text: str) -> list[dict]:
     """Zkontroluje text proti firemním pravidlům. Zavolej na každý
@@ -88,8 +96,7 @@ def zkontroluj_text(text: str) -> list[dict]:
     nalezy = []
     for p in PRAVIDLA["zakazane"]:
         for m in re.finditer(p["vzor"], text, re.IGNORECASE):
-            if not any(v.lower() in text[max(0, m.start() - 20):m.end() + 20].lower()
-                       for v in p.get("vyjimky", [])):
+            if not je_vyjimka(text, m.start(), m.end(), p.get("vyjimky", [])):
                 nalezy.append({"misto": m.start(), "nalez": m.group(0),
                                "duvod": p["duvod"]})
     for n in PRAVIDLA["nazvy"]:
@@ -124,7 +131,7 @@ Tohle je stejně důležité jako to, co umí.
 - **Nepozná význam.** „Uleví od bolesti“ projde, i když je to totéž co zakázané „léčí“. Seznam je vždy o krok za vynalézavostí textu.
 - **Nepozná tón.** Text může splnit všechna pravidla a být nepoužitelný.
 - **Nepozná pravdu.** Ověří, že cena odpovídá bázi. Ne že je báze správně.
-- **Dává falešné poplachy.** „Léčebna“ není zdravotní tvrzení. Bez výjimek začnou lidé nálezy ignorovat, a pak ignorují i ty pravé.
+- **Dává falešné poplachy.** „Léčebna“ není zdravotní tvrzení. Bez výjimek začnou lidé nálezy ignorovat, a pak ignorují i ty pravé. Výjimka přitom smí omluvit jen výraz, který leží přímo v ní; kdyby platila pro celé okolí, propustila by větu „Léčebna: náš čaj léčí.“
 
 Proto zelená kontrola neznamená „text je v pořádku“. Znamená „text neporušil nic z toho, co umíme zapsat“. Zbytek je práce pro čtenáře.
 
