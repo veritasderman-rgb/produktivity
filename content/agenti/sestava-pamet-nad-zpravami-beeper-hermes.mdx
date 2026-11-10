@@ -1,0 +1,257 @@
+---
+title: "Sestava 4: paměť nad všemi zprávami — Beeper a Hermes na Synology"
+excerpt: "Dva kontejnery na domácím NASu: jeden drží všechny vaše chaty, druhý je agent, který je průběžně čte, zapisuje sliby do Notionu a odpovídá vám v Telegramu. Kontejnery připraví Claude, vy se jen dvakrát přihlásíte v terminálu."
+track: "sestavy"
+order: 4
+tags: ["sestava", "agenti", "telegram", "mcp", "data", "bezpecnost"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Na Synology (nebo na VPS) běží dva kontejnery. V prvním je Beeper Server — Beeper bez okna, který drží WhatsApp, Messenger, Signal i Slack v jedné databázi a nabízí je přes MCP. Ve druhém je Hermes Agent, který si do Beeperu pravidelně sahá, sliby a termíny zapisuje do Notionu a na dotaz vám v Telegramu shrne, co se v které konverzaci stalo. Soubory pro oba kontejnery napíše Claude podle zadání z tohoto článku; na vás zbydou dvě přihlášení v terminálu. Dovnitř nevede žádný otevřený port, jediná cesta k datům je váš chat s agentem. Poctivě: databáze zpráv zůstává doma, ale text, který agent čte, odchází ke zpracování k poskytovateli modelu.
+sources:
+  - name: "Hermes Agent — provoz v Dockeru"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"
+  - name: "Hermes Agent — záložní poskytovatelé modelu"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/fallback-providers"
+  - name: "Hermes Agent — plánované úlohy (cron)"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/cron"
+  - name: "Hermes Agent — MCP servery"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp"
+  - name: "Hermes Agent — Telegram"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/telegram"
+  - name: "Hermes Agent — WhatsApp"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/whatsapp"
+  - name: "Hermes Agent — bezpečnost a schvalování příkazů"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/security"
+  - name: "Beeper CLI — instalace Beeper Serveru bez obrazovky"
+    url: "https://github.com/beeper/cli"
+  - name: "Beeper — Desktop API a vestavěný MCP server"
+    url: "https://developers.beeper.com/desktop-api/mcp"
+  - name: "Beeper — vzdálený přístup k API a jeho rizika"
+    url: "https://developers.beeper.com/desktop-api/advanced/remote-access"
+  - name: "beeper-server-docker — komunitní kontejner s Beeper Serverem"
+    url: "https://github.com/aorizondo/beeper-server-docker"
+  - name: "Notion — bezpečnost MCP připojení"
+    url: "https://developers.notion.com/guides/mcp/mcp-security-best-practices"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+Návod [Beeper jako hub všech zpráv](/tipy/beeper-hub-zprav-s-ai) končí jedním omezením: sken slibů běží, jen když máte zapnutý počítač, otevřený Beeper a sami ho spustíte. Kdo dvakrát denně nespustí, ten nemá paměť, jen dobrý úmysl.
+
+Tahle sestava to omezení odstraňuje. Beeper i agent se přestěhují na stroj, který běží pořád, a vy s nimi mluvíte z mobilu. Výsledek je něco, co se nejlíp popisuje jako **kolega, který čte všechny vaše chaty a průběžně hlídá, co jste komu slíbili** — a kterému můžete kdykoli napsat „co jsme se s Petrem vlastně domluvili?“.
+
+## Co postavíte
+
+<Flow title="Cesta jednoho slibu" steps={[
+  { title: "Zpráva přijde do Beeperu", desc: "WhatsApp, Messenger, Signal, Slack i SMS tečou do jedné databáze na vašem NASu. Kontejner Beeper běží bez okna, nonstop." },
+  { title: "Hermes si ji přečte", desc: "Podle rozvrhu se agent zeptá Beeperu na nové zprávy. Mluví s ním jen uvnitř NASu, po vnitřní síti mezi kontejnery." },
+  { title: "Model najde závazek", desc: "Hlavní model běží přes OpenAI. Když narazí na limit nebo výpadek, agent sám přepne na záložní kredit u OpenRouteru." },
+  { title: "Zápis do Notionu", desc: "Slib dostane řádek v databázi s termínem, takže ho vidíte v kalendářovém pohledu." },
+  { title: "Zpráva vám do Telegramu", desc: "Ráno přijde přehled. A kdykoli přes den se můžete zeptat na cokoli z historie." },
+]} />
+
+Jsou to tři vrstvy paměti nad sebou. **Beeper** je archiv: všechno, co kdy přišlo, prohledatelné napříč sítěmi. **Notion** je výtah: jen závazky a termíny, seřazené podle data. A **Hermes** si sám vede poznámky o vás — kdo je kdo, jak chcete výstupy formátovat, které chaty vynechat — takže mu to nemusíte opakovat.
+
+## Co budete potřebovat
+
+- **Synology s aplikací Container Manager** (DSM 7.2 a novější), ideálně model s procesorem Intel nebo AMD a aspoň 4 GB paměti. Hermes si podle dokumentace řekne o 2–4 GB, Beeper Server o další zhruba 1 GB. Komunitní kontejner pro Beeper uvádí jen architekturu x86_64 — u úsporných modelů s procesorem ARM si to před začátkem ověřte.
+- **Nebo VPS.** Postup je stejný, jen místo NASu v obýváku máte pronajatý server. „Lokálně“ pak znamená „na stroji, který spravujete vy“, ne „doma“.
+- **Účet Beeper** s aspoň jedním dalším přihlášeným zařízením (mobil stačí) — nové zařízení se potvrzuje z toho stávajícího.
+- **Placený účet Claude** na přípravu kontejnerů.
+- **OpenAI**: buď předplatné ChatGPT, nebo API klíč. A **OpenRouter** s pár dolary kreditu jako záloha.
+- **Telegram** a volitelně **Notion**.
+- **Čas:** jedno odpoledne.
+
+## Krok 1: nechte Claude připravit kontejnery
+
+Kontejner je zabalený program, který běží oddělený od zbytku NASu. Popisuje se textovým souborem `docker-compose.yml` — a přesně takový soubor umí Claude napsat.
+
+Důležité je vědět, co Claude na webu neumí: **na váš NAS nevidí.** Soubory připraví, ale vložit je do Synology musíte vy. Otevřete si tedy vedle sebe dvě záložky — claude.ai a rozhraní DSM — a zadejte:
+
+```text
+Připrav mi na Synology (DSM 7.2, Container Manager, projekt
+v /volume1/docker/pamet) dva kontejnery v jednom docker-compose.yml:
+
+1. beeper — Beeper Server (Beeper bez okna). Vyjdi z oficiálního
+   Beeper CLI (github.com/beeper/cli, příkaz
+   "beeper setup --server --install"). Když to v kontejneru čistě
+   nejde, použij komunitní projekt aorizondo/beeper-server-docker
+   a řekni mi to. Data do /volume1/docker/pamet/beeper.
+
+2. hermes — oficiální image nousresearch/hermes-agent, příkaz
+   "gateway run", data z /volume1/docker/pamet/hermes do /opt/data.
+
+Pravidla: žádný kontejner nepublikuje porty ven. Hermes se
+k Beeperu připojuje jen po vnitřní síti na http://beeper:23373.
+Oba kontejnery restart unless-stopped a limit paměti.
+
+Než cokoli napíšeš, otevři si aktuální dokumentaci obou projektů
+a ověř názvy příkazů a image. Pak mi dej: obsah všech souborů,
+kam je na Synology uložit, a přesné příkazy pro přihlášení
+k Beeperu a pro úvodní nastavení Hermesu. Tokeny a hesla do
+souborů nepiš, nech na ně místo.
+```
+
+Výsledek bude vypadat zhruba takhle. Berte to jako kostru pro kontrolu, ne jako hotový soubor — oba projekty se rychle mění, proto je v zadání věta o aktuální dokumentaci:
+
+```yaml
+services:
+  beeper:
+    build: ./beeper                # komunitní projekt, viz zdroje
+    container_name: beeper
+    restart: unless-stopped
+    init: true
+    volumes:
+      - /volume1/docker/pamet/beeper:/data
+    mem_limit: 1g
+    # žádné "ports:" — zvenčí se sem nedostane nikdo
+
+  hermes:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes
+    restart: unless-stopped
+    command: gateway run
+    volumes:
+      - /volume1/docker/pamet/hermes:/opt/data
+    mem_limit: 4g
+    depends_on:
+      - beeper
+```
+
+V DSM pak otevřete **Container Manager → Projekt → Vytvořit**, vyberte složku `/volume1/docker/pamet`, vložte soubor a nechte projekt sestavit. Hermes bude zatím padat a restartovat se, protože nemá nastavení. To je v pořádku, spravíme to v kroku 3.
+
+**Pro pokročilé:** kdo má na počítači Claude Code a na NASu zapnuté SSH, může nechat Clauda udělat i tohle. Připojí se na NAS, soubory založí a projekt spustí sám; vy jen schvalujete příkazy. Je to rychlejší, ale schvalujte je doopravdy — Claude v tu chvíli pracuje na stroji, kde máte i fotky a zálohy.
+
+## Krok 2: přihlaste Beeper
+
+Tady poprvé potřebujete terminál. V DSM zapněte **Ovládací panel → Terminál a SNMP → Povolit službu SSH** a z počítače se připojte (`ssh vase-jmeno@adresa-nasu`). Kdo terminál nikdy neotevřel, najde trpělivý úvod v [návodu na Beeper](/tipy/beeper-hub-zprav-s-ai).
+
+Samotné přihlášení má v oficiálním CLI tuhle podobu:
+
+```bash
+beeper setup --server --install --email vy@example.com
+```
+
+Do e-mailu přijde kód, zadáte ho a pak nové zařízení **potvrdíte z mobilu**, kde už Beeper máte. Kdo jiné zařízení nemá, použije obnovovací klíč (`beeper verify recovery-key`). Sítě pak připojíte příkazem `beeper accounts add` — vyberete síť a projdete jejím přihlášením, obvykle přes QR kód.
+
+V kontejneru se příkaz spouští přes `sudo docker exec -it beeper …` a komunitní projekt má vlastní obálku (`beeper-setup login`). Přesnou podobu vám Claude napsal v kroku 1; držte se jí.
+
+Nakonec potřebujete **přístupový token**, kterým se bude Hermes Beeperu prokazovat. Nechte si od Clauda říct, kde ho vaše verze ukládá. A zacházejte s ním jako s heslem ke všem svým chatům najednou, protože přesně tím je.
+
+## Krok 3: přihlaste Hermes
+
+Hermes Agent je open-source agent od Nous Research. Úvodní průvodce se podle dokumentace pouští jednorázově nad stejnou složkou s daty:
+
+```bash
+sudo docker run -it --rm \
+  -v /volume1/docker/pamet/hermes:/opt/data \
+  nousresearch/hermes-agent setup
+```
+
+Průvodce se zeptá na tři věci.
+
+**Model.** Zvolte OpenAI. S předplatným ChatGPT je to volba „ChatGPT or Codex Subscription“ — průvodce ukáže adresu a kód, které potvrdíte v prohlížeči na počítači, takže to funguje i na stroji bez obrazovky. S API klíčem zadáte `OPENAI_API_KEY`.
+
+**Zálohu.** Klíč `OPENROUTER_API_KEY` a v nastavení jeden záložní model. Hermes na něj přepne sám, když hlavní poskytovatel vrátí chybu limitu, výpadek serveru nebo odmítne přihlášení. U klíče si na OpenRouteru nastavte strop útraty — záloha, která nemá strop, je druhý účet, ne pojistka.
+
+**Kudy s vámi bude mluvit.** Pro Telegram založíte bota u @BotFather a zadáte jeho token a **své číselné ID** jako jediného povoleného uživatele; celý postup včetně pastí je v dílu [Telegram jako ovládací panel](/agenti/telegram-jako-ovladaci-panel). Hermes se Telegramu ptá sám, takže na routeru neotvíráte nic. WhatsApp jde taky, ale přes neoficiální napojení na WhatsApp Web: dokumentace sama doporučuje samostatné číslo a upozorňuje na malé riziko omezení účtu. Telegram je klidnější volba.
+
+Výsledné nastavení leží v `/volume1/docker/pamet/hermes/config.yaml`. Podstatné části:
+
+```yaml
+model:
+  provider: openai-codex        # s API klíčem: openai-api
+  default: <váš model>
+
+fallback_providers:
+  - provider: openrouter
+    model: <záložní model>
+
+mcp_servers:
+  beeper:
+    url: "http://beeper:23373/v0/mcp"
+    headers:
+      Authorization: "Bearer <token z kroku 2>"
+    tools:
+      include: [search, search_chats, get_chat, list_messages,
+                search_messages, get_accounts]
+  notion:
+    url: "https://mcp.notion.com/mcp"
+    auth: oauth
+```
+
+Řádek `tools.include` je první ze dvou pojistek. Beeper umí zprávy i **odesílat** a archivovat. Když agentovi vyjmenujete jen čtecí nástroje, ty ostatní vůbec nedostane — to je víc než prosba v zadání, kterou model může přehlédnout. Aktuální názvy nástrojů si ověřte příkazem `hermes mcp test beeper`.
+
+Sama o sobě ale nestačí. Filtr skrývá nástroje, nezamyká Beeper: jeho API dál běží na vnitřní síti a token leží v souboru, který agent umí přečíst. Dokud má Hermes k dispozici příkazovou řádku, může si obojí spojit jedním `curl` — a dokumentace Hermesu výslovně říká, že adresy v terminálových příkazech nehlídá. Proto **druhá pojistka: vypněte agentovi spouštění příkazů a kódu.** V průvodci `hermes tools` odškrtněte pro Telegram sady `terminal` a `code_execution` (a `browser`, pokud ho nepotřebujete). Na čtení zpráv, zápis do Notionu a psaní souhrnů je agent nepotřebuje. Po prvním naplánovaném běhu se ho zeptejte, jaké nástroje při něm měl, ať víte, že omezení platí i tam.
+
+Notion se přihlašuje přes `hermes mcp login notion`. Pozor na to, čím se přihlásíte: připojený klient dosáhne na všechno, na co dosáhne váš účet, ne na jednu vybranou stránku. Kdo má v Notionu i jiné věci než sliby, založí si pro agenta **samostatný účet**, pozve ho jen do té jedné databáze a přihlásí Hermes jím. Druhá cesta je starší lokální server s tokenem integrace, které se stránky sdílejí jednotlivě; Notion ho ale už aktivně neudržuje.
+
+Pak kontejner v Container Manageru restartujte a napište botovi první zprávu.
+
+## Krok 4: naučte ho rytmus
+
+Od téhle chvíle už žádný terminál. Úlohy se zadávají normální větou v Telegramu a Hermes si z nich sám založí plánovanou úlohu. Nejdřív mu příkazem `/sethome` řekněte, že výsledky má posílat do tohoto chatu.
+
+Databázi v Notionu si založte podle [struktury z prvního návodu](/tipy/beeper-hub-zprav-s-ai) — sloupec `Dokdy` typu datum z ní udělá kalendář. Pak:
+
+```text
+Každý pracovní den v 7:30 a v 15:00 projdi přes Beeper nové zprávy
+od posledního běhu. Vynech chaty: [seznam]. Najdi závazky: co jsem
+komu slíbil já, co kdo slíbil mně, a domluvené schůzky. U každého
+uveď kdo komu, co, dokdy jako konkrétní datum, síť a chat a doslovnou
+citaci. Nové závazky zapiš do notionové databáze „Sliby a závazky“
+se stavem Nový; než zapíšeš, zkontroluj, že tam už nejsou. Pak mi
+sem pošli krátký přehled: co přibylo a co má termín dnes nebo je
+po termínu. Když si nejsi jistý, jestli jde o slib, dej to zvlášť
+pod „K posouzení“ a do Notionu to nezapisuj.
+```
+
+Stav `Nový` je vaše schvalovací fronta. Agent zapisuje návrhy, vy je při ranní kávě v Notionu potvrdíte nebo smažete. Bez toho kroku přestanete databázi do měsíce věřit.
+
+## Na co se pak dá ptát
+
+Naplánovaný sken je jen základ. Hodnota sestavy je v tom, že archiv je pořád po ruce:
+
+- **„Co se stalo v chatu projekt-web od pátku?“** — když se vrátíte z dovolené a nechce se vám číst tři sta zpráv.
+- **„Co všechno jsme s Novákem řešili za poslední půlrok? Seřaď to po tématech.“** — rešerše před schůzkou, s citacemi a daty.
+- **„Co jsem tenhle týden slíbil a ještě nesplnil?“** — pohled do Notionu ověřený proti zprávám.
+- **„Každý pátek ve 14:00 mi vypiš, co mi kdo slíbil a nedodal, a navrhni texty připomínek.“** — texty navrhne, odešlete je vy.
+- **„Zapamatuj si, že rodinný chat a chat s Janou nikdy nečteš.“** — pravidlo si uloží natrvalo.
+
+Možností je tolik, kolik otázek vás napadne. Jen si hlídejte jednu věc: čím víc toho agent čte, tím víc textu platíte a tím víc ho odchází ven.
+
+## Co přesně znamená „běží to lokálně“
+
+Tři věci jsou pravda a jedna věc se v nadšených návodech vynechává.
+
+Pravda je, že **databáze zpráv leží na vašem disku**, že **dovnitř nevede žádný otevřený port** a že **jediný, kdo se k datům dostane, je váš účet v Telegramu**, protože bot odpovídá jen vašemu číselnému ID. Beeper zvenčí nevidí nikdo, ani vy — jen Hermes po vnitřní síti.
+
+Vynechává se tohle: **text, který agent čte, odchází ke zpracování k OpenAI nebo OpenRouteru**, zápisy jdou do Notionu a odpovědi přes servery Telegramu, kde chat s botem není šifrovaný mezi koncovými zařízeními. Lokální je úložiště a řízení, ne výpočet. Kdo potřebuje, aby text neopustil dům, musí místo OpenAI zapojit [lokální model](/agenti/lokalni-ai-za-hodinu) — a smířit se s tím, že bude ve vytahování slibů znatelně slabší.
+
+A pak je tu [smrtící trojice](/agenti/smrtici-trojice-agentu). Tenhle agent čte soukromá data, čte text, který psali cizí lidé, a umí něco poslat ven. Kdokoli vám může napsat zprávu, která se tváří jako pokyn. Proto:
+
+- **Agent nesmí odesílat zprávy.** To řeší obě pojistky z kroku 3 dohromady: jen čtecí nástroje Beeperu a žádná příkazová řádka. Jedna bez druhé je plot s otevřenou brankou.
+- **Nechte zapnuté schvalování příkazů.** Hermes má ve výchozím stavu u plánovaných úloh nebezpečné příkazy zakázané (`approvals.cron_mode: deny`). Neměňte to.
+- **Notionu dejte jen tu jednu databázi.** Přihlášení vaším běžným účtem zpřístupní agentovi celý váš Notion. Použijte samostatný účet pozvaný jen do databáze slibů.
+- **Citlivé chaty vyjmenujte první den**, ne po prvním trapném přehledu.
+- **Zálohujte složku `pamet`** a chraňte ji jako správce hesel. Jsou v ní šifrovací klíče k vašim chatům.
+
+## Kdy tuhle sestavu nestavět
+
+- **Stačí vám ruční sken dvakrát denně.** Pak zůstaňte u [prvního návodu](/tipy/beeper-hub-zprav-s-ai); je jednodušší a u každého zápisu jste vy.
+- **Jde o firemní komunikaci.** Zprávy kolegů a klientů nejsou jen vaše. Bez souhlasu IT je do cizího modelu neposílejte.
+- **Nechcete nic spravovat.** Mosty v Beeperu občas vypadnou, image se aktualizují, token vyprší. Počítejte s půlhodinou měsíčně.
+- **Vadí vám šedá zóna.** Beeper Server je nový a v oficiální dokumentaci má zatím jen stručný popis v CLI. Neoficiální klienti navíc formálně porušují podmínky sítí jako WhatsApp. Je to roky tolerovaná praxe, ale záruku nemáte.
+
+## Na co si dát pozor
+
+- **Když agent týden mlčí, nevěřte, že vám nikdo nepsal.** Zeptejte se ho „které účty v Beeperu jsou připojené?“ — spadlý most je nejčastější tichá chyba.
+- **Termíny kontrolujte.** „Do konce příštího týdne“ model občas přepočítá špatně. Proto ta doslovná citace u každého řádku.
+- **Sledujte útratu první týden denně.** První sken celé historie je drahý; teprve pak se spotřeba ustálí.
+- **Začněte s jedním chatem.** Nejdřív si na jedné pracovní konverzaci ověřte, že zápisy dávají smysl, a teprve pak pusťte agenta na všechno.
+
+---
+
+Rozdíl proti prvnímu návodu je jedno slovo: **průběžně**. Tam jste paměť spouštěli vy. Tady běží sama a vy se jí jen ptáte. To pohodlí má cenu — agent bez dozoru, který vidí všechny vaše konverzace — a proto jsou v téhle sestavě nejdůležitější ty dvě pojistky, které mu berou možnost za vás cokoli říct.
