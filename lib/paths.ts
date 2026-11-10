@@ -1,3 +1,4 @@
+import { getAgentArticle } from "@/lib/agents";
 import { getChapter } from "@/lib/chapters";
 import { getTip } from "@/lib/tips";
 import { localePath, type Locale } from "@/lib/i18n";
@@ -14,11 +15,11 @@ import { localePath, type Locale } from "@/lib/i18n";
  * do konzole buildu (`console.warn`), takže se nikdy nevykreslí mrtvý odkaz.
  */
 
-export type PathStepKind = "tip" | "chapter";
+export type PathStepKind = "tip" | "chapter" | "agent";
 
 export type PathStep = {
   kind: PathStepKind;
-  /** Slug souboru v content/tipy/ nebo content/prirucka/ (stejný pro cs i en). */
+  /** Slug souboru v content/tipy/, content/prirucka/ nebo content/agenti/ (stejný pro cs i en). */
   slug: string;
   /** Jedna věta „co z toho budete mít“. */
   outcome: Record<Locale, string>;
@@ -535,6 +536,140 @@ export const paths: LearningPath[] = [
       },
     ],
   },
+  {
+    id: "agent-na-nasu-od-nuly",
+    title: {
+      cs: "Agent na NASu od nuly",
+      en: "An agent on your NAS from scratch",
+    },
+    lead: {
+      cs: "Třináct kroků od otázky, jestli vlastního agenta vůbec chcete, po audit po třech měsících. První čtyři zvládnete za víkend, zbytek přidávejte po jednom týdně.",
+      en: "Thirteen steps, from asking whether you want your own agent at all to the audit after three months. The first four fit into a weekend; add the rest one a week.",
+    },
+    forWhom: {
+      cs: "Pro každého, kdo má doma Synology nebo jiný stroj, který běží pořád, a chce na něm agenta, kterému může věřit.",
+      en: "For anyone with a Synology or another always-on machine at home who wants an agent on it they can trust.",
+    },
+    steps: [
+      {
+        kind: "agent",
+        slug: "agent-bez-serveru-claude-rutiny",
+        minutes: 10,
+        outcome: {
+          cs: "Víte, jestli vlastní stroj vůbec potřebujete, nebo vám stačí rutiny v aplikaci.",
+          en: "You know whether you need your own machine at all, or whether routines in the app are enough.",
+        },
+      },
+      {
+        kind: "agent",
+        slug: "model-harness-agent",
+        minutes: 8,
+        outcome: {
+          cs: "Rozlišíte model, nástroj kolem něj a agenta — a přestanete je zaměňovat.",
+          en: "You can tell the model, the harness around it and the agent apart — and stop mixing them up.",
+        },
+      },
+      {
+        kind: "agent",
+        slug: "smrtici-trojice-agentu",
+        minutes: 10,
+        outcome: {
+          cs: "Znáte jedinou kombinaci, která dělá z agenta riziko, a umíte ji rozbít.",
+          en: "You know the one combination that turns an agent into a risk, and how to break it.",
+        },
+      },
+      {
+        kind: "agent",
+        slug: "sestava-hermes-na-synology-sto-pouziti",
+        minutes: 60,
+        outcome: {
+          cs: "Agent běží na NASu, odpovídá v Telegramu a má první tři úlohy.",
+          en: "The agent runs on your NAS, answers in Telegram and has its first three tasks.",
+        },
+      },
+      {
+        kind: "agent",
+        slug: "openrouter-jeden-klic-zaloha",
+        minutes: 20,
+        outcome: {
+          cs: "Agent má vlastní klíč se stropem útraty a záložní cestu pro případ výpadku.",
+          en: "The agent has its own key with a spending cap and a fallback route for outages.",
+        },
+      },
+      {
+        kind: "agent",
+        slug: "synology-bezpecny-pristup-zvenci",
+        minutes: 50,
+        outcome: {
+          cs: "Na NAS se zvenčí dostanete jen vy a vyzkoušeli jste si, že nikdo jiný ne.",
+          en: "Only you can reach the NAS from outside, and you have tested that nobody else can.",
+        },
+      },
+      {
+        kind: "agent",
+        slug: "ranni-brief-jedna-zprava-misto-deseti",
+        minutes: 25,
+        outcome: {
+          cs: "Místo deseti zpráv chodí ráno jedna, kterou opravdu čtete.",
+          en: "Instead of ten messages you get one each morning that you actually read.",
+        },
+      },
+      {
+        kind: "agent",
+        slug: "zalohy-agenta-obnova-za-deset-minut",
+        minutes: 45,
+        outcome: {
+          cs: "Agent se zálohuje sám, šifrovaně, a obnovu jste si jednou zkusili.",
+          en: "The agent is backed up automatically and encrypted, and you have rehearsed a restore once.",
+        },
+      },
+      {
+        kind: "agent",
+        slug: "dovednosti-agenta-jak-ho-naucit-postup",
+        minutes: 25,
+        outcome: {
+          cs: "První vyladěný postup je uložený jako dovednost a jeho změny schvalujete vy.",
+          en: "Your first tuned procedure is saved as a skill, and you approve any changes to it.",
+        },
+      },
+      {
+        kind: "agent",
+        slug: "sestava-pamet-nad-zpravami-beeper-hermes",
+        minutes: 120,
+        outcome: {
+          cs: "Agent čte vaše chaty, zapisuje sliby do Notionu a nesmí za vás nic odeslat.",
+          en: "The agent reads your chats, logs promises to Notion and cannot send anything on your behalf.",
+        },
+      },
+      {
+        kind: "agent",
+        slug: "kdyz-agent-prestane-odpovidat",
+        minutes: 15,
+        outcome: {
+          cs: "Až agent poprvé zmlkne, víte, kam se podívat a v jakém pořadí.",
+          en: "When the agent first goes quiet, you know where to look and in what order.",
+        },
+      },
+      {
+        kind: "agent",
+        slug: "co-stoji-mesic-s-agentem",
+        minutes: 30,
+        outcome: {
+          cs: "Máte tabulku, která říká, kolik která úloha stojí.",
+          en: "You have a table that tells you what each task costs.",
+        },
+      },
+      {
+        kind: "agent",
+        slug: "tri-mesice-s-agentem-co-vypnout",
+        minutes: 60,
+        outcome: {
+          cs: "Po čtvrt roce zbydou jen úlohy, které čtete, a víte proč.",
+          en: "After a quarter only the tasks you read are left, and you know why.",
+        },
+      },
+    ],
+  },
 ];
 
 /* -------------------------------------------------------------------------- */
@@ -583,22 +718,39 @@ export function pathStorageKey(id: string): string {
   return `produktivni:cesta:${id}`;
 }
 
+/** Kde který druh kroku bydlí a jak se mu říká v hlášce buildu. */
+const KIND_BASE: Record<PathStepKind, string> = {
+  tip: "/tipy",
+  chapter: "/prirucka",
+  agent: "/agenti",
+};
+const KIND_NAME: Record<PathStepKind, string> = {
+  tip: "návod",
+  chapter: "kapitola",
+  agent: "díl seriálu",
+};
+
 function resolveStep(pathId: string, step: PathStep, locale: Locale): ResolvedStep | null {
   const tip = step.kind === "tip" ? getTip(step.slug, locale) : undefined;
-  const entry = step.kind === "tip" ? tip : getChapter(step.slug, locale);
+  const entry =
+    step.kind === "tip"
+      ? tip
+      : step.kind === "agent"
+        ? getAgentArticle(step.slug, locale)
+        : getChapter(step.slug, locale);
 
   if (!entry) {
     const key = `${locale}:${step.kind}:${step.slug}`;
     if (!warned.has(key)) {
       warned.add(key);
       console.warn(
-        `[paths] Cesta „${pathId}“: ${step.kind === "tip" ? "návod" : "kapitola"} „${step.slug}“ v jazyce ${locale} neexistuje — krok přeskakuji.`,
+        `[paths] Cesta „${pathId}“: ${KIND_NAME[step.kind]} „${step.slug}“ v jazyce ${locale} neexistuje — krok přeskakuji.`,
       );
     }
     return null;
   }
 
-  const base = step.kind === "tip" ? "/tipy" : "/prirucka";
+  const base = KIND_BASE[step.kind];
   return {
     id: `${step.kind}:${step.slug}`,
     kind: step.kind,

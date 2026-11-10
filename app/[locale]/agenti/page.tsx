@@ -13,6 +13,7 @@ import {
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { isLocale, localePath, type Locale } from "@/lib/i18n";
 import { ogImage } from "@/lib/og";
+import { formatStepCount, getPath } from "@/lib/paths";
 
 const T = {
   cs: {
@@ -29,6 +30,7 @@ const T = {
     startTitle: "Kde začít",
     startLead:
       "Seriál se dá číst popořadě jako kurz, nebo skákat po štítcích. Když nevíte, začněte prvním dílem každé linky — jsou psané pro člověka, který zatím nic nenainstaloval.",
+    pathLead: "Chcete hotové pořadí místo rozcestníku? Projděte cestu",
     tagsLabel: "Štítky",
     all: "Vše",
     clear: "Zrušit filtr",
@@ -55,6 +57,7 @@ const T = {
     startTitle: "Where to start",
     startLead:
       "Read it front to back like a course, or jump around by tag. If in doubt, start with the first part of each track — they assume you have installed nothing yet.",
+    pathLead: "Prefer a fixed order to a signpost? Follow the path",
     tagsLabel: "Tags",
     all: "All",
     clear: "Clear filter",
@@ -178,6 +181,7 @@ export default async function AgentsPage({
     stitek && (AGENT_TAGS as readonly string[]).includes(stitek) ? (stitek as AgentTag) : null;
   const counts = countAgentTags(all);
   const shown = activeTag ? all.filter((a) => a.tags.includes(activeTag)) : all;
+  const nasPath = getPath("agent-na-nasu-od-nuly", locale);
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-14">
@@ -221,6 +225,15 @@ export default async function AgentsPage({
           <section className="mt-10 border-t-2 border-hairline-strong pt-8">
             <h2 className="display text-[clamp(20px,3vw,26px)]">{t.startTitle}</h2>
             <p className="mt-3 max-w-[58ch] text-[15px] leading-relaxed text-muted">{t.startLead}</p>
+            {nasPath && (
+              <p className="mt-3 max-w-[58ch] text-[15px] leading-relaxed text-muted">
+                {t.pathLead}{" "}
+                <Link href={nasPath.href} className="draw-link font-bold text-ink">
+                  {nasPath.title}
+                </Link>{" "}
+                ({formatStepCount(nasPath.stepCount, locale)}).
+              </p>
+            )}
             <ol className="mt-6 grid gap-4 sm:grid-cols-2">
               {AGENT_TRACKS.map((track, i) => {
                 const first = all.find((a) => a.track === track);
