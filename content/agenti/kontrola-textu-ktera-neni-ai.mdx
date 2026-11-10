@@ -1,0 +1,154 @@
+---
+title: "Kontrola textu, která není AI: pravidla, která platí vždy"
+excerpt: "Model se pravidly řídí většinou. Kontrola napsaná jako obyčejný kód se jimi řídí pokaždé. Co do ní patří, co ne, jak ji nabídnout agentovi jako nástroj a proč má stát na konci každého textu, který jde ven."
+track: "data"
+order: 8
+tags: ["mcp", "rizeni", "bezpecnost", "data"]
+level: "pokrocily"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Pokyn „nepoužívej slovo léčí“ model dodrží v devíti textech z deseti. Desátý vás může stát pokutu. Deterministická kontrola je krátký program, který text projde proti seznamům a vzorům a vrátí nálezy s místem a důvodem; stejný vstup dá vždy stejný výsledek. Hodí se na zakázaná slova, názvy produktů, povinné formulace, čísla a formát. Nehodí se na tón a smysl. Nabídnutá jako nástroj MCP serveru ji použije agent, Claude i člověk — a je to jediná část řetězce, o které můžete říct, že se nemýlí náhodou.
+sources:
+  - name: "Model Context Protocol — specifikace a úvod"
+    url: "https://modelcontextprotocol.io/"
+  - name: "MCP — oficiální Python SDK"
+    url: "https://github.com/modelcontextprotocol/python-sdk"
+  - name: "Nařízení (ES) č. 1924/2006 o výživových a zdravotních tvrzeních"
+    url: "https://eur-lex.europa.eu/legal-content/CS/TXT/?uri=CELEX:32006R1924"
+---
+
+Do pravidel pro agenta napíšete: „Nikdy netvrď, že produkt léčí.“ Agent to dodržuje. Týden, měsíc. Pak jednou zpracuje starou brožuru, kde to slovo je, a přenese ho do nového textu, protože v tu chvíli vážil dvě věci proti sobě a pravidlo prohrálo.
+
+Není to chyba agenta. Je to vlastnost modelů: řídí se pokyny pravděpodobnostně. U většiny práce to nevadí. U vět, za které se platí pokuty, ano.
+
+## Dva druhy pravidel
+
+Užitečné je pravidla rozdělit podle toho, kdo je umí vynutit.
+
+| Pravidlo | Kdo ho hlídá |
+|---|---|
+| „Piš klidně a bez superlativů.“ | model, a po něm člověk |
+| „Text má znít jako my.“ | model, a po něm člověk |
+| „Nepoužívej slova léčí, vyléčí, zaručeně.“ | kód |
+| „Název produktu piš vždy přesně takhle.“ | kód |
+| „U ceny musí být uvedena platnost.“ | kód |
+| „Web piš bez www.“ | kód |
+
+Horní polovina vyžaduje úsudek. Dolní se dá ověřit hledáním v textu — a co se dá ověřit hledáním, nemá smysl svěřovat úsudku.
+
+## Co kontrola umí
+
+Pět druhů pravidel pokryje většinu potřeb:
+
+- **Zakázané výrazy.** Seznam slov a spojení, s výjimkami.
+- **Povinné tvary.** Názvy produktů, firmy, lidí: přesný zápis a běžné zkomoleniny, které se mají opravit.
+- **Povinné součásti.** Když text obsahuje cenu, musí obsahovat i platnost. Když zdravotní tvrzení, musí být na seznamu schválených.
+- **Čísla a formát.** Tvar telefonu, data, měny; délka titulku; počet znaků příspěvku.
+- **Shoda s bází.** Cena v textu se rovná ceně v [znalostní bázi](/agenti/znalostni-baze-firmy-jako-mcp-server).
+
+Poslední druh je nejcennější. Kontrola, která najde v textu číslo s měnou a porovná ho s ceníkem, chytí přesně tu chybu, kterou člověk při čtení přehlédne.
+
+## Jak vypadá
+
+Pravidla leží v souboru, který umí upravit i neprogramátor:
+
+```yaml
+zakazane:
+  - vzor: "\\b(vy)?léč\\w*"
+    duvod: "Zdravotní tvrzení bez schválení."
+    vyjimky: ["léčebna", "Léčebné lázně"]
+  - vzor: "\\bzaručen[ěý]\\w*"
+    duvod: "Nelze doložit."
+
+nazvy:
+  - spravne: "Pražírna Na Rohu"
+    spatne: ["Pražírna na rohu", "pražírna Na rohu", "Prazirna Na Rohu"]
+
+povinne:
+  - kdyz: "\\d+\\s?Kč"
+    musi_byt: "(platí|platnost|do \\d)"
+    duvod: "U ceny chybí platnost."
+```
+
+A program, který je použije, je krátký:
+
+```python
+import re, yaml
+from pathlib import Path
+from mcp.server import MCPServer
+
+PRAVIDLA = yaml.safe_load(Path("/data/pravidla.yaml").read_text(encoding="utf-8"))
+mcp = MCPServer("Kontrola textu")
+
+def je_vyjimka(text: str, zacatek: int, konec: int, vyjimky: list[str]) -> bool:
+    """Výjimka platí jen tehdy, když nalezený výraz leží uvnitř ní."""
+    for v in vyjimky:
+        for m in re.finditer(re.escape(v), text, re.IGNORECASE):
+            if m.start() <= zacatek and konec <= m.end():
+                return True
+    return False
+
+@mcp.tool()
+def zkontroluj_text(text: str) -> list[dict]:
+    """Zkontroluje text proti firemním pravidlům. Zavolej na každý
+    text, který má jít ven. Prázdný seznam znamená bez nálezu."""
+    nalezy = []
+    for p in PRAVIDLA["zakazane"]:
+        for m in re.finditer(p["vzor"], text, re.IGNORECASE):
+            if not je_vyjimka(text, m.start(), m.end(), p.get("vyjimky", [])):
+                nalezy.append({"misto": m.start(), "nalez": m.group(0),
+                               "duvod": p["duvod"]})
+    for n in PRAVIDLA["nazvy"]:
+        for s in n["spatne"]:
+            if s in text:
+                nalezy.append({"nalez": s, "duvod": f"Správně: {n['spravne']}"})
+    for p in PRAVIDLA["povinne"]:
+        if re.search(p["kdyz"], text) and not re.search(p["musi_byt"], text):
+            nalezy.append({"nalez": "chybí povinná součást", "duvod": p["duvod"]})
+    return nalezy
+```
+
+Kostra je vyzkoušená na několika větách a dělá, co má; do provozu ji nechte Clauda dopsat podle vašich pravidel. Podstatné jsou tři vlastnosti, které má mít každá verze: vrací **místo a důvod**, ne jen ano/ne; **prázdný seznam** je jednoznačný výsledek; a pravidla jsou **mimo kód**, takže je mění ten, kdo jim rozumí.
+
+## Kde v řetězci stojí
+
+Na konci. Vždy.
+
+<Flow title="Text od zadání po zveřejnění" steps={[
+  { title: "Model píše", desc: "Podle pravidel značky a faktů z báze." },
+  { title: "Kontrola kódem", desc: "Stejný vstup, stejný výsledek. Vrací nálezy s místem a důvodem." },
+  { title: "Model opraví", desc: "Jen to, co kontrola našla. A pošle text znovu ke kontrole." },
+  { title: "Člověk čte", desc: "Tón, smysl a všechno, co kód posoudit neumí." },
+]} />
+
+Třetí krok má jednu past: model po opravě rád prohlásí, že je hotovo. Trvejte na tom, že hotovo je až po druhé kontrole s prázdným výsledkem.
+
+## Co kontrola neumí
+
+Tohle je stejně důležité jako to, co umí.
+
+- **Nepozná význam.** „Uleví od bolesti“ projde, i když je to totéž co zakázané „léčí“. Seznam je vždy o krok za vynalézavostí textu.
+- **Nepozná tón.** Text může splnit všechna pravidla a být nepoužitelný.
+- **Nepozná pravdu.** Ověří, že cena odpovídá bázi. Ne že je báze správně.
+- **Dává falešné poplachy.** „Léčebna“ není zdravotní tvrzení. Bez výjimek začnou lidé nálezy ignorovat, a pak ignorují i ty pravé. Výjimka přitom smí omluvit jen výraz, který leží přímo v ní; kdyby platila pro celé okolí, propustila by větu „Léčebna: náš čaj léčí.“
+
+Proto zelená kontrola neznamená „text je v pořádku“. Znamená „text neporušil nic z toho, co umíme zapsat“. Zbytek je práce pro čtenáře.
+
+## Jak pravidla udržovat
+
+- **Každé pravidlo má důvod a autora.** Pravidlo, u kterého nikdo neví proč, se při první překážce vypne.
+- **Každý falešný poplach se řeší týž den.** Výjimkou, ne vypnutím pravidla.
+- **Každá chyba, která prošla, je nové pravidlo.** Když se do textu dostalo něco, co nemělo, první otázka je, jestli se to dalo zachytit vzorem.
+- **Pravidla testujte.** K souboru patří pár vět, které projít mají, a pár, které nemají. Po každé úpravě je pusťte.
+
+## Na co si dát pozor
+
+- **Čeština se skloňuje.** Zakázat „léčí“ nestačí; potřebujete kořen slova a jeho tvary. Vzory si nechte navrhnout a vyzkoušejte je na skutečných textech.
+- **Právní pravidla ověřte u právníka.** Co je povolené zdravotní tvrzení, neurčuje váš seznam, ale předpisy. Seznam je jen jejich otisk.
+- **Kontrola nesmí text sama opravovat.** Vrací nálezy. Opravu dělá model nebo člověk, a je vidět.
+- **Neobcházejte ji „jen tentokrát“.** Nástroj, který se smí přeskočit, se přeskočí právě tehdy, kdy se spěchá — tedy tehdy, kdy vznikají chyby.
+
+---
+
+V celém řetězci od zadání po zveřejnění je spousta chytrých částí a každá z nich se občas splete. Tahle je hloupá, a když se splete, splete se pokaždé stejně — takže to jednou opravíte a je to opravené. Proto na ni můžete postavit ostatní.

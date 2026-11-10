@@ -1,0 +1,112 @@
+---
+title: "Agent bez serveru: co zvládnou rutiny v Claudovi a kde ta cesta končí"
+excerpt: "Většina tohohle seriálu předpokládá krabici, která doma běží nonstop. Kdo ji nemá a mít nechce, dostane velkou část užitku i z aplikace. Poctivé srovnání: co jde bez serveru, co ne a podle čeho se rozhodnout."
+track: "zaklady"
+order: 5
+tags: ["agenti", "ovladani", "naklady", "rizeni"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Ranní brief z pošty a kalendáře, večerní přehled slibů, hlídání nezodpovězených zpráv a týdenní shrnutí zvládnou plánované úlohy přímo v aplikaci Claude — bez NASu, Dockeru a terminálu. Vlastní server potřebujete ve třech případech: když má agent sahat na věci, které žijí jen na vašem stroji (Beeper, soubory na disku), když chcete rozhovor v Telegramu místo aplikace, a když chcete volit model a mít data pod vlastní střechou. Rozumný postup je začít rutinami a server stavět až na úlohu, kterou rutina prokazatelně neumí.
+sources:
+  - name: "Claude Code — plánované úlohy (rutiny)"
+    url: "https://code.claude.com/docs/en/routines"
+  - name: "Claude Academy — ranní brief napříč nástroji"
+    url: "https://academy.claude.com/use-cases/build-a-daily-briefing-across-your-tools"
+  - name: "Hermes Agent — dokumentace"
+    url: "https://hermes-agent.nousresearch.com/docs/"
+---
+
+Posledních patnáct dílů bylo o agentovi na vlastním stroji. Je to zajímavá stavba a pro někoho ta pravá. Poctivé je ale říct i to druhé: **většina lidí vlastní server nepotřebuje.**
+
+To, co dělá agenta užitečným, je schopnost pracovat podle rozvrhu a sahat do vašich nástrojů. Obojí dnes umí aplikace, kterou už platíte.
+
+## Co je rutina
+
+Rutina je úloha, kterou Claude spouští sám podle rozvrhu. Popíšete ji větou, určíte čas a přes konektory jí dáte přístup k poště, kalendáři, Notionu nebo dalším službám. Výsledek na vás čeká.
+
+Jak se rutiny zakládají, co vidí a jak je ladit, popisuje podrobně návod na [rutiny nad poštou a kalendářem](/tipy/claude-rutiny-posta-kalendar) a kapitola příručky o [rutinách a agentech](/prirucka/rutiny-a-agenti). Tady jde o srovnání.
+
+## Co jde bez serveru
+
+Projděte si [sto úloh pro Hermes](/agenti/sestava-hermes-na-synology-sto-pouziti). Velkou část z nich rutina zvládne také:
+
+| Úloha | Rutina v Claudovi | Vlastní agent |
+|---|---|---|
+| Ranní brief z pošty a kalendáře | ano | ano |
+| Večerní přehled slibů z e-mailu | ano | ano |
+| Hlídání nezodpovězených zpráv | ano | ano |
+| Týdenní shrnutí | ano | ano |
+| Rešerše a hlídání webu | ano | ano |
+| Zápis do Notionu | ano | ano |
+| Koncepty odpovědí | ano | ano |
+
+Pro tyhle úlohy je rutina lepší volba. Nic neinstalujete, nic neaktualizujete, nic nezálohujete a zabezpečení řeší někdo, kdo to dělá na plný úvazek.
+
+## Kde rutina končí
+
+Tři hranice jsou pevné a jedna měkká.
+
+**Věci, které žijí jen u vás.** Rutina běží v cloudu. Na program, který poslouchá jen na vašem počítači, nedosáhne. Nejdůležitější příklad je [Beeper](/tipy/beeper-hub-zprav-s-ai): zprávy z WhatsAppu a Messengeru má v databázi na vašem stroji. Totéž platí pro soubory na domácím disku a pro lokální model.
+
+**Rozhovor odkudkoli.** Rutina vám něco připraví; povídat si s ní z Telegramu během cesty nejde stejným způsobem. Vlastní agent je kontakt v telefonu, kterému píšete jako člověku.
+
+**Volba modelu a místa.** V aplikaci používáte modely jednoho výrobce a data jdou k němu. Vlastní agent může běžet na čemkoli, včetně modelu u vás doma, a přepínat podle úlohy.
+
+**Limity.** Tohle je ta měkká hranice. Počet a četnost rutin se řídí tarifem a mění se; kdo chce kontrolu každých pár minut nebo desítky úloh denně, narazí dřív v aplikaci než na vlastním stroji.
+
+## Co za server platíte
+
+Druhá strana téhož srovnání, protože v nadšení se vynechává:
+
+| | Rutiny | Vlastní agent |
+|---|---|---|
+| Uvedení do provozu | minuty | odpoledne |
+| Údržba | žádná | zhruba půl hodiny měsíčně |
+| Zálohy | neřešíte | [vaše starost](/agenti/zalohy-agenta-obnova-za-deset-minut) |
+| Zabezpečení | výrobce | [vaše starost](/agenti/synology-bezpecny-pristup-zvenci) |
+| Když se něco rozbije | počkáte | [hledáte sami](/agenti/kdyz-agent-prestane-odpovidat) |
+| Cena | v předplatném | železo, elektřina, tokeny |
+
+Vlastní agent není pokročilejší verze rutin. Je to jiný obchod: víc možností výměnou za to, že provozovatelem jste vy.
+
+## Podle čeho se rozhodnout
+
+Tři otázky, v tomhle pořadí.
+
+<Flow title="Rozhodovací postup" steps={[
+  { title: "Potřebuju sahat na něco, co je jen u mě?", desc: "Beeper, domácí disk, lokální model. Pokud ano, server potřebujete. Pokud ne, pokračujte." },
+  { title: "Potřebuju si s agentem psát z Telegramu?", desc: "Pokud je pro vás rozhovor na cestě podstatný, server dává smysl. Pokud stačí hotový přehled, pokračujte." },
+  { title: "Narazil jsem na limit nebo na data, která nesmějí ven?", desc: "Pokud ano, server. Pokud ne, zůstaňte u rutin." },
+]} />
+
+Kdo třikrát odpověděl ne, ať server nestaví. Ušetří odpoledne instalace a každý měsíc půlhodinu údržby, a nepřijde o nic.
+
+## Obojí najednou
+
+Nejčastější výsledek po pár měsících není buď, anebo. Je to rozdělení:
+
+- **rutiny** na všechno kolem pošty, kalendáře a dokumentů v cloudu;
+- **vlastní agent** jen na tu jednu věc, kvůli které vznikl — typicky zprávy z chatů.
+
+Zapisují do stejné databáze v Notionu a vy čtete jeden přehled. Agent na NASu pak dělá málo, dělá to dobře a je snadné ho uhlídat. Jak takovou databázi postavit, aby unesla dva zapisovatele, je v návodu [Notion jako paměť](/tipy/notion-pamet-struktura-ktera-vydrzi).
+
+## Pravidla platí stejně
+
+Server nebo aplikace, tři věci se nemění:
+
+- **AI připravuje, člověk odesílá, platí a maže.** Rutina s právem poslat e-mail vaším jménem je stejné riziko jako agent s tímtéž právem.
+- **Začněte jednou úlohou na týden.** Čtyři rutiny naráz jsou čtyři zdroje šumu a nepoznáte, která za co může.
+- **Citlivá agenda do toho nepatří.** Personalistika, zdraví, smlouvy před podpisem.
+
+## Na co si dát pozor
+
+- **Konektor vidí to, co váš účet.** Rozsah, který při připojení odsouhlasíte, je rozsah, který platí pro každou rutinu.
+- **Rutina není rozhovor.** Když výsledek nesedí, upravíte zadání a počkáte na další běh. Ladění je pomalejší než u agenta, se kterým si píšete.
+- **Limity a názvy se mění.** Funkce se během roku několikrát přejmenovala a pravidla tarifů se posouvají; aktuální stav si ověřte v nastavení své aplikace.
+- **Závislost na jednom výrobci.** Rutiny jsou pohodlné právě proto, že jsou uvnitř jedné aplikace. Zadání si ukládejte i mimo ni, ať jdou přenést.
+
+---
+
+Vlastní agent je dobrá odpověď na konkrétní otázku. Špatná je jen tehdy, když otázka zněla „jak začít“. Na tu je odpověď jedna rutina, jeden týden a pak se uvidí.

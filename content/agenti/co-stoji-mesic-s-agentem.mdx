@@ -1,0 +1,109 @@
+---
+title: "Co stojí měsíc s agentem: jak si to spočítat dřív, než přijde účet"
+excerpt: "Agent nemá jednu cenu. Má čtyři složky, z nichž tři jsou předvídatelné a čtvrtá umí překvapit. Jak je změřit, tabulka k vyplnění, kde se peníze ztrácejí nejčastěji a pět pák, kterými účet srazíte, aniž byste přišli o užitek."
+track: "orchestrace"
+order: 6
+tags: ["naklady", "orchestrace", "agenti", "api-klice"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Měsíční náklad agenta se skládá z elektřiny, předplatných, tokenů a vašeho času. První dvě složky jsou pevné a malé, čas se podceňuje a tokeny jsou jediná část, která umí narůst desetkrát bez varování. Tenhle díl nedává hotové číslo — to závisí na vašich úlohách — ale postup, jak ho za týden změřit: jeden klíč na agenta, denní pohled na útratu a tabulka po úlohách. Většinu účtu obvykle dělá několik málo úloh a pevná režie každého dotazu, ne chytrost modelu.
+sources:
+  - name: "OpenRouter — limity, stav a útrata klíče"
+    url: "https://openrouter.ai/docs/api-reference/limits"
+  - name: "OpenRouter — ceník a tarify"
+    url: "https://openrouter.ai/pricing"
+  - name: "Hermes Agent — časté dotazy (spotřeba tokenů, velikost zadání)"
+    url: "https://hermes-agent.nousresearch.com/docs/reference/faq"
+  - name: "Hermes Agent — plánované úlohy a režim bez modelu"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/cron"
+---
+
+Nejčastější otázka k celému seriálu je „a kolik to stojí?“. Poctivá odpověď je, že nevím — a že to nevíte ani vy, dokud to nezměříte. Dva lidé se stejnou sestavou mohou platit řádově jiné částky podle toho, co agentovi zadali.
+
+Tenhle díl proto místo čísla dává postup. Za týden budete mít své.
+
+## Čtyři složky
+
+| Složka | Jak se chová | Jak ji zjistit |
+|---|---|---|
+| Elektřina | pevná, malá | příkon stroje × hodiny × cena |
+| Předplatná | pevná | výpis z karty |
+| Tokeny | proměnlivá, umí vyskočit | přehled u poskytovatele |
+| Váš čas | podceňovaná | stopky, poctivě |
+
+**Elektřina.** NAS, který už běžel kvůli fotkám, vás kvůli agentovi nestojí skoro nic navíc. U nového stroje je výpočet jednoduchý: příkon ve wattech × 24 × 30 ÷ 1000 × cena za kilowatthodinu. Příkon nehádejte; zásuvkový měřič stojí pár stovek a řekne pravdu.
+
+**Předplatná.** Sečtěte všechno, co s agentem souvisí: model, Beeper, Notion, hlasové služby. Pozor na dvojí placení téhož — předplatné modelu v aplikaci a k tomu tokeny přes klíč jsou dvě různé věci a agent většinou spotřebovává tu druhou.
+
+**Tokeny.** Jediná složka, které se věnuje zbytek dílu.
+
+**Čas.** Instalace je jednorázová. Údržba ne: aktualizace, spadlý most, vypršelý token, ladění úlohy, která vrací nesmysly. Zapište si to první měsíc do poznámek. Půl hodiny měsíčně je dobrý výsledek, tři hodiny důvod k zamyšlení.
+
+## Jak změřit tokeny
+
+Tři kroky, žádný z nich není složitý.
+
+**1. Jeden klíč na jednoho agenta.** Dokud agent sdílí klíč s čímkoli jiným, nevíte, kdo kolik utratil. Vlastní klíč s vlastním stropem je základ; postup je v dílu o [OpenRouteru](/agenti/openrouter-jeden-klic-zaloha).
+
+**2. Denní pohled první týden.** Poskytovatel ukazuje útratu klíče po dnech. U OpenRouteru je to i jeden dotaz, který vrátí útratu za den, týden a měsíc a kolik zbývá do stropu. První týden se dívejte každé ráno. Hledáte dvě věci: den, který vyčnívá, a trend.
+
+**3. Rozpad po úlohách.** V rozhovoru s agentem ukáže příkaz `/usage`, kolik tokenů spotřebovala právě běžící konverzace. Spusťte každou plánovanou úlohu jednou ručně a číslo si zapište. Tím získáte to nejcennější: cenu jednoho běhu.
+
+## Tabulka k vyplnění
+
+| Úloha | Jak často | Tokenů na běh | Běhů za měsíc | Podíl na účtu |
+|---|---|---|---|---|
+| Ranní brief | pracovní dny | | 22 | |
+| Sken zpráv | 2× denně | | 44 | |
+| Týdenní přehled | 1× týdně | | 4 | |
+| Dotazy během dne | podle potřeby | | | |
+| **Celkem** | | | | 100 % |
+
+Poslední sloupec je důvod, proč tabulku dělat. Skoro vždy ukáže, že **dvě úlohy tvoří většinu účtu** — a ne ty, u kterých byste to čekali.
+
+## Kde se peníze ztrácejí
+
+**Pevná režie každého dotazu.** Než agent přečte první slovo vaší zprávy, pošle modelu své zadání, popis všech nástrojů, seznam dovedností a paměť. Tahle část se platí pokaždé. Hermes ji umí rozepsat příkazem `hermes prompt-size`. Nástroje a dovednosti, které nepoužíváte, jsou účet za nic.
+
+**První sken celé historie.** Když agenta poprvé pustíte na roky zpráv, přečte je všechny. Je to jednorázové, ale může to být většina prvního měsíce. Začněte posledním týdnem.
+
+**Dlouhé rozhovory.** Každá další zpráva v téže konverzaci nese s sebou všechno předchozí. Rozhovor, který táhnete týden, je s každou odpovědí dražší. Novou věc začínejte novou konverzací.
+
+**Úloha, která hlídá něco, co se nemění.** Kontrola každou hodinu, která 23krát denně zjistí, že se nic nestalo, platí 23krát za zprávu „nic“.
+
+**Opakované pokusy.** Úloha, která selže a zkouší to znovu, umí přes noc utratit víc než celý zbytek týdne. Proto strop na klíči.
+
+**Záloha, která se stala hlavní cestou.** Když hlavní poskytovatel vrací chyby, agent tiše jede na záložním. Pokud je záložní model dražší, zjistíte to až z účtu.
+
+## Pět pák
+
+Seřazené podle toho, kolik obvykle ušetří za kolik práce.
+
+1. **Menší model na rutinu.** Třídění, shrnutí a extrakce nepotřebují nejsilnější model. Rozdíl v ceně bývá mnohonásobný, rozdíl ve výsledku u těchhle úloh malý. Podrobně v dílu o [směrování podle úlohy](/agenti/smerovani-podle-ulohy).
+2. **Hlídání bez modelu.** Kontrolu, která se dá napsat jako skript, pusťte v režimu bez modelu: skript běží podle rozvrhu, model se nezavolá vůbec a zpráva přijde, jen když skript něco vypíše.
+3. **Méně nástrojů a dovedností.** Vypněte, co nepoužíváte. Zmenší se režie každého dotazu.
+4. **Řidší rozvrh.** Dvakrát denně místo každé hodiny. U většiny úloh nepoznáte rozdíl jinde než na účtu.
+5. **Jedna úloha místo pěti.** Proč a jak, je v dílu o [ranním briefu](/agenti/ranni-brief-jedna-zprava-misto-deseti).
+
+## Srovnání, které dává smysl
+
+Samotné číslo nic neříká. Postavte ho proti dvěma věcem:
+
+**Proti předplatnému.** Kdyby totéž zvládly [rutiny v aplikaci](/agenti/agent-bez-serveru-claude-rutiny), kterou už platíte, je každá koruna za tokeny navíc cena za to, co rutiny neumějí. Vyplatí se vám ten rozdíl?
+
+**Proti času.** Kolik minut týdně vám agent šetří, poctivě? Odečtěte údržbu. Co zbude, vynásobte tím, zač svůj čas počítáte. Je-li výsledek menší než účet, máte drahý koníček. I to je v pořádku, jen je dobré to vědět.
+
+Širší srovnání lokálního a cloudového provozu je v dílu o [nákladech](/agenti/naklady-lokalni-vs-cloud).
+
+## Na co si dát pozor
+
+- **Strop není odhad.** Nastavte ho na částku, kterou jste ochotni ztratit při nejhorší noci, ne na očekávanou útratu.
+- **Ceny modelů se mění.** Tabulku si jednou za čtvrt roku přepočítejte.
+- **Bezplatné modely nejsou zdarma.** Platíte daty a limity. Na agenta, který čte vaše zprávy, je nepoužívejte.
+- **Druhý měsíc bývá levnější než první.** Odpadne úvodní sken a ladění. Rozhodujte se podle druhého.
+
+---
+
+Smyslem měření není utratit co nejméně. Je jím vědět, za co platíte — protože teprve pak se dá rozhodnout, která z těch úloh za své peníze stojí.

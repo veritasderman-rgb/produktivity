@@ -1,0 +1,127 @@
+---
+title: "Znalostní báze firmy jako MCP server: aby si AI fakta nevymýšlela"
+excerpt: "Ceník, otevírací doba, podmínky, parametry produktů. Přesně ta fakta, která model nezná a ochotně si je domyslí. Jak je dát na server, který ke každé odpovědi přidá zdroj, platnost a míru důvěry — a přizná, když odpověď nemá."
+track: "data"
+order: 7
+tags: ["mcp", "data", "agenti", "rizeni"]
+level: "pokrocily"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Model si firemní fakta nepamatuje, a když je nezná, odhadne je. Znalostní báze na MCP serveru mu dává jediné místo, kde se ptát. Dobrá báze má čtyři vlastnosti: každá odpověď nese zdroj a datum platnosti, obsah je rozdělený podle důvěryhodnosti (ověřeno, převzato z webu, interní), server umí říct „nevím“ a tenhle moment si zapíše, a zápis do báze dělají lidé, ne model. Nejtěžší není server, ale rozhodnutí, kdo ve firmě za který druh faktů ručí.
+sources:
+  - name: "Model Context Protocol — specifikace a úvod"
+    url: "https://modelcontextprotocol.io/"
+  - name: "MCP — oficiální Python SDK"
+    url: "https://github.com/modelcontextprotocol/python-sdk"
+  - name: "Hermes Agent — MCP servery a filtrování nástrojů"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp"
+---
+
+Díl o [firemním stylu jako MCP serveru](/agenti/firemni-styl-jako-mcp-server) řešil, jak má věc vypadat. Tenhle řeší, jestli je pravdivá.
+
+Zkuste se libovolného modelu zeptat na cenu vašeho produktu. Odpoví. Sebejistě, konkrétním číslem, které nikdy neexistovalo. Model nelže ze zlé vůle; nemá odkud vědět a mlčet neumí. Pokud tu odpověď někdo vloží do nabídky, máte problém, který nevyřeší žádný lepší prompt.
+
+## Co je jinak než u nahraných dokumentů
+
+Nejčastější pokus vypadá tak, že se do projektu nahraje ceník v PDF a obchodní podmínky. Chvíli to funguje. Pak vyjde nový ceník, někdo nahraje i ten a model má dva.
+
+| | Nahrané soubory | Znalostní báze na serveru |
+|---|---|---|
+| Jedna platná verze | ne | ano |
+| Odpověď se zdrojem a datem | někdy | vždy |
+| Ví, čemu věřit víc | ne | ano |
+| Umí říct „tohle nemám“ | ne | ano |
+| Stejná pro všechny nástroje a lidi | ne | ano |
+
+Co je MCP a jak se liší od vyhledávání v dokumentech, vysvětlují díly o [lokálním MCP](/agenti/mcp-lokalne-ruce-na-disku) a o [vlastní znalostní bázi](/agenti/vlastni-znalostni-baze-rag).
+
+## Čtyři vlastnosti dobré báze
+
+### 1. Každá odpověď nese zdroj a platnost
+
+Server nevrací holé číslo. Vrací číslo, odkud je a do kdy platí:
+
+```json
+{
+  "produkt": "Výběrová káva Etiopie 250 g",
+  "cena_kc": 289,
+  "plati_od": "2026-10-01",
+  "plati_do": "2026-12-31",
+  "zdroj": "cenik-2026-q4",
+  "duvera": "overeno"
+}
+```
+
+Model pak může napsat „289 Kč, ceník platný do konce roku“ a člověk, který text kontroluje, ví, kam se podívat.
+
+### 2. Obsah je rozdělený podle důvěry
+
+Ne všechno, co firma o sobě ví, je stejně spolehlivé. Užitečné jsou čtyři stupně:
+
+- **ověřeno** — údaj, za který někdo jmenovitě ručí: ceník, kontakty, parametry;
+- **web** — co je publikované na firemním webu; většinou platí, ale nikdo to nekontroluje denně;
+- **archiv** — staré brožury, prezentace, přepisy; dobré na souvislosti, nebezpečné na čísla;
+- **interní** — podklady, které nesmějí ven.
+
+Pravidlo pro model je jednoduché a patří do popisu serveru: fakta ber z „ověřeno“, zbytek jen s výslovným upozorněním, a „interní“ nikdy necituj navenek.
+
+### 3. Server umí říct „nevím“ a zapsat si to
+
+Tohle je nejdůležitější nástroj celé báze a skoro nikdo ho nemá:
+
+```python
+@mcp.tool()
+def nahlas_mezeru(dotaz: str, kontext: str = "") -> str:
+    """Zavolej, když báze nemá odpověď nebo si údaje odporují.
+    Nikdy si chybějící fakt nedomýšlej."""
+    with open(DATA / "mezery.csv", "a", encoding="utf-8") as f:
+        csv.writer(f).writerow([date.today(), dotaz, kontext])
+    return "Zapsáno. Uživateli řekni, že údaj v bázi není a u koho ho ověřit."
+```
+
+Model dostane pokyn: když nenajdeš, neodhaduj, zavolej tohle. Soubor s mezerami je po měsíci nejcennější dokument, jaký o své firmě máte — seznam otázek, na které se lidé ptají a nikdo je nikdy nesepsal.
+
+### 4. Zapisují lidé
+
+Server je jen pro čtení, s jedinou výjimkou výše. Fakta do báze přidává člověk úpravou souborů. Model, který by si směl bázi opravovat, by ji do měsíce zaplnil vlastními domněnkami — a vy byste jim věřili, protože „jsou v bázi“.
+
+## Jak ji rozdělit na nástroje
+
+Jeden obecný nástroj „hledej“ nestačí. Model volí lépe mezi několika úzkými, jejichž popis říká, kdy je použít:
+
+<Flow title="Od obecného ke konkrétnímu" steps={[
+  { title: "Přehled", desc: "Co v bázi je a kterým nástrojem se na to ptát. Model ho volá, když neví, kde začít." },
+  { title: "Fakta o firmě", desc: "Název, adresy, kontakty, IČO, otevírací doba. Krátké, vždy ověřené." },
+  { title: "Ceny a produkty", desc: "S platností a s poznámkou, komu je cena určená." },
+  { title: "Podmínky", desc: "Obchodní, storno, reklamační. Doslovná citace, ne převyprávění." },
+  { title: "Hledání v dokumentech", desc: "Volný dotaz do všeho ostatního, s uvedením stupně důvěry." },
+  { title: "Nahlásit mezeru", desc: "Když nic z toho odpověď nemá." },
+]} />
+
+U podmínek trvejte na doslovné citaci. Převyprávěné storno podmínky jsou jiné storno podmínky.
+
+## Kdo za co ručí
+
+Tady končí technika. Aby báze fungovala, musí u každého druhu faktů stát jméno:
+
+| Druh faktů | Kdo ručí | Jak často kontroluje |
+|---|---|---|
+| Ceny | obchod | při každé změně ceníku |
+| Kontakty a provoz | kancelář | čtvrtletně |
+| Parametry produktů | produktový člověk | při změně sortimentu |
+| Podmínky | jednatel nebo právník | při každé změně |
+
+Bez téhle tabulky báze zestárne tiše. A zastaralá báze je horší než žádná, protože jí model i lidé věří.
+
+## Na co si dát pozor
+
+- **Ceny mají adresáta.** Ceníková cena pro velkoodběratele není cena pro zákazníka z ulice. U každé ceny uveďte, komu smí být sdělena.
+- **Zdravotní, právní a finanční tvrzení** v archivních materiálech bývají formulovaná tak, jak by dnes neprošla. Označte je, ať je model nepřebírá do nových textů. Jak takovou kontrolu udělat natvrdo, ukazuje díl o [kontrole textu](/agenti/kontrola-textu-ktera-neni-ai).
+- **Osobní údaje do báze nepatří.** Jména zákazníků, zaměstnanců mimo veřejné kontakty, cokoli z CRM.
+- **Verzujte soubory.** Až se někdo zeptá, proč agent v září tvrdil něco jiného, potřebujete vidět zářijový stav.
+- **Kdo na server smí.** Interní část jen za přihlášením; postup pro NAS je v dílu [Synology zvenčí](/agenti/synology-bezpecny-pristup-zvenci).
+
+---
+
+Firmy si dlouho myslely, že znalostní báze je místo, kam se ukládají dokumenty. S modelem na druhém konci se ukazuje, že je to seznam vět, za které jste ochotni ručit — a že je kratší, než jste čekali.
