@@ -93,12 +93,12 @@ export default async function ConfirmedPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ stav?: string }>;
+  searchParams: Promise<{ stav?: string; nabidka?: string }>;
 }) {
   const { locale: raw } = await params;
   const locale: Locale = isLocale(raw) ? raw : "cs";
   const t = T[locale];
-  const { stav } = await searchParams;
+  const { stav, nabidka } = await searchParams;
   const success = stav === "ok" || stav === "kurz";
   const retry = stav === "vyprselo" || stav === "neplatny" || !stav;
   const copy =
@@ -134,7 +134,12 @@ export default async function ConfirmedPage({
 
       {retry && (
         <div className="mt-8 max-w-md">
-          <NewsletterForm source="potvrzeni-znovu" locale={locale} />
+          {/* Kdo žádal o kurz, dostane po obnovení odkazu zase kurz. */}
+          {nabidka === "kurz" ? (
+            <NewsletterForm source="kurz" locale={locale} offer="kurz" />
+          ) : (
+            <NewsletterForm source="potvrzeni-znovu" locale={locale} />
+          )}
         </div>
       )}
 

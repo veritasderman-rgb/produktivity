@@ -11,7 +11,10 @@ export async function GET(req: Request) {
   const done = (state: string) =>
     NextResponse.redirect(siteUrl(result.locale, `/newsletter/potvrzeno?stav=${state}`), 303);
 
-  if (!result.ok) return done(result.reason === "expired" ? "vyprselo" : "neplatny");
+  if (!result.ok) {
+    if (result.reason !== "expired") return done("neplatny");
+    return done(result.source === "kurz" ? "vyprselo&nabidka=kurz" : "vyprselo");
+  }
 
   const apiKey = process.env.BREVO_API_KEY;
   if (!apiKey || !brevoListId(result.locale)) return done("chyba");

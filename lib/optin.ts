@@ -40,7 +40,7 @@ export function createOptinToken(email: string, locale: Locale, source: string):
 
 export type OptinResult =
   | { ok: true; email: string; locale: Locale; source: string }
-  | { ok: false; reason: "invalid" | "expired"; locale: Locale };
+  | { ok: false; reason: "invalid" | "expired"; locale: Locale; source?: string };
 
 export function verifyOptinToken(token: string | null): OptinResult {
   const key = signingKey();
@@ -61,8 +61,11 @@ export function verifyOptinToken(token: string | null): OptinResult {
   if (typeof p.e !== "string" || typeof p.x !== "number") {
     return { ok: false, reason: "invalid", locale };
   }
-  if (p.x < Date.now()) return { ok: false, reason: "expired", locale };
-  return { ok: true, email: p.e, locale, source: typeof p.s === "string" ? p.s : "web" };
+  const source = typeof p.s === "string" ? p.s : "web";
+  // Prošlý odkaz má platný podpis, takže víme, o co čtenář žádal — stránka
+  // s novým formulářem mu díky tomu nabídne totéž (kurz zůstane kurzem).
+  if (p.x < Date.now()) return { ok: false, reason: "expired", locale, source };
+  return { ok: true, email: p.e, locale, source };
 }
 
 const SITE = { cs: "https://www.produktivni.cz", en: "https://www.productive.tips" };
@@ -199,7 +202,9 @@ export async function sendConfirmationEmail(
 
 /**
  * Krok 2: po potvrzení založí kontakt a pošle uvítání. Opakované kliknutí
- * na tentýž odkaz už nic neposílá. Vrací false, když se kontakt nepovedlo uložit.
+ * na tentýž odkaz už nic neposílá. Stávající odběratel, který se přihlásí
+ * ke kurzu, se do kurzu zapíše (bez druhého uvítání); kdo kurz má, o něj
+ * běžným přihlášením nepřijde. Vrací false, když se kontakt nepovedlo uložit.
  */
 export async function completeSubscription(
   apiKey: string,
@@ -213,10 +218,20 @@ export async function completeSubscription(
   const existing = await fetch(`https://api.brevo.com/v3/contacts/${encodeURIComponent(email)}`, {
     headers,
   });
+  let subscribed = false;
+  let inCourse = false;
   if (existing.ok) {
-    const contact = (await existing.json()) as { listIds?: number[] };
-    if (contact.listIds?.includes(listId)) return true;
+    const contact = (await existing.json()) as {
+      listIds?: number[];
+      attributes?: Record<string, unknown>;
+    };
+    subscribed = contact.listIds?.includes(listId) ?? false;
+    inCourse = contact.attributes?.SOURCE === "kurz" || Number(contact.attributes?.KURZ_DEN) >= 1;
   }
+  const wantsCourse = source === "kurz";
+  if (subscribed && (!wantsCourse || inCourse)) return true;
+  // /api/kurz-drip pozná účastníka kurzu podle SOURCE=kurz — nepřepisovat.
+  const storedSource = inCourse ? "kurz" : source;
 
   const createContact = (attributes: Record<string, string>) =>
     fetch("https://api.brevo.com/v3/contacts", {
@@ -227,7 +242,7 @@ export async function completeSubscription(
 
   // LOCALE rozlišuje českou a anglickou větev kurzu — SOURCE sám o sobě
   // nestačí, formulář kurzu posílá „kurz" z obou jazykových mutací.
-  let res = await createContact({ SOURCE: source, LOCALE: locale });
+  let res = await createContact({ SOURCE: storedSource, LOCALE: locale });
 
   // Brevo odmítne kontakt s atributem, který v účtu není definovaný. Přihlášení
   // je důležitější než rozlišení jazyka, takže to zkusíme ještě jednou bez něj.
@@ -239,7 +254,7 @@ export async function completeSubscription(
           "Založte ho v Contacts → Settings → Contact attributes (typ Text), " +
           "jinak nepůjde odlišit českou a anglickou větev kurzu.",
       );
-      res = await createContact({ SOURCE: source });
+      res = await createContact({ SOURCE: storedSource });
     } else {
       console.error("Brevo subscribe failed:", res.status, detail);
       return false;
@@ -251,15 +266,18 @@ export async function completeSubscription(
   }
 
   // Uvítací e-mail s e-bookem — best effort, selhání neshodí přihlášení.
-  try {
-    await sendWelcomeEmail(apiKey, email, locale);
-  } catch (e) {
-    console.error("Welcome email failed:", e);
+  // Stávající odběratel ho už dostal.
+  if (!subscribed) {
+    try {
+      await sendWelcomeEmail(apiKey, email, locale);
+    } catch (e) {
+      console.error("Welcome email failed:", e);
+    }
   }
 
   // Kurz: Den 1 odchází hned po potvrzení, další díly posílá denní cron
   // /api/kurz-drip podle atributu KURZ_DEN (Brevo Automations nejdou přes API).
-  if (source === "kurz") {
+  if (wantsCourse && !inCourse) {
     try {
       const day1 = locale === "en" ? 20 : 13;
       await fetch("https://api.brevo.com/v3/smtp/email", {
