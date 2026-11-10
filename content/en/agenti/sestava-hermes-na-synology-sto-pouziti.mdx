@@ -1,0 +1,235 @@
+---
+title: "Setup 5: Hermes on the Synology you already own — and a hundred things to give it"
+excerpt: "You don't need a Mac mini to have your own agent. The NAS you keep your photos on is enough: the agent is lightweight, because the thinking is done by a model in the cloud. A half-hour installation and a hundred concrete tasks, grouped by how much you have to entrust to it."
+track: "sestavy"
+order: 5
+tags: ["sestava", "agenti", "hardware", "telegram", "naklady"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  An agent and a model are two different things. A model needs power; an agent only needs a machine that's always on — and you may already have one in a cupboard. According to its documentation, Hermes Agent gets by with one core and 1 GB of memory (2–4 GB recommended), so an ordinary Synology with the Container Manager app can handle it. A Mac mini only pays off once you want the model to run at home as well. The article shows the installation in a single container and a hundred tasks, from a morning overview to price watching — ordered so that you start with the ones for which the agent needs none of your data.
+sources:
+  - name: "Hermes Agent — running in Docker and hardware requirements"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"
+  - name: "Hermes Agent — features overview"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/overview"
+  - name: "Hermes Agent — scheduled tasks (cron)"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/cron"
+  - name: "Hermes Agent — user stories and use cases"
+    url: "https://hermes-agent.nousresearch.com/docs/user-stories"
+  - name: "Hermes Agent — security and command approval"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/security"
+  - name: "Hermes Agent — Telegram"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/telegram"
+---
+
+In discussions about home agents, the Mac mini gets recommended over and over. It's a good machine, and [we have a part about it](/agenti/mac-mini-jako-domaci-ai-server). But plenty of people buy one for something that can be handled by the box that has been sitting in a cupboard next to their router for five years.
+
+## Why a NAS is enough
+
+It rests on one distinction: **an agent is not a model.**
+
+The model is the part that thinks. It needs a lot of memory and a fast chip, which is why expensive machines get bought for it. The agent is the part that drives the model: it remembers what you told it, keeps the schedule, reads messages from Telegram and calls tools. That takes very little.
+
+Hermes Agent states one core and 1 GB of memory as the minimum, and recommends two cores and 2–4 GB. That's an ordinary Synology from the Plus series. The model, meanwhile, runs elsewhere — at OpenAI, Anthropic or via [OpenRouter](/agenti/openrouter-jeden-klic-zaloha) — and the NAS merely sends it queries.
+
+| | The Synology you have | Mac mini |
+|---|---|---|
+| Purchase price | zero | tens of thousands of crowns |
+| Agent with a model in the cloud | yes | yes |
+| Model right at home | no | yes, depending on memory |
+| Runs non-stop | already does | you have to set it up |
+| Data the agent is close to | everything on the NAS | only what you give it |
+
+Read the last row twice. It's an advantage and a risk at the same time, and we'll come back to it.
+
+**So you don't have to have a Mac mini, but you can.** It makes sense when you want the text never to leave the house at all. The agent can then stay on the NAS and simply ask the Mac mini — that's the division of labour from [setup 2](/agenti/sestava-tichy-server-nocni-smena).
+
+## What to check before you start
+
+- **Container Manager.** Open Package Center in DSM and search for it. If it isn't there, your model can't run containers and this setup isn't for you.
+- **Processor.** Models with Intel or AMD are trouble-free. For low-power models with an ARM processor, check that an official image exists for your architecture; sources disagree on this.
+- **Memory.** With 2 GB it will be a struggle, with 4 GB comfortable. On the Plus series, memory can usually be added.
+
+## Installation in half an hour
+
+A detailed walkthrough, including the terminal for beginners, is in [setup 4](/agenti/sestava-pamet-nad-zpravami-beeper-hermes). Here is just the skeleton for a single container:
+
+```yaml
+services:
+  hermes:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes
+    restart: unless-stopped
+    command: gateway run
+    volumes:
+      - /volume1/docker/hermes:/opt/data
+    mem_limit: 4g
+```
+
+Paste it into a new project in Container Manager. Then run the setup wizard once over SSH:
+
+```bash
+sudo docker run -it --rm \
+  -v /volume1/docker/hermes:/opt/data \
+  nousresearch/hermes-agent setup
+```
+
+The wizard asks about the model and about the channel the agent should use to talk to you. For Telegram you need a bot token and your numeric ID; the procedure is in the part [Telegram as a control panel](/agenti/telegram-jako-ovladaci-panel). Notice what's missing from the skeleton: **a `ports` line**. The agent polls Telegram itself; nobody connects to it from outside.
+
+Do two things before you give it its first task:
+
+1. **Give it its own folder, not the whole NAS.** The container sees only what you mount into it. If you want it to sort scans, mount the folder with the scans. Not `/volume1`.
+2. **Set a spending cap** with the model provider. An agent with a schedule spends money even while you sleep.
+
+## A hundred things to give it
+
+Tasks are given as a sentence in Telegram: “Every morning at seven, send me…” and the agent turns it into a scheduled task by itself. The list is ordered by **how much you have to entrust to the agent.** Start at the top.
+
+### Without your data: the web is enough
+
+1. A morning news overview from three sources of your choice.
+2. The day's weather with one sentence on what to wear.
+3. Watching the price of one item in an online shop and a message when it drops.
+4. Checking whether tickets for a concert have gone on sale yet.
+5. A weekly digest of news in your field, five links and why they're worth reading.
+6. Watching for changes on a public office's or school's web page.
+7. An alert for a new podcast episode or a new video on a channel.
+8. The euro exchange rate every Monday when you're planning a bigger purchase.
+9. Closures and delays on your route before you leave the house.
+10. Research on a topic: ten sources, a summary, the contradictions between them.
+11. A comparison of three products by the parameters you care about.
+12. Watching for free appointment slots at a public office or a doctor's, if they're publicly on the web.
+13. A word of the day in the language you're learning, with a sentence for practice.
+14. An alert when a new version of a program you use comes out.
+15. An overview of cultural events for the weekend in your town.
+16. Watching for new classified ads matching given criteria.
+17. Verifying a claim from an article: what the primary sources say.
+18. A summary of a long video or article from a link you send it.
+19. A list of open grant calls in your field once a week.
+20. A heads-up on name days, anniversaries and public holidays for the coming week.
+
+### Its own memory: what you tell it, it remembers
+
+21. An ideas notebook: you dictate, it sorts by project.
+22. An evening journal of three questions, saved to a file.
+23. A shopping list you add to during the day.
+24. Reminders with context: “remind me of this when I'm dealing with taxes”.
+25. A record of what you've lent to whom.
+26. A mileage or fuel consumption log, entered by voice message.
+27. A reading journal with quotations.
+28. A record of what you ate, and a weekly view without moralising.
+29. A training plan that adjusts to what you've actually done.
+30. A list of gifts someone mentioned during the year.
+31. Birthdays and anniversaries with a reminder a week ahead.
+32. Family rules and agreements in one place.
+33. Household maintenance: filters, inspections, tyre changes.
+34. Warranties and receipts with the warranty end date.
+35. A medication record and a reminder when supplies are running out.
+36. What's in the freezer and what to cook from it.
+37. A personal glossary of terms from the field you're learning.
+38. A weekly retrospective: what went well, what didn't, what to do differently next time.
+39. Half-formed thoughts you want to come back to.
+40. A weekly meal plan based on what the family eats.
+
+### Files in a folder you mount for it
+
+41. Renaming scans by content and date.
+42. Sorting invoices into folders by supplier.
+43. A one-page extract from a long PDF.
+44. Transcribing voice notes into text.
+45. Finding duplicate documents.
+46. Checking a contract: deadlines, notice periods, penalties.
+47. Converting handwritten notes from a photo into text.
+48. A spreadsheet from a pile of receipts.
+49. Comparing two versions of a document and listing the differences.
+50. An index to the family document archive.
+51. Captions for holiday photos for an album.
+52. Checking from the log that the nightly backup ran.
+53. A weekly overview of what was added to the folder.
+54. A proposal of what to archive and what to delete. It must not delete anything itself.
+55. Translating a document while preserving its structure.
+56. A summary of a month's meeting minutes.
+57. Gathering the paperwork for a tax return into one folder.
+58. A spelling check of everything you put into the “to check” folder.
+59. A fair copy from a dictated draft.
+60. A presentation outline from the materials in the folder.
+
+### Work: with access to mail, calendar or tasks
+
+61. A morning overview of the day from the calendar and tasks.
+62. Draft replies to routine emails. You do the sending.
+63. Meeting preparation: who'll be there and what you last wrote to each other.
+64. Watching for what you haven't had a reply to.
+65. Meeting minutes split into tasks and decisions.
+66. A Friday summary of the week for your boss or a client.
+67. Proposed meeting times based on free slots.
+68. Sorting mail into three piles: today, this week, never.
+69. An alert about calendar clashes for the coming week.
+70. An overview of overdue invoices.
+71. A draft quote based on past quotes.
+72. Tracking mentions of the company on the web.
+73. The week's numbers from a spreadsheet in two sentences.
+74. Reminders of promises from chats — that's the whole of [setup 4](/agenti/sestava-pamet-nad-zpravami-beeper-hermes).
+75. A list of questions you should clarify for yourself before a meeting.
+76. Checking a text against the company style.
+77. An overview of what colleagues added to a shared document.
+78. A proposed agenda from open items.
+79. Breaking a big task down into steps with a time estimate.
+80. A monthly overview of where your time went according to the calendar.
+
+### Household and family
+
+81. A family calendar: who picks up the children when.
+82. Reminders of after-school clubs and what to pack for them.
+83. A bedtime story with characters the child invented.
+84. Practising vocabulary or spelling rules as a game.
+85. A cleaning rota that rotates fairly.
+86. A trip plan based on the weather and the children's ages.
+87. Checking the school website and a summary for parents.
+88. Reminders of payments that don't go by direct debit.
+89. Monitoring energy consumption, if the NAS collects it somewhere.
+90. A packing list for a holiday by destination and season.
+
+### The NAS itself and advanced tricks
+
+91. A daily report on disk health and free space.
+92. An alert when a DSM update is available.
+93. Checking the validity of certificates and domains.
+94. Watching that the other containers are running.
+95. A morning report spoken aloud instead of text.
+96. A custom skill: a procedure the agent once did well for you gets saved and repeated next time.
+97. A second agent profile with a different personality and different rights, for the children, say.
+98. A fallback model via OpenRouter for when the main one goes down.
+99. A weekly audit: what the agent did over the week and what it cost.
+100. Cleaning up after itself: a list of scheduled tasks that no longer make sense.
+
+Take numbers 96 and 99 more seriously than the rest. The former is covered by a separate part on [agent skills](/agenti/dovednosti-agenta-jak-ho-naucit-postup). There are also dedicated parts on the [morning brief](/agenti/ranni-brief-jedna-zprava-misto-deseti), which folds individual tasks into one message, on [voice control](/agenti/hlasem-misto-psani-agent-na-ceste) (number 95) and on a [profile for children](/agenti/rodinny-agent-jeden-nas-dva-profily) (number 97). The first is the reason the agent gets better over time. The second is the reason you can go on trusting it.
+
+## Where the line is
+
+The list is ordered deliberately. In the first twenty, the agent sees nothing of yours and the worst that can happen is a bad summary. From number 61 onwards it reads things written by strangers and at the same time sees your data — and that's the combination covered in the part on the [lethal trifecta](/agenti/smrtici-trojice-agentu).
+
+For a NAS, three rules follow from that:
+
+- **The agent proposes, you send and delete.** An email draft yes, sending no. A list for archiving yes, deleting no.
+- **Back it up.** What to save and where, so the agent can be restored, is dealt with in the part on [backups](/agenti/zalohy-agenta-obnova-za-deset-minut).
+- **The mounted folder is the boundary.** What the container can't see, it can neither read nor send out. That's why you never mount the whole volume.
+- **Leave command approval switched on.** For scheduled tasks, Hermes has dangerous commands disabled by default. Leave it that way.
+
+And one extra rule that applies only here: **the NAS is where you keep your backups.** An agent with write access to them is the one thing capable of ruining both the data and its backup at once. Don't mount the backup folder for it at all.
+
+How to lock down a NAS with an agent against access from outside is shown in the part [Synology from outside](/agenti/synology-bezpecny-pristup-zvenci).
+
+After the first quarter, an [audit](/agenti/tri-mesice-s-agentem-co-vypnout) will come in handy to show which of those hundred tasks you actually read, along with the part on [what a month with an agent costs](/agenti/co-stoji-mesic-s-agentem).
+
+## When not to build it
+
+- **You have no recurring tasks.** If you ask an agent something once a week, a phone app is enough.
+- **The NAS is at its limit.** If it already struggles to keep up when playing video, another container won't help it.
+- **You want the model at home.** Then it really is a job for a Mac mini or a computer with a graphics card.
+
+---
+
+The sensible approach is boring: install it, give it three tasks from the first twenty and watch for a week whether you read them. If you do, add more. If not, none of those hundred items will help you — and you found that out for free, on a machine you already had.

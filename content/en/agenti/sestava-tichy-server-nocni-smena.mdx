@@ -1,0 +1,115 @@
+---
+title: "Setup 2: a quiet server for the night shift"
+excerpt: "The second setup adds one thing: a machine that's always on. That opens up work that gets done without you — nightly batches, website monitoring, a morning summary to Telegram. And it adds one obligation the gaming PC didn't have."
+track: "sestavy"
+order: 2
+tags: ["sestava", "hardware", "ovladani", "telegram", "naklady"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  The difference from the first setup isn't performance but availability. A quiet box that runs non-stop can do things a gaming PC can't — not because the PC is slow, but because you switch it off. That opens up four types of work: nightly batches, monitoring, preparation for the morning and taking in tasks from your phone. The cost is lower than you'd expect (a Mac mini draws single-digit watts when idle), but an obligation comes with it: a machine that runs unattended and has access to data needs rules before it needs agents.
+sources:
+  - name: "Ollama — documentation and download"
+    url: "https://ollama.com/download"
+  - name: "Tailscale — documentation"
+    url: "https://tailscale.com/kb/"
+  - name: "Telegram Bot API — official documentation"
+    url: "https://core.telegram.org/bots/api"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+The first setup deals with how to split work between a local model and three accounts. This one adds a single extra thing — **a machine that's always switched on** — and that opens up a whole category of work that couldn't be done before.
+
+It isn't about performance. The gaming PC from the first setup is probably faster. It's about the fact that you shut that one down and walk away.
+
+## What you get on top
+
+<Flow title="Four things only a running machine can do" steps={[
+  { title: "Nightly batches", desc: "The folder you fill during the day gets processed at night. In the morning it's done and you didn't wait a minute." },
+  { title: "Monitoring", desc: "Websites, feeds, the mailbox, changes in a repository. A check every hour; it speaks up only when there's something to say." },
+  { title: "Preparation for the morning", desc: "A summary of the day, sorted mail and prepared drafts are waiting before you get up." },
+  { title: "Taking in tasks from anywhere", desc: "You write from your phone on the tram, the machine processes it and replies. The laptop doesn't need to be involved." },
+]} />
+
+Notice that not one of those four things needs the smartest model in the world. They need **availability**.
+
+## Hardware: what to get
+
+Two sensible directions, both described in the second track of the series:
+
+| | Mac mini | Small PC / mini server |
+|---|---|---|
+| Idle power draw | single-digit watts | single-digit to tens of watts |
+| Noise | practically none | depends on the cooling |
+| Model size | limited by unified memory | limited by VRAM, or slow on CPU |
+| Administration | runs for months without intervention | depends on the system |
+
+For this role, what decides is **the amount of memory, not processor speed** — see [the Mac mini as a home AI server](/agenti/mac-mini-jako-domaci-ai-server) and [quantisation](/agenti/kolik-pameti-model-sezere-kvantizace). A model that fits entirely runs smoothly; one that doesn't fit crawls, whatever the chip.
+
+An honest note on the economics: **a quiet box at idle costs something in the order of tens of crowns a month in electricity; a gaming PC running non-stop costs hundreds.** That's exactly why the second setup is added alongside the first, not instead of it — heavy coding stays on the powerful machine you switch on when you need it.
+
+## How the pieces talk to each other
+
+Setup 2 doesn't replace setup 1. They combine:
+
+- **The gaming PC** — heavy work, when you're sitting at it. It gets switched on and off.
+- **The quiet server** — everything that runs without you. Non-stop, with the gateway and the Telegram bot.
+- **The laptop and the phone** — just windows. They hold nothing themselves; see [one control room, three screens](/agenti/jeden-velin-tri-obrazovky).
+
+The gateway lives on the quiet server, not on the gaming PC. It's the only place that's always running, and so the only place where it makes sense to keep the keys, the logs and the routing.
+
+## The settings that turn a box into a server
+
+Four things without which it won't work, all of them done once:
+
+1. **Turn off sleep and turn on start-up after a power cut.** A server that sleeps isn't a server.
+2. **Have the model listen on the network**, not just on `localhost` — via the `OLLAMA_HOST` variable.
+3. **Access from outside through a private network**, never through a forwarded port. Details in the part [a safe way home](/agenti/bezpecna-cesta-domu).
+4. **A Telegram bot as the entry point.** The bot runs on the server and polls Telegram for new messages itself, so nothing at all needs to be open on the router — see [Telegram as a control panel](/agenti/telegram-jako-ovladaci-panel).
+
+## What a day looks like in operation
+
+| When | What happens | Who does it |
+|---|---|---|
+| 2:00 | Processing the `vstup/` folder — transcripts, extraction, summaries | local model, in a batch |
+| 5:00 | Checking websites and certificates | a script without a model |
+| 6:30 | Assembling the morning summary and drafts into `ke-schvaleni/` | local model |
+| 7:40 | “3 items for approval” arrives in Telegram | the bot |
+| 7:41 | You approve two from your phone and send one back with a note | you |
+| during the day | Quick queries from your phone, adding tasks to the queue | you + the bot |
+| 18:00 | You drop source material into `vstup/` for the night | you |
+
+That last row is the point of the whole setup: **you hand in the work in the evening and have the result in the morning.** You don't wait at a screen, because the machine doesn't need you to be there.
+
+## The price: a new obligation
+
+Here is the part that enthusiastic guides leave out. A machine that **runs unattended**, **sees your data** and **reads things written by someone else** (incoming mail, feeds, other people's documents) is exactly the combination described in the part on the [lethal trifecta](/agenti/smrtici-trojice-agentu). As soon as you add the ability to send something out, it can be abused.
+
+With a gaming PC that you switch on and sit at, the last safeguard is a human. Here there isn't one. So three things belong to this setup, and not as recommendations:
+
+- **A queue with approval.** The agent writes to `ke-schvaleni/`; a different, dumb script does the sending, and only after your click. The smart part has no rights; the part with rights isn't smart.
+- **A list of allowed users for the bot.** Without it, it's a public service that you pay for.
+- **One-page rules** before you let the first agent loose — [the template is ready](/agenti/pravidla-pro-agenty-jedna-stranka).
+
+## When not to build this setup at all
+
+Let's be frank, because enthusiasm costs money here:
+
+- **You have nothing to run at night.** If you can't come up with at least a few recurring tasks a week, it's a box with a light on.
+- **You can manage on a laptop.** If you work from one place and need nothing in the evening, you're only adding maintenance.
+- **You don't want to maintain anything.** A server is a commitment: updates, restarts, the occasional “why isn't it working”.
+
+A sensible test: **for a month, write down the tasks you'd run overnight if there were somewhere to run them.** If there are five or fewer, wait.
+
+## What to watch out for
+
+- **Back up.** When the server is the only place the data lives, it's also the only place it can be lost from.
+- **Check that it's running.** The bot's most useful command isn't a smart model but `/stav` — whether Ollama is running, which model is loaded and how much memory it takes up.
+- **System updates restart the machine.** After each one, check that the services came back up and the variables still apply.
+- **The fact that the server sits in your home doesn't mean it's secure.** It means that you're the one answerable for securing it.
+
+---
+
+That completes both setups. If you take one rule away from them, let it be this: **first split the work into buckets, and only then buy and cancel.** Most people do it the other way round — they get a tool and then look for something to use it on. That's why they have three subscriptions and don't know which of them to cancel.

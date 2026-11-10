@@ -1,0 +1,100 @@
+---
+title: "Mac mini as a home AI server"
+excerpt: "A quiet box next to the router that runs all the time and answers your questions from your phone and your laptop. How to turn a Mac mini into an inference server, how much memory to buy and what to do so it doesn't switch itself off."
+track: "lokalni-ai"
+order: 2
+tags: ["lokalni-ai", "hardware"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  The Mac mini is currently the quietest and least annoying way to have an always-on model at home. The key decision is not the processor but the amount of unified memory — that determines how large a model fits, because on Apple hardware the graphics and the processor share the same RAM. The practical setup: turn off sleep, run Ollama so that it listens on the network, and handle access from outside with a private network, not an open port.
+sources:
+  - name: "Ollama — documentation and download"
+    url: "https://ollama.com/download"
+  - name: "Ollama — library of models to download"
+    url: "https://ollama.com/library"
+  - name: "Apple: MLX, machine learning on Apple silicon"
+    url: "https://github.com/ml-explore/mlx"
+---
+
+A laptop is a bad machine for local AI. Not because it lacks the power — but because you close it and walk away. Home AI only makes sense once it runs all the time: when you can ask it something from your phone on the tram and it answers, because at home it isn't asleep.
+
+The Mac mini is the most pleasant machine for this role today. It's quiet, small, draws little power and — this is the part that matters — has **unified memory**.
+
+## Why unified memory in particular
+
+On an ordinary PC the graphics card has its own memory, and the model has to fit into that. A sixteen-gigabyte card handles only what fits into those sixteen gigabytes, even if the computer has 128 on the motherboard.
+
+On Apple chips the memory is shared. The processor and the graphics computation both reach into the same pool. In practice this means a Mac with a lot of memory can handle models that an ordinary gaming card couldn't — more slowly than the most expensive professional card, but smoothly and without a fan roaring in your living room.
+
+That is why, when choosing, **the amount of memory matters more than anything else.** A faster chip shortens your wait by tens of per cent. Too little memory shuts whole categories of models off completely.
+
+<Bars title="What reasonably fits into unified memory" items={[
+  { label: "16 GB", value: 8, display: "models up to ~8 bn, one at a time" },
+  { label: "24 GB", value: 14, display: "models up to ~14 bn, comfortably" },
+  { label: "32 GB", value: 24, display: "models of 20–30 bn" },
+  { label: "64 GB", value: 48, display: "large models, several at once" },
+]} />
+
+The numbers are approximate and depend on quantisation (the part after next). Always leave yourself some headroom — the operating system, the browser and everything else take their share too, and a model that doesn't fit entirely in memory starts swapping to disk and slows to the point of being unusable.
+
+## The settings without which it won't work
+
+A Mac mini out of the box is set up as a desktop computer, not a server. Three things have to change.
+
+**1. Turn off sleep.** In System Settings → Lock Screen and in the Energy section, set the computer not to sleep when it's connected to power. A server that sleeps is not a server.
+
+**2. Turn on automatic start-up after a power failure.** In the same Energy section. Otherwise, after every thunderstorm outage the box stays dark until you get home.
+
+**3. Enable remote login.** In System Settings → General → Sharing, turn on Remote Login (SSH). From this point you can manage the Mac from your laptop and don't have to walk over to it with a keyboard.
+
+Bonus: you can unplug the monitor. The Mac mini runs without one.
+
+## Making the model listen on the network, not just to itself
+
+This is the step that catches people out. After installation, Ollama listens **only on `localhost`** — which means only the machine it runs on can reach it. For a server that's useless.
+
+You set it with the `OLLAMA_HOST` environment variable. On macOS you do it for the service like this:
+
+```
+launchctl setenv OLLAMA_HOST "0.0.0.0:11434"
+```
+
+Then restart Ollama (most simply by logging out and back in, or by restarting the app). From this point the model is available at `http://<mac-ip-address>:11434` from the whole home network.
+
+**Checking from your laptop:**
+
+```
+curl http://192.168.1.50:11434/api/tags
+```
+
+If a list of downloaded models comes back, you're done. You'll find the Mac's address in System Settings → Network.
+
+## A serious warning: don't put this on the internet
+
+It looks tempting: forward a port on the router and have the model available from anywhere. **Don't do it.** By default Ollama has no login of any kind. An open port means your model can be used by anyone who finds your IP address — and a bot will find it within hours.
+
+The right solution is a **private network** such as Tailscale or WireGuard: your phone, laptop and Mac mini see each other as if they were in the same room, but no port is open to the outside. The whole procedure is covered in the part on a safe route home, in the fourth track.
+
+## What runs fastest on a Mac
+
+Apple develops the MLX framework for its own chips, and models in its format tend to be a little nippier on Apple silicon than the generic variants. In practice:
+
+- **You don't want to fiddle with it:** stay with Ollama. You won't notice the speed difference while typing, only on long generations.
+- **You want to squeeze out the maximum:** look in LM Studio for models marked MLX and switch on the corresponding runtime.
+
+For the role of a home server, convenience matters more than the last fifteen per cent of speed. Ollama wins because it starts itself after a restart and speaks a standard API that everything else plugs into.
+
+## What it costs in electricity
+
+A Mac mini uses a few watts when idle and tens of watts while generating an answer. If you leave it running non-stop, you're looking at something in the order of tens of crowns a month. Next to the subscriptions for several AI services that's negligible — but to be honest: the saving only comes once it actually lets you stop paying for something else. That is what the part on costs in the third track is about.
+
+## What to watch out for
+
+- **Don't buy by processor, buy by memory.** A year from now you'll decide you want to run a larger model, and memory on Macs can't be added later.
+- **Leave the disk some room.** Three downloaded models easily take up 50 GB. An external SSD is cheaper than a larger internal one.
+- **Don't count on it running by itself forever.** A system update restarts the machine. After one, check that Ollama has started and that the `OLLAMA_HOST` variable still applies.
+- **Don't put sensitive data on this machine without thinking.** The fact that the server sits in your home doesn't mean it's secured. It only means that you are the one answerable for securing it.
+
+The next part is for those who don't have a Mac at home but a gaming PC with an Nvidia graphics card. It's the second fully fledged route, and in some respects it's actually better.

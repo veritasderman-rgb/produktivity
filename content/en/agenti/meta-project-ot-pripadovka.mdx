@@ -1,0 +1,90 @@
+---
+title: "Meta Project OT: what happens when you go AI-native before you sort out governance"
+excerpt: "The plan from January: let agents take over routine work and slim teams down by up to 60%. The reality from August: 220% more code, 36% more finished features, 40% more incidents. A case study you can learn more from than from ten how-to guides."
+track: "rizeni"
+order: 4
+tags: ["rizeni", "agenti", "naklady"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  In January 2026 Meta prepared a project called Organization Transformation: agents were to take over routine work, leaving smaller teams of people to manage them; scenarios of slimming down by up to 60% were considered. According to internal figures reported by Reuters, the agents produced 220% more code changes, but only 36% more of them made it to users — while the number of serious technical and security incidents rose by 40% and the time spent firefighting them by 70%. The company cancelled the most ambitious part of the plan. The lesson: volume is not value, and an AI-native organisation needs measurement and rules first, and agents only after that.
+sources:
+  - name: "Computerworld: Meta called off the most ambitious part of the plan (according to Reuters)"
+    url: "https://www.computerworld.com/article/4214479/metas-plans-to-replace-workers-with-ai-fell-flat-report-says.html"
+  - name: "The Next Web: Meta planned to slim teams down by up to 60%"
+    url: "https://thenextweb.com/news/meta-project-ot-ai-native-layoffs-cancelled"
+  - name: "Help Net Security: prompt injection still behind most failures of agentic systems"
+    url: "https://www.helpnetsecurity.com/2026/06/11/owasp-prompt-injection-ai-security-failures/"
+---
+
+This part comes last in the series on purpose. Everything before it — the local model, the gateway, the approval queue, the one-page rules — can look like needless caution. Right up to the moment you read how an attempt to do it the other way round turned out, at scale and with an unlimited budget.
+
+## The plan
+
+In January 2026 a project arose inside Meta under the code name **Project OT** — Organization Transformation. The goal was clearly stated: to turn the company into an “AI native” organisation. Not to add AI to existing procedures, but to build teams around agents from the start.
+
+Routine work done by thousands of people was to be taken over by agents. What was to remain were smaller groups of people that an internal document described as “talent dense” — people who manage and check the AI systems.
+
+Scenarios were on the table in which some teams would slim down by **up to 60%**. The restructuring was to take place in two waves: the first in spring, the second in autumn.
+
+## The reality
+
+The first wave went ahead. The second did not — and the reason lay in numbers the company had measured itself. Reuters described them after going through dozens of internal documents and records and speaking to more than twenty people.
+
+<Stats items={[
+  { value: "+220%", label: "code changes", sub: "year on year, the volume the agents produced" },
+  { value: "+36%", label: "changes that reached users", sub: "year on year, actual features" },
+  { value: "+40%", label: "serious incidents", sub: "technical and security, year on year" },
+  { value: "+70%", label: "time spent firefighting", sub: "year on year" },
+]} />
+
+That first pair of numbers is the whole story. The volume of work more than tripled. The value that flowed out of it rose by a third.
+
+The second pair of numbers explains where the difference went. It didn't vanish — it turned into incidents and into the time people spent dealing with them. The company produced more work **and at the same time more problems**, and the latter swallowed most of the benefit of the former.
+
+## Four lessons that hold for five people too
+
+Meta has a security team, a budget and processes that an ordinary company can't even dream of. If it didn't work out there, that isn't proof that agents don't work. It's proof that they work differently from the way it was planned — and that is a lesson usable at any scale.
+
+**1. Volume is not value.** This is the most important sentence in the whole series. Agents reliably increase volume: more texts, more changes, more proposals, more items processed. But value only arises where somebody uses it. If you measure volume, you'll see success. If you measure what reached the user, you'll see the truth.
+
+A practical translation for one person: don't ask “how many emails did the agent prepare for me”, but “how many of them did I send unchanged”.
+
+**2. Costs move, they don't disappear.** The work an agent saves at the input you often pay for at the output — in checking, fixing, firefighting. If you don't measure that shift, it looks like a saving. In reality you have only moved the cost from a place where you can see it to a place where you can't.
+
+**3. Without measurement you won't spot it in time.** Meta, fortunately, had those numbers. Most companies don't — and then the mismatch between “it looks great” and “none of it reached the customer” only shows up a year later. One sentence belongs in your rules: **what we will measure and how often we will look at it.**
+
+**4. Governance has to come first, not last.** The sequence of steps that failed in this case was: first deploy agents at scale, then deal with the consequences. The sequence that works is the opposite — rules, measurement, one agent, evaluation, and only then scaling. It's slower and more boring. And it means the second wave doesn't have to be cancelled.
+
+## Why incidents go up
+
+That forty per cent rise in serious incidents deserves a section of its own, because it isn't just about worse code quality.
+
+- **Agents work faster than people can check.** When the volume of changes triples and review capacity stays the same, checking becomes a formality.
+- **An agent's mistake spreads.** A person makes a mistake in one place. An agent that has the pattern wrong makes it in two hundred.
+- **The attack surface grows.** Every agent with access to systems is another way in. Security reviews from 2026 still show that most failures of agentic systems in production come down to planted instructions — and the more agents, the more opportunities.
+- **Accountability gets diluted.** When the code was written by an agent, approved by a bot and deployed by a pipeline, there is nobody to ask, when it goes wrong, what they were thinking.
+
+## What to do instead
+
+The approach that has proved itself, and that sums up this whole series:
+
+<Flow title="How to deploy agents so that it lasts" steps={[
+  { title: "Rules first", desc: "One page: who may start an agent, what identity it runs under, what it may do by itself and who answers for the result." },
+  { title: "Then measurement", desc: "Two numbers: how much the agent prepared and how much of it went through unchanged. Without the second number you know nothing." },
+  { title: "One agent, one task", desc: "Six weeks, one process, one responsible person. Not eight agents at once." },
+  { title: "Evaluation by output", desc: "Did it reach the customer? Did it save time even after counting the checking? If not, scrap it without regret." },
+  { title: "Only then the next one", desc: "You can only scale what has been measured. Everything else is a bet." },
+]} />
+
+## What to watch out for
+
+- **An enthusiastic demo tells you nothing.** An agent that aces a task in a demonstration will handle it differently on the thousandth repetition — and that is the number that decides.
+- **“We saved X hours” is a suspect number.** Ask whether it includes the time spent on checking and on fixes.
+- **Cancelling a deployment has to be an acceptable option.** If switching an agent off is politically impossible, you'll keep paying for it even when it's doing harm.
+- **The people running it must understand what the agents are doing.** Managing blind is what produced those numbers.
+
+---
+
+That is the end of the series. If you take away one single thing from it, let it be this: **build the control room before you let agents into it.** A local model, one gateway, a clear boundary around data and a queue where the last click stays yours. The rest can then be changed, swapped and improved — because you have somewhere to do it.

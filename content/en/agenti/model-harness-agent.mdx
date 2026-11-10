@@ -1,0 +1,89 @@
+---
+title: "Model, harness, agent: three words everyone mixes up"
+excerpt: "The model is the engine, the harness is the car, the agent is a driver with a job to do. If you don't tell these three layers apart, you can't make sense of a single news story about AI — or decide what to run at home and what to leave in the cloud."
+track: "zaklady"
+order: 2
+tags: ["agenti", "orchestrace"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  A model is just a next-word predictor — by itself it can't run anything or remember anything. The harness is the wrapper around it: the loop, tools, memory, sandbox and permissions. An agent is a harness that has been given a goal and heads for it without asking at every step. In 2026 the competition is mainly over the harness, not the model — and it is the harness that decides what AI can do to you.
+sources:
+  - name: "The New Stack: the harness as a product and the dispute over price"
+    url: "https://thenewstack.io/ai-agent-harness-pricing-split/"
+  - name: "Ollama — library of models to download"
+    url: "https://ollama.com/library"
+---
+
+When someone says “AI can read my files”, it means three entirely different things depending on where exactly that ability sits. Without telling the three layers apart you can't make a sensible decision — not about privacy, not about money, not about what to run at home.
+
+## The model: a next-word predictor
+
+A model is a file of numbers. A big one, easily tens of gigabytes, but still just a file. It can do one thing: it is given text and works out how it most probably continues.
+
+That's all. A model **by itself cannot**:
+
+- open a file on your disk,
+- send an email or call an API,
+- remember what you wrote to it yesterday,
+- run code,
+- look at the internet.
+
+When you read somewhere that “the model read your spreadsheet”, what really happened is this: something else opened the spreadsheet, converted it to text and fed that text into the model's input. That “something else” is the harness.
+
+Models fall into two families according to whether you can download that file of numbers:
+
+| | Open weights | Closed models |
+|---|---|---|
+| Where it runs | Anywhere — including your own computer | Only at the provider |
+| What you pay for | Electricity and hardware | Every request |
+| Data | Doesn't leave your machine | Goes to the provider |
+| Who decides on switching it off | You | The provider |
+
+There are dozens of families of open models today — Llama, Qwen, Gemma, Mistral, DeepSeek and open-weight models from OpenAI. Closed models still have a lead on the very hardest tasks, but that lead narrows year by year, and for ordinary office work it's often no longer noticeable.
+
+## The harness: the wrapper in which the model can finally do something
+
+A harness is just what the word says: the straps you put on a horse. It's everything around the model that turns a word predictor into a usable tool:
+
+<Flow title="What the harness does" steps={[
+  { title: "The loop", desc: "It doesn't send the model a query once, but repeatedly — the model proposes a step, the harness carries it out and feeds the result back into the input." },
+  { title: "Tools", desc: "Reading files, running a command, searching the web, calling an API. The harness describes to the model what is available and then actually does it on the model's behalf." },
+  { title: "Memory", desc: "It keeps the conversation, summaries of earlier steps, notes between runs. The model remembers nothing by itself." },
+  { title: "Sandbox", desc: "It fences off where code may run and which files it can reach. Without a sandbox the model has the permissions of your whole account." },
+  { title: "Permissions", desc: "It decides what goes ahead by itself and what asks first. This is the only place where you can really apply the brakes." },
+]} />
+
+When you run Ollama or LM Studio at home, you get a model **and a small harness with it** — a chat with history and perhaps a few tools. When you open ChatGPT or Claude in the browser, you get a model **and a large harness with it**, one that can search the web, run code and reach into connectors.
+
+And that is exactly why, in 2026, the main battle stopped being over models. Big labs and tooling companies alike ship the harness as a product in its own right — with its own sandbox, its own credential management and its own way of tracing the whole run. The dispute has moved from the question “whose model is smarter” to the question “whose wrapper is safer and how much do you want for it”.
+
+For you this has a practical consequence: **the same model behaves differently in two harnesses.** When a local model seems dumber to you than the cloud one, it's often not about the model. It's that one has search, a calculator, access to files and five rounds to fix its own mistakes, and the other has an empty window.
+
+## The agent: a harness that has been given a goal
+
+An agent is a harness to which you assign not a step but an outcome. The difference lies in who holds the loop.
+
+- **Chat:** you write, the model answers, you read, you write again. You have control after every step.
+- **Agent:** you write the goal, the model works out the steps for itself, the harness carries them out and you learn the result. You have control at the beginning and at the end.
+
+That difference sounds small and is enormous. An agent that is supposed to handle an enquiry opens the email itself, finds the price list itself, generates the quote itself and can send it itself — if the harness lets it. That is exactly why, in 2026, agents are talked about as the product of the year and the risk of the year at the same time.
+
+The practical upshot: **when designing your own control room, you make your decisions mainly at the level of the harness**, not the model. You can swap the model in five minutes. The harness determines whether the tool may delete a file, send an email or pay an invoice.
+
+## How to translate this into your own decisions
+
+Next time you read the announcement of a new AI feature, break it down into three questions:
+
+1. **Which model is behind it**, and can it be swapped? If not, you're tied to one supplier.
+2. **What can the harness do** — what tools does it have, what runs in a sandbox, where are the credentials stored?
+3. **Where does the proposal end and the action begin** — what goes ahead by itself and what asks?
+
+The third question is the most important and the hardest to find answered in marketing materials. If you can't find it anywhere, that is information in itself.
+
+## Pro tip
+
+When you're trying out a local model and it strikes you as weak, try running it in two different harnesses — say, bare from the command line and then in a graphical client that can hand it the contents of a file. Mostly you'll find that the “weak model” simply had no hands. It's the cheapest way to get a first-hand feel for what this part is about.
+
+The next part looks at why agents became the product of the year — and, at the same time, the risk of the year.

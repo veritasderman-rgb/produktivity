@@ -1,0 +1,112 @@
+---
+title: "An agent without a server: what routines in Claude can handle and where that road ends"
+excerpt: "Most of this series assumes a box that runs at home around the clock. If you don't have one and don't want one, you can get a large share of the benefit from the app alone. An honest comparison: what works without a server, what doesn't, and how to decide."
+track: "zaklady"
+order: 5
+tags: ["agenti", "ovladani", "naklady", "rizeni"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  A morning brief from your mail and calendar, an evening overview of promises, a watch on unanswered messages and a weekly summary can all be handled by scheduled tasks right in the Claude app — no NAS, no Docker, no terminal. You need your own server in three cases: when the agent has to reach things that live only on your machine (Beeper, files on a disk), when you want a conversation in Telegram instead of the app, and when you want to choose the model and keep the data under your own roof. The sensible approach is to start with routines and build a server only for a task a routine demonstrably can't do.
+sources:
+  - name: "Claude Code — scheduled tasks (routines)"
+    url: "https://code.claude.com/docs/en/routines"
+  - name: "Claude Academy — a morning brief across your tools"
+    url: "https://academy.claude.com/use-cases/build-a-daily-briefing-across-your-tools"
+  - name: "Hermes Agent — documentation"
+    url: "https://hermes-agent.nousresearch.com/docs/"
+---
+
+The last fifteen parts were about an agent on your own machine. It's an interesting build, and for some people the right one. But it's only fair to say the other thing too: **most people don't need their own server.**
+
+What makes an agent useful is the ability to work to a schedule and reach into your tools. The app you already pay for can do both today.
+
+## What a routine is
+
+A routine is a task Claude runs by itself on a schedule. You describe it in a sentence, set a time, and use connectors to give it access to your mail, calendar, Notion or other services. The result is waiting for you.
+
+How routines are set up, what they see and how to tune them is covered in detail in the guide to [routines over mail and calendar](/tipy/claude-rutiny-posta-kalendar) and the handbook chapter on [routines and agents](/prirucka/rutiny-a-agenti). This piece is about the comparison.
+
+## What works without a server
+
+Go through the [hundred tasks for Hermes](/agenti/sestava-hermes-na-synology-sto-pouziti). A routine can handle a large share of them as well:
+
+| Task | Routine in Claude | Your own agent |
+|---|---|---|
+| Morning brief from mail and calendar | yes | yes |
+| Evening overview of promises from email | yes | yes |
+| Watching for unanswered messages | yes | yes |
+| Weekly summary | yes | yes |
+| Research and web monitoring | yes | yes |
+| Writing to Notion | yes | yes |
+| Draft replies | yes | yes |
+
+For these tasks a routine is the better choice. You install nothing, update nothing, back up nothing, and security is handled by someone who does it full time.
+
+## Where a routine ends
+
+Three boundaries are hard and one is soft.
+
+**Things that live only with you.** A routine runs in the cloud. It can't reach a program that listens only on your computer. The most important example is [Beeper](/tipy/beeper-hub-zprav-s-ai): it keeps messages from WhatsApp and Messenger in a database on your machine. The same goes for files on a home disk and for a local model.
+
+**A conversation from anywhere.** A routine prepares something for you; chatting with it from Telegram while you travel doesn't work the same way. Your own agent is a contact in your phone that you write to like a person.
+
+**Choice of model and location.** In the app you use one vendor's models and the data goes to that vendor. Your own agent can run on anything, including a model in your home, and switch depending on the task.
+
+**Limits.** This is the soft boundary. The number and frequency of routines depend on your plan and they change; anyone who wants a check every few minutes or dozens of tasks a day will hit the wall sooner in the app than on their own machine.
+
+## What you pay for a server
+
+The other side of the same comparison, because enthusiasm tends to leave it out:
+
+| | Routines | Your own agent |
+|---|---|---|
+| Getting it running | minutes | an afternoon |
+| Maintenance | none | roughly half an hour a month |
+| Backups | not your concern | [your job](/agenti/zalohy-agenta-obnova-za-deset-minut) |
+| Security | the vendor | [your job](/agenti/synology-bezpecny-pristup-zvenci) |
+| When something breaks | you wait | [you go looking yourself](/agenti/kdyz-agent-prestane-odpovidat) |
+| Price | included in the subscription | hardware, electricity, tokens |
+
+Your own agent is not a more advanced version of routines. It's a different trade: more options in exchange for you being the operator.
+
+## How to decide
+
+Three questions, in this order.
+
+<Flow title="Decision procedure" steps={[
+  { title: "Do I need to reach something that exists only on my side?", desc: "Beeper, a home disk, a local model. If yes, you need a server. If not, carry on." },
+  { title: "Do I need to message the agent from Telegram?", desc: "If a conversation on the move matters to you, a server makes sense. If a finished overview is enough, carry on." },
+  { title: "Have I hit a limit, or data that must not leave?", desc: "If yes, a server. If not, stay with routines." },
+]} />
+
+If you answered no three times, don't build a server. You'll save an afternoon of installation and half an hour of maintenance every month, and you won't lose anything.
+
+## Both at once
+
+The most common outcome after a few months isn't either-or. It's a split:
+
+- **routines** for everything around mail, calendar and documents in the cloud;
+- **your own agent** only for the one thing it was created for — typically messages from chats.
+
+They write to the same database in Notion and you read a single overview. The agent on the NAS then does little, does it well and is easy to keep an eye on. How to build such a database so that it can bear two writers is in the guide [Notion as memory](/tipy/notion-pamet-struktura-ktera-vydrzi).
+
+## The rules apply all the same
+
+Server or app, three things don't change:
+
+- **AI prepares; a human sends, pays and deletes.** A routine with the right to send email in your name is the same risk as an agent with that same right.
+- **Start with one task for a week.** Four routines at once are four sources of noise, and you won't be able to tell which one is responsible for what.
+- **Sensitive matters don't belong here.** HR, health, contracts before signing.
+
+## What to watch out for
+
+- **A connector sees what your account sees.** The scope you approve when connecting is the scope that applies to every routine.
+- **A routine is not a conversation.** When the result is off, you edit the instructions and wait for the next run. Tuning is slower than with an agent you message back and forth.
+- **Limits and names change.** The feature has been renamed several times during the year and the plan rules keep shifting; check the current state in your app's settings.
+- **Dependence on one vendor.** Routines are convenient precisely because they sit inside one app. Keep your instructions saved outside it too, so they can be moved.
+
+---
+
+Your own agent is a good answer to a specific question. It's only a bad one when the question was “how do I start”. The answer to that is one routine, one week, and then we'll see.

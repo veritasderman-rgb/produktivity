@@ -1,0 +1,113 @@
+---
+title: "Local AI in an hour: your first model on your own computer"
+excerpt: "No account, no card, no data sent to anyone. Install one app, run one command, download one model — and an hour from now you have AI on your own machine that works even on a plane."
+track: "lokalni-ai"
+order: 1
+tags: ["lokalni-ai", "open-weights"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  The quickest route to local AI is Ollama (command line, runs in the background as a service) or LM Studio (a graphical window, a gentler start). You download a model a few gigabytes in size, start it and type — the data goes nowhere. Start with a small model of around 4 to 8 billion parameters, not the biggest one your machine can hold: the difference in usefulness is smaller than you expect, and the difference in speed is enormous.
+sources:
+  - name: "Ollama — library of models to download"
+    url: "https://ollama.com/library"
+  - name: "Ollama — documentation and download"
+    url: "https://ollama.com/download"
+  - name: "LM Studio"
+    url: "https://lmstudio.ai/"
+---
+
+This is the step where most good intentions fall apart. People read that local AI is complicated, picture Linux, graphics cards and configuration files, and leave it alone. Yet getting a first model running today takes about as long as installing an office suite.
+
+Let's get on with it. The goal of this hour is not to have the best model. The goal is to find out what it's like when AI runs at your place.
+
+## What you actually need
+
+You almost certainly have it already. For a first attempt, this is enough:
+
+- **A computer from roughly the last five years.** A Mac with an Apple chip (M1 or newer) is ideal. Windows or Linux with a dedicated Nvidia graphics card works too. Even an ordinary laptop with no dedicated graphics will run a model — just more slowly.
+- **Free disk space.** Allow 5 to 10 GB for one smaller model.
+- **Memory.** 8 GB is enough for the tiny ones, 16 GB is a comfortable start, 32 GB and more opens up the more interesting models.
+
+What you **don't need**: an account, a payment card, an internet connection once the model is downloaded, or any programming knowledge.
+
+## Route A: Ollama (recommended)
+
+Ollama is the most widespread way to get a model onto your own machine. It installs like any ordinary app, runs in the background as a service and is driven by a single command.
+
+1. **Download and install it** from the official site. On a Mac it's a plain `.dmg`, on Windows an installer, on Linux a one-line script.
+
+2. **Open a terminal** (Terminal on a Mac, PowerShell on Windows) and run:
+
+```
+ollama run qwen3
+```
+
+The first time, this downloads the model — a few gigabytes for the smaller variants. The second time it starts up in a couple of seconds.
+
+3. **Type.** A prompt appears, and from this moment you're talking to a model that runs on your machine. Disconnect from the internet and check that it keeps going. It's a surprisingly pleasant feeling.
+
+4. **Finish** with the `/bye` command.
+
+Useful commands to start with:
+
+```
+ollama list          # what I have downloaded
+ollama pull gemma3   # download, but don't run
+ollama rm qwen3      # delete a model and free up disk space
+ollama ps            # what is running right now and how much it's eating
+```
+
+One important thing that comes in handy in later parts: after installation, Ollama **listens at `http://localhost:11434`** and speaks an ordinary API. That is the hook that a chat interface, a Telegram bot and your own scripts will later hang on.
+
+## Route B: LM Studio (if you don't want a terminal)
+
+LM Studio is a classic app with a window. You install it, pick a model from the catalogue, click download and then type into the chat. No command line anywhere.
+
+Advantages: you can see file sizes, it warns you when a model won't fit in memory, and the settings are clearly laid out. The disadvantage: it's a little harder to hook up to other tools. For a first acquaintance, though, it's the most pleasant route, and switching to Ollama later is no problem — the models are downloaded from the same sources.
+
+## Which model to download first
+
+This is where most people make the same mistake: they download the biggest thing that fits on the machine, wait thirty minutes, ask a question, watch text crawl out at a word a second, and close it.
+
+**Start small.** Models are labelled by their number of parameters — 4b means four billion. For the first week, look for something between **4 and 8 billion**. Ollama offers dozens of families: Qwen, Llama, Gemma, Mistral, DeepSeek and open-weight models from OpenAI, and almost every one of them comes in a small and a large variant.
+
+<Bars title="Rough guide: how much memory handles what" items={[
+  { label: "8 GB RAM", value: 4, display: "models up to ~4 bn" },
+  { label: "16 GB RAM", value: 8, display: "models up to ~8 bn" },
+  { label: "32 GB RAM", value: 14, display: "models up to ~14 bn" },
+  { label: "64 GB and more", value: 32, display: "models of 30 bn and up" },
+]} />
+
+Treat the numbers as a guide, not a law — it depends on quantisation, which the fourth part of this track covers, and on what else you have open. Rule of thumb: **a model that fits entirely in memory runs smoothly; one that doesn't, crawls.**
+
+## What to use a local model for on day one
+
+Don't try to compare it with the cloud on the hardest tasks straight away. You'll lose and get fed up. Instead, try things where “good enough” really is good enough:
+
+- **Summarising internal meeting notes** or a long email you don't want to send outside.
+- **Rephrasing a paragraph** — more politely, more briefly, differently.
+- **Sorting a list** into categories.
+- **Pulling details** out of text into a table: name, amount, deadline.
+- **Translating** a working draft of a document you don't want to hand to someone else's service.
+- **Explaining an error message** or an unfamiliar abbreviation.
+
+That's a huge chunk of everyday work. And all of it happens without a single word leaving your flat.
+
+## Where a local model falls behind
+
+Let's be honest. Smaller models on a home machine:
+
+- **are worse at holding long context** — with dozens of pages at once they lose the thread,
+- **are weaker on precise facts** and more inclined to make things up,
+- **cope less well with complex multi-step tasks** and with writing code in a larger project,
+- **have no automatic access to the internet** — you have to add search separately.
+
+That is exactly why this series doesn't end with the local model. The aim is to have local **and** cloud and decide according to the task. That is the subject of the third track, on orchestration.
+
+## Pro tip
+
+Once you have a model running, try one thing that tells you a great deal about how all this works: ask the same question twice — once to the local model with no tools at all, once in a cloud chat that can search the web and run code. Most of the difference you'll see is not in the model's intelligence, but in the fact that one has hands and the other doesn't. That is what the part on model, harness and agent is about.
+
+Next part: what to do so that the model doesn't run on a laptop, but on a quiet box next to the router that is available all the time.

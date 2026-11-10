@@ -1,0 +1,148 @@
+---
+title: "Setup 1: a gaming PC, three subscriptions, GitHub and a few websites"
+excerpt: "A specific person, specific hardware, specific accounts. What runs where, what can be cancelled, when it pays to move from a subscription to the API — and in what order to build it so that each step makes sense on its own."
+track: "sestavy"
+order: 1
+tags: ["sestava", "naklady", "orchestrace", "lokalni-ai", "hardware"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  The starting point: a Windows machine with an Nvidia card at home, subscriptions to Claude, ChatGPT and Gemini, projects on GitHub and several websites to look after. First split the work into four buckets by what serves it best: routine goes to a local model, coding and agents to one subscription, the second opinion to another, automation to the API through a gateway. Then cancel whatever nobody has opened after a month. Three full subscriptions only pay off for someone who uses all three daily — for most people, one subscription plus an API gateway wins, because with the API you pay for consumption, not for access.
+sources:
+  - name: "Anthropic — API pricing"
+    url: "https://www.anthropic.com/pricing"
+  - name: "OpenAI — API pricing"
+    url: "https://openai.com/api/pricing/"
+  - name: "Google — Gemini API pricing"
+    url: "https://ai.google.dev/pricing"
+  - name: "Ollama — library of downloadable models"
+    url: "https://ollama.com/library"
+  - name: "LiteLLM — proxy server documentation"
+    url: "https://docs.litellm.ai/"
+---
+
+The previous parts took the individual layers apart. This one is different: we take one specific situation and build it whole, from the hardware to the invoice.
+
+**The starting point.** At home there's a Windows machine with an Nvidia graphics card. Claude, ChatGPT and Gemini are all subscribed to. Projects are versioned on GitHub. On top of that, several websites to look after and the occasional one-off automation.
+
+It's a very common setup — and very often it has been put together by accident. The subscriptions accumulated gradually, each is used for something different, and nobody ever sat down and said what is actually supposed to do what.
+
+## Step 0: four buckets instead of three accounts
+
+Before you install anything, sort your week. Not by tool, but by type of work:
+
+<Flow title="What your day falls into" steps={[
+  { title: "Routine", desc: "Summaries, transcription, classification, data extraction, rephrasing, translating a working draft. High volume, low cost of error, often internal data." },
+  { title: "Coding and projects", desc: "Work in a repository: a new feature, a fix, a review, refactoring. Needs the context of the whole project and many rounds." },
+  { title: "Thinking and a second opinion", desc: "Decisions, research, a critical review, a long document. Low volume, high value per answer." },
+  { title: "Automation", desc: "Things that run without you: website monitoring, nightly batches, mail processing. Called from code, not from a chat." },
+]} />
+
+This split is the whole trick. Each bucket has **a different cheapest supplier** — and when you mix them into one account, you pay the most expensive rate for everything.
+
+## Step 1: routine goes to your PC
+
+This is where the graphics card finally earns its keep. Routine is the biggest bucket by volume and also the one where “good enough” really is good enough.
+
+```
+ollama run qwen3
+```
+
+A detailed walkthrough is in the part [Local AI in an hour](/agenti/lokalni-ai-za-hodinu), and choosing a model by VRAM in the part [Windows with Nvidia](/agenti/windows-nvidia-lokalni-ai). For this setup you only need to know one thing: **a model that fits entirely into the card's memory runs fast; one that doesn't fit crawls.**
+
+What belongs here from the very first week:
+
+- summaries of minutes and long emails you don't want to send out,
+- pulling data from invoices and receipts into a spreadsheet,
+- sorting a folder of files,
+- first drafts of texts you'll be rewriting anyway,
+- translating a working draft of a document.
+
+The cost: electricity. A gaming PC draws something in the order of a hundred watts while generating and tens of watts when idle — reckon on hundreds of crowns a month rather than tens if it runs non-stop. So don't run this setup 24/7; wake the machine only when it has something to compute. (Anyone who wants non-stop belongs in [setup 2](/agenti/sestava-tichy-server-nocni-smena).)
+
+## Step 2: one subscription as the main working tool
+
+Coding and projects on GitHub are a discipline where a subscription has the edge over the API — because a coding agent uses dozens of model calls for a single task, and with a subscription you pay for access, not consumption.
+
+The key decision: **one of the three is the main one.** Not all three.
+
+Which? Decide by where you spend the most time, not by benchmarks. A practical one-week test: keep a tally of how many times you open each. Almost always one comes out far ahead — and the other two are “just in case”, which is the most expensive reason for a subscription there is.
+
+For working with a repository, this includes:
+
+- **a GitHub connection**, so the agent sees issues, PRs and history,
+- **working in the terminal or the editor**, not copying code into a chat,
+- **approving changes through a pull request** — the agent prepares, you merge. It's exactly the boundary from the part on the [task queue](/agenti/fronta-uloh-a-schvalovani), only GitHub already holds it for you.
+
+## Step 3: a second opinion without a second subscription
+
+Here is the saving most people overlook. When you want a second model only for a critical review — “go through this decision and find what I missed” — you do it a few times a week. A full monthly subscription for that is nonsense.
+
+Cheaper is **the API through a gateway**: you pay for the words actually processed. A few dozen reviews a month cost a fraction of a subscription, because it's a handful of long queries, not thousands.
+
+Getting it running takes one afternoon — [a gateway for all models](/agenti/brana-pro-vsechny-modely) describes the procedure. Your configuration gains three aliases as in [routing by task](/agenti/smerovani-podle-ulohy):
+
+```yaml
+model_list:
+  - model_name: rutina        # local model on your PC
+  - model_name: standard      # cheaper cloud model
+  - model_name: spicka        # best available, for hard things only
+```
+
+From this point on you have one place where you see the spending on all models together. That's information you don't have today, and without it you can't decide about subscriptions.
+
+## Step 4: websites and automation go through the gateway
+
+Looking after websites and one-off automations are the fourth bucket, and they belong **exclusively** behind the gateway, never in a chat. There are two reasons, both practical: a chat doesn't run while you sleep, and a chat doesn't give you a log.
+
+Typical tasks from the week of someone who looks after several websites:
+
+| Task | Bucket | Where it runs |
+|---|---|---|
+| Checking that the sites respond and have a valid certificate | automation | a script, no model |
+| A summary of what changed in the error log | routine | local model |
+| A draft of page copy in the brand voice | thinking | standard through the gateway |
+| Fixing a bug in a template | coding | subscription, via PR |
+| A weekly summary to Telegram | routine | local model, scheduled |
+
+Notice the first row: **the cheapest AI is no AI.** A ping and a certificate check are ten lines of script. A model belongs in there only once something unstructured needs to be read.
+
+## The economics: what to do with those three subscriptions
+
+Now the main thing. After a month of running with the gateway you have numbers and can decide.
+
+<Flow title="A decision procedure, not dogma" steps={[
+  { title: "Measure what you actually use", desc: "A month of tally marks for the three subscriptions and the spending on the gateway. Without that you're only guessing." },
+  { title: "Keep the one you use daily", desc: "The main working tool. Here a subscription pays off, because agents use a lot of calls." },
+  { title: "Cancel the second and move it to the API", desc: "If you open it a few times a week, you're paying for access, not for work. At low volume the API is cheaper." },
+  { title: "Keep the third only if it has something extra", desc: "Not “better answers”, but a specific feature you don't have elsewhere and actually use." },
+  { title: "Recalculate in six months", desc: "Model prices fall over the long term, your volumes grow. A decision made now needn't hold next year." },
+]} />
+
+Three levers that lower the API bill and that people don't know about:
+
+- **A cheaper model tier.** The spread between one maker's cheapest and most expensive model tends to be roughly tenfold for the same volume. For routine work the difference in quality is barely noticeable — in price, very much so.
+- **Batch processing.** When you're in no hurry for the result, the big providers let you send a job to a queue **at half price**. Overnight processing of a folder is the textbook case.
+- **Caching repeated context.** When you send the same long source material with every query, the repeated reads cost roughly **a tenth** of the normal input rate. For more detail see the part on [costs](/agenti/naklady-lokalni-vs-cloud).
+
+And one lever that's even better than all three: **routine on a local model costs zero per query.** The more work you move into the first bucket, the less it matters what the price lists do.
+
+## The order in which to build it
+
+Each step has to make sense on its own, even if you stopped there.
+
+1. **A weekend:** a local model on the PC. Use it for routine work for a week. You'll find out where it's enough and where it isn't.
+2. **The following weekend:** the gateway, for now with just the local model and one API key. From this point on you see the spending.
+3. **Weeks 3–4:** routing by the three aliases, websites and automation behind the gateway.
+4. **After a month:** the decision about subscriptions based on the measured numbers.
+5. **Only then:** agents and Telegram. Not earlier — the [rules](/agenti/pravidla-pro-agenty-jedna-stranka) get written before deployment, not after it.
+
+## What to watch out for
+
+- **Don't cancel a subscription before you have the gateway.** Otherwise you close the door before you know what was behind it.
+- **Don't count only money.** Your time spent on administration is a real item; an hour a month on updates and restarts costs more than many a subscription.
+- **A gaming PC running non-stop is expensive.** If you want continuous operation, compare its consumption with the quiet box from [setup 2](/agenti/sestava-tichy-server-nocni-smena) — the difference is an order of magnitude.
+- **Prices are deliberately absent from this part.** They change every two months; links to the official price lists are below the article and the calculation method is in the part on costs. What doesn't change are the ratios: batch at half, cache at a tenth, the cheapest model tier an order of magnitude below the top one.
+
+The next part shows the second setup — what changes when the machine runs all the time and part of the work moves to the night shift.

@@ -1,0 +1,126 @@
+---
+title: "Synology from outside: a private network instead of QuickConnect and open ports"
+excerpt: "Your NAS now runs an agent that reads your messages. That turns a box for photos into a machine worth locking properly. A concrete procedure for DSM: Tailscale, what to switch off, the two scheduled tasks people forget, and a test you can trust."
+track: "ovladani"
+order: 5
+tags: ["ovladani", "bezpecnost", "hardware", "agenti"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  The general part on the safe way home explains why a private network and not an open port. This one explains how to do it on Synology. On DSM 7, Tailscale is installed manually from the vendor's package, not from Package Center, and it needs two scheduled tasks: one for updates, the other for outbound connections after boot. Then you switch off QuickConnect, automatic port opening on the router and the SSH that stayed on after you installed the agent. You are only done when you can't reach the NAS from mobile data without Tailscale.
+sources:
+  - name: "Tailscale — installation and limitations on Synology"
+    url: "https://tailscale.com/kb/1131/synology"
+  - name: "Tailscale — packages for download"
+    url: "https://pkgs.tailscale.com/stable/"
+  - name: "Synology — QuickConnect"
+    url: "https://kb.synology.com/en-global/DSM/help/DSM/AdminCenter/connection_quickconnect"
+  - name: "Synology — how to secure your NAS"
+    url: "https://kb.synology.com/en-global/DSM/tutorial/How_to_add_extra_security_to_your_Synology_NAS"
+---
+
+While the NAS was just storage for photos, ordinary security was enough. After [setup 4](/agenti/sestava-pamet-nad-zpravami-beeper-hermes) and [setup 5](/agenti/sestava-hermes-na-synology-sto-pouziti) it runs an agent, and it holds the keys to your chats and the tokens for your models. Whoever gets onto the NAS gets everything at once.
+
+Why a private network and not a forwarded port is explained in the part on [the safe way home](/agenti/bezpecna-cesta-domu). Here you'll find only what is different on Synology.
+
+## What you actually want to do from outside
+
+Before you configure anything, get this straight. Most people find the answer is almost nothing.
+
+| Need | Does it need access to the NAS? |
+|---|---|
+| Chatting with the agent | No. It goes through Telegram and the agent does the asking itself. |
+| Checking whether the containers are running | Yes, the DSM interface. |
+| Fixing the agent's configuration | Yes, SSH or files. |
+| Getting at files | Yes. |
+
+The first row matters: **the agent itself needs no access from outside.** You are building the private network for yourself, for those few moments when you need to reach the NAS while travelling.
+
+## Step 1: Tailscale, but not from Package Center
+
+Here is the first trap. According to Tailscale, the version in Package Center is no longer supported and does not match the current release. The right procedure:
+
+1. In DSM, open **Control Panel → Info Center** and find out the exact model and processor.
+2. From the Tailscale packages page, download the `.spk` file for your architecture.
+3. In **Package Center**, choose **Manual Install** and upload the file.
+4. Open Tailscale and sign in with the same account as on your phone and laptop.
+
+From this moment the NAS has an address of the form `100.x.y.z` that only your devices can reach.
+
+## Step 2: the two tasks people forget
+
+DSM 7 keeps packages on a short leash, and because of that Tailscale needs two scheduled tasks. Both are created in **Control Panel → Task Scheduler**.
+
+**Updates.** Manual installation means the package does not update itself. Create a scheduled task with the user `root`, daily, with the script:
+
+```bash
+tailscale update --yes
+```
+
+**Outbound connections after boot.** By default you can get *to* the NAS over the private network, but programs on the NAS can't get *out* through it. Create a triggered task with the user `root` and the **Boot-up** event:
+
+```bash
+/var/packages/Tailscale/target/bin/tailscale configure-host; synosystemctl restart pkgctl-Tailscale.service
+```
+
+Creating the task does not run it. So right after saving, select it in Task Scheduler and choose **Run**, or restart the NAS.
+
+You only need the second task if the NAS itself has to call other machines on your network — for example an agent on the NAS calling a model on a Mac mini. And mind how it interacts with the first: **after every package update the configuration is lost**, and the daily update does not trigger a boot. So if outbound connections stop working one day, run the task manually again or restart the NAS. Anyone who depends on outbound connections should swap the daily update for a weekly one and schedule a restart straight after it.
+
+One thing doesn't work on Synology at all: signing in via Tailscale SSH. You use DSM's built-in SSH.
+
+## Step 3: the firewall
+
+In DSM the firewall is off by default. When you turn it on — and you should — add a rule in **Control Panel → Security → Firewall** that allows the source subnet `100.64.0.0` with the mask `255.192.0.0`. That is the address range of the private network. Without it you shut the door you have just built.
+
+The order of the rules then looks like this: allow the home network, allow the private network, deny everything else.
+
+## Step 4: what to switch off
+
+Now the more pleasant half. Each of these things is a way in that you no longer need.
+
+- **QuickConnect.** Control Panel → External Access → QuickConnect. It is a convenient service, but it is a public address for your login screen. With a private network you don't need it.
+- **Automatic router configuration.** Same place, on the Router Configuration tab. Through it the NAS can open ports on the router by itself. Delete the rules that are there.
+- **Forwarded ports on the router.** Look directly in the router. Ports 5000, 5001 and 22 pointing at the NAS should not be there.
+- **SSH.** You turned it on to install the agent. Turn it off again in Control Panel → Terminal & SNMP, and switch it on only for as long as you need it.
+- **The default `admin` account.** It should be disabled. Work under your own account with a strong password.
+
+And switch two things on:
+
+- **2-factor authentication** for all accounts in the administrators group.
+- **Auto Block** in Control Panel → Security → Protection: after several failed attempts the address is blocked.
+
+## Step 5: where things stand with Docker permissions
+
+I have no good news here. On Synology you can't work with containers under a restricted account: both Container Manager and the `docker` command require an administrator. So the advice “create a separate user for the agent” doesn't work here the way you would expect.
+
+What works instead:
+
+- **The boundary is the mounted folder, not the user.** The container sees only what you mount into it in its settings.
+- **SSH is off until you need it.** An administrator account that can't be signed in to from outside is a smaller risk.
+- **Tokens in files are readable by the owner only.** Exactly where keys should live is covered in the part on [where API keys belong](/agenti/kam-patri-api-klice).
+
+## Step 6: a test you can trust
+
+Turn off both wifi and Tailscale on your phone and try three things from mobile data:
+
+1. Open the QuickConnect address. It should not work.
+2. Open your household's public IP address with port 5001. It should not respond.
+3. Message the agent in Telegram. **It should reply.**
+
+Then turn Tailscale on and open `https://100.x.y.z:5001`. The DSM login should appear.
+
+If all four turn out like this, you are done. The agent works from anywhere and, from outside, the NAS does not exist.
+
+## What to watch out for
+
+- **Don't update DSM over Tailscale.** The connection may drop in the middle. Run big updates from the home network.
+- **The browser will report an untrusted certificate.** On a private network address that is expected; the connection is encrypted by the network itself anyway.
+- **Sign out old devices.** A sold phone with Tailscale signed in is a key to the house.
+- **Shared file links will stop working from outside.** Anyone who uses them for family has to invite the family into the private network, or share some other way.
+- **The Synology mobile apps** connect to the `100.x.y.z` address instead of the QuickConnect ID. Reconfigure them straight away, or in a week you'll be hunting for why your photos aren't backing up.
+
+---
+
+The whole thing takes just under an hour and no step is complicated. Only one thing is hard: switching off things that work. QuickConnect works. A forwarded port works. And that is exactly why they stay there for years after anyone last needed them.

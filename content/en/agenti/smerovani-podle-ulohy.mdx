@@ -1,0 +1,110 @@
+---
+title: "Routing by task: which model to use for what"
+excerpt: "Sending everything to the smartest model is like driving a lorry to the corner shop. How to split work into three tiers, set up a fallback route and stop paying for work the box in the living room can handle."
+track: "orchestrace"
+order: 3
+tags: ["orchestrace", "open-weights", "naklady"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Split tasks into three tiers: routine (summaries, classification, extraction) goes to a local model, standard (everyday writing, research, drafts) to a cheaper cloud model, top (complex analyses, code across a project, expensive decisions) to the best one available. In the gateway, name aliases for those three tiers, and in applications use only those names, not specific models. Add a fallback route for outages and one hard rule: sensitive data never escalates to the cloud automatically.
+sources:
+  - name: "LiteLLM — routing, fallbacks and load balancing"
+    url: "https://docs.litellm.ai/docs/routing"
+  - name: "OpenRouter — documentation"
+    url: "https://openrouter.ai/docs"
+---
+
+Once you've built a gateway, a question comes up that previously had nowhere to be asked: **which model should handle this particular task?** Most people answer “the best one”, and that's the wrong answer for no fewer than three reasons. The best model is the most expensive, the slowest, and for nine out of ten everyday tasks you won't notice the difference.
+
+## Three tiers of tasks
+
+Don't try to decide case by case. Make three pigeonholes and drop every new task into one of them.
+
+<Flow title="Three tiers and where they go" steps={[
+  { title: "Routine → local model", desc: "Summaries, classification, data extraction, rephrasing, simple translation, text clean-up. High volume, low cost of error, often sensitive data." },
+  { title: "Standard → cheaper cloud model", desc: "Everyday writing, research, drafts, replies to emails, work with public information. Needs quality, but not the top tier." },
+  { title: "Top → best available model", desc: "Complex analyses, code across a project, long documents, decisions where a mistake costs money. Low volume, high value." },
+]} />
+
+The ratio people usually arrive at after a few weeks of measuring: **roughly two thirds of tasks fall into routine.** Exactly the part the box at home can handle for free, and which at the same time most often contains data you don't want to send out.
+
+## Aliases: the most important trick in this part
+
+In the gateway, don't name models after the maker. Name them **after the role**:
+
+```yaml
+model_list:
+  - model_name: rutina
+    litellm_params:
+      model: ollama/qwen3
+      api_base: http://192.168.1.50:11434
+
+  - model_name: standard
+    litellm_params:
+      model: openai/…
+      api_key: os.environ/OPENAI_API_KEY
+
+  - model_name: spicka
+    litellm_params:
+      model: anthropic/…
+      api_key: os.environ/ANTHROPIC_API_KEY
+```
+
+Applications then call `rutina`, `standard`, `spicka`. Never a specific model name.
+
+Why this matters so much: in three months a new release comes out that's better and cheaper. You rewrite one line in the gateway configuration. The chat, the editor, the scripts, the Telegram bot and the agents know nothing about it and carry on working. **Without aliases you'd be going round ten places** and you'd forget two of them.
+
+## The fallback route
+
+Providers go down. Sometimes for ten minutes, sometimes for hours. The gateway lets you define where a query should be sent when the first choice fails:
+
+```yaml
+litellm_settings:
+  fallbacks:
+    - spicka: ["standard"]
+    - standard: ["rutina"]
+```
+
+Read it from the bottom: when the standard model goes down, you run on the local one. When the top one goes down, you run on the standard one. You're never left completely stranded.
+
+There's one catch that's easy to overlook: **a fallback must not go in the opposite direction to the one you want for your data.** If you set things up so that the local model escalates to the cloud when overloaded, you've just sent sensitive data out — automatically, without anyone knowing about it. There's only one correct rule here:
+
+**There is no automatic escalation from local to cloud. Ever.** When the local model isn't enough, let the task report it, and you decide.
+
+## How to tell where a task belongs
+
+When you're not sure about the classification, three questions:
+
+1. **Do I do this more than ten times a week?** Yes → a candidate for routine, even if it takes a bit of prompt tuning at first.
+2. **Would I mind if a stranger read this text?** Yes → routine, or standard with anonymisation, but definitely a conscious decision.
+3. **What does it cost when the model botches it?** Nothing → routine. An hour of work → standard. Money or reputation → top, with a human at the end.
+
+## Measurement: without it, it's guesswork
+
+The gateway gives you numbers you didn't have before. After two weeks of operation, look at:
+
+- **How many queries went to which tier.** If top is above ten per cent, either you're using it for things that don't belong there or your aliases are set up wrongly.
+- **What each tier cost.** The usual finding: a few per cent of queries account for most of the spending.
+- **Where a human has to step in.** If you keep rewriting the output for some task, move it up a tier — or discover that AI doesn't belong there at all.
+
+## Smarter routing, if you're up for it
+
+The basic version divides by what you pick in the application. More advanced variants add:
+
+- **By input length.** A short query to routine, a long document to a model with a large context.
+- **By sensitivity.** When the text contains patterns such as a national ID number, an IBAN or internal markings, the query never leaves the local model at all.
+- **By load.** When the local model isn't busy computing anything else, more work goes there; when it's congested, standard goes out.
+- **With a cache.** Repeated queries aren't paid for twice.
+
+Don't start with this. Start with three aliases and one fallback. Smart routing only makes sense once you have data about what's actually happening in your setup.
+
+## What to watch out for
+
+- **Don't overdo the number of tiers.** Nobody remembers six categories, and everything ends up in one.
+- **Name the aliases so that they still make sense in a year.** `rutina` is a good name. `model2` isn't.
+- **Check that the local model is really running.** When Ollama isn't up, a silent fallback can send all your routine work to the cloud, and you'll find out from the invoice.
+- **A prompt tuned for one model needn't suit another.** When you change the model behind an alias, run through a few typical tasks to see whether the output still matches the format the scripts expect from it.
+
+The last part of this track is arithmetic: what the whole control room costs and when a local model pays off.

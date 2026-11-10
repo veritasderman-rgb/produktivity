@@ -1,0 +1,176 @@
+---
+title: "Setup 3: a dynamic website with Claude, from zero to your own domain"
+excerpt: "An account, a connected GitHub, a first brief — and within a few weeks a website that finds its own topic every morning, writes an article and waits for you to approve it. That's exactly how the site you're reading came about."
+track: "sestavy"
+order: 3
+tags: ["sestava", "agenti", "orchestrace", "rizeni"]
+level: "zacatecnik"
+date: "2026-09-12"
+updated: "2026-09-12"
+tldr: >-
+  The process has six steps, and each makes sense on its own: an account and a connected GitHub, the site brief as a versioned file in the repository, a first run in which Claude builds the site, deployment to Vercel with a temporary address, a daily routine that looks for topics and opens pull requests, and finally your own domain. There are two key decisions: both the brief and the routine's rules belong in git as files, not in a chat, and the routine never publishes on its own — it opens a PR and waits for the merge.
+sources:
+  - name: "Claude Code on the web — documentation"
+    url: "https://code.claude.com/docs/en/claude-code-on-the-web"
+  - name: "Claude Code GitHub Action"
+    url: "https://github.com/anthropics/claude-code-action"
+  - name: "Vercel — deploying from Git"
+    url: "https://vercel.com/docs/deployments/git"
+  - name: "Vercel — custom domains"
+    url: "https://vercel.com/docs/domains"
+---
+
+This website was built by exactly the process below. It isn't a theoretical guide — it's a description of what actually happened here, including files you can open.
+
+The goal isn't a “website” as a business card. The goal is a website that **finds a topic every morning on its own, writes a draft article and waits for you to approve it.** The difference between that and a classic blog is that with a classic blog, the bottleneck is you.
+
+## Step 1: an account and a connected GitHub
+
+You need two things, and each takes ten minutes.
+
+**A Claude account** with access to Claude Code on the web. It's an environment where Claude doesn't just work in a chat but gets a real computer: it clones the repository, runs commands, writes files and opens pull requests.
+
+**A GitHub account** and an empty repository. The name doesn't matter; `muj-web` will do. You don't need to know git — from this point on Claude works with it and you only approve.
+
+The connection is made in the Claude Code settings: you grant access to a specific repository. Not to the whole account — just that one. It's the same rule about the narrowest possible permissions that has been repeated in this series from the start.
+
+## Step 2: the brief as a file, not as a chat message
+
+This is where it's decided whether the project will still be running in a month or will fall apart. And almost everyone gets it wrong the first time.
+
+Typing “build me a website about growing tomatoes” into a chat works. For one day. Then you forget what you agreed on, so does Claude, and three weeks later the site has three different URL structures and two navigations.
+
+**The brief belongs in the repository as a file.** On this site it's called `ZADANI.md` and it contains:
+
+<Flow title="What should be in the brief" steps={[
+  { title: "Vision and goal", desc: "What the site is about, who it serves and how it should differ. Two sentences, not a page." },
+  { title: "Target audiences", desc: "Who you're writing for. Without this, you get content for nobody." },
+  { title: "Site structure", desc: "A list of addresses and what's at each one. This is the part that pays off the most." },
+  { title: "Content types", desc: "What counts as an article, what as a news item, how long each is and how often." },
+  { title: "Technical solution", desc: "Framework, hosting, where the content lives. Claude advises, you decide." },
+  { title: "Agreed decisions", desc: "A table of “question → decision” with a date. The most valuable part of the whole file." }
+]} />
+
+That last item is the gem. Whenever you decide something — “we're not listing prices on the site yet”, “content will be in MDX, not in a CMS” — a row gets added. A month later nobody is settling for a second time what has already been decided, and above all **Claude reads it too**, because the file is in the repository it has in front of it.
+
+A practical approach: don't dictate the brief. Have it written through a conversation. “I want a website about X; ask me fifteen questions you need answered before you write the brief.” You answer and you're done — and the answers are exactly the decisions that belong in the table.
+
+## Step 3: the first run — Claude builds the site
+
+Now you give it the first real task. Not “build a website”, but something with a boundary:
+
+```
+Read ZADANI.md. Set up the project according to the technical solution,
+build the homepage and one sample content page.
+Nothing else. Open a pull request.
+```
+
+Why so narrow? Because **what you mainly want from the first run is to check it, not to get it finished.** You'll see how Claude works, whether it understands the brief and whether you like what came out. If not, you fix the brief — not the code.
+
+What you get: a pull request with a description of what was done and why. You look through the diff, ask about whatever you don't understand, and when you're happy, you merge.
+
+From this point on, every change goes through a pull request. Never straight to the main branch. It's the same boundary as the [approval queue](/agenti/fronta-uloh-a-schvalovani) from the track on control — only GitHub holds it for you, so you don't have to build anything of your own.
+
+**What to watch out for in the first runs:**
+
+- **Don't approve what you haven't read.** After five PRs you feel like merging blind. That's exactly where the problems start.
+- **Ask “why”.** If you don't understand a decision in the code, ask in a PR comment. The answer will tell you whether it was thought through or an accident.
+- **When something doesn't work, fix the brief.** An instruction in a chat lasts one conversation; a file in the repository lasts the project.
+
+## Step 4: deployment to Vercel and a temporary address
+
+A website that only runs on your machine isn't a website. And this step is, surprisingly, the quickest in the whole process.
+
+1. **A Vercel account**, signing in with GitHub.
+2. **Import the repository** — Vercel recognises the framework by itself.
+3. **Deploy.**
+
+You get an address of the form `nazev-projektu.vercel.app`. It works, it has HTTPS and you can send it to friends. **Don't touch your own domain yet** — while the site structure changes every week, it's pointless.
+
+Two things Vercel adds, and which hold the whole process together:
+
+- **A preview for every pull request.** Each PR gets its own live address. You're not approving a diff but a finished page you can look at. For content, that's a fundamental difference.
+- **Deployment on merge.** You merge and a minute later it's out. No FTP, no “I'll upload it now”.
+
+If the project needs secrets — an API key, newsletter login details — they belong in the Vercel settings as environment variables, **never in the repository.** See the part on [API keys](/agenti/kam-patri-api-klice).
+
+## Step 5: a daily routine that looks for topics
+
+This is where the site becomes “dynamic”. And it's made of three files.
+
+**1. The routine's rules as a file.** On this site it's `docs/RUTINA.md`, and everything is in it: what to look for, how strictly to filter, how long an article should be, what the structure is, the maximum number of items per day and what to do when it finds nothing. The first line of that file says that **it is the single source of truth for the routine's behaviour** — changes are made there, not in the scheduler.
+
+The most important sentence in the whole file: *“If nothing passes, don't open a PR. Quality takes precedence over frequency.”* Without it, the routine will produce filler for you every day, because that's what you're asking of it.
+
+**2. The scheduler.** It runs through GitHub Actions, because it runs inside GitHub, where the content already is. The core is short:
+
+```yaml
+on:
+  schedule:
+    - cron: "23 5 * * *"   # daily in the morning
+  workflow_dispatch: {}    # and manually, when you want
+
+jobs:
+  rutina:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Read docs/RUTINA.md and carry out exactly one daily run according to it.
+            Open a pull request for approval. Never push to the main branch.
+```
+
+Notice how short that instruction is. **All the intelligence is in `docs/RUTINA.md`**, not in the scheduler — which is why the behaviour changes by editing one file, which also goes through code review like anything else.
+
+That odd minute in the cron isn't a mistake. If everyone scheduled on the hour, it would all pile up; `23` is a sensible habit.
+
+**3. The key in secrets.** In the repository settings, never in a file. GitHub won't print it in the log.
+
+**What then happens every morning:** the routine wakes up, goes through what's already on the site (so it doesn't write the same thing twice), searches the internet, filters down to what passes — and if something passes, it writes it in the site's format, verifies that the build succeeds and opens a pull request. You get a notification, read the preview on Vercel and merge or reject.
+
+Your bottleneck isn't in the writing. It's in the approving, and that's the right side to have it on.
+
+## Step 6: your own domain
+
+Only once the site has been up for a month and the structure has stopped changing.
+
+1. **Buy a domain** from a registrar. A Czech `.cz` from a Czech one, otherwise anywhere.
+2. **Add it in Vercel** in the project settings.
+3. **Point the DNS** according to what Vercel shows — usually it's two records.
+4. **Decide about `www`.** One variant is the main one, the other redirects to it. Choose and stick with it; whoever runs both in full splits their SEO with themselves.
+5. **The certificate** is handled by Vercel itself.
+
+Let the temporary address live on. It comes in handy when you need to verify that a problem is in the domain and not in the site.
+
+## What the whole thing costs
+
+Honestly and without amounts, because those change:
+
+- **GitHub** — the free tier is enough for one person's public or private repository.
+- **Vercel** — the free tier is enough for a personal project; you start paying only once the site has traffic that's worth it.
+- **Domain** — once a year, for `.cz` in the order of a few hundred crowns.
+- **Claude** — a subscription for your work in the chat and **an API key for the routine**. This is the only item that grows with use: the routine consumes noticeably more on one daily run than one chat query, because it searches, reads and writes.
+
+A few ways to keep that last item down are in the part on [costs](/agenti/naklady-lokalni-vs-cloud) and in [setup 1](/agenti/sestava-herni-pc-tri-predplatna). The most effective is the most boring: **set a monthly spending cap with the provider** before you run the routine for the first time.
+
+## What to watch out for
+
+- **The routine must not publish on its own.** The merge is your decision. It's the only safeguard between “the site fills itself” and “the site makes things up by itself”.
+- **Require sources.** Write into the rules that every factual claim has a link. Without that you'll get fluent text that occasionally lies.
+- **Don't let the routine near client data.** It searches the internet and writes to the repository. It doesn't need to see anything else — so don't give it anything else.
+- **Read the diff, not just the PR title.** Especially in the first month.
+- **Expect to be tuning the routine.** For the first two weeks it will be either too cautious or too lax. That gets fixed in one file, which is the whole point of having it in git.
+- **Don't do it for the volume.** The point isn't to have more articles. The point is not having to write the ones a machine can write — so you have time for the ones it can't.
+
+## Pro tip
+
+Before you put the routine on a daily schedule, run it **three times by hand** (there's a button for it in GitHub Actions; that's why `workflow_dispatch` is in the scheduler). You'll see what it produces and tune the rules while it's happening under supervision. A routine you first see running at seven in the morning is a routine you'll be chasing.
+
+---
+
+Three setups, one principle: **first write down what should hold and who may run it — then let it go.** In the first two setups those rules are in your head and in the `ke-schvaleni/` folder. Here they're in a file in git, and a pull request guards them. It's the same thing; it just scales better.
+
+The fourth setup returns to your own hardware and to data more sensitive than articles: [memory over all your messages](/agenti/sestava-pamet-nad-zpravami-beeper-hermes) — Beeper and an agent in two containers on a home NAS.

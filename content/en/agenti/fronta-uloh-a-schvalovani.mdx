@@ -1,0 +1,106 @@
+---
+title: "Task queue and approvals: the agent prepares, you confirm"
+excerpt: "The difference between a useful agent and a dangerous one is not in the model but in a single line: where preparation ends and action begins. How to draw that line so that it holds — with a folder, a queue and one button on your phone."
+track: "ovladani"
+order: 4
+tags: ["ovladani", "telegram", "agenti", "rizeni"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Almost all the value of agents is in preparation, almost all the risk in sending. Separate the two with a queue — the agent writes into a “for approval” folder and sends nothing until you click — and you get most of the benefit with next to no risk. The queue has to be a place where you see three things: what the agent did, what it based it on and what happens after approval. And the boundary has to be technical, not agreed: an agent that has the login details for your mail can send it, even if you told it not to.
+sources:
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+  - name: "Help Net Security: prompt injection still behind most failures of agentic systems"
+    url: "https://www.helpnetsecurity.com/2026/06/11/owasp-prompt-injection-ai-security-failures/"
+---
+
+This whole series rests on one sentence: **the agent may prepare anything, the last click stays yours.** This part is about how to turn that sentence into something that actually holds — because as a good resolution it lasts a week.
+
+## Why an agreement does not work
+
+Most people try it like this: they write “never send anything without my consent” into the agent's instructions and consider it solved.
+
+It is not. A model has no reliable boundary between what is data and what is a command. When the agent, in the course of its work, comes across text written by someone else — an attachment, a web page, an email — that text can tell it what to do. And it will do it with your permissions. That is the core of the problem known as prompt injection, which according to security reviews from 2026 is still behind most failures of agentic systems in production.
+
+Only one sensible rule follows from this: **the boundary has to be where the agent has no way of crossing it.** Not in an instruction, but in the fact that it lacks the login details, lacks the permission or lacks the network access.
+
+## Where to draw the line
+
+<Matrix
+  tags={["Free rein", "With a rule", "Only with confirmation", "Not even technical access"]}
+  hot={2}
+  note="The line between the second and third box is the whole of agent security. Above it, work gets done; below it, things get approved."
+  quadrants={[
+    { title: "The agent may act alone", action: "Read, search, sort, prepare, save to its own folder.", examples: "A summary, a draft reply, sorted invoices, research, a draft post" },
+    { title: "The agent may act under a rule", action: "Actions with a small reach that can be undone.", examples: "Moving a file to a folder, adding a label, creating a draft in the mailbox" },
+    { title: "Only with your confirmation", action: "Anything someone else will see or that costs money.", examples: "Sending an email, publishing a post, placing an order, deploying a change" },
+    { title: "Never automatically", action: "Irreversible and sensitive. The agent should not even have technical access here.", examples: "Deleting data, payments, changing permissions, anything to do with payroll and contracts" },
+  ]}
+/>
+
+A practical test for sorting things: **what does it cost to take it back?** Nothing → first quadrant. A minute → second. An apology → third. Money or reputation → fourth.
+
+## The queue: the simplest solution that works
+
+You do not need any platform. The folder you already have from the previous part is enough:
+
+```
+~/velin/
+  ke-schvaleni/
+  schvaleno/
+  zamitnuto/
+  archiv/
+```
+
+The agent writes **exclusively** to `ke-schvaleni/`. It has no access to sending. It has no key to the mailbox. When it is meant to prepare a reply to an email, it saves it as a file — along with a note saying who it should go to and why.
+
+You then move the file to `schvaleno/`, and only that move triggers the sending. The sending is done by a different, dumb script that can do nothing but take a file and send it. That script does not read anyone else's text, so nobody can slip it anything.
+
+This is the key architectural trick: **the smart part has no permissions, the permitted part is not smart.**
+
+## What every queue item must contain
+
+For approval to be quick and still deliberate, an item has to answer three questions at a glance:
+
+1. **What happens after approval.** In one sentence. “An email will go to address X.”
+2. **What the agent based it on.** Source, link, quotation. Without it you are approving blind.
+3. **What is finished and what is a guess.** When the agent is not sure, it should say so.
+
+If an item lacks these three things, change the agent's brief, not your habits. Approval where you cannot see what you are approving is worse than none — it gives a false sense of control.
+
+## Approving from your phone
+
+Combined with the Telegram bot from the first part of this track, an ordinary day looks like this:
+
+- In the morning the bot sends a summary: **“3 items for approval.”**
+- For each one, a brief description and the buttons **Approve / Reject / Edit**.
+- Approval moves the file and triggers the sending.
+- Rejection moves it to `zamitnuto/`, and the agent learns from it next time, because it reads the rejected items.
+
+A crucial detail: **the buttons must be named after the consequence, not the action.** Not “OK”, but “Send to client”. The difference in the number of mistakes is enormous.
+
+## When approval turns into rubber-stamping
+
+This is the most common way a good system stops working. After a month you have thirty items a day, they all look fine and you approve them with one thumb without reading them. From that moment you do not have control, you have a ritual.
+
+Three antidotes:
+
+- **Limit the volume.** If there are too many items, the agent is doing things it should not be doing. Narrow the brief.
+- **Random checks.** Once a week pick one approved item and go through it in depth. You will find out what is getting past you.
+- **Different weights.** Let routine items go through in bulk, but those from the third quadrant should always require opening and reading.
+
+## What to watch out for
+
+- **The agent must not have login details for anything it is not meant to do on its own.** This is the only protection that still works after the thousandth task.
+- **Rejecting must be as easy as approving.** When rejecting is harder, people approve.
+- **Log who approved what and when.** Even if it is only you. In three months it will come in handy.
+- **Deal with the case where nobody approves.** Items that have sat for a week should either disappear somewhere or send a reminder — otherwise your queue gets overgrown.
+- **Do not let the agent near other people's text and near sending at the same time.** That is exactly the combination the last track of the series describes as the lethal trifecta.
+
+## Pro tip
+
+Before you entrust the agent with anything, run its brief past one question: **“what is the worst that happens if someone rewrites this instruction?”** If the answer is “it prepares a nonsensical draft”, you are fine. If the answer is “it sends nonsense to a client”, your boundary is in the wrong place.
+
+That concludes the track on control. The next one is about what makes the control room genuinely useful: your own files.

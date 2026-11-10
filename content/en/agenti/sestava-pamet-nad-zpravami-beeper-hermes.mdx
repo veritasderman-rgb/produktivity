@@ -1,0 +1,263 @@
+---
+title: "Setup 4: memory over all your messages — Beeper and Hermes on a Synology"
+excerpt: "Two containers on a home NAS: one holds all your chats, the other is an agent that reads them continuously, writes promises into Notion and answers you in Telegram. Claude prepares the containers; you just log in twice in the terminal."
+track: "sestavy"
+order: 4
+tags: ["sestava", "agenti", "telegram", "mcp", "data", "bezpecnost"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Two containers run on a Synology (or on a VPS). The first holds Beeper Server — Beeper without a window, which keeps WhatsApp, Messenger, Signal and Slack in one database and offers them over MCP. The second holds Hermes Agent, which reaches into Beeper at regular intervals, writes promises and deadlines into Notion and, when asked, summarises for you in Telegram what happened in which conversation. The files for both containers are written by Claude from the prompt in this article; what's left for you is two logins in the terminal. No open port leads inside; the only path to the data is your chat with the agent. To be honest about it: the message database stays at home, but the text the agent reads goes off to the model provider for processing.
+sources:
+  - name: "Hermes Agent — running in Docker"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"
+  - name: "Hermes Agent — fallback model providers"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/fallback-providers"
+  - name: "Hermes Agent — scheduled tasks (cron)"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/cron"
+  - name: "Hermes Agent — MCP servers"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp"
+  - name: "Hermes Agent — Telegram"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/telegram"
+  - name: "Hermes Agent — WhatsApp"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/whatsapp"
+  - name: "Hermes Agent — security and command approval"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/security"
+  - name: "Beeper CLI — installing headless Beeper Server"
+    url: "https://github.com/beeper/cli"
+  - name: "Beeper — Desktop API and the built-in MCP server"
+    url: "https://developers.beeper.com/desktop-api/mcp"
+  - name: "Beeper — remote access to the API and its risks"
+    url: "https://developers.beeper.com/desktop-api/advanced/remote-access"
+  - name: "beeper-server-docker — a community container with Beeper Server"
+    url: "https://github.com/aorizondo/beeper-server-docker"
+  - name: "Notion — MCP connection security"
+    url: "https://developers.notion.com/guides/mcp/mcp-security-best-practices"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+The guide [Beeper as a hub for all your messages](/tipy/beeper-hub-zprav-s-ai) ends with one limitation: the promise scan only runs when your computer is on, Beeper is open and you start it yourself. Anyone who doesn't run it twice a day doesn't have a memory, just a good intention.
+
+This setup removes that limitation. Both Beeper and the agent move to a machine that's always on, and you talk to them from your phone. The result is best described as **a colleague who reads all your chats and keeps track of what you've promised to whom** — and to whom you can write at any time, “what did Peter and I actually agree on?”.
+
+## What you'll build
+
+<Flow title="The journey of one promise" steps={[
+  { title: "A message arrives in Beeper", desc: "WhatsApp, Messenger, Signal, Slack and SMS all flow into one database on your NAS. The Beeper container runs without a window, non-stop." },
+  { title: "Hermes reads it", desc: "On a schedule, the agent asks Beeper for new messages. It talks to it only inside the NAS, over the internal network between containers." },
+  { title: "The model finds the commitment", desc: "The main model runs through OpenAI. When it hits a limit or an outage, the agent switches by itself to the backup credit at OpenRouter." },
+  { title: "An entry in Notion", desc: "The promise gets a row in the database with a due date, so you see it in the calendar view." },
+  { title: "A message to you in Telegram", desc: "In the morning an overview arrives. And at any time during the day you can ask about anything from the history." },
+]} />
+
+These are three layers of memory stacked on top of each other. **Beeper** is the archive: everything that ever arrived, searchable across networks. **Notion** is the extract: only commitments and deadlines, sorted by date. And **Hermes** keeps its own notes about you — who is who, how you want outputs formatted, which chats to skip — so you don't have to repeat yourself.
+
+## What you'll need
+
+- **A Synology with the Container Manager app** (DSM 7.2 or later), ideally a model with an Intel or AMD processor and at least 4 GB of memory. According to the documentation, Hermes asks for 2–4 GB and Beeper Server for roughly another 1 GB. The community container for Beeper lists only the x86_64 architecture — for low-power models with an ARM processor, check this before you start.
+- **Or a VPS.** The procedure is the same, only instead of a NAS in the living room you have a rented server. “Locally” then means “on a machine you administer”, not “at home”.
+- **A Beeper account** with at least one other signed-in device (a phone will do) — a new device is confirmed from the existing one.
+- **A paid Claude account** for preparing the containers.
+- **OpenAI**: either a ChatGPT subscription or an API key. And **OpenRouter** with a few dollars of credit as a backup.
+- **Telegram** and, optionally, **Notion**.
+- **Time:** one afternoon.
+
+## Step 1: let Claude prepare the containers
+
+A container is a packaged program that runs separately from the rest of the NAS. It's described by a text file, `docker-compose.yml` — and that is exactly the kind of file Claude can write.
+
+It's important to know what Claude on the web can't do: **it can't see your NAS.** It will prepare the files, but you have to put them into the Synology yourself. So open two tabs side by side — claude.ai and the DSM interface — and enter:
+
+```text
+Prepare two containers for me on a Synology (DSM 7.2, Container
+Manager, project in /volume1/docker/pamet) in one docker-compose.yml:
+
+1. beeper — Beeper Server (Beeper without a window). Start from the
+   official Beeper CLI (github.com/beeper/cli, the command
+   "beeper setup --server --install"). If that can't be done cleanly
+   in a container, use the community project
+   aorizondo/beeper-server-docker and tell me. Data goes to
+   /volume1/docker/pamet/beeper.
+
+2. hermes — the official image nousresearch/hermes-agent, command
+   "gateway run", data from /volume1/docker/pamet/hermes to /opt/data.
+
+Rules: neither container publishes ports to the outside. Hermes
+connects to Beeper only over the internal network at
+http://beeper:23373. Both containers restart unless-stopped and have
+a memory limit.
+
+Before you write anything, open the current documentation of both
+projects and verify the names of the commands and images. Then give
+me: the contents of all files, where to save them on the Synology,
+and the exact commands for logging in to Beeper and for the initial
+Hermes setup. Don't write tokens or passwords into the files; leave
+placeholders for them.
+```
+
+The result will look roughly like this. Treat it as a skeleton to check against, not as a finished file — both projects change quickly, which is why the prompt contains the sentence about current documentation:
+
+```yaml
+services:
+  beeper:
+    build: ./beeper                # community project, see sources
+    container_name: beeper
+    restart: unless-stopped
+    init: true
+    volumes:
+      - /volume1/docker/pamet/beeper:/data
+    mem_limit: 1g
+    # no "ports:" — nobody gets in here from outside
+
+  hermes:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes
+    restart: unless-stopped
+    command: gateway run
+    volumes:
+      - /volume1/docker/pamet/hermes:/opt/data
+    mem_limit: 4g
+    depends_on:
+      - beeper
+```
+
+In DSM, then open **Container Manager → Project → Create**, select the folder `/volume1/docker/pamet`, paste in the file and let the project build. For now Hermes will keep crashing and restarting, because it has no configuration. That's fine; we'll fix it in step 3.
+
+**For advanced users:** if you have Claude Code on your computer and SSH enabled on the NAS, you can let Claude do this part as well. It connects to the NAS, creates the files and starts the project itself; you only approve the commands. It's faster, but do actually approve them — at that moment Claude is working on a machine where you also keep your photos and backups.
+
+## Step 2: log in to Beeper
+
+This is where you first need the terminal. In DSM, turn on **Control Panel → Terminal & SNMP → Enable SSH service** and connect from your computer (`ssh your-name@nas-address`). If you've never opened a terminal, you'll find a patient introduction in the [Beeper guide](/tipy/beeper-hub-zprav-s-ai).
+
+The login itself looks like this in the official CLI:
+
+```bash
+beeper setup --server --install --email you@example.com
+```
+
+A code arrives by email, you enter it and then **confirm the new device from your phone**, where you already have Beeper. If you have no other device, use the recovery key (`beeper verify recovery-key`). You then connect networks with the command `beeper accounts add` — you pick a network and go through its login, usually via a QR code.
+
+In a container, the command is run via `sudo docker exec -it beeper …`, and the community project has its own wrapper (`beeper-setup login`). Claude wrote out the exact form for you in step 1; stick to it.
+
+Finally, you need the **access token** that Hermes will use to identify itself to Beeper. Have Claude tell you where your version stores it. And treat it like a password to all your chats at once, because that's exactly what it is.
+
+## Step 3: log in to Hermes
+
+Hermes Agent is an open-source agent from Nous Research. According to the documentation, the initial wizard is run once over the same data folder:
+
+```bash
+sudo docker run -it --rm \
+  -v /volume1/docker/pamet/hermes:/opt/data \
+  nousresearch/hermes-agent setup
+```
+
+The wizard asks about three things.
+
+**The model.** Choose OpenAI. With a ChatGPT subscription it's the option “ChatGPT or Codex Subscription” — the wizard shows an address and a code that you confirm in the browser on your computer, so it works even on a machine without a screen. With an API key you enter `OPENAI_API_KEY`.
+
+**The backup.** The key `OPENROUTER_API_KEY` and one fallback model in the settings. Hermes switches to it by itself when the main provider returns a rate-limit error, a server outage or refuses the login. Set a spending cap on the key at OpenRouter — a backup without a cap is a second account, not a safeguard.
+
+**The channel it will use to talk to you.** For Telegram, you create a bot with @BotFather and enter its token and **your numeric ID** as the only allowed user; the whole procedure, pitfalls included, is in the part [Telegram as a control panel](/agenti/telegram-jako-ovladaci-panel). Hermes polls Telegram itself, so you open nothing on the router. WhatsApp works too, but through an unofficial connection to WhatsApp Web: the documentation itself recommends a separate number and warns of a small risk of account restrictions. Telegram is the calmer choice.
+
+The resulting configuration lives in `/volume1/docker/pamet/hermes/config.yaml`. The essential parts:
+
+```yaml
+model:
+  provider: openai-codex        # with an API key: openai-api
+  default: <your model>
+
+fallback_providers:
+  - provider: openrouter
+    model: <fallback model>
+
+mcp_servers:
+  beeper:
+    url: "http://beeper:23373/v0/mcp"
+    headers:
+      Authorization: "Bearer <token from step 2>"
+    tools:
+      include: [search, search_chats, get_chat, list_messages,
+                search_messages, get_accounts]
+  notion:
+    url: "https://mcp.notion.com/mcp"
+    auth: oauth
+```
+
+The `tools.include` line is the first of two safeguards. Beeper can also **send** and archive messages. When you list only the read tools for the agent, it never gets the others at all — that's more than a request in the prompt, which the model can overlook. Verify the current tool names with the command `hermes mcp test beeper`.
+
+On its own, though, it isn't enough. The filter hides tools; it doesn't lock Beeper: its API still runs on the internal network and the token sits in a file the agent can read. As long as Hermes has a command line available, it can put the two together with a single `curl` — and the Hermes documentation explicitly says it doesn't police addresses in terminal commands. Hence **the second safeguard: turn off command and code execution for the agent.** In the `hermes tools` wizard, untick the `terminal` and `code_execution` toolsets for Telegram (and `browser`, if you don't need it). The agent doesn't need them for reading messages, writing to Notion and composing summaries. After the first scheduled run, ask it which tools it had during that run, so you know the restriction applies there too.
+
+Notion is logged in via `hermes mcp login notion`. Be careful what you log in with: a connected client reaches everything your account reaches, not one selected page. If you keep other things in Notion besides promises, create a **separate account** for the agent, invite it only to that one database and log Hermes in with it. The other route is the older local server with an integration token, with which pages are shared individually; Notion no longer actively maintains it, though.
+
+Then restart the container in Container Manager and send the bot its first message.
+
+## Step 4: teach it the rhythm
+
+From this point on, no more terminal. Tasks are given as an ordinary sentence in Telegram, and Hermes creates a scheduled task from them by itself. First, use the `/sethome` command to tell it to send results to this chat.
+
+Set up the Notion database following the [structure from the first guide](/tipy/beeper-hub-zprav-s-ai) — the `Due` column of type date turns it into a calendar. Then:
+
+```text
+Every working day at 7:30 and at 15:00, go through new messages in
+Beeper since the last run. Skip these chats: [list]. Find commitments:
+what I promised to whom, what someone promised me, and agreed
+meetings. For each one give who to whom, what, by when as a specific
+date, the network and chat, and a verbatim quote. Write new
+commitments into the Notion database “Promises & Commitments” with
+the status New; before you write, check they aren't already there.
+Then send me a short overview here: what's new and what is due today
+or overdue. If you're not sure whether something is a promise, put it
+separately under “Needs review” and don't write it to Notion.
+```
+
+The `New` status is your approval queue. The agent writes proposals; over your morning coffee you confirm or delete them in Notion. Without that step you'll stop trusting the database within a month.
+
+## What you can then ask
+
+The scheduled scan is just the foundation. The value of the setup lies in the archive always being at hand:
+
+- **“What happened in the project-web chat since Friday?”** — when you're back from holiday and don't feel like reading three hundred messages.
+- **“What have Novák and I dealt with over the past six months? Sort it by topic.”** — research before a meeting, with quotes and dates.
+- **“What did I promise this week and haven't yet delivered?”** — a look into Notion verified against the messages.
+- **“Every Friday at 14:00, list what people promised me and didn't deliver, and draft reminder texts.”** — it drafts the texts, you send them.
+- **“Remember that you never read the family chat or the chat with Jana.”** — it saves the rule permanently.
+
+There are as many possibilities as questions you can think of. Just keep an eye on one thing: the more the agent reads, the more text you pay for and the more of it goes out.
+
+## What exactly “it runs locally” means
+
+Three things are true, and one thing gets left out of enthusiastic guides.
+
+It's true that **the message database sits on your disk**, that **no open port leads inside** and that **the only one who gets to the data is your Telegram account**, because the bot answers only your numeric ID. Nobody sees Beeper from outside, not even you — only Hermes, over the internal network.
+
+What gets left out is this: **the text the agent reads goes off to OpenAI or OpenRouter for processing**, the entries go to Notion and the replies travel through Telegram's servers, where a chat with a bot isn't end-to-end encrypted. What's local is the storage and the control, not the computation. Anyone who needs the text never to leave the house has to plug in a [local model](/agenti/lokalni-ai-za-hodinu) instead of OpenAI — and accept that it will be noticeably weaker at extracting promises.
+
+And then there's the [lethal trifecta](/agenti/smrtici-trojice-agentu). This agent reads private data, reads text written by strangers, and can send something out. Anyone can write you a message that poses as an instruction. Therefore:
+
+- **The agent must not send messages.** That's handled by the two safeguards from step 3 together: only the read tools for Beeper and no command line. One without the other is a fence with the gate left open.
+- **Leave command approval switched on.** By default, Hermes has dangerous commands disabled for scheduled tasks (`approvals.cron_mode: deny`). Don't change that.
+- **Give Notion only that one database.** Logging in with your regular account opens your entire Notion to the agent. Use a separate account invited only to the promises database.
+- **List sensitive chats on day one**, not after the first embarrassing overview.
+- **Back up the `pamet` folder** and protect it like a password manager. It holds the encryption keys to your chats.
+
+## When not to build this setup
+
+- **A manual scan twice a day is enough for you.** Then stay with the [first guide](/tipy/beeper-hub-zprav-s-ai); it's simpler and you're present at every entry.
+- **It's company communication.** Messages from colleagues and clients aren't yours alone. Don't send them to a third-party model without IT's consent.
+- **You don't want to maintain anything.** Bridges in Beeper drop out now and then, images get updated, the token expires. Reckon on half an hour a month.
+- **The grey zone bothers you.** Beeper Server is new and so far has only a brief description in the CLI in the official documentation. On top of that, unofficial clients formally violate the terms of networks such as WhatsApp. The practice has been tolerated for years, but you have no guarantee.
+
+## What to watch out for
+
+- **If the agent is silent for a week, don't believe nobody wrote to you.** Ask it “which accounts in Beeper are connected?” — a dropped bridge is the most common silent failure.
+- **Check the dates.** The model sometimes miscalculates “by the end of next week”. That's why there's a verbatim quote with every row.
+- **Watch the spending daily in the first week.** The first scan of the whole history is expensive; only after that does consumption settle.
+- **Start with one chat.** First verify on a single work conversation that the entries make sense, and only then let the agent loose on everything.
+
+---
+
+The difference from the first guide is one word: **continuously**. There, you were the one starting the memory. Here it runs by itself and you just ask it questions. That convenience has a price — an unsupervised agent that sees all your conversations — which is why the most important things in this setup are the two safeguards that take away its ability to say anything on your behalf.
+
+And once Hermes is running on the NAS, it would be a shame to leave it at messages alone: [setup 5](/agenti/sestava-hermes-na-synology-sto-pouziti) has a hundred more tasks, ordered by how much you have to entrust to it.

@@ -1,0 +1,160 @@
+---
+title: "When the agent stops responding: from “it's silent” to the cause"
+excerpt: "The morning brief did not arrive. The agent does not react to a message. Before you start reinstalling, go through six questions in order from the most common cause to the rarest. With the commands that answer them."
+track: "ovladani"
+order: 8
+tags: ["ovladani", "agenti", "telegram", "hardware"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  A silent agent almost always has one of six causes: the container is not running, the gateway to Telegram is not running, the money has run out or the key has expired, the connection to a data source has dropped, the task did not start, or the disk is full. Look in this order and at each step look at one specific thing. Half the cases are solved by restarting the container, but restart only after you have read the last fifty lines of the log — otherwise the same error will be back in a week and once again you will not know why.
+sources:
+  - name: "Hermes Agent — FAQ and troubleshooting"
+    url: "https://hermes-agent.nousresearch.com/docs/reference/faq"
+  - name: "Hermes Agent — running in Docker"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"
+  - name: "Hermes Agent — scheduled tasks (cron)"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/cron"
+  - name: "Hermes Agent — fallback model providers"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/fallback-providers"
+---
+
+An agent that works is invisible. You notice it the moment it stops — usually in the morning, when you have no time for it.
+
+The natural reaction is to restart everything and hope. Mostly that helps. And a week later you are in the same situation, because you never found out what happened.
+
+## First, tell two symptoms apart
+
+**The agent does not respond at all.** You write, nothing. That is a problem on the path between you and the agent: steps 1 to 3.
+
+**The agent responds but is not doing something.** The brief did not arrive, nothing has been added to Notion. That is a problem behind the agent: steps 4 to 6.
+
+That tells you where to start.
+
+## Step 1: is the container running?
+
+In DSM, open Container Manager and look at the status. Or over SSH:
+
+```bash
+sudo docker ps -a --filter name=hermes
+```
+
+The status column says it all. “Up” means it is running. “Restarting” means it keeps crashing and coming back up in a loop — almost always a configuration error after the last change. “Exited” means it crashed and stayed down.
+
+If it is not running, **first read why**:
+
+```bash
+sudo docker logs --tail 50 hermes
+```
+
+The last few lines usually name the cause: a missing key, a typo in the configuration file, a full disk. Only then restart.
+
+A special case: the container did not come up after a NAS restart. Check that it is set to start automatically.
+
+## Step 2: is the gateway running?
+
+The container can be running and still have no connection to Telegram.
+
+```bash
+sudo docker exec hermes hermes gateway status
+sudo docker exec hermes tail -50 /opt/data/logs/gateway.log
+```
+
+Paths and command names inside the container may differ between versions; if the command cannot find the program, look in the documentation for your version of the image.
+
+What to look for in the log:
+
+- **a Telegram login error** — the bot token is wrong or was revoked at BotFather;
+- **a message that the user is not allowed** — you are writing from a different account from the one on the list, or the list got broken during an edit;
+- **a conflict** — another running agent is using the same token. There cannot be two on one token.
+
+That last one happens after a test restore from backup, when the test container was left running.
+
+## Step 3: is the model responding?
+
+The gateway works, the agent received the message, but the model did not answer it. In the log you can tell by the numeric codes:
+
+| Code | What it means | What to do |
+|---|---|---|
+| 401, 403 | the key is invalid or the login has expired | check the key, log in again |
+| 402 | credit has run out | top up, check the cap on the key |
+| 429 | request limit | wait; if it recurs, slow the tasks down |
+| 500, 502, 503 | outage at the provider | wait; check the status page |
+
+An agent with a fallback mostly survives these errors by itself, because it switches to the fallback provider. If it is silent even so, both routes have failed — most often because the spending cap applies to both at once, or because nobody has tried the fallback key since installation.
+
+A quick check of what the agent has configured:
+
+```bash
+sudo docker exec hermes hermes config show
+```
+
+## Step 4: is the data source alive?
+
+The agent responds, but the brief is empty or nothing gets written to Notion. Ask it directly:
+
+```text
+Which accounts in Beeper are connected right now? And can you reach Notion?
+```
+
+The most common silent failure of the whole [Beeper setup](/agenti/sestava-pamet-nad-zpravami-beeper-hermes) is a **dropped bridge**: one network has logged out, Beeper keeps running and the agent dutifully reports that nobody is writing. You can tell by the fact that suddenly nothing comes from one network.
+
+Second in line is an expired login to a service. After you change the connection settings, the agent reloads them with the `/reload-mcp` command.
+
+## Step 5: did the task start?
+
+The agent works, the sources work, and still the brief did not arrive.
+
+```text
+List the scheduled tasks for me: name, schedule, when they last ran
+and how they turned out.
+```
+
+Three usual causes:
+
+- **The gateway was not running at that moment.** It is the gateway that starts scheduled tasks. If the container was down at seven in the morning, the task did not happen and it will not catch up by itself.
+- **Time zone.** The task ran, but an hour off from what you expected. Typically a week after the clocks change.
+- **The task finished and sent nothing.** Either it had nothing to send, or it has no setting for where to deliver the result. The outputs of recent runs are in the `cron/output` folder.
+
+That is why even an empty day should get its one sentence, as the part on the [morning brief](/agenti/ranni-brief-jedna-zprava-misto-deseti) advises: silence then means a fault, not calm.
+
+## Step 6: is there anywhere to write?
+
+The last and the most insidious. A full disk shows up as everything else: the container crashes, the database reports errors, tasks do not finish.
+
+In DSM, look in Storage Manager at the free space. With the agent, three things grow: logs, conversation history and downloaded files. With Beeper, the message database and media.
+
+When the volume is full, you can still delete even when writing is no longer possible. Old logs and temporary files are the first candidates; leave memory and skills alone.
+
+## When it is none of these
+
+Hermes has its own diagnostics:
+
+```bash
+sudo docker exec hermes hermes doctor
+```
+
+It goes through the configuration and the connections and lists what it does not like. Try it before you reach for a restore from [backup](/agenti/zalohy-agenta-obnova-za-deset-minut).
+
+And ask yourself one question: **what changed?** An image update, a configuration change, a new skill, a DSM update, a new router. An agent that worked yesterday and does not today has almost never broken of its own accord.
+
+## How to find out about an outage sooner
+
+Four small things that turn a morning surprise into an evening alert:
+
+- **The brief has one sentence even on an empty day.** When nothing arrives, you know straight away.
+- **A watchdog script without a model.** Once an hour it checks that the containers are running and that there is disk space. It only speaks up when there is a problem and costs no tokens.
+- **Notifications from Synology.** DSM can send a message when a container stops unexpectedly or space is running low.
+- **A change log.** One file where you write the date and what you changed. At the next outage, it is the first thing you open.
+
+## What to watch out for
+
+- **A restart wipes the traces.** Log first, restart second.
+- **Do not fix three things at once.** One change, a test, the next change. Otherwise you do not know what helped.
+- **Do not do updates on a Friday afternoon.** Nor the day before a holiday.
+- **The agent should not repair itself.** It is tempting to tell it “find out why you are not working and fix it”. An agent with the right to change its own configuration and run commands is exactly what this whole series avoids.
+
+---
+
+An outage in itself means nothing; every system has them. What says something about how you run things is whether you know afterwards what happened, and whether the same thing happens a second time.

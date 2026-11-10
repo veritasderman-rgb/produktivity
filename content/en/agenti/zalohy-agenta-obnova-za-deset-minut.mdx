@@ -1,0 +1,115 @@
+---
+title: "Agent backups: what to save so it can be restored in ten minutes"
+excerpt: "After three months the agent has your memory, fine-tuned procedures and the keys to everything in a single folder. Which of that to back up, where, how often — and why the backup has to sit somewhere the agent itself can't reach."
+track: "data"
+order: 5
+tags: ["data", "bezpecnost", "agenti", "hardware"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  The whole agent is one folder: configuration, keys, memory, skills, scheduled tasks and history. You don't need to back up the program itself; that gets downloaded again. On Synology the folder is backed up by Hyper Backup, encrypted and versioned, to a location outside the NAS. Two rules matter more than the tool: the backup contains tokens, so it is encrypted, and the backup destination must not be mounted into the container, otherwise the agent can wreck it along with the original. And a backup you have never tried restoring from is just a hope.
+sources:
+  - name: "Hermes Agent — running in Docker and the data folder"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"
+  - name: "Hermes Agent — profiles, export and import"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/profiles"
+  - name: "Synology — Hyper Backup"
+    url: "https://www.synology.com/en-global/dsm/feature/hyper_backup"
+---
+
+In the first week with an agent you have nothing to lose. After three months its folder holds the list of people and connections it has pieced together about you, twenty procedures fine-tuned to your work, a schedule of tasks and tokens for every service. Producing that again means repeating those three months.
+
+And all of it is in one folder on one disk.
+
+## What's in it
+
+Hermes keeps all its state in a single folder; in the container it is the one you mounted as `/opt/data`.
+
+| What | What for | How badly you'd miss it |
+|---|---|---|
+| `config.yaml` | models, tools, connections | half an hour of work |
+| `.env`, `auth.json` | keys and logins | an hour and a round of all the services |
+| memory files | what the agent knows about you | weeks |
+| `skills/` | fine-tuned procedures | weeks to months |
+| `cron/` | scheduled tasks | an hour, if you remember them |
+| `SOUL.md` | the agent's character | a quarter of an hour |
+| conversation history | searching the past | depends how you use it |
+
+The program itself isn't in the table. That gets downloaded again during a restore.
+
+For the setup with Beeper, add a second folder, the one with the Beeper Server data. It holds the encryption keys to your chats; without them, after a crash you have to sign in to every network again.
+
+## Three layers
+
+A tried and tested rule says: three copies, in two different places, one of them off-site. For an agent on a NAS it works out like this.
+
+<Flow title="From the fastest to the most resilient" steps={[
+  { title: "Snapshots on the NAS", desc: "On models with the Btrfs file system. They return the folder to its state an hour ago. They protect against a mistake, not against a fire." },
+  { title: "Backup to another disk", desc: "Hyper Backup to a USB drive or a second NAS, daily, with versions. Protects against disk failure." },
+  { title: "Off-site backup", desc: "Hyper Backup to the cloud, encrypted. Protects against theft, fire and flooding." },
+]} />
+
+If you only have one, make it the third.
+
+## Setting it up in Hyper Backup
+
+In DSM, open Hyper Backup and create a folder backup task. Four choices matter:
+
+- **Source:** only the agent's folders, not the whole volume. A small backup restores quickly and is easy to test.
+- **Client-side encryption: on.** The backup contains tokens for everything the agent can do. An unencrypted copy in the cloud is a second set of your keys held by someone else's company. Store the password in a password manager; without it nobody restores the backup, not even you.
+- **Versions:** keep at least thirty days back. The reason is below.
+- **Schedule:** daily at night, outside the time when the agent's scheduled tasks run.
+
+On the last point: the agent writes to a database continuously. A backup taken mid-write will usually restore, but it may lose the last moments of a conversation. If you want certainty, have the container stopped for a minute before the backup; Hyper Backup can run a script before and after the task.
+
+## Why versions, and why out of the agent's reach
+
+The usual idea of a backup is that it protects against a broken disk. With an agent a different accident is more likely: **the agent breaks something itself.**
+
+It overwrites a skill with a worse version. It deletes something from memory that it shouldn't have. It picks up a bad habit, as the part on [skills](/agenti/dovednosti-agenta-jak-ho-naucit-postup) describes. And you notice a fortnight later.
+
+Two things follow from that:
+
+**One copy isn't enough.** A backup that is overwritten every night has, after a fortnight, the broken version stored in it. Hence versions going thirty days back.
+
+**The backup destination must not be mounted into the container.** If the agent could see the folder with the backups, it could ruin both the original and the copy with a single command. The container should see only its working folder. The backup is made by the NAS, from outside.
+
+## The quick route: export
+
+Hermes has its own command that packs a profile into a single file:
+
+```bash
+hermes profile export default
+hermes profile import ./default.tar.gz --name default
+```
+
+It comes in handy before a bigger change — before you rewrite the configuration, before you install someone else's skill, before you update. It is no substitute for a regular backup, but it is the fastest step back you have. The file contains keys, so treat it like a password and don't leave it lying in a shared folder.
+
+## The restore test
+
+This is the part almost nobody does, and the only one that tells you whether you have a backup.
+
+1. In Hyper Backup, restore yesterday's version into a **new, empty folder**. Not over the live one.
+2. Create a test container that mounts the restored folder instead of the original one. You don't need a second bot; stop the original container for that moment, because two agents must not run on one token.
+3. Message the agent: “What do you know about me?” and “What scheduled tasks do you have?”
+4. Delete the test container and start the original.
+
+Time it. If it takes an hour the first time, write down where you got held up. The second time it will be the ten minutes from the title.
+
+## What a backup won't restore
+
+- **Logins that have expired in the meantime.** Some tokens have a limited lifetime. After restoring from an older backup you'll sign in to some of the services again.
+- **Beeper messages from the time between the backup and the crash.** The networks usually sync them back, but not always completely.
+- **Entries in Notion.** Those live with Notion, not with you. They have their own page history; account for it separately.
+
+## What to watch out for
+
+- **Keep the backup password somewhere other than on the NAS.** It sounds obvious until you discover it is in a note stored on that very disk.
+- **After restoring to a different machine, check the file permissions.** Files with keys should be readable by the owner only.
+- **Have backup failure notifications sent to you.** A backup that has silently not run for three weeks is the most common kind of no backup.
+- **Wipe an old NAS securely before selling it.** The agent's folder is a collection of keys.
+
+---
+
+You will most likely need the backup not because of a disk but because of an ordinary Tuesday mistake — yours or the agent's. For that, thirty days of versions and one tested restore are enough.

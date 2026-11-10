@@ -1,0 +1,104 @@
+---
+title: "A knowledge base for your agent: four rules and hooking it up to the NAS"
+excerpt: "How to build a company knowledge base from the first folder to deployment is covered by the big guide in Tips. This part is a short companion for readers of the series: four rules that tell you a base is sound, trust levels the guide does not cover, and connecting it to an agent on your own machine."
+track: "data"
+order: 7
+tags: ["mcp", "data", "agenti", "rizeni"]
+level: "pokrocily"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Building a company knowledge base step by step — extracting the source material, the repository, the server, deployment, measurement — has its own guide on this site, and this part does not repeat it. It adds three things: a quick test of four properties that mark a base you can trust; splitting content into trust levels so the model knows what it may assert and what it may only mention; and wiring the finished base into an agent on your NAS so that it can only read from it.
+sources:
+  - name: "Model Context Protocol — specification and introduction"
+    url: "https://modelcontextprotocol.io/"
+  - name: "Hermes Agent — MCP servers and tool filtering"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp"
+---
+
+Ask any model what your product costs. It will answer confidently, with a specific figure that never existed. The model is not lying out of malice; it has nowhere to learn the answer and it cannot stay silent.
+
+The fix is a knowledge base on an MCP server: the one place the model asks about company facts. **How to build it, from scattered PDFs to a deployed server, is covered in the detailed guide [A company knowledge base for AI](/tipy/firemni-znalostni-baze-mcp-server).** It is long and complete, and this part does not replace it.
+
+Here are three things that go with it when the base is read by an agent from this series.
+
+## Four properties that tell you a base is sound
+
+A quick test, whether you are building a base or inheriting one.
+
+| Property | How to check it |
+|---|---|
+| Every answer carries a source and a validity date | Ask for a price. Do you get a number, or a number with a date and a file? |
+| It can say “I don’t know” | Ask about something that is not in the base. Does it guess, or admit it and log the gap? |
+| People do the writing | Can the model change the base? It should not. |
+| Every kind of fact has a name next to it | Who vouches for the price list? If nobody knows, the base will go stale quietly. |
+
+The first two properties are the server's job, the other two the company's. Most bases fail on the fourth.
+
+## Trust levels
+
+The big guide touches on this only in passing, and for an agent that works unsupervised it matters. Not everything a company knows about itself is equally reliable:
+
+- **verified** — a fact someone vouches for by name: the price list, contacts, specifications;
+- **web** — what is published on the company website; usually correct, but nobody checks it daily;
+- **archive** — old brochures, presentations, transcripts; good for context, dangerous for numbers;
+- **internal** — material that must not leave the company.
+
+The level belongs in the header of every file and the server returns it with every answer. The rule for the model then fits in three lines:
+
+```text
+Take facts, figures and prices only from content with the level “verified”.
+You may use “web” and “archive” content only with an explicit note
+saying where it comes from and that it may be out of date. Never quote
+“internal” content in text that goes outside the company.
+```
+
+Why this matters for an agent in particular: a person asking in a chat will notice an old brochure and pause. An agent assembling material for a quote at night will take the first number it finds.
+
+Two places where the split pays off most:
+
+- **Prices have an addressee.** The list price for a wholesale customer is not the price for a walk-in customer. For every price, state who it may be given to.
+- **Old claims.** Archive material tends to be worded in ways that would not pass today — health effects, guarantees, superlatives. Mark them so the model does not carry them over into new text. How to enforce that for real is shown in the part on [text checks](/agenti/kontrola-textu-ktera-neni-ai).
+
+## Connecting it to the agent on your NAS
+
+The finished base is used by the whole company from the Claude app. An agent on your own machine connects to it like any other MCP server, with one extra restriction: **it may read from it and report gaps, nothing else.**
+
+```yaml
+mcp_servers:
+  firma:
+    url: "https://adresa-vasi-baze/mcp"
+    headers:
+      Authorization: "Bearer <token for the agent>"
+    tools:
+      include: [hledej, dokument, brand, nahlas_mezeru]
+```
+
+Three notes:
+
+- **A separate token for the agent.** Not the one people log in with. When you switch the agent off, you revoke one access and nothing else.
+- **Only the listed tools.** If the server later gains a tool that changes something, the agent will not get it automatically. Check the tool names against your own server; the ones in the example match the guide.
+- **The confidential layer stays apart.** The guide recommends a separate server with its own login for internal material. Do not connect it at all to an agent that reads other people's messages.
+
+That last point follows from the [lethal trifecta](/agenti/smrtici-trojice-agentu): an agent that reads text from strangers, sees internal material and can send something out is exploitable. You can give it the public part of the base, because there is nothing in it to carry away.
+
+## What the agent does with it
+
+The base mainly changes what the agent stops doing: making things up. Typical tasks that become safe with it:
+
+- a draft reply to a customer with the price and terms taken from the source;
+- checking whether a quote matches the current price list;
+- a weekly list of gaps — questions the base had no answer to.
+
+The third deserves a scheduled task of its own. After a month, the list of gaps is the most valuable document you have about your company: the questions people ask that nobody ever wrote down.
+
+## Where to go next
+
+- Building the base step by step: [A company knowledge base for AI](/tipy/firemni-znalostni-baze-mcp-server).
+- Visual style and approved photos the same way: [company style as an MCP server](/agenti/firemni-styl-jako-mcp-server).
+- Rules that cannot be bypassed: [a text check that is not AI](/agenti/kontrola-textu-ktera-neni-ai).
+- Searching your own documents without a server: [your own knowledge base](/agenti/vlastni-znalostni-baze-rag).
+
+---
+
+For a long time companies thought a knowledge base was a place to store documents. With a model on the other end, it turns out to be a list of sentences you are willing to vouch for — and that it is shorter than you expected.

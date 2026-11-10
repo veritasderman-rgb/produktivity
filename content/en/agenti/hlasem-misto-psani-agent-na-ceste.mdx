@@ -1,0 +1,99 @@
+---
+title: "Voice instead of typing: the agent in the car and on a walk"
+excerpt: "The best ideas arrive when your hands are not free. A voice message in Telegram, a transcript, a reply by voice or text. A four-line setup, a free option and three situations where voice is the wrong tool."
+track: "ovladani"
+order: 7
+tags: ["ovladani", "telegram", "agenti"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Hermes can take a voice message from Telegram, transcribe it and reply by text or by voice. Both transcription and reading aloud have free options; for Czech you need to set the language, since the default is English. In a container, local transcription may not be available, in which case a cloud service is used. Three modes are switched with the /voice command. Voice is great for capturing a thought and for short questions, bad for anything where the exact wording matters, and unsuitable where someone can hear you.
+sources:
+  - name: "Hermes Agent — voice mode"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/voice-mode"
+  - name: "Hermes Agent — Telegram"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/telegram"
+  - name: "Hermes Agent — running in Docker"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"
+---
+
+Typing to an agent on a phone keyboard is fine at a desk. In the car it is dangerous, with a pushchair impossible, and on a walk it spoils the walk. Yet that is exactly where the things worth writing down occur to you.
+
+Telegram has had voice messages for as long as anyone can remember. All it takes is for the agent to understand them.
+
+## How it works
+
+You hold down the microphone in Telegram, say what you need and let go. The agent transcribes the message into text, processes it like any other and replies. Whether by text or by voice is up to you.
+
+```text
+/voice off     always replies by text (default)
+/voice on      replies by voice only to a voice message
+/voice tts     replies by voice to everything
+/voice status  shows what is set
+```
+
+For most people `/voice on` is the right choice. If you type, you read. If you speak, you listen. The setting survives a restart.
+
+## Setting it up for Czech
+
+Two things in the `config.yaml` file and one key.
+
+```yaml
+stt:
+  enabled: true
+  provider: groq
+  language: "cs"
+
+tts:
+  provider: edge
+  edge:
+    voice: "cs-CZ-VlastaNeural"
+```
+
+**Transcription language.** The default is English. Without the line `language: "cs"` you will get English-sounding nonsense out of Czech dictation and go looking for the fault elsewhere.
+
+**Transcription.** Hermes can also transcribe locally, without any service. In a container, though, the documentation says the necessary components may not be available; in that case choose a cloud service. Groq has a free tier and all it needs is a `GROQ_API_KEY` key in the `.env` file.
+
+**Reply voice.** The `edge` provider is free and needs no key, and it has Czech voices. Anyone who wants more natural delivery and already has an ElevenLabs account can switch the provider and enter a voice identifier.
+
+After the change, restart the container and send a test message: “Repeat back to me word for word what I just said.” You will see how well it understands you before you entrust it with anything important.
+
+## What voice is good for
+
+- **Capturing a thought.** “Note down an idea for the Website project: try the price list as a table.” Ten seconds and it is out of your head.
+- **A quick question.** “What have I got this afternoon?” and the answer in your headphones.
+- **A task for later.** “Remind me tomorrow at nine to call the garage.”
+- **A diary.** Three sentences on the way home from work are more than a blank page in the evening.
+- **A long brief.** You speak three times faster than you type. A brief you would skimp on with your thumb you will dictate in full.
+
+## What it is not good for
+
+- **Names, numbers, addresses.** Transcription copes with them worse than with ordinary speech. Always check a phone number or an email address in the text.
+- **Anything irreversible.** Do not give an instruction like “delete” or “send” by voice. One misheard word and the agent does something else.
+- **When someone can hear you.** On the tram you will dictate to the agent, and to your fellow passengers, what you promised to whom.
+
+On the second point: a good habit is to have the brief repeated back to you for important things. Tell the agent once and for all: “When I give you a task with a deadline by voice, write it back to me in one sentence before you save it.” It will store that in its memory.
+
+## In the car
+
+One thing needs saying plainly here: holding the phone and pressing the microphone while driving is the same offence as typing a message. Voice only helps when you control it hands-free.
+
+What works: dictating the message **before you set off** and having the reply read out through the speakers. Or using the phone's voice assistant to send a message to Telegram, if your phone and car can do that. And the most reliable option is the most boring one: pull over.
+
+## Where the voice flows
+
+A voice message passes through three places: Telegram's servers, the service that transcribes it, and the model provider. With free transcription services, read what they do with the recordings. Anyone who wants the audio never to leave the house needs local transcription, and therefore an installation outside the container or a custom image — that is already a job for advanced users.
+
+A sensible rule: give by voice what you would say out loud in the office.
+
+## What to watch out for
+
+- **Long recordings.** A five-minute monologue will be transcribed, but the agent will pick out of it whatever it deems important. Shorter messages turn out better.
+- **Noise.** Wind and engine noise degrade the transcript more than you expect. Headphones with a microphone help.
+- **A voice reply is slower.** It is produced only after the text one. For long answers, stick with text.
+- **Paid voices cost credits.** The `/voice tts` mode with a paid provider reads out every “done” as well.
+
+---
+
+Voice does not make the agent faster or smarter. It only makes it available at the moments when you would otherwise do nothing — and those are precisely the moments that produce most of the things you later cannot recall.

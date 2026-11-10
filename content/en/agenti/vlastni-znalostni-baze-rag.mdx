@@ -1,0 +1,100 @@
+---
+title: "Your own knowledge base: RAG without the myths"
+excerpt: "Uploading a thousand documents to a model and expecting it to know them doesn't work. How search over your own material really operates, why it most often fails on bad data, and what to do to make it answer correctly."
+track: "data"
+order: 2
+tags: ["data", "lokalni-ai", "orchestrace"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  RAG is not teaching the model; it is search. Your documents are chopped into pieces, a vector is computed for each one, and at query time the few most similar excerpts are found and sent to the model as context. So the model doesn't know your collection — it gets a few paragraphs from it. Nine out of ten broken knowledge bases fail at the input, not at the model: badly chopped documents, missing headings, scanned PDFs with no text layer, and answers that aren't in any document.
+sources:
+  - name: "Open WebUI — knowledge base documentation"
+    url: "https://docs.openwebui.com/"
+  - name: "Ollama — library of downloadable models"
+    url: "https://ollama.com/library"
+---
+
+“I'll upload all the company documents and the AI will know them.” This sentence is uttered daily, and wrapped up in it is a misunderstanding that then costs weeks of disappointment. Let's take it apart.
+
+## What really happens
+
+RAG (retrieval-augmented generation) works in five steps:
+
+<Flow title="The journey of your question" steps={[
+  { title: "Chunking", desc: "Each document is split into pieces, typically a few hundred words. One document = tens to hundreds of pieces." },
+  { title: "Vectors", desc: "A numerical fingerprint that captures meaning is computed for each piece. It is stored in a database." },
+  { title: "Query", desc: "Your question is converted into the same kind of fingerprint." },
+  { title: "Retrieval", desc: "The few pieces with the most similar fingerprint are found. Usually three to ten." },
+  { title: "Answer", desc: "Only these pieces are sent to the model along with your question. The model answers from them." },
+]} />
+
+The essential consequence: **the model does not know your collection.** It has never seen it whole. It sees a few paragraphs that the search slipped it. When the search misses, the model answers wide of the mark — and it will be completely sure of itself.
+
+The second consequence: **RAG is not training.** The model has learned nothing. Tomorrow, without that database, it knows nothing. That is good news for privacy (nothing got baked in anywhere) and bad news for expectations.
+
+## Why it most often doesn't work
+
+When people build a knowledge base and it doesn't work, they look for the fault in the model. It is almost never there. The causes, in order of frequency:
+
+**1. Scanned PDFs with no text layer.** The most common cause of all. The document looks like text, but it is an image. The tool extracts nothing from it and you wonder why the model knows nothing about it. The test: try searching for a word in the PDF. If nothing is found, it has no text layer and needs character recognition.
+
+**2. Bad chunking.** When a document is sliced in the middle of a table or a paragraph is split in half, the pieces lose their meaning. A three-column layout, headers and footers on every page, and footnotes can turn a clean document into nonsensical mush.
+
+**3. Missing context in the piece.** A piece of text saying “the term is 24 months” is useless by itself when you can't tell from it which contract is being discussed. Good tools add the document title and section heading to every piece.
+
+**4. A question the data has no answer to.** RAG can't synthesise across the whole collection. It won't find “how many clients do we have in total”, because that sentence isn't written anywhere. It can only find where something has already been written down.
+
+**5. Too few pieces, or too many.** Three pieces aren't enough for a complex question. Twenty pieces swamp the model and it starts floundering in them.
+
+## What to do about it in practice
+
+**Prepare the input, not the model.** This is ninety per cent of the work and nobody talks about it.
+
+- Run scanned documents through character recognition and **read the result**. Not all of it, but spot-check.
+- Give documents proper headings and file names. “contract-acme-2026-maintenance.pdf” is incomparably better than “scan_0043.pdf”.
+- Throw out duplicates and old versions. When the base holds three versions of the same policy, the model will answer from a random one.
+- Split long documents by chapter, not into arbitrary blocks.
+
+**Choose a sensible piece size.** A few hundred words with a small overlap between neighbours is a good start. Smaller pieces = more precise retrieval, but fragmented context. Larger = more coherent, but harder to hit.
+
+**Ask for citations.** Have the tool show, for every answer, which pieces it drew on. Without that you have no way of telling a hallucination from the truth — and with it you spot one in five seconds. It is the same discipline described in the guide to [fact-checking](/tipy/ai-overovani-faktu).
+
+**Test on questions you know.** Write down twenty questions to which you know the right answer and run them after every change to the settings. Without this set you are just chatting.
+
+## When RAG, and when something else
+
+| Situation | Solution |
+|---|---|
+| A collection of documents you search for answers | RAG |
+| One long document you want to talk about | Put the whole thing in the context; RAG is pointless |
+| Data in a table, and you ask about counts and totals | A database and a query, not RAG |
+| Live data that changes every hour | A connector to the source |
+| You want the model to write in your style | Instructions and examples, not RAG |
+
+That last row is a common mistake. Uploading twenty of your own texts to a knowledge base won't change the model's style. That is what instructions and samples right in the prompt are for — see the guide to [projects and context](/tipy/ai-projekty-kontext).
+
+## Locally, or in the cloud
+
+A knowledge base is a discipline where the local solution wins more often than elsewhere:
+
+- Documents are usually **the most sensitive thing you have**.
+- Computing fingerprints is an undemanding job that even a weaker machine can handle.
+- Search runs locally and is fast.
+- Only a few paragraphs are sent to the model, not the whole collection.
+
+A practical arrangement: index and documents at home, with the answer generated either by a local model (for sensitive things) or through the gateway by the better one (for general things). The part on routing describes exactly this split.
+
+## What to watch out for
+
+- **Whoever has access to the base has access to every document in it.** Don't mix things with different levels of confidentiality in one base.
+- **Updating is not automatic.** When you change a document, you have to refresh it in the index. Otherwise the base answers from the old version.
+- **Fingerprints are not a cipher.** Quite a lot about the content can be worked out from vectors; don't regard them as a safe way to store sensitive data.
+- **The model will answer even when it found nothing.** So write into the prompt that it should say explicitly “it isn't in the source material” — and test that it really does.
+
+## Pro tip
+
+Before you build a knowledge base over a thousand documents, build one over ten. Run your twenty test questions against them. If it doesn't work on ten documents, it won't work on a thousand either — it will just take you longer to find out.
+
+The next part is about how to give a model hands on your own disk without giving it the whole home directory.

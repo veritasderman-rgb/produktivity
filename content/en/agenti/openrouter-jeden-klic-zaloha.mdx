@@ -1,0 +1,122 @@
+---
+title: "OpenRouter: one key to hundreds of models, and a backup when your main one goes down"
+excerpt: "One account, one key, one invoice — and access to models from dozens of providers. What it really costs, how to set a spending cap, when it suits as your main route and when only as a safety net for an agent."
+track: "orchestrace"
+order: 5
+tags: ["orchestrace", "api-klice", "naklady", "agenti"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  OpenRouter is a hosted gateway: you sign up, top up credit and use one key to call more than 600 models from over 80 providers. For tokens you pay the provider's list price with no markup; the service takes 5.5% when you top up credit. The greatest practical value lies in three things: a key with a spending cap, automatic failover to another provider during an outage, and the chance to try a new model without yet another account. The drawback is one more company in the path of your data — so go through the privacy settings before your first query.
+sources:
+  - name: "OpenRouter — pricing and plans"
+    url: "https://openrouter.ai/pricing"
+  - name: "OpenRouter — frequently asked questions (fees, logging, privacy)"
+    url: "https://openrouter.ai/docs/faq"
+  - name: "OpenRouter — limits and key status"
+    url: "https://openrouter.ai/docs/api-reference/limits"
+  - name: "OpenRouter — model routing and the Auto Router"
+    url: "https://openrouter.ai/docs/features/model-routing"
+  - name: "Hermes Agent — fallback model providers"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/fallback-providers"
+---
+
+The part on [a gateway for all your models](/agenti/brana-pro-vsechny-modely) mentions OpenRouter in a single sentence as “the hosted variant”. Here is the rest: what exactly it is, how much it costs and how to hook it up so that a bill doesn't surprise you one night.
+
+## What it is, in one sentence
+
+OpenRouter is a middleman. You send a query to one address with one key, it passes it to a provider that runs the model in question, and returns the answer. It speaks the same interface as OpenAI, so almost any tool that lets you enter a custom address and key will recognise it.
+
+<Stats items={[
+  { value: "600+", label: "models on one key", sub: "from more than 80 providers" },
+  { value: "5.5%", label: "fee when topping up credit", sub: "tokens with no markup" },
+  { value: "50", label: "free queries a day", sub: "to models marked :free" },
+  { value: "1,000", label: "free queries a day", sub: "after topping up at least 10 dollars" },
+]} />
+
+## What it really costs
+
+The pricing has two layers, and people mix them up.
+
+**Tokens** you pay for at the price the provider has in its price list. OpenRouter adds nothing on top.
+
+**The fee** you pay when buying credit: 5.5% on the standard plan, 8% on the business one. Top up a hundred dollars and you pay a hundred and five and a half. Nothing extra is charged on individual queries.
+
+Three small things worth knowing in advance:
+
+- **Credit can expire after a year.** The service reserves that right in its terms. Don't top up three years ahead.
+- **Refunds are only possible within 24 hours** of payment, and only for unused credit. The fee isn't refunded.
+- **A negative balance blocks the free models too.** If an agent overdraws, everything stops working.
+
+A direct account with the provider is therefore that 5.5% cheaper. You're paying for convenience and for insurance — and at a spend in the order of a few hundred crowns a month, it's a difference you won't notice.
+
+## What it's most useful for
+
+**A backup for an agent.** An agent that runs overnight needs a second route in case the main provider returns a rate-limit error or has an outage. In Hermes it's four lines:
+
+```yaml
+fallback_providers:
+  - provider: openrouter
+    model: <fallback model>
+```
+
+The key belongs in the `.env` file as `OPENROUTER_API_KEY`. The whole hook-up is described in [setup 4](/agenti/sestava-pamet-nad-zpravami-beeper-hermes).
+
+**Trying out new models.** A new model comes out and you want to know whether it's better for your task. Without OpenRouter that means a new account, a new card and a new key. With it, you change one string.
+
+**Cheap work on cheap models.** Sorting, summarising and extraction don't need the most expensive model. With one key you also have the small, cheap ones to hand, so you can [route by task](/agenti/smerovani-podle-ulohy).
+
+**Outages at a single provider.** The same model is often run by several companies. When one returns an error, OpenRouter tries the next one itself.
+
+## Set up in ten minutes
+
+<Flow title="From sign-up to first query" steps={[
+  { title: "Account and credit", desc: "Sign up and top up ten dollars. That also raises the daily limit for free models from 50 to 1,000 queries." },
+  { title: "Privacy", desc: "In the privacy settings, decide whether queries may go to providers that retain data or train on it. Do this before your first query." },
+  { title: "A key with a cap", desc: "Create a key and set a spending limit on it. One key per application, not one for everything." },
+  { title: "Hooking it up", desc: "Put the key into the tool as an environment variable. Never into code and never into a chat." },
+  { title: "Check", desc: "After the first day, look at the overview to see how much each key spent and on which models." },
+]} />
+
+Step three is the reason this article exists. **A key without a cap is a blank cheque.** If an agent gets stuck in a loop, it will keep calling the model for as long as there is something to draw on. A cap on the key means your worst night costs you exactly as much as you decided it could. Where to store keys is dealt with in the part on [where API keys belong](/agenti/kam-patri-api-klice).
+
+## What happens to your data
+
+You're adding another company to the path, so it's fair to know what it sees.
+
+According to its documentation, OpenRouter by default **does not store the content of queries or answers**, only basic details about the request: when, which model, how many tokens. You can switch content storage on in exchange for a one per cent discount. Don't do it for anything you wouldn't write on a postcard.
+
+The other half is the providers behind it. Each has its own rules. In the privacy settings you therefore choose where queries may flow:
+
+- **no retention** — the provider doesn't keep the query after processing it,
+- **retention for safety** — it may hold it to guard against abuse, not for training,
+- **retention and training** — according to the provider's rules.
+
+If you set a strict mode and pick a model that no provider can serve under it, the query ends in an error. That is correct behaviour, not a fault.
+
+And the free models? You pay in another way. Providers of free models have their own terms and often train on precisely those queries. Fine for playing around, not for anything private.
+
+## Automatic model selection
+
+OpenRouter also offers the `openrouter/auto` model, which picks a specific model for each query by itself. There's no surcharge for it; you pay the price of the model chosen. Which one it was, you learn from the response.
+
+Convenient, but with a catch: you don't know in advance how much a query will cost, and the default settings aim more at quality than at price. If you use it, restrict its list of permitted models and its price tier in the settings. For an agent running unattended, one fixed model is the safer choice.
+
+## When not to use OpenRouter
+
+- **You have a subscription that's enough for you.** For regular work, a subscription with a limit is almost always cheaper than paying per token. The sums are in the part on [costs](/agenti/naklady-lokalni-vs-cloud).
+- **You use one model from one provider.** Then a direct account is cheaper and one middleman shorter.
+- **You process data that must not reach a third party.** Your data processing agreement is with OpenRouter, not with every provider behind it. For company data, check this with a lawyer, or stay with a [local model](/agenti/lokalni-ai-za-hodinu).
+- **You want to keep the logs yourself.** Then the right answer is your own gateway, with OpenRouter at most as one of the destinations behind it.
+
+## What to watch out for
+
+- **One key per application.** When one leaks, you revoke one, not everything.
+- **The model name isn't the same everywhere.** OpenRouter uses the form `company/model`. Copy it from the model's page; don't type it from memory.
+- **Free limits are per account, not per key.** Two keys won't give you two allowances. And failed attempts count too.
+- **The same model needn't be the same everywhere.** Different providers may run it with a different context length or in a more economical variant. When it matters, choose the provider by hand.
+
+---
+
+The best way to think about OpenRouter is as a spare wheel. You'll make most journeys without it. But on that one evening when your main provider falls over in the middle of a nightly batch, you'll be glad you're carrying it — and that it has a cap on it.

@@ -1,0 +1,112 @@
+---
+title: "An agent for a five-person company: who may assign what and who approves"
+excerpt: "An agent for one person is a tool. An agent for five people is a colleague, and it has to be clear who it answers to, who may do what and who pays for it. A three-role model, a shared channel instead of private messages, and five decisions to make before you switch it on."
+track: "rizeni"
+order: 7
+tags: ["agenti", "rizeni", "bezpecnost", "telegram", "naklady"]
+level: "pokrocily"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  A shared agent fails differently from a personal one: not on the technology, but on nobody knowing who is in charge of it. What works is a split into three roles — an administrator who changes the settings, users who assign work, and an approver for everything that goes out or costs money. Hermes can separate the administrator from ordinary users, but only for commands; a plain request in the chat can be made by anyone on the allow list. That is why risky capabilities belong outside the agent altogether. Work is assigned in a shared channel, not in private messages, and the agent's memory belongs to the company, so nothing personal goes into it.
+sources:
+  - name: "Hermes Agent — messaging, roles and access control"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/"
+  - name: "Hermes Agent — profiles"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/profiles"
+  - name: "Hermes Agent — security and command approval"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/security"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+Everything published here about agents so far had a single user. You assign, you approve, you pay. When the agent gets something wrong, you know who has to fix it.
+
+In a company of five, that stops being true on day one. A colleague gives it a task that contradicts yours. Someone tells it to “remember” that a client gets a discount. And at the end of the month a bill arrives and nobody knows what ran it up.
+
+## Three roles
+
+Before you configure anything, separate three hats. In a five-person company one person can wear all of them, but it has to be clear which one is on their head at any given moment.
+
+<Flow title="Who is who" steps={[
+  { title: "Administrator", desc: "Changes settings, models, integrations and rules. Knows the terminal. One person and one deputy." },
+  { title: "Users", desc: "Assign work and read the results. Everyone else. They configure nothing." },
+  { title: "Approver", desc: "Confirms everything that leaves the company or costs money. In a small company, usually the owner." },
+]} />
+
+The third role is the one that gets forgotten. An agent for one person doesn't need it, because the person assigning and the person approving are one and the same.
+
+## What Hermes can and can't do
+
+Hermes distinguishes two levels of user. They are set separately for each platform:
+
+```yaml
+gateway:
+  platforms:
+    telegram:
+      extra:
+        allow_from: ["111", "222", "333", "444", "555"]
+        allow_admin_from: ["111"]
+        user_allowed_commands: [status, usage]
+```
+
+The documentation shows this notation using Discord as the example; the keys are the same on every platform, and the values are numeric user IDs. The administrator may use every command starting with a slash. An ordinary user only the listed ones, plus help and `/whoami`, which shows them what they're allowed to do.
+
+And now the essential part, which the documentation states explicitly: **the levels currently restrict only commands, not ordinary conversation.** An ordinary user can't switch the model with a command, but they can write the agent a sentence and the agent will carry it out with every tool it has.
+
+From that follows the most important rule of this whole part: **whatever the most junior colleague must not do, the agent must not be able to do at all.** Roles are not the place where security gets solved. That place is the list of tools.
+
+## Five decisions up front
+
+**1. What the agent can do.** Write down the tools it should have, and for each one ask yourself whether you'd mind any of the five people using it without asking. Whatever doesn't pass, the agent doesn't get. Turn off the command line and code execution; a company agent doesn't need them.
+
+**2. Where work is assigned.** In a shared group, not in private messages. There are three reasons: everyone sees what the agent is doing, contradictory requests surface immediately, and a new colleague learns by reading. Allow private messages to the agent only for the administrator.
+
+**3. What the agent remembers.** A shared agent's memory is a company document. What belongs in it is what the products are called and who is responsible for what. What doesn't belong is anything personal, or anything one colleague said about another. Tell people in advance — and go through the memory once a month.
+
+**4. Who approves.** The agent prepares drafts into a queue. Sending to a client, publishing and anything involving money is confirmed by the approver. How to build such a queue is described in the part on [the task queue and approvals](/agenti/fronta-uloh-a-schvalovani).
+
+**5. Who pays and how much.** One key with a monthly cap, and a weekly spending overview posted to the shared channel. When spending is visible, everyone treats it differently. The measuring procedure is in the part on [the monthly bill](/agenti/co-stoji-mesic-s-agentem).
+
+## Rules for people, not for the agent
+
+Half the trouble with a shared agent is human. What helps is a single page read by everyone who gets access:
+
+```markdown
+HOW WE WORK WITH THE AGENT HERE
+
+1. We assign work in the group. Privately only the administrator.
+2. The agent prepares, a human sends. No exceptions.
+3. We don't put personal data of customers or colleagues into requests.
+4. Only the administrator says “remember this”.
+5. When the agent makes a mistake, we write it in the group, not to the agent.
+6. The result is always read by whoever asked for it. Their signature, their responsibility.
+```
+
+The fourth point stops the agent from remembering five versions of the same thing. The sixth stops mistakes from being blamed on the machine. You'll find a general version of such rules in the part [rules for agents on one page](/agenti/pravidla-pro-agenty-jedna-stranka).
+
+## One agent, or several?
+
+Five people doesn't mean five agents. Splitting makes sense by **permissions**, not by person:
+
+- **One shared agent** for what everyone is allowed to do: research, texts, searching the company knowledge base.
+- **A second agent for the owner** with access to what the others shouldn't see: finances, contracts, HR matters. In its own container with its own folder, because a profile doesn't separate files — the part on [the family agent](/agenti/rodinny-agent-jeden-nas-dva-profily) explains why.
+
+More than two in a five-person company usually means you're working on the tool instead of the work.
+
+## What it means legally
+
+As soon as the agent processes customer data, you're not just a user of a tool. You are a data controller handing personal data to a processor — the model provider. That has consequences: a data processing agreement, information for customers, and for employees a clear statement that the requests they give the agent are visible to others.
+
+Check this with someone who deals with data protection. It isn't a formality; it's the difference between a tool and a disaster.
+
+## What to watch out for
+
+- **The agent reads everything in the group.** Including jokes and complaints. Whatever it shouldn't know, don't write there.
+- **A colleague leaving.** Remove them from the allow list that same day. And go through what they told the agent to remember.
+- **Two people ask for the same thing.** The agent does it twice and you pay twice. A shared channel mostly prevents this by itself.
+- **Who can fix it.** When the administrator falls ill, there has to be a second person who knows where the [backup](/agenti/zalohy-agenta-obnova-za-deset-minut) is and how to find out [why the agent is silent](/agenti/kdyz-agent-prestane-odpovidat).
+
+---
+
+A shared agent is a test of how well a company has divided its responsibilities. Where they're clear, it slots into them within a week. Where they aren't, it shows that faster and more cheaply than any audit.

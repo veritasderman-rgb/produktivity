@@ -1,0 +1,109 @@
+---
+title: "Files from disk into the chat: how it actually works"
+excerpt: "“AI sees my files” means five different things with very different consequences for privacy. The difference between attaching, an index, a connector and direct access — and why you should know it before you upload a contract anywhere."
+track: "data"
+order: 1
+tags: ["data", "mcp", "lokalni-ai", "bezpecnost"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  A model on its own never opens a file — something else always does it on its behalf, and that “something else” is what matters. Five different ways: manual attachment (the most transparent), a watched folder (convenient, but it copies), a search index over your files (sends only excerpts), a connector to a cloud service (two intermediaries) and direct disk access (the most powerful and the most dangerous). For each one, ask three things: what exactly leaves, where it goes, and what can be done with it.
+sources:
+  - name: "Ollama — documentation and download"
+    url: "https://ollama.com/download"
+  - name: "Model Context Protocol — specification"
+    url: "https://modelcontextprotocol.io/"
+  - name: "Open WebUI — a chat interface for your own models"
+    url: "https://github.com/open-webui/open-webui"
+---
+
+The most useful sentence you can remember about AI is this: **a model cannot open a file.** Ever. All it can do is receive text as input and predict what comes next. So when you read somewhere that “the AI read your spreadsheet”, what actually happened is this: some other program opened the spreadsheet, converted it to text and slipped that text to the model.
+
+That “other program” is the harness, and it comes in five variants. They differ in what exactly leaves, where it goes and how easily it can be abused.
+
+## 1. Manual attachment
+
+You drag a file into the chat window. The app converts it to text and sends it to the model along with your question.
+
+- **What leaves:** the entire contents of the file, once.
+- **Where to:** wherever the model runs. With a cloud chat, to the provider.
+- **Control:** the highest of all the variants. You see exactly what you are sending.
+- **Downside:** laborious, and it doesn't work for more than a handful of files.
+
+This is the variant everyone should use as the default until they have a good reason for another. **When you don't know what is being sent, attach it by hand.**
+
+## 2. A watched folder
+
+You point a tool at a folder and it keeps an eye on it. New file → processed automatically.
+
+- **What leaves:** the contents of every file that lands in the folder. Including the one you put there by mistake.
+- **Where to:** depends on the tool.
+- **Control:** low. You forget it is running.
+- **When it makes sense:** batch processing on a local model — sorting invoices, transcribing recordings, conversions.
+
+The essential rule: **a watched folder may only be a folder you create for that purpose.** Never Documents, never Desktop, never Downloads.
+
+## 3. A search index (RAG)
+
+The tool reads your files once, chops them into pieces and builds an index from them. When you then ask something, it finds the relevant pieces and sends **only those** to the model.
+
+- **What leaves:** a few paragraphs, not the whole document.
+- **Where to:** the index is usually local; the pieces go wherever the model runs.
+- **Control:** medium. You don't know in advance which pieces will be picked.
+- **When it makes sense:** a large collection of documents in which you want to look for answers.
+
+This is called RAG, and it has its own part — the very next one. It is the most widespread way of giving a model a “memory” for your own material — and the one surrounded by the most myths.
+
+## 4. A connector to a cloud service
+
+The model connects through an interface to Google Drive, Notion, your mail or a CRM. The most widespread standard is called MCP, and on this site we have a [catalogue of connectors](/konektory) for it as well as a [big guide](/tipy/mcp-konektory-nastroje).
+
+- **What leaves:** whatever the model asks for — and that isn't known in advance.
+- **Where to:** two intermediaries. First the app vendor, then the model provider.
+- **Control:** depends purely on what permissions you give the connector.
+- **When it makes sense:** live data that changes often.
+
+Here is the most important sentence of this whole part: **a connector is a permission, not a feature.** When you give a model access to your mail, you have given it access to all your emails, not just the one you are asking about.
+
+## 5. Direct disk access
+
+The agent has a “read file” tool and a “write file” tool on the actual disk.
+
+- **What leaves:** anything the agent asks for.
+- **Control:** only as much as you build technically.
+- **When it makes sense:** working with code, bulk edits, automation.
+- **Risk:** the highest of all the variants.
+
+This is the variant where a sandbox pays off most — a fenced-off folder beyond which the agent sees nothing. The difference between “the agent has access to the project” and “the agent has access to the home directory” is the difference between a nuisance and a disaster.
+
+## Three questions before every connection
+
+<Flow title="Before you give a model access to anything" steps={[
+  { title: "What exactly leaves?", desc: "The whole file, or an excerpt? Once, or every time? Can I see it, or does it happen in the background?" },
+  { title: "Where does it go?", desc: "Does it stay on my machine, go to the model provider, or go through the app vendor to the provider?" },
+  { title: "What can be done with it?", desc: "Can the tool only read, or also write, delete and send things out?" },
+]} />
+
+If you can't answer all three for a given tool, don't give it sensitive data. That isn't caution; it's the minimum.
+
+## A practical split that works
+
+- **Sensitive and one-off** → manual attachment to a local model.
+- **Sensitive and recurring** → a watched folder or a local index, with the model at home.
+- **Public and large** → RAG or a cloud model, whichever suits.
+- **Live data from apps** → a connector, but with the narrowest permissions possible.
+- **Working with files where the agent also writes** → a dedicated folder and approvals; see the part on the task queue.
+
+## What to watch out for
+
+- **An attached file usually stays in the conversation history.** Deleting the file from disk does not delete what has already been sent.
+- **Metadata goes with it.** A Word document carries the author's name, the revision history and sometimes even deleted text.
+- **A scan is not text.** When you attach a photo of a document to a model, it goes through character recognition — which is one more step where data flows somewhere.
+- **Client and personal data call for extra care.** Anonymise what you can, and don't upload internal documents anywhere without the consent of the client or the company. The chapter [AI ethically and safely](/prirucka/ai-eticky-a-bezpecne) goes into this in more detail.
+
+## Pro tip
+
+Do a review every so often: in each AI tool, go through the list of connected connectors and watched folders and disconnect whatever you haven't used in six months. Most people find they have active access to a service they stopped using long ago — and the access is still valid.
+
+The next part takes apart the variant surrounded by the most misunderstanding: your own knowledge base and RAG.

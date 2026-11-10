@@ -1,0 +1,81 @@
+---
+title: "When the tool itself gets poisoned: the LiteLLM case"
+excerpt: "In March 2026 a modified version with a credential harvester made its way into the package of a popular AI gateway for forty minutes. Forty minutes was enough. What happened, why it's a warning for anyone building their own control room, and what to do about it."
+track: "rizeni"
+order: 3
+tags: ["bezpecnost", "orchestrace", "api-klice"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  On 24 March 2026, modified versions of the LiteLLM package (1.82.7 and 1.82.8) appeared on PyPI with a credential harvester that sent environment variables, SSH keys, and cloud and database credentials to a foreign domain. According to the maintainer's advisory they were available for roughly forty minutes, and the attacker bypassed the official publishing process; initial suspicion points to a vulnerability in a security scanner used in the project's own pipeline. The recommended procedure: uninstall, delete the planted file, rotate all credentials and pin a verified version. The lesson: a tool that holds your keys is just as critical as the keys themselves.
+sources:
+  - name: "LiteLLM: security advisory on the March 2026 incident"
+    url: "https://docs.litellm.ai/blog/security-update-march-2026"
+  - name: "NHS England Digital: cyber alert on the LiteLLM package"
+    url: "https://digital.nhs.uk/cyber-alerts/2026/cc-4761"
+  - name: "Snyk: analysis of the attack via a poisoned security scanner"
+    url: "https://snyk.io/blog/poisoned-security-scanner-backdooring-litellm/"
+---
+
+The previous parts of the series led you towards building your own gateway — one place that knows all your API keys. It's only fair to state the other side too: **that turns the tool into the most valuable target in your entire build.** And March 2026 showed what it looks like when that target gets hit.
+
+## What happened
+
+On 24 March 2026, modified versions of the **LiteLLM** library — the popular AI gateway that the whole third track of this series talks about — made their way into the public package repository PyPI. The versions in question were **1.82.7 and 1.82.8**.
+
+According to the security advisory the maintainer issued, they contained a **credential harvester**: code that collected environment variables, SSH keys, credentials for cloud services, Kubernetes tokens and database passwords, encrypted them and sent them to a domain that doesn't belong to the project.
+
+According to the advisory, the packages were available for **approximately forty minutes** before the repository pulled them from circulation.
+
+Forty minutes. That's long enough for a few automated builds, one update in a production environment and several installations on developers' laptops. For a tool this widespread, that isn't a little.
+
+## How the code got there
+
+This is the more interesting part. According to the advisory, the attacker **bypassed the official publishing process** and uploaded the packages directly. Initial suspicion points to a vulnerability in the **security scanner** the project used in its own pipeline for checking dependencies.
+
+Read that sentence once more. The way in led through a tool whose only job is to guard security.
+
+A second detail deserves attention on technical grounds: the newer of the two versions added a file called `litellm_init.pth`. Python processes files with this extension **when the interpreter starts**, not only when the library is imported. That turned an attack that runs when someone uses the library into an attack that runs whenever Python is started on that machine.
+
+## What to do about it if it affects you
+
+The procedure according to the maintainer's advisory:
+
+1. **Treat all secrets on affected systems as compromised** and rotate them. Not change — rotate, and invalidate the old ones.
+2. **Search the installation** for the file `litellm_init.pth` in the packages directory and delete it.
+3. **Go through the history** — environments, build pipelines, container images and deployment records — to see whether version 1.82.7 or 1.82.8 appeared in them.
+4. **Pin a verified version** (according to the advisory, 1.82.6 or older, until a confirmed clean one is released).
+
+Point three is the one people skip. A package doesn't get into an environment only because someone installs it by hand — it gets there through an automated build, a container image or an update to someone else's dependency.
+
+## What to take away even if you don't use LiteLLM
+
+**1. The gateway is just as critical as the keys it holds.** When you build a control room, the choice of tool stops being a question of convenience. It's a decision about whom you entrust with the credentials to everything.
+
+**2. Pin versions.** Automatic updating to the latest version is convenient while nothing is happening, and catastrophic in the forty minutes when something is. A pinned version and a deliberate update a few days later would have ridden out this particular case.
+
+**3. Keys with a limited lifetime hurt less.** This is exactly the scenario for which the part on API keys recommends virtual keys, spending caps and regular rotation. A leaked key with a cap and a one-month lifetime is a nuisance. A leaked key with no limit is an invoice.
+
+**4. Not public doesn't mean safe.** Your gateway runs at home, on a private network and with no public port. This attack came in through an update, not through the network.
+
+**5. Follow the advisories of the tools that hold your secrets.** Not all of them. But the two or three that have access to everything, yes. Subscribing to a project's security advisories is five minutes of work once in a lifetime.
+
+## A practical checklist for your own control room
+
+<Flow title="Five measures against a poisoned dependency" steps={[
+  { title: "Pinned versions", desc: "Specific version numbers in the configuration, not “latest”. For gateways and agentic tools, without exception." },
+  { title: "Distance from the release", desc: "Don't update on release day. A few days' delay is the cheapest defence there is." },
+  { title: "A separate environment", desc: "The gateway in a container or in its own virtual environment, not in the system Python with your keys in variables." },
+  { title: "Minimum secrets in the environment", desc: "Whatever the tool doesn't have to read from variables, it shouldn't read. A harvester takes what it finds." },
+  { title: "Subscribing to advisories", desc: "The project's security channel and vulnerability alerts for your dependencies." },
+]} />
+
+## What to watch out for
+
+- **Don't rely on a scanner catching it.** In this case the scanner was part of the way in.
+- **A container isn't isolation when you hand it the keys.** A harvester inside the container finds exactly what you put into it.
+- **If you can't answer whether you're affected, you're affected.** Without a build history and a record of versions, the only safe answer is “rotate everything”.
+- **This isn't an argument against your own gateway.** A cloud service has the same problem; you just may not know about it. It is an argument for pinned versions, a separate environment and keys with a limit.
+
+The last part of the series is the biggest case study of the year: what happens when a company bets on agents before it has management sorted out.

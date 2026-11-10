@@ -14,7 +14,7 @@ const T = {
     forWhom: "Pro koho",
     time: "Celkový čas",
     steps: "Kroků",
-    kind: { tip: "Návod", chapter: "Kapitola" },
+    kind: { tip: "Návod", chapter: "Kapitola", agent: "Agenti" },
     guideNote: (h: number) => `velký návod, provedení ~${h} h`,
     ogLabel: "produktivni.cz · cesta",
     saveNote:
@@ -33,7 +33,7 @@ const T = {
     forWhom: "Who it is for",
     time: "Total time",
     steps: "Steps",
-    kind: { tip: "Tip", chapter: "Chapter" },
+    kind: { tip: "Tip", chapter: "Chapter", agent: "Agents" },
     guideNote: (h: number) => `in-depth guide, doing it ~${h} h`,
     ogLabel: "productive.tips · path",
     saveNote:

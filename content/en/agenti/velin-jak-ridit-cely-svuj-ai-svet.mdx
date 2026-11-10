@@ -1,0 +1,91 @@
+---
+title: "The control room: how to run your whole AI world from one place"
+excerpt: "Five accounts, three subscriptions, every model in a different tab and the files still sitting on disk. This part is the map of the whole series: what a control room is, which four layers it consists of and in what order to build it."
+track: "zaklady"
+order: 1
+tags: ["agenti", "orchestrace", "lokalni-ai", "ovladani", "data"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Most people today have their AI scattered about: ChatGPT in the browser, Claude in a second tab, a local model they tried once, and files they drag in by hand every time. A control room is the opposite approach — one place from which you launch any task on any model, whether it runs on your Mac at home or in the cloud. It consists of four layers: compute (where the model runs), the gateway (a single entry point for all models), data (what the model may see) and control (where you launch things from). Build them in that order, and at each layer answer one question: who is allowed to run this.
+sources:
+  - name: "Ollama — library of downloadable models"
+    url: "https://ollama.com/library"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+Try this test. How many tabs, apps and accounts come to mind when you think “I need to ask AI about that”? If the answer is “depends what I'm asking”, you have exactly the problem this series solves. You don't have a system. You have a collection.
+
+A control room is the opposite of a collection. It is one place from which you submit a task — and somewhere in the back it decides whether a small model on the Mac mini in your living room handles it, or whether it flies off to the cloud, to the smartest thing currently on offer. You don't need to know. You just submit the task.
+
+It sounds like something for companies with an IT department. It isn't. The whole principle can be built at home in one afternoon, from open source parts, on hardware you most likely already own.
+
+## Why it suddenly pays off
+
+Until recently the question was simple: pay for ChatGPT, or not. Today it is a different one — **what runs where, and who is allowed to run it**. Three things came together at once:
+
+**Downloadable models caught up with the field.** Ollama, the most widespread way of running a model at home, now offers dozens of families in its library, from tiddlers with 0.6 billion parameters to giants with hundreds of billions — Llama, Qwen, Gemma, Mistral, DeepSeek and open-weight models from OpenAI. For summarising minutes, transcription, classifying mail or a first draft of a text, the difference from a top cloud model is often no longer noticeable.
+
+**Home hardware is up to it.** A Mac with enough unified memory or a gaming PC with an Nvidia card handles a reasonable model in real time. You don't need a server room; you need a quiet box next to the router.
+
+**Agents stopped being chat.** Tools that click by themselves, read files, write code and talk to other services are the product of 2026. And at the same time its biggest risk — because an agent that has access to your data and also reads other people's text from the internet is structurally open to attack. The whole last track of the series is about that.
+
+When these three things meet, having AI scattered across tabs stops making sense.
+
+## The four layers of a control room
+
+The whole system, whether you are building it for yourself or for a team of five, always has the same four floors. The only difference is how big the pieces are that you put into them.
+
+<Flow title="What a control room is made of" steps={[
+  { title: "Compute", desc: "Where the model physically runs. A Mac mini or a Windows machine with Nvidia at home, the cloud at a provider, or both side by side." },
+  { title: "Gateway", desc: "A single entry point for all models. It holds the API keys, routes tasks, counts spending, logs." },
+  { title: "Data", desc: "What the model may see. Folders on disk, a knowledge base, connectors into apps — and a clear boundary for what must not leave." },
+  { title: "Control", desc: "Where you launch things from. A chat in the browser, a terminal, Telegram on your phone. The same control room, three screens." },
+]} />
+
+**Compute** is the most tangible layer, and people usually start with it. You download a model, run it, type. The mistake is to stop here — a local model on its own, without the rest, is just one more tab.
+
+**The gateway** is the layer that makes the whole thing make sense. Instead of five apps with five keys you have one endpoint. Your apps, scripts and chat talk only to it. When a better model comes out tomorrow, you change one line in the gateway's configuration and nothing else knows about it. This is the “single entry point” that gives the whole construction the name control room.
+
+**Data** is the layer where trust is decided. A model that doesn't see your files is an encyclopaedia. A model that does is an assistant. But it is equally true that what has once been sent to the cloud can't be taken back — so this layer needs a boundary, not just a technical solution.
+
+**Control** is what turns a tool into a habit. If you have to open the laptop for every task, you won't use the system. If all it takes is typing into Telegram on your phone and the home machine handles it, you'll use it every day. That is what the fourth track is about.
+
+## In what order to build it
+
+The most common mistake is to start with agents. It's the most fun part, so everyone dives into it first — and then discovers they have an autonomous tool with access to everything and not a single rule. Exactly this happened to Meta in a project it called Project OT; the last part of the series dissects it as a case study.
+
+The order that works:
+
+1. **Get one local model running.** An hour of work, no account, no card. The goal isn't to have the best model; the goal is to understand what “it runs at my place” means.
+2. **Build the gateway.** Even if all that sits behind it is that one local model and one cloud account. From this moment you have one place for keys and one place where you see your spending.
+3. **Connect the data.** One folder first. Not the whole disk. You'll find that “AI sees my files” is in fact several different techniques with very different consequences for privacy.
+4. **Add control.** Telegram, a terminal, whatever suits you. Only here does the construction become a habit.
+5. **Let agents in last — and write them rules first.** One page is enough. Who may run what, what the agent may do by itself and what it may only prepare for approval.
+
+## One rule that holds across all the layers
+
+One sentence runs through the whole series: **the agent may prepare anything; the last click stays yours.**
+
+This is not caution for caution's sake. It is a response to a specific technical property of today's models. In June 2025 Simon Willison named it the “lethal trifecta”: as soon as a single tool has access to your private data, reads content written by someone else, and can communicate outwards, all at once, it is exploitable. The model has no reliable boundary between “this is data” and “this is a command”. Someone else's text in attachments, on the web or in an email can tell it what to do — and it will do it with your permissions.
+
+This problem can't be solved with a better prompt. It can only be dealt with by cutting off one of the trifecta's three legs: either the agent doesn't see sensitive data, or it doesn't read other people's content, or it has no way of sending the result out without your confirmation. The control room design this series describes is built on exactly that.
+
+## What to take away from the first part
+
+- The goal is not to have local AI. The goal is to have **one place** from which you run local and cloud AI together.
+- Four layers: compute, gateway, data, control. Build them in that order.
+- At each layer, answer one question: **who is allowed to run this.** At home the answer is “me”; in a company it is an entire policy.
+- Let agents in last, and with rules. They are both the most powerful and the most dangerous parts of the kit.
+
+## Want a finished example straight away?
+
+Anyone who isn't sure whether they need their own machine at all should start with the part on [an agent without a server](/agenti/agent-bez-serveru-claude-rutiny).
+
+Anyone who doesn't want to read theory and prefers to look first at how it all fits together can skip straight to the **Sample setups** track: [a gaming PC, three subscriptions, GitHub and a few websites](/agenti/sestava-herni-pc-tri-predplatna) is the most common Czech situation, including what can be cancelled and when it pays to move from a subscription to the API. The second setup, [a quiet server for the night shift](/agenti/sestava-tichy-server-nocni-smena), shows what changes when the machine runs all the time. And the third, [a dynamic website with Claude](/agenti/sestava-dynamicky-web-s-claudem), goes in a different direction — no hardware of your own, just an account, GitHub and a routine that writes a draft article every morning and waits for approval. The fourth, [a memory over all your messages](/agenti/sestava-pamet-nad-zpravami-beeper-hermes), builds an agent on a home NAS that continuously reads your chats and keeps track of what you promised to whom. And the fifth, [Hermes on the Synology you already have at home](/agenti/sestava-hermes-na-synology-sto-pouziti), adds a hundred more tasks for the same agent.
+
+The rest of the series then takes the individual parts of both setups apart in depth.
+
+The next part tidies up the terms that get mixed up most in this field: model, harness and agent. Without them you can't read a single piece of AI news without misunderstanding it.

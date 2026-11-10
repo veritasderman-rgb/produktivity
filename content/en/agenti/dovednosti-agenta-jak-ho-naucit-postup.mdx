@@ -1,0 +1,131 @@
+---
+title: "Agent skills: how to teach it your procedure and how to tell it's learning badly"
+excerpt: "An agent you have to explain everything to again is just a more expensive chat. A skill is a written-down procedure that it loads by itself next time. How one comes about, what it looks like inside, how to fix it — and why an agent's learning should pass your review just like everything else."
+track: "rizeni"
+order: 5
+tags: ["agenti", "rizeni", "bezpecnost", "orchestrace"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  A skill is a folder with one text file describing when and how to do something. The agent keeps only a list of names in memory and loads the full procedure only when it needs it, so dozens of skills cost almost nothing. Hermes can write them itself: after a more complex task that went well, after a mistake that led to a working solution, or after a correction from you. That is both its greatest strength and its weakness — it will write down a bad habit just as easily. So turn on approval of writes, go through the skills once a month and install other people's only after reading them.
+sources:
+  - name: "Hermes Agent — the skills system"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/skills"
+  - name: "Hermes Agent — scheduled tasks and attaching a skill"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/cron"
+  - name: "Agent Skills — an open standard"
+    url: "https://agentskills.io/"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+In the list of [a hundred tasks for Hermes](/agenti/sestava-hermes-na-synology-sto-pouziti) there's an unassuming item at number 96: the agent saves a procedure that once worked for it and repeats it next time. The note next to it says it's more important than the others. Here's why.
+
+## Memory is not a skill
+
+An agent remembers two different things, and they get mixed up.
+
+**Memory** is facts: what your name is, who Petr is, that the family chat is not to be read. It answers the question *what holds true*.
+
+**A skill** is a procedure: how the weekly overview is done, in what order, into which table and what to check at the end. It answers the question *how it's done*.
+
+Without skills the agent invents every task from scratch. Sometimes it turns out the same as last time, sometimes not. With a skill it does the same thing the same way — and for repeated work that matters more than cleverness.
+
+## What it looks like inside
+
+A skill is a folder. In it there's one mandatory file, `SKILL.md`, and possibly a few supporting ones. Nothing more.
+
+```markdown
+---
+name: tydenni-prehled-slibu
+description: Friday overview of open promises from Notion with suggested reminders
+version: 1.0.0
+---
+# Weekly overview of promises
+
+## When to use
+Every Friday, or when the user asks who owes what.
+
+## Procedure
+1. Load the rows from the “Promises & Commitments” database where the status is not Done.
+2. Split them into my promises and other people's promises.
+3. For other people's promises past their deadline, suggest a short reminder.
+4. Send the overview to the chat. Don't send anything to anyone else.
+
+## Watch out for
+- A deadline of “by the end of the week” means Friday, not Sunday.
+- Chats on the exceptions list are never read.
+
+## Verification
+The number of rows in the overview matches the number of rows in the database.
+```
+
+Notice that it's plain text. You can read it, understand it and fix it in any editor. That's deliberate: **you can't check a procedure you don't understand.**
+
+Hermes stores skills in `~/.hermes/skills/`; in a container on the NAS that's a subfolder of the folder you mounted for it.
+
+## Why there can be a lot of them
+
+If the agent read every skill with every message, you'd be paying for it. It doesn't. It works in three stages:
+
+<Flow title="How much the agent reads, and when" steps={[
+  { title: "The list", desc: "In its head it has only a name and a one-sentence description for each skill. The whole list is short." },
+  { title: "The full procedure", desc: "When it judges that a skill fits, it loads that skill's file. Only now are you paying for it." },
+  { title: "Attachments", desc: "It opens templates and reference material one at a time, only when it comes across them in the procedure." },
+]} />
+
+One practical rule follows from this: **the most important thing is the `description` line.** That's what the agent goes by when deciding whether to open the skill at all. A vague description means it either never uses it, or uses it for everything.
+
+## Three ways a skill comes about
+
+**The agent writes it itself.** Hermes's own instructions prompt it to: after a more complex task worth repeating, after mistakes that eventually led to a working route, and after a correction from you. It usually lets you know in one sentence.
+
+**You ask for one.** When the two of you have managed to tune something together, type `/learn` and the agent turns the conversation that just took place into a skill. The same command can also start from a link, from a folder or from a procedure you describe to it in words.
+
+**You install someone else's.** There's a catalogue of ready-made skills, and the format is an open standard that other tools use too. You search with the `hermes skills search` command, read a skill before installing it with `hermes skills inspect`, and add it with `hermes skills install`.
+
+You invoke a finished skill with a slash and its name, or attach it to a scheduled task:
+
+```text
+/cron add "0 14 * * 5" "Do the weekly overview" --skill tydenni-prehled-slibu
+```
+
+## Where it goes wrong
+
+The ability to write its own procedures is exactly the property that makes an agent work better after a month than on day one. And exactly the one that can make it work worse.
+
+**It learns a workaround instead of the procedure.** Once the database wouldn't load, so it took the data from an old export. It worked, so it wrote that down. Ever since, it takes the data from the old export.
+
+**It writes down a single episode as a rule.** “The server was slow on Tuesday” turns, in the skill, into “don't run the task on Tuesdays”.
+
+**The skill bloats.** After the tenth edit it's four pages long, half of it contradicts itself and the agent picks from it at random.
+
+**It writes down an instruction that came from outside.** This is the serious variant. An agent that reads other people's messages can come across text that poses as a correction from you. When it saves that as a skill, it's no longer a matter of one spoiled run — the bad instruction is carried out every time, until you notice. It's the [lethal trifecta](/agenti/smrtici-trojice-agentu) with a memory.
+
+## Four safeguards
+
+**Approve writes.** Turn on `skills.write_approval: true` in the settings. The agent then only proposes changes and you confirm them: `/skills pending` shows what's waiting, `/skills diff` what exactly is changing, and `/skills approve` and `/skills reject` decide. For an agent that reads other people's text, treat this as mandatory.
+
+**Lock what works.** A skill you've tuned and don't want the agent to touch can be locked with the `hermes curator lock` command.
+
+**Read other people's skills.** Hermes screens installed skills for attempts to send data out, embedded instructions and destructive commands, and rejects the worst ones. But it's a check against patterns, not understanding. A skill is text that will steer your agent with your permissions. Read all of it; it's short.
+
+**A clean-up once a month.** Go through the list and for each skill ask yourself: was it used? Do I understand it? Would I do it the same way today? Whatever doesn't pass, delete. Ten skills you trust are worth more than fifty you don't know the purpose of.
+
+## When to write a skill and when not to
+
+A good candidate is work that **repeats**, has **several steps** and where **the order or the format matters**. A weekly overview, meeting minutes, checking an invoice.
+
+A bad candidate is a one-off task, a fact (that belongs in memory) and anything that's done differently every time. And don't write a skill for something you've never done well yourself. First go through it by hand with the agent three times, correct it, and only then say `/learn`. A skill should capture the procedure that works, not the one you wish for.
+
+## What to watch out for
+
+- **A skill is not a lock.** The sentence “don't send anything” is an instruction the model can overlook. Whatever the agent must not do, take away from it in the tool settings.
+- **Back up the skills folder.** It's months of tuning in a few kilobytes.
+- **Edited skills don't get updated.** When you change a skill that shipped with the agent, updates skip it from then on. Fixes from the authors won't reach you until you restore it to its original state.
+- **Passwords and tokens don't belong in skills.** It's plain text and the agent reads all of it.
+
+---
+
+All of this is an old recipe in new packaging. Every company that works has it written down somewhere how things are done there, and has someone who goes through those procedures from time to time and throws out the stale ones. An agent can write them down by itself. Going through them is still up to you.

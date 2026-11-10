@@ -1,0 +1,107 @@
+---
+title: "The morning brief: one message instead of ten"
+excerpt: "Ten scheduled tasks mean ten messages you'll stop reading within a week. How to fold them into a single overview that takes a minute to read, what doesn't belong in it, and how to tell it's time to cut it down."
+track: "ovladani"
+order: 6
+tags: ["ovladani", "telegram", "agenti", "naklady"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  An agent with ten scheduled tasks sends ten messages every morning, and you stop opening them. The fix is one task that gathers everything and writes a single overview with a fixed structure: what's on fire, what's on today, what has changed, and nothing else. Three rules keep it short: a cap on length, sections with no content are left out, and when there's nothing to say, you get one sentence. Save the procedure as a skill so it looks the same every day. And once a month, trim whatever you've stopped reading.
+sources:
+  - name: "Hermes Agent — scheduled tasks (cron)"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/cron"
+  - name: "Hermes Agent — the skills system"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/skills"
+  - name: "Hermes Agent — Telegram"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/telegram"
+---
+
+The list of [a hundred tasks for Hermes](/agenti/sestava-hermes-na-synology-sto-pouziti) has one side effect. People enthusiastically set up eight of them, and the next morning they get the weather at 7:00, the calendar at 7:05, the euro exchange rate at 7:10, promises at 7:15 and disk status at 7:20. On day three they mute it. On day five they read nothing, including the one message that mattered.
+
+The morning brief is the fix for that mistake. One message, always at the same time, always with the same structure.
+
+## The one-minute rule
+
+You should be able to read the brief in a minute, standing up. That's roughly 150 words. Everything else follows from that: if something doesn't fit, it doesn't belong.
+
+A useful test: imagine someone reading it out to you in the doorway. At which sentence would you say “that'll do, thanks”?
+
+## A structure that works
+
+Four sections in a fixed order. The order matters more than the content, because after a week you only read the first two and skim the rest.
+
+<Flow title="Ordered by what can wait" steps={[
+  { title: "On fire", desc: "What is overdue or due today. Three items at most. If there's nothing, the section is left out." },
+  { title: "Today", desc: "Meetings and fixed times from the calendar, with one sentence on what to bring." },
+  { title: "What changed", desc: "What's new since yesterday: new promises, a price that dropped, a message you've been waiting for." },
+  { title: "One extra thing", desc: "The weather, or whatever you've picked. One sentence, not a paragraph." },
+]} />
+
+## How to ask for it
+
+Don't create four tasks and then try to join them up. Create one and describe the result:
+
+```text
+Every working day at 6:45, send me a morning brief. Rules:
+
+- 150 words at most, no introduction, no sign-off.
+- Sections in this order: ON FIRE, TODAY, WHAT CHANGED, and one
+  sentence about the weather. Leave out any section with no content.
+- ON FIRE: promises from the database that are overdue or due today,
+  three at most, oldest first.
+- TODAY: meetings from the calendar with time and place.
+- WHAT CHANGED: only what's new since yesterday's brief.
+- If there's nothing to report in any section, just write:
+  “All quiet today.” and the weather.
+- Don't evaluate anything, don't recommend anything unless I ask.
+```
+
+The last line looks strict. Without it, the model adds a paragraph of well-meant advice every morning and the brief doubles in length.
+
+## Save it as a skill
+
+After three days of tuning, tell the agent to save the procedure (`/learn`). From then on the structure is written down in a file and the scheduled task simply loads it. Why that's better than a long prompt inside the task itself, and how to check a skill, is explained in the part on [agent skills](/agenti/dovednosti-agenta-jak-ho-naucit-postup).
+
+The practical upshot: when you want to change the brief, you edit one file. And a weekend version can use the same skill with a different prompt.
+
+## What doesn't belong in the brief
+
+- **World news.** It's endless and breaks the one-minute rule on day one. If you want it, have it sent separately, at a different hour.
+- **A motivational line.** The agent will happily write one, differently each time. It's noise.
+- **Everything that hasn't changed.** You don't want to read “disks OK” three hundred days a year. You want to read only about the day they aren't.
+- **Decisions made for you.** “I recommend moving the meeting” doesn't belong in an overview. Facts yes, advice on request.
+
+The third one is the rule that saves the most: **report exceptions, not status.** For watchdog tasks that need no model, Hermes has a dedicated mode — a script that prints nothing sends nothing. The brief then mentions only what the script reported.
+
+## The evening twin
+
+The morning brief tells you what's ahead. The evening one has a different job: closing the day. It tends to be even shorter.
+
+```text
+Every working day at 17:30: what from this morning's ON FIRE is still
+open, what new things I promised today, and the first thing for
+tomorrow. 80 words at most.
+```
+
+Most people find that one of the two is enough. Try both for a week and keep the one you read.
+
+## What it costs
+
+One task a day is cheaper than ten, because the agent loads its source material once. Still, watch your spending in the first week: a brief that reaches into mail, the calendar and a database reads more text than you'd expect. The spending cap on the key, as described in the part on [OpenRouter](/agenti/openrouter-jeden-klic-zaloha), applies here too.
+
+## The monthly cut
+
+Once a month, ask yourself which section you haven't read in the past fortnight. Delete it. A brief that never loses anything eventually grows to a length where you stop reading the whole thing — and then you're back where you started.
+
+## What to watch out for
+
+- **Delivery time.** Send it ten minutes before you get up, not an hour before. A message buried under overnight notifications gets lost.
+- **Weekends are different.** A work brief on Saturday morning is the fastest way to start hating it.
+- **Sensitive things in Telegram.** A chat with a bot isn't end-to-end encrypted. The brief should say “doctor's appointment at 10”, not the diagnosis.
+- **If the brief doesn't arrive, something has gone wrong.** That's exactly why even an empty day gets its one sentence. Silence then means a fault, not a quiet day.
+
+---
+
+You can tell a good brief by the fact that you missed it after a holiday. A bad one by the fact that you never noticed it was gone.
