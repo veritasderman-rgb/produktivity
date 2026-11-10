@@ -1,0 +1,131 @@
+---
+title: "Dovednosti agenta: jak ho naučit váš postup a jak poznat, že se učí špatně"
+excerpt: "Agent, kterému všechno vysvětlujete znovu, je jen dražší chat. Dovednost je zapsaný postup, který si příště načte sám. Jak vzniká, jak vypadá uvnitř, jak ji opravit — a proč má učení agenta projít vaší kontrolou stejně jako všechno ostatní."
+track: "rizeni"
+order: 5
+tags: ["agenti", "rizeni", "bezpecnost", "orchestrace"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Dovednost je složka s jedním textovým souborem, ve kterém je popsáno, kdy a jak něco udělat. Agent má v paměti jen seznam názvů a celý postup si načte, až když ho potřebuje, takže desítky dovedností nestojí skoro nic. Hermes si je umí psát sám: po povedené složitější úloze, po chybě, která vedla k funkčnímu řešení, nebo po vaší opravě. To je jeho největší síla i slabina — stejně snadno si zapíše špatný návyk. Proto zapněte schvalování zápisů, jednou měsíčně dovednosti projděte a cizí instalujte jen po přečtení.
+sources:
+  - name: "Hermes Agent — systém dovedností"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/skills"
+  - name: "Hermes Agent — plánované úlohy a připojení dovednosti"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/cron"
+  - name: "Agent Skills — otevřený standard"
+    url: "https://agentskills.io/"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+V seznamu [sta úloh pro Hermes](/agenti/sestava-hermes-na-synology-sto-pouziti) je pod číslem 96 nenápadná položka: agent si uloží postup, který se mu jednou povedl, a příště ho zopakuje. Stojí u ní, že je důležitější než ostatní. Tady je proč.
+
+## Paměť není dovednost
+
+Agent si pamatuje dvě různé věci a plete se to.
+
+**Paměť** jsou fakta: jak se jmenujete, kdo je Petr, že rodinný chat se nečte. Odpovídá na otázku *co platí*.
+
+**Dovednost** je postup: jak se dělá týdenní přehled, v jakém pořadí, do jaké tabulky a co zkontrolovat nakonec. Odpovídá na otázku *jak se to dělá*.
+
+Bez dovedností agent každý úkol vymýšlí znovu. Někdy to dopadne stejně jako minule, někdy ne. S dovedností dělá to samé stejně — a to je u opakované práce důležitější než chytrost.
+
+## Jak vypadá uvnitř
+
+Dovednost je složka. V ní je jeden povinný soubor `SKILL.md` a případně pár pomocných. Nic víc.
+
+```markdown
+---
+name: tydenni-prehled-slibu
+description: Páteční přehled otevřených slibů z Notionu s návrhy připomínek
+version: 1.0.0
+---
+# Týdenní přehled slibů
+
+## Kdy použít
+Každý pátek, nebo když se uživatel zeptá, co kdo dluží.
+
+## Postup
+1. Načti z databáze „Sliby a závazky“ řádky, kde stav není Splněno.
+2. Rozděl je na moje sliby a cizí sliby.
+3. U cizích slibů po termínu navrhni krátkou připomínku.
+4. Pošli přehled do chatu. Nic neodesílej nikomu jinému.
+
+## Na co pozor
+- Termín „do konce týdne“ znamená pátek, ne neděli.
+- Chaty ze seznamu výjimek se nikdy nečtou.
+
+## Ověření
+Počet řádků v přehledu odpovídá počtu řádků v databázi.
+```
+
+Všimněte si, že je to obyčejný text. Přečtete ho, pochopíte ho a opravíte ho v jakémkoli editoru. To je záměr: **postup, kterému nerozumíte, nemůžete zkontrolovat.**
+
+Hermes dovednosti ukládá do `~/.hermes/skills/`; v kontejneru na NASu je to podsložka složky, kterou jste mu připojili.
+
+## Proč jich může být hodně
+
+Kdyby agent četl všechny dovednosti při každé zprávě, platili byste za to. Nečte je. Funguje to ve třech stupních:
+
+<Flow title="Kolik agent čte a kdy" steps={[
+  { title: "Seznam", desc: "V hlavě má jen název a jednu větu popisu u každé dovednosti. Celý seznam je krátký." },
+  { title: "Celý postup", desc: "Když usoudí, že se dovednost hodí, načte si její soubor. Teprve teď za ni platíte." },
+  { title: "Přílohy", desc: "Šablony a podklady si otevře jednotlivě, jen když na ně v postupu narazí." },
+]} />
+
+Z toho plyne jedno praktické pravidlo: **nejdůležitější je řádek `description`.** Podle něj se agent rozhoduje, jestli dovednost vůbec otevře. Vágní popis znamená, že ji buď nepoužije nikdy, nebo ji použije na všechno.
+
+## Tři způsoby, jak dovednost vznikne
+
+**Agent si ji napíše sám.** Hermes k tomu vybízí vlastní zadání: po složitější úloze, kterou stojí za to opakovat, po chybách, které nakonec vedly k funkční cestě, a po vaší opravě. Většinou vám to oznámí jednou větou.
+
+**Řeknete si o ni.** Když se vám něco povedlo společně vyladit, napište `/learn` a agent z právě proběhlé konverzace udělá dovednost. Stejný příkaz umí vyjít i z odkazu, ze složky nebo z postupu, který mu popíšete slovy.
+
+**Nainstalujete cizí.** Existuje katalog hotových dovedností a formát je otevřený standard, který používají i jiné nástroje. Příkazem `hermes skills search` hledáte, `hermes skills inspect` si dovednost před instalací přečtete a `hermes skills install` ji přidáte.
+
+Hotovou dovednost vyvoláte lomítkem a jejím názvem, nebo ji připojíte k plánované úloze:
+
+```text
+/cron add "0 14 * * 5" "Udělej týdenní přehled" --skill tydenni-prehled-slibu
+```
+
+## Kde se to pokazí
+
+Schopnost psát si vlastní postupy je přesně ta vlastnost, kvůli které agent za měsíc pracuje lépe než první den. A přesně ta, kvůli které může pracovat hůř.
+
+**Naučí se obcházku místo postupu.** Jednou nešla načíst databáze, tak vzal data ze starého exportu. Fungovalo to, zapsal si to. Od té doby bere data ze starého exportu.
+
+**Zapíše si jednu příhodu jako pravidlo.** „V úterý byl server pomalý“ se v dovednosti změní na „v úterý úlohu nepouštěj“.
+
+**Dovednost nabobtná.** Po desáté úpravě má čtyři strany, půlka si protiřečí a agent z ní vybírá náhodně.
+
+**Zapíše si pokyn, který přišel zvenčí.** To je ta vážná varianta. Agent, který čte cizí zprávy, může narazit na text, který se tváří jako oprava od vás. Když si ho uloží jako dovednost, nejde už o jeden pokažený běh — špatný pokyn se vykoná pokaždé, dokud si toho nevšimnete. Je to [smrtící trojice](/agenti/smrtici-trojice-agentu) s pamětí.
+
+## Čtyři pojistky
+
+**Schvalujte zápisy.** V nastavení zapněte `skills.write_approval: true`. Agent pak změny jen navrhne a vy je potvrdíte: `/skills pending` ukáže, co čeká, `/skills diff` co přesně se mění, `/skills approve` a `/skills reject` rozhodnou. U agenta, který čte cizí text, to berte jako povinné.
+
+**Zamkněte, co funguje.** Dovednost, kterou jste vyladili a nechcete, aby do ní agent sahal, zamknete příkazem `hermes curator lock`.
+
+**Cizí dovednosti čtěte.** Hermes instalované dovednosti prověřuje na pokusy o odesílání dat, vložené pokyny a ničivé příkazy a ty nejhorší odmítne. Je to ale kontrola podle vzorů, ne porozumění. Dovednost je text, který bude řídit vašeho agenta s vašimi právy. Přečtěte si ji celou, je krátká.
+
+**Jednou měsíčně úklid.** Projděte seznam a u každé dovednosti si odpovězte: použila se? Rozumím jí? Udělal bych to dnes stejně? Co neprojde, smažte. Deset dovedností, kterým věříte, je víc než padesát, o kterých nevíte, co dělají.
+
+## Kdy dovednost psát a kdy ne
+
+Dobrý kandidát je práce, která se **opakuje**, má **víc kroků** a u které **záleží na pořadí nebo formátu**. Týdenní přehled, zápis ze schůzky, kontrola faktury.
+
+Špatný kandidát je jednorázová úloha, fakt (ten patří do paměti) a cokoli, co se pokaždé dělá jinak. A nepište dovednost na něco, co jste sami ještě nikdy neudělali dobře. Nejdřív to s agentem třikrát projděte ručně, opravte ho, a teprve pak řekněte `/learn`. Dovednost má zachytit postup, který funguje, ne ten, který si přejete.
+
+## Na co si dát pozor
+
+- **Dovednost není zámek.** Věta „nic neodesílej“ je pokyn, který model může přehlédnout. Co agent nesmí, mu vezměte v nastavení nástrojů.
+- **Zálohujte složku s dovednostmi.** Je to měsíce ladění v pár kilobajtech.
+- **Upravené dovednosti se neaktualizují.** Když změníte dovednost dodanou s agentem, aktualizace ji od té chvíle přeskakuje. Opravy od autorů se k vám nedostanou, dokud ji nevrátíte do původního stavu.
+- **Do dovedností nepatří hesla ani tokeny.** Je to prostý text a agent ho čte celý.
+
+---
+
+Tohle celé je starý recept v novém obalu. Každá firma, která funguje, má někde sepsané, jak se u ní věci dělají, a někoho, kdo ty postupy čas od času projde a zastaralé vyhodí. Agent si je umí sepsat sám. Projít je musíte pořád vy.
