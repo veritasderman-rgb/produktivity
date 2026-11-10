@@ -1,4 +1,5 @@
 import { getAllAgentMetas } from "@/lib/agents";
+import { getAllNews } from "@/lib/news";
 import { getAllTips } from "@/lib/tips";
 
 const SITE = "https://www.produktivni.cz";
@@ -14,7 +15,7 @@ function escapeXml(s: string) {
 type FeedItem = { title: string; path: string; date: string; excerpt: string; category: string };
 
 export function GET() {
-  // Tipy a díly seriálu Agenti v jednom kanálu, nejnovější nahoře. Seriál se na
+  // Tipy, AI novinky a díly seriálu Agenti v jednom kanálu, nejnovější nahoře. Seriál se na
   // webu řadí po linkách, takže bez RSS by se nový díl k odběratelům nedostal.
   const feed: FeedItem[] = [
     ...getAllTips().map((t) => ({
@@ -30,6 +31,13 @@ export function GET() {
       date: a.date,
       excerpt: a.excerpt,
       category: "Agenti a vlastní AI",
+    })),
+    ...getAllNews().map((n) => ({
+      title: n.title,
+      path: `/ai/${n.slug}`,
+      date: n.date,
+      excerpt: n.excerpt,
+      category: "AI novinky",
     })),
   ].sort((a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title, "cs"));
 
@@ -49,9 +57,9 @@ export function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>Produktivní.cz — tipy, triky a agenti</title>
+    <title>Produktivní.cz — tipy, AI novinky a agenti</title>
     <link>${SITE}</link>
-    <description>Denní tipy a triky pro produktivitu a seriál o agentech a vlastní AI: zkratky, aplikace, workflow a AI.</description>
+    <description>Tipy a triky pro produktivitu, AI novinky přeložené do praxe a seriál o agentech a vlastní AI.</description>
     <language>cs</language>
 ${items}
   </channel>

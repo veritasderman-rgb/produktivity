@@ -124,6 +124,15 @@ export default async function RootLayout({
   return (
     <html lang={locale} className={`${schibsted.variable} ${lora.variable} ${jetbrainsMono.variable}`}>
       <body>
+        {/* React 19 přesune <link> do <head>. RSS je jen český, proto ho anglická mutace nenabízí. */}
+        {locale === "cs" && (
+          <link
+            rel="alternate"
+            type="application/rss+xml"
+            title="Produktivní.cz — tipy, AI novinky a agenti"
+            href="https://www.produktivni.cz/rss.xml"
+          />
+        )}
         <JsonLd data={websiteJsonLd(locale)} />
         <header className="sticky top-0 z-10 border-b border-hairline bg-paper">
           <div className="mx-auto flex max-w-[var(--page-max)] items-center justify-between gap-4 px-[var(--page-pad)] py-3.5">

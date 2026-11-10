@@ -11,6 +11,7 @@ import { annotateGlossary } from "@/lib/annotate";
 import { ogImage } from "@/lib/og";
 import { Pojem } from "@/components/Pojem";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
+import { articleOpenGraph, metaDescription, metaTitle } from "@/lib/seo";
 
 const T = {
   cs: {
@@ -58,17 +59,20 @@ export async function generateMetadata({
   const csUrl = `https://www.produktivni.cz/ai/${slug}`;
   const enUrl = `https://www.productive.tips/ai/${slug}`;
   return {
-    title: n.title,
-    description: n.excerpt,
+    title: metaTitle(n.title),
+    description: metaDescription(n.excerpt),
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,
       languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
     },
-    openGraph: {
+    openGraph: articleOpenGraph({
       title: n.title,
       description: n.excerpt,
-      images: [ogImage(n.title, locale)],
-    },
+      locale,
+      image: ogImage(n.title, locale),
+      published: n.date,
+      modified: n.date,
+    }),
   };
 }
 
@@ -99,7 +103,7 @@ export default async function NewsDetail({
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">
-      <JsonLd data={articleJsonLd({ locale, path: `/ai/${n.slug}`, title: n.title, description: n.excerpt, datePublished: n.date, section: "AI" })} />
+      <JsonLd data={articleJsonLd({ locale, path: `/ai/${n.slug}`, title: n.title, description: n.excerpt, datePublished: n.date, section: "AI", citations: n.source ? [{ name: n.sourceName ?? n.source, url: n.source }] : undefined })} />
       <JsonLd data={breadcrumbJsonLd(locale, [{ name: t.breadcrumb, path: "/ai" }, { name: n.title, path: `/ai/${n.slug}` }])} />
       <p className="eyebrow mb-4 text-faint">
         <Link href={p("/ai")} className="hover:underline">{t.breadcrumb}</Link>
