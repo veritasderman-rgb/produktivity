@@ -1,0 +1,128 @@
+---
+title: "The family agent: one NAS, two profiles and rules for the kids"
+excerpt: "Your agent knows your promises, your mail and your calendar. You can't lend it to the children. A second profile has its own memory, its own bot and its own personality — and this part also says where a profile stops being enough and you need a second container."
+track: "rizeni"
+order: 6
+tags: ["agenti", "rizeni", "bezpecnost", "telegram"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  A profile in Hermes is a separate home for an agent: its own settings, memory, skills, scheduled tasks and Telegram bot. A children's profile therefore remembers nothing from yours and follows different rules. But a profile is not a sandbox — inside one container it shares the same files. Where real separation matters, the children's agent belongs in its own container with its own folder. Add four settings (an allowlist of users, disabled tools, a spending cap, a written personality) and one rule that no technology replaces: a parent reads what goes on in the chat from time to time, and the child knows it.
+sources:
+  - name: "Hermes Agent — profiles"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/profiles"
+  - name: "Hermes Agent — messaging and access control"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/"
+  - name: "Hermes Agent — security"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/security"
+  - name: "Hermes Agent — running in Docker"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"
+---
+
+As soon as there's an agent at home that answers in Telegram, the question comes: “Can I message it too?” From a partner, that's simple. From a ten-year-old, it isn't.
+
+Your agent remembers what you promised to whom. It reads your mail. It can write to your Notion. Adding a child to the list of allowed users means handing over all of that.
+
+## What a profile is
+
+A profile is a second agent on the same machine. It has its own:
+
+- settings and keys,
+- memory and conversation history,
+- skills and scheduled tasks,
+- personality,
+- and its own Telegram bot.
+
+It shares only the program itself. What one profile learns, the other doesn't know.
+
+```bash
+hermes profile create deti --description "Helper for the kids: homework, practice, bedtime stories"
+hermes -p deti setup
+hermes -p deti gateway start
+```
+
+In a container, the commands are run via `sudo docker exec -it hermes …`. Each profile needs **its own bot** — create a second one with BotFather and enter its token during setup. Hermes won't start two profiles on one token.
+
+## Where a profile isn't enough
+
+This is a sentence from the documentation worth knowing before you start: **a profile is not a sandbox.** It separates memory and settings. It does not separate files. Both profiles run in one container under one user and see the same folders.
+
+What follows from that in practice:
+
+| | Second profile | Second container |
+|---|---|---|
+| Separate memory and history | yes | yes |
+| Own bot and rules | yes | yes |
+| Can't see the first agent's files | no | yes |
+| Can't see its keys and tokens | no | yes |
+| Own memory and CPU limit | no | yes |
+| Setup work | less | a little more |
+
+For a partner you trust, a profile is enough. **For children I recommend a second container** with its own folder. It's five extra lines in the compose file and it rids you of a whole class of worries.
+
+```yaml
+  hermes-deti:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes-deti
+    restart: unless-stopped
+    command: gateway run
+    volumes:
+      - /volume1/docker/hermes-deti:/opt/data
+    mem_limit: 2g
+```
+
+## Four settings for a children's agent
+
+**1. Who may write to it.** The list of allowed users holds the children's numeric IDs and yours. Nobody else. An agent with no list is closed to everyone by default, which is correct; don't switch on the option that lets anyone in.
+
+**2. What it must not be able to do.** In the `hermes tools` wizard, turn off the command line, code execution and the browser. Keep web search if you want it to be able to look up facts for homework. No connection to mail, the calendar or Notion.
+
+**3. How much it may spend.** Its own key with a low cap. A child who discovers that the agent writes serial bedtime stories can burn through more in an afternoon than you do in a week. How to set the cap is covered in the part on [OpenRouter](/agenti/openrouter-jeden-klic-zaloha).
+
+**4. How it should behave.** The agent's personality is text in the file `SOUL.md`. For children, this is mainly what belongs in it:
+
+```markdown
+You are talking to children aged 9 and 12. Speak to them informally.
+
+- You don't do their school homework for them. You ask what they've
+  already tried and give hints in small steps.
+- When you don't know something, you say so. You don't make things up.
+- About health, fear, or something that happened at home or at
+  school, you speak calmly and always recommend telling their parents.
+- You don't ask for an address, phone number, passwords or photographs.
+- You don't pretend to be a person or a friend. You are a computer
+  helper.
+- After nine in the evening you remind them it's time for bed.
+```
+
+Treat it as a starting point, not a guarantee. A personality is an instruction the model follows most of the time. The technical restrictions in point two are what it follows every time.
+
+## What a children's agent is good for
+
+- **Practice.** Spelling rules, vocabulary, times tables, as a game and with the patience a parent doesn't have at seven in the evening.
+- **Explaining it another way.** “I don't get fractions” answered for the third time, each time with a different example.
+- **Quizzing before a test.** The child sends a photo of their notes, the agent asks the questions.
+- **A serial bedtime story** with characters the child invented.
+- **Reminders.** After-school clubs, what to pack, when to set off.
+
+And what it isn't for: as a babysitter, as a confidant, and as a substitute for asking your child how school was.
+
+## The rule technology doesn't replace
+
+A parent should read the children's agent's conversations from time to time. And the child should know they're being read.
+
+Not as secret surveillance. As an agreement, stated in advance: “This is a family helper, I'll look into it now and then, just as I look at what you're playing.” The conversations will show you what your child is struggling with, and also when the agent said something inaccurate.
+
+For children under about thirteen, also bear in mind that most of the services the agent runs through are, by their own terms, not intended for users that young. The account is yours, and so is the responsibility.
+
+## What to watch out for
+
+- **A child is not an allowed user of your agent.** Not even “just for a minute”. That's the reason for this whole part.
+- **Children test boundaries.** They'll tell the agent they're grown-ups, that Mum said it was fine and that it's for school. Expect it, and keep the technical restrictions technical.
+- **What a child writes goes to the model provider.** Teach them not to type classmates' names, the address or passwords.
+- **One profile for two children means shared memory.** Siblings will read what the other one wrote. Where that's a problem, create two.
+
+---
+
+The hardest part of a family agent isn't the setup. It's deciding what you want it for at home — and saying so out loud, before the children answer that for themselves.
