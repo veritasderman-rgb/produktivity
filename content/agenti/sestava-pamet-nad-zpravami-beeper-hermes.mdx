@@ -32,6 +32,8 @@ sources:
     url: "https://developers.beeper.com/desktop-api/advanced/remote-access"
   - name: "beeper-server-docker — komunitní kontejner s Beeper Serverem"
     url: "https://github.com/aorizondo/beeper-server-docker"
+  - name: "Notion — bezpečnost MCP připojení"
+    url: "https://developers.notion.com/guides/mcp/mcp-security-best-practices"
   - name: "Simon Willison: The lethal trifecta for AI agents"
     url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
 ---
@@ -180,9 +182,13 @@ mcp_servers:
     auth: oauth
 ```
 
-Řádek `tools.include` je nejdůležitější řádek celé sestavy. Beeper umí zprávy i **odesílat** a archivovat. Když agentovi vyjmenujete jen čtecí nástroje, ty ostatní vůbec nedostane — nejde o prosbu v zadání, kterou model může přehlédnout, ale o zámek. Aktuální názvy nástrojů si ověřte příkazem `hermes mcp test beeper`.
+Řádek `tools.include` je první ze dvou pojistek. Beeper umí zprávy i **odesílat** a archivovat. Když agentovi vyjmenujete jen čtecí nástroje, ty ostatní vůbec nedostane — to je víc než prosba v zadání, kterou model může přehlédnout. Aktuální názvy nástrojů si ověřte příkazem `hermes mcp test beeper`.
 
-Notion se přihlašuje přes `hermes mcp login notion`. Pak kontejner v Container Manageru restartujte a napište botovi první zprávu.
+Sama o sobě ale nestačí. Filtr skrývá nástroje, nezamyká Beeper: jeho API dál běží na vnitřní síti a token leží v souboru, který agent umí přečíst. Dokud má Hermes k dispozici příkazovou řádku, může si obojí spojit jedním `curl` — a dokumentace Hermesu výslovně říká, že adresy v terminálových příkazech nehlídá. Proto **druhá pojistka: vypněte agentovi spouštění příkazů a kódu.** V průvodci `hermes tools` odškrtněte pro Telegram sady `terminal` a `code_execution` (a `browser`, pokud ho nepotřebujete). Na čtení zpráv, zápis do Notionu a psaní souhrnů je agent nepotřebuje. Po prvním naplánovaném běhu se ho zeptejte, jaké nástroje při něm měl, ať víte, že omezení platí i tam.
+
+Notion se přihlašuje přes `hermes mcp login notion`. Pozor na to, čím se přihlásíte: připojený klient dosáhne na všechno, na co dosáhne váš účet, ne na jednu vybranou stránku. Kdo má v Notionu i jiné věci než sliby, založí si pro agenta **samostatný účet**, pozve ho jen do té jedné databáze a přihlásí Hermes jím. Druhá cesta je starší lokální server s tokenem integrace, které se stránky sdílejí jednotlivě; Notion ho ale už aktivně neudržuje.
+
+Pak kontejner v Container Manageru restartujte a napište botovi první zprávu.
 
 ## Krok 4: naučte ho rytmus
 
@@ -226,9 +232,9 @@ Vynechává se tohle: **text, který agent čte, odchází ke zpracování k Ope
 
 A pak je tu [smrtící trojice](/agenti/smrtici-trojice-agentu). Tenhle agent čte soukromá data, čte text, který psali cizí lidé, a umí něco poslat ven. Kdokoli vám může napsat zprávu, která se tváří jako pokyn. Proto:
 
-- **Agent nesmí odesílat zprávy.** To řeší `tools.include` z kroku 3.
+- **Agent nesmí odesílat zprávy.** To řeší obě pojistky z kroku 3 dohromady: jen čtecí nástroje Beeperu a žádná příkazová řádka. Jedna bez druhé je plot s otevřenou brankou.
 - **Nechte zapnuté schvalování příkazů.** Hermes má ve výchozím stavu u plánovaných úloh nebezpečné příkazy zakázané (`approvals.cron_mode: deny`). Neměňte to.
-- **Notionu dejte jen tu jednu databázi.** Při přihlášení vyberte konkrétní stránku, ne celý pracovní prostor.
+- **Notionu dejte jen tu jednu databázi.** Přihlášení vaším běžným účtem zpřístupní agentovi celý váš Notion. Použijte samostatný účet pozvaný jen do databáze slibů.
 - **Citlivé chaty vyjmenujte první den**, ne po prvním trapném přehledu.
 - **Zálohujte složku `pamet`** a chraňte ji jako správce hesel. Jsou v ní šifrovací klíče k vašim chatům.
 
@@ -248,4 +254,4 @@ A pak je tu [smrtící trojice](/agenti/smrtici-trojice-agentu). Tenhle agent č
 
 ---
 
-Rozdíl proti prvnímu návodu je jedno slovo: **průběžně**. Tam jste paměť spouštěli vy. Tady běží sama a vy se jí jen ptáte. To pohodlí má cenu — agent bez dozoru, který vidí všechny vaše konverzace — a proto je v téhle sestavě nejdůležitější ten jeden řádek, který mu bere možnost za vás cokoli říct.
+Rozdíl proti prvnímu návodu je jedno slovo: **průběžně**. Tam jste paměť spouštěli vy. Tady běží sama a vy se jí jen ptáte. To pohodlí má cenu — agent bez dozoru, který vidí všechny vaše konverzace — a proto jsou v téhle sestavě nejdůležitější ty dvě pojistky, které mu berou možnost za vás cokoli říct.
