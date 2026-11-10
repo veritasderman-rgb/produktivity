@@ -56,6 +56,8 @@ export function articleJsonLd(opts: {
   section?: string;
   /** TL;DR článku — propíše se jako `abstract`. */
   tldr?: string;
+  /** Zdroje pod článkem — propíšou se jako `citation`, ať je vidí i stroje. */
+  citations?: { name: string; url: string }[];
 }) {
   const url = `${opts.locale === "en" ? EN_BASE : BASE}${opts.path}`;
   return {
@@ -70,6 +72,16 @@ export function articleJsonLd(opts: {
     ...(opts.dateModified ? { dateModified: opts.dateModified } : {}),
     ...(opts.section ? { articleSection: opts.section } : {}),
     ...(opts.tldr ? { abstract: opts.tldr } : {}),
+    ...(opts.citations && opts.citations.length > 0
+      ? {
+          citation: opts.citations.map((c) => ({
+            "@type": "CreativeWork",
+            name: c.name,
+            url: c.url,
+          })),
+        }
+      : {}),
+    isAccessibleForFree: true,
     author: personJsonLd,
     publisher: personJsonLd,
     image: `${BASE}/api/og?title=${encodeURIComponent(opts.title)}`,

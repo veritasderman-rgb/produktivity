@@ -27,6 +27,7 @@ import { BackToTop } from "@/components/BackToTop";
 import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { extractHeadings, flatText, slugify } from "@/lib/toc";
 import { formatReviewed, reviewedLabel } from "@/lib/reviewed";
+import { articleOpenGraph, metaDescription, metaTitle } from "@/lib/seo";
 
 const T = {
   cs: {
@@ -76,17 +77,18 @@ export async function generateMetadata({
   const csUrl = `https://www.produktivni.cz/prirucka/${slug}`;
   const enUrl = `https://www.productive.tips/prirucka/${slug}`;
   return {
-    title: ch.title,
-    description: ch.excerpt,
+    title: metaTitle(ch.title),
+    description: metaDescription(ch.excerpt),
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,
       languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
     },
-    openGraph: {
+    openGraph: articleOpenGraph({
       title: ch.title,
       description: ch.excerpt,
-      images: [`/api/og?title=${encodeURIComponent(ch.title)}&label=${encodeURIComponent(t.ogLabel)}`],
-    },
+      locale,
+      image: `/api/og?title=${encodeURIComponent(ch.title)}&label=${encodeURIComponent(t.ogLabel)}`,
+    }),
   };
 }
 

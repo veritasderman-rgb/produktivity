@@ -31,6 +31,7 @@ import { changesForSlug } from "@/lib/changes";
 import { Stats, Timeline, Bars, Matrix, Flow, Donut } from "@/components/infographics";
 import { OknaDemo } from "@/components/OknaDemo";
 import { PredPo } from "@/components/PredPo";
+import { articleOpenGraph, metaDescription, metaTitle } from "@/lib/seo";
 
 const T = {
   cs: {
@@ -87,17 +88,20 @@ export async function generateMetadata({
   const csUrl = `https://www.produktivni.cz/tipy/${slug}`;
   const enUrl = `https://www.productive.tips/tipy/${slug}`;
   return {
-    title: tip.title,
-    description: tip.excerpt,
+    title: metaTitle(tip.title),
+    description: metaDescription(tip.excerpt),
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,
       languages: { cs: csUrl, en: enUrl, "x-default": csUrl },
     },
-    openGraph: {
+    openGraph: articleOpenGraph({
       title: tip.title,
       description: tip.excerpt,
-      images: [`/api/og?title=${encodeURIComponent(tip.title)}&label=${encodeURIComponent(t.ogLabel)}`],
-    },
+      locale,
+      image: `/api/og?title=${encodeURIComponent(tip.title)}&label=${encodeURIComponent(t.ogLabel)}`,
+      published: tip.date,
+      modified: tip.updated ?? tip.date,
+    }),
   };
 }
 

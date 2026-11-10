@@ -27,6 +27,7 @@ import { extractHeadings, flatText, slugify } from "@/lib/toc";
 import { formatReviewed, reviewedLabel } from "@/lib/reviewed";
 import { isLocale, otherLocale, localePath, type Locale } from "@/lib/i18n";
 import { ogImage } from "@/lib/og";
+import { articleOpenGraph, metaDescription, metaTitle } from "@/lib/seo";
 
 const TOC_MIN_HEADINGS = 4;
 
@@ -78,17 +79,20 @@ export async function generateMetadata({
      posílal roboty na 404. Stejnou podmínku má sekce v sitemapě. */
   const hasEn = getAllAgentArticles("en").some((a) => a.slug === slug);
   return {
-    title: article.title,
-    description: article.excerpt,
+    title: metaTitle(article.title),
+    description: metaDescription(article.excerpt),
     alternates: {
       canonical: locale === "en" ? enUrl : csUrl,
       languages: hasEn ? { cs: csUrl, en: enUrl, "x-default": csUrl } : { cs: csUrl, "x-default": csUrl },
     },
-    openGraph: {
+    openGraph: articleOpenGraph({
       title: article.title,
       description: article.excerpt,
-      images: [ogImage(article.title, locale)],
-    },
+      locale,
+      image: ogImage(article.title, locale),
+      published: article.date,
+      modified: article.updated ?? article.date,
+    }),
   };
 }
 
@@ -155,6 +159,7 @@ export default async function AgentArticleDetail({
           dateModified: reviewedIso,
           section: track.name,
           tldr: article.tldr,
+          citations: article.sources,
         })}
       />
       <JsonLd
