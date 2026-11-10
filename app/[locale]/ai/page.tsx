@@ -63,6 +63,9 @@ function formatDate(iso: string, locale: Locale) {
   return `${d}. ${m}. ${y}`;
 }
 
+// Fronta publikování: článek vyjde v den svého `date`, stránka se proto obnovuje sama (lib/publish.ts).
+export const revalidate = 3600;
+
 export async function generateMetadata({
   params,
 }: {

@@ -1,5 +1,7 @@
-# Denní redakční rutina Produktivni.cz
-# Sbírá novinky, píše návrhy tipů/AI novinek a otevírá PR ke schválení.
+# Týdenní redakční rutina Produktivni.cz
+# Jednou týdně napíše dávku pěti tipů/AI novinek, rozplánuje je na pondělí až
+# pátek dalšího týdne (pole `date`) a otevře jeden PR ke schválení. Postupné
+# vydávání řeší web sám — viz lib/publish.ts a „fronta publikování“ v RUTINA.md.
 # Chování rutiny řídí docs/RUTINA.md — změny dělejte tam.
 #
 # Vyžaduje repo secret ANTHROPIC_API_KEY (Settings → Secrets → Actions).
@@ -8,7 +10,7 @@ name: Redakcni rutina
 
 on:
   schedule:
-    - cron: "23 5 * * *" # denně ~7:23 ráno českého času (5:23 UTC)
+    - cron: "23 5 * * 5" # každý pátek ráno (5:23 UTC) — na schválení zbývá víkend
   workflow_dispatch: {} # ruční spuštění z GitHub UI
 
 permissions:
@@ -19,7 +21,7 @@ permissions:
 jobs:
   rutina:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,11 +35,15 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
             Jsi redakční rutina webu Produktivni.cz. Přečti si docs/RUTINA.md
-            a přesně podle něj proveď jeden denní běh: projdi existující obsah,
-            vyhledej na internetu novinky, přísně je profiltruj, napiš 0–5 nových
-            položek do content/tipy nebo content/ai ve formátu webu, ověř build
-            a otevři pull request ke schválení (větev rutina/obsah-RRRR-MM-DD).
-            Když nic kvalitního nenajdeš, PR neotvírej. Nikdy netlač přímo do
+            a přesně podle něj proveď jeden týdenní běh: projdi existující obsah
+            i frontu (python3 scripts/publish-queue.py), vyhledej na internetu
+            novinky, přísně je profiltruj a napiš až pět nových položek do
+            content/tipy nebo content/ai ve formátu webu. Každé dej do pole
+            `date` vlastní volný pracovní den následujícího týdne (pondělí až
+            pátek), novinky na začátek týdne. Ověř build s naplánovanými články
+            (SHOW_SCHEDULED=1 npm run build) a otevři JEDEN pull request ke
+            schválení (větev rutina/obsah-RRRR-MM-DD) s tabulkou vydání. Když
+            nic kvalitního nenajdeš, PR neotvírej. Nikdy netlač přímo do
             výchozí větve.
           claude_args: |
             --allowedTools "Bash,Read,Write,Edit,Glob,Grep,WebSearch,WebFetch"
