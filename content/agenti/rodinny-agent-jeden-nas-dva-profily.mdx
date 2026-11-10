@@ -1,0 +1,128 @@
+---
+title: "Rodinný agent: jeden NAS, dva profily a pravidla pro děti"
+excerpt: "Váš agent zná vaše sliby, poštu a kalendář. Dětem ho půjčit nemůžete. Druhý profil má vlastní paměť, vlastního bota a vlastní povahu — a tenhle díl říká i to, kde profil přestává stačit a je potřeba druhý kontejner."
+track: "rizeni"
+order: 6
+tags: ["agenti", "rizeni", "bezpecnost", "telegram"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Profil v Hermesu je samostatný domov agenta: vlastní nastavení, paměť, dovednosti, plánované úlohy i bot v Telegramu. Dětský profil si tak nepamatuje nic z vašeho a má jiná pravidla. Profil ale není pískoviště — uvnitř jednoho kontejneru sdílí stejné soubory. Kde záleží na skutečném oddělení, patří dětský agent do vlastního kontejneru s vlastní složkou. K tomu čtyři nastavení (seznam povolených uživatelů, vypnuté nástroje, strop útraty, napsaná povaha) a jedno pravidlo, které žádná technika nenahradí: rodič občas čte, co se v chatu děje, a dítě o tom ví.
+sources:
+  - name: "Hermes Agent — profily"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/profiles"
+  - name: "Hermes Agent — zprávy a řízení přístupu"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/"
+  - name: "Hermes Agent — bezpečnost"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/security"
+  - name: "Hermes Agent — provoz v Dockeru"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"
+---
+
+Jakmile doma běží agent, který odpovídá v Telegramu, přijde otázka: „Můžu si s ním taky psát?“ Od partnera je to jednoduché. Od desetiletého dítěte ne.
+
+Váš agent má v paměti, komu jste co slíbili. Čte vaši poštu. Umí zapisovat do vašeho Notionu. Přidat dítě na seznam povolených uživatelů znamená dát mu tohle všechno.
+
+## Co je profil
+
+Profil je druhý agent na stejném stroji. Má vlastní:
+
+- nastavení a klíče,
+- paměť a historii rozhovorů,
+- dovednosti a plánované úlohy,
+- povahu,
+- a vlastního bota v Telegramu.
+
+Sdílí jen program samotný. Co se dozví jeden profil, druhý neví.
+
+```bash
+hermes profile create deti --description "Pomocník pro děti: úkoly, procvičování, pohádky"
+hermes -p deti setup
+hermes -p deti gateway start
+```
+
+V kontejneru se příkazy pouštějí přes `sudo docker exec -it hermes …`. Každý profil potřebuje **vlastního bota** — založte u BotFathera druhého a jeho token zadejte při nastavení. Dva profily na jednom tokenu Hermes nespustí.
+
+## Kde profil nestačí
+
+Tohle je věta z dokumentace, kterou stojí za to znát dřív, než začnete: **profil není pískoviště.** Odděluje paměť a nastavení. Neodděluje soubory. Oba profily běží v jednom kontejneru pod jedním uživatelem a vidí stejné složky.
+
+Co z toho plyne v praxi:
+
+| | Druhý profil | Druhý kontejner |
+|---|---|---|
+| Oddělená paměť a historie | ano | ano |
+| Vlastní bot a pravidla | ano | ano |
+| Nevidí soubory prvního agenta | ne | ano |
+| Nevidí jeho klíče a tokeny | ne | ano |
+| Vlastní limit paměti a výkonu | ne | ano |
+| Práce s nastavením | méně | o trochu víc |
+
+Pro partnera, kterému věříte, stačí profil. **Pro děti doporučuji druhý kontejner** s vlastní složkou. Je to pět řádků navíc v souboru s kontejnery a zbavíte se celé třídy starostí.
+
+```yaml
+  hermes-deti:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes-deti
+    restart: unless-stopped
+    command: gateway run
+    volumes:
+      - /volume1/docker/hermes-deti:/opt/data
+    mem_limit: 2g
+```
+
+## Čtyři nastavení dětského agenta
+
+**1. Kdo smí psát.** Do seznamu povolených uživatelů patří číselná ID dětí a vaše. Nikdo jiný. Agent bez seznamu je ve výchozím stavu zavřený pro všechny, což je správně; nezapínejte volbu, která pouští kohokoli.
+
+**2. Co nesmí umět.** V průvodci `hermes tools` vypněte příkazovou řádku, spouštění kódu a prohlížeč. Ponechte hledání na webu, pokud chcete, aby uměl dohledat fakta k úkolu. Žádné napojení na poštu, kalendář ani Notion.
+
+**3. Kolik smí utratit.** Vlastní klíč s nízkým stropem. Dítě, které objeví, že agent píše pohádky na pokračování, umí za odpoledne vyčerpat víc, než vy za týden. Jak se strop nastavuje, je v dílu o [OpenRouteru](/agenti/openrouter-jeden-klic-zaloha).
+
+**4. Jak se má chovat.** Povaha agenta je text v souboru `SOUL.md`. Pro děti do něj patří hlavně tohle:
+
+```markdown
+Mluvíš s dětmi ve věku 9 a 12 let. Tykáš jim.
+
+- Úkoly do školy neřešíš za ně. Ptáš se, co už zkusily,
+  a napovídáš po malých krocích.
+- Když něco nevíš, řekneš to. Nevymýšlíš si.
+- O zdraví, strachu nebo o tom, že se něco stalo doma či ve
+  škole, mluvíš klidně a vždy doporučíš říct to rodičům.
+- Nežádáš adresu, telefon, hesla ani fotografie.
+- Nepředstíráš, že jsi člověk nebo kamarád. Jsi počítačový
+  pomocník.
+- Po deváté večer připomeneš, že je čas jít spát.
+```
+
+Berte to jako výchozí bod, ne jako záruku. Povaha je pokyn, který model většinou dodrží. Technické zákazy z bodu dvě jsou to, co dodrží vždy.
+
+## K čemu se dětský agent hodí
+
+- **Procvičování.** Vyjmenovaná slova, slovíčka, násobilka, formou hry a s trpělivostí, kterou rodič v sedm večer nemá.
+- **Vysvětlení jinak.** „Nechápu zlomky“ zodpovězené potřetí, pokaždé jiným příkladem.
+- **Zkoušení před písemkou.** Dítě pošle fotku poznámek, agent se ptá.
+- **Pohádka na pokračování** s postavami, které si dítě vymyslelo.
+- **Připomínky.** Kroužky, co si sbalit, kdy vyrazit.
+
+A k čemu ne: jako hlídání, jako důvěrník a jako náhrada za to, že se dítěte zeptáte, jak bylo ve škole.
+
+## Pravidlo, které technika nenahradí
+
+Rozhovory dětského agenta má rodič občas číst. A dítě má vědět, že je čte.
+
+Ne jako tajné sledování. Jako dohoda, řečená předem: „Tohle je rodinný pomocník, občas se do něj podívám, stejně jako se dívám, co hraješ.“ Z rozhovorů poznáte, s čím dítě zápasí, a taky kdy agent řekl něco nepřesného.
+
+U dětí mladších zhruba třinácti let počítejte i s tím, že většina služeb, přes které agent běží, je podle svých podmínek pro tak malé uživatele neurčená. Účet je váš, odpovědnost taky.
+
+## Na co si dát pozor
+
+- **Dítě není povolený uživatel vašeho agenta.** Ani „jen na chvilku“. Proto celý tenhle díl.
+- **Děti zkoušejí hranice.** Agentovi budou tvrdit, že jsou dospělé, že jim to maminka dovolila a že je to do školy. Počítejte s tím a technické zákazy nechte technickými.
+- **Co dítě napíše, odchází k poskytovateli modelu.** Naučte je nepsat tam jména spolužáků, adresu a hesla.
+- **Jeden profil pro dvě děti znamená sdílenou paměť.** Sourozenci si přečtou, co psal ten druhý. Kde to vadí, založte dva.
+
+---
+
+Nejtěžší na rodinném agentovi není nastavení. Je to rozhodnutí, k čemu ho doma chcete — a jeho vyslovení nahlas, dřív než si na to děti odpovědí samy.
