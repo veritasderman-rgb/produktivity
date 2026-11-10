@@ -1,0 +1,101 @@
+---
+title: "A gateway for all models: one entrance instead of five accounts"
+excerpt: "Five models, five apps, five keys, and nobody knows what it costs. A gateway is a single endpoint with everything hidden behind it — the local model at home and the most expensive one in the cloud. And swapping one out takes a single line."
+track: "orchestrace"
+order: 1
+tags: ["orchestrace", "api-klice"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  A gateway (or proxy) is a single address that all your applications send their requests to, and which only then decides where they go — to a local model, to one provider, to another. There are two main approaches: a hosted service like OpenRouter, where you run nothing and have one key to many models, or your own gateway like LiteLLM, which you run yourself and which gives you full control over data and logs. The two can be combined: your own gateway at the front, a hosted service as one of the providers at the back.
+sources:
+  - name: "LiteLLM — proxy server documentation"
+    url: "https://docs.litellm.ai/"
+  - name: "OpenRouter — documentation"
+    url: "https://openrouter.ai/docs"
+  - name: "Open WebUI — a chat interface for your own models"
+    url: "https://github.com/open-webui/open-webui"
+---
+
+This is where a pile of tools becomes a system. Up to this point you had a local model and some cloud accounts. From this point on you'll have **one address** that everything else sends its questions to — and what happens behind it is your business, not the business of each individual application.
+
+## The problem a gateway solves
+
+Without a gateway, a typical setup looks like this:
+
+- The chat app has its own account and its own subscription.
+- The code editor has its own key to a different provider.
+- The mail-sorting script has a key in a file somewhere on the disk.
+- The local model runs separately and talks to nothing.
+- What the whole thing costs, you find out at the end of the month from five invoices.
+
+And when a better model comes out, you have to set it up in five places. When one key leaks, you go hunting for everywhere it was used. When you want to find out what you're actually asking AI, you don't have a single log.
+
+A gateway straightens this tangle into one place:
+
+<Flow title="What a gateway does" steps={[
+  { title: "One endpoint", desc: "All applications talk to one address and one interface, regardless of which model is at the back." },
+  { title: "Keys in one place", desc: "Only the gateway knows the real provider keys. Applications get their own, revocable keys." },
+  { title: "Routing", desc: "By model name, by task type, by availability. When one provider goes down, the request goes elsewhere." },
+  { title: "Budgets and limits", desc: "Per key, per user, per project. You finally know what costs how much — and you can cap it." },
+  { title: "Logs", desc: "One place where you see what was sent, to whom and how much it cost." },
+]} />
+
+## Two routes: hosted or your own
+
+**A hosted gateway (OpenRouter and the like).** You register, get one key and have access to hundreds of models from various providers. You run nothing, you update nothing. You pay with credit, or you connect your own provider keys. You set limits per key. Pricing, privacy and step-by-step setup are covered in [a separate part on OpenRouter](/agenti/openrouter-jeden-klic-zaloha).
+
+- **For:** done in ten minutes, zero maintenance, a huge choice of models.
+- **Against:** your requests pass through another company. For sensitive data that's one more intermediary.
+
+**Your own gateway (LiteLLM and the like).** An open source proxy that you run on your own machine — the Mac mini from the second track will do. It talks to a hundred providers and handles virtual keys, budgets and caching.
+
+- **For:** routing, keys and logs stay with you. Only the model call itself leaves.
+- **Against:** you have to run it, update it and keep an eye on it.
+
+**And then the option that proves itself most in practice: both.** Your own gateway at the front as the only entrance for your applications, and a hosted service plugged in at the back as one of the providers. You get control over data and logs and, at the same time, reach to models you'd otherwise need five registrations for.
+
+## What it looks like in practice
+
+Your own gateway is configured with a file in which you list the models and where they should be sent. A simplified example that shows the principle — one local model and one cloud model under the same roof:
+
+```yaml
+model_list:
+  - model_name: rychly
+    litellm_params:
+      model: ollama/qwen3
+      api_base: http://192.168.1.50:11434
+
+  - model_name: chytry
+    litellm_params:
+      model: anthropic/claude-…
+      api_key: os.environ/ANTHROPIC_API_KEY
+```
+
+The application then calls the model by the name `rychly` (fast) or `chytry` (smart) and doesn't care at all whether there's a box in the living room or a data centre at the back. When you decide to swap a model, you rewrite one line and nothing happens anywhere else.
+
+That is the main value that makes a gateway worth the effort: **you separate the name of the job from the specific supplier.**
+
+## What to hang on the gateway
+
+Once you have a single endpoint, almost anything can be connected to it:
+
+- **A chat interface.** Open WebUI is the most widespread — it looks like an ordinary AI chat, but it talks to your gateway. The conversation history stays with you.
+- **A code editor.** Most tools let you enter a custom API address.
+- **Scripts and automations.** One key, one address, no hunting through files.
+- **The Telegram bot** from the fourth track of the series.
+- **Agents.** And this is where a gateway becomes not just convenient but important for security — because it's the only place where you can cut off an agent's access.
+
+## What to watch out for
+
+- **The gateway is a new critical point.** When it goes down, everything goes down. For home use that's fine; for a team it calls for a backup — for instance fallback routing to a hosted service.
+- **The gateway sees everything.** Every request, every response. Turn logs on deliberately and decide what should be in them — and above all where they live.
+- **Updates aren't optional.** A gateway is software with access to all your keys. March 2026 showed how bad it can get when someone else's code makes its way into a tool like this — there's a separate part on the LiteLLM case in the last track, and it's worth reading before you deploy a gateway.
+- **Don't expose it to the internet.** The same rule as for the model: access from outside via a private network, never via an open port.
+
+## Pro tip
+
+Before you start building, take an inventory: write down every application that calls a model on your side today, and next to it the key it uses. Most people get their first fright at that list. It's the same list that a week from now you'll have entirely behind one address — and for the first time you'll see the spending in it too.
+
+The next part is about the most unpleasant part of the whole build: where API keys belong and where they definitely don't.

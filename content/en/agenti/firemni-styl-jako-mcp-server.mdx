@@ -1,0 +1,163 @@
+---
+title: "Brand style as an MCP server: colours, rules and photos the AI asks for itself"
+excerpt: "Nobody reads the brand manual in PDF, least of all an AI. Put the rules, texts and approved photos on one server and every tool will request them itself — Claude, the agent on your NAS and the colleague in another department. What belongs on such a server and how to build it."
+track: "data"
+order: 6
+tags: ["mcp", "data", "agenti", "rizeni"]
+level: "pokrocily"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  Copying brand rules into every prompt works for one person and one week. The sustainable route is a small MCP server offering a handful of tools: return the brand rules, find an approved photo, check a text. Every AI tool that speaks MCP then requests them itself, and everyone works with the same, current version. The server is a few dozen lines on top of a folder of files. The hard part is not the code but the content: short rules instead of a hundred-page manual, and photos described well enough to be found.
+sources:
+  - name: "Model Context Protocol — specification and introduction"
+    url: "https://modelcontextprotocol.io/"
+  - name: "MCP — official Python SDK"
+    url: "https://github.com/modelcontextprotocol/python-sdk"
+  - name: "Hermes Agent — MCP servers and tool filtering"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+Every company that has started making graphics and copy with AI runs into the same thing. The first visual turns out well. The tenth looks as if a different company made it. So someone in marketing writes up a paragraph with the colours and the tone and pastes it at the top of every brief.
+
+It works as long as there is only one such person. Then a second one turns up with their own version of the paragraph, the logo changes and half the people carry on using the old one.
+
+## Why a server and not a document
+
+A brand manual is a document for people. An AI needs the same thing differently: **in small pieces, on request and always in the latest version.**
+
+That is exactly what an MCP server does. It offers the model a few tools, and the model asks for them at the moment it needs them. What MCP is in general is explained in the part on [local MCP](/agenti/mcp-lokalne-ruce-na-disku).
+
+| | Paragraph in the prompt | PDF manual | MCP server |
+|---|---|---|---|
+| Up to date for everyone | no | no | yes |
+| Model reads only what it needs | no | no | yes |
+| Can hand over a photo or logo | no | no | yes |
+| Works in Claude and with an agent | by hand | by hand | yes |
+| Work up front | a minute | already exists | an afternoon |
+
+The third row is the one that makes it worth the effort. Rules can be copied. **Approved photos, logos and templates cannot.**
+
+## What belongs on it
+
+Six tools cover most of the work. The names are illustrative; what matters is the division.
+
+<Flow title="Six tools of a company server" steps={[
+  { title: "Brand rules", desc: "Colours with codes, typefaces, tone, the never list. A short version for briefing graphics and copy." },
+  { title: "Company facts", desc: "Name, addresses, contacts, numbers. So the model does not make them up." },
+  { title: "Find a photo", desc: "Search in approved photos by description, place and format. Returns a link, a description and the terms of use." },
+  { title: "Logos and templates", desc: "The right files in the right variants: colour, single-colour, for dark backgrounds." },
+  { title: "Glossary", desc: "How product names are written, what is not translated, banned expressions." },
+  { title: "Check a text", desc: "Runs a finished text against the rules and returns what is wrong. Deterministically, without a model." },
+]} />
+
+The last tool tends to be the most useful. A model follows the rules most of the time; a check that is just code follows them every time.
+
+## The content is harder than the code
+
+**Cut the rules down to one screen.** A model will not read a hundred-page manual any better than you do. Write the version a new colleague would understand on their first day:
+
+```markdown
+COLOURS: green #1F5F4A (primary), cream #F4EFE6 (background),
+         black #1A1A1A (text). No gradients, no neon.
+TYPE:    headings Fraunces, body Inter. Never all caps for a whole sentence.
+PHOTOS:  daylight, warm tones, real people and real places.
+         No stock-photo smiles into the camera.
+TONE:    formal address, calm, no superlatives or exclamation marks.
+NEVER:   text generated into the image, logo on a busy background,
+         customers' faces without consent.
+```
+
+**Describe the photos, or nobody will find them.** A folder with a thousand files named `IMG_4471.jpg` is useless to people and to the model alike. Each photo gets a row in a table:
+
+```text
+file | what is in it | place | year | format | may be used for | author
+```
+
+The “may be used for” column is the most important one. A photo of an employee who has left, or a shot licensed for the web only, are exactly the mistakes a lawyer ends up dealing with.
+
+Captions can be drafted by a model that can see the photos. They have to be approved by a person who knows who is in them.
+
+## The skeleton of the server
+
+The server is a thin layer over a folder. In the official Python SDK the basics look like this; treat it as a skeleton that Claude will finish for you according to your files and the current documentation:
+
+```python
+from pathlib import Path
+import csv
+from mcp.server import MCPServer
+
+DATA = Path("/data/znacka")
+mcp = MCPServer("Brand style")
+
+@mcp.tool()
+def pravidla_znacky() -> str:
+    """Short rules for visual style and tone. Call before
+    every brief for graphics or copy."""
+    return (DATA / "pravidla.md").read_text(encoding="utf-8")
+
+@mcp.tool()
+def najdi_fotku(dotaz: str, format: str = "") -> list[dict]:
+    """Finds approved company photos by description. Returns a link,
+    a description and where the photo may be used."""
+    with open(DATA / "fotky.csv", encoding="utf-8") as f:
+        radky = list(csv.DictReader(f))
+    slova = dotaz.lower().split()
+    return [
+        r for r in radky
+        if all(s in r["popis"].lower() for s in slova)
+        and (not format or r["format"] == format)
+    ][:10]
+```
+
+Notice three things. The description under the tool name is what the model uses to decide when to call it; write it as an instruction. The photo tool returns **a link and the terms**, not the image itself, so the response is small. And the search is a plain word comparison — enough for a few hundred photos, and easy to understand.
+
+## Where to run it and who is allowed in
+
+Two sensible options:
+
+- **On the NAS next to the agent**, in another container with no published ports. The agent can reach it, and so can you over the private network. The procedure for Synology is in the part [Synology from outside](/agenti/synology-bezpecny-pristup-zvenci).
+- **On company hosting with a login**, when the whole team is meant to use it from the Claude app as a custom connector.
+
+Either way, the following applies:
+
+- **The server only reads.** No tool that would change the rules or the photos. Edits are made by a person, in the files.
+- **Photos of people have their own regime.** What is not explicitly approved for use, the server does not hand over.
+- **Allow the agent only what it needs.** In Hermes the server's tools can be listed in the settings, just as with Beeper in [setup 4](/agenti/sestava-pamet-nad-zpravami-beeper-hermes).
+- **A public server means public photos.** Without a login, only what is already on the website belongs there.
+
+## How you then work
+
+The brief shrinks to what matters:
+
+```text
+Prepare a brief for three visuals for the Advent campaign. First load
+the brand rules from the server. For each visual, try to find an
+approved photo; if none fits, write a prompt for the generator
+that keeps to the rules. Have the finished texts checked.
+```
+
+The model requests the rules, searches the photos, uses real ones where it can, and runs the text through the check. The same brief gives an identically styled result in Claude, with the agent on the NAS and for your colleague in the sales department.
+
+This follows on from both graphics guides: [images and video in ElevenLabs](/tipy/elevenlabs-obrazky-a-video) and [finishing in Affinity](/tipy/affinity-zdarma-dotazeni-ai-grafiky). There you held the style with a reference image. Here the server holds it.
+
+Style is only half of it. How to make prices, terms and facts available the same way is shown in the part on the [company knowledge base](/agenti/znalostni-baze-firmy-jako-mcp-server); how to turn the “check a text” tool into a safeguard you can rely on, in the part on [text checking](/agenti/kontrola-textu-ktera-neni-ai). And how to describe photos so they can be searched, in the guide [a thousand photos in a weekend](/tipy/popsat-tisic-fotek-za-vikend).
+
+## When not to build it
+
+- **You are on your own and the style is in your head.** Then a saved paragraph and a folder of photos will do.
+- **You have nobody to maintain the content.** A server with outdated rules is worse than none, because everybody trusts it.
+- **The photos are not described and nobody wants to describe them.** Start with the table. The server is only the second step.
+
+## What to watch out for
+
+- **One source of truth.** If the rules exist on the server and in a PDF, they will drift apart within a month. Generate the PDF from the same files, or scrap it.
+- **Version it.** The rule files belong in git. When someone asks why the logo is different from last year, you will know when and who.
+- **Watch what the models ask for.** Queries the server has no answer to are the best list of what to add.
+- **Verify photo rights at the source.** The fact that a file sits in a company folder does not mean you may use it in an advertisement.
+
+---
+
+A brand manual used to be a document that was produced at great expense once every three years and then sat on a drive. A server is the same content in a form that gets used daily — and that is precisely why it soon shows what never worked in the manual.

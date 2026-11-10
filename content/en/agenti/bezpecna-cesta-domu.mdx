@@ -1,0 +1,112 @@
+---
+title: "A safe way home: why a private network, not an open port"
+excerpt: "Forwarding a port on your router is the fastest way to hand your model to the entire internet. A private network makes it available only to your devices and takes ten minutes to set up — no public IP, no certificates, no holes in the firewall."
+track: "ovladani"
+order: 2
+tags: ["ovladani", "bezpecnost", "telegram", "lokalni-ai"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  A home model must not be reachable from the public internet. A forwarded port on the router means automated scanners will find your login-free Ollama within hours. The right solution is a private network (Tailscale, WireGuard or Cloudflare Tunnel): the laptop, the phone and the home machine see each other as if they were lying on one desk, yet no port is open from the outside. Setting up Tailscale takes roughly ten minutes and doesn't need a public IP address.
+sources:
+  - name: "Tailscale — documentation"
+    url: "https://tailscale.com/kb/"
+  - name: "WireGuard — official website"
+    url: "https://www.wireguard.com/"
+  - name: "Cloudflare Tunnel — documentation"
+    url: "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/"
+---
+
+As soon as you get a model running at home, the urge arrives: “what if I could reach it from work too?” The quickest answer is to forward a port on the router. It is also the worst possible answer, and it's worth knowing why.
+
+## Why not an open port
+
+Ollama, LM Studio and most home AI tools **have no login at all by default.** Anyone who reaches the address and port can use your model, read the list of what you have, and in the worse case get at the things you've connected it to.
+
+And they will find it. The internet is continuously crawled by bots scanning public addresses for known ports. A new service on a public IP tends to be discovered within hours, not months. “I use an odd port number” doesn't help either — everything gets scanned.
+
+An even worse variant is opening a port to the gateway from the third track. That one knows your real API keys, and you're the one paying for the spend.
+
+## What a private network is
+
+A private network (a VPN in the original sense) does one single thing: **your devices see each other as if they were lying on one desk**, but for the rest of the internet they don't exist.
+
+In practice it means the phone on the tram and the Mac mini in the living room have a direct, encrypted connection between them, and no port is open anywhere. You don't need a public IP address, you don't have to configure anything on the router and you don't have to deal with certificates.
+
+<Flow title="Three ways home, starting with the simplest" steps={[
+  { title: "Tailscale", desc: "Built on WireGuard, but without the configuration. You install it on every device, sign in with the same account and you're done. For personal use the free tier is generous." },
+  { title: "WireGuard by hand", desc: "The same technology without the middleman. You set up the keys and addresses yourself. More work, full control, and it works even where you don't want someone else's coordination service." },
+  { title: "Cloudflare Tunnel", desc: "A different approach: a service in your home opens a connection outwards and Cloudflare makes a specific application available at an address that can be protected with a login. Suitable when you want to let someone else in as well." },
+]} />
+
+## Setting up Tailscale step by step
+
+For a home control room this is usually the best ratio of effort to result.
+
+**1. Install it on the home machine.**
+
+On macOS from the App Store or via Homebrew, on Linux with the one-line script from the official website, on Windows with the installer. Then run:
+
+```
+tailscale up
+```
+
+A browser opens, you sign in (Google, Microsoft, GitHub) and the machine joins.
+
+**2. Install it on your phone and laptop.** Same account. The apps are in the app stores.
+
+**3. Find the home machine's address.**
+
+```
+tailscale ip -4
+```
+
+You'll get an address that looks like `100.x.y.z`. This address is valid **only inside your private network** — nobody can reach it from the ordinary internet.
+
+**4. Verify the connection.** From a laptop connected to mobile data:
+
+```
+curl http://100.x.y.z:11434/api/tags
+```
+
+If a list of models comes back, you're done. Your model is reachable from anywhere — and yet there isn't so much as a crack open on the router.
+
+On Synology, Tailscale is installed differently and needs two extra scheduled tasks; the procedure for DSM has [its own part](/agenti/synology-bezpecny-pristup-zvenci).
+
+## Useful extras
+
+- **Shared access for family or a colleague.** Tailscale can invite another account to a specific device, not to the whole network.
+- **Access rules.** You can restrict which device may reach which port. Let the phone see the gateway, but not SSH.
+- **Exit node.** For when you want to browse through your home connection, for example on someone else's wifi.
+- **MagicDNS.** Instead of a numeric address you then type the machine's name.
+
+## When you want to let in someone from outside too
+
+A private network is great for your own devices. When you want to make a chat interface available to a colleague who isn't going to install anything, reach for a tunnel with a login — Cloudflare Tunnel or a similar service can expose a specific application at an address and put a login in front of it, without you opening a port.
+
+Even so: **expose a specific application, never the whole gateway or Ollama.** The difference is that a chat interface has users and passwords; the gateway has your API keys.
+
+## A checklist before you call it done
+
+1. **No** port on the router is forwarded to your AI machine.
+2. Ollama and the gateway listen either only on `localhost` or on the private network interface.
+3. The firewall on the home machine allows the model's port only from the private network.
+4. You tried to reach the model from a public IP address and **failed**.
+5. The Telegram bot runs locally and opens its connection outwards by itself (see the previous part).
+
+Do actually try point four. It's the only test you can trust.
+
+## What to watch out for
+
+- **A private network is no substitute for a login.** Whoever gets hold of one of your devices is inside. Add a login to critical things anyway.
+- **Remove a device you stop using.** An old phone with an active client is an open way home.
+- **The coordination service sees who connects to whom** — not the content, but the metadata. If that bothers you, go the way of your own WireGuard.
+- **Update the clients.** This is network software with privileged access.
+- **Don't confuse it with a commercial “VPN for privacy”.** That is an entirely different service for an entirely different purpose.
+
+## Pro tip
+
+Once your private network is ready, reconfigure the Telegram bot from the previous part so that it calls the gateway via the private network address rather than via `localhost`. That gives you the option of running the bot on a different machine from the one the model runs on — say a small computer that's on around the clock, while the powerful machine wakes up only to do the computing.
+
+The next part puts the whole track together: what a single control room operated from three different screens looks like.

@@ -1,0 +1,201 @@
+---
+title: "Telegram as the control panel for your home AI"
+excerpt: "You type a message on your phone, your model at home works it out, and the answer comes back into the chat. A complete guide: creating the bot, where the token belongs, how to allow only yourself, and the fifty lines of code that tie it all together."
+track: "ovladani"
+order: 1
+tags: ["telegram", "ovladani", "lokalni-ai"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Telegram is the fastest way to control your home AI from a phone: you create a bot through BotFather in two minutes, get a token and hook it up to a gateway or straight to Ollama. Two things are non-negotiable — the token belongs in an environment variable, never in the code, and the bot must have a list of allowed users, otherwise a stranger will find it within days. The bot runs on your home machine and opens nothing at all to the outside: it asks Telegram for new messages itself.
+sources:
+  - name: "Telegram Bot API — official documentation"
+    url: "https://core.telegram.org/bots/api"
+  - name: "Telegram: how to create a bot through BotFather"
+    url: "https://core.telegram.org/bots/features#botfather"
+  - name: "Ollama — documentation and download"
+    url: "https://ollama.com/download"
+---
+
+This is where a technical toy becomes something you use every day. As long as every query means opening the laptop and finding the right tab, home AI stays an experiment. Once all it takes is a message in an app you already have on your phone, that changes.
+
+Telegram suits this role for three reasons: it has an excellent interface for bots, it runs on everything and — most importantly — **the bot asks Telegram for new messages itself.** So you don't have to open a single port on your home router.
+
+## How the whole thing works
+
+<Flow title="The journey of one message" steps={[
+  { title: "You type on your phone", desc: "An ordinary message to your bot in Telegram, from anywhere in the world." },
+  { title: "Telegram holds it", desc: "The message waits on Telegram's servers until someone comes to collect it." },
+  { title: "The home machine picks it up", desc: "A script running at your place keeps asking: have you got anything new for me?" },
+  { title: "The model answers", desc: "The script sends the text to your gateway or straight to Ollama. The answer is computed by the machine in your living room." },
+  { title: "The answer returns to the chat", desc: "Back through Telegram to your phone. The whole thing takes seconds." },
+]} />
+
+The key sentence: **the connection is made by your home machine, outwards.** Nothing leads into your network from outside. That is a fundamental security difference compared with a model listening on a public address.
+
+## Step 1: create the bot
+
+In Telegram, find the account **@BotFather** (it has a blue verification badge) and type:
+
+```
+/newbot
+```
+
+BotFather asks for a name (what you'll see in the chat) and a username, which must end in `bot`. Once that goes through, you get a message with the **token** — a long string of the form `123456789:AAF...`.
+
+That token is the password to your bot. Whoever has it can write as the bot to anyone who has added it. So:
+
+- **Never send it in a chat or in a screenshot.**
+- **Never put it in the code.**
+- If it leaks, cancel it with BotFather using the `/revoke` command and generate a new one.
+
+While you are in BotFather, these are also handy:
+
+```
+/setprivacy      → Disable   (only if you want the bot in a group)
+/setdescription  → what the bot is for
+/setcommands     → the list of commands the bot knows
+```
+
+## Step 2: find out your ID
+
+The bot has to know who it may reply to. Without that, a random passer-by will find it within a few days — bot usernames can be browsed.
+
+In Telegram, message the bot **@userinfobot** (or another one like it) and it will send back your numeric ID. Write it down; you'll need it.
+
+## Step 3: the token into an environment variable
+
+On the home machine where the bot will run:
+
+```
+export TELEGRAM_TOKEN="123456789:AAF..."
+export TELEGRAM_ALLOWED="123456789"
+export OLLAMA_URL="http://localhost:11434"
+```
+
+This applies to running it from a terminal. On Windows, set the same thing in the user environment variables. There is more detail in the part on API keys.
+
+Watch out for one trap: **`~/.zshrc` is read only by the terminal.** When you set the bot up below as a background service, the system won't load that file and the script will crash on the very first line. In that case the variables are written into the service's configuration — step 5 shows how.
+
+## Step 4: the bot itself
+
+Fifty lines of Python. Install the library:
+
+```
+pip install python-telegram-bot requests
+```
+
+And create the file `bot.py`:
+
+```python
+import os
+import requests
+from telegram import Update
+from telegram.ext import Application, MessageHandler, filters, ContextTypes
+
+TOKEN = os.environ["TELEGRAM_TOKEN"]
+ALLOWED = {int(x) for x in os.environ["TELEGRAM_ALLOWED"].split(",")}
+OLLAMA = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+MODEL = os.environ.get("MODEL", "qwen3")
+
+def ask(prompt: str) -> str:
+    r = requests.post(
+        f"{OLLAMA}/api/generate",
+        json={"model": MODEL, "prompt": prompt, "stream": False},
+        timeout=180,
+    )
+    r.raise_for_status()
+    return r.json()["response"].strip()
+
+async def handle(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.effective_user.id not in ALLOWED:
+        return                      # unknown user: silently ignore
+    await ctx.bot.send_chat_action(update.effective_chat.id, "typing")
+    try:
+        answer = ask(update.message.text)
+    except Exception as exc:
+        answer = f"That failed: {exc}"
+    for i in range(0, len(answer), 4000):   # Telegram has a message length limit
+        await update.message.reply_text(answer[i:i + 4000])
+
+app = Application.builder().token(TOKEN).build()
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle))
+app.run_polling()
+```
+
+Run it:
+
+```
+python3 bot.py
+```
+
+And message the bot from your phone. The answer is computed by the machine at your place.
+
+## Step 5: keep it running
+
+A script started in a terminal ends as soon as you close the terminal. For permanent operation:
+
+**On a Mac**, create the file `~/Library/LaunchAgents/cz.velin.telegrambot.plist`. The environment variables have to be right inside it — launchd doesn't read any `~/.zshrc`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>cz.velin.telegrambot</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/josef/velin/bot.py</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>TELEGRAM_TOKEN</key><string>123456789:AAF...</string>
+    <key>TELEGRAM_ALLOWED</key><string>123456789</string>
+    <key>OLLAMA_URL</key><string>http://localhost:11434</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardErrorPath</key><string>/tmp/telegrambot.err</string>
+</dict>
+</plist>
+```
+
+The token sits in the file in plain text, so restrict its permissions straight away and only then load the service:
+
+```
+chmod 600 ~/Library/LaunchAgents/cz.velin.telegrambot.plist
+launchctl load ~/Library/LaunchAgents/cz.velin.telegrambot.plist
+```
+
+The system then starts the bot after every login and restarts it if it crashes. If it doesn't come up, the first place to look is `/tmp/telegrambot.err`.
+
+**On Linux** it is a systemd service with `Restart=always`; the variables belong in `Environment=` directives, or better in a file loaded via `EnvironmentFile=` with `600` permissions.
+
+**On Windows**, the simplest route is Task Scheduler, set to run at system startup. User environment variables are loaded into a scheduled task, but they must be set **before** it is created — otherwise the task starts without them.
+
+## What to add once it's running
+
+The basic bot answers text. A few more lines turn it into a real control room:
+
+- **Commands for switching the model.** `/fast` and `/smart` switch between the gateway's aliases — see the part on routing.
+- **Conversation history.** Keep the last few messages per user so the bot holds the thread.
+- **Receiving files.** Send the bot a PDF and it summarises it. Mind where it saves the file.
+- **Voice messages.** You dictate a message, transcription happens locally, the model answers in text.
+- **Scheduled messages.** Every morning the bot sends you a summary it prepared overnight.
+
+## What to watch out for
+
+- **The list of allowed users is not optional.** A bot without one is a public service that you pay for.
+- **The token is the key to the bot, not to your machine** — but whoever has it can talk to your model through the bot. Treat it like a password.
+- **Telegram sees the content of messages.** Ordinary chats with a bot are not end-to-end encrypted. If the whole point of your local model is that data goes nowhere, be aware that it does go through here. For genuinely sensitive things, use access over a private network and a chat in your own interface — that is what the next part is about.
+- **Handle errors.** When the model isn't running or is overloaded, have the bot say what happened. A silent bot is worse than an error message.
+- **Long answers have to be split.** Telegram won't accept a message longer than roughly 4,000 characters; hence the loop in the example.
+
+## Pro tip
+
+The most useful command you'll add to the bot isn't a clever model — it's `/status`. Have it tell you whether Ollama is running, which model is loaded and how much memory it takes. When you're travelling somewhere and the bot stops replying, that one command will save you half an hour of guesswork.
+
+The next part deals with the awkward question hanging over this whole track: how to reach your home machine from outside without opening the door to the entire internet.

@@ -1,0 +1,113 @@
+---
+title: "MCP locally: giving the model hands on your own disk"
+excerpt: "Connectors aren't only for cloud services. A local MCP server can give the model access to a folder, a database or the command line — and the difference between a useful hook-up and a dangerous one is a single parameter: how much you fence off for it."
+track: "data"
+order: 3
+tags: ["mcp", "data", "agenti", "bezpecnost"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  MCP is the standard a model uses to talk to tools. Alongside remote connectors to cloud services there are also local servers, which run on your machine and give the model access to a folder, a database or system commands — while the data never leaves the computer. The crucial thing is scoping: give the server exactly one folder, not your home directory, and only the permissions the task needs. The setup is one configuration file, and the security rule can be summed up in a sentence: what the model can't see, it can't send out.
+sources:
+  - name: "Model Context Protocol — specification"
+    url: "https://modelcontextprotocol.io/"
+  - name: "MCP — reference servers (including the filesystem one)"
+    url: "https://github.com/modelcontextprotocol/servers"
+  - name: "Simon Willison: The lethal trifecta for AI agents"
+    url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+---
+
+Most articles about MCP talk about connectors to cloud services — Notion, Google Drive, a CRM. But the more interesting half happens on your own disk. A local MCP server is a way to give the model real hands while keeping the data at home.
+
+You'll find the basics of the protocol and a catalogue of available connectors in the [guide to MCP](/tipy/mcp-konektory-nastroje) and in the [connector catalogue](/konektory). This part is only about the local side.
+
+## What a local MCP server can do
+
+The model gets a list of tools it can ask for. The server then actually carries them out on your machine on its behalf.
+
+| Server | What it exposes | Typical use |
+|---|---|---|
+| Filesystem | Reading and writing in one fenced-off folder | Working with documents, projects, code |
+| Database | Queries against a local database | Asking about your own data in natural language |
+| Git | Repository history, changes | Working with code and its history |
+| Browser | Opening pages, clicking | Routine work on the web |
+| System commands | Running a command | Automation — and the most dangerous variant |
+
+What matters is that all of this runs **on your machine**. Pair it with a local model and the data doesn't leave the computer at all. Pair it with a cloud model and only the part the model asks for leaves.
+
+An example of a custom server that hands the model not files from disk but brand rules and approved photos is in the part on [company style as an MCP server](/agenti/firemni-styl-jako-mcp-server).
+
+## How it's set up
+
+The client application (a chat, an editor, an agent tool) has a configuration file where you list the servers it should start. A simplified form, which is similar across tools:
+
+```json
+{
+  "mcpServers": {
+    "dokumenty": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/josef/velin/vstup"
+      ]
+    }
+  }
+}
+```
+
+The last line is the entire security model. **That path is the boundary.** The server sees nothing outside it. If you put your home directory there, you've given the model everything — mail, photos, keys, browser history.
+
+After you restart the client, reading and writing files appear in the list of tools and the model starts using them.
+
+## Scoping: six rules that pay off
+
+<Flow title="How to set up a local server so it doesn't bite you" steps={[
+  { title: "One folder, not the disk", desc: "Create a folder for exactly this purpose. Never point the server at your home directory or at Documents." },
+  { title: "Read-only first", desc: "Most tasks don't need write access. Allow writing only once it turns out you can't do without it." },
+  { title: "No keys within reach", desc: "The fenced-off folder must not contain .env, configuration or anything with login details." },
+  { title: "Copies, not originals", desc: "With valuable data, work on a copy. A faulty overwrite then costs nothing." },
+  { title: "Under version control", desc: "When the folder is in git, you see every change and undo it with one command." },
+  { title: "System commands last of all", desc: "A server that can run anything bypasses all the other restrictions. Switch it on deliberately and only for a clearly defined job." },
+]} />
+
+## Why scoping matters more than with cloud connectors
+
+With a cloud connector, the permission is set by the service — you give the model access to the calendar and it sees nothing beyond the calendar. A local filesystem server is different: **a single parameter decides between “sees one folder” and “sees everything”.**
+
+And then there's the combination this whole series keeps pointing at. When one tool has, all at once:
+
+1. access to your files,
+2. the ability to read content written by someone else (a document from the internet, an attachment, someone else's repository),
+3. the means to communicate outwards,
+
+it can be abused. Text in that outside document can tell the model what to do, and it will do it with your permissions. A local MCP server set up without thought is the fastest way to assemble this trio at home.
+
+The defence is always to cut off one leg. The third is the easiest to cut: **a model that has no way of sending a result out without your confirmation is incomparably safer** — exactly as the part on the task queue describes.
+
+## What good you can do with it
+
+When the scoping is right, quite an entertaining set of tasks opens up:
+
+- **Tidying a folder.** “Go through the inbox, rename the files according to their content and sort them into subfolders by year.”
+- **Project summary.** The model reads all the notes in the folder and writes up where the project stands.
+- **Finding something in a pile of documents.** Without building a knowledge base — with dozens of files it manages by simply reading them.
+- **Preparing materials.** It pulls the details out of invoices and saves a table.
+- **Consistency check.** It finds where two documents contradict each other.
+
+All of this happens on your machine and the result ends up in the `ke-schvaleni/` folder you know from the fourth track.
+
+## What to watch out for
+
+- **Check what actually started.** Most clients can show which tools the model has available. Look there after every change to the configuration.
+- **Don't add servers “just in case”.** Each extra one is another way in. The same applies as with connectors: the fewer tools, the smaller the attack surface.
+- **Read community servers before you run them.** It's code that will run with your permissions. With MCP, the difference between an official and a community project matters more than with an ordinary app.
+- **Log writes.** So you know which files the model changed. Without that, a bad change takes a week to track down.
+- **Folders shared with colleagues are not scoping.** If anyone on the team can drop a document into the folder, anyone can also drop in an instruction for your agent.
+
+## Pro tip
+
+Build two configurations and switch between them: **“reading”**, with a read-only server on one folder, and **“work”**, with write access. You'll handle ninety per cent of tasks in the first and won't have to wonder each time whether it might overwrite something. Switching takes a second; a faulty overwrite of hundreds of files costs an afternoon.
+
+The last part of this track is short and unpleasant: a list of things that don't belong in the cloud.

@@ -1,0 +1,109 @@
+---
+title: "What a month with an agent costs: how to work it out before the bill arrives"
+excerpt: "An agent doesn't have one price. It has four components, three of which are predictable while the fourth can spring a surprise. How to measure them, a table to fill in, where the money most often goes missing, and five levers for cutting the bill without losing the benefit."
+track: "orchestrace"
+order: 6
+tags: ["naklady", "orchestrace", "agenti", "api-klice"]
+level: "zacatecnik"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  An agent's monthly cost is made up of electricity, subscriptions, tokens and your time. The first two components are fixed and small, time gets underestimated, and tokens are the only part that can grow tenfold without warning. This part doesn't give you a finished number — that depends on your tasks — but a procedure for measuring it within a week: one key per agent, a daily look at the spend, and a table broken down by task. Most of the bill usually comes from just a few tasks and from the fixed overhead of every request, not from how clever the model is.
+sources:
+  - name: "OpenRouter — key limits, status and spend"
+    url: "https://openrouter.ai/docs/api-reference/limits"
+  - name: "OpenRouter — pricing and plans"
+    url: "https://openrouter.ai/pricing"
+  - name: "Hermes Agent — FAQ (token consumption, prompt size)"
+    url: "https://hermes-agent.nousresearch.com/docs/reference/faq"
+  - name: "Hermes Agent — scheduled tasks and no-model mode"
+    url: "https://hermes-agent.nousresearch.com/docs/user-guide/features/cron"
+---
+
+The most common question about the whole series is “and what does it cost?”. The honest answer is that I don't know — and neither do you, until you measure it. Two people with the same setup can pay amounts that differ by an order of magnitude, depending on what they've asked the agent to do.
+
+So instead of a number, this part gives you a procedure. In a week you'll have your own.
+
+## Four components
+
+| Component | How it behaves | How to find it out |
+|---|---|---|
+| Electricity | fixed, small | machine's power draw × hours × price |
+| Subscriptions | fixed | card statement |
+| Tokens | variable, can spike | the provider's dashboard |
+| Your time | underestimated | a stopwatch, honestly |
+
+**Electricity.** A NAS that was already running for your photos costs you almost nothing extra because of the agent. For a new machine the calculation is simple: power draw in watts × 24 × 30 ÷ 1000 × price per kilowatt-hour. Don't guess the power draw; a plug-in meter costs a few hundred crowns and tells the truth.
+
+**Subscriptions.** Add up everything connected with the agent: the model, Beeper, Notion, voice services. Watch out for paying twice for the same thing — a model subscription in the app plus tokens via a key are two different things, and the agent mostly consumes the latter.
+
+**Tokens.** The only component the rest of this part is concerned with.
+
+**Time.** Installation is a one-off. Maintenance isn't: updates, a bridge that fell over, an expired token, tuning a task that returns nonsense. Write it down in your notes for the first month. Half an hour a month is a good result; three hours is a reason to think again.
+
+## How to measure tokens
+
+Three steps, none of them complicated.
+
+**1. One key per agent.** As long as the agent shares a key with anything else, you don't know who spent how much. Its own key with its own cap is the foundation; the procedure is in the part on [OpenRouter](/agenti/openrouter-jeden-klic-zaloha).
+
+**2. A daily look for the first week.** The provider shows the key's spend by day. With OpenRouter it's also a single request that returns the spend for the day, week and month and how much is left before the cap. For the first week, look every morning. You're looking for two things: a day that sticks out, and the trend.
+
+**3. A breakdown by task.** In a conversation with the agent, the `/usage` command shows how many tokens the current conversation has consumed. Run each scheduled task once by hand and write the number down. That gets you the most valuable thing: the price of a single run.
+
+## A table to fill in
+
+| Task | How often | Tokens per run | Runs per month | Share of the bill |
+|---|---|---|---|---|
+| Morning brief | working days | | 22 | |
+| Message scan | twice a day | | 44 | |
+| Weekly overview | once a week | | 4 | |
+| Questions during the day | as needed | | | |
+| **Total** | | | | 100% |
+
+The last column is the reason to make the table. It almost always shows that **two tasks make up most of the bill** — and not the ones you'd expect.
+
+## Where the money goes missing
+
+**The fixed overhead of every request.** Before the agent reads the first word of your message, it sends the model its instructions, a description of every tool, the list of skills and its memory. This part is paid for every time. Hermes can itemise it with the `hermes prompt-size` command. Tools and skills you don't use are a bill for nothing.
+
+**The first scan of the entire history.** When you first set the agent loose on years of messages, it reads all of them. It's a one-off, but it can be most of the first month. Start with the last week.
+
+**Long conversations.** Every further message in the same conversation carries everything before it. A conversation you drag out for a week gets more expensive with every reply. Start a new topic in a new conversation.
+
+**A task watching something that doesn't change.** An hourly check that finds out 23 times a day that nothing has happened pays 23 times for the message “nothing”.
+
+**Retries.** A task that fails and tries again can spend more overnight than the whole rest of the week. Hence the cap on the key.
+
+**A fallback that became the main route.** When the main provider returns errors, the agent quietly runs on the fallback. If the fallback model is more expensive, you only find out from the bill.
+
+## Five levers
+
+Ordered by how much they usually save for how much work.
+
+1. **A smaller model for routine work.** Sorting, summarising and extraction don't need the most powerful model. The difference in price tends to be several-fold; the difference in the result, for these tasks, small. Details in the part on [routing by task](/agenti/smerovani-podle-ulohy).
+2. **Monitoring without a model.** If a check can be written as a script, run it in no-model mode: the script runs on a schedule, the model isn't called at all, and a message arrives only when the script prints something.
+3. **Fewer tools and skills.** Turn off what you don't use. The overhead of every request shrinks.
+4. **A sparser schedule.** Twice a day instead of every hour. For most tasks you won't notice the difference anywhere except on the bill.
+5. **One task instead of five.** Why and how is in the part on [the morning brief](/agenti/ranni-brief-jedna-zprava-misto-deseti).
+
+## A comparison that makes sense
+
+The number alone says nothing. Set it against two things:
+
+**Against the subscription.** If the same could be handled by [routines in the app](/agenti/agent-bez-serveru-claude-rutiny) you already pay for, every extra crown spent on tokens is the price of what routines can't do. Is that difference worth it to you?
+
+**Against time.** How many minutes a week does the agent save you, honestly? Subtract maintenance. Multiply what's left by what you reckon your time is worth. If the result is smaller than the bill, you have an expensive hobby. That's fine too; it's just good to know.
+
+A broader comparison of local and cloud operation is in the part on [costs](/agenti/naklady-lokalni-vs-cloud).
+
+## What to watch out for
+
+- **The cap is not an estimate.** Set it to the amount you're willing to lose on the worst night, not to the expected spend.
+- **Model prices change.** Recalculate the table once a quarter.
+- **Free models aren't free.** You pay with data and limits. Don't use them for an agent that reads your messages.
+- **The second month tends to be cheaper than the first.** The initial scan and the tuning drop away. Decide on the basis of the second.
+
+---
+
+The point of measuring isn't to spend as little as possible. It's to know what you're paying for — because only then can you decide which of those tasks is worth its money.

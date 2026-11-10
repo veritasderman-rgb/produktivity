@@ -1,0 +1,154 @@
+---
+title: "A text check that is not AI: rules that always apply"
+excerpt: "A model follows the rules most of the time. A check written as ordinary code follows them every time. What belongs in it, what does not, how to offer it to an agent as a tool and why it should stand at the end of every text that goes out."
+track: "data"
+order: 8
+tags: ["mcp", "rizeni", "bezpecnost", "data"]
+level: "pokrocily"
+date: "2026-11-10"
+updated: "2026-11-10"
+tldr: >-
+  A model will keep to the instruction “do not use the word léčí (cures)” in nine texts out of ten. The tenth may cost you a fine. A deterministic check is a short program that runs a text against lists and patterns and returns findings with a position and a reason; the same input always gives the same result. It suits banned words, product names, mandatory wording, numbers and format. It does not suit tone and meaning. Offered as a tool of an MCP server, it will be used by an agent, by Claude and by a person — and it is the only part of the chain of which you can say that it does not make mistakes at random.
+sources:
+  - name: "Model Context Protocol — specification and introduction"
+    url: "https://modelcontextprotocol.io/"
+  - name: "MCP — official Python SDK"
+    url: "https://github.com/modelcontextprotocol/python-sdk"
+  - name: "Regulation (EC) No 1924/2006 on nutrition and health claims"
+    url: "https://eur-lex.europa.eu/legal-content/CS/TXT/?uri=CELEX:32006R1924"
+---
+
+You write into the agent's rules: “Never claim that the product cures.” The agent complies. For a week, a month. Then one day it processes an old brochure that contains the word and carries it over into a new text, because at that moment it was weighing two things against each other and the rule lost.
+
+It is not the agent's fault. It is a property of models: they follow instructions probabilistically. For most work that does not matter. For sentences that fines are paid for, it does.
+
+## Two kinds of rules
+
+It is useful to divide rules according to who is able to enforce them.
+
+| Rule | Who guards it |
+|---|---|
+| “Write calmly and without superlatives.” | the model, and after it a person |
+| “The text should sound like us.” | the model, and after it a person |
+| “Do not use the words léčí, vyléčí, zaručeně.” | code |
+| “Always write the product name exactly like this.” | code |
+| “A price must come with its validity.” | code |
+| “Write the website without www.” | code |
+
+The top half requires judgement. The bottom half can be verified by searching the text — and what can be verified by searching, there is no point entrusting to judgement.
+
+## What the check can do
+
+Five kinds of rules cover most needs:
+
+- **Banned expressions.** A list of words and phrases, with exceptions.
+- **Mandatory forms.** Names of products, the company, people: the exact spelling and the common garbled versions that should be corrected.
+- **Mandatory components.** When a text contains a price, it must also contain its validity. When it contains a health claim, the claim must be on the approved list.
+- **Numbers and format.** The form of a phone number, a date, a currency; headline length; the character count of a post.
+- **Agreement with the base.** The price in the text equals the price in the [knowledge base](/agenti/znalostni-baze-firmy-jako-mcp-server).
+
+The last kind is the most valuable. A check that finds a number with a currency in the text and compares it with the price list catches exactly the mistake a person overlooks when reading.
+
+## What it looks like
+
+The rules sit in a file that a non-programmer can edit too:
+
+```yaml
+zakazane:
+  - vzor: "\\b(vy)?léč\\w*"
+    duvod: "Health claim without approval."
+    vyjimky: ["léčebna", "Léčebné lázně"]
+  - vzor: "\\bzaručen[ěý]\\w*"
+    duvod: "Cannot be substantiated."
+
+nazvy:
+  - spravne: "Pražírna Na Rohu"
+    spatne: ["Pražírna na rohu", "pražírna Na rohu", "Prazirna Na Rohu"]
+
+povinne:
+  - kdyz: "\\d+\\s?Kč"
+    musi_byt: "(platí|platnost|do \\d)"
+    duvod: "The price has no validity."
+```
+
+And the program that uses them is short:
+
+```python
+import re, yaml
+from pathlib import Path
+from mcp.server import MCPServer
+
+PRAVIDLA = yaml.safe_load(Path("/data/pravidla.yaml").read_text(encoding="utf-8"))
+mcp = MCPServer("Text check")
+
+def je_vyjimka(text: str, zacatek: int, konec: int, vyjimky: list[str]) -> bool:
+    """An exception applies only when the matched expression lies inside it."""
+    for v in vyjimky:
+        for m in re.finditer(re.escape(v), text, re.IGNORECASE):
+            if m.start() <= zacatek and konec <= m.end():
+                return True
+    return False
+
+@mcp.tool()
+def zkontroluj_text(text: str) -> list[dict]:
+    """Checks a text against the company rules. Call on every
+    text that is to go out. An empty list means no findings."""
+    nalezy = []
+    for p in PRAVIDLA["zakazane"]:
+        for m in re.finditer(p["vzor"], text, re.IGNORECASE):
+            if not je_vyjimka(text, m.start(), m.end(), p.get("vyjimky", [])):
+                nalezy.append({"misto": m.start(), "nalez": m.group(0),
+                               "duvod": p["duvod"]})
+    for n in PRAVIDLA["nazvy"]:
+        for s in n["spatne"]:
+            if s in text:
+                nalezy.append({"nalez": s, "duvod": f"Correct: {n['spravne']}"})
+    for p in PRAVIDLA["povinne"]:
+        if re.search(p["kdyz"], text) and not re.search(p["musi_byt"], text):
+            nalezy.append({"nalez": "mandatory component missing", "duvod": p["duvod"]})
+    return nalezy
+```
+
+The skeleton has been tried on a few sentences and does what it should; for production, have Claude finish it according to your rules. What matters are three properties every version should have: it returns **a position and a reason**, not just yes/no; **an empty list** is an unambiguous result; and the rules are **outside the code**, so they are changed by whoever understands them.
+
+## Where it stands in the chain
+
+At the end. Always.
+
+<Flow title="A text from brief to publication" steps={[
+  { title: "The model writes", desc: "According to the brand rules and the facts from the base." },
+  { title: "Check by code", desc: "Same input, same result. Returns findings with a position and a reason." },
+  { title: "The model fixes", desc: "Only what the check found. And sends the text to be checked again." },
+  { title: "A person reads", desc: "Tone, meaning and everything code cannot judge." },
+]} />
+
+The third step has one trap: after a fix, the model likes to declare that it is done. Insist that it is done only after a second check with an empty result.
+
+## What the check cannot do
+
+This is just as important as what it can.
+
+- **It does not recognise meaning.** “Relieves pain” will pass, even though it is the same thing as the banned “cures”. The list is always one step behind the inventiveness of the text.
+- **It does not recognise tone.** A text can satisfy all the rules and be unusable.
+- **It does not recognise truth.** It verifies that the price matches the base. Not that the base is right.
+- **It gives false alarms.** “Léčebna” (a sanatorium) is not a health claim. Without exceptions, people start ignoring the findings, and then they ignore the real ones too. Yet an exception may excuse only an expression that lies directly within it; if it applied to the whole surrounding text, it would let through the sentence “Léčebna: náš čaj léčí.” (“Sanatorium: our tea cures.”)
+
+That is why a green check does not mean “the text is fine”. It means “the text has not broken anything we know how to write down”. The rest is work for a reader.
+
+## How to maintain the rules
+
+- **Every rule has a reason and an author.** A rule nobody knows the reason for gets switched off at the first obstacle.
+- **Every false alarm is dealt with the same day.** With an exception, not by switching the rule off.
+- **Every mistake that got through is a new rule.** When something got into a text that should not have, the first question is whether a pattern could have caught it.
+- **Test the rules.** The file comes with a few sentences that should pass and a few that should not. Run them after every change.
+
+## What to watch out for
+
+- **Czech inflects.** Banning “léčí” is not enough; you need the root of the word and its forms. Have the patterns drafted for you and try them on real texts.
+- **Verify legal rules with a lawyer.** What counts as a permitted health claim is determined not by your list but by regulations. The list is only their imprint.
+- **The check must not correct the text itself.** It returns findings. The fix is made by the model or by a person, and it is visible.
+- **Do not bypass it “just this once”.** A tool that may be skipped gets skipped precisely when people are in a hurry — which is when mistakes are made.
+
+---
+
+In the whole chain from brief to publication there are plenty of smart parts, and every one of them gets it wrong now and then. This one is dumb, and when it gets something wrong, it gets it wrong the same way every time — so you fix it once and it stays fixed. That is why you can build the rest on top of it.

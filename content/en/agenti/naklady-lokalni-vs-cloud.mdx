@@ -1,0 +1,98 @@
+---
+title: "What local AI costs and what the cloud costs: an honest calculation"
+excerpt: "A local model isn't free and the cloud isn't expensive — until you start counting volume. How to work out your own break-even point, where the costs nobody tells you about are hiding, and why money isn't the main reason for going local anyway."
+track: "orchestrace"
+order: 4
+tags: ["naklady", "lokalni-ai", "orchestrace"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  A local model has a high entry cost (hardware) and a low running cost (electricity). The cloud is the opposite: nothing up front, payment for every request. The break-even point is therefore set not by the price of the model but by volume — while you make a few dozen queries a day, the cloud is cheaper and more convenient; at hundreds of queries a day or with batch processing, a home machine pays for itself. But the calculation also has to include your own time spent on upkeep, which people leave out, and the main reason for going local tends to be data anyway, not money.
+sources:
+  - name: "Ollama — library of models to download"
+    url: "https://ollama.com/library"
+  - name: "LiteLLM — spend tracking and budgets"
+    url: "https://docs.litellm.ai/docs/proxy/cost_tracking"
+---
+
+This part deliberately gives no specific model prices. They change every two months, and a table that was accurate today would be lying a year from now. More useful is a method for working out your own numbers — and the method doesn't change.
+
+## Two different cost structures
+
+**The cloud** is a purely variable cost. Nothing up front, then you pay for every token processed. Don't use it → don't pay. Volume goes up tenfold → the bill goes up tenfold.
+
+**Local** is almost entirely fixed. You pay for the hardware, then only for electricity. Don't use it → you pay just the same. Volume goes up tenfold → the cost barely changes, you just wait longer.
+
+It follows that the two can't be compared with a single number. They can only be compared **at a specific volume.**
+
+## How to work out your own break-even point
+
+A three-step procedure; each step takes a few minutes.
+
+**Step 1: measure the volume.** Run the gateway for two weeks and look at how many queries a day you really make and how big they are. Most people are out by an order of magnitude on this number — in either direction.
+
+**Step 2: work out the cloud price per month.** Take the provider's current price list and your measured volume. The gateway can usually calculate this itself, because it tracks spend.
+
+**Step 3: work out the local price per month.**
+
+- **Hardware**, spread over its service life. A machine costing 25,000 Kč that will serve for three years is roughly 700 Kč a month.
+- **Electricity.** Multiply the consumption in watts by 0.72 (the number of kilowatt-hours per month for one watt of continuous operation) and by the price per kWh. A quiet box averaging 15 W comes to tens of crowns. A gaming PC averaging a hundred watts, to several hundred.
+- **Your time.** This is what people leave out, and it's the biggest item. Allow an hour a month for updates, restarts and working out why it's not running again.
+
+Then compare. And above all: **compare it again in six months**, because model prices fall over the long term, while your electricity doesn't.
+
+## How it usually comes out
+
+Without specific amounts, this much can be said:
+
+- **A few dozen queries a day:** the cloud is both cheaper and more convenient. A local machine doesn't pay for itself at that volume, because you're paying for it even while it sleeps.
+- **Hundreds of queries a day or batch processing:** local starts to win. Typically when AI sorts mail, processes documents or runs in automations.
+- **Irregular peaks:** the combination wins. Routine at home, the peak in the cloud — exactly as the previous part on routing describes.
+
+<Bars title="Where the cost hides (share of the total cost of local)" items={[
+  { label: "Hardware", value: 60, display: "the biggest item" },
+  { label: "Your time on upkeep", value: 30, display: "underestimated" },
+  { label: "Electricity", value: 10, display: "smaller than you expect" },
+]} />
+
+The proportions are approximate and depend on how expensive a machine you buy and how you value an hour of your time. What matters is the order: **hardware and your time, not electricity.**
+
+## Hidden costs nobody talks about
+
+**On the cloud side:**
+
+- Multiple subscriptions. Three separate AI apps often cost more than one API with a gateway.
+- Dearly paid “thinking”. Models that generate a long chain of reasoning before answering consume many times more than the length of the answer would suggest.
+- Agents. A single agent run can mean dozens of model calls. Without a budget on the key, it can get nicely out of hand.
+
+**On the local side:**
+
+- Disk. Three models and fifty gigabytes are gone.
+- Dead ends. You'll spend the first month tuning, and that is time you could have billed.
+- Cooling and noise. With a gaming PC in the living room, that's a real tax.
+
+## Why money isn't the main reason anyway
+
+Honestly: most people who build themselves home AI don't end up making money on it. They gain something else.
+
+- **The data stays at home.** You can't put a figure on this item until something goes badly wrong.
+- **No limits.** You can run a thousand queries overnight and nobody will stop you.
+- **It works without the internet.** On a plane, at the cottage, during an outage.
+- **Nobody switches the model off or changes it on you.** The version you downloaded will work the same a year from now. You can't say that of a cloud service.
+- **You understand it.** Once you've built it, you stop being the user of a black box.
+
+That last one is the least tangible and pays off the most. Someone who has once built a gateway and seen in the log what is actually being sent makes different decisions from someone who just clicks.
+
+## Practical recommendations
+
+1. **Don't buy hardware until you know your volume.** Two weeks with the cloud and a gateway will give you a number worth more than all the comparison articles.
+2. **When you do buy, buy by memory.** See the parts on the Mac mini and on Windows with Nvidia.
+3. **Set spending caps with your providers before you start.** A budget is cheaper than a surprise.
+4. **Run the numbers again.** Once every six months. Prices move, and so do your volumes.
+
+## What to watch out for
+
+The most common mistake in this calculation is comparing a local model with the most expensive cloud one. That's nonsense — you wouldn't run routine work in the cloud on a top-tier model anyway. Compare **the same class of task**: the local model against the cheaper cloud one you would use for that routine. The difference will come out differently from what you expect, and above all it will be true.
+
+That ends the track on orchestration. The next one is about the part that will get you using the whole thing every day: how to operate the control room from your phone.

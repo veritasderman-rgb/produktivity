@@ -1,0 +1,99 @@
+---
+title: "Laptop, phone, home machine: one control room, three screens"
+excerpt: "Three devices, three different roles and one shared memory. How to divide up what gets done where, so that work in progress does not get left on the machine that happens to be shut in your backpack."
+track: "ovladani"
+order: 3
+tags: ["ovladani", "telegram", "orchestrace", "data"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  The most common mistake in a home control room is that each device remembers something different. The solution has three rules: computation and data live on the home machine, devices are only windows, and state is kept in one place — in a folder on the home drive, not in the chat history. Give the phone short tasks and approvals, the laptop the long work, and the home machine everything that runs unattended. After that it does not matter where you are looking from.
+sources:
+  - name: "Open WebUI — a chat interface for your own models"
+    url: "https://github.com/open-webui/open-webui"
+  - name: "Tailscale — documentation"
+    url: "https://tailscale.com/kb/"
+---
+
+Once you have set up a model at home, a gateway, a Telegram bot and a private network, an unexpected problem awaits: **the memory falls apart.** In the morning you ask something from your phone, in the afternoon you want to carry on with it on the laptop, and you find the conversation is not there. A week later you do not know where anything is.
+
+It is not a problem with the tools. It is a problem with the division of roles.
+
+## Three rules that solve it
+
+**1. Computation and data live at home.** The home machine is the only place where the model runs and where the files you work with are kept. Neither the laptop nor the phone holds anything.
+
+**2. Devices are only windows.** Neither the phone nor the laptop is “a place where something happens”. They are screens through which you look at one and the same control room.
+
+**3. State is kept in files, not in the chat.** A conversation is ephemeral. If something is meant to outlive a single sitting, it has to end up in a folder on the home drive.
+
+That third rule is the hardest and the most useful. Chat history is a trap: it looks like memory, but nothing in it can be traced, you cannot search across it, and you lose it when you move between tools.
+
+## Who does what
+
+<Flow title="Division of roles" steps={[
+  { title: "Home machine — the worker", desc: "It runs the model, the gateway and everything that works unattended: overnight batches, folder watching, scheduled tasks. This is where the data lives." },
+  { title: "Laptop — the workshop", desc: "Long work with documents, writing, code, anything where you need a big screen and a keyboard. It reaches the home machine over the private network." },
+  { title: "Phone — the control room in your pocket", desc: "Short questions, putting a task in the queue, approving or rejecting what the home machine has prepared. Nothing long gets written here." },
+]} />
+
+This breakdown looks obvious, but few people have it consciously. Most people try to do the laptop's work on the phone, which is frustrating, and then give up.
+
+## How to set it up in practice
+
+**One chat interface for all devices.** Run a web chat on the home machine (Open WebUI is the most widespread) and connect it to your gateway. You access it from the browser on both laptop and phone via an address on the private network. There is one history and it is yours.
+
+**Telegram as the fast lane.** For questions that take ten seconds, opening a browser is pointless. The bot from the first part of this track covers that.
+
+**One shared folder.** Create a structure on the home machine that both the AI and you work with:
+
+```
+~/velin/
+  vstup/        # where you drop what the model should process
+  vystup/       # where it saves the results
+  ke-schvaleni/ # what is finished but waiting for your yes
+  archiv/       # done and signed off
+  poznamky/     # permanent knowledge base
+```
+
+This structure is simple on purpose. If it gets more complicated, you will stop using it.
+
+On the laptop, mount the folder over the network or via SSH; on the phone you get into it through the files in the chat interface.
+
+## One day's scenario
+
+What it looks like when it works:
+
+| When | Where | What happens |
+|---|---|---|
+| 6:30 | home machine | The overnight batch has sorted the mail and prepared three draft replies in `ke-schvaleni/` |
+| 7:40 | phone | A summary arrives in Telegram: three drafts are waiting. You approve two and send one back with a note |
+| 9:00 | laptop | You open the chat over the private network and continue the analysis you did not finish yesterday — the history is where you left it |
+| 13:00 | phone | A thought occurs to you, you send it to the bot, and it saves it to `poznamky/` |
+| 18:00 | laptop | You tell the model to process the `vstup/` folder overnight |
+| 23:00 | home machine | It is working. You are not. |
+
+Notice that not once does the question “where did I put it” come up. That is the whole aim.
+
+## What is possible and what is not
+
+**Possible:** having access to all your files from the phone through the model, starting long tasks from the phone, carrying on on another device with what you started.
+
+**Not possible:** having the devices work independently. When the home machine is switched off, you have nothing. That is the deliberate price for the data staying at home — and it is why it is worth having a machine at home that runs all the time, not a laptop you have closed.
+
+**A compromise for travelling:** a smaller model directly on the laptop in case you are offline or the power has gone at home. It will not be the same, but you will not be left stranded.
+
+## What to watch out for
+
+- **Do not create two knowledge bases.** One folder, one place. Two means you will find nothing in either.
+- **Back up the home machine.** If it is the only place the data exists, it is also the only place it can be lost from.
+- **Do not treat chat history as an archive.** Whatever is meant to survive, save to a file.
+- **Do not use the phone for long input.** If you are typing a paragraph of instructions on your phone, you are doing it wrong — dictate it or wait for a keyboard.
+- **Set up what happens in an outage.** At the very least, have the bot tell you “the home machine is not responding” instead of staying silent.
+
+## Pro tip
+
+The best check of whether the control room is well built is simple: **switch the laptop off for three days and work only from the phone.** Whatever you miss is the list of things you have divided up badly. Mostly you will find that the only thing you really need a big screen for is writing long texts — everything else can be requested and approved in two sentences.
+
+The last part of this track is about what happens between the request and the result: the task queue, and why the last click has to stay yours.

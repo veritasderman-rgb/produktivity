@@ -1,0 +1,108 @@
+---
+title: "How much memory a model eats: quantisation made clear"
+excerpt: "Why the same model comes in five different sizes in the library, what Q4 in the file name means and how to work out whether it will fit in your machine. One table, one formula, no maths."
+track: "lokalni-ai"
+order: 4
+tags: ["lokalni-ai", "hardware", "open-weights"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  Quantisation is rounding the numbers in a model so that it takes up less memory. A model with eight billion parameters takes around 16 GB at full precision and roughly 5 GB in four-bit quantisation — and the difference in the quality of the answers is barely noticeable in ordinary work. A rough formula: the number of billions of parameters times 0.6 equals gigabytes at four-bit quantisation. The best trade-off is usually the four-bit variant; going below it makes no sense, and above it only when you have memory to spare.
+sources:
+  - name: "Ollama — library of models to download"
+    url: "https://ollama.com/library"
+  - name: "llama.cpp — the project the quantised formats come from"
+    url: "https://github.com/ggml-org/llama.cpp"
+---
+
+You open a model library and under one name you see five files of different sizes. The same model, the same parameter count, but one is 4 GB and another 16. The difference is called quantisation, and it is the most useful thing you can know about local models.
+
+## What it actually is
+
+A model is a huge table of numbers — parameters. When its authors train it, each of those numbers is stored precisely, usually in 16 bits. Quantisation means you **round** those numbers and store them in fewer bits. Eight bits. Four. Sometimes fewer.
+
+Just as when you write down a price of CZK 1,249.90 as “about twelve hundred”. You lose precision, you save space, and for most decisions it does not matter.
+
+<Bars title="The same model with 8 billion parameters" items={[
+  { label: "16 bits (full precision)", value: 16, display: "~16 GB" },
+  { label: "8 bits (Q8)", value: 8, display: "~8.5 GB" },
+  { label: "5 bits (Q5)", value: 6, display: "~5.7 GB" },
+  { label: "4 bits (Q4)", value: 5, display: "~4.9 GB" },
+]} />
+
+The values are approximate — they vary with the specific format and with which layers of the model are quantised how. The ratios hold, though.
+
+## A formula you will remember
+
+For a quick estimate in four-bit quantisation, which is the most common choice today:
+
+**Billions of parameters × 0.6 ≈ gigabytes on disk and in memory.**
+
+So:
+
+| Model | Size at Q4 | Where it fits |
+|---|---|---|
+| 4 bn | ~2.5 GB | almost anything, even a laptop without a graphics card |
+| 8 bn | ~5 GB | 8 GB graphics card, 16 GB Mac |
+| 14 bn | ~9 GB | 12 GB graphics card, 24 GB Mac |
+| 30 bn | ~18 GB | 24 GB graphics card, 32 GB Mac |
+| 70 bn | ~42 GB | 64 GB Mac, multiple cards |
+
+**And then add the context.** The conversation, the document you feed the model and its answer are all stored in memory on top. For a short chat that is hundreds of megabytes; for a long document, easily gigabytes. Hence the rule about headroom: **leave at least one to two gigabytes free above the size of the model.**
+
+## Which variant to choose
+
+In practice it is boringly simple:
+
+- **Q4 is the default choice.** The best ratio of size to quality. When you download a model in Ollama without specifying anything, this is usually the variant you get.
+- **Q5 or Q6 when you have memory to spare.** The difference from Q4 is small, but in precise tasks (code, numbers, structured output) it can show.
+- **Q8 only exceptionally.** It takes twice as much as Q4, and the difference from Q5 is hard to measure in ordinary work.
+- **Do not go below four bits.** Two- and three-bit variants exist, but the model starts to go noticeably wrong — mainly in precision and in sticking to instructions.
+
+## A more important decision than you think
+
+Here is the thing people underestimate: **a bigger model in heavy quantisation is almost always better than a smaller model at full precision.**
+
+You have 12 GB of memory. You can choose:
+
+- a model with 8 billion parameters at Q8 (~8.5 GB), or
+- a model with 14 billion parameters at Q4 (~9 GB).
+
+The second choice will be noticeably better in most tasks. The parameter count is a rough measure of how much the model “knows and can do”, and the loss from quantisation is trivial by comparison.
+
+The rule: **first pick the largest model that fits in your memory at Q4, and only if there is room left, raise the precision.**
+
+## What quantisation does not change
+
+- **The speed of reading a long document.** That depends mainly on the length of the context and on the machine's performance.
+- **The model's behaviour with instructions.** A Q4 model is not “dumber about rules”, just a little less precise in the details.
+- **The quality of its Czech.** That is determined by training, not quantisation. Some model families are markedly better at Czech than others — which you can only find out by trying.
+
+## How to try it in practice
+
+Download two variants of the same model and ask them the same three questions:
+
+```
+ollama pull qwen3:8b
+ollama pull qwen3:14b
+```
+
+Try the same trio on both: summarising a paragraph, pulling three pieces of data into a table and rephrasing a text. With the first two tasks you will often see no difference. With the third you usually will.
+
+And then measure how long each model takes to answer:
+
+```
+ollama run qwen3:14b --verbose
+```
+
+The flag prints statistics after the answer, including generation speed. Below ten words per second, writing is unpleasant; above twenty it is fluent.
+
+## What to watch out for
+
+- **Do not download five variants “just in case”.** Each one takes up gigabytes. `ollama rm` is your friend.
+- **Format labels differ by tool.** In Ollama you will see tags like `q4_K_M`, in LM Studio similar ones. The letters at the end indicate which layers are quantised differently — for making a decision, the number is enough.
+- **Be sparing with context.** Giving a model a giant context window “just in case” takes up memory even if you never use it.
+- **You recognise a model that does not fit by its speed, not by an error.** Nothing crashes. It just crawls. When an answer is suddenly ten times slower, you have run out of memory.
+
+The last part of this track is about a decision: when a model you download is enough, and when it makes sense to pay for the best one in the cloud.

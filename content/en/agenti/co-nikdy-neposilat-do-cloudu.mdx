@@ -1,0 +1,87 @@
+---
+title: "What never to send to the cloud (and how to make sure of it)"
+excerpt: "A short list of things that shouldn't leave your machine, and three technical measures that mean it doesn't depend on your memory. Because a rule you have to remember will fail sooner or later."
+track: "data"
+order: 4
+tags: ["data", "bezpecnost", "rizeni"]
+level: "zacatecnik"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  There is a short list of data for which relying on the provider's terms isn't worth it: credentials and keys, health data, clients' personal data without their consent, unpublished company information, other people's confidential materials and anything under a duty of confidentiality. The point isn't to remember it — the point is to arrange things so that it can't happen: a local model as the default, no automatic escalation to the cloud, separate folders for sensitive and ordinary work, and a filter that stops a request when it finds a Czech birth number, an IBAN or a key in it.
+sources:
+  - name: "ČTÚ: transparency rules under the AI Act from 2 August 2026"
+    url: "https://ctu.gov.cz/tiskova-zprava-2.-srpna-2026-jako-klicove-datum-pro-pravidla-transparentnosti-podle-aktu-o-umele"
+  - name: "ÚOOÚ — the Czech Office for Personal Data Protection"
+    url: "https://uoou.gov.cz/"
+---
+
+This part is short on purpose. It isn't an essay, it's a list you can print out.
+
+Before we begin: the point isn't that AI providers are suspect. The point is that **sending data is an irreversible operation.** What's gone is gone. Deleting the conversation doesn't bring it back, a change in the terms doesn't bring it back, and regret certainly doesn't.
+
+## The list
+
+**1. Credentials.** Passwords, API keys, tokens, the contents of secrets files. Not even “just so you can check the format for me”. A key pasted into a chat is a key that needs to be revoked.
+
+**2. Health data.** Your own and other people's. Medical reports, diagnoses, results. A special category of personal data with protection to match.
+
+**3. Clients' personal data without their consent.** Names, addresses, birth numbers, account numbers, anything a person can be identified by. When you need to work with such a text, anonymise it **before** sending, not in the prompt.
+
+**4. Unpublished company information.** Contracts in progress, pricing, payroll records, plans, acquisition documents, anything that hasn't gone out yet.
+
+**5. Other people's confidential materials.** Documents someone sent you on the understanding that they're internal. They aren't yours, and it isn't your place to pass them on.
+
+**6. Anything under a duty of confidentiality.** If you've signed an NDA, it covers AI tools too. The fact that it's a machine changes nothing about the obligation.
+
+**7. Recordings and transcripts of meetings where you don't have everyone's consent.** A transcript of a meeting is the personal data of everyone who took part.
+
+## The grey zone
+
+Some things aren't forbidden, but they deserve a conscious decision:
+
+- **Internal minutes without names.** Usually fine, but think through what can be inferred from them.
+- **The code of a company project.** It depends on the company and on what's in the contract with the provider.
+- **Your own writing in progress.** Technically nothing stands in the way, but some people don't want it that way.
+- **Photos and scans of ID documents.** The text recognition happens somewhere — and everything else in the photo goes with it.
+
+The rule for the grey zone: **if this turned up in public tomorrow, would it be a problem?** If yes, it belongs at home.
+
+## Why rules in your head aren't enough
+
+Because you won't remember them at the one moment it matters — in a hurry, on a Friday afternoon, when you need an answer fast. That's why it has to be arranged technically.
+
+<Flow title="Three measures that don't rely on your memory" steps={[
+  { title: "A local model as the default", desc: "When the default choice is local, the only things that reach the cloud are the ones you send there deliberately. The reverse setting has the reverse consequences." },
+  { title: "No automatic escalation", desc: "There must be no fallback from the local model to the cloud in the gateway. When local isn't enough, let it say so and you decide." },
+  { title: "Separate folders and profiles", desc: "Sensitive work in one folder with a local setup, ordinary work in another. The tool then has nowhere to reach." },
+]} />
+
+## A filter that stops a mistake
+
+If you have the gateway from the third track, a simple check can be added to it: before a request leaves for an external provider, it's run against patterns. It isn't perfect, but it catches the most common mistakes.
+
+What to look for:
+
+- **Czech birth number:** six digits, a slash, three or four digits.
+- **IBAN:** two letters and a long string of characters.
+- **Payment card number:** sixteen digits, possibly with spaces.
+- **API keys:** typical prefixes such as `sk-`, `ghp_`, `AKIA`.
+- **Internal markings:** whatever your company uses to label confidential documents.
+
+When the filter finds something, it **shouldn't quietly redirect the request to the local model** — it should stop and ask. Silent redirection teaches you to ignore the filter.
+
+## When it has already happened
+
+1. **Don't cover it up.** Lost time is worse than owning up.
+2. **Revoke what can be revoked.** Keys and passwords immediately.
+3. **Establish the extent.** What exactly went out, when and to whom.
+4. **Look at the provider's terms** to see how long it keeps data and how to request erasure.
+5. **For personal data, consider the notification duty.** Depending on the nature of the incident, it may be a personal data breach that has to be reported to the supervisory authority. Don't ask the internet about this; ask a lawyer.
+6. **Change the setup, not just the behaviour.** If it could happen once, it can happen again.
+
+## Pro tip
+
+The best investment in peace of mind is a boring one: **set up two working environments.** One “internal”, with a local model as the default, no cloud keys, and the folders with sensitive data. The other “ordinary”, with the full cloud and no access to the first. Switching takes a second, and from then on you don't have to think about every single request — you decided on the split once, in advance and with a clear head.
+
+That ends the track on data. The last track is about what happens when all these rules are skipped — and how to write them down on a single page that people actually read.

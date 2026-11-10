@@ -1,0 +1,108 @@
+---
+title: "Where API keys belong (and where they definitely do not)"
+excerpt: "A key is a password nobody changes, because nobody remembers it exists. Where to store it on a Mac, on Windows and on a server, why it does not belong in a chat or in a file in the project, and how to tell that it has got away from you."
+track: "orchestrace"
+order: 2
+tags: ["api-klice", "bezpecnost", "orchestrace"]
+level: "pokrocily"
+date: "2026-09-07"
+updated: "2026-09-07"
+tldr: >-
+  An API key is a username and a password at once, and it is valid until you revoke it. It does not belong in source code, in a chat, in a screenshot or in a shared document — it belongs in environment variables, in the system keychain or in a password manager. The best defence is not a better hiding place but smaller damage: a separate key for each application, a hard monthly cap at the provider and regular rotation. If a key is going to leak, let it be one you can revoke within a minute without everything else ceasing to work.
+sources:
+  - name: "LiteLLM — virtual keys and budgets in the proxy"
+    url: "https://docs.litellm.ai/docs/proxy/virtual_keys"
+  - name: "LiteLLM: security notice on the March 2026 incident"
+    url: "https://docs.litellm.ai/blog/security-update-march-2026"
+---
+
+This is the most boring part of the whole series, and at the same time the one whose neglect brings the most unpleasant surprises. An API key is not a password in the usual sense. It is **a username and a password in a single string**, valid until revoked, with no two-factor authentication, and nobody sends you an email saying that someone has logged in with it from Bucharest.
+
+## Why it is more sensitive than it looks
+
+When a key to a model leaks, three things happen at once:
+
+1. **Someone is spending on your behalf.** Other people's traffic goes on your account until you notice.
+2. **Someone can see what you are asking** — if they have the key to a gateway, they see the history too.
+3. **Someone can act in your name**, if the key is connected to tools that do things.
+
+That third item is new. As long as a key was only for chat, it was about money. In the world of agents, a key can be access to mail, to a calendar, to a repository or to a CRM.
+
+## Where a key does not belong
+
+Go through this as a checklist. Almost everyone will tick “I have done that” at some point.
+
+- **In source code.** Not “temporarily”, not in a branch nobody will see. Git remembers it for ever.
+- **In a chat with an AI.** Yes, even your own. A key pasted into a conversation ends up in the history and possibly in the gateway log as well.
+- **In a screenshot.** The classic of screen sharing in a meeting.
+- **In a shared document or Slack.** “I'll send you the key in a message” means the key will exist in the company archive for good.
+- **In a configuration file in the project.** Unless, that is, it is among the ignored files — and even then it is the last choice, not the first.
+
+## Where it does belong
+
+**On your own computer: environment variables.** The key lives outside the project and the program picks it up at runtime.
+
+On macOS and Linux, in the `~/.zshrc` or `~/.bashrc` file:
+
+```
+export ANTHROPIC_API_KEY="sk-..."
+export OPENAI_API_KEY="sk-..."
+```
+
+On Windows via Settings → System → About → Advanced system settings → Environment Variables, under user variables.
+
+**On a Mac, better still: the keychain.** You store the key in the system keychain and a script pulls it out with a command, so it does not sit anywhere in a readable file:
+
+```
+security add-generic-password -a "$USER" -s ANTHROPIC_API_KEY -w "sk-..."
+security find-generic-password -a "$USER" -s ANTHROPIC_API_KEY -w
+```
+
+**In a password manager.** Bitwarden, 1Password and others support secure notes, and most have a command-line tool. This is where the key should sit as the **source of truth** — the environment variable is only a working copy.
+
+**On a server: a file with restricted permissions, or a secrets manager.** If keys really must lie in a file (say `.env` for the gateway), set its permissions so that only that one user can read it:
+
+```
+chmod 600 .env
+```
+
+## The best defence is not a better hiding place
+
+This is the idea that makes this part worth reading. Sooner or later a key will get away from you — by mistake, by oversight, through someone else's error. The question is not how to prevent it, but **how to make sure it does not hurt.**
+
+<Flow title="Four measures that reduce the damage" steps={[
+  { title: "A key per application, not one for everything", desc: "When the key for the mail-sorting script leaks, you revoke it and nothing else stops working." },
+  { title: "A hard cap at the provider", desc: "A monthly spending limit. Set it to the amount you are willing to lose, not the amount you plan to spend." },
+  { title: "Virtual keys through a gateway", desc: "Applications get keys from your gateway, not the providers' real keys. Revoking one is a single command." },
+  { title: "Rotation by the calendar", desc: "Replace the keys once a quarter. In the process you will also find out all the places where you forgot them." },
+]} />
+
+That third point is the main reason the gateway from the previous part pays off even for one person. **Only the gateway knows the real provider keys.** Everything else — chat, editor, Telegram bot, agents — gets a key you make yourself, give a cap to and cut off whenever you like.
+
+## How to tell that something is going on
+
+- **Watch the spending, not just the invoice.** Turn on an alert at the provider for exceeding a set amount. You recognise unusual traffic by a jump, not by the total.
+- **Check the gateway logs.** If you see requests at a time when you were asleep, something is wrong.
+- **Respond to service warnings.** Providers and GitHub actively scan public repositories for leaked keys. When an email like that arrives, it is not spam.
+
+## When a key leaks
+
+The order of steps, so that it does not get worse:
+
+1. **Revoke the key at the provider.** Not change it, revoke it. Immediately.
+2. **Generate a new one** and deploy it only where it is really needed.
+3. **Go through the spending history** for the last few days.
+4. **Find out how it got out** — otherwise you will repeat it in a week.
+5. **If it was in git, deleting it with a commit is not enough.** The history has to be rewritten, or the repository treated as compromised.
+
+## What to watch out for
+
+Keys do not have to leak through your own mistake alone. March 2026 showed what it looks like when someone else's code gets into a tool that holds keys: a modified version containing a credential harvester was briefly slipped into the package of the popular AI gateway LiteLLM. The maintainer issued a security notice instructing users to uninstall the affected versions and **rotate all credentials**. The whole case is dissected in a separate part in the last track.
+
+The lesson for this part: a key that can be revoked with one click and that has a cap is an incomparably smaller problem than a key with no limit used by five applications at once.
+
+## Pro tip
+
+Do one thing today that takes ten minutes: log in to every provider where you have an account and set a monthly spending cap. Most people have none set at all. It is the cheapest insurance in this whole series.
+
+The next part is more fun: how to teach the gateway to send each task to wherever it will be handled best and most cheaply.
