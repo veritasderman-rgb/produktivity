@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { cachedByLocale } from "@/lib/content-cache";
+import { publishedOnly } from "@/lib/publish";
 
 export type FaqItem = { q: string; a: string };
 
@@ -59,11 +60,13 @@ export function tipMeta(tip: Tip): TipMeta {
 }
 
 function loadAllTipMetas(locale: string = "cs"): TipMeta[] {
-  return getAllTips(locale).map(tipMeta);
+  return loadedTips(locale).map(tipMeta);
 }
 
-/** Čtení z disku je cachované — viz lib/content-cache.ts. */
-export const getAllTipMetas: (locale?: string) => TipMeta[] = cachedByLocale(loadAllTipMetas);
+/** Čtení z disku je cachované; naplánované tipy se odfiltrují až při čtení. */
+export const getAllTipMetas: (locale?: string) => TipMeta[] = publishedOnly(
+  cachedByLocale(loadAllTipMetas),
+);
 
 const FENCE_RE = /```[\s\S]*?```/g;
 const MEGA_CHARS = 15000;
@@ -124,8 +127,11 @@ function loadAllTips(locale: string = "cs"): Tip[] {
   return tips.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
-/** Čtení z disku je cachované — viz lib/content-cache.ts. */
-export const getAllTips: (locale?: string) => Tip[] = cachedByLocale(loadAllTips);
+/** Všechny soubory z disku včetně naplánovaných; cachované — viz lib/content-cache.ts. */
+const loadedTips: (locale?: string) => Tip[] = cachedByLocale(loadAllTips);
+
+/** Jen už vydané tipy — viz lib/publish.ts. */
+export const getAllTips: (locale?: string) => Tip[] = publishedOnly(loadedTips);
 
 export function getTip(slug: string, locale: string = "cs"): Tip | undefined {
   return getAllTips(locale).find((t) => t.slug === slug);

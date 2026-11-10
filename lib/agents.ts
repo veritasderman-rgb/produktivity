@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { cachedByLocale } from "@/lib/content-cache";
+import { publishedOnly } from "@/lib/publish";
 import type { Locale } from "@/lib/i18n";
 
 /**
@@ -128,17 +129,22 @@ function loadAllAgentArticles(locale: string = "cs"): AgentArticle[] {
   });
 }
 
-/** Čtení z disku je cachované — viz lib/content-cache.ts. */
-export const getAllAgentArticles: (locale?: string) => AgentArticle[] =
+/** Všechny soubory z disku včetně naplánovaných; cachované — viz lib/content-cache.ts. */
+const loadedAgentArticles: (locale?: string) => AgentArticle[] =
   cachedByLocale(loadAllAgentArticles);
 
+/** Jen už vydané díly — viz lib/publish.ts. */
+export const getAllAgentArticles: (locale?: string) => AgentArticle[] =
+  publishedOnly(loadedAgentArticles);
+
 function loadAllAgentMetas(locale: string = "cs"): AgentArticleMeta[] {
-  return getAllAgentArticles(locale).map(agentMeta);
+  return loadedAgentArticles(locale).map(agentMeta);
 }
 
-/** Čtení z disku je cachované — viz lib/content-cache.ts. */
-export const getAllAgentMetas: (locale?: string) => AgentArticleMeta[] =
-  cachedByLocale(loadAllAgentMetas);
+/** Čtení z disku je cachované; naplánované díly se odfiltrují až při čtení. */
+export const getAllAgentMetas: (locale?: string) => AgentArticleMeta[] = publishedOnly(
+  cachedByLocale(loadAllAgentMetas),
+);
 
 export function getAgentArticle(slug: string, locale: string = "cs"): AgentArticle | undefined {
   return getAllAgentArticles(locale).find((a) => a.slug === slug);

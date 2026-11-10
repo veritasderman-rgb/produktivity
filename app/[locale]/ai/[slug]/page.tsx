@@ -43,6 +43,9 @@ function formatDate(iso: string, locale: Locale) {
   return `${d}. ${m}. ${y}`;
 }
 
+// Fronta publikování: článek vyjde v den svého `date`, stránka se proto obnovuje sama (lib/publish.ts).
+export const revalidate = 3600;
+
 export function generateStaticParams({ params }: { params: { locale: string } }) {
   return getAllNews(params.locale).map((n) => ({ slug: n.slug }));
 }

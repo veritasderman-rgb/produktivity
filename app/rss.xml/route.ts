@@ -14,6 +14,9 @@ function escapeXml(s: string) {
 
 type FeedItem = { title: string; path: string; date: string; excerpt: string; category: string };
 
+// Fronta publikování: článek vyjde v den svého `date`, stránka se proto obnovuje sama (lib/publish.ts).
+export const revalidate = 3600;
+
 export function GET() {
   // Tipy, AI novinky a díly seriálu Agenti v jednom kanálu, nejnovější nahoře. Seriál se na
   // webu řadí po linkách, takže bez RSS by se nový díl k odběratelům nedostal.

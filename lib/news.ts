@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { cachedByLocale } from "@/lib/content-cache";
+import { publishedOnly } from "@/lib/publish";
 
 export type NewsItem = {
   slug: string;
@@ -42,8 +43,10 @@ function loadAllNews(locale: string = "cs"): NewsItem[] {
   return items.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
-/** Čtení z disku je cachované — viz lib/content-cache.ts. */
-export const getAllNews: (locale?: string) => NewsItem[] = cachedByLocale(loadAllNews);
+/** Čtení z disku je cachované; naplánované novinky se odfiltrují až při čtení (lib/publish.ts). */
+export const getAllNews: (locale?: string) => NewsItem[] = publishedOnly(
+  cachedByLocale(loadAllNews),
+);
 
 export function getNewsItem(slug: string, locale: string = "cs"): NewsItem | undefined {
   return getAllNews(locale).find((n) => n.slug === slug);

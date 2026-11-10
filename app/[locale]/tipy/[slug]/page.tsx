@@ -71,6 +71,9 @@ const T = {
 /** Minimální počet H2, od kterého se vyplatí ukázat obsah článku. */
 const TOC_MIN_HEADINGS = 4;
 
+// Fronta publikování: článek vyjde v den svého `date`, stránka se proto obnovuje sama (lib/publish.ts).
+export const revalidate = 3600;
+
 export function generateStaticParams({ params }: { params: { locale: string } }) {
   return getAllTips(params.locale).map((tip) => ({ slug: tip.slug }));
 }

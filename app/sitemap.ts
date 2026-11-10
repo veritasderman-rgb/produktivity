@@ -19,6 +19,9 @@ function withAlternates(csPath: string, hasEn: boolean) {
     : {};
 }
 
+// Fronta publikování: článek vyjde v den svého `date`, stránka se proto obnovuje sama (lib/publish.ts).
+export const revalidate = 3600;
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const enTips = new Set(getAllTips("en").map((t) => t.slug));
   const enChapters = new Set(getAllChapters("en").map((c) => c.slug));
