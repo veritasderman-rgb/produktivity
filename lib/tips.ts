@@ -5,6 +5,8 @@ import { cachedByLocale } from "@/lib/content-cache";
 import { publishedOnly } from "@/lib/publish";
 
 export type FaqItem = { q: string; a: string };
+/** Zdroj, o který se tip opírá — zobrazuje se pod článkem a jde do strukturovaných dat. */
+export type TipSource = { name: string; url: string };
 
 export type Tip = {
   slug: string;
@@ -37,6 +39,7 @@ export type Tip = {
   tldr?: string;
   /** Časté otázky — blok `<details>` před sekcí „Pomohlo?" a FAQPage JSON-LD. */
   faq?: FaqItem[];
+  sources?: TipSource[];
 };
 
 /**
@@ -51,11 +54,11 @@ export type Tip = {
  * ale u stovek tipů na jedné stránce z nich naroste serializovaná data
  * o víc než 150 kB. Detail článku si plný tip načítá přes `getTip()`.
  */
-export type TipMeta = Omit<Tip, "body" | "tldr" | "faq">;
+export type TipMeta = Omit<Tip, "body" | "tldr" | "faq" | "sources">;
 
 export function tipMeta(tip: Tip): TipMeta {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- rest destrukturing odděluje data pro server
-  const { body: _body, tldr: _tldr, faq: _faq, ...meta } = tip;
+  const { body: _body, tldr: _tldr, faq: _faq, sources: _sources, ...meta } = tip;
   return meta;
 }
 
@@ -116,6 +119,12 @@ function loadAllTips(locale: string = "cs"): Tip[] {
       isGuide: content.length >= GUIDE_CHARS,
       doingHours: content.length >= GUIDE_CHARS ? guideDoingHours(content.length) : undefined,
       tldr: typeof data.tldr === "string" ? data.tldr.trim() : undefined,
+      sources:
+        Array.isArray(data.sources) && data.sources.length > 0
+          ? (data.sources as TipSource[])
+              .filter((s) => typeof s?.name === "string" && /^https?:\/\//.test(String(s?.url)))
+              .map((s) => ({ name: s.name.trim(), url: s.url.trim() }))
+          : undefined,
       faq:
         Array.isArray(data.faq) && data.faq.length > 0
           ? (data.faq as FaqItem[])

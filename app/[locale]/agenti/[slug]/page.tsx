@@ -21,7 +21,7 @@ import { Pojem } from "@/components/Pojem";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { BackToTop } from "@/components/BackToTop";
 import { SaveButton } from "@/components/SaveButton";
-import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
+import { JsonLd, articleJsonLd, breadcrumbJsonLd, faqJsonLd } from "@/components/JsonLd";
 import { annotateGlossary } from "@/lib/annotate";
 import { extractHeadings, flatText, slugify } from "@/lib/toc";
 import { formatReviewed, reviewedLabel } from "@/lib/reviewed";
@@ -39,6 +39,7 @@ const T = {
     levels: { zacatecnik: "Pro začátečníky", pokrocily: "Pokročilé" } as Record<string, string>,
     toc: "Obsah článku",
     sources: "Zdroje",
+    faq: "Časté otázky",
     prev: "← Předchozí díl",
     next: "Další díl →",
     copy: { copy: "Zkopírovat", copied: "Zkopírováno ✓" },
@@ -52,6 +53,7 @@ const T = {
     levels: { zacatecnik: "Beginner", pokrocily: "Advanced" } as Record<string, string>,
     toc: "In this article",
     sources: "Sources",
+    faq: "Common questions",
     prev: "← Previous part",
     next: "Next part →",
     copy: { copy: "Copy", copied: "Copied ✓" },
@@ -236,6 +238,20 @@ export default async function AgentArticleDetail({
           options={{ blockJS: false, mdxOptions: { remarkPlugins: [remarkGfm] } }}
         />
       </div>
+      {article.faq && article.faq.length > 0 && (
+        <section className="mt-12">
+          <JsonLd data={faqJsonLd(article.faq)} />
+          <h2 className="mb-4 font-sans text-[24px] font-extrabold tracking-[-0.02em] text-ink">{t.faq}</h2>
+          <div className="flex flex-col gap-2">
+            {article.faq.map((item) => (
+              <details key={item.q} className="faq-item">
+                <summary>{item.q}</summary>
+                <p className="faq-a">{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
       <DataDisclaimer locale={locale} />
       {article.sources.length > 0 && (
         <section className="mt-10 border-t border-hairline pt-5">

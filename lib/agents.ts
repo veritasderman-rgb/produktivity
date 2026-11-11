@@ -58,16 +58,18 @@ export type AgentArticle = {
   tldr?: string;
   /** Odkazy na zdroje pod článkem. U faktických tvrzení povinné. */
   sources: AgentSource[];
+  /** Časté otázky pod článkem; jdou i do strukturovaných dat (FAQPage). */
+  faq?: { q: string; a: string }[];
   minutes: number;
   body: string;
 };
 
 /** Článek bez těla — jediné, co se posílá do výpisů a klientských komponent. */
-export type AgentArticleMeta = Omit<AgentArticle, "body" | "tldr" | "sources">;
+export type AgentArticleMeta = Omit<AgentArticle, "body" | "tldr" | "sources" | "faq">;
 
 export function agentMeta(a: AgentArticle): AgentArticleMeta {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- rest destrukturing odděluje data pro server
-  const { body: _body, tldr: _tldr, sources: _sources, ...meta } = a;
+  const { body: _body, tldr: _tldr, sources: _sources, faq: _faq, ...meta } = a;
   return meta;
 }
 
@@ -111,6 +113,12 @@ function loadAllAgentArticles(locale: string = "cs"): AgentArticle[] {
       date: data.date as string,
       updated: (data.updated ?? data.date) as string | undefined,
       tldr: typeof data.tldr === "string" ? data.tldr.trim() : undefined,
+      faq:
+        Array.isArray(data.faq) && data.faq.length > 0
+          ? (data.faq as { q: string; a: string }[])
+              .filter((f) => typeof f?.q === "string" && typeof f?.a === "string")
+              .map((f) => ({ q: f.q.trim(), a: f.a.trim() }))
+          : undefined,
       sources: (Array.isArray(data.sources) ? data.sources : [])
         .filter((s: unknown): s is AgentSource => {
           const source = s as AgentSource | undefined;
