@@ -22,7 +22,6 @@ const T = {
     lead: "Nové tipy, AI novinky a díly seriálu o agentech tak, jak vycházely. Každý pracovní den přibude jeden.",
     kinds: { tip: "Tip", ai: "AI novinka", agent: "Agenti" } as Record<FeedKind, string>,
     more: (n: number) => `a dalších ${n} z toho dne`,
-    all: "Všechny tipy →",
     rss: "Odebírat přes RSS",
     ctaEyebrow: "Nechcete sem chodit?",
     ctaDesc: "Jednou týdně vám to nejlepší z nových článků pošlu e-mailem.",
@@ -36,7 +35,6 @@ const T = {
     lead: "New tips, AI news and parts of the agents series in the order they came out. One more every working day.",
     kinds: { tip: "Tip", ai: "AI news", agent: "Agents" } as Record<FeedKind, string>,
     more: (n: number) => `and ${n} more from that day`,
-    all: "All tips →",
     rss: "Follow via RSS",
     ctaEyebrow: "Would you rather not check back?",
     ctaDesc: "Once a week I email the best of the new articles.",
@@ -97,14 +95,14 @@ export default async function WhatsNewPage({ params }: { params: Promise<{ local
   const t = T[locale];
   const p = (path: string) => localePath(locale, path);
   // Den s hromadným importem by jinak zabral celou stránku — z každého dne
-  // jen PER_DAY položek a počet zbylých.
-  const days: { date: string; shown: FeedItem[]; rest: number }[] = [];
+  // jen PER_DAY položek s perexem, zbytek se rozbalí jako seznam názvů.
+  const days: { date: string; shown: FeedItem[]; rest: FeedItem[] }[] = [];
   let budget = LIMIT;
   for (const [date, items] of groupByDay(getFeed(locale))) {
     if (budget <= 0) break;
     const shown = items.slice(0, Math.min(PER_DAY, budget));
     budget -= shown.length;
-    days.push({ date, shown, rest: items.length - shown.length });
+    days.push({ date, shown, rest: items.slice(shown.length) });
   }
 
   return (
@@ -141,13 +139,23 @@ export default async function WhatsNewPage({ params }: { params: Promise<{ local
                 </li>
               ))}
             </ul>
-            {rest > 0 && (
-              <p className="mt-3 text-[14px] text-muted">
-                {t.more(rest)} ·{" "}
-                <Link href={p("/tipy")} className="draw-link font-semibold text-ink">
-                  {t.all}
-                </Link>
-              </p>
+            {/* Zbytek dne je sbalený, ale dostupný: jen názvy, bez perexů. */}
+            {rest.length > 0 && (
+              <details className="mt-3">
+                <summary className="cursor-pointer text-[14px] font-semibold">
+                  {t.more(rest.length)}
+                </summary>
+                <ul className="mt-3 space-y-2 text-[14.5px]">
+                  {rest.map((item) => (
+                    <li key={item.path}>
+                      <span className="eyebrow mr-2 text-faint">{t.kinds[item.kind]}</span>
+                      <Link href={p(item.path)} className="draw-link font-semibold">
+                        {item.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </details>
             )}
           </section>
         );
