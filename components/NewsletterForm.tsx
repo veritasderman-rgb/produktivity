@@ -4,9 +4,9 @@ import { useState } from "react";
 import { track } from "@vercel/analytics";
 
 /**
- * Co formulář nabízí. Výchozí `ebook` říká odměnu rovnou na tlačítku —
- * e-book chodí hned po přihlášení, takže nemá smysl ho tajit až do
- * potvrzovací hlášky. `kurz` používá stránka /kurz, kde je nabídkou
+ * Co formulář nabízí. Výchozí `ebook` říká odměnu rovnou na tlačítku.
+ * Přihlášení je dvoukrokové: po odeslání přijde e-mail s potvrzovacím
+ * odkazem a e-book (nebo první díl kurzu) až po kliknutí na něj. `kurz` používá stránka /kurz, kde je nabídkou
  * sedmidenní e-mailový kurz, ne e-book.
  */
 export type NewsletterOffer = "ebook" | "kurz";
@@ -14,17 +14,11 @@ export type NewsletterOffer = "ebook" | "kurz";
 /** Jméno skrytého pole-pasti. Schválně nic, co by vyplnil prohlížeč nebo správce hesel. */
 const HONEYPOT = "b_hp";
 
-/** E-book, který chodí v uvítacím e-mailu. Cesta se liší podle jazyka. */
-const EBOOK_HREF: Record<"cs" | "en", string> = {
-  cs: "/ebook/produktivni-top-30-tipu.pdf",
-  en: "/ebook/productive-top-30-tips.pdf",
-};
-
 const T = {
   cs: {
     error: "Přihlášení se nepovedlo. Zkuste to prosím znovu.",
-    done: "Hotovo! E-book máte v e-mailu — nebo rovnou tady:",
-    download: "Stáhnout Top 30 tipů (PDF)",
+    doneTitle: "Ještě jeden krok: potvrďte e-mail",
+    doneSpam: "Nic nepřišlo? Zkuste složku Hromadné nebo Spam.",
     placeholder: "vas@email.cz",
     ariaEmail: "Váš e-mail",
     sending: "Moment…",
@@ -32,19 +26,21 @@ const T = {
       ebook: {
         submit: "Chci e-book",
         lead: "E-book Top 30 tipů zdarma — pošlu vám ho hned.",
+        done: "Právě jsem vám poslal zprávu s odkazem. Klikněte na něj a e-book dorazí hned potom.",
         note: "Pak 1 tip týdně · žádný spam · odhlášení jedním klikem",
       },
       kurz: {
         submit: "Chci kurz",
         lead: "Sedm dní, sedm e-mailů, každý den jedna dovednost.",
+        done: "Právě jsem vám poslal zprávu s odkazem. Klikněte na něj a první díl kurzu dorazí hned potom.",
         note: "Zdarma · žádný spam · odhlášení jedním klikem",
       },
     },
   },
   en: {
     error: "Sign-up failed. Please try again.",
-    done: "Done! The e-book is on its way to your inbox — or grab it right here:",
-    download: "Download Top 30 tips (PDF)",
+    doneTitle: "One more step: confirm your email",
+    doneSpam: "Nothing there? Check your Promotions or Spam folder.",
     placeholder: "you@email.com",
     ariaEmail: "Your email",
     sending: "One moment…",
@@ -52,11 +48,13 @@ const T = {
       ebook: {
         submit: "Get the e-book",
         lead: "The Top 30 tips e-book, free — it lands in your inbox right away.",
+        done: "I have just sent you a message with a link. Click it and the e-book arrives right after.",
         note: "Then 1 tip a week · no spam · unsubscribe in one click",
       },
       kurz: {
         submit: "Start the course",
         lead: "Seven days, seven emails, one skill a day.",
+        done: "I have just sent you a message with a link. Click it and the first part of the course arrives right after.",
         note: "Free · no spam · unsubscribe in one click",
       },
     },
@@ -101,8 +99,9 @@ export function NewsletterForm({
       const data = await res.json();
       if (res.ok) {
         setStatus("ok");
-        // Konverze do Vercel Analytics i GA4 (GA jen se souhlasem) — podle source
-        // je vidět, který formulář přihlášky přináší.
+        // Odeslaný formulář do Vercel Analytics i GA4 (GA jen se souhlasem) — podle
+        // source je vidět, který formulář přihlášky přináší. Skutečné přihlášení
+        // nastává až potvrzením e-mailu; to měří stránka /newsletter/potvrzeno.
         track("newsletter-signup", { source, locale });
         const w = window as typeof window & { gtag?: (...args: unknown[]) => void };
         w.gtag?.("event", "sign_up", { method: "newsletter", source });
@@ -124,14 +123,10 @@ export function NewsletterForm({
 
   if (status === "ok") {
     return (
-      <div data-newsletter className="border border-hairline-strong bg-card p-4">
-        <p className="text-[14.5px] font-semibold">{t.done}</p>
-        <a
-          href={EBOOK_HREF[locale] ?? EBOOK_HREF.cs}
-          className="mt-3 inline-block bg-ink px-4 py-2.5 text-[13px] font-bold text-paper transition-colors hover:bg-accent hover:text-accent-ink"
-        >
-          {t.download}
-        </a>
+      <div data-newsletter role="status" className="border border-hairline-strong bg-card p-4">
+        <p className="text-[14.5px] font-bold">{t.doneTitle}</p>
+        <p className="mt-1.5 text-[14px] leading-relaxed">{o.done}</p>
+        <p className="mt-2 text-[12.5px] text-muted">{t.doneSpam}</p>
       </div>
     );
   }

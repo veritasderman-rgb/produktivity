@@ -26,27 +26,29 @@ export function CookieConsent({ dict, privacyHref }: { dict: CookiesDict; privac
   if (!open) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-hairline-strong bg-paper px-[var(--page-pad)] py-4">
-      <div className="mx-auto flex max-w-[var(--page-max)] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="max-w-[70ch] text-[13.5px] leading-relaxed text-muted">
+    // Na mobilu má lišta zabrat co nejméně první obrazovky: drobnější text,
+    // těsnější odsazení a tlačítka přes celou šířku v jedné řadě.
+    <div className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-hairline-strong bg-paper px-[var(--page-pad)] py-2.5 sm:py-4">
+      <div className="mx-auto flex max-w-[var(--page-max)] flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <p className="max-w-[70ch] text-[12px] leading-snug text-muted sm:text-[13.5px] sm:leading-relaxed">
           {dict.text}{" "}
           <Link href={privacyHref} className="draw-link font-semibold">
             {dict.more}
           </Link>
           .
         </p>
-        <div className="flex shrink-0 gap-2">
+        <div className="flex shrink-0 gap-2 [&>button]:flex-1 sm:[&>button]:flex-none">
           <button
             type="button"
             onClick={() => writeConsent("denied")}
-            className="border border-hairline-strong px-4 py-2.5 text-[13px] font-bold transition-colors hover:bg-hairline"
+            className="border border-hairline-strong px-4 py-2 text-[13px] sm:py-2.5 font-bold transition-colors hover:bg-hairline"
           >
             {dict.reject}
           </button>
           <button
             type="button"
             onClick={() => writeConsent("granted")}
-            className="bg-ink px-4 py-2.5 text-[13px] font-bold text-paper transition-colors hover:bg-accent hover:text-accent-ink"
+            className="bg-ink px-4 py-2 text-[13px] sm:py-2.5 font-bold text-paper transition-colors hover:bg-accent hover:text-accent-ink"
           >
             {dict.accept}
           </button>
