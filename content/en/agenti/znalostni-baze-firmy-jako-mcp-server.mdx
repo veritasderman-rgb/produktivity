@@ -9,6 +9,34 @@ date: "2026-11-10"
 updated: "2026-11-10"
 tldr: >-
   Building a company knowledge base step by step — extracting the source material, the repository, the server, deployment, measurement — has its own guide on this site, and this part does not repeat it. It adds three things: a quick test of four properties that mark a base you can trust; splitting content into trust levels so the model knows what it may assert and what it may only mention; and wiring the finished base into an agent on your NAS so that it can only read from it.
+faq:
+  - q: "How do I stop AI from making up prices and facts about my company?"
+    a: >-
+      Give the model a single place where it asks about company facts: a knowledge base on
+      an MCP server. A good base returns every answer with its source and validity and can
+      admit that it doesn't have a fact instead of guessing. The agent can then prepare a
+      draft reply to a customer with the price and terms taken from the source.
+  - q: "How do I tell whether a company knowledge base can be trusted?"
+    a: >-
+      By four properties: every answer carries a source and validity, the base can admit
+      it has no answer and records the gap, people write to it rather than the model, and
+      for every kind of fact it is known who vouches for it. The server takes care of the
+      first two, the company of the other two. Most bases fail on the last one.
+  - q: "What are trust levels in a knowledge base?"
+    a: >-
+      They are labels for how reliable a piece of content is: verified (a fact someone
+      vouches for by name), web (published on the company website), archive (old brochures
+      and presentations) and internal (material that must not leave the company). The
+      level sits in the header of every file and the server returns it with every answer.
+      The model should take facts, figures and prices only from verified content, which
+      matters most for an agent that works unattended.
+  - q: "How do I connect a knowledge base to an agent safely?"
+    a: >-
+      The agent should get its own token, different from the one people log in with, and
+      only the listed tools for reading and reporting gaps. Don't connect the server with
+      internal material to an agent that reads messages from strangers, because the
+      combination of other people's text, internal data and the ability to send something
+      out can be abused. The public part of the base can be given to it.
 sources:
   - name: "Model Context Protocol — specification and introduction"
     url: "https://modelcontextprotocol.io/"

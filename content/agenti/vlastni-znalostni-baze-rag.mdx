@@ -9,6 +9,32 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   RAG není učení modelu, ale vyhledávání. Vaše dokumenty se rozsekají na kousky, ke každému se spočítá vektor a při dotazu se najde několik nejpodobnějších úryvků, které se pošlou modelu jako kontext. Model tedy nezná vaši sbírku — dostane pár odstavců z ní. Devět z deseti nefunkčních znalostních bází selhává na vstupu, ne na modelu: špatně rozsekané dokumenty, chybějící nadpisy, naskenované PDF bez textové vrstvy a odpovědi, které v žádném dokumentu nejsou.
+faq:
+  - q: "Co je RAG a jak funguje?"
+    a: >-
+      RAG je vyhledávání nad vlastními dokumenty, nikoli učení modelu. Dokumenty se
+      rozdělí na kousky o několika stech slovech, ke každému se spočítá číselný otisk a
+      při dotazu se najde několik nejpodobnějších kousků, obvykle tři až deset. Jen ty se
+      pošlou modelu spolu s otázkou, takže model celou sbírku nikdy nevidí.
+  - q: "Proč moje znalostní báze odpovídá špatně?"
+    a: >-
+      Chyba bývá skoro vždy ve vstupních datech, ne v modelu. Nejčastější příčinou jsou
+      naskenovaná PDF bez textové vrstvy, dále dokumenty rozdělené uprostřed tabulky nebo
+      odstavce, kousky bez kontextu a otázky, na které v dokumentech žádná odpověď napsaná
+      není. Pomůže prohnat skeny rozpoznáváním znaků, dát souborům výstižné názvy a
+      nadpisy a vyřadit duplicity a staré verze.
+  - q: "Kdy se RAG nehodí?"
+    a: >-
+      Jeden dlouhý dokument je lepší vložit celý do kontextu. Na počty a součty z
+      tabulkových dat patří databáze a dotaz, na živá data měnící se každou hodinu
+      konektor do zdroje. Styl psaní modelu RAG také nezmění, na to slouží instrukce a
+      ukázky přímo v zadání.
+  - q: "Jak ověřit, že znalostní báze odpovídá správně?"
+    a: >-
+      Nechte nástroj u každé odpovědi ukázat, ze kterých kousků čerpal, jinak nepoznáte
+      halucinaci od pravdy. Připravte si dvacet otázek, u nichž znáte správnou odpověď, a
+      projděte je po každé změně nastavení. Do zadání napište, ať model výslovně řekne, že
+      odpověď v podkladech není, a otestujte, že to dělá.
 sources:
   - name: "Open WebUI — dokumentace ke znalostním bázím"
     url: "https://docs.openwebui.com/"

@@ -9,6 +9,32 @@ date: "2026-11-10"
 updated: "2026-11-10"
 tldr: >-
   Stavbu firemní znalostní báze krok za krokem — vytěžení podkladů, repozitář, server, nasazení, měření — má web v samostatném návodu a tenhle díl ji neopakuje. Přidává tři věci: krátký test čtyř vlastností, podle kterých se pozná báze, které jde věřit; rozdělení obsahu do stupňů důvěry, aby model věděl, co smí tvrdit a co jen zmínit; a zapojení hotové báze do agenta na NASu tak, aby z ní směl jen číst.
+faq:
+  - q: "Jak zabránit tomu, aby si AI vymýšlela ceny a fakta o firmě?"
+    a: >-
+      Dejte modelu jedno místo, kde se na firemní fakta ptá: znalostní bázi na MCP
+      serveru. Dobrá báze vrací každou odpověď se zdrojem a platností a umí přiznat, že
+      údaj nemá, místo aby odhadovala. Agent pak může připravit koncept odpovědi
+      zákazníkovi s cenou a podmínkami převzatými ze zdroje.
+  - q: "Jak poznat, že se firemní znalostní bázi dá věřit?"
+    a: >-
+      Podle čtyř vlastností: každá odpověď nese zdroj a platnost, báze umí přiznat, že
+      odpověď nemá, a zapíše si mezeru, obsah do ní zapisují lidé, ne model, a u každého
+      druhu faktů je známo, kdo za něj ručí. První dvě zajišťuje server, druhé dvě firma.
+      Většina bází selže na té poslední.
+  - q: "Co jsou stupně důvěry ve znalostní bázi?"
+    a: >-
+      Je to označení, jak spolehlivý daný obsah je: ověřeno (údaj, za který někdo
+      jmenovitě ručí), web (publikováno na firemním webu), archiv (staré brožury a
+      prezentace) a interní (podklady, které nesmějí ven). Stupeň je v hlavičce každého
+      souboru a server ho vrací s každou odpovědí. Model má fakta, čísla a ceny brát jen z
+      ověřeného obsahu, což je podstatné hlavně u agenta, který pracuje bez dozoru.
+  - q: "Jak bezpečně připojit znalostní bázi k agentovi?"
+    a: >-
+      Agent má dostat vlastní token, jiný než ten, kterým se hlásí lidé, a jen vyjmenované
+      nástroje pro čtení a hlášení mezer. Server s interními podklady nepřipojujte
+      agentovi, který čte zprávy od cizích lidí, protože kombinace cizího textu, interních
+      dat a možnosti poslat něco ven je zneužitelná. Veřejnou část báze mu dát lze.
 sources:
   - name: "Model Context Protocol — specifikace a úvod"
     url: "https://modelcontextprotocol.io/"

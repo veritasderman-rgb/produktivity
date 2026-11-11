@@ -9,6 +9,32 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   Telegram is the fastest way to control your home AI from a phone: you create a bot through BotFather in two minutes, get a token and hook it up to a gateway or straight to Ollama. Two things are non-negotiable — the token belongs in an environment variable, never in the code, and the bot must have a list of allowed users, otherwise a stranger will find it within days. The bot runs on your home machine and opens nothing at all to the outside: it asks Telegram for new messages itself.
+faq:
+  - q: "How can I control my home AI from a phone through Telegram?"
+    a: >-
+      You create a bot with the /newbot command at the @BotFather account and receive a
+      token. On your home machine you then run a short Python script that picks up
+      messages from Telegram, passes them to a gateway or straight to Ollama and sends the
+      answer back to the chat. To keep the bot running permanently, you set it up as a
+      background service.
+  - q: "Do I have to open a port on my router for a Telegram bot?"
+    a: >-
+      No. The bot asks Telegram for new messages itself, so the connection is made by your
+      home machine in the outbound direction and nothing leads into your network from
+      outside. That is a fundamental security difference compared with a model listening
+      on a public address.
+  - q: "How do I make sure no stranger uses my bot?"
+    a: >-
+      The bot must have a list of allowed users by numeric ID and silently ignore messages
+      from everyone else. You can find out your ID from, for example, the @userinfobot
+      bot. Without the list anyone may find the bot within a few days, because bot
+      usernames can be browsed, and it becomes a public service that you pay for.
+  - q: "Are messages sent to a bot in Telegram private?"
+    a: >-
+      Not entirely. Ordinary chats with a bot are not end-to-end encrypted and Telegram
+      sees the content of the messages, even though the answer is computed by a model in
+      your home. For truly sensitive matters, access over a private network and a chat in
+      your own interface is more suitable.
 sources:
   - name: "Telegram Bot API — official documentation"
     url: "https://core.telegram.org/bots/api"

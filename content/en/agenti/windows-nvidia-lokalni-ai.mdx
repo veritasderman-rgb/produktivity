@@ -9,6 +9,36 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   On Windows with Nvidia, a single number decides everything: the size of the graphics card's memory (VRAM). A model that fits into it entirely runs very fast — faster than on a comparably priced Mac. A model that doesn't fit is split between the graphics card and system memory and drops to a fraction of the speed. Both Ollama and LM Studio work on Windows without tuning; an up-to-date driver is all you need. For round-the-clock operation, disable sleep and start the service so that it listens on the network.
+faq:
+  - q: "How much VRAM do I need for a local AI model?"
+    a: >-
+      It depends on the size of the model. With four-bit quantisation, 8 GB holds models
+      up to roughly 8 billion parameters, 12 GB up to 14 billion, 16 GB up to 20 billion,
+      and 24 GB models of 30 billion and more. The figures are rough, and it is wise to
+      keep at least a gigabyte in reserve, because the context is stored in VRAM too and
+      grows with the length of the conversation.
+  - q: "Why does my local model run slowly on my PC?"
+    a: >-
+      Most likely it didn't fit entirely into the graphics card's memory. Part of it is
+      then pushed out to system memory and computed by the processor, and speed drops by
+      an order of magnitude. You can check with the ollama ps command or in Task Manager,
+      where the GPU should be loaded during generation. The fix is a smaller model or
+      stronger quantisation; also check that your Nvidia driver is up to date and that a
+      running game isn't taking up the card's memory.
+  - q: "Is a gaming PC with Nvidia or a Mac better for local AI?"
+    a: >-
+      A PC with Nvidia is the better choice if you already own a strong graphics card,
+      need speed on a model that fits into VRAM, or want to generate images or fine-tune
+      models. A Mac is better for large models thanks to its unified memory, for running
+      in the living room and for people who don't want to maintain anything. A gaming PC
+      is noisier and uses more power.
+  - q: "How do I set up a Windows PC as a home AI server?"
+    a: >-
+      Disable sleep, enable automatic start after a power failure in the BIOS, and set the
+      OLLAMA_HOST system variable so that Ollama listens on the network. Allow the port in
+      the firewall for the private network only and don't forward it on the router,
+      because Ollama has no login. If you want to save electricity, you can instead let
+      the PC sleep and wake it over the network with Wake on LAN.
 sources:
   - name: "Ollama — documentation and download"
     url: "https://ollama.com/download"

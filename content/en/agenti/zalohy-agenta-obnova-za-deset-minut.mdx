@@ -9,6 +9,34 @@ date: "2026-11-10"
 updated: "2026-11-10"
 tldr: >-
   The whole agent is one folder: configuration, keys, memory, skills, scheduled tasks and history. You don't need to back up the program itself; that gets downloaded again. On Synology the folder is backed up by Hyper Backup, encrypted and versioned, to a location outside the NAS. Two rules matter more than the tool: the backup contains tokens, so it is encrypted, and the backup destination must not be mounted into the container, otherwise the agent can wreck it along with the original. And a backup you have never tried restoring from is just a hope.
+faq:
+  - q: "What needs to be backed up for an AI agent?"
+    a: >-
+      One folder, in which Hermes keeps all its state: configuration, keys and logins,
+      memory files, skills, scheduled tasks and conversation history. You don't need to
+      back up the program itself; it is downloaded again on restore. In the setup with
+      Beeper, add the folder with the Beeper Server data as well, which holds the
+      encryption keys to your chats.
+  - q: "Where should I back up an agent on Synology?"
+    a: >-
+      A tried and tested rule is three copies in two different places, one of them
+      off-site. On Synology that means snapshots on the NAS, a daily Hyper Backup to a USB
+      drive or a second NAS, and an encrypted backup to the cloud. If you have only one
+      layer, it should be the off-site backup.
+  - q: "Why should the backup be encrypted and out of the agent's reach?"
+    a: >-
+      The backup contains tokens for every service the agent uses, so an unencrypted copy
+      in the cloud would be a second set of your keys held by another company. The backup
+      destination must not be mounted into the container, otherwise the agent can damage
+      the original and the copy at once. It also pays to keep versions at least thirty
+      days back, because you may not notice a mistake the agent made to itself until a
+      fortnight later.
+  - q: "How do I test that an agent backup works?"
+    a: >-
+      Restore yesterday's version into a new, empty folder, stop the original container
+      and start a test container over the restored folder. Ask the agent what it knows
+      about you and what scheduled tasks it has. Then delete the test container and start
+      the original one again.
 sources:
   - name: "Hermes Agent — running in Docker and the data folder"
     url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"
