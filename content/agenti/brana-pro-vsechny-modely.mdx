@@ -9,6 +9,31 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   Brána (gateway, proxy) je jedna adresa, na kterou posílají dotazy všechny vaše aplikace, a která je teprve rozhoduje dál — na lokální model, k jednomu poskytovateli, k druhému. Dva hlavní přístupy: hostovaná služba typu OpenRouter, kde nic neprovozujete a máte jeden klíč k mnoha modelům, nebo vlastní brána typu LiteLLM, kterou si spustíte sami a máte plnou kontrolu nad daty i logy. Obojí jde kombinovat: vlastní brána vepředu, hostovaná služba jako jeden z poskytovatelů vzadu.
+faq:
+  - q: "Co je AI brána (gateway) a k čemu slouží?"
+    a: >-
+      Brána je jedna adresa, na kterou posílají dotazy všechny vaše aplikace a která je
+      směruje dál na lokální model nebo k jednotlivým poskytovatelům. Skutečné klíče k
+      poskytovatelům zná jen brána, aplikace dostanou vlastní, zrušitelné klíče. Na jednom
+      místě tak máte i rozpočty, limity a logy.
+  - q: "Jaký je rozdíl mezi OpenRouterem a LiteLLM?"
+    a: >-
+      OpenRouter je hostovaná brána: zaregistrujete se, dostanete jeden klíč k mnoha
+      modelům a nic neprovozujete, vaše dotazy ale jdou přes další firmu. LiteLLM je open
+      source proxy, kterou spustíte na vlastním stroji. Směrování, klíče i logy zůstávají
+      u vás, musíte ji však provozovat, aktualizovat a hlídat. Obojí lze kombinovat:
+      vlastní brána vepředu a hostovaná služba jako jeden z poskytovatelů za ní.
+  - q: "Jak se s bránou mění model, který aplikace používají?"
+    a: >-
+      Aplikace volají model jménem, které si určíte v konfiguraci brány, a neřeší, zda je
+      za ním lokální stroj nebo datové centrum. Když chcete model vyměnit, přepíšete jeden
+      řádek v konfiguraci a v aplikacích se nic nemění.
+  - q: "Jaká rizika má vlastní brána?"
+    a: >-
+      Brána je kritický bod: když spadne, přestane fungovat vše, co je na ni napojené.
+      Vidí všechny dotazy a odpovědi, proto vědomě rozhodněte, co bude v logách a kde
+      budou uloženy. Má přístup ke všem vašim klíčům, takže ji udržujte aktuální a zvenčí
+      ji zpřístupněte jen přes privátní síť, ne přes otevřený port.
 sources:
   - name: "LiteLLM — dokumentace proxy serveru"
     url: "https://docs.litellm.ai/"

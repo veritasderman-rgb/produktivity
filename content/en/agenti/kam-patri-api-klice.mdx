@@ -9,6 +9,28 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   An API key is a username and a password at once, and it is valid until you revoke it. It does not belong in source code, in a chat, in a screenshot or in a shared document — it belongs in environment variables, in the system keychain or in a password manager. The best defence is not a better hiding place but smaller damage: a separate key for each application, a hard monthly cap at the provider and regular rotation. If a key is going to leak, let it be one you can revoke within a minute without everything else ceasing to work.
+faq:
+  - q: "Where should I store an API key safely?"
+    a: >-
+      On your own computer in environment variables, on a Mac in the system keychain, and
+      in a password manager as the source of truth. On a server, in a secrets manager or
+      in a file with permissions set so that only one user can read it.
+  - q: "Where does an API key not belong?"
+    a: >-
+      In source code, in a chat with an AI, in a screenshot, in a shared document or
+      Slack, or in a configuration file inside the project. Git remembers the key for
+      good, and a key pasted into a conversation ends up in the history.
+  - q: "What should I do when an API key leaks?"
+    a: >-
+      Revoke the key at the provider immediately, generate a new one and deploy it only
+      where it is really needed. Go through the spending history for the last few days and
+      find out how the key got out. If it was in git, deleting it with a commit is not
+      enough; the history has to be rewritten, or the repository treated as compromised.
+  - q: "How can I limit the damage if an API key leaks?"
+    a: >-
+      Use a separate key for each application and set a hard monthly spending cap at the
+      provider. Give applications virtual keys from your own gateway instead of the real
+      provider keys. Rotate the keys once a quarter.
 sources:
   - name: "LiteLLM — virtual keys and budgets in the proxy"
     url: "https://docs.litellm.ai/docs/proxy/virtual_keys"
