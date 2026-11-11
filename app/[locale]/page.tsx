@@ -7,7 +7,6 @@ import { audienceHref, audiences, formatTipCount, tipsForAudience } from "@/lib/
 import { getShelves } from "@/lib/shelves";
 import { formatDuration, formatStepCount, getPaths } from "@/lib/paths";
 import { NewsletterForm } from "@/components/NewsletterForm";
-import { RotatingClaim } from "@/components/RotatingClaim";
 import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { Reveal } from "@/components/Reveal";
 import { tipOfTheDay } from "@/lib/related";
@@ -84,7 +83,11 @@ export default async function HomePage({
       <section className="border-b border-hairline">
         <div className="mx-auto max-w-[var(--page-max)] px-[var(--page-pad)] py-14 sm:py-16">
           <h1 className="display display-hero text-[clamp(34px,6vw,58px)]">
-            <RotatingClaim claims={t.heroClaims} />
+            {/* Nadpis je pevný: střídání znění při každé návštěvě mátlo vyhledávače,
+                které pod jednou adresou viděly pokaždé jiné H1. */}
+            {t.heroClaims[0].a}
+            <span className="text-accent">{t.heroClaims[0].accent}</span>
+            {t.heroClaims[0].b}
           </h1>
           <p className="mt-5 max-w-[58ch] text-[17px] leading-relaxed text-muted">{t.lead}</p>
 

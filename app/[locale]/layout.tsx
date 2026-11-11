@@ -182,9 +182,9 @@ export default async function RootLayout({
               </Link>
             </div>
           </div>
-          <nav className="flex items-center justify-center gap-4 border-t border-hairline px-4 py-2 sm:hidden" aria-label="Mobile navigation">
+          <nav className="flex items-center justify-center gap-x-3.5 border-t border-hairline px-3 py-2 whitespace-nowrap max-[359px]:gap-x-2 max-[359px]:px-2 max-[359px]:text-[12px] sm:hidden" aria-label="Mobile navigation">
             {mobileNav.map((item) => (
-              <Link key={item.href} href={item.href} className="draw-link py-1 text-[13px] font-semibold">
+              <Link key={item.href} href={item.href} className="draw-link py-1 text-[13px] font-semibold max-[359px]:text-[12px]">
                 {item.label}
               </Link>
             ))}
@@ -278,6 +278,7 @@ gtag('config', '${GA_ID}');`}
                 <li><Link href={p("/slovnik")} className="draw-link">{t.footer.glossary}</Link></li>
                 <li><Link href={p("/kam-dal")} className="draw-link">{t.footer.resources}</Link></li>
                 <li><Link href={p("/konektory")} className="draw-link">{t.footer.connectors}</Link></li>
+                <li><Link href={p("/nove")} className="draw-link">{t.footer.whatsNew}</Link></li>
                 <li><Link href={p("/zmeny")} className="draw-link">{t.footer.changes}</Link></li>
                 <li><Link href={p("/ulozene")} className="draw-link">{t.footer.saved}</Link></li>
                 <li><Link href="/rss.xml" className="draw-link">{t.footer.rss}</Link></li>

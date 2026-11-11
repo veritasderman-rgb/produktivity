@@ -154,6 +154,8 @@ Po rozplánování spusť skript znovu a zkontroluj, že fronta odpovídá zám�
 - `npm install && SHOW_SCHEDULED=1 npm run build` musí projít bez chyb.
   **Bez `SHOW_SCHEDULED=1` by build naplánované články vůbec nesestavil**
   a chyba v MDX by se ukázala až v den vydání.
+- Build nejdřív zkontroluje interní odkazy (`scripts/check-links.mjs`) a na
+  rozbitém odkazu skončí. Odkazuj jen na články, které v `content/` existují.
 - Diakritika, formát frontmatteru, unikátní slug.
 
 ### 7. Pull request
