@@ -9,6 +9,30 @@ date: "2026-11-10"
 updated: "2026-11-10"
 tldr: >-
   Pokyn „nepoužívej slovo léčí“ model dodrží v devíti textech z deseti. Desátý vás může stát pokutu. Deterministická kontrola je krátký program, který text projde proti seznamům a vzorům a vrátí nálezy s místem a důvodem; stejný vstup dá vždy stejný výsledek. Hodí se na zakázaná slova, názvy produktů, povinné formulace, čísla a formát. Nehodí se na tón a smysl. Nabídnutá jako nástroj MCP serveru ji použije agent, Claude i člověk — a je to jediná část řetězce, o které můžete říct, že se nemýlí náhodou.
+faq:
+  - q: "Proč nestačí napsat pravidla modelu do zadání?"
+    a: >-
+      Model se pokyny řídí pravděpodobnostně, takže zákaz určitého slova dodrží ve většině
+      textů, ale ne ve všech. U běžné práce to nevadí, u formulací, za které hrozí pokuta,
+      ano. Kontrola napsaná jako obyčejný kód dá na stejný vstup vždy stejný výsledek.
+  - q: "Co je deterministická kontrola textu?"
+    a: >-
+      Je to krátký program, který text projde proti seznamům a vzorům a vrátí nálezy s
+      místem a důvodem. Hodí se na zakázané výrazy, přesné názvy produktů, povinné
+      součásti textu, čísla a formát a na shodu cen se znalostní bází. Pravidla leží v
+      samostatném souboru mimo kód, takže je může upravovat i neprogramátor.
+  - q: "Co kontrola kódem nezachytí?"
+    a: >-
+      Nepozná význam, tón ani pravdivost: jinak formulované zakázané tvrzení projde a
+      shoda s bází neříká, že je báze správně. Občas také hlásí falešné poplachy, které se
+      řeší výjimkami. Výsledek bez nálezů proto znamená jen to, že text neporušil žádné
+      zapsané pravidlo, a čtení člověkem nenahrazuje.
+  - q: "Kam v procesu psaní kontrola patří?"
+    a: >-
+      Na konec každého textu, který jde ven, před závěrečné čtení člověkem. Model napíše
+      text, kontrola vrátí nálezy, model opraví jen to, co kontrola našla, a text jde ke
+      kontrole znovu. Hotovo je až po kontrole s prázdným výsledkem. Sama kontrola text
+      neopravuje, pouze vrací nálezy.
 sources:
   - name: "Model Context Protocol — specifikace a úvod"
     url: "https://modelcontextprotocol.io/"

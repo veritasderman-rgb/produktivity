@@ -9,6 +9,32 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   Kvantizace je zaokrouhlování čísel v modelu, aby zabral míň paměti. Model o osmi miliardách parametrů zabere v plné přesnosti kolem 16 GB, ve čtyřbitové kvantizaci zhruba 5 GB — a rozdíl v kvalitě odpovědí je u běžné práce sotva postřehnutelný. Hrubý vzorec: počet miliard parametrů krát 0,6 se rovná gigabajty při čtyřbitové kvantizaci. Nejlepší poměr je obvykle čtyřbitová varianta; pod ni jít nemá smysl, nad ni jen když máte paměti nazbyt.
+faq:
+  - q: "Co je kvantizace modelu?"
+    a: >-
+      Kvantizace je zaokrouhlení čísel, ze kterých se model skládá, aby se uložila na méně
+      bitů a model zabral méně paměti. Model o osmi miliardách parametrů zabere v plné
+      přesnosti kolem 16 GB, ve čtyřbitové kvantizaci zhruba 5 GB. Rozdíl v kvalitě
+      odpovědí je u běžné práce sotva postřehnutelný.
+  - q: "Kolik paměti potřebuje lokální AI model?"
+    a: >-
+      Pro hrubý odhad při čtyřbitové kvantizaci vynásobte počet miliard parametrů číslem
+      0,6. Výsledek jsou gigabajty na disku i v paměti: model o 8 miliardách parametrů
+      vyjde přibližně na 5 GB, model o 14 miliardách na 9 GB. K tomu nechte jeden až dva
+      gigabajty rezervy na kontext, tedy konverzaci a vložené dokumenty.
+  - q: "Co znamená Q4 v názvu modelu a kterou variantu zvolit?"
+    a: >-
+      Q4 označuje čtyřbitovou kvantizaci. Má obvykle nejlepší poměr velikosti a kvality a
+      při stažení modelu v Ollamě bez upřesnění ji zpravidla dostanete. Q5 nebo Q6 se
+      hodí, když máte paměť nazbyt, a rozdíl může být znát u kódu, čísel a strukturovaného
+      výstupu. Pod čtyři bity se jít nevyplatí, model pak znatelně ztrácí přesnost a hůř
+      drží instrukce.
+  - q: "Je lepší větší model v silné kvantizaci, nebo menší v plné přesnosti?"
+    a: >-
+      Větší model ve čtyřbitové kvantizaci je skoro vždy lepší než menší model ve vyšší
+      přesnosti. Při 12 GB paměti bude model o 14 miliardách parametrů v Q4 ve většině
+      úloh znatelně lepší než model o 8 miliardách v Q8. Nejdřív proto vyberte největší
+      model, který se do paměti vejde v Q4, a přesnost zvyšujte, až když zbývá místo.
 sources:
   - name: "Ollama — knihovna modelů ke stažení"
     url: "https://ollama.com/library"

@@ -9,6 +9,34 @@ date: "2026-11-10"
 updated: "2026-11-10"
 tldr: >-
   A silent agent almost always has one of six causes: the container is not running, the gateway to Telegram is not running, the money has run out or the key has expired, the connection to a data source has dropped, the task did not start, or the disk is full. Look in this order and at each step look at one specific thing. Half the cases are solved by restarting the container, but restart only after you have read the last fifty lines of the log — otherwise the same error will be back in a week and once again you will not know why.
+faq:
+  - q: "Why has my AI agent stopped responding?"
+    a: >-
+      There are usually six causes: the container is not running, the gateway to Telegram
+      is not running, the credit has run out or the key has expired, the connection to a
+      data source has dropped, the scheduled task did not start, or the disk is full. It
+      pays to go through them in this order and to look at one specific thing at each
+      step.
+  - q: "Should I restart the agent first, or read the log?"
+    a: >-
+      The log first, then the restart. Restarting the container solves roughly half the
+      cases, but unless you read the last fifty lines of the log you will not learn the
+      cause, and the same error may be back in a week. The last few lines usually name the
+      cause, for example a missing key, a typo in the configuration file or a full disk.
+  - q: "What do errors 401, 402 and 429 in the agent's log mean?"
+    a: >-
+      Codes 401 and 403 mean the key is not valid or the login has expired. Code 402 means
+      the credit has run out, and 429 means a request limit has been hit, in which case
+      waiting or slowing the tasks down helps. Codes 500, 502 and 503 point to an outage
+      at the model provider.
+  - q: "Why didn't the morning brief arrive when the agent otherwise responds?"
+    a: >-
+      There are three usual causes: the gateway was not running at the scheduled time, the
+      task ran at a different hour because of the time zone, or it finished and sent
+      nothing. Scheduled tasks are started by the gateway, so a task missed while the
+      container was down does not catch up by itself. It is also worth checking the data
+      sources, for example a network that has logged out in Beeper or an expired login to
+      a service.
 sources:
   - name: "Hermes Agent — FAQ and troubleshooting"
     url: "https://hermes-agent.nousresearch.com/docs/reference/faq"

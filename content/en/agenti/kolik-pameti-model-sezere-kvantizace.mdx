@@ -9,6 +9,35 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   Quantisation is rounding the numbers in a model so that it takes up less memory. A model with eight billion parameters takes around 16 GB at full precision and roughly 5 GB in four-bit quantisation — and the difference in the quality of the answers is barely noticeable in ordinary work. A rough formula: the number of billions of parameters times 0.6 equals gigabytes at four-bit quantisation. The best trade-off is usually the four-bit variant; going below it makes no sense, and above it only when you have memory to spare.
+faq:
+  - q: "What is model quantisation?"
+    a: >-
+      Quantisation is rounding the numbers a model is made of so that they are stored in
+      fewer bits and the model takes up less memory. A model with eight billion parameters
+      takes around 16 GB at full precision and roughly 5 GB in four-bit quantisation. The
+      difference in the quality of the answers is barely noticeable in ordinary work.
+  - q: "How much memory does a local AI model need?"
+    a: >-
+      For a rough estimate at four-bit quantisation, multiply the number of billions of
+      parameters by 0.6. The result is gigabytes on disk and in memory: a model with 8
+      billion parameters comes to about 5 GB, one with 14 billion to about 9 GB. On top of
+      that, leave one to two gigabytes free for the context, meaning the conversation and
+      any documents you feed in.
+  - q: "What does Q4 in a model's name mean, and which variant should I choose?"
+    a: >-
+      Q4 stands for four-bit quantisation. It usually offers the best trade-off between
+      size and quality, and it is generally what you get when you download a model in
+      Ollama without specifying a variant. Q5 or Q6 suits you when you have memory to
+      spare, and the difference may show in code, numbers and structured output. Going
+      below four bits is not worth it, because the model noticeably loses precision and
+      follows instructions less well.
+  - q: "Is a larger, heavily quantised model better than a smaller one at higher precision?"
+    a: >-
+      A larger model in four-bit quantisation is almost always better than a smaller model
+      at higher precision. With 12 GB of memory, a 14-billion-parameter model in Q4 will
+      be noticeably better in most tasks than an 8-billion-parameter model in Q8. So first
+      choose the largest model that fits in memory in Q4, and raise the precision only
+      when there is room left.
 sources:
   - name: "Ollama — library of models to download"
     url: "https://ollama.com/library"

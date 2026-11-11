@@ -9,6 +9,33 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   The Mac mini is currently the quietest and least annoying way to have an always-on model at home. The key decision is not the processor but the amount of unified memory — that determines how large a model fits, because on Apple hardware the graphics and the processor share the same RAM. The practical setup: turn off sleep, run Ollama so that it listens on the network, and handle access from outside with a private network, not an open port.
+faq:
+  - q: "Why is the Mac mini a good home AI server?"
+    a: >-
+      It is quiet, small, uses little power and has unified memory, which the processor
+      and the graphics computation share. A Mac with a lot of memory can therefore run
+      models that an ordinary gaming graphics card could not cope with, though more slowly
+      than the most expensive professional cards.
+  - q: "How much memory should a Mac mini have for local AI?"
+    a: >-
+      The amount of memory matters more than the processor, because it determines how
+      large a model fits, and on Macs it cannot be added later. As a rough guide, 16 GB
+      holds models of up to about 8 billion parameters, 24 GB up to about 14 billion, 32
+      GB models of 20 to 30 billion, and 64 GB is enough for large models. Always leave
+      some headroom for the system and other applications.
+  - q: "How do I make Ollama reachable from other devices on my home network?"
+    a: >-
+      After installation Ollama listens only on localhost. On macOS, set the OLLAMA_HOST
+      environment variable to 0.0.0.0:11434 with the launchctl setenv command and restart
+      Ollama. The model is then available from the whole home network at the Mac's address
+      on port 11434. To keep the server running all the time, turn off sleep on the Mac
+      and turn on automatic start-up after a power failure.
+  - q: "Is it safe to expose Ollama to the internet by forwarding a port?"
+    a: >-
+      No. By default Ollama has no login of any kind, so an open port can be used by
+      anyone who finds your IP address. For access from outside, use a private network
+      such as Tailscale or WireGuard, in which your devices can see one another but no
+      port is open to the outside.
 sources:
   - name: "Ollama — documentation and download"
     url: "https://ollama.com/download"
