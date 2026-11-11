@@ -9,6 +9,31 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   MCP je standard, kterým model mluví s nástroji. Vedle vzdálených konektorů do cloudových služeb existují i lokální servery, které běží na vašem stroji a zpřístupní modelu složku, databázi nebo systémové příkazy — data přitom neopouštějí počítač. Zásadní je vymezení: serveru dejte přesně jednu složku, ne domovský adresář, a jen ta práva, která pro úlohu potřebuje. Nastavení je jeden konfigurační soubor a bezpečnostní pravidlo se dá shrnout do věty: co model nevidí, to nemůže poslat ven.
+faq:
+  - q: "Co je lokální MCP server?"
+    a: >-
+      MCP je standard, kterým model mluví s nástroji. Lokální MCP server běží na vašem
+      počítači a zpřístupní modelu například vymezenou složku, lokální databázi, repozitář
+      Git, prohlížeč nebo systémové příkazy. Ve spojení s lokálním modelem data počítač
+      neopustí vůbec, s cloudovým modelem odchází jen ta část, kterou si model vyžádá.
+  - q: "Jak se lokální MCP server nastavuje?"
+    a: >-
+      Klientská aplikace má konfigurační soubor, ve kterém vyjmenujete servery, které má
+      spustit, včetně příkazu a parametrů. U souborového serveru je posledním parametrem
+      cesta ke složce, mimo kterou server nic nevidí. Po restartu klienta se nástroje pro
+      čtení a zápis souborů objeví v seznamu a model je začne používat.
+  - q: "Jak bezpečně dát AI přístup k souborům na disku?"
+    a: >-
+      Vymezte serveru jednu složku vytvořenou pro tento účel, nikdy domovský adresář ani
+      Dokumenty. Začněte jen se čtením, ve složce nenechávejte soubory s přihlašovacími
+      údaji a u cenných dat pracujte s kopií, ideálně ve složce verzované v gitu. Server
+      pro systémové příkazy zapínejte až nakonec a jen na vymezenou práci.
+  - q: "Jaké je hlavní riziko lokálního MCP serveru?"
+    a: >-
+      Nebezpečná je kombinace tří věcí v jednom nástroji: přístup k vašim souborům, čtení
+      obsahu, který napsal někdo cizí, a možnost komunikovat ven. Text v cizím dokumentu
+      pak může modelu zadat pokyn, který model provede s vašimi právy. Obranou je jednu z
+      těch tří věcí odebrat, nejsnáze možnost poslat výsledek ven bez vašeho potvrzení.
 sources:
   - name: "Model Context Protocol — specifikace"
     url: "https://modelcontextprotocol.io/"

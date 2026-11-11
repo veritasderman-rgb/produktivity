@@ -27,6 +27,8 @@ const T = {
     leadB: ". Lokální a firemní AI roste vedle cloudu: Mac mini zvládne inference, open weights dotahují uzavřené modely a agenti jsou produkt roku i riziko roku. Tenhle seriál vás provede od prvního lokálního modelu po velín, ze kterého celý ten svět řídíte jedním chatem — a po pravidla, bez kterých se to celé rozsype.",
     countEyebrow: (n: number) => `${n} dílů · šest linek · průběžně přibývá`,
     newTitle: "Nově přidáno",
+    showMore: (n: number) => (n === 1 ? "Zobrazit další díl" : n < 5 ? `Zobrazit další ${n} díly` : `Zobrazit dalších ${n} dílů`),
+    showLess: "Sbalit",
     startTitle: "Kde začít",
     startLead:
       "Seriál se dá číst popořadě jako kurz, nebo skákat po štítcích. Když nevíte, začněte prvním dílem každé linky — jsou psané pro člověka, který zatím nic nenainstaloval.",
@@ -54,6 +56,8 @@ const T = {
     leadB: ". Local and in-house AI is growing alongside the cloud: a Mac mini handles inference, open weights keep closing the gap, and agents are the product of the year and the risk of the year. This series takes you from your first local model to a control room you run the whole thing from — and to the rules without which it all falls apart.",
     countEyebrow: (n: number) => `${n} parts · six tracks · more coming`,
     newTitle: "Recently added",
+    showMore: (n: number) => (n === 1 ? "Show 1 more part" : `Show ${n} more parts`),
+    showLess: "Collapse",
     startTitle: "Where to start",
     startLead:
       "Read it front to back like a course, or jump around by tag. If in doubt, start with the first part of each track — they assume you have installed nothing yet.",
@@ -161,6 +165,9 @@ function ArticleRow({
     </article>
   );
 }
+
+/** Kolik dílů linky je vidět hned; zbytek se rozbalí. */
+const TRACK_PREVIEW = 4;
 
 export default async function AgentsPage({
   params,
@@ -307,10 +314,27 @@ export default async function AgentsPage({
                     {labels.tracks[track].lead}
                   </p>
                   <div className="mt-6">
-                    {items.map((article) => (
+                    {items.slice(0, TRACK_PREVIEW).map((article) => (
                       <ArticleRow key={article.slug} article={article} locale={locale} t={t} />
                     ))}
                   </div>
+                  {/* Zbytek linky je sbalený, ať stránka není na mobilu nekonečná.
+                      Obsah zůstává v HTML, takže ho vyhledávače i hledání na stránce vidí. */}
+                  {items.length > TRACK_PREVIEW && (
+                    <details className="group">
+                      <summary className="eyebrow mt-2 cursor-pointer list-none border border-hairline-strong px-4 py-3 text-ink hover:bg-hairline [&::-webkit-details-marker]:hidden">
+                        <span className="group-open:hidden">
+                          {t.showMore(items.length - TRACK_PREVIEW)} ↓
+                        </span>
+                        <span className="hidden group-open:inline">{t.showLess} ↑</span>
+                      </summary>
+                      <div className="mt-2">
+                        {items.slice(TRACK_PREVIEW).map((article) => (
+                          <ArticleRow key={article.slug} article={article} locale={locale} t={t} />
+                        ))}
+                      </div>
+                    </details>
+                  )}
                 </section>
               );
             })

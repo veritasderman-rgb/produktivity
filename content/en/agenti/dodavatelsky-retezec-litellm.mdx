@@ -9,6 +9,31 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   On 24 March 2026, modified versions of the LiteLLM package (1.82.7 and 1.82.8) appeared on PyPI with a credential harvester that sent environment variables, SSH keys, and cloud and database credentials to a foreign domain. According to the maintainer's advisory they were available for roughly forty minutes, and the attacker bypassed the official publishing process; initial suspicion points to a vulnerability in a security scanner used in the project's own pipeline. The recommended procedure: uninstall, delete the planted file, rotate all credentials and pin a verified version. The lesson: a tool that holds your keys is just as critical as the keys themselves.
+faq:
+  - q: "What happened to the LiteLLM package in March 2026?"
+    a: >-
+      On 24 March 2026, modified versions 1.82.7 and 1.82.8 appeared on PyPI with a
+      credential harvester. The code collected environment variables, SSH keys, cloud
+      service credentials, Kubernetes tokens and database passwords and sent them to a
+      foreign domain. According to the maintainer's advisory, the packages were available
+      for roughly forty minutes.
+  - q: "Which LiteLLM versions were affected and which should I use?"
+    a: >-
+      Versions 1.82.7 and 1.82.8 were affected. According to the maintainer's advisory,
+      you should pin version 1.82.6 or older until a confirmed clean version is released.
+  - q: "What should I do if an affected LiteLLM version got into my environment?"
+    a: >-
+      Treat every secret on the affected systems as compromised, rotate them and
+      invalidate the old ones. Search the package directory for the file litellm_init.pth
+      and delete it. Go through environments, build pipelines, container images and
+      deployment records to see whether the affected versions appeared in them, and pin a
+      verified version.
+  - q: "How can I defend against an attack through a poisoned dependency?"
+    a: >-
+      Pin specific versions and don't update on the day of release. Run the gateway in a
+      separate environment with as few secrets in its variables as possible. Use keys with
+      a spending cap and limited validity, and subscribe to the security announcements of
+      the tools that hold your keys.
 sources:
   - name: "LiteLLM: security advisory on the March 2026 incident"
     url: "https://docs.litellm.ai/blog/security-update-march-2026"

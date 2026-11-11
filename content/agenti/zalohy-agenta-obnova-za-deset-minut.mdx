@@ -9,6 +9,31 @@ date: "2026-11-10"
 updated: "2026-11-10"
 tldr: >-
   Celý agent je jedna složka: nastavení, klíče, paměť, dovednosti, plánované úlohy a historie. Program samotný zálohovat nemusíte, ten se stáhne znovu. Na Synology složku zálohuje Hyper Backup, šifrovaně a s verzemi, na místo mimo NAS. Dvě pravidla jsou důležitější než nástroj: záloha obsahuje tokeny, takže se šifruje, a cíl zálohy nesmí být připojený do kontejneru, jinak ji agent umí pokazit spolu s originálem. A záloha, ze které jste nikdy nezkusili obnovit, je jen naděje.
+faq:
+  - q: "Co všechno je potřeba u AI agenta zálohovat?"
+    a: >-
+      Jednu složku, ve které Hermes drží veškerý stav: nastavení, klíče a přihlášení,
+      soubory paměti, dovednosti, plánované úlohy a historii rozhovorů. Program samotný
+      zálohovat nemusíte, při obnově se stáhne znovu. V sestavě s Beeperem přidejte i
+      složku s daty Beeper Serveru, kde jsou šifrovací klíče k chatům.
+  - q: "Kam agenta na Synology zálohovat?"
+    a: >-
+      Osvědčené pravidlo jsou tři kopie na dvou různých místech, z toho jedna mimo dům. Na
+      Synology to znamená snímky na NASu, denní zálohu přes Hyper Backup na USB disk nebo
+      druhý NAS a šifrovanou zálohu do cloudu. Kdo má jen jednu vrstvu, měl by zvolit
+      zálohu mimo dům.
+  - q: "Proč má být záloha šifrovaná a mimo dosah agenta?"
+    a: >-
+      Záloha obsahuje tokeny ke všem službám, které agent používá, takže nešifrovaná kopie
+      v cloudu by byla druhým exemplářem vašich klíčů u cizí firmy. Cíl zálohy nesmí být
+      připojený do kontejneru, jinak agent může pokazit originál i kopii zároveň. Vyplatí
+      se také uchovávat verze aspoň třicet dní zpět, protože chyby, kterou si agent
+      způsobí sám, si můžete všimnout až po čtrnácti dnech.
+  - q: "Jak vyzkoušet, že záloha agenta funguje?"
+    a: >-
+      Obnovte včerejší verzi do nové prázdné složky, původní kontejner zastavte a spusťte
+      zkušební kontejner nad obnovenou složkou. Agenta se zeptejte, co o vás ví a jaké má
+      plánované úlohy. Poté zkušební kontejner smažte a původní spusťte znovu.
 sources:
   - name: "Hermes Agent — provoz v Dockeru a složka s daty"
     url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"

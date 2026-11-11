@@ -9,6 +9,35 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   Split tasks into three tiers: routine (summaries, classification, extraction) goes to a local model, standard (everyday writing, research, drafts) to a cheaper cloud model, top (complex analyses, code across a project, expensive decisions) to the best one available. In the gateway, name aliases for those three tiers, and in applications use only those names, not specific models. Add a fallback route for outages and one hard rule: sensitive data never escalates to the cloud automatically.
+faq:
+  - q: "How do I know which AI model to use for which task?"
+    a: >-
+      Split tasks into three tiers. Routine (summaries, classification, data extraction)
+      goes to a local model, standard (everyday writing, research, drafts) to a cheaper
+      cloud model, and top (complex analyses, code across a project, decisions where a
+      mistake costs money) to the best one available. When sorting a task, it helps to ask
+      how often you do it, whether you would mind a stranger reading the text, and what a
+      mistake costs.
+  - q: "Why name models in the gateway by role rather than by vendor?"
+    a: >-
+      Applications then call aliases such as rutina, standard and spicka, never a specific
+      model. When a better and cheaper model comes out, you rewrite one line in the
+      gateway configuration and the chat, editor, scripts and agents carry on unchanged.
+      Without aliases you would have to change every place separately.
+  - q: "What happens when a model provider goes down?"
+    a: >-
+      You can define a fallback route in the gateway: when the top model fails, the query
+      goes to the standard one, and when the standard one fails, it goes to the local one.
+      The fallback should not run in the opposite direction. Nothing escalates from the
+      local model to the cloud automatically, because sensitive data would then leave
+      without your knowing.
+  - q: "How do I tell whether my routing is set up well?"
+    a: >-
+      After two weeks of operation, look in the gateway at how many queries went to each
+      tier and what each tier cost. If the top tier is above ten per cent of queries, you
+      are using it for tasks that don't belong there, or your aliases are set up wrongly.
+      Move a task whose output you keep rewriting up a tier, or consider whether AI
+      belongs there at all.
 sources:
   - name: "LiteLLM — routing, fallbacks and load balancing"
     url: "https://docs.litellm.ai/docs/routing"

@@ -9,6 +9,35 @@ date: "2026-11-10"
 updated: "2026-11-10"
 tldr: >-
   Na Synology (nebo na VPS) běží dva kontejnery. V prvním je Beeper Server — Beeper bez okna, který drží WhatsApp, Messenger, Signal i Slack v jedné databázi a nabízí je přes MCP. Ve druhém je Hermes Agent, který si do Beeperu pravidelně sahá, sliby a termíny zapisuje do Notionu a na dotaz vám v Telegramu shrne, co se v které konverzaci stalo. Soubory pro oba kontejnery napíše Claude podle zadání z tohoto článku; na vás zbydou dvě přihlášení v terminálu. Dovnitř nevede žádný otevřený port, jediná cesta k datům je váš chat s agentem. Poctivě: databáze zpráv zůstává doma, ale text, který agent čte, odchází ke zpracování k poskytovateli modelu.
+faq:
+  - q: "Jak nechat AI hlídat, co jsem komu slíbil ve WhatsAppu a dalších chatech?"
+    a: >-
+      Na stroji, který běží pořád, například na Synology nebo VPS, poběží dva kontejnery.
+      Beeper Server drží zprávy z WhatsAppu, Messengeru, Signalu a Slacku v jedné
+      databázi. Hermes Agent je podle rozvrhu čte, závazky s termíny zapisuje do Notionu a
+      přehled posílá do Telegramu, kde se ho také můžete zeptat, co se v které konverzaci
+      stalo.
+  - q: "Zůstanou moje zprávy doma, když agent běží na vlastním NASu?"
+    a: >-
+      Jen zčásti. Databáze zpráv leží na vašem disku a dovnitř nevede žádný otevřený port,
+      ale text, který agent čte, odchází ke zpracování k poskytovateli modelu, zápisy jdou
+      do Notionu a odpovědi přes servery Telegramu. Kdo potřebuje, aby text neopustil dům,
+      musí zapojit lokální model a počítat s tím, že bude ve vytahování slibů znatelně
+      slabší.
+  - q: "Jak zabránit tomu, aby agent za mě odesílal zprávy?"
+    a: >-
+      Jsou potřeba dvě pojistky zároveň. V nastavení agentovi vyjmenujete jen čtecí
+      nástroje Beeperu, takže nástroje pro odesílání vůbec nedostane. Dále mu vypnete
+      spouštění příkazů a kódu, aby omezení nemohl obejít přes příkazovou řádku. Jedna
+      pojistka bez druhé nestačí.
+  - q: "Co potřebuji, abych si tuto sestavu postavil?"
+    a: >-
+      Synology s aplikací Container Manager (DSM 7.2 a novější), ideálně s procesorem
+      Intel nebo AMD a aspoň 4 GB paměti, nebo VPS. Dále účet Beeper s dalším přihlášeným
+      zařízením, placený účet Claude na přípravu kontejnerů, OpenAI (předplatné ChatGPT
+      nebo API klíč), OpenRouter s malým kreditem jako zálohu, Telegram a volitelně
+      Notion. Počítejte s jedním odpolednem práce a potom zhruba s půlhodinou údržby
+      měsíčně.
 sources:
   - name: "Hermes Agent — provoz v Dockeru"
     url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"

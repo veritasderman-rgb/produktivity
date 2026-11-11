@@ -9,6 +9,34 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   Na Windows s Nvidií rozhoduje jediné číslo: velikost paměti grafické karty (VRAM). Model, který se do ní vejde celý, běží velmi rychle — rychleji než na srovnatelně drahém Macu. Model, který se nevejde, se rozdělí mezi grafiku a operační paměť a spadne na zlomek rychlosti. Ollama i LM Studio na Windows fungují bez ladění, stačí aktuální ovladač; pro nonstop provoz vypněte uspávání a spusťte službu tak, aby poslouchala na síti.
+faq:
+  - q: "Kolik VRAM potřebuji na lokální AI model?"
+    a: >-
+      Záleží na velikosti modelu. Při čtyřbitové kvantizaci se do 8 GB vejdou modely
+      zhruba do 8 miliard parametrů, do 12 GB do 14 miliard, do 16 GB do 20 miliard a do
+      24 GB modely s 30 miliardami a více. Čísla jsou hrubá a je dobré nechat si aspoň
+      gigabajt rezervy, protože do VRAM se ukládá i kontext, který s délkou konverzace
+      roste.
+  - q: "Proč mi lokální model na PC běží pomalu?"
+    a: >-
+      Nejspíš se celý nevešel do paměti grafické karty. Část se pak odloží do operační
+      paměti, počítá ji procesor a rychlost klesne řádově. Ověříte to příkazem ollama ps
+      nebo ve Správci úloh, kde se při generování má vytížit GPU. Řešením je menší model
+      nebo silnější kvantizace; zkontrolujte také, že máte aktuální ovladač Nvidie a že
+      paměť karty nezabírá spuštěná hra.
+  - q: "Je na lokální AI lepší herní PC s Nvidií, nebo Mac?"
+    a: >-
+      PC s Nvidií je výhodnější, pokud silnou grafiku už máte, potřebujete rychlost na
+      modelu, který se vejde do VRAM, nebo chcete generovat obrázky či modely ladit. Mac
+      je vhodnější pro velké modely díky sjednocené paměti, pro provoz v obýváku a pro ty,
+      kdo nechtějí nic spravovat. Herní PC je hlučnější a má vyšší spotřebu.
+  - q: "Jak nastavit Windows PC jako domácí AI server?"
+    a: >-
+      Vypněte uspávání, v BIOSu zapněte automatický start po výpadku proudu a systémovou
+      proměnnou OLLAMA_HOST nastavte tak, aby Ollama poslouchala na síti. Port povolte ve
+      firewallu jen pro privátní síť a na routeru ho nepřesměrovávejte, protože Ollama
+      nemá přihlašování. Kdo chce ušetřit elektřinu, může PC naopak nechat spát a budit ho
+      po síti přes Wake on LAN.
 sources:
   - name: "Ollama — dokumentace a stažení"
     url: "https://ollama.com/download"

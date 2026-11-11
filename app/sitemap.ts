@@ -31,7 +31,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "", "/prirucka", "/tipy", "/deset-minut", "/cesty", "/ai", "/prompty", "/sablony", "/kurz", "/gadgety", "/slovnik", "/kam-dal", "/konektory", "/newsletter", "/newsletter/ukazka", "/newsletter/archiv", "/start",
     "/nastroje", "/nastroje/kviz", "/nastroje/diagnostika", "/nastroje/pomodoro", "/nastroje/sazba",
     "/nastroje/promptovac", "/nastroje/audit-casu",
-    "/rozhovory", "/z-praxe", "/zmeny", "/agenti",
+    "/rozhovory", "/z-praxe", "/zmeny", "/nove", "/agenti",
     "/o-projektu", "/hledat", "/ochrana-osobnich-udaju",
   ];
 

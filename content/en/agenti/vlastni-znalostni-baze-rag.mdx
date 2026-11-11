@@ -9,6 +9,35 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   RAG is not teaching the model; it is search. Your documents are chopped into pieces, a vector is computed for each one, and at query time the few most similar excerpts are found and sent to the model as context. So the model doesn't know your collection — it gets a few paragraphs from it. Nine out of ten broken knowledge bases fail at the input, not at the model: badly chopped documents, missing headings, scanned PDFs with no text layer, and answers that aren't in any document.
+faq:
+  - q: "What is RAG and how does it work?"
+    a: >-
+      RAG is search over your own documents, not teaching the model. The documents are
+      split into pieces of a few hundred words, a numerical fingerprint is computed for
+      each, and at query time the few most similar pieces are found, usually three to ten.
+      Only those are sent to the model along with the question, so the model never sees
+      the whole collection.
+  - q: "Why does my knowledge base give wrong answers?"
+    a: >-
+      The fault is almost always in the input data, not in the model. The most common
+      cause is scanned PDFs with no text layer, followed by documents sliced in the middle
+      of a table or paragraph, pieces without context, and questions whose answer isn't
+      written anywhere in the documents. It helps to run scans through character
+      recognition, give files descriptive names and headings, and throw out duplicates and
+      old versions.
+  - q: "When is RAG the wrong tool?"
+    a: >-
+      A single long document is better put into the context whole. Counts and sums over
+      tabular data call for a database and a query, and live data that changes every hour
+      calls for a connector to the source. RAG won't change the model's writing style
+      either; that is what instructions and examples in the prompt are for.
+  - q: "How do I check that a knowledge base answers correctly?"
+    a: >-
+      Have the tool show, for every answer, which pieces it drew on; otherwise you can't
+      tell a hallucination from the truth. Prepare twenty questions to which you know the
+      correct answer and run them after every change of settings. In the prompt, tell the
+      model to say explicitly when the answer isn't in the source material, and test that
+      it does so.
 sources:
   - name: "Open WebUI — knowledge base documentation"
     url: "https://docs.openwebui.com/"

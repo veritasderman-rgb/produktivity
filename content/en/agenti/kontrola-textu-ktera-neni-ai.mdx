@@ -9,6 +9,33 @@ date: "2026-11-10"
 updated: "2026-11-10"
 tldr: >-
   A model will keep to the instruction “do not use the word léčí (cures)” in nine texts out of ten. The tenth may cost you a fine. A deterministic check is a short program that runs a text against lists and patterns and returns findings with a position and a reason; the same input always gives the same result. It suits banned words, product names, mandatory wording, numbers and format. It does not suit tone and meaning. Offered as a tool of an MCP server, it will be used by an agent, by Claude and by a person — and it is the only part of the chain of which you can say that it does not make mistakes at random.
+faq:
+  - q: "Why isn't it enough to put the rules in the model's instructions?"
+    a: >-
+      A model follows instructions probabilistically, so it will keep to a ban on a
+      particular word in most texts, but not in all of them. In ordinary work that does
+      not matter; with wording that can lead to a fine, it does. A check written as
+      ordinary code gives the same result for the same input every time.
+  - q: "What is a deterministic text check?"
+    a: >-
+      It is a short program that runs a text against lists and patterns and returns
+      findings with a position and a reason. It suits banned expressions, exact product
+      names, mandatory parts of a text, numbers and format, and checking that prices match
+      the knowledge base. The rules sit in a separate file outside the code, so a
+      non-programmer can edit them too.
+  - q: "What does a code-based check miss?"
+    a: >-
+      It does not recognise meaning, tone or truth: a banned claim worded differently gets
+      through, and a match with the knowledge base does not say the knowledge base is
+      right. It also raises false alarms from time to time, which are dealt with by
+      exceptions. A result with no findings therefore means only that the text broke none
+      of the written rules, and it does not replace a human reader.
+  - q: "Where does the check belong in the writing process?"
+    a: >-
+      At the end of every text that goes out, before the final read by a person. The model
+      writes the text, the check returns findings, the model fixes only what the check
+      found, and the text goes back for checking. It is done only after a check with an
+      empty result. The check itself does not correct the text; it only returns findings.
 sources:
   - name: "Model Context Protocol — specification and introduction"
     url: "https://modelcontextprotocol.io/"

@@ -9,6 +9,31 @@ date: "2026-11-10"
 updated: "2026-11-10"
 tldr: >-
   Obecný díl o bezpečné cestě domů říká, proč privátní síť a ne otevřený port. Tenhle říká, jak to udělat na Synology. Tailscale se na DSM 7 instaluje ručně z balíčku od výrobce, ne z Centra balíčků, a potřebuje dvě naplánované úlohy: jednu pro aktualizace, druhou pro odchozí spojení po startu. Pak vypnete QuickConnect, automatické otevírání portů na routeru a SSH, které po instalaci agenta zůstalo zapnuté. Hotovo je teprve tehdy, když se na NAS z mobilních dat bez Tailscale nedostanete.
+faq:
+  - q: "Jak se bezpečně dostat na Synology NAS mimo domov?"
+    a: >-
+      Přes privátní síť Tailscale místo QuickConnectu a přesměrovaných portů. Po instalaci
+      a přihlášení stejným účtem jako na mobilu a notebooku dostane NAS adresu ve tvaru
+      100.x.y.z, na kterou dosáhnou jen vaše zařízení. Samotný agent přístup zvenčí
+      nepotřebuje, protože komunikuje přes Telegram a ptá se sám.
+  - q: "Proč neinstalovat Tailscale na Synology z Centra balíčků?"
+    a: >-
+      Verze v Centru balíčků už podle Tailscale není podporovaná a neodpovídá aktuálnímu
+      vydání. Správný postup je stáhnout ze stránky s balíčky Tailscale soubor .spk pro
+      svou architekturu a nahrát ho přes ruční instalaci. Takto nainstalovaný balíček se
+      sám neaktualizuje, proto potřebuje naplánovanou úlohu s příkazem tailscale update.
+  - q: "Co na Synology vypnout, když používám privátní síť?"
+    a: >-
+      QuickConnect, automatické nastavení routeru, přesměrované porty 5000, 5001 a 22 na
+      routeru a SSH, které zapínejte jen na dobu, kdy ho potřebujete. Výchozí účet admin
+      má být zakázaný. Zapněte naopak dvoufázové ověření pro účty správců, automatické
+      blokování a firewall s pravidlem, které povolí rozsah adres privátní sítě.
+  - q: "Jak ověřím, že NAS není dostupný z internetu?"
+    a: >-
+      Na mobilu vypněte wifi i Tailscale a z mobilních dat zkuste otevřít adresu
+      QuickConnect a veřejnou IP adresu domácnosti s portem 5001. Ani jedno nemá fungovat,
+      zatímco agent v Telegramu odpovědět má. Po zapnutí Tailscale se na adrese privátní
+      sítě má objevit přihlášení do DSM.
 sources:
   - name: "Tailscale — instalace a omezení na Synology"
     url: "https://tailscale.com/kb/1131/synology"

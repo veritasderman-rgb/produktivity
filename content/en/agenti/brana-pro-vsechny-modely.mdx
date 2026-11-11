@@ -9,6 +9,33 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   A gateway (or proxy) is a single address that all your applications send their requests to, and which only then decides where they go — to a local model, to one provider, to another. There are two main approaches: a hosted service like OpenRouter, where you run nothing and have one key to many models, or your own gateway like LiteLLM, which you run yourself and which gives you full control over data and logs. The two can be combined: your own gateway at the front, a hosted service as one of the providers at the back.
+faq:
+  - q: "What is an AI gateway and what is it for?"
+    a: >-
+      A gateway is a single address that all your applications send their requests to and
+      that routes them on to a local model or to individual providers. Only the gateway
+      knows the real provider keys; applications get their own, revocable keys. That also
+      puts budgets, limits and logs in one place.
+  - q: "What is the difference between OpenRouter and LiteLLM?"
+    a: >-
+      OpenRouter is a hosted gateway: you register, get one key to many models and run
+      nothing, but your requests pass through another company. LiteLLM is an open-source
+      proxy that you run on your own machine. Routing, keys and logs stay with you, but
+      you have to run it, update it and keep an eye on it. The two can be combined: your
+      own gateway at the front and a hosted service as one of the providers behind it.
+  - q: "How do I change the model my applications use when I have a gateway?"
+    a: >-
+      Applications call a model by a name you define in the gateway configuration and
+      don't care whether a local machine or a data centre is behind it. When you want to
+      swap the model, you rewrite one line in the configuration and nothing changes in the
+      applications.
+  - q: "What are the risks of running your own gateway?"
+    a: >-
+      The gateway is a critical point: when it goes down, everything connected to it stops
+      working. It sees every request and every response, so decide deliberately what goes
+      into the logs and where they are stored. It has access to all your keys, so keep it
+      up to date and make it reachable from outside only through a private network, not an
+      open port.
 sources:
   - name: "LiteLLM — proxy server documentation"
     url: "https://docs.litellm.ai/"

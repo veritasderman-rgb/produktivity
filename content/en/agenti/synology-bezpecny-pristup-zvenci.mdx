@@ -9,6 +9,34 @@ date: "2026-11-10"
 updated: "2026-11-10"
 tldr: >-
   The general part on the safe way home explains why a private network and not an open port. This one explains how to do it on Synology. On DSM 7, Tailscale is installed manually from the vendor's package, not from Package Center, and it needs two scheduled tasks: one for updates, the other for outbound connections after boot. Then you switch off QuickConnect, automatic port opening on the router and the SSH that stayed on after you installed the agent. You are only done when you can't reach the NAS from mobile data without Tailscale.
+faq:
+  - q: "How do I reach my Synology NAS safely when away from home?"
+    a: >-
+      Through a Tailscale private network instead of QuickConnect and forwarded ports.
+      Once it is installed and signed in with the same account as your phone and laptop,
+      the NAS gets an address of the form 100.x.y.z that only your devices can reach. The
+      agent itself needs no access from outside, because it communicates through Telegram
+      and does the asking itself.
+  - q: "Why shouldn't I install Tailscale on Synology from Package Center?"
+    a: >-
+      According to Tailscale, the version in Package Center is no longer supported and
+      does not match the current release. The right procedure is to download the .spk file
+      for your architecture from the Tailscale packages page and upload it through a
+      manual install. A package installed this way does not update itself, so it needs a
+      scheduled task running the tailscale update command.
+  - q: "What should I switch off on Synology when I use a private network?"
+    a: >-
+      QuickConnect, automatic router configuration, forwarded ports 5000, 5001 and 22 on
+      the router, and SSH, which you switch on only for as long as you need it. The
+      default admin account should be disabled. Do switch on two-factor authentication for
+      administrator accounts, Auto Block and the firewall, with a rule that allows the
+      private network's address range.
+  - q: "How do I verify that the NAS is not reachable from the internet?"
+    a: >-
+      Turn off both wifi and Tailscale on your phone and, over mobile data, try to open
+      the QuickConnect address and your household's public IP address with port 5001.
+      Neither should work, whereas the agent in Telegram should reply. With Tailscale
+      switched back on, the DSM login should appear at the private network address.
 sources:
   - name: "Tailscale — installation and limitations on Synology"
     url: "https://tailscale.com/kb/1131/synology"

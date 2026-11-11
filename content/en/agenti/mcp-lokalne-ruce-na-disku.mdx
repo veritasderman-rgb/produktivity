@@ -9,6 +9,35 @@ date: "2026-09-07"
 updated: "2026-09-07"
 tldr: >-
   MCP is the standard a model uses to talk to tools. Alongside remote connectors to cloud services there are also local servers, which run on your machine and give the model access to a folder, a database or system commands — while the data never leaves the computer. The crucial thing is scoping: give the server exactly one folder, not your home directory, and only the permissions the task needs. The setup is one configuration file, and the security rule can be summed up in a sentence: what the model can't see, it can't send out.
+faq:
+  - q: "What is a local MCP server?"
+    a: >-
+      MCP is the standard a model uses to talk to tools. A local MCP server runs on your
+      computer and gives the model access to, for example, a scoped folder, a local
+      database, a Git repository, a browser or system commands. Paired with a local model,
+      the data never leaves the computer at all; with a cloud model, only the part the
+      model asks for leaves.
+  - q: "How is a local MCP server set up?"
+    a: >-
+      The client application has a configuration file in which you list the servers it
+      should start, with the command and its arguments. For the filesystem server, the
+      last argument is the path to a folder, and the server sees nothing outside it. After
+      you restart the client, the tools for reading and writing files appear in the list
+      and the model starts using them.
+  - q: "How do I safely give AI access to files on my disk?"
+    a: >-
+      Scope the server to one folder created for the purpose, never your home directory or
+      Documents. Start with read-only access, keep files containing credentials out of the
+      folder, and work on a copy of valuable data, ideally in a folder under git version
+      control. Turn on a server for system commands last of all, and only for a defined
+      piece of work.
+  - q: "What is the main risk of a local MCP server?"
+    a: >-
+      The danger is a combination of three things in one tool: access to your files,
+      reading content written by someone else, and the ability to communicate with the
+      outside. Text in someone else's document can then give the model an instruction,
+      which the model carries out with your permissions. The defence is to remove one of
+      the three, most easily the ability to send a result out without your confirmation.
 sources:
   - name: "Model Context Protocol — specification"
     url: "https://modelcontextprotocol.io/"

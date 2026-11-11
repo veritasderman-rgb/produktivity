@@ -45,6 +45,7 @@ const T = {
     doing: (h: number) => `velký návod, provedení ~${h} h`,
     toc: "Obsah článku",
     faq: "Časté otázky",
+    sources: "Zdroje",
     copy: { copy: "Zkopírovat", copied: "Zkopírováno ✓" },
     print: "Vytisknout / uložit PDF",
     tested: "Fakta ověřena proti nástrojům",
@@ -61,6 +62,7 @@ const T = {
     doing: (h: number) => `in-depth guide, doing it ~${h} h`,
     toc: "In this article",
     faq: "Common questions",
+    sources: "Sources",
     copy: { copy: "Copy", copied: "Copied ✓" },
     print: "Print / save as PDF",
     tested: "Facts verified against the tools",
@@ -208,7 +210,7 @@ export default async function TipDetail({
   return (
     <article className="mx-auto max-w-3xl px-6 py-14">
       <ReadingProgress />
-      <JsonLd data={articleJsonLd({ locale, path: `/tipy/${tip.slug}`, title: tip.title, description: tip.excerpt, datePublished: tip.date, dateModified: reviewedIso, section: tip.category, tldr: tip.tldr })} />
+      <JsonLd data={articleJsonLd({ locale, path: `/tipy/${tip.slug}`, title: tip.title, description: tip.excerpt, datePublished: tip.date, dateModified: reviewedIso, section: tip.category, tldr: tip.tldr, citations: tip.sources })} />
       <JsonLd data={breadcrumbJsonLd(locale, [{ name: t.breadcrumb, path: "/tipy" }, { name: tip.title, path: `/tipy/${tip.slug}` }])} />
       {tip.faq && <JsonLd data={faqJsonLd(tip.faq)} />}
       {howToSteps.length > 0 && (
@@ -311,6 +313,25 @@ export default async function TipDetail({
               </details>
             ))}
           </div>
+        </section>
+      )}
+      {tip.sources && tip.sources.length > 0 && (
+        <section className="mt-10 border-t border-hairline pt-5">
+          <p className="eyebrow mb-3 text-faint">{t.sources}</p>
+          <ul className="space-y-1.5 text-[13.5px] text-muted">
+            {tip.sources.map((s) => (
+              <li key={s.url}>
+                <a
+                  href={s.url}
+                  className="border-b border-accent font-semibold hover:text-accent"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  {s.name}
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
       <Pomohlo slug={tip.slug} locale={locale} />

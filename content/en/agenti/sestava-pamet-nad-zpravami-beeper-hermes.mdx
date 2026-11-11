@@ -9,6 +9,35 @@ date: "2026-11-10"
 updated: "2026-11-10"
 tldr: >-
   Two containers run on a Synology (or on a VPS). The first holds Beeper Server — Beeper without a window, which keeps WhatsApp, Messenger, Signal and Slack in one database and offers them over MCP. The second holds Hermes Agent, which reaches into Beeper at regular intervals, writes promises and deadlines into Notion and, when asked, summarises for you in Telegram what happened in which conversation. The files for both containers are written by Claude from the prompt in this article; what's left for you is two logins in the terminal. No open port leads inside; the only path to the data is your chat with the agent. To be honest about it: the message database stays at home, but the text the agent reads goes off to the model provider for processing.
+faq:
+  - q: "How can I get AI to keep track of what I promised people in WhatsApp and other chats?"
+    a: >-
+      Two containers run on a machine that is always on, such as a Synology or a VPS.
+      Beeper Server keeps messages from WhatsApp, Messenger, Signal and Slack in one
+      database. Hermes Agent reads them on a schedule, writes commitments and their
+      deadlines into Notion and sends an overview to Telegram, where you can also ask it
+      what happened in which conversation.
+  - q: "Do my messages stay at home when the agent runs on my own NAS?"
+    a: >-
+      Only partly. The message database sits on your disk and no open port leads inside,
+      but the text the agent reads goes to the model provider for processing, the entries
+      go to Notion and the replies travel through Telegram's servers. If you need the text
+      never to leave the house, you have to use a local model and accept that it will be
+      noticeably weaker at extracting promises.
+  - q: "How do I stop the agent from sending messages on my behalf?"
+    a: >-
+      You need two safeguards at once. In the configuration you list only Beeper's read
+      tools for the agent, so it never gets the tools for sending. You also turn off
+      command and code execution, so that it cannot get round the restriction through the
+      command line. One safeguard without the other is not enough.
+  - q: "What do I need to build this setup?"
+    a: >-
+      A Synology with the Container Manager app (DSM 7.2 or later), ideally with an Intel
+      or AMD processor and at least 4 GB of memory, or a VPS. You also need a Beeper
+      account with another device already logged in, a paid Claude account to prepare the
+      containers, OpenAI (a ChatGPT subscription or an API key), OpenRouter with a small
+      amount of credit as a backup, Telegram and, optionally, Notion. Allow one afternoon
+      for the work and then about half an hour of maintenance a month.
 sources:
   - name: "Hermes Agent — running in Docker"
     url: "https://hermes-agent.nousresearch.com/docs/user-guide/docker"

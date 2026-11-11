@@ -97,6 +97,9 @@ audience: []        # pro koho hlavně: "manazer" | "student" | "vyvojar" | "fre
 keys: []            # nebo [["Win","V"]] pro zkratky
 saves: "~X min denně"
 date: "YYYY-MM-DD"  # den vydání z fronty (viz krok 5), ne dnešní datum
+sources:            # 1–3 zdroje, o které se tip opírá; zobrazí se pod článkem
+  - name: "Název stránky — vydavatel"
+    url: "https://…"
 ---
 
 Úvodní háček (1–2 věty).
@@ -129,6 +132,11 @@ minutes: 3
 **Jak to vyzkoušet ještě dnes:** kroky 1-2-3.
 ```
 
+**Zdroje jsou u nových tipů povinné.** Uveď stránky, na kterých sis fakta
+ověřil — nejlépe oficiální dokumentaci nástroje nebo původní studii, ne
+přetisk. Odkaz musí vést přímo na stránku s tvrzením a musí se otevřít.
+Zdroj, který jsi nečetl, neuváděj.
+
 V obou formátech lze používat infografiky `<Stats>`, `<Timeline>`, `<Bars>`,
 `<Flow>`, `<Matrix>`, `<Donut>` — viz existující kapitoly v `content/prirucka/`.
 Používej je střídmě a jen když nesou data.
@@ -154,6 +162,8 @@ Po rozplánování spusť skript znovu a zkontroluj, že fronta odpovídá zám�
 - `npm install && SHOW_SCHEDULED=1 npm run build` musí projít bez chyb.
   **Bez `SHOW_SCHEDULED=1` by build naplánované články vůbec nesestavil**
   a chyba v MDX by se ukázala až v den vydání.
+- Build nejdřív zkontroluje interní odkazy (`scripts/check-links.mjs`) a na
+  rozbitém odkazu skončí. Odkazuj jen na články, které v `content/` existují.
 - Diakritika, formát frontmatteru, unikátní slug.
 
 ### 7. Pull request
@@ -209,7 +219,20 @@ Ověřovací běh má vlastní týdenní rutinu — přesný postup (výběr fro
 do changelogu) je v **`docs/OVEROVANI.md`**. Zásada: `tested` se zapisuje
 **jen po skutečném ověření**, nikdy plošně skriptem.
 
-### 8c. Archiv newsletteru
+### 8c. Koncept newsletteru z fronty
+
+Každý čtvrtek krátce po půlnoci web sám připraví koncept čísla z článků
+vydaných za posledních sedm dní (`lib/newsletter-draft.ts`, spouští ho denní
+cron `/api/publikace`). Tip týdne je nejnovější tip, pod ním až čtyři další
+články. Koncept se uloží do Brevo mezi rozpracované kampaně a na adresu
+odesílatele přijde upozornění.
+
+**Nic se neodešle samo.** Číslo je potřeba v Brevo otevřít, přečíst, případně
+dopsat osobní úvod a prompt k okopírování, a odeslat ručně. Týden bez nových
+článků koncept nevytvoří. Anglické číslo vzniká jen tehdy, když mají angličtí
+odběratelé vlastní seznam (`BREVO_LIST_ID_EN`).
+
+### 8d. Archiv newsletteru
 
 Odeslaná čísla newsletteru žijí na `/newsletter/archiv`. Archiv se plní ručně
 a **jen tím, co skutečně odešlo** — nikdy dopředu a nikdy „ukázkově“; na ukázku

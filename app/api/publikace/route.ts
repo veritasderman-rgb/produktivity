@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { createDraft, DRAFT_WEEKDAY, weekdayOf } from "@/lib/newsletter-draft";
 import { todayPrague } from "@/lib/publish";
 
 /**
@@ -11,6 +12,10 @@ import { todayPrague } from "@/lib/publish";
  * všiml až s dalším deployem. Tenhle endpoint proto jednou denně krátce
  * po půlnoci označí celý web k obnově; každá stránka se pak přegeneruje
  * při první návštěvě. Volá ho Vercel Cron (vercel.json).
+ *
+ * Ve čtvrtek navíc připraví koncept týdenního newsletteru z článků vydaných
+ * za posledních sedm dní (lib/newsletter-draft.ts). Koncept se jen uloží
+ * do Brevo — odeslání zůstává na člověku. Ručně: `?newsletter=1`.
  */
 export async function GET(req: Request) {
   // Stejná autorizace jako u /api/kurz-drip.
@@ -22,5 +27,13 @@ export async function GET(req: Request) {
   }
 
   revalidatePath("/", "layout");
-  return NextResponse.json({ ok: true, today: todayPrague() });
+
+  const today = todayPrague();
+  const forced = new URL(req.url).searchParams.get("newsletter") === "1";
+  const newsletter =
+    forced || weekdayOf(today) === DRAFT_WEEKDAY
+      ? [await createDraft("cs", today), await createDraft("en", today)]
+      : undefined;
+
+  return NextResponse.json({ ok: true, today, newsletter });
 }
