@@ -8,8 +8,8 @@ slugs:
 akce: "aktualizovano"
 ---
 
-Google přejmenoval NotebookLM na Gemini Notebook už v červenci 2026 (viz naše starší záznamy). Dnešní ověřovací běh našel staré jméno ještě v návodu AI jako soukromý učitel — v pasáži o otázkové bance z vlastních poznámek a v sekci „Nejlepší nástroje". V CS i EN verzi jsme doplnili nové jméno s poznámkou o přejmenování. Princip nástroje se nemění: odpovídá jen z nahraných zdrojů a ukáže, odkud tvrzení vzal. Zbytek návodu (Projekty v Claude, hlasový režim, postup učení) sedí beze změny.
+Google přejmenoval NotebookLM na Gemini Notebook už v červenci 2026 (viz naše starší záznamy). Dnešní ověřovací běh našel staré jméno ještě v návodu AI jako soukromý učitel — v pasáži o otázkové bance z vlastních poznámek a v sekci „Nejlepší nástroje". V CS i EN verzi jsme doplnili nové jméno s poznámkou o přejmenování. Princip nástroje se nemění: odpovídá jen z nahraných zdrojů a ukáže, odkud tvrzení vzal. Projekty v Claude sedí beze změny; hlasový režim a import do Anki jsme v tomto běhu neověřovali.
 
 ---EN---
 
-Google renamed NotebookLM to Gemini Notebook back in July 2026 (see our earlier entries). Today's verification run found the old name still in the AI as a private tutor guide — in the passage on building a question bank from your own notes and in the "Best tools" section. We added the new name with a rename note in both CS and EN. The tool's principle is unchanged: it answers only from uploaded sources and shows where each claim came from. The rest of the guide (Projects in Claude, voice mode, the study workflow) holds up without changes.
+Google renamed NotebookLM to Gemini Notebook back in July 2026 (see our earlier entries). Today's verification run found the old name still in the AI as a private tutor guide — in the passage on building a question bank from your own notes and in the "Best tools" section. We added the new name with a rename note in both CS and EN. The tool's principle is unchanged: it answers only from uploaded sources and shows where each claim came from. Projects in Claude hold up without changes; voice mode and the Anki import were not verified in this run.
