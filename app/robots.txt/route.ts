@@ -7,7 +7,7 @@ import type { NextRequest } from "next/server";
 // a productive.tips) a řádek Sitemap musí ukazovat na doménu, ze které se
 // robots.txt zrovna čte. Statické `app/robots.ts` umí jen jednu URL.
 // Middleware se na /robots.txt nespouští (matcher ho vynechává), takže Host
-// čteme přímo tady — stejná logika jako v middleware.ts.
+// čteme přímo tady — stejná logika jako v proxy.ts.
 
 const EN_DOMAIN = process.env.EN_DOMAIN ?? "productive.tips";
 

@@ -8,7 +8,7 @@ import type { Locale } from "@/lib/i18n";
 // v markdownu, každý dokument s hlavičkou `# <title>` a kanonickou URL.
 //
 // Middleware se na cestách s tečkou nespouští, takže jazyk se pozná přímo
-// tady z hlavičky Host — stejná logika jako v middleware.ts:
+// tady z hlavičky Host — stejná logika jako v proxy.ts:
 // produktivni.cz → čeština, productive.tips → angličtina.
 
 const EN_DOMAIN = process.env.EN_DOMAIN ?? "productive.tips";
