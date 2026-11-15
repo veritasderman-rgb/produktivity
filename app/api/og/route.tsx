@@ -1,7 +1,5 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
-
 // Brandová OG karta: bílá plocha, klávesa P, titulek, mono štítek.
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);

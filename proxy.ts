@@ -17,7 +17,7 @@ const stripWww = (h: string) => h.replace(/^www\./, "");
 const isEnHost = (host: string) => stripWww(host) === stripWww(EN_DOMAIN);
 const isCsHost = (host: string) => stripWww(host) === stripWww(CS_DOMAIN);
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const host = req.headers.get("host") ?? "";
 
