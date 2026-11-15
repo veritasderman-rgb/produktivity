@@ -45,7 +45,12 @@ const typeHref: Record<SearchDoc["type"], string> = {
 };
 
 function normalize(s: string) {
-  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  // Spojovník pryč, ať „email“ najde „e-mail“ (a „wifi“ najde „wi-fi“).
+  return s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[-‐‑]/g, "")
+    .toLowerCase();
 }
 
 export function SearchAll({

@@ -41,6 +41,26 @@ const jetbrainsMono = JetBrains_Mono({
 /** Měřicí kód Google Analytics. Přebitelný proměnnou prostředí, ať jde vypnout bez zásahu do kódu. */
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? "G-6GPVS7CRY6";
 
+/**
+ * Výchozí stav Google Consent Mode v2. Musí proběhnout dřív, než GA dostane
+ * `config` — jinak by měřila bez souhlasu. Je idempotentní (hlídá si
+ * window.__gaConsentDefault), takže může být na stránce víckrát.
+ */
+const GA_CONSENT_DEFAULT = `window.dataLayer = window.dataLayer || [];
+window.gtag = window.gtag || function gtag(){window.dataLayer.push(arguments);};
+if (!window.__gaConsentDefault) {
+  window.__gaConsentDefault = true;
+  var granted = false;
+  try { granted = localStorage.getItem('${CONSENT_KEY}') === 'granted'; } catch (e) {}
+  window.gtag('consent', 'default', {
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    analytics_storage: granted ? 'granted' : 'denied',
+    wait_for_update: 500
+  });
+}`;
+
 export function generateStaticParams() {
   return [{ locale: "cs" }, { locale: "en" }];
 }
@@ -209,26 +229,21 @@ export default async function RootLayout({
                 žádné cookies. Dřívější volbu bereme z localStorage, ať lišta
                 neotravuje podruhé. Reklamní souhlas (ad_*) zůstává vždycky
                 denied — lišta se na reklamní účely neptá. */}
-            <Script id="ga-consent-default" strategy="beforeInteractive">
-              {`window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-window.gtag = window.gtag || gtag;
-var granted = false;
-try { granted = localStorage.getItem('${CONSENT_KEY}') === 'granted'; } catch (e) {}
-gtag('consent', 'default', {
-  ad_storage: 'denied',
-  ad_user_data: 'denied',
-  ad_personalization: 'denied',
-  analytics_storage: granted ? 'granted' : 'denied',
-  wait_for_update: 500
-});`}
-            </Script>
+            {/* Obyčejný inline <script> v HTML, ne next/script beforeInteractive:
+                ten se na stránce 404 (notFound) do HTML nedostal, výchozí
+                souhlas se nenastavil a ga4 skript spadl na „gtag is not
+                defined“. Tenhle se provede při parsování vždycky. */}
+            <script id="ga-consent-default" dangerouslySetInnerHTML={{ __html: GA_CONSENT_DEFAULT }} />
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
               strategy="afterInteractive"
             />
+            {/* Pojistka: výchozí souhlas se tu nastaví znovu, kdyby inline
+                skript výše z jakéhokoli důvodu neproběhl (je idempotentní).
+                GA tak nikdy nedostane config dřív než consent default. */}
             <Script id="ga4" strategy="afterInteractive">
-              {`gtag('js', new Date());
+              {`${GA_CONSENT_DEFAULT}
+gtag('js', new Date());
 gtag('config', '${GA_ID}');`}
             </Script>
           </>
