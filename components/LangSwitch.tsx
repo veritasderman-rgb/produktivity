@@ -3,6 +3,9 @@
 import { usePathname } from "next/navigation";
 import { getDict, type Locale } from "@/lib/i18n";
 
+/** Stránky, které existují jen česky — druhá jazyková verze vrací 404. */
+const CS_ONLY = ["/skoleni/pirati"];
+
 /** Přepínač jazyka: vede na tutéž stránku v druhém jazyce a uloží volbu do cookie. */
 export function LangSwitch({ locale }: { locale: Locale }) {
   const pathname = usePathname() ?? "/";
@@ -13,6 +16,9 @@ export function LangSwitch({ locale }: { locale: Locale }) {
   // správnou doménu (produktivni.cz ↔ productive.tips), na preview zůstávají relativní.
   const href =
     target === "en" ? `/en${bare === "/" ? "" : bare}` || "/en" : `/cs${bare === "/" ? "" : bare}` || "/cs";
+
+  // Stránka bez anglické verze: přepínač by vedl na 404, tak ho neukazujeme.
+  if (target === "en" && CS_ONLY.some((path) => bare === path || bare.startsWith(`${path}/`))) return null;
 
   return (
     <a

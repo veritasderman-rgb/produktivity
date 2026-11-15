@@ -100,7 +100,7 @@ export default async function GadgetsPage({
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                     <span className="text-[13px]">
                       <span className="eyebrow mr-2 text-faint">{t.buyAt}</span>
-                      {links.map((l, i) => (
+                      {links.map((l) => (
                         <a
                           key={l.shop}
                           href={l.affiliateUrl ?? l.url}

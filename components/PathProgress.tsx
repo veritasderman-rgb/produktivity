@@ -222,7 +222,7 @@ export function PathProgress({
                   <Link href={step.href} className="draw-link text-[17px] leading-tight font-bold">
                     {step.title}
                   </Link>
-                  <span className="eyebrow flex-none text-faint">
+                  <span className="eyebrow min-w-0 text-faint">
                     {step.kindLabel} · {step.minutes} {t.minutes}
                     {step.guideNote && <> · {step.guideNote}</>}
                   </span>

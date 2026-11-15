@@ -71,7 +71,12 @@ export function closeSearchOverlay() {
 
 /** Normalizace diakritiky — stejně jako v SearchAll, ať „príručka“ najde „příručka“. */
 function normalize(s: string) {
-  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  // Spojovník pryč, ať „email“ najde „e-mail“ (a „wifi“ najde „wi-fi“).
+  return s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[-‐‑]/g, "")
+    .toLowerCase();
 }
 
 function MagnifierIcon({ className }: { className?: string }) {

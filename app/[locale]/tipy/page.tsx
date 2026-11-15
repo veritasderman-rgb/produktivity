@@ -276,19 +276,19 @@ export default async function TipsPage({
       </div>
 
       {visible.length > 0 ? (
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((tip, i) => (
             <Fragment key={tip.slug}>
               <TipCard tip={tip} index={numberBySlug.get(tip.slug) ?? 0} locale={locale} />
               {/* Newsletter po prvních dvou řadách karet (nebo za posledním tipem,
                   když jich je míň) — dál většina čtenářů nedoscrolluje. */}
               {i === Math.min(CTA_AFTER, visible.length) - 1 && (
-                <div className="grid gap-5 border-[1.5px] border-hairline-strong bg-card p-6 sm:col-span-2 sm:grid-cols-2 sm:items-end lg:col-span-3">
-                  <div>
+                <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5 border-[1.5px] border-hairline-strong bg-card p-6 sm:col-span-2 sm:grid-cols-2 sm:items-end lg:col-span-3">
+                  <div className="min-w-0">
                     <p className="eyebrow mb-2 text-faint">{t.ctaEyebrow}</p>
                     <p className="max-w-[46ch] text-[15px] text-muted">{t.ctaDesc}</p>
                   </div>
-                  <div className="max-w-md">
+                  <div className="max-w-md min-w-0">
                     <NewsletterForm source="tipy" locale={locale} />
                   </div>
                 </div>
