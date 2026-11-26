@@ -1,0 +1,40 @@
+---
+title: "Naše Mariánky: přehled radnice, který čte veřejná PDF za občany"
+author: "Josef Pavlovic"
+role: "Bývalý zastupitel Mariánských Lázní, tým Za lepší Mariánské Lázně"
+date: "2026-12-02"
+excerpt: "Město zveřejňuje usnesení, smlouvy a úřední desku v PDF, které nikdo nečte. Malý tým s AI z nich postavil web, který je propojí a jednou týdně se sám aktualizuje."
+tools: ["Claude Code", "Vercel", "GitHub", "Hlídač státu"]
+---
+
+## Situace
+
+Mariánské Lázně, stejně jako většina obcí, zveřejňují všechno, co musí: usnesení zastupitelstva a rady, úřední desku, zpravodaj, smlouvy v registru smluv. Jenže každý zdroj leží jinde, většinou jako PDF, a nic není propojené. Kdo chtěl zjistit, jak hlasoval konkrétní zastupitel o konkrétní smlouvě a kolik pak město zaplatilo, strávil večer klikáním po pěti webech.
+
+S týmem kandidátky Za lepší Mariánské Lázně jsme si proto s AI postavili neoficiální přehled [Naše Mariánky v přehledech](https://marianky.vercel.app). Motto webu shrnuje, o co jde: „Radnice zveřejňuje. Tenhle přehled to čte za vás.“
+
+## Postup krok za krokem
+
+1. **Sepsat zdroje.** Začali jsme seznamem všeho, co město a stát o Mariánkách zveřejňují: portál usnesení města, úřední deska, zpravodaj, registr smluv přes Hlídač státu, Monitor státní pokladny, Český statistický úřad, registr ARES, geodata RÚIAN, katalog památek a otevřená volební data.
+2. **Zadat první verzi agentovi.** Web postavil Claude Code podle zadání, které jsme uložili jako soubor v repozitáři: jaké sekce, odkud data, jak je propojit. Postup od nuly je popsaný v článku [Sestava 3: dynamický web s Claudem](/agenti/sestava-dynamicky-web-s-claudem).
+3. **Propojit data.** Klíčem jsou prokliky: od zastupitele k jeho hlasování, od hlasování k usnesení a od usnesení ke smlouvě a platbám. Sekce webu: Usnesení, Hlasování, Slibník (úkoly a termíny), Jak koalice plní sliby, Peníze města, Od usnesení k penězům, Kdo sedí v jakých firmách, Mapa a Volby.
+4. **Nastavit týdenní aktualizaci.** Jednou týdně se data sama stáhnou znovu a na úvodní stránce vznikne týdenní přehled: nové smlouvy, dokumenty z úřední desky, akce, zmínky v tisku a změny na webu města.
+5. **Přiznat mezery.** Stavová tabulka ukazuje, kdy který zdroj naposledy proběhl a které kroky selhaly. Web sám uvádí, že plný dashboard by potřeboval přímý přístup do systémů města, který nemá.
+6. **Hostování.** Statický web na Vercelu, kód na GitHubu. Sledování témat se ukládá jen v prohlížeči čtenáře a nic se neposílá na server.
+
+## Co to přineslo
+
+Z rozházených PDF máme jedno místo, kde se dá dohledat, kdo o čem rozhodl a kam šly peníze. Pro opozičního zastupitele to znamená podklady k dotazům bez večerů strávených hledáním, pro občana přehled, který by mu radnice sama nedala.
+
+## Nástroje
+
+- **Claude Code** — postavil web i skripty, které data ze zdrojů sbírají.
+- **GitHub** — kód a historie změn.
+- **Vercel** — hostování statického webu zdarma.
+- **Hlídač státu** — smlouvy z registru smluv propojené přes IČO.
+
+## Na co si dát pozor
+
+- **AI čte, ale nerozhoduje.** Automatické vytěžení PDF se plete, proto u každého údaje zdroj a stavová tabulka.
+- **Žádné osobní údaje občanů.** Přehled pracuje jen s tím, co město zveřejňuje o svém hospodaření a o veřejných funkcích.
+- **Neoficiální znamená neoficiální.** Web nenahrazuje úřední desku ani registr smluv, jen je propojuje.

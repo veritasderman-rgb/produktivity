@@ -1,0 +1,110 @@
+---
+title: "Sestava 6: dashboard zastupitele ve složce"
+excerpt: "Jedna složka, jeden soubor s pravidly a jedna HTML stránka, kterou AI po každém jednání aktualizuje. Žádný server, žádná databáze — a přesto přehled o usneseních, projektech, dotazech a smlouvách, který by vám radnice sama nedala."
+track: "sestavy"
+order: 6
+tags: ["sestava", "data", "mcp", "agenti"]
+level: "zacatecnik"
+date: "2026-12-03"
+tldr: >-
+  Sestava má tři části: složku s pevnou strukturou (jednání, usnesení, rozpočet,
+  smlouvy, projekty, moje dotazy), soubor RUTINA.md, který AI říká, jak nové
+  podklady zpracovat, a dashboard.html, jednu stránku, kterou AI po každém
+  zpracování přepíše. Pracuje nad ní desktopová aplikace Claude nebo ChatGPT,
+  konektory dodají smlouvy z Hlídače státu a termíny z kalendáře. Stejný postup
+  autor webu používá jako člen správní rady velké instituce: materiály přijdou
+  e-mailem, AI je založí podle rutiny, promítne do dashboardu a člověk chodí na
+  jednání s otázkami místo se čtením.
+sources:
+  - name: "Hlídač státu MCP Server — Hlídač státu"
+    url: "https://mcp.api.hlidacstatu.cz/"
+  - name: "Zákon č. 128/2000 Sb., o obcích — Zákony pro lidi"
+    url: "https://www.zakonyprolidi.cz/cs/2000-128"
+---
+
+Zastupitel, který chce mít přehled, potřebuje vědět čtyři věci: co je na příštím jednání, která usnesení rada neplní, na co čeká odpověď a co se děje s penězi města. Žádná obec takový přehled nedává na jednom místě. Postavit si ho ale nevyžaduje programátora ani server, jen složku a pravidla, která AI přečte.
+
+## Odkud sestava pochází
+
+Postup nevznikl pro zastupitelstvo. Autor webu ho používá jako člen správní rady velké veřejné instituce: materiály chodí e-mailem zhruba deset dní před jednáním a mají stovky stran. AI je podle jednoho souboru s pravidly uloží do složky, promítne do dashboardu — jedné HTML stránky — a na jednání se chodí s otázkami, ne se čtením. Zastupitelstvo funguje stejně, jen místo e-mailu od tajemnice jsou podklady na webu obce.
+
+## Co budete potřebovat
+
+- **Desktopovou aplikaci, která umí pracovat se složkou.** Claude nebo ChatGPT na počítači, případně Claude Code či Codex. Jak se AI ke složce dostane, vysvětluje článek [Soubory z disku do chatu](/agenti/soubory-z-disku-do-chatu); na omezení přístupu jen na jednu složku je [MCP lokálně](/agenti/mcp-lokalne-ruce-na-disku).
+- **Placený plán.** Verze zdarma nemají práci nad složkou ani konektory.
+- **Konektory podle chuti.** Hlídač státu na smlouvy a firmy, kalendář na termíny, případně Piráti KB nebo jiná znalostní báze.
+
+## Krok 1: složka s pevnou strukturou
+
+AI chaos ve složkách jen znásobí. Pevnou strukturu naopak sama dodržuje a nové soubory ukládá tam, kam patří.
+
+```text
+Zastupitelstvo-[obec]/
+├── RUTINA.md            jak zpracovat nové podklady
+├── dashboard.html       přehled, který AI přepisuje
+├── jednani/
+│   └── 2026-12-15/
+│       ├── podklady/    PDF z webu obce
+│       └── vystupy/     rozbory bodů, otázky
+├── usneseni/            všechna usnesení od začátku období
+├── rozpocet/
+├── smlouvy/             výpisy z registru smluv
+├── projekty/            jeden soubor na projekt: stav, rozpočet, termín
+└── moje-dotazy/         dotazy, žádosti, odpovědi, lhůty
+```
+
+## Krok 2: RUTINA.md
+
+Soubor s pravidly, který AI přečte jako první. Napíšete ho jednou a příště stačí říct „zpracuj nové podklady podle rutiny“.
+
+```markdown
+# Rutina: zpracování podkladů k jednání
+
+1. Nové PDF ulož do jednani/RRRR-MM-DD/podklady/.
+2. Ke každému bodu napiš do vystupy/rozbor.md řádek: co se schvaluje,
+   částka, smluvní strana, termín, riziko, číslo strany.
+3. Porovnej body s usneseni/ a označ, co jim odporuje nebo je opakuje.
+4. Usnesení, která ukládají úkol radě nebo starostovi, zapiš do
+   usneseni/ukoly.md s termínem a stavem.
+5. Zkontroluj moje-dotazy/: co je po lhůtě (30 dnů u dotazu zastupitele).
+6. Přepiš dashboard.html (sekce níže). U každé položky odkaz na soubor.
+7. Nic neodesílej, nic nemaž. Co nevíš, napiš „nevím“.
+
+## Sekce dashboardu
+Příští jednání · Plnění usnesení · Moje dotazy a lhůty ·
+Projekty města · Nové smlouvy · Co se změnilo od minula
+```
+
+## Krok 3: první dashboard
+
+V aplikaci vyberte složku a zadejte:
+
+```
+Přečti RUTINA.md a zpracuj podklady v jednani/2026-12-15/podklady.
+Pak vytvoř dashboard.html: jedna stránka bez externích knihoven,
+dlaždice podle sekcí v rutině, u každé položky odkaz na zdrojový
+soubor. Data, která chybí, ukaž jako „chybí“, nevymýšlej je.
+```
+
+Dashboard je obyčejný soubor, otevře se v prohlížeči a funguje i bez internetu. Nic se nikam neposílá.
+
+## Krok 4: konektory
+
+- **Hlídač státu** dodá smlouvy obce a městských firem: „Doplň do smlouvy/ nové smlouvy [název obce] a jejích firem za poslední měsíc a označ dodatky, které zvyšují cenu.“ Připojení: v nastavení konektorů přidáte vlastní konektor s adresou `https://mcp.api.hlidacstatu.cz` a přihlásíte se účtem z hlidacstatu.cz.
+- **Kalendář** dostane termíny jednání a lhůty dotazů. Pozor na zápis: nejdřív jen čtení, zápis až po zkušenosti.
+- **Znalostní báze strany** (u Pirátů konektor Piráti KB) přidá šablony dotazů a profil obce.
+
+## Krok 5: pravidelný chod
+
+Po každém jednání zastupitelstva nebo rady: stáhnout podklady a zápis, „zpracuj podle rutiny“, projít dashboard. Kdo chce víc, nastaví rutinu, která to jednou týdně udělá sama — limity takového řešení popisuje [Agent bez serveru](/agenti/agent-bez-serveru-claude-rutiny).
+
+## Co sestava neumí a na co si dát pozor
+
+- **Není to úřední evidence.** AI z PDF vytahuje údaje s chybami. Proto odkaz u každé položky a kontrola v originále, než cokoli řeknete na jednání.
+- **Osobní údaje.** Přílohy podkladů (nájmy, žádosti o byt, dotace fyzickým osobám) obsahují osobní údaje. Do složky, se kterou pracuje AI v cloudu, je nedávejte, nebo je začerněte. Co do cloudu nepatří vůbec, shrnuje [Co nikdy neposílat do cloudu](/agenti/co-nikdy-neposilat-do-cloudu).
+- **Neveřejné materiály rady** nepatří do AI vůbec.
+- **AI nerozhoduje.** Třídí, připomíná a navrhuje otázky. Hlasujete vy.
+
+## Kam dál
+
+Až dashboard funguje a data sedí, dá se z něj udělat veřejný přehled pro občany. Jak to dopadlo v Mariánských Lázních, popisuje případovka [Naše Mariánky](/z-praxe/nase-marianky-prehled-radnice). Na rozbor jednotlivých bodů je návod [Podklady na zastupitelstvo za večer](/tipy/podklady-na-zastupitelstvo-s-ai), na dotazy a lhůty [Dotaz zastupitele, nebo žádost podle 106?](/tipy/dotaz-zastupitele-nebo-zadost-106).

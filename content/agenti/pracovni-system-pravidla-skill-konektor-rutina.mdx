@@ -1,0 +1,104 @@
+---
+title: "Pracovní systém s AI: pravidla, skill, konektor, rutina"
+excerpt: "AI, které všechno vysvětlujete v každém chatu znovu, je jen dražší vyhledávač. Čtyři stavební kameny, ze kterých se skládá systém pro kancelář: krátký soubor pravidel, zapsané postupy, napojení na zdroje a úlohy, které běží samy. Se vzorem pro kancelář poslance."
+track: "zaklady"
+order: 6
+tags: ["agenti", "rizeni", "mcp", "bezpecnost"]
+level: "zacatecnik"
+date: "2026-12-09"
+tldr: >-
+  Pracovní systém stojí na čtyřech kamenech, z nichž každý odpovídá na jinou
+  otázku. Pravidla (CLAUDE.md nebo instrukce projektu) říkají, pro koho a jak
+  AI pracuje, a platí vždy. Skill říká, jak udělat konkrétní typ úkolu, a
+  načte se jen tehdy, když ho úkol potřebuje. Konektor říká, odkud vzít data a
+  kam je uložit. Rutina říká, kdy se něco spustí samo. K tomu pevná struktura
+  složek, rozcestník, aby AI nehledala po celém disku, a zpětná smyčka: každá
+  chyba se promění v jednu novou větu v pravidlech.
+sources:
+  - name: "How Claude remembers your project (CLAUDE.md) — Claude Code Docs"
+    url: "https://code.claude.com/docs/en/memory"
+---
+
+Nejlepší přístup k nastavení AI je představit si nového kolegu, který právě nastoupil do kanceláře. Nevysvětlujete mu všechno v každém hovoru znovu. Ukážete mu složky, dáte mu pravidla a vzory a necháte ho pracovat. Přesně tohle je pracovní systém s AI — a nepotřebujete k němu umět programovat.
+
+## Čtyři stavební kameny
+
+| Pojem | Odpovídá na otázku | Kdy platí | Příklad z kanceláře poslance |
+| --- | --- | --- | --- |
+| Pravidla | Pro koho a jak pracuješ? | Vždy | Kdo je poslanec, výbory, komu se vyká, co nikdy |
+| Skill | Jak udělat tento typ úkolu? | Jen u daného úkolu | „Interpelace“: struktura, oslovení ministra, lhůta |
+| Konektor | Odkud vzít data a kam je uložit? | Když je potřeba zdroj | Hlídač státu, zákony, e-mail, kalendář |
+| Rutina | Kdy se to spustí samo? | V nastavený čas | Každé ráno nové tisky v gesci výboru |
+
+Nejčastější chyba je nacpat všechno do pravidel. Pravidla se načítají vždy a zabírají místo v kontextovém okně; dokumentace Claude Code doporučuje držet jeden soubor CLAUDE.md pod 200 řádky, protože delší soubory spotřebují víc kontextu a model se jimi řídí hůř. Podrobné postupy proto patří do skillů — jak skill vzniká a jak poznat, že se agent učí špatně, popisuje [Dovednosti agenta](/agenti/dovednosti-agenta-jak-ho-naucit-postup).
+
+## Pravidla v jednom krátkém souboru
+
+V Claude jsou to instrukce projektu, v desktopové aplikaci nebo Claude Code soubor `CLAUDE.md` ve složce. Vzor pro kancelář poslance:
+
+```markdown
+# Kancelář [titul jméno příjmení]
+
+## Pro koho pracuješ
+- [Jméno], poslanec/poslankyně za [kraj], výbory: [výčet].
+- Témata: [3–5 témat]. Výstup vždy schvaluje člověk.
+
+## Jak pracuješ
+- Nejdřív se podívej do registr.md, pak teprve hledej jinde.
+- Fakta jen ze zdrojů s odkazem. Co nevíš, napiš „nevím“.
+- U návrhů vždy přidej nejsilnější protiargument.
+- Soubory ukládej podle struktury složek, název RRRR-MM-DD_typ_tema.
+
+## Kdy načíst další soubor
+- Text za poslance: pravidla/jak-psat.md
+- Interpelace: pravidla/interpelace.md
+
+## Nikdy
+- Nic neodesílej ani nepublikuj. Výsledek je vždy koncept.
+- Žádné osobní údaje občanů. Žádná hesla a klíče do souborů.
+
+## Poučení z chyb
+- [sem přibývá jedna věta po každé chybě]
+```
+
+Do `pravidla/jak-psat.md` patří tón a hlavně **seznam zakázaných frází**: typické znaky AI textu (dlouhé pomlčky, „nejde o X, ale o Y“, „klíčový“, „v dnešní době“) i slova, která konkrétní člověk nikdy nepoužívá. Lepší než jakýkoli popis stylu je pět až deset jeho skutečných textů ve složce `vzory/`.
+
+## Pořádek ve složkách a rozcestník
+
+AI chaos ve složkách jen znásobí. Pevnou strukturu naopak dodržuje a nové soubory ukládá na správné místo:
+
+```text
+Kancelar-[prijmeni]/
+├── CLAUDE.md · registr.md · pravidla/ · vzory/
+├── tisky/[cislo]_[nazev]/
+│   ├── podklady/ · prepisy/ · vystupy/ · korespondence/
+├── vybor-[nazev]/ · interpelace/ · obcane/
+└── interni/          AI sem sahá jen na výslovný pokyn
+```
+
+**Rozcestník** (`registr.md`) je tabulka: číslo tisku, výbor, kontakt na resort, a u každé položky složka a odkaz na zdroj. AI pak nehledá po celém disku, jde rovnou na místo. Je to rychlejší, levnější a méně omylů. Jak se AI ke složce na disku vůbec dostane, vysvětluje [Soubory z disku do chatu](/agenti/soubory-z-disku-do-chatu).
+
+## Konektory a rutiny
+
+Konektory dodají data, která AI jinak hádá: smlouvy z Hlídače státu, platné znění zákonů, korespondenci z e-mailu, termíny z kalendáře. Přehled toho, co existuje, je na stránce [MCP konektory](/konektory) a v článku [Které nástroje mají MCP konektor](/tipy/mcp-konektory-nastroje). Rutiny pak spouštějí opakované úlohy samy; co zvládnou a kde končí, popisuje [Agent bez serveru](/agenti/agent-bez-serveru-claude-rutiny).
+
+## Chyba = nové pravidlo, ne nový pokus
+
+Když AI udělá chybu, neopravujte jen výstup:
+
+1. Zeptejte se: „Proč jsi to udělala a jaká jedna věta v pravidlech tomu zabrání?“
+2. Větu zkontrolujte a uložte do sekce *Poučení z chyb* nebo do příslušného souboru v `pravidla/`.
+3. Jednou měsíčně pravidla pročistěte: co se opakuje, přesuňte do skillu; co neplatí, smažte; co si odporuje, sjednoťte.
+
+Počítejte s tím, že pravidla v textu jsou kontext, ne vynucené nastavení — dokumentace Claude Code to říká výslovně. Nejdůležitější zákazy proto jistěte nastavením: konektory na e-mail jen ke konceptům, hook, který zablokuje soubor s heslem, složka `interni/` mimo dosah rutin. Proč nikdy nedávat agentovi zároveň soukromá data, cizí obsah a cestu ven, vysvětluje [Smrtící trojice agentů](/agenti/smrtici-trojice-agentu).
+
+## Jak začít
+
+- **Den 1:** sepsat pravidla (nebo je nechat napsat AI, viz níže) a založit složky.
+- **Den 2–3:** připojit dva konektory, které denně potřebujete, a nechat AI vyplnit rozcestník.
+- **Týden 1:** jeden ostrý úkol denně, výstup kontrolovat řádek po řádku, každou chybu přepsat do pravidel.
+- **Měsíc 1:** z opakovaných postupů udělat skilly, přidat první rutinu.
+
+Pravidla nemusíte psát sami. Stačí AI zadat: „Chci si nastavit pracovní systém pro kancelář [kdo]. Nejdřív se mě zeptej na deset věcí, které potřebuješ vědět (tón, oslovení, zakázané fráze, rozpracovaná témata). Pak navrhni CLAUDE.md do 50 řádků, strukturu složek a registr.md. Nic neodesílej a nemaž.“
+
+Systém nevzniká za den. Kdo ho ladí za chodu a z každé chyby udělá jedno pravidlo, má po měsíci kolegu, kterému stačí říct „rozbor tisku 327“.
