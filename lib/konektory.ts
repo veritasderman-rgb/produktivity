@@ -879,7 +879,7 @@ export const connectors: Connector[] = [
   {
     name: "Hlídač státu",
     vendor: "Hlídač státu",
-    url: "https://www.hlidacstatu.cz/napoveda/mcp",
+    url: "https://mcp.api.hlidacstatu.cz/",
     status: "oficialni",
     category: "registry",
     desc: {
@@ -889,6 +889,21 @@ export const connectors: Connector[] = [
     limit: {
       cs: "Vyžaduje účet na hlidacstatu.cz. Žebříčky navýšení smluv jsou jen pro vybrané role včetně novinářské a detailní rozpad K-indexu chce komerční licenci.",
       en: "Requires an account on hlidacstatu.cz. Contract-increase rankings are limited to selected roles including journalists, and the detailed K-index breakdown needs a commercial licence.",
+    },
+  },
+  {
+    name: "Paragrafiq",
+    vendor: "Paragrafiq",
+    url: "https://paragrafiq.cz/",
+    status: "oficialni",
+    category: "registry",
+    desc: {
+      cs: "Česká legislativa, soudní rozhodnutí, důvodové zprávy a předpisy EU. Odpovídá s odkazem na konkrétní ustanovení na paragrafiq.cz.",
+      en: "Czech legislation, court decisions, explanatory reports and EU acts. Answers link to the exact provision on paragrafiq.cz.",
+    },
+    limit: {
+      cs: "Vyžaduje účet Paragrafiq. Dotazy z Claude i ChatGPT čerpají kredity Paragrafiq, bezplatná úroveň stačí jen na pár dotazů měsíčně. Není to advokátní kancelář.",
+      en: "Requires a Paragrafiq account. Questions from Claude and ChatGPT use Paragrafiq credits, and the free tier covers only a few questions a month. It is not a law firm.",
     },
   },
   {
@@ -966,6 +981,21 @@ export const connectors: Connector[] = [
     limit: {
       cs: "Připojení schvaluje správce workspace; konektor vidí to, k čemu má přístup váš účet.",
       en: "A workspace admin approves the connection; the connector sees whatever your account can access.",
+    },
+  },
+  {
+    name: "Beeper",
+    vendor: "Beeper",
+    url: "https://developers.beeper.com/desktop-api/mcp",
+    status: "oficialni",
+    category: "komunikace",
+    desc: {
+      cs: "Zpřístupní chaty z WhatsAppu, Messengeru, Signalu a dalších sítí sjednocené v aplikaci Beeper: hledání, shrnutí, sliby a termíny ze zpráv.",
+      en: "Exposes chats from WhatsApp, Messenger, Signal and other networks unified in the Beeper app: search, summaries, promises and deadlines from messages.",
+    },
+    limit: {
+      cs: "Běží lokálně přes Beeper Desktop API, které je potřeba v nastavení aplikace zapnout. Připojíte ho do Claude Desktop, Claude Code nebo Cursoru, ne do webového chatu.",
+      en: "Runs locally through the Beeper Desktop API, which you enable in the app settings. It connects to Claude Desktop, Claude Code or Cursor, not to the web chat.",
     },
   },
   {
