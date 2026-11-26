@@ -7,7 +7,8 @@ audience: ["manazer", "vyvojar", "freelancer"]
 keys: []
 saves: "~never spending half an hour searching again"
 date: "2026-08-12"
-updated: "2026-08-12"
+updated: "2026-11-26"
+tested: "2026-11-26"
 tldr: >-
   The value of notes isn't realized when you write them but when you retrieve them — and that's exactly where most systems fail, because full-text search only finds what you remember phrasing the same way. Connecting AI to Notion or a notes folder lets you ask in your own words: what did we decide and why, summarize this client, have I solved this before. The guide runs from cleanup and permissions through query types to note hygiene and a weekly distillation of conversations back into the archive.
 faq:
@@ -26,7 +27,7 @@ faq:
   - q: "Can AI create and edit notes on its own?"
     a: >-
       No — automatic note creation litters the archive with content you've never read, and an untrusted archive is worse than none. Have notes drafted (for example via a weekly distillation of your conversations) and save them yourself. The rule: AI reads the archive, the human decides.
-  - q: "What's NotebookLM for, alongside the connector?"
+  - q: "What's Gemini Notebook (formerly NotebookLM) for, alongside the connector?"
     a: >-
       It's a second layer for closed sets of documents: it answers only from what you upload and shows a citation into the source for every answer — that's a property of the tool, not an instruction you hope holds. It suits a closed project, an agenda handover, or a one-off set of documents.
 ---
@@ -120,7 +121,7 @@ Point 4 is the safeguard. If the answer shows you something that shouldn't be th
 
 ### Obsidian or a plain folder of files
 
-Obsidian is just a folder of text files — no proprietary format, no database. That means it can be read directly. You give AI access to the folder, and from then on it works the same as with Notion, just without an internet-based permission. **Claude Cowork** (a desktop-app mode where the model sees the files in a folder and works with them without any coding) is a good fit for working over a folder, or **Claude Code** if you also want scripting and version control.
+Obsidian is just a folder of text files — no proprietary format, no database. That means it can be read directly. You give AI access to the folder, and from then on it works the same as with Notion, just without an internet-based permission. **Claude Cowork** (on paid plans; the model sees the files in a folder you connect in the Claude desktop app and works with them without any coding — the app has to stay open while it does) is a good fit for working over a folder, or **Claude Code** if you also want scripting and version control. Anthropic is gradually merging Cowork into regular chat: where the message box no longer offers a Cowork option, you ask for the same thing in an ordinary conversation.
 
 A practical note on structure: the flatter, the better. Seven levels of nested folders don't help anyone, including you. A structure that works well looks like this:
 
@@ -358,6 +359,8 @@ yourself — just prepare it for me to review.
 
 You get back a set of finished notes that you review, tweak, and paste in. The key part is the last line: **it doesn't save anything on its own.** Auto-creating notes clutters your archive with content you never read — and an untrustworthy archive is worse than no archive at all. The “leave out one-off things” filter matters just as much: without it you'll get fifty notes a week and quit doing this.
 
+The prompt assumes the model can see your earlier conversations. In Claude, searching past chats is available on paid plans only, and conversations kept in a project are searched only from inside that project — so run the distillation where the conversations happened. Without that feature, paste the conversations that matter into the prompt by hand.
+
 A similar routine can be built over meeting notes and email too, see [a weekly review with AI](/tipy/ai-tydenni-prehled); scheduled tasks are a good fit for running it automatically.
 
 ### Filling in backward: what's missing from the archive
@@ -383,18 +386,18 @@ most.
 
 Point 2 turns up the most interesting gaps: notes often refer back to an agreement that was never actually written down anywhere. Point 3, meanwhile, feeds straight into process documentation — a procedure you've done eight times and never written up is a candidate for its own checklist.
 
-## Phase 6: NotebookLM as a second layer
+## Phase 6: Gemini Notebook as a second layer
 
 A Notion connector and reading a folder handle search over a living archive. Alongside that, a second layer is useful for situations where you're working with a closed set of documents and need certainty that the answer isn't coming from anywhere else.
 
-**NotebookLM only answers from what you upload into it**, and every answer comes with a citation to a specific source. That's a different kind of guarantee than an instruction like “answer only from my notes” — there you're relying on the model sticking to the instruction; here it's a property of the tool itself. Detailed coverage in the tip on [NotebookLM and custom sources](/tipy/notebooklm-vlastni-zdroje).
+**Gemini Notebook (NotebookLM until July 2026) only answers from what you upload into it**, and every answer comes with a citation to a specific source. That's a different kind of guarantee than an instruction like “answer only from my notes” — there you're relying on the model sticking to the instruction; here it's a property of the tool itself. Detailed coverage in the tip on [NotebookLM and custom sources](/tipy/notebooklm-vlastni-zdroje).
 
 When combining both layers is worth it:
 
 - **A closed project.** Upload every document for a single engagement (brief, contract, meeting notes, delivered materials) and ask only them.
 - **Handing off responsibilities.** A set of documents plus a tool that answers from them is a better handover than a two-hour meeting.
 - **A one-off set of documents** that isn't worth loading permanently into your main system.
-- **Listening instead of reading.** NotebookLM can generate a spoken overview from your uploaded sources — useful on the way to a meeting.
+- **Listening instead of reading.** Gemini Notebook can generate a spoken overview from your uploaded sources — useful on the way to a meeting.
 
 ```text
 I've uploaded all the documents for project [name] into the
@@ -429,10 +432,10 @@ Point 6 is why this prompt is worth using even for yourself, not just when handi
 ## The best tools
 
 - **[Claude](https://claude.ai)** — a Notion connector and file reading in a shared folder; Projects for persistent instructions over your archive, and answers with a link back to the specific page or file.
-- **Claude Cowork** — a desktop-app mode for working with files without any coding; you give it access to your notes folder and it reads, sorts, and puts together overviews from inside it.
+- **Claude Cowork** — working with files without any coding, on paid plans; you connect your notes folder in the Claude desktop app and it reads, sorts, and puts together overviews from inside it.
 - **[Notion](https://notion.com)** — notes in structured databases that search well both by hand and via a connector; best suited to team archives.
 - **[Obsidian](https://obsidian.md)** — notes as plain text files in a folder; the choice when you want your data physically under your own control and no dependence on someone else's service.
-- **[NotebookLM](https://notebooklm.google.com)** — a second layer for closed sets of documents: it answers only from uploaded sources and shows a citation for every answer.
+- **[Gemini Notebook](https://notebook.google.com)** (formerly NotebookLM) — a second layer for closed sets of documents: it answers only from uploaded sources and shows a citation for every answer.
 - **Scheduled tasks (routines)** — run the weekly distillation on a schedule, so you don't have to remember to do it.
 
 ## What you get out of it
