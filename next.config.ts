@@ -16,6 +16,11 @@ const nextConfig: NextConfig = {
         source: "/ebook/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
+      {
+        // Příručka zastupitele (statické HTML a PDF v public/zastupitele): jen pro odkaz, ne pro vyhledávače.
+        source: "/zastupitele/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
     ];
   },
 };
