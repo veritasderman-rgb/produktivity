@@ -181,15 +181,22 @@ export async function createDraft(locale: Locale, day: string = todayPrague()): 
   const headers = { "api-key": apiKey, "Content-Type": "application/json" };
   const senderEmail = process.env.BREVO_SENDER_EMAIL ?? "josef@josefpavlovic.cz";
 
-  // Opakované spuštění nesmí založit druhé číslo na stejný termín.
+  // Na jeden termín a jeden seznam smí existovat jen jedno číslo — ať ho založil
+  // cron, nebo AI přes MCP s jiným názvem (docs/RUTINA.md, 8e). Shoda tedy
+  // nestojí na celém názvu, ale na seznamu a dni rozeslání: ten je buď v termínu
+  // kampaně, nebo (u konceptu bez termínu) na začátku názvu „Newsletter <den> …“.
+  type Campaign = { name: string; scheduledAt?: string; recipients?: { lists?: number[] } };
+  const sameIssue = (c: Campaign) =>
+    (c.recipients?.lists ?? []).includes(listId) &&
+    ((c.scheduledAt ?? "").startsWith(target.date) || c.name.startsWith(`Newsletter ${target.date} `));
   for (const status of ["draft", "queued"]) {
     const existing = await fetch(
       `https://api.brevo.com/v3/emailCampaigns?status=${status}&limit=50&excludeHtmlContent=true`,
       { headers },
     );
     if (!existing.ok) continue;
-    const data = (await existing.json()) as { campaigns?: { name: string }[] };
-    if (data.campaigns?.some((c) => c.name === name)) {
+    const data = (await existing.json()) as { campaigns?: Campaign[] };
+    if (data.campaigns?.some(sameIssue)) {
       return { locale, status: "skipped", reason: "číslo na tento termín už existuje" };
     }
   }
