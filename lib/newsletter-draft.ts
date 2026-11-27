@@ -1,3 +1,4 @@
+import { nextSendSlot, SEND_WEEKDAY, type SendSlot } from "@/lib/newsletter-schedule";
 import { brevoListId, type Locale } from "@/lib/optin";
 import { todayPrague } from "@/lib/publish";
 import { getTip } from "@/lib/tips";
@@ -6,11 +7,14 @@ import { feedBetween, type FeedItem } from "@/lib/whats-new";
 /**
  * Týdenní koncept newsletteru složený z fronty publikování.
  *
- * Jednou týdně (ve čtvrtek krátce po půlnoci, viz /api/publikace) vezme
- * články vydané za posledních sedm dní, sestaví z nich číslo a uloží ho
- * do Brevo jako KONCEPT kampaně. Nic se neodesílá: číslo čeká, až ho
- * člověk v Brevo zkontroluje, případně upraví a odešle. O hotovém konceptu
- * přijde krátký e-mail na adresu odesílatele.
+ * Jednou týdně (ve středu krátce po půlnoci, viz /api/publikace) vezme
+ * články vydané za posledních sedm dní, sestaví z nich číslo, uloží ho
+ * do Brevo a rovnou ho NAPLÁNUJE na pevný termín z lib/newsletter-schedule.ts
+ * (čtvrtek 8:00). Do té doby má člověk den a půl na kontrolu: v Brevo jde
+ * naplánované číslo upravit, nebo plánování zrušit. O hotovém čísle přijde
+ * krátký e-mail na adresu odesílatele.
+ *
+ * NEWSLETTER_AUTOSEND=0 vrátí staré chování: jen koncept bez termínu.
  *
  * Stavba čísla odpovídá ukázce na /newsletter/ukazka: jeden tip týdne
  * do hloubky a pod ním další články „za kliknutí“.
@@ -21,15 +25,15 @@ const SITE: Record<Locale, string> = {
   en: "https://www.productive.tips",
 };
 
-/** Den v týdnu, kdy koncept vzniká (0 = neděle … 4 = čtvrtek), v českém čase. */
-export const DRAFT_WEEKDAY = 4;
+/** Den v týdnu, kdy číslo vzniká: den před rozesláním (0 = neděle … 3 = středa), v českém čase. */
+export const DRAFT_WEEKDAY = (SEND_WEEKDAY + 6) % 7;
 const MORE_LINKS = 4;
 
 const T = {
   cs: {
     senderName: "Josef Pavlovic — Produktivní.cz",
     brand: "Produktivní.cz",
-    campaign: (day: string) => `Newsletter ${day} (CS, koncept z fronty)`,
+    campaign: (sendDate: string) => `Newsletter ${sendDate} (CS, z fronty)`,
     hello: "Dobré ráno,",
     intro: (n: number) =>
       n === 1
@@ -42,14 +46,17 @@ const T = {
     name: "Josef",
     footer: "Dostáváte tento e-mail, protože jste se přihlásili k odběru na produktivni.cz.",
     unsubscribe: "Odhlásit odběr",
-    notifySubject: (day: string) => `Koncept newsletteru ${day} čeká v Brevo`,
-    notifyBody: (subject: string, n: number) =>
-      `V Brevo je připravený koncept čísla „${subject}“ složený z ${n} článků vydaných tento týden. Nic neodešlo: otevřete Campaigns → Email → Drafts, text zkontrolujte, případně upravte a odešlete.`,
+    notifySubject: (slot: SendSlot | null) =>
+      slot ? `Newsletter odejde ${slot.label}` : `Koncept newsletteru čeká v Brevo`,
+    notifyBody: (subject: string, n: number, slot: SendSlot | null) =>
+      slot
+        ? `V Brevo je naplánované číslo „${subject}“ složené z ${n} článků vydaných tento týden. Odejde samo: ${slot.label}. Do té doby ho můžete v Brevo zkontrolovat a upravit (Campaigns → Email → Scheduled), nebo plánování zrušit.`
+        : `V Brevo je připravený koncept čísla „${subject}“ složený z ${n} článků vydaných tento týden. Nic neodešlo: otevřete Campaigns → Email → Drafts, text zkontrolujte, případně upravte a odešlete.`,
   },
   en: {
     senderName: "Josef Pavlovic — Productive",
     brand: "Productive",
-    campaign: (day: string) => `Newsletter ${day} (EN, draft from the queue)`,
+    campaign: (sendDate: string) => `Newsletter ${sendDate} (EN, from the queue)`,
     hello: "Good morning,",
     intro: (n: number) =>
       n === 1
@@ -62,9 +69,12 @@ const T = {
     name: "Josef",
     footer: "You are receiving this email because you subscribed at productive.tips.",
     unsubscribe: "Unsubscribe",
-    notifySubject: (day: string) => `Newsletter draft ${day} is waiting in Brevo`,
-    notifyBody: (subject: string, n: number) =>
-      `A draft issue “${subject}” built from ${n} articles published this week is ready in Brevo. Nothing has been sent: open Campaigns → Email → Drafts, review it, edit if needed and send.`,
+    notifySubject: (slot: SendSlot | null) =>
+      slot ? `Newsletter (EN) goes out ${slot.iso}` : `Newsletter draft (EN) is waiting in Brevo`,
+    notifyBody: (subject: string, n: number, slot: SendSlot | null) =>
+      slot
+        ? `The issue “${subject}” built from ${n} articles published this week is scheduled in Brevo and will go out on its own at ${slot.iso} (Prague time). Until then you can review and edit it (Campaigns → Email → Scheduled) or cancel the schedule.`
+        : `A draft issue “${subject}” built from ${n} articles published this week is ready in Brevo. Nothing has been sent: open Campaigns → Email → Drafts, review it, edit if needed and send.`,
   },
 };
 
@@ -143,11 +153,15 @@ export function buildIssue(locale: Locale, day: string = todayPrague()): Issue |
 }
 
 export type DraftResult =
+  | { locale: Locale; status: "scheduled"; subject: string; articles: number; scheduledAt: string }
   | { locale: Locale; status: "created"; subject: string; articles: number }
   | { locale: Locale; status: "skipped"; reason: string }
   | { locale: Locale; status: "failed"; reason: string };
 
-/** Uloží číslo do Brevo jako koncept kampaně a dá o tom vědět. Nikdy nic neodesílá odběratelům. */
+/**
+ * Uloží číslo do Brevo, naplánuje ho na pevný termín (nextSendSlot) a dá o tom
+ * vědět. Hned nic neodesílá; odběratelům číslo odejde až v naplánovaný čas.
+ */
 export async function createDraft(locale: Locale, day: string = todayPrague()): Promise<DraftResult> {
   const apiKey = process.env.BREVO_API_KEY;
   const listId = brevoListId(locale);
@@ -161,19 +175,22 @@ export async function createDraft(locale: Locale, day: string = todayPrague()): 
   if (!issue) return { locale, status: "skipped", reason: "tento týden nic nevyšlo" };
 
   const t = T[locale];
-  const name = t.campaign(day);
+  const target = nextSendSlot();
+  const slot = process.env.NEWSLETTER_AUTOSEND === "0" ? null : target;
+  const name = t.campaign(target.date);
   const headers = { "api-key": apiKey, "Content-Type": "application/json" };
   const senderEmail = process.env.BREVO_SENDER_EMAIL ?? "josef@josefpavlovic.cz";
 
-  // Opakované spuštění téhož dne nesmí založit druhý koncept.
-  const existing = await fetch(
-    "https://api.brevo.com/v3/emailCampaigns?status=draft&limit=50&excludeHtmlContent=true",
-    { headers },
-  );
-  if (existing.ok) {
+  // Opakované spuštění nesmí založit druhé číslo na stejný termín.
+  for (const status of ["draft", "queued"]) {
+    const existing = await fetch(
+      `https://api.brevo.com/v3/emailCampaigns?status=${status}&limit=50&excludeHtmlContent=true`,
+      { headers },
+    );
+    if (!existing.ok) continue;
     const data = (await existing.json()) as { campaigns?: { name: string }[] };
     if (data.campaigns?.some((c) => c.name === name)) {
-      return { locale, status: "skipped", reason: "koncept už existuje" };
+      return { locale, status: "skipped", reason: "číslo na tento termín už existuje" };
     }
   }
 
@@ -187,6 +204,7 @@ export async function createDraft(locale: Locale, day: string = todayPrague()): 
       sender: { name: t.senderName, email: senderEmail },
       htmlContent: issue.html,
       recipients: { listIds: [listId] },
+      ...(slot ? { scheduledAt: slot.iso } : {}),
     }),
   });
   if (!res.ok) {
@@ -203,13 +221,15 @@ export async function createDraft(locale: Locale, day: string = todayPrague()): 
       body: JSON.stringify({
         sender: { name: t.senderName, email: senderEmail },
         to: [{ email: senderEmail }],
-        subject: t.notifySubject(day),
-        textContent: t.notifyBody(issue.subject, issue.items.length),
+        subject: t.notifySubject(slot),
+        textContent: t.notifyBody(issue.subject, issue.items.length, slot),
       }),
     });
   } catch (e) {
     console.error("Newsletter draft notification failed:", e);
   }
 
-  return { locale, status: "created", subject: issue.subject, articles: issue.items.length };
+  return slot
+    ? { locale, status: "scheduled", subject: issue.subject, articles: issue.items.length, scheduledAt: slot.iso }
+    : { locale, status: "created", subject: issue.subject, articles: issue.items.length };
 }
