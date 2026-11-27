@@ -219,18 +219,26 @@ Ověřovací běh má vlastní týdenní rutinu — přesný postup (výběr fro
 do changelogu) je v **`docs/OVEROVANI.md`**. Zásada: `tested` se zapisuje
 **jen po skutečném ověření**, nikdy plošně skriptem.
 
-### 8c. Koncept newsletteru z fronty
+### 8c. Newsletter z fronty — pevný termín
 
-Každý čtvrtek krátce po půlnoci web sám připraví koncept čísla z článků
-vydaných za posledních sedm dní (`lib/newsletter-draft.ts`, spouští ho denní
-cron `/api/publikace`). Tip týdne je nejnovější tip, pod ním až čtyři další
-články. Koncept se uloží do Brevo mezi rozpracované kampaně a na adresu
-odesílatele přijde upozornění.
+**Každé číslo odchází ve stejný čas: ve čtvrtek v 8:00 českého času.** Termín
+je definovaný na jediném místě, v `lib/newsletter-schedule.ts` (`SEND_WEEKDAY`,
+`SEND_TIME`). Kdo ho chce změnit, změní ho tam a upraví texty na webu,
+které slibují „každý čtvrtek ráno“ (`/newsletter`, `/newsletter/ukazka`,
+`/newsletter/archiv`).
 
-**Nic se neodešle samo.** Číslo je potřeba v Brevo otevřít, přečíst, případně
-dopsat osobní úvod a prompt k okopírování, a odeslat ručně. Týden bez nových
-článků koncept nevytvoří. Anglické číslo vzniká jen tehdy, když mají angličtí
-odběratelé vlastní seznam (`BREVO_LIST_ID_EN`).
+Ve středu krátce po půlnoci web sám sestaví číslo z článků vydaných
+za posledních sedm dní (`lib/newsletter-draft.ts`, spouští ho denní cron
+`/api/publikace`). Tip týdne je nejnovější tip, pod ním až čtyři další
+články. Číslo se uloží do Brevo **rovnou naplánované** na nejbližší čtvrtek
+8:00 a na adresu odesílatele přijde upozornění s termínem.
+
+Do odeslání zbývá zhruba den a půl. V Brevo (Campaigns → Email → Scheduled)
+jde číslo otevřít, dopsat osobní úvod a prompt k okopírování, nebo plánování
+zrušit. Termín přitom neměňte. Týden bez nových článků číslo nevytvoří.
+Anglické číslo vzniká jen tehdy, když mají angličtí odběratelé vlastní
+seznam (`BREVO_LIST_ID_EN`). Proměnná `NEWSLETTER_AUTOSEND=0` ve Vercelu
+vrátí staré chování: jen koncept bez termínu, odeslání ručně.
 
 ### 8d. Archiv newsletteru
 
@@ -256,6 +264,42 @@ Tělo čísla v markdownu, přesně jak odešlo.
 Slug volte podle tématu, ne podle čísla (`zapis-z-porady-za-minutu`, ne
 `cislo-12`) — adresa pak dává smysl i po letech. Archiv, sitemapa i `/llms.txt`
 se doplní samy; nic dalšího se nastavovat nemusí.
+
+### 8e. Newsletter vložený přes MCP (Brevo konektor)
+
+Když číslo píše AI (Claude, rutina, kdokoli s konektorem Brevo) místo cronu,
+platí stejný pevný termín: **čtvrtek 8:00 českého času**. Termín si nepočítej
+z hlavy ani nepřepočítávej mezi letním a zimním časem. Postup:
+
+1. **Termín:** `node scripts/newsletter-slot.mjs --json`. Vrátí nejbližší
+   čtvrtek 8:00, který je aspoň hodinu dopředu, např.
+   `{"date":"2026-12-03","iso":"2026-12-03T08:00:00+01:00",…}`. Hodnotu
+   `iso` použij beze změny. Bez přístupu k repu platí: nejbližší čtvrtek,
+   `T08:00:00+01:00` v zimním čase, `T08:00:00+02:00` v letním.
+2. **Kontrola duplicit:** `email_campaign_management_get_email_campaigns`
+   se `status=queued` a `status=draft` (`excludeHtmlContent: true`). Když už
+   na ten den existuje kampaň `Newsletter <date> …` pro stejný seznam,
+   novou nezakládej a uprav tu existující.
+3. **Založení:** `email_campaign_management_create_email_campaign` jako
+   koncept (Brevo nástroj při založení `scheduledAt` nepřijímá):
+   - `name`: `Newsletter <date> (CS, <téma>)` — `<date>` je den rozeslání
+     z kroku 1, ne den psaní;
+   - `sender`: `{"name": "Josef Pavlovic — Produktivní.cz", "email": "josef@josefpavlovic.cz"}`;
+   - `recipients`: `{"listIds": [6]}` — seznam Produktivní.cz (ověř přes
+     `lists_get_lists`, ať číslo neodejde na HSPA ani LepšíML);
+   - `subject`, `previewText`, `htmlContent` (patička s `{{ unsubscribe }}`).
+4. **Naplánování:** `email_campaign_management_update_email_campaign`
+   s `campaignId` z kroku 3 a `scheduledAt` = `iso` z kroku 1. Nikdy
+   `sendAtBestTime`, nikdy „odeslat hned“, nikdy jiný čas.
+5. **Ověření:** `email_campaign_management_get_email_campaign` — stav musí být
+   `queued` a `scheduledAt` musí odpovídat termínu z kroku 1 (Brevo ho vrací
+   v českém posunu, např. `2026-12-03T08:00:00.000+01:00`). Když nesedí,
+   oprav ho dalším `update` a teprve pak hlas hotovo.
+6. **Zpráva:** napiš název kampaně, předmět a termín lidsky
+   („odejde ve čtvrtek 3. 12. v 8:00“) a že do té doby jde v Brevo upravit
+   nebo zrušit.
+
+Archiv (`content/newsletter/`) se plní až **po** odeslání, viz 8d.
 
 ### 9. Limity
 

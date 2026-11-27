@@ -13,9 +13,10 @@ import { todayPrague } from "@/lib/publish";
  * po půlnoci označí celý web k obnově; každá stránka se pak přegeneruje
  * při první návštěvě. Volá ho Vercel Cron (vercel.json).
  *
- * Ve čtvrtek navíc připraví koncept týdenního newsletteru z článků vydaných
- * za posledních sedm dní (lib/newsletter-draft.ts). Koncept se jen uloží
- * do Brevo — odeslání zůstává na člověku. Ručně: `?newsletter=1`.
+ * Ve středu navíc připraví týdenní newsletter z článků vydaných za posledních
+ * sedm dní (lib/newsletter-draft.ts) a v Brevo ho naplánuje na pevný termín
+ * z lib/newsletter-schedule.ts (čtvrtek 8:00). Do té doby jde číslo v Brevo
+ * upravit nebo plánování zrušit. Ručně: `?newsletter=1`.
  */
 export async function GET(req: Request) {
   // Stejná autorizace jako u /api/kurz-drip.
